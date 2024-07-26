@@ -45,7 +45,8 @@ onMount(async () => {
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-10">
-      <p class="text-2xl font-bold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
+      <p
+        class="text-2xl font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
         Settings
       </p>
     </div>

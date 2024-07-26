@@ -36,18 +36,17 @@ function click(): void {
 <a class="no-underline" href={href} aria-label={title} on:click={click}>
   <div
     class="flex w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px]"
-    class:text-white={selected}
     class:pl-3={!child}
     class:pl-6={child}
     class:leading-none={child}
     class:text-lg={!child}
-    class:font-semibold={!child}
+    class:font-medium={!child}
     class:bg-[var(--pd-secondary-nav-selected-bg)]={selected}
     class:border-[var(--pd-secondary-nav-bg)]={!selected}
     class:border-[var(--pd-secondary-nav-selected-highlight)]={selected}
     class:text-[color:var(--pd-secondary-nav-text-selected)]={selected}
     class:text-[color:var(--pd-secondary-nav-text)]={!selected}
-    class:hover:[color:var(--pd-secondary-nav-text-hover)]={!selected}
+    class:hover:text-[color:var(--pd-secondary-nav-text-hover)]={!selected}
     class:hover:bg-[var(--pd-secondary-nav-text-hover-bg)]={!selected}
     class:hover:border-[var(--pd-secondary-nav-text-hover-bg)]={!selected}>
     <span class="group-hover:block flex flex-row items-center" class:capitalize={!child}>
@@ -57,7 +56,7 @@ function click(): void {
       {title}
     </span>
     {#if section}
-      <div class="px-2 relative w-4 h-4 [color:var(--pd-secondary-nav-expander)]">
+      <div class="px-2 relative w-4 h-4 text-[color:var(--pd-secondary-nav-expander)]">
         {#if expanded}
           <i
             class="fas fa-angle-down text-lg absolute left-0 top-0"

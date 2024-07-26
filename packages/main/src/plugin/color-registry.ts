@@ -295,7 +295,7 @@ export class ColorRegistry {
     });
     this.registerColor(`${glNav}icon-inset-bg`, {
       dark: colorPalette.charcoal[800],
-      light: colorPalette.dustypurple[200],
+      light: colorPalette.gray[300],
     });
     this.registerColor(`${glNav}icon-selected`, {
       dark: colorPalette.white,
@@ -303,7 +303,7 @@ export class ColorRegistry {
     });
     this.registerColor(`${glNav}icon-selected-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.purple[300],
+      light: colorPalette.gray[300],
     });
     this.registerColor(`${glNav}icon-selected-highlight`, {
       dark: colorPalette.purple[500],
@@ -334,7 +334,7 @@ export class ColorRegistry {
 
     this.registerColor(`${sNav}bg`, {
       dark: colorPalette.charcoal[700],
-      light: colorPalette.dustypurple[100],
+      light: colorPalette.gray[100],
     });
 
     this.registerColor(`${sNav}header-text`, {
@@ -359,12 +359,12 @@ export class ColorRegistry {
 
     this.registerColor(`${sNav}text-selected`, {
       dark: colorPalette.white,
-      light: colorPalette.purple[800],
+      light: colorPalette.black,
     });
 
     this.registerColor(`${sNav}selected-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.purple[300],
+      light: colorPalette.gray[300],
     });
 
     this.registerColor(`${sNav}selected-highlight`, {
@@ -399,7 +399,7 @@ export class ColorRegistry {
     const invCt = 'invert-content-';
     this.registerColor(`${invCt}bg`, {
       dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[50],
+      light: colorPalette.gray[25],
     });
 
     this.registerColor(`${invCt}header-text`, {
@@ -414,7 +414,7 @@ export class ColorRegistry {
 
     this.registerColor(`${invCt}card-bg`, {
       dark: colorPalette.charcoal[600],
-      light: colorPalette.gray[300],
+      light: colorPalette.gray[100],
     });
 
     this.registerColor(`${invCt}card-header-text`, {
@@ -482,12 +482,12 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-bg`, {
       dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[50],
+      light: colorPalette.gray[25],
     });
 
     this.registerColor(`${ct}card-hover-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.purple[200],
+      light: colorPalette.gray[300],
     });
 
     this.registerColor(`${ct}card-selected-bg`, {
@@ -522,7 +522,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}bg`, {
       dark: colorPalette.charcoal[700],
-      light: colorPalette.gray[300],
+      light: colorPalette.gray[100],
     });
 
     this.registerColor(`${ct}card-icon`, {
@@ -537,12 +537,12 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-carousel-card-bg`, {
       dark: colorPalette.charcoal[600],
-      light: colorPalette.gray[300],
+      light: colorPalette.gray[200],
     });
 
     this.registerColor(`${ct}card-carousel-card-hover-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.gray[200],
+      light: colorPalette.gray[100],
     });
 
     this.registerColor(`${ct}card-carousel-card-header-text`, {
@@ -557,12 +557,12 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-carousel-nav`, {
       dark: colorPalette.gray[800],
-      light: colorPalette.gray[400],
+      light: colorPalette.gray[300],
     });
 
     this.registerColor(`${ct}card-carousel-hover-nav`, {
       dark: colorPalette.gray[600],
-      light: colorPalette.gray[600],
+      light: colorPalette.gray[500],
     });
 
     this.registerColor(`${ct}card-carousel-disabled-nav`, {

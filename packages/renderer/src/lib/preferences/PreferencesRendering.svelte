@@ -77,7 +77,7 @@ function updateSearchValue(event: any) {
           {@const records = matchingRecords.get(configSection)}
           {#if records}
             <div>
-              <div class="text-lg font-semibold first-letter:uppercase">{records.at(0)?.title}</div>
+              <div class="text-lg font-medium first-letter:uppercase">{records.at(0)?.title}</div>
               {#each records as configItem}
                 <div class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2">
                   <PreferencesRenderingItem record={configItem} />
