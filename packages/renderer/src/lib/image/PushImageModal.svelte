@@ -8,6 +8,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import Dialog from '../dialogs/Dialog.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
@@ -49,7 +50,7 @@ async function initTerminal() {
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
-  logsPush = new Terminal({ fontSize, lineHeight, disableStdin: true });
+  logsPush = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme() });
   const fitAddon = new FitAddon();
   logsPush.loadAddon(fitAddon);
 

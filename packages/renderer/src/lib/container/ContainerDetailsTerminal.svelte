@@ -10,7 +10,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { getExistingTerminal, registerTerminal } from '/@/stores/container-terminal-store';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { getPanelDetailColor } from '../color/color';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
@@ -100,9 +100,7 @@ async function refreshTerminal() {
       fontSize,
       lineHeight,
       screenReaderMode,
-      theme: {
-        background: getPanelDetailColor(),
-      },
+      theme: getTerminalTheme(),
     });
   }
 
