@@ -1423,13 +1423,7 @@ export class ContainerProviderRegistry {
       }, {});
 
       // build create container configuration
-      const originalConfiguration = {
-        command: containerToReplicate.Config.Cmd,
-        entrypoint: containerToReplicate.Config.Entrypoint,
-        env: updatedEnv,
-        image: containerToReplicate.Config.Image,
-        mounts: containerToReplicate.Mounts,
-      };
+      const originalConfiguration = this.getCreateContainsOptionsFromOriginal(containerToReplicate, updatedEnv);
 
       // add extra information
       const configuration: ContainerCreateOptions = {
@@ -1443,6 +1437,30 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService.track('replicatePodmanContainer', telemetryOptions);
     }
+  }
+
+  /**
+   * @see https://github.com/containers/podman/issues/23337#issuecomment-2238704510
+   * @param containerToReplicate
+   * @param updatedEnv
+   * @private
+   */
+  private getCreateContainsOptionsFromOriginal(
+    containerToReplicate: ContainerInspectInfo,
+    updatedEnv: { [p: string]: string },
+  ): Record<string, unknown> {
+    return {
+      command: containerToReplicate.Config.Cmd,
+      entrypoint: containerToReplicate.Config.Entrypoint,
+      env: updatedEnv,
+      image: containerToReplicate.Config.Image,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mounts: containerToReplicate.Mounts.filter(mount => (mount as any).Type !== 'volume'),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      volumes: containerToReplicate.Mounts.filter(mount => (mount as any).Type === 'volume').map(mount => {
+        return { Name: mount.Name, Dest: mount.Destination };
+      }),
+    };
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {

@@ -132,6 +132,14 @@ export interface ContainerCreateNetNSOption {
   value?: string;
 }
 
+export interface ContainerCreateNamedVolume {
+  Name: string;
+  Dest: string;
+  Options?: Array<string>;
+  IsAnonymous?: boolean;
+  SubPath?: string;
+}
+
 export interface ContainerCreateOptions {
   command?: string[];
   entrypoint?: string | string[];
@@ -160,6 +168,7 @@ export interface ContainerCreateOptions {
   dns_server?: Array<Array<number>>;
   hostadd?: Array<string>;
   userns?: string;
+  volumes?: Array<ContainerCreateNamedVolume>;
 }
 
 export interface PodRemoveOptions {
