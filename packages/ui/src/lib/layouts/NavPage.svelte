@@ -6,7 +6,7 @@ export let searchTerm = '';
 export let searchEnabled = true;
 </script>
 
-<div class="flex flex-col w-full h-full shadow-pageheader">
+<div class="flex flex-col w-full h-full">
   <div class="flex flex-col w-full h-full pt-4" role="region" aria-label={title}>
     <div class="flex pb-2" role="region" aria-label="header">
       <div class="px-5">

@@ -281,6 +281,10 @@ export class ColorRegistry {
       dark: colorPalette.charcoal[600],
       light: colorPalette.gray[100],
     });
+    this.registerColor(`${glNav}bg-border`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[300],
+    });
     this.registerColor(`${glNav}icon`, {
       dark: colorPalette.gray[600],
       light: colorPalette.charcoal[200],
