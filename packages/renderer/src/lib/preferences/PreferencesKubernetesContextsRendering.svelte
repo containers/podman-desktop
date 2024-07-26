@@ -1,6 +1,8 @@
 <script lang="ts">
 import { faRightToBracket, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
+import { router } from 'tinro';
 
 import { kubernetesContextsCheckingState, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
@@ -14,6 +16,21 @@ $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
 let previousState = new Map<string, 'waiting' | 'checking' | 'gaveup'>();
 let checkingCount = new Map<string, number>();
+let kubeconfigFilePath: string = '';
+
+onMount(async () => {
+  try {
+    const val: string | undefined = await window.getConfigurationValue('kubernetes.Kubeconfig');
+    if (val !== undefined) {
+      kubeconfigFilePath = val;
+    } else {
+      kubeconfigFilePath = 'Default is usually ~/.kube/config';
+    }
+  } catch (error) {
+    kubeconfigFilePath = 'Default is usually ~/.kube/config';
+  }
+});
+
 $: {
   for (const [context, state] of $kubernetesContextsCheckingState) {
     if (!previousState.has(context) || previousState.get(context) !== state.state) {
@@ -74,8 +91,16 @@ async function handleDeleteContext(contextName: string) {
       aria-label="No Resource Panel"
       icon={EngineIcon}
       title="No Kubernetes contexts found"
-      message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
-      hidden={$kubernetesContexts.length > 0} />
+      message="Check that Kubernetes context is created and selected. You can create local Kubernetes cluster from Podman Desktop. Path to the Kubeconfig file for accessing clusters: {kubeconfigFilePath}"
+      hidden={$kubernetesContexts.length > 0}>
+      <Button
+        class="py-3"
+        on:click={() => {
+          router.goto('/preferences/resources');
+        }}>
+        Go to Resources
+      </Button>
+    </EmptyScreen>
     {#each $kubernetesContexts as context}
       <!-- If current context, use lighter background -->
       <div
