@@ -76,7 +76,18 @@ describe('Image workflow verification', async () => {
     playExpect(exists, `${helloContainer} image not present in the list of images`).toBeTruthy();
     playExpect(await updatedImages.getCurrentStatusOfImage(helloContainer)).toBe('UNUSED');
   });
+  test('Test navigation between pages', async () => {
+    const imagesPage = await navBar.openImages();
+    const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
+    await playExpect(imageDetailPage.heading).toBeVisible();
+    await imageDetailPage.backLink.click();
+    await playExpect(imagesPage.heading).toBeVisible();
 
+    await imagesPage.openImageDetails(helloContainer);
+    await playExpect(imageDetailPage.heading).toBeVisible();
+    await imageDetailPage.closeButton.click();
+    await playExpect(imagesPage.heading).toBeVisible();
+  });
   test('Check image details', async () => {
     const imagesPage = await navBar.openImages();
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
