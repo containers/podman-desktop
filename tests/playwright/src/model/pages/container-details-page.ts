@@ -21,15 +21,10 @@ import { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { ContainerState } from '../core/states';
-import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
+import { DetailsPage } from './details-page';
 
-export class ContainerDetailsPage extends BasePage {
-  readonly labelName: Locator;
-  readonly heading: Locator;
-  readonly closeLink: Locator;
-  readonly backToContainersLink: Locator;
-  readonly containerName: string;
+export class ContainerDetailsPage extends DetailsPage {
   readonly stopButton: Locator;
   readonly deleteButton: Locator;
 
@@ -40,25 +35,14 @@ export class ContainerDetailsPage extends BasePage {
   static readonly INSPECT_TAB = 'Inspect';
 
   constructor(page: Page, name: string) {
-    super(page);
-    this.containerName = name;
-    this.labelName = page.getByLabel('name').and(page.getByText('Container Details'));
-    this.heading = page.getByRole('heading', { name: this.containerName });
-    this.closeLink = page.getByRole('link', { name: 'Close Details' });
-    this.backToContainersLink = page.getByRole('link', { name: 'Go back to Containers' });
-    this.stopButton = this.page.getByRole('button').and(this.page.getByLabel('Stop Container'));
-    this.deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Container'));
-  }
-
-  async activateTab(tabName: string): Promise<void> {
-    const tabItem = this.page.getByRole('link', { name: tabName, exact: true });
-    await playExpect(tabItem).toBeVisible();
-    await tabItem.click();
+    super(page, name);
+    this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
+    this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
   }
 
   async getStateLocator(): Promise<Locator> {
     await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
-    const summaryTable = this.getPage().getByRole('table');
+    const summaryTable = this.tabContent.getByRole('table');
     const stateRow = summaryTable.locator('tr:has-text("State")');
     const stateCell = stateRow.getByRole('cell').nth(1);
     await playExpect(stateCell).toBeVisible();
@@ -93,7 +77,7 @@ export class ContainerDetailsPage extends BasePage {
 
   async getContainerPort(): Promise<string> {
     await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
-    const summaryTable = this.getPage().getByRole('table');
+    const summaryTable = this.tabContent.getByRole('table');
     const portsRow = summaryTable.locator('tr:has-text("Ports")');
     const portsCell = portsRow.getByRole('cell').nth(1);
     await playExpect(portsCell).toBeVisible();

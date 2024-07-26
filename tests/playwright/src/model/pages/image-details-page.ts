@@ -21,23 +21,18 @@ import { expect as playExpect } from '@playwright/test';
 
 import type { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
 import { handleConfirmationDialog } from '../../utility/operations';
-import { BasePage } from './base-page';
+import { DetailsPage } from './details-page';
 import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
 import { RunImagePage } from './run-image-page';
 
-export class ImageDetailsPage extends BasePage {
-  readonly name: Locator;
-  readonly imageName: string;
-  readonly heading: Locator;
+export class ImageDetailsPage extends DetailsPage {
   readonly runImageButton: Locator;
   readonly deleteButton: Locator;
   readonly editButton: Locator;
   readonly summaryTab: Locator;
   readonly historyTab: Locator;
   readonly inspectTab: Locator;
-  readonly closeLink: Locator;
-  readonly backToImagesLink: Locator;
   readonly actionsButton: Locator;
   readonly buildDiskImageButton: Locator;
   readonly saveImagebutton: Locator;
@@ -46,21 +41,16 @@ export class ImageDetailsPage extends BasePage {
   readonly browseButton: Locator;
 
   constructor(page: Page, name: string) {
-    super(page);
-    this.name = page.getByLabel('name').and(page.getByText('Image Details'));
-    this.imageName = name;
-    this.heading = page.getByRole('heading', { name: this.imageName });
-    this.runImageButton = page.getByRole('button', { name: 'Run Image' });
-    this.deleteButton = page.getByRole('button', { name: 'Delete Image' });
-    this.editButton = page.getByRole('button', { name: 'Edit Image' });
-    this.summaryTab = page.getByText('Summary');
-    this.historyTab = page.getByText('History');
-    this.inspectTab = page.getByText('Inspect');
-    this.closeLink = page.getByRole('link', { name: 'Close Details' });
-    this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
+    super(page, name);
+    this.runImageButton = this.controlActions.getByRole('button', { name: 'Run Image' });
+    this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete Image' });
+    this.editButton = this.controlActions.getByRole('button', { name: 'Edit Image' });
+    this.summaryTab = this.tabs.getByText('Summary');
+    this.historyTab = this.tabs.getByText('History');
+    this.inspectTab = this.tabs.getByText('Inspect');
     this.actionsButton = page.getByRole('button', { name: 'kebab menu' });
     this.buildDiskImageButton = page.getByTitle('Build Disk Image');
-    this.saveImagebutton = page.getByRole('button', { name: 'Save Image', exact: true });
+    this.saveImagebutton = this.controlActions.getByRole('button', { name: 'Save Image', exact: true });
     this.saveImageInput = page.locator('#input-output-directory');
     this.confirmSaveImages = page.getByLabel('Save images', { exact: true });
     this.browseButton = page.getByLabel('Select output folder');
@@ -69,13 +59,13 @@ export class ImageDetailsPage extends BasePage {
   async openRunImage(): Promise<RunImagePage> {
     await playExpect(this.runImageButton).toBeEnabled({ timeout: 30000 });
     await this.runImageButton.click();
-    return new RunImagePage(this.page, this.imageName);
+    return new RunImagePage(this.page, this.resourceName);
   }
 
   async openEditImage(): Promise<ImageEditPage> {
     await playExpect(this.editButton).toBeEnabled({ timeout: 30000 });
     await this.editButton.click();
-    return new ImageEditPage(this.page, this.imageName);
+    return new ImageEditPage(this.page, this.resourceName);
   }
 
   async deleteImage(): Promise<ImagesPage> {
