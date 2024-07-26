@@ -88,7 +88,7 @@ function updateImages(globalContext: ContextUI) {
   });
 
   images = computedImages;
-  if (imageEngineId !== '') {
+  if (imageEngineId) {
     images = images.filter(image => image.engineId === imageEngineId);
   }
 
