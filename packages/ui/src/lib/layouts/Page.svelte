@@ -37,7 +37,7 @@ function handleKeydown(e: KeyboardEvent): void {
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="flex flex-col w-full h-full shadow-pageheader bg-[var(--pd-content-bg)]">
-  <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
+  <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2" aria-label="Header" role="region">
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
         <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
@@ -47,7 +47,7 @@ function handleKeydown(e: KeyboardEvent): void {
           {/if}
           {#if breadcrumbRightPart}
             <div class="mx-2">&gt;</div>
-            <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
+            <div class="grow font-extralight" aria-label="name" role="navigation">{breadcrumbRightPart}</div>
           {/if}
           {#if hasClose}
             <CloseButton class="justify-self-end text-lg" on:click={onclose} />
@@ -76,7 +76,7 @@ function handleKeydown(e: KeyboardEvent): void {
           </div>
         </div>
         <div class="flex flex-col">
-          <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
+          <div class="flex flex-nowrap justify-self-end pl-3 space-x-2" aria-label="Control Actions" role="group">
             <slot name="actions" />
           </div>
           <div class="relative">
@@ -94,8 +94,10 @@ function handleKeydown(e: KeyboardEvent): void {
   {#if inProgress}
     <LinearProgress />
   {/if}
-  <slot name="tabs" />
-  <div class="h-full min-h-0">
+  <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]" aria-label="Tabs" role="region">
+    <slot name="tabs" />
+  </div>
+  <div class="h-full min-h-0" aria-label="Tab Content" role="region">
     <slot name="content" />
   </div>
 </div>
