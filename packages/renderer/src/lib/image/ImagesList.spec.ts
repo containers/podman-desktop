@@ -196,7 +196,7 @@ test('Expect filter empty screen', async () => {
   expect(filterButton).toBeInTheDocument();
 });
 
-test('Expect two images in list given image id and engin id', async () => {
+test('Expect two images in list given image id and engine id', async () => {
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
