@@ -27,9 +27,10 @@ export abstract class DetailsPage extends BasePage {
   readonly controlActions: Locator;
   readonly closeButton: Locator;
   readonly backLink: Locator;
-  readonly labelName: Locator;
+  readonly pageName: Locator;
   readonly resourceName: string;
   readonly heading: Locator;
+  readonly breadcrumb: Locator;
 
   constructor(page: Page, resourceName: string) {
     super(page);
@@ -38,11 +39,12 @@ export abstract class DetailsPage extends BasePage {
     this.tabContent = page.getByRole('region', { name: 'Tab Content' });
     this.header = page.getByRole('region', { name: 'Header' });
     this.tabs = page.getByRole('region', { name: 'Tabs' });
+    this.breadcrumb = this.header.getByRole('navigation', { name: 'Breadcrumb' });
     this.controlActions = this.header.getByRole('group', { name: 'Control Actions' });
-    this.closeButton = this.header.getByRole('button', { name: 'Close' });
-    this.backLink = this.header.getByRole('link', { name: 'back' });
-    this.labelName = this.header.getByRole('navigation', { name: 'name' });
     this.heading = this.header.getByRole('heading', { name: this.resourceName });
+    this.closeButton = this.breadcrumb.getByRole('button', { name: 'Close' });
+    this.backLink = this.breadcrumb.getByRole('link', { name: 'Back' });
+    this.pageName = this.breadcrumb.getByRole('region', { name: 'Page Name' });
   }
 
   async activateTab(tabName: string): Promise<this> {
