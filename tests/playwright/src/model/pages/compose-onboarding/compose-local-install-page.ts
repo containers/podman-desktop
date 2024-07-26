@@ -26,7 +26,7 @@ export class ComposeLocalInstallPage extends ComposeOnboardingPage {
   constructor(page: Page) {
     super(page);
     this.wideDownloadAvailableMessage = this.mainPage.getByText(
-      'The next step will install Compose system-wide. You will be prompted for system priviledges',
+      'The next step will install Compose system-wide. You will be prompted for system',
     );
   }
 }
