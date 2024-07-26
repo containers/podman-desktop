@@ -196,6 +196,95 @@ test('Expect filter empty screen', async () => {
   expect(filterButton).toBeInTheDocument();
 });
 
+test('Expect two images in list given image id and engin id', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  listImagesMock.mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['fedora:old'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['fedora:1'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'docker',
+      engineName: 'docker',
+    },
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['fedora:2'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:2345678901234',
+      RepoTags: ['fedora:3'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:3456789012345',
+      RepoTags: ['fedora:4'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+  ]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  // wait store are populated
+  while (get(imagesInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({ searchTerm: 'sha256:1234567890123', imageEngineId: 'podman' });
+
+  const image1 = screen.queryByRole('cell', { name: 'fedora 123456789012 old' });
+  expect(image1).toBeInTheDocument();
+  const image2 = screen.queryByRole('cell', { name: 'fedora 123456789012 2' });
+  expect(image2).toBeInTheDocument();
+  const image3 = screen.queryByRole('cell', { name: 'fedora 123456789012 1' });
+  expect(image3).not.toBeInTheDocument();
+  const image4 = screen.queryByRole('cell', { name: 'fedora 234567890123 3' });
+  expect(image4).not.toBeInTheDocument();
+  const image5 = screen.queryByRole('cell', { name: 'fedora 345678901234 4' });
+  expect(image5).not.toBeInTheDocument();
+});
+
 describe('Contributions', () => {
   test.each([{ viewIdContrib: IMAGE_VIEW_ICONS }, { viewIdContrib: IMAGE_LIST_VIEW_ICONS }])(
     'Expect image status being changed with %s contribution',
