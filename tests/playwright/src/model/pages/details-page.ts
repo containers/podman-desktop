@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
@@ -49,7 +49,7 @@ export abstract class DetailsPage extends BasePage {
 
   async activateTab(tabName: string): Promise<this> {
     const tabItem = this.tabs.getByRole('link', { name: tabName, exact: true });
-    await tabItem.waitFor({ state: 'visible', timeout: 2000 });
+    await playExpect(tabItem).toBeVisible();
     await tabItem.click();
     return this;
   }
