@@ -100,6 +100,17 @@
           "description": "Disk size usage",
           "readonly": true
         },
+        "podman.factory.machine.provider": {
+          "type": "string",
+          "default": "applehv",
+          "enum": [
+            "applehv",
+            "libkrun"
+          ],
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Provider Type",
+          "when": "podman.isLibkrunSupported"
+        },
         "podman.factory.machine.name": {
           "type": "string",
           "default": "podman-machine-default",
