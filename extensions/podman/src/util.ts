@@ -19,7 +19,9 @@
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import type { LifecycleContext, Logger } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
+
+import { getPodmanCli } from './podman-cli';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -83,10 +85,10 @@ export function getAssetsFolder(): string {
  * field can be used directly, simplifying the process of passing the logger to the process API while preserving
  * the necessary functionalities.
  */
-export class LoggerDelegator implements Logger {
-  private loggers: Logger[] = [];
+export class LoggerDelegator implements extensionApi.Logger {
+  private loggers: extensionApi.Logger[] = [];
 
-  constructor(...loggersOrContexts: (Logger | LifecycleContext | undefined)[]) {
+  constructor(...loggersOrContexts: (extensionApi.Logger | extensionApi.LifecycleContext | undefined)[]) {
     loggersOrContexts.forEach(loggerOrContext => {
       if (loggerOrContext === undefined) {
         return;
@@ -94,7 +96,7 @@ export class LoggerDelegator implements Logger {
       if (typeof loggerOrContext.log === 'object') {
         this.loggers.push(loggerOrContext.log);
       } else if (typeof loggerOrContext.log === 'function') {
-        this.loggers.push(loggerOrContext as Logger);
+        this.loggers.push(loggerOrContext as extensionApi.Logger);
       }
     });
   }
@@ -131,4 +133,21 @@ export function normalizeWSLOutput(out: string): string {
     }
   }
   return str;
+}
+
+export function execPodman(
+  args: string[],
+  containersProvider?: string,
+  options?: extensionApi.RunOptions,
+): Promise<extensionApi.RunResult> {
+  const finalOptions: extensionApi.RunOptions = { ...options };
+
+  if (containersProvider) {
+    finalOptions.env = {
+      ...(finalOptions.env ?? {}),
+      CONTAINERS_MACHINE_PROVIDER: containersProvider,
+    };
+  }
+
+  return extensionApi.process.exec(getPodmanCli(), args, finalOptions);
 }
