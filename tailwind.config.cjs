@@ -29,11 +29,6 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      boxShadow: {
-        "titlebar": 'inset 0px -1px 0px 0 rgb(54 54 61 / 0.6)', // highlight for bottom of titlebar
-	"pageheader": 'inset 0 0px 10px 0 rgb(0 0 0 / 0.4)',
-	"nav": 'inset 7px -4px 6px 0 rgb(0 0 0 / 0.15)',
-      },
       transitionProperty: {
         width: 'width',
       },
