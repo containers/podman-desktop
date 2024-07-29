@@ -198,7 +198,7 @@ export class PodmanDesktopRunner {
       console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
       try {
         await Promise.race([
-          waitWhile(() => this.runningState(), { timeout: timeout, diff: 100 }),
+          waitWhile(async () => this.isRunning(), { timeout: timeout, diff: 100 }),
           this.getElectronApp().close(),
         ]);
       } catch (err: unknown) {
@@ -320,10 +320,6 @@ export class PodmanDesktopRunner {
 
   public isRunning(): boolean {
     return this._running;
-  }
-
-  public async runningState(): Promise<boolean> {
-    return this.isRunning();
   }
 
   public setOptions(value: object): void {
