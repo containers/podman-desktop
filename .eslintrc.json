@@ -26,6 +26,7 @@
       "./website/tsconfig.json",
       "./website-argos/tsconfig.json",
       "./extensions/*/tsconfig.json",
+      "./extensions/*/packages/*/tsconfig.json",
       "./tests/playwright/tsconfig.json",
       "./tools/tsconfig.json",
       "./storybook/tsconfig.json"
