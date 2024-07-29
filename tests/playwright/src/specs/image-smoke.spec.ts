@@ -34,6 +34,7 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
+const helloContainerSearchTerm = 'quay.io/hello';
 const helloContainer = 'quay.io/podman/hello';
 const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
 
@@ -57,10 +58,10 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 describe('Image workflow verification', async () => {
-  async function pullImageByName(imageName: string): Promise<ImagesPage> {
+  async function pullImageByName(searchTerm: string, imageName: string): Promise<ImagesPage> {
     let imagesPage = await navBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
-    imagesPage = await pullImagePage.pullImage(imageName);
+    imagesPage = await pullImagePage.pullImage(searchTerm, imageName);
     await imagesPage.waitForImageExists(imageName);
     return imagesPage;
   }
@@ -70,7 +71,7 @@ describe('Image workflow verification', async () => {
     await playExpect(imagesPage.heading).toBeVisible();
 
     const pullImagePage = await imagesPage.openPullImage();
-    const updatedImages = await pullImagePage.pullImage(helloContainer);
+    const updatedImages = await pullImagePage.pullImage(helloContainerSearchTerm, helloContainer);
 
     const exists = await updatedImages.waitForImageExists(helloContainer);
     playExpect(exists, `${helloContainer} image not present in the list of images`).toBeTruthy();
@@ -105,7 +106,7 @@ describe('Image workflow verification', async () => {
   });
 
   test('Delete image', async () => {
-    const imagesPage = await pullImageByName(helloContainer);
+    const imagesPage = await pullImageByName(helloContainerSearchTerm, helloContainer);
     expect(await imagesPage.waitForImageExists(helloContainer)).equals(true);
 
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
@@ -141,7 +142,7 @@ describe('Image workflow verification', async () => {
     await playExpect(imagesPage.heading).toBeVisible();
 
     for (const image of imageList) {
-      await imagesPage.pullImage(helloContainer);
+      await imagesPage.pullImage(helloContainerSearchTerm, helloContainer);
       await playExpect(imagesPage.heading).toBeVisible();
       await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
 

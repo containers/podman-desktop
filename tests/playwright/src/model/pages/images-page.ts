@@ -57,10 +57,10 @@ export class ImagesPage extends MainPage {
     return new PullImagePage(this.page);
   }
 
-  async pullImage(image: string): Promise<ImagesPage> {
+  async pullImage(searchTerm: string, image: string): Promise<ImagesPage> {
     const pullImagePage = await this.openPullImage();
     await playExpect(pullImagePage.heading).toBeVisible();
-    return await pullImagePage.pullImage(image);
+    return await pullImagePage.pullImage(searchTerm, image);
   }
 
   async renameImage(oldname: string, newname: string): Promise<ImagesPage> {
