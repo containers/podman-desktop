@@ -10,7 +10,6 @@ import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
-import { getPanelDetailColor } from '../color/color';
 import Steps from '../ui/Steps.svelte';
 import PreflightChecks from './PreflightChecks.svelte';
 import ProviderCard from './ProviderCard.svelte';
@@ -201,10 +200,8 @@ function onInstallationClick() {
     </div>
 
     <div
-      class=""
-      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
-        ? 'block'
-        : 'none'}"
+      class="bg-[var(--pd-terminal-background)]"
+      style="width: 100%; text-align: left; display: {initializeError ? 'block' : 'none'}"
       bind:this={logsXtermDiv}>
     </div>
 

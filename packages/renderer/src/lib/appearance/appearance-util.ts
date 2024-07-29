@@ -77,4 +77,24 @@ export class AppearanceUtil {
     }
     return undefined;
   }
+
+  /**
+   * Helper function to look up a color value from the theme.
+   */
+  getColor(val: string): string {
+    // find the current terminal background color
+    const computedStyle = window.getComputedStyle(document.documentElement);
+    let color = computedStyle.getPropertyValue(val).trim();
+
+    // convert to 6 char RGB value since some things don't support 3 char format
+    if (color?.length < 6) {
+      color = color
+        .split('')
+        .map(c => {
+          return c === '#' ? c : c + c;
+        })
+        .join('');
+    }
+    return color;
+  }
 }
