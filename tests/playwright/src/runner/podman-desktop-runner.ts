@@ -23,6 +23,8 @@ import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
+import { waitWhile } from '../utility/wait';
+
 type WindowState = {
   isVisible: boolean;
   isDevToolsOpened: boolean;
@@ -194,21 +196,21 @@ export class PodmanDesktopRunner {
     if (this.getElectronApp()) {
       let elapsed = 0;
 
-      const timeout = 500;
+      const timeout = 400;
       console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
-      await Promise.race([
-        (elapsed = await this.trackTime(async () => this.getElectronApp().close())),
-        new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout expired while closing the electron app')), timeout);
-        }),
-      ])
-        .then(() => console.log(`Elapsed time of closing the electron app: ${elapsed} ms`))
-        .catch((err: unknown) => {
-          console.log(`Caught exception in closing: ${err}`);
-          console.log(`Trying to kill the electron app process`);
-          this.getElectronApp().process().kill();
-        });
+      try {
+        await Promise.race([
+          (elapsed = await this.trackTime(async () => this.getElectronApp().close())),
+          waitWhile(() => this.runningState(), { timeout: timeout, diff: 100, message: 'Timeout reached' }),
+        ]);
+        console.log(`Closing Podman Desktop took: ${elapsed} ms`);
+      } catch (err) {
+        console.log(`Caught exception in closing: ${err}`);
+        console.log(`Trying to kill the electron app process`);
+        this.getElectronApp().process().kill();
+      }
     }
+    this._running = false;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
@@ -216,7 +218,6 @@ export class PodmanDesktopRunner {
       console.log(`Saving a video file took: ${elapsed} ms`);
       console.log(`Video file saved as: ${videoPath}`);
     }
-    this._running = false;
     await this.removeTracesOnFinished();
   }
 
@@ -319,6 +320,10 @@ export class PodmanDesktopRunner {
 
   public isRunning(): boolean {
     return this._running;
+  }
+
+  public async runningState(): Promise<boolean> {
+    return this.isRunning();
   }
 
   public setOptions(value: object): void {
