@@ -207,7 +207,7 @@ export class PodmanDesktopRunner {
       } catch (err) {
         console.log(`Caught exception in closing: ${err}`);
         console.log(`Trying to kill the electron app process`);
-        this.getElectronApp().process().kill();
+        console.log(`Result: ${this.getElectronApp()?.process()?.kill()}`);
       }
     }
     this._running = false;
