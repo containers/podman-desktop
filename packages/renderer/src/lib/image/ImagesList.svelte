@@ -40,6 +40,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 export let searchTerm = '';
+export let imageEngineId = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
@@ -87,6 +88,9 @@ function updateImages(globalContext: ContextUI) {
   });
 
   images = computedImages;
+  if (imageEngineId) {
+    images = images.filter(image => image.engineId === imageEngineId);
+  }
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
   const engines = images.map(container => {
