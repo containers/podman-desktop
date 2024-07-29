@@ -42,3 +42,8 @@ export enum PodState {
   Paused = 'PAUSED',
   Unknown = 'UNKNOWN',
 }
+
+export enum VolumeState {
+  Used = 'USED',
+  Unused = 'UNUSED',
+}
