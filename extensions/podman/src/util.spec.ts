@@ -20,7 +20,15 @@ import * as extensionApi from '@podman-desktop/api';
 import { afterEach, expect, test, vi } from 'vitest';
 
 import { getPodmanCli } from './podman-cli';
-import { execPodman, normalizeWSLOutput } from './util';
+import {
+  APPLEHV_LABEL,
+  execPodman,
+  getProviderByLabel,
+  getProviderLabel,
+  LIBKRUN_LABEL,
+  normalizeWSLOutput,
+  VMTYPE,
+} from './util';
 
 const config: extensionApi.Configuration = {
   get: () => {
@@ -114,4 +122,34 @@ test('expect exec called without CONTAINERS_MACHINE_PROVIDER if a provider is NO
       label: 'one',
     },
   });
+});
+
+test('expect libkrun label with libkrun provider', async () => {
+  const label = getProviderLabel(VMTYPE.LIBKRUN);
+  expect(label).equals(LIBKRUN_LABEL);
+});
+
+test('expect applehv label with applehv provider', async () => {
+  const label = getProviderLabel(VMTYPE.APPLEHV);
+  expect(label).equals(APPLEHV_LABEL);
+});
+
+test('expect provider name with provider different from libkrun and applehv', async () => {
+  const label = getProviderLabel(VMTYPE.WSL);
+  expect(label).equals(VMTYPE.WSL);
+});
+
+test('expect libkrun provider with libkrun label', async () => {
+  const provider = getProviderByLabel(LIBKRUN_LABEL);
+  expect(provider).equals(VMTYPE.LIBKRUN);
+});
+
+test('expect applehv provider with applehv label', async () => {
+  const provider = getProviderByLabel(APPLEHV_LABEL);
+  expect(provider).equals(VMTYPE.APPLEHV);
+});
+
+test('expect provider name with provider different from libkrun and applehv', async () => {
+  const provider = getProviderByLabel(VMTYPE.WSL);
+  expect(provider).equals(VMTYPE.WSL);
 });
