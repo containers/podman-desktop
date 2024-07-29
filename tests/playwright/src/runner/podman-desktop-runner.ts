@@ -23,6 +23,8 @@ import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
+import { waitWhile } from '../utility/wait';
+
 type WindowState = {
   isVisible: boolean;
   isDevToolsOpened: boolean;
@@ -192,9 +194,23 @@ export class PodmanDesktopRunner {
     }
 
     if (this.getElectronApp()) {
-      const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
-      console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
+      const timeout = 30000;
+      console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
+      try {
+        await Promise.race([
+          waitWhile(async () => this.isRunning(), { timeout: timeout, diff: 100 }),
+          this.getElectronApp().close(),
+        ]);
+      } catch (err: unknown) {
+        console.log(`Caught exception in closing: ${err}`);
+        console.log(`Trying to kill the electron app process`);
+        if (this.getElectronApp()?.process()?.pid) {
+          console.log(`Killing the electron app process with PID: ${this.getElectronApp()?.process()?.pid}`);
+          process.kill(this.getElectronApp()?.process()?.pid as number);
+        }
+      }
     }
+    this._running = false;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
@@ -202,7 +218,6 @@ export class PodmanDesktopRunner {
       console.log(`Saving a video file took: ${elapsed} ms`);
       console.log(`Video file saved as: ${videoPath}`);
     }
-    this._running = false;
     await this.removeTracesOnFinished();
   }
 
