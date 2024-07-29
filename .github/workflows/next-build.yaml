@@ -228,8 +228,8 @@ jobs:
       - name: Publish Podman Extension API to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/podman-extension-api/package.json
-          cd packages/podman-extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" extensions/podman/packages/api/package.json
+          cd extensions/podman/packages/api && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
 
       - name: Publish tests-playwright to npmjs
         run: |
