@@ -156,19 +156,19 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
   <div class="h-full flex flex-row space-x-8">
     <div class="h-full overflow-y-auto w-1/3">
       {#each providers as provider}
-        <div role="row" class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
+        <div role="row" class="rounded-lg bg-[var(--pd-content-bg)] mb-4 p-4 flex flex-col">
           <div class="flex flex-row items-center">
             <span class="grow">{provider.info.label}</span>
             {#if provider.state === 'running'}
               <Spinner size="12"></Spinner>
             {/if}
             {#if provider.state === 'failed'}
-              <span class="text-red-600 mt-1">
+              <span class="text-[var(--pd-state-error)] mt-1">
                 <Fa size="1.1x" icon={faExclamationTriangle} />
               </span>
             {/if}
             {#if provider.state === 'canceled'}
-              <span class="text-gray-500">
+              <span class="text-[var(--pd-modal-text)]">
                 <Fa size="1.1x" icon={faCircleMinus} />
               </span>
             {/if}
@@ -180,10 +180,10 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {/if}
           </div>
           {#if provider.error}
-            <div class="text-red-500 text-sm">{provider.error}</div>
+            <div class="text-[var(--pd-state-error)] text-sm">{provider.error}</div>
           {/if}
           {#if provider.state === 'canceled'}
-            <div class="text-gray-900 text-sm">Canceled by user</div>
+            <div class="text-[var(--pd-content-text)] text-sm">Canceled by user</div>
           {/if}
         </div>
       {/each}
@@ -192,7 +192,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
       {#each filtered as result}
         <div
           role="row"
-          class="rounded-r-lg bg-charcoal-700 mb-4 mr-4 p-4 border-l-2"
+          class="rounded-r-lg bg-[var(--pd-content-bg)] mb-4 mr-4 p-4 border-l-2"
           class:border-l-red-600={result.check.severity === 'critical'}
           class:border-l-amber-500={result.check.severity === 'high'}
           class:border-l-gray-800={result.check.severity === 'medium'}
@@ -208,7 +208,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
               ><Fa size="1.1x" class="mt-1" icon={getIcon(result.check)} />
             </span>
             <div class="font-bold">{result.check.name}</div>
-            <div class="text-gray-900 text-sm grow text-right">Reported by {result.provider.label}</div>
+            <div class="text-[var(--pd-content-text)] text-sm grow text-right">Reported by {result.provider.label}</div>
           </div>
           {#if result.check.markdownDescription}
             <div class="mt-4">{result.check.markdownDescription}</div>
