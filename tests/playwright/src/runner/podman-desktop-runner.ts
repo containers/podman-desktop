@@ -204,7 +204,7 @@ export class PodmanDesktopRunner {
           (elapsed = await this.trackTime(async () => this.getElectronApp().close())),
         ]);
         console.log(`Closing Podman Desktop took: ${elapsed} ms`);
-      } catch (err) {
+      } catch (err: unknown) {
         console.log(`Caught exception in closing: ${err}`);
         console.log(`Trying to kill the electron app process`);
         console.log(`Result: ${this.getElectronApp()?.process()?.kill()}`);
