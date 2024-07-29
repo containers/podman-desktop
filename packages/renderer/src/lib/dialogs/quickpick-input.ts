@@ -27,6 +27,7 @@ export interface QuickPickOptions {
   // if true, needs to send the current element when item is selected
   onSelectCallback: boolean;
   title?: string;
+  ignoreFocusOut?: boolean;
 }
 
 export interface InputBoxOptions {
@@ -40,6 +41,7 @@ export interface InputBoxOptions {
   multiline: boolean;
   id: number;
   title?: string;
+  ignoreFocusOut?: boolean;
 }
 
 export interface CustomPickOptions {

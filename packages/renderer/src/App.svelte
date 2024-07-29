@@ -94,10 +94,10 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
     <WelcomePage />
 
     <div class="flex flex-row w-full h-full overflow-hidden">
-      <MessageBox />
       <QuickPickInput />
       <CustomPick />
       <CommandPalette />
+      <MessageBox />
       <AppNavigation meta={meta} exitSettingsCallback={() => router.goto(nonSettingsPage)} />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta={meta} />

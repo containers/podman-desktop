@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 
@@ -28,8 +28,8 @@ test('dialog should be visible and have basic styling', async () => {
   const title = 'A dialog';
   render(Dialog, { title: title });
 
-  const close = screen.getByLabelText('close');
-  expect(close).toBeDefined();
+  const bg = screen.getByLabelText('fade-bg');
+  expect(bg).toBeDefined();
   const dialog = screen.getByRole('dialog');
   expect(dialog).toBeDefined();
 
@@ -46,8 +46,8 @@ test('bg click should trigger close event', async () => {
   const closeMock = vi.fn();
   render(Dialog, { title: 'A dialog', onclose: closeMock });
 
-  const bg = screen.getByLabelText('close');
-  await fireEvent.click(bg);
+  const bg = screen.getByLabelText('fade-bg');
+  await userEvent.click(bg);
 
   expect(closeMock).toHaveBeenCalled();
 });
