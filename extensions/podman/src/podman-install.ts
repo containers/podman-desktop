@@ -28,9 +28,11 @@ import { getDetectionChecks } from './detection-checks';
 import type { MachineJSON } from './extension';
 import {
   getJSONMachineList,
+  isLibkrunSupported,
   isRootfulMachineInitSupported,
   isStartNowAtMachineInitSupported,
   isUserModeNetworkingSupported,
+  PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY,
   ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
   START_NOW_MACHINE_INIT_SUPPORTED_KEY,
   USER_MODE_NETWORKING_SUPPORTED_KEY,
@@ -174,6 +176,10 @@ export class PodmanInstall {
           START_NOW_MACHINE_INIT_SUPPORTED_KEY,
           isStartNowAtMachineInitSupported(newInstalledPodman.version),
         );
+        extensionApi.context.setValue(
+          PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY,
+          isLibkrunSupported(newInstalledPodman.version),
+        );
       }
       // update detections checks
       provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));
@@ -209,9 +215,7 @@ export class PodmanInstall {
     const machinesRunning: MachineJSON[] = [];
     try {
       const machineListOutput = await getJSONMachineList();
-      const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
-
-      machinesRunning.push(...machines.filter(machine => machine.Running || machine.Starting));
+      machinesRunning.push(...machineListOutput.list.filter(machine => machine.Running || machine.Starting));
     } catch (error) {
       console.debug('Unable to query machines before updating', error);
     }
@@ -355,6 +359,10 @@ export class PodmanInstall {
           extensionApi.context.setValue(
             START_NOW_MACHINE_INIT_SUPPORTED_KEY,
             isStartNowAtMachineInitSupported(updateInfo.bundledVersion),
+          );
+          extensionApi.context.setValue(
+            PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY,
+            isLibkrunSupported(updateInfo.bundledVersion),
           );
         }
       } else if (answer === 'Ignore') {

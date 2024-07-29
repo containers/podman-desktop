@@ -52,6 +52,7 @@ const providerInfo: ProviderInfo = {
       },
       lifecycleMethods: ['start', 'stop', 'delete'],
       type: 'podman',
+      vmType: 'libkrun',
     },
   ],
   installationSupport: false,
@@ -167,6 +168,8 @@ test('Expect type to be reported for Podman engines', async () => {
   expect(typeDiv.textContent).toBe('Podman endpoint');
   const endpointSpan = await vi.waitFor(() => screen.getByTitle('unix://socket'));
   expect(endpointSpan.textContent).toBe('unix://socket');
+  const connectionType = screen.getByLabelText('Connection Type');
+  expect(connectionType.textContent).equal('Libkrun');
 });
 
 test('Expect type to be reported for Docker engines', async () => {

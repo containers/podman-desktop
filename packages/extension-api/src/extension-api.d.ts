@@ -362,6 +362,7 @@ declare module '@podman-desktop/api' {
     endpoint: ContainerProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
+    vmType?: string;
   }
 
   export interface PodCreatePortOptions {

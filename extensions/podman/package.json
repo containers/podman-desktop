@@ -158,6 +158,17 @@
           "markdownDescription": "User mode networking (traffic relayed by a user process). See [documentation](https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#user-mode-networking).",
           "when": "podman.isUserModeNetworkingSupported == true"
         },
+        "podman.factory.machine.provider": {
+          "type": "string",
+          "default": "default (Apple HyperVisor)",
+          "enum": [
+            "default (Apple HyperVisor)",
+            "GPU enabled (LibKrun)"
+          ],
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Provider Type",
+          "when": "podman.isLibkrunSupported"
+        },
         "podman.factory.machine.now": {
           "type": "boolean",
           "default": true,
