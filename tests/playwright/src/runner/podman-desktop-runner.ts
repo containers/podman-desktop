@@ -193,21 +193,21 @@ export class PodmanDesktopRunner {
 
     if (this.getElectronApp()) {
       let elapsed = 0;
-      try {
-        const timeout = 500;
-        console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
-        await Promise.race([
-          (elapsed = await this.trackTime(async () => await this.getElectronApp().close())),
-          new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout expired while closing the electron app')), timeout);
-          }),
-        ]);
-        console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
-      } catch (err) {
-        console.log(`Caught exception in closing: ${err}`);
-        console.log(`Trying to kill the electron app process`);
-        this.getElectronApp().process().kill();
-      }
+
+      const timeout = 500;
+      console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
+      await Promise.race([
+        (elapsed = await this.trackTime(async () => this.getElectronApp().close())),
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout expired while closing the electron app')), timeout);
+        }),
+      ])
+        .then(() => console.log(`Elapsed time of closing the electron app: ${elapsed} ms`))
+        .catch((err: unknown) => {
+          console.log(`Caught exception in closing: ${err}`);
+          console.log(`Trying to kill the electron app process`);
+          this.getElectronApp().process().kill();
+        });
     }
 
     if (this._videoAndTraceName) {
