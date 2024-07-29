@@ -1,13 +1,12 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-import { faCircleUser } from '@fortawesome/free-regular-svg-icons';
 import { onMount } from 'svelte';
-import Fa from 'svelte-fa';
 import type { TinroRouteMeta } from 'tinro';
 
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
+import AccountIcon from './lib/images/AccountIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
@@ -74,7 +73,7 @@ function clickSettings(b: boolean) {
     tooltip="Accounts"
     bind:meta={meta}
     onClick={event => window.showAccountsMenu(event.x, event.y)}>
-    <Fa class="h-6 w-6 fa-light" icon={faCircleUser} size="2x" style="fa-light" />
+    <AccountIcon size={iconSize} />
   </NavItem>
 
   <NavItem
