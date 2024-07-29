@@ -19,6 +19,7 @@
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -2239,7 +2240,12 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async saveImage(engineId: string, id: string, filename: string): Promise<void> {
+  async saveImage(
+    engineId: string,
+    id: string,
+    filename: string,
+    token?: containerDesktopAPI.CancellationToken,
+  ): Promise<void> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -2253,8 +2259,27 @@ export class ContainerProviderRegistry {
 
       const imageObject = provider.api.getImage(id);
       if (imageObject) {
-        const imageStream = await imageObject.get();
-        return pipeline(imageStream, fs.createWriteStream(filename));
+        // make the download of image cancellable
+        const getImageObjectPromise = imageObject.get();
+        const cancelPromise = new Promise<NodeJS.ReadableStream>((_, reject) => {
+          token?.onCancellationRequested(() => {
+            reject(new Error('saveImage operation canceled'));
+          });
+        });
+        const imageStream = await Promise.race<NodeJS.ReadableStream>([getImageObjectPromise, cancelPromise]);
+
+        // make the saving on filesystem cancellable
+        const ac = new AbortController();
+        const signal = ac.signal;
+        token?.onCancellationRequested(() => {
+          ac.abort();
+        });
+        try {
+          return await pipeline(imageStream, fs.createWriteStream(filename), { signal });
+        } catch (err: unknown) {
+          await rm(filename, { force: true });
+          throw err;
+        }
       }
     } catch (error) {
       telemetryOptions = { error: error };

@@ -18,14 +18,16 @@
 
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
-import { PassThrough } from 'node:stream';
+import os from 'node:os';
+import path from 'node:path';
+import { PassThrough, Readable } from 'node:stream';
 import * as streamPromises from 'node:stream/promises';
 
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 import moment from 'moment';
 import nock from 'nock';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
 import type { Certificates } from '/@/plugin/certificates.js';
@@ -39,6 +41,7 @@ import type { ImageInfo } from '/@api/image-info.js';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 
 import * as util from '../util.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, LibPod } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
@@ -50,6 +53,7 @@ const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-null/no-null */
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 
 const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   Id: '1234567890',
@@ -4915,4 +4919,162 @@ test('test removeManifest', async () => {
   const result = await containerRegistry.removeManifest('podman1', 'manifestId');
   expect(removeManifestMock).toBeCalledWith('manifestId');
   expect(result).toBeUndefined();
+});
+
+test('saveImage succeeds', async () => {
+  const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const stream: Dockerode.Image = {
+    get: vi.fn(),
+  } as unknown as Dockerode.Image;
+  const getImageMock = vi.fn().mockReturnValue(stream);
+  const api = {
+    ...dockerode,
+    getImage: getImageMock,
+  };
+
+  const pipelineMock = vi
+    .spyOn(streamPromises, 'pipeline')
+    .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
+      return Promise.resolve();
+    });
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman-1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api,
+  } as unknown as InternalContainerProvider);
+  await containerRegistry.saveImage('podman1', 'an-image', '/path/to/file');
+
+  expect(pipelineMock).toHaveBeenCalledOnce();
+});
+
+test('saveImage succeeds when a passing a cancellable token never canceled', async () => {
+  const cancellationTokenRegistry = new CancellationTokenRegistry();
+  const cancellableTokenId = cancellationTokenRegistry.createCancellationTokenSource();
+  const token = cancellationTokenRegistry.getCancellationTokenSource(cancellableTokenId)!.token;
+  const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const stream: Dockerode.Image = {
+    get: vi.fn(),
+  } as unknown as Dockerode.Image;
+  const getImageMock = vi.fn().mockReturnValue(stream);
+  const api = {
+    ...dockerode,
+    getImage: getImageMock,
+  };
+
+  const pipelineMock = vi
+    .spyOn(streamPromises, 'pipeline')
+    .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
+      return Promise.resolve();
+    });
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman-1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api,
+  } as unknown as InternalContainerProvider);
+  await containerRegistry.saveImage('podman1', 'an-image', '/path/to/file', token);
+
+  expect(pipelineMock).toHaveBeenCalledOnce();
+});
+
+describe('using fake timers', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('saveImage canceled during image download', async () => {
+    const cancellationTokenRegistry = new CancellationTokenRegistry();
+    const cancellableTokenId = cancellationTokenRegistry.createCancellationTokenSource();
+    const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(cancellableTokenId)!;
+    const token = tokenSource.token;
+    const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+    const imageObjectGetMock = vi.fn().mockImplementation(() => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(undefined);
+        }, 1000);
+      });
+    });
+    const stream: Dockerode.Image = {
+      get: imageObjectGetMock,
+    } as unknown as Dockerode.Image;
+    const getImageMock = vi.fn().mockReturnValue(stream);
+    const api = {
+      ...dockerode,
+      getImage: getImageMock,
+    };
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api,
+    } as unknown as InternalContainerProvider);
+    setTimeout(() => {
+      tokenSource.cancel();
+    }, 500);
+
+    const savePromise = containerRegistry.saveImage('podman1', 'an-image', '/path/to/file', token);
+    vi.advanceTimersByTime(2000);
+
+    await expect(savePromise).rejects.toThrowError('saveImage operation canceled');
+  });
+});
+
+test('saveImage canceled during image saving on filesystem', async () => {
+  const streamModule = await vi.importActual<typeof import('node:stream/promises')>('node:stream/promises');
+  const fsModule = await vi.importActual<typeof import('node:fs')>('node:fs');
+  vi.mocked(streamPromises.pipeline).mockImplementation(streamModule.pipeline);
+  vi.mocked(fs.createWriteStream).mockImplementation(fsModule.createWriteStream);
+  const cancellationTokenRegistry = new CancellationTokenRegistry();
+  const cancellableTokenId = cancellationTokenRegistry.createCancellationTokenSource();
+  const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(cancellableTokenId)!;
+  const token = tokenSource.token;
+  const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const imageObjectGetMock = vi.fn().mockResolvedValue(() => {
+    const stream = Readable.from(Buffer.from('a content'));
+    stream.on('readable', () => {
+      setTimeout(() => {
+        // too late
+        stream.read();
+      }, 300);
+    });
+    return stream;
+  });
+  const stream: Dockerode.Image = {
+    get: imageObjectGetMock,
+  } as unknown as Dockerode.Image;
+  const getImageMock = vi.fn().mockReturnValue(stream);
+  const api = {
+    ...dockerode,
+    getImage: getImageMock,
+  };
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman-1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api,
+  } as unknown as InternalContainerProvider);
+  setTimeout(() => {
+    tokenSource.cancel();
+  }, 50);
+
+  const tmpdir = os.tmpdir();
+  const savePromise = containerRegistry.saveImage('podman1', 'an-image', path.join(tmpdir, 'image-to-save'), token);
+  await expect(savePromise).rejects.toThrowError('The operation was aborted');
 });
