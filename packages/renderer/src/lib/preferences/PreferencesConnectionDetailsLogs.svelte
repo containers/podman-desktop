@@ -10,7 +10,6 @@ import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo 
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
-import { getPanelDetailColor } from '../color/color';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import { writeToTerminal } from './Util';
 
@@ -105,10 +104,9 @@ onDestroy(() => {
 
 <div
   aria-label="terminal"
-  class="min-w-full flex flex-col"
+  class="min-w-full flex flex-col bg-[var(--pd-terminal-background)]"
   class:invisible={noLogs === true}
   class:h-0={noLogs === true}
   class:h-full={noLogs === false}
-  style="background-color: {getPanelDetailColor()}"
   bind:this={logsXtermDiv}>
 </div>

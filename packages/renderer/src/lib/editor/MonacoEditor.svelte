@@ -35,23 +35,10 @@ onMount(async () => {
     EditorSettings.SectionName + '.' + EditorSettings.FontSize,
   );
 
-  // check if we're in light or dark mode
+  // check if we're in light or dark mode and get the terminal background color
   const appearanceUtil = new AppearanceUtil();
   const isDark = await appearanceUtil.isDarkMode();
-
-  // find the current terminal background color
-  const computedStyle = window.getComputedStyle(document.documentElement);
-  let bgColor = computedStyle.getPropertyValue('--pd-terminal-background').trim();
-
-  // Monaco only supports 6 char rgb values, so convert if we have 3 char format
-  if (bgColor?.length < 6) {
-    bgColor = bgColor
-      .split('')
-      .map(c => {
-        return c === '#' ? c : c + c;
-      })
-      .join('');
-  }
+  const bgColor = appearanceUtil.getColor('--pd-terminal-background');
 
   // create a theme with the current light or dark mode, but customize the background color
   Monaco.editor.defineTheme('podmanDesktopTheme', {
