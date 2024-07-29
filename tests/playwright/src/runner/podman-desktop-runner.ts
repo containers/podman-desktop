@@ -194,16 +194,13 @@ export class PodmanDesktopRunner {
     }
 
     if (this.getElectronApp()) {
-      let elapsed = 0;
-
       const timeout = 300;
       console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
       try {
         await Promise.race([
           waitWhile(() => this.runningState(), { timeout: timeout, diff: 50, message: 'Timeout reached' }),
-          (elapsed = await this.trackTime(async () => this.getElectronApp().close())),
+          this.getElectronApp().close(),
         ]);
-        console.log(`Closing Podman Desktop took: ${elapsed} ms`);
       } catch (err: unknown) {
         console.log(`Caught exception in closing: ${err}`);
         console.log(`Trying to kill the electron app process`);
