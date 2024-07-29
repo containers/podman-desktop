@@ -43,10 +43,13 @@ import {
   appHomeDir,
   execPodman,
   getAssetsFolder,
+  getProviderByLabel,
+  getProviderLabel,
   isLinux,
   isMac,
   isWindows,
   LoggerDelegator,
+  VMTYPE,
 } from './util';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { WslHelper } from './wsl-helper';
@@ -271,7 +274,7 @@ export async function updateMachines(
         machineInfo?.memory !== undefined && machineInfo?.memoryUsed !== undefined && machineInfo?.memoryUsed > 0
           ? (machineInfo?.memoryUsed * 100) / machineInfo?.memory
           : 0,
-      vmType: machine.VMType,
+      vmType: getProviderLabel(machine.VMType),
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -796,7 +799,7 @@ export async function registerProviderFor(
     endpoint: {
       socketPath,
     },
-    vmType: machineInfo.vmType,
+    vmType: getProviderLabel(machineInfo.vmType),
   };
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines
@@ -1850,14 +1853,14 @@ export async function createMachine(
 
   let provider: string | undefined;
   if (params['podman.factory.machine.provider']) {
-    provider = params['podman.factory.machine.provider'];
+    provider = getProviderByLabel(params['podman.factory.machine.provider']);
   }
 
   // cpus
   if (params['podman.factory.machine.cpus']) {
     let cpusValue = params['podman.factory.machine.cpus'];
     // libkrun has an issue that prevent to start a machine that has been created with more than 8 cpus, so we limit it here
-    if (provider === 'libkrun' && parseInt(cpusValue) > 8) {
+    if (provider === VMTYPE.LIBKRUN && parseInt(cpusValue) > 8) {
       cpusValue = '8';
     }
     parameters.push('--cpus');

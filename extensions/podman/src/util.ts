@@ -145,9 +145,41 @@ export function execPodman(
   if (containersProvider) {
     finalOptions.env = {
       ...(finalOptions.env ?? {}),
-      CONTAINERS_MACHINE_PROVIDER: containersProvider,
+      CONTAINERS_MACHINE_PROVIDER: getProviderByLabel(containersProvider),
     };
   }
 
   return extensionApi.process.exec(getPodmanCli(), args, finalOptions);
+}
+
+export enum VMTYPE {
+  WSL = 'wsl',
+  HYPERV = 'hyperv',
+  APPLEHV = 'applehv',
+  LIBKRUN = 'libkrun',
+}
+
+export const APPLEHV_LABEL = 'default (Apple HyperVisor)';
+export const LIBKRUN_LABEL = 'GPU enabled (LibKrun)';
+
+export function getProviderLabel(provider: string): string {
+  switch (provider) {
+    case VMTYPE.LIBKRUN:
+      return LIBKRUN_LABEL;
+    case VMTYPE.APPLEHV:
+      return APPLEHV_LABEL;
+    default:
+      return provider;
+  }
+}
+
+export function getProviderByLabel(label: string): string {
+  switch (label) {
+    case LIBKRUN_LABEL:
+      return VMTYPE.LIBKRUN;
+    case APPLEHV_LABEL:
+      return VMTYPE.APPLEHV;
+    default:
+      return label;
+  }
 }
