@@ -192,8 +192,22 @@ export class PodmanDesktopRunner {
     }
 
     if (this.getElectronApp()) {
-      const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
-      console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
+      let elapsed = 0;
+      try {
+        await Promise.race([
+          (elapsed = await this.trackTime(async () => await this.getElectronApp().close())),
+          new Promise(reject => {
+            setTimeout(() => {
+              reject(new Error('Timeout expired while closing the electron app'));
+            }, 30000);
+          }),
+        ]);
+        console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
+      } catch (err) {
+        console.log(`Caught exception in closing: ${err}`);
+        console.log(`Trying to kill the electron app process`);
+        this.getElectronApp().process().kill();
+      }
     }
 
     if (this._videoAndTraceName) {
