@@ -9,6 +9,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from '/@api/provider-info';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import { getPanelDetailColor } from '../color/color';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import { writeToTerminal } from './Util';
@@ -58,9 +59,7 @@ onMount(async () => {
     fontSize,
     lineHeight,
     disableStdin: true,
-    theme: {
-      background: getPanelDetailColor(),
-    },
+    theme: getTerminalTheme(),
     convertEol: true,
   });
   // Refresh the terminal on initial load

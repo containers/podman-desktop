@@ -4,10 +4,10 @@ import { router } from 'tinro';
 import { type IDisposable, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
-import { getPanelDetailColor } from '/@/lib/color/color';
 import { terminalStates } from '/@/stores/kubernetes-terminal-state-store';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let podName: string;
 export let containerName: string;
@@ -35,6 +35,11 @@ onMount(async () => {
 
   if (savedState) {
     shellTerminal = savedState.terminal;
+
+    // If there is a saved state, make sure that we 'update' the theme as well to make sure that the terminal theme matches the overall apperance
+    // if the user has changed from dark to light, or vice versa
+    shellTerminal.options.theme = getTerminalTheme();
+
     id = savedState.id;
     removeAllChildren(terminalXtermDiv);
     shellTerminal.open(terminalXtermDiv);
@@ -93,9 +98,7 @@ async function initializeNewTerminal(container: HTMLElement) {
     fontSize,
     lineHeight,
     screenReaderMode,
-    theme: {
-      background: getPanelDetailColor(),
-    },
+    theme: getTerminalTheme(),
   });
 
   id = await window.kubernetesExec(
@@ -138,6 +141,7 @@ async function initializeNewTerminal(container: HTMLElement) {
 }
 
 function getSavedTerminalState(podName: string, containerName: string): State | undefined {
+  // TODO: This grabs the saved state, but what if the theme changes? We must update the terminal theme to match the overall apperance.
   let state;
   terminalStates.subscribe(states => {
     state = states.get(`${podName}-${containerName}`);

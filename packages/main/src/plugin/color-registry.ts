@@ -254,6 +254,7 @@ export class ColorRegistry {
     this.initOnboarding();
     this.initStates();
     this.initFiles();
+    this.initTerminal();
   }
 
   protected initDefaults(): void {
@@ -1301,6 +1302,101 @@ export class ColorRegistry {
     this.registerColor(`${fc}executable`, {
       dark: colorPalette.green[500],
       light: colorPalette.green[500],
+    });
+  }
+
+  // terminal colours
+  protected initTerminal(): void {
+    const terminal = 'terminal-';
+
+    this.registerColor(`${terminal}foreground`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+
+    this.registerColor(`${terminal}background`, {
+      dark: colorPalette.black,
+      light: colorPalette.white,
+    });
+
+    this.registerColor(`${terminal}cursor`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+
+    this.registerColor(`${terminal}selectionBackground`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+
+    this.registerColor(`${terminal}selectionForeground`, {
+      dark: colorPalette.black,
+      light: colorPalette.white,
+    });
+
+    this.registerColor(`${terminal}ansiBlack`, {
+      dark: colorPalette.black,
+      light: colorPalette.black,
+    });
+    this.registerColor(`${terminal}ansiRed`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${terminal}ansiGreen`, {
+      dark: colorPalette.green[500],
+      light: colorPalette.green[500],
+    });
+    this.registerColor(`${terminal}ansiYellow`, {
+      dark: colorPalette.amber[500],
+      light: colorPalette.amber[500],
+    });
+    this.registerColor(`${terminal}ansiBlue`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${terminal}ansiMagenta`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${terminal}ansiCyan`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${terminal}ansiWhite`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${terminal}ansiBrightBlack`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${terminal}ansiBrightRed`, {
+      dark: colorPalette.red[600],
+      light: colorPalette.red[600],
+    });
+    this.registerColor(`${terminal}ansiBrightGreen`, {
+      dark: colorPalette.green[600],
+      light: colorPalette.green[600],
+    });
+    this.registerColor(`${terminal}ansiBrightYellow`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
+    this.registerColor(`${terminal}ansiBrightBlue`, {
+      dark: colorPalette.sky[600],
+      light: colorPalette.sky[600],
+    });
+    this.registerColor(`${terminal}ansiBrightMagenta`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${terminal}ansiBrightCyan`, {
+      dark: colorPalette.sky[600],
+      light: colorPalette.sky[600],
+    });
+    this.registerColor(`${terminal}ansiBrightWhite`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
     });
   }
 }
