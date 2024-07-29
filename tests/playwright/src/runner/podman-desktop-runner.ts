@@ -207,7 +207,10 @@ export class PodmanDesktopRunner {
       } catch (err: unknown) {
         console.log(`Caught exception in closing: ${err}`);
         console.log(`Trying to kill the electron app process`);
-        console.log(`Result: ${this.getElectronApp()?.process()?.kill()}`);
+        if (this.getElectronApp()?.process()?.pid) {
+          console.log(`Killing the electron app process with PID: ${this.getElectronApp()?.process()?.pid}`);
+          process.kill(this.getElectronApp()?.process()?.pid as number);
+        }
       }
     }
     this._running = false;
