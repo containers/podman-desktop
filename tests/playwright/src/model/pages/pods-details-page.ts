@@ -22,15 +22,10 @@ import { expect as playExpect } from '@playwright/test';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { PodState } from '../core/states';
 import { NavigationBar } from '../workbench/navigation';
-import { BasePage } from './base-page';
+import { DetailsPage } from './details-page';
 import { PodsPage } from './pods-page';
 
-export class PodDetailsPage extends BasePage {
-  readonly labelName: Locator;
-  readonly heading: Locator;
-  readonly closeLink: Locator;
-  readonly backToPodsLink: Locator;
-  readonly podName: string;
+export class PodDetailsPage extends DetailsPage {
   readonly startButton: Locator;
   readonly stopButton: Locator;
   readonly restartButton: Locator;
@@ -42,26 +37,19 @@ export class PodDetailsPage extends BasePage {
   static readonly KUBE_TAB = 'Kube';
 
   constructor(page: Page, name: string) {
-    super(page);
-    this.podName = name;
-    this.labelName = page.getByLabel('name').and(page.getByText('Pod Details'));
-    this.heading = page.getByRole('heading', { name: this.podName });
-    this.closeLink = page.getByRole('link', { name: 'Close Details' });
-    this.backToPodsLink = page.getByRole('link', { name: 'Go back to Pods' });
-    this.startButton = this.page.getByRole('button').and(this.page.getByLabel('Start Pod', { exact: true }));
-    this.stopButton = this.page.getByRole('button').and(this.page.getByLabel('Stop Pod', { exact: true }));
-    this.restartButton = this.page.getByRole('button').and(this.page.getByLabel('Restart Pod', { exact: true }));
-    this.deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Pod', { exact: true }));
-  }
-
-  async activateTab(tabName: string): Promise<void> {
-    const tabItem = this.page.getByRole('link', { name: tabName });
-    await playExpect(tabItem).toBeEnabled();
-    await tabItem.click();
+    super(page, name);
+    this.startButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Start Pod', { exact: true }));
+    this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Pod', { exact: true }));
+    this.restartButton = this.controlActions
+      .getByRole('button')
+      .and(this.page.getByLabel('Restart Pod', { exact: true }));
+    this.deleteButton = this.controlActions
+      .getByRole('button')
+      .and(this.page.getByLabel('Delete Pod', { exact: true }));
   }
 
   async getState(): Promise<string> {
-    const currentState = await this.page.getByRole('status').getAttribute('title');
+    const currentState = await this.header.getByRole('status').getAttribute('title');
     for (const state of Object.values(PodState)) {
       if (currentState === state) return state;
     }

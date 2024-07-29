@@ -145,7 +145,6 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         .poll(async () => await containerDetails.getState(), { timeout: 15000 })
         .toBe(ContainerState.Running.toLowerCase());
     });
-
     test('Podify containers', async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
@@ -156,7 +155,21 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Running);
     }, 90000);
+    test('Test navigation between pages', async () => {
+      const navigationBar = new NavigationBar(page);
+      const pods = await navigationBar.openPods();
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
 
+      const podDetails = await pods.openPodDetails(podToRun);
+      await playExpect(podDetails.heading).toBeVisible();
+      await podDetails.backLink.click();
+      await playExpect(pods.heading).toBeVisible();
+
+      await pods.openPodDetails(podToRun);
+      await playExpect(podDetails.heading).toBeVisible();
+      await podDetails.closeButton.click();
+      await playExpect(pods.heading).toBeVisible();
+    });
     test('Checking pod details', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();

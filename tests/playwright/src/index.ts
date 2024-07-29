@@ -43,6 +43,7 @@ export * from './model/pages/container-details-page';
 export * from './model/pages/containers-page';
 export * from './model/pages/create-pod-page';
 export * from './model/pages/dashboard-page';
+export * from './model/pages/details-page';
 export * from './model/pages/extension-card-page';
 export * from './model/pages/extension-catalog-card-page';
 export * from './model/pages/extension-details-page';

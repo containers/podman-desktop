@@ -61,7 +61,22 @@ describe('Volume workflow verification', async () => {
 
     await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
   });
+  test('Test navigation between pages', async () => {
+    const volumesPage = await navBar.openVolumes();
+    await playExpect(volumesPage.heading).toBeVisible();
+    const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
+    playExpect(volumeRow).not.toBeUndefined();
 
+    const volumeDetails = await volumesPage.openVolumeDetails(volumeName);
+    await playExpect(volumeDetails.heading).toBeVisible();
+    await volumeDetails.backLink.click();
+    await playExpect(volumesPage.heading).toBeVisible();
+
+    await volumesPage.openVolumeDetails(volumeName);
+    await playExpect(volumeDetails.heading).toBeVisible();
+    await volumeDetails.closeButton.click();
+    await playExpect(volumesPage.heading).toBeVisible();
+  });
   test('Delete volume through details page', async () => {
     let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();

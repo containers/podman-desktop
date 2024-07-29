@@ -39,14 +39,14 @@ test('Expect title is defined', async () => {
   expect(titleElement).toHaveTextContent(title);
 });
 
-test('Expect name is defined', async () => {
+test('Expect page name is defined', async () => {
   const name = 'My Dummy Name';
   render(DetailsPage, {
     title: 'No Title',
     breadcrumbRightPart: name,
   });
 
-  const nameElement = screen.getByLabelText('name');
+  const nameElement = screen.getByLabelText('Page Name');
   expect(nameElement).toBeInTheDocument();
   expect(nameElement).toHaveTextContent(name);
 });
@@ -60,7 +60,7 @@ test('Expect backlink is defined', async () => {
     onbreadcrumbClick: breadcrumbClickMock,
   });
 
-  const backElement = screen.getByLabelText('back');
+  const backElement = screen.getByLabelText('Back');
   expect(backElement).toBeInTheDocument();
   expect(backElement).toHaveTextContent(backName);
 

@@ -39,38 +39,26 @@ test('Expect title is defined', async () => {
   expect(titleElement).toHaveTextContent(title);
 });
 
-test('Expect name is defined', async () => {
-  const name = 'My Dummy Name';
-  render(Page, {
-    title: 'No Title',
-    breadcrumbRightPart: name,
-  });
-
-  const nameElement = screen.getByLabelText('name');
-  expect(nameElement).toBeInTheDocument();
-  expect(nameElement).toHaveTextContent(name);
-});
-
 test('Expect no backlink or close is defined', async () => {
   render(Page, {
     title: 'No Title',
   });
 
-  const backElement = screen.queryByLabelText('back');
+  const backElement = screen.queryByLabelText('Back');
   expect(backElement).not.toBeInTheDocument();
 
   const closeElement = screen.queryByTitle('Close');
   expect(closeElement).toBeInTheDocument();
 });
 
-test('Expect name is defined', async () => {
+test('Expect page name is defined', async () => {
   const name = 'My Dummy Name';
   render(Page, {
     title: 'No Title',
     breadcrumbRightPart: name,
   });
 
-  const nameElement = screen.getByLabelText('name');
+  const nameElement = screen.getByLabelText('Page Name');
   expect(nameElement).toBeInTheDocument();
   expect(nameElement).toHaveTextContent(name);
 });
@@ -86,7 +74,7 @@ test('Expect backlink is defined', async () => {
     onbreadcrumbClick: breadcrumbClickMock,
   });
 
-  const backElement = screen.getByLabelText('back');
+  const backElement = screen.getByLabelText('Back');
   expect(backElement).toBeInTheDocument();
   expect(backElement).toHaveTextContent(backName);
 

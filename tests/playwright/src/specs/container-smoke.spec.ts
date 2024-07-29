@@ -113,7 +113,20 @@ describe('Verification of container creation workflow', async () => {
     images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
+  test('Test navigation between pages', async () => {
+    const navigationBar = new NavigationBar(page);
+    const containers = await navigationBar.openContainers();
 
+    const containersDetails = await containers.openContainersDetails(containerToRun);
+    await playExpect(containersDetails.heading).toBeVisible();
+    await containersDetails.backLink.click();
+    await playExpect(containers.heading).toBeVisible();
+
+    await containers.openContainersDetails(containerToRun);
+    await playExpect(containersDetails.heading).toBeVisible();
+    await containersDetails.closeButton.click();
+    await playExpect(containers.heading).toBeVisible();
+  });
   test('Open a container details', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
