@@ -63,7 +63,7 @@ test('Verify selected file will be applied', async () => {
   await userEvent.click(button);
 
   expect(openDialogMock).toHaveBeenCalled();
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, [filename], currentNamespace);
 });
 
 test('Verify success will open an info dialog', async () => {
@@ -78,7 +78,7 @@ test('Verify success will open an info dialog', async () => {
   await userEvent.click(button);
 
   expect(openDialogMock).toHaveBeenCalled();
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, [filename], currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
   expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'info' }));
@@ -97,8 +97,11 @@ test('Verify multiple file success will open an info dialog', async () => {
   await userEvent.click(button);
 
   expect(openDialogMock).toHaveBeenCalled();
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename1, currentNamespace);
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename2, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(
+    currentContext,
+    [filename1, filename2],
+    currentNamespace,
+  );
 
   expect(showMessageBoxMock).toHaveBeenCalled();
   expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'info' }));
@@ -116,7 +119,7 @@ test('Verify no results will open a warning dialog', async () => {
   await userEvent.click(button);
 
   expect(openDialogMock).toHaveBeenCalled();
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, [filename], currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
   expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'warning' }));
@@ -134,7 +137,7 @@ test('Verify failure will open an error dialog', async () => {
   await userEvent.click(button);
 
   expect(openDialogMock).toHaveBeenCalled();
-  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, [filename], currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
   expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
