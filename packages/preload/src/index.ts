@@ -854,7 +854,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -865,6 +866,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );
@@ -887,7 +889,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -898,6 +901,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );
@@ -1034,7 +1038,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -1046,6 +1051,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );

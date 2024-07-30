@@ -7,7 +7,11 @@ import type { CliToolInfo } from '/@api/cli-tool-info';
 
 import Markdown from '../markdown/Markdown.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import {
+  type ConnectionCallback,
+  eventCollect,
+  registerConnectionCallback,
+} from './preferences-connection-rendering-task';
 import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;
@@ -22,11 +26,7 @@ async function update(cliTool: CliToolInfo) {
   try {
     cliToolStatus.inProgress = true;
     cliToolStatus = cliToolStatus;
-    const loggerHandlerKey = startTask(
-      `Update ${cliTool.name} to v${cliTool.newVersion}`,
-      '/preferences/cli-tools',
-      getLoggerHandler(cliTool.id),
-    );
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
     await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
     cliToolStatus.status = 'unknown';

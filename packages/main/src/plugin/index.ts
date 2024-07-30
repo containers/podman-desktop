@@ -1339,14 +1339,33 @@ export class PluginSystem {
       'cli-tool-registry:updateCliTool',
       async (_listener, id: string, loggerId: string): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:updateCliTool-onData', loggerId);
-        try {
-          await cliToolRegistry.updateCliTool(id, logger);
-        } catch (error) {
-          logger.error(error);
-          throw error;
-        } finally {
-          logger.onEnd();
-        }
+        const tool = cliToolRegistry.getCliToolInfos().find(tool => tool.id === id);
+        if (!tool) throw new Error(`cannot find cli tool with id ${id}`);
+
+        // create task
+        const task = taskManager.createTask({
+          title: `Update ${tool.name} to v${tool.newVersion}`,
+          action: {
+            name: 'goto task >',
+            execute: (): void => {
+              navigationManager.navigateToCliTools().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return cliToolRegistry
+          .updateCliTool(id, logger)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((error: unknown) => {
+            task.error = `Something went wrong while trying to update ${tool.name}: ${error}`;
+            logger.error(error);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1820,9 +1839,30 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
+        const task = taskManager.createTask({
+          title: `Start ${providerConnectionInfo.name}`,
+          action: {
+            name: 'Go to task >',
+            execute: () => {
+              navigationManager.navigateToResources().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.startProviderConnection(providerId, providerConnectionInfo, logger);
-        logger.onEnd();
+        return providerRegistry
+          .startProviderConnection(providerId, providerConnectionInfo, logger)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.state = 'error';
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1834,9 +1874,30 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
+        const task = taskManager.createTask({
+          title: `Stop ${providerConnectionInfo.name}`,
+          action: {
+            name: 'Go to task >',
+            execute: () => {
+              navigationManager.navigateToResources().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.stopProviderConnection(providerId, providerConnectionInfo, logger);
-        logger.onEnd();
+        await providerRegistry
+          .stopProviderConnection(providerId, providerConnectionInfo, logger)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.state = 'error';
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1849,7 +1910,8 @@ export class PluginSystem {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         params: { [key: string]: any },
         loggerId: string,
-        tokenId?: number,
+        tokenId: number | undefined,
+        taskId: number | undefined,
       ): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
@@ -1857,8 +1919,30 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        await providerRegistry.editProviderConnection(providerId, providerConnectionInfo, params, logger, token);
-        logger.onEnd();
+
+        const task = taskManager.createTask({
+          title: `Create Container provider`,
+          action: {
+            name: 'Open task',
+            execute: () => {
+              navigationManager.navigateToProviderTask(providerId, taskId).catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return providerRegistry
+          .editProviderConnection(providerId, providerConnectionInfo, params, logger, token)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while creating container provider: ${err}`;
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1870,9 +1954,30 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
+        const task = taskManager.createTask({
+          title: `Delete ${providerConnectionInfo.name}`,
+          action: {
+            name: 'Go to resources',
+            execute: () => {
+              navigationManager.navigateToResources().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.deleteProviderConnection(providerId, providerConnectionInfo, logger);
-        logger.onEnd();
+        return providerRegistry
+          .deleteProviderConnection(providerId, providerConnectionInfo, logger)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to delete ${providerConnectionInfo.name}`;
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1883,7 +1988,8 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
-        tokenId?: number,
+        tokenId: number | undefined,
+        taskId: number | undefined,
       ): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
@@ -1891,14 +1997,32 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        try {
-          await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
-        } catch (error) {
-          logger.error(error);
-          throw error;
-        } finally {
-          logger.onEnd();
-        }
+
+        const task = taskManager.createTask({
+          title: `Create Container provider`,
+          action: {
+            name: 'Open task',
+            execute: () => {
+              navigationManager
+                .navigateToProviderTask(internalProviderId, taskId)
+                .catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return providerRegistry
+          .createContainerProviderConnection(internalProviderId, params, logger, token)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to create provider: ${err}`;
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
@@ -1920,7 +2044,8 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
-        tokenId?: number,
+        tokenId: number | undefined,
+        taskId: number | undefined,
       ): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
@@ -1928,14 +2053,32 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        try {
-          await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
-        } catch (error) {
-          logger.error(error);
-          throw error;
-        } finally {
-          logger.onEnd();
-        }
+
+        const task = taskManager.createTask({
+          title: `Create Kubernetes provider`,
+          action: {
+            name: 'Open task',
+            execute: () => {
+              navigationManager
+                .navigateToProviderTask(internalProviderId, taskId)
+                .catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return providerRegistry
+          .createKubernetesProviderConnection(internalProviderId, params, logger, token)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to create provider: ${err}`;
+            logger.error(err);
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 

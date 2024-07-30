@@ -30,7 +30,7 @@ import {
   disconnectUI,
   eventCollect,
   reconnectUI,
-  startTask,
+  registerConnectionCallback,
 } from './preferences-connection-rendering-task';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import { calcHalfCpuCores, getInitialValue, isPropertyValidInContext, writeToTerminal } from './Util';
@@ -43,7 +43,8 @@ export let callback: (
   data: any,
   handlerKey: symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-  tokenId?: number,
+  tokenId: number | undefined,
+  taskId: number | undefined,
 ) => Promise<void>;
 export let taskId: number | undefined = undefined;
 export let disableEmptyScreen = false;
@@ -59,13 +60,6 @@ let operationFailed = false;
 export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number | undefined;
-
-const providerDisplayName =
-  (providerInfo.containerProviderConnectionCreation
-    ? (providerInfo.containerProviderConnectionCreationDisplayName ?? undefined)
-    : providerInfo.kubernetesProviderConnectionCreation
-      ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-      : undefined) ?? providerInfo.name;
 
 let osMemory: string;
 let osCpu: string;
@@ -366,13 +360,9 @@ async function handleOnSubmit(e: any) {
     tokenId = await window.getCancellableTokenSource();
     // clear terminal
     logsTerminal?.clear();
-    loggerHandlerKey = startTask(
-      connectionInfo ? `Update ${providerDisplayName} ${connectionInfo.name}` : `Create ${providerDisplayName}`,
-      `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
-      getLoggerHandler(),
-    );
+    loggerHandlerKey = registerConnectionCallback(getLoggerHandler());
     updateStore();
-    await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId);
+    await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId, taskId);
   } catch (error: any) {
     //display error
     tokenId = undefined;

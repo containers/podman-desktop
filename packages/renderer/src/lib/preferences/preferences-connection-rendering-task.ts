@@ -58,10 +58,7 @@ const taskLogCallbacks = new Map<symbol, ConnectionCallback>();
 const taskLogOnHolds = new Map<symbol, TaskHold>();
 const taskLogReplays = new Map<symbol, TaskReplay>();
 
-/**
- * @deprecated found better way of doing this weird things
- */
-export function startTask(name: string, goToUrl: string, createCallback: ConnectionCallback): symbol {
+export function registerConnectionCallback(createCallback: ConnectionCallback): symbol {
   const key = getKey();
   taskLogCallbacks.set(key, createCallback);
 
