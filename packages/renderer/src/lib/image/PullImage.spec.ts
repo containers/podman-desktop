@@ -285,7 +285,7 @@ describe('PullImage', () => {
     await userEvent.keyboard('[Enter]');
 
     expect(listImageTagsInRegistryMock).toHaveBeenCalled();
-    const textboxTags = screen.getByPlaceholderText('Image tag');
+    const textboxTags = screen.getByPlaceholderText('Image tag (optional)');
     expect(textboxTags).toBeEnabled();
     await userEvent.type(textboxTags, '2');
     await userEvent.keyboard('[Enter]');
