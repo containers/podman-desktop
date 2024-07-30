@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { type ConnectionCallback, startTask } from './preferences-connection-rendering-task';
+import { type ConnectionCallback, registerConnectionCallback } from './preferences-connection-rendering-task';
 import { disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
 
 const dummyCallback: ConnectionCallback = {
@@ -40,7 +40,7 @@ beforeEach(() => {
 });
 
 test('check reconnect', async () => {
-  const firstKey = startTask('bar', '2', dummyCallback);
+  const firstKey = registerConnectionCallback(dummyCallback);
 
   // stream some stuff
   eventCollect(firstKey, 'log', ['hello']);
@@ -60,7 +60,7 @@ test('check reconnect', async () => {
 });
 
 test('check events', async () => {
-  const firstKey = startTask('baz', 'url', dummyCallback);
+  const firstKey = registerConnectionCallback(dummyCallback);
 
   // stream some stuff
   eventCollect(firstKey, 'log', ['hello']);
