@@ -230,7 +230,7 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
           class="grow"
           items={imageTags}
           disabled={!tagsEnabled || pullFinished || pullInProgress}
-          placeholder="Image tag"
+          placeholder="Image tag (optional)"
           onChange={v => (imageTag = v.detail.value)}
           onClear={() => (imageTag = '')}>
         </Select>
