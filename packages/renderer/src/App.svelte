@@ -132,6 +132,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
         </Route>
+        <Route path="/images/run/*" breadcrumb="Run Image">
+          <RunImage />
+        </Route>
         <Route path="/images/:id/:engineId" breadcrumb="Images" let:meta navigationHint="root">
           <ImagesList searchTerm={meta.params.id} imageEngineId={meta.params.engineId} />
         </Route>
@@ -157,9 +160,6 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/images/build" breadcrumb="Build an Image">
           <BuildImageFromContainerfile />
-        </Route>
-        <Route path="/images/run/*" breadcrumb="Run Image">
-          <RunImage />
         </Route>
         <Route path="/images/pull" breadcrumb="Pull an Image">
           <PullImage />
