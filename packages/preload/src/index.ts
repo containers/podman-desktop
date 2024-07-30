@@ -1968,6 +1968,10 @@ export function initExposure(): void {
     return ipcInvoke('os:getHostCpu');
   });
 
+  contextBridge.exposeInMainWorld('setNativeTheme', async (themeSource: 'system' | 'light' | 'dark'): Promise<void> => {
+    return ipcInvoke('native:theme', themeSource);
+  });
+
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {
     return ipcInvoke('feedback:send', feedback);
   });

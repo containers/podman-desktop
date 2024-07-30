@@ -15,9 +15,11 @@ async function updateAppearance(): Promise<void> {
   if (isDark) {
     html.classList.add('dark');
     html.setAttribute('style', 'color-scheme: dark;');
+    window.setNativeTheme('dark');
   } else {
     html.classList.remove('dark');
     html.setAttribute('style', 'color-scheme: light;');
+    window.setNativeTheme('light');
   }
 }
 
