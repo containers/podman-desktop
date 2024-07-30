@@ -194,6 +194,7 @@ export class PodmanDesktopRunner {
     }
 
     if (this.getElectronApp()) {
+      const pid = this.getElectronApp()?.process()?.pid;
       const timeout = 30000;
       console.log(`Closing Podman Desktop with a timeout of ${timeout} ms`);
       try {
@@ -204,9 +205,9 @@ export class PodmanDesktopRunner {
       } catch (err: unknown) {
         console.log(`Caught exception in closing: ${err}`);
         console.log(`Trying to kill the electron app process`);
-        if (this.getElectronApp()?.process()?.pid) {
-          console.log(`Killing the electron app process with PID: ${this.getElectronApp()?.process()?.pid}`);
-          process.kill(this.getElectronApp()?.process()?.pid as number);
+        if (pid) {
+          console.log(`Killing the electron app process with PID: ${pid}`);
+          process.kill(pid as number);
         }
       }
     }
