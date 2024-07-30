@@ -26,5 +26,5 @@ async function deleteExtension(): Promise<void> {
     action="delete"
     icon={faTrashCan}
     state={{ status: extension.type === 'dd' ? 'stopped' : extension.removable ? extension.state : '', inProgress }}
-    leftPosition="" />
+    leftPosition="left-[0.2rem]" />
 </div>

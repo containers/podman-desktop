@@ -168,7 +168,7 @@ function getLoggerHandler(
               action="start"
               icon={faPlay}
               state={connectionStatus}
-              leftPosition="left-[0.15rem]" />
+              leftPosition="left-[0.1rem]" />
           </div>
         {/if}
         {#if connection.lifecycleMethods.includes('start') && connection.lifecycleMethods.includes('stop')}
@@ -177,7 +177,7 @@ function getLoggerHandler(
             action="restart"
             icon={faRotateRight}
             state={connectionStatus}
-            leftPosition="left-1.5" />
+            leftPosition="left-[0.25rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('stop')}
           <LoadingIconButton
@@ -185,7 +185,7 @@ function getLoggerHandler(
             action="stop"
             icon={faStop}
             state={connectionStatus}
-            leftPosition="left-[0.22rem]" />
+            leftPosition="left-[0.12rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('edit')}
           <LoadingIconButton
@@ -193,7 +193,7 @@ function getLoggerHandler(
             action="edit"
             icon={faEdit}
             state={connectionStatus}
-            leftPosition="left-[0.22rem]" />
+            leftPosition="left-[0.12rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('delete')}
           <div class="mr-2 text-sm">
@@ -202,7 +202,7 @@ function getLoggerHandler(
               action="delete"
               icon={faTrash}
               state={connectionStatus}
-              leftPosition="left-1" />
+              leftPosition="left-[0.15rem]" />
           </div>
         {/if}
       </div>
