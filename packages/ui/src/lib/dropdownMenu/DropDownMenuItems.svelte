@@ -10,6 +10,7 @@ export let clientY: number;
 export let clientX: number;
 
 const STATUS_BAR_HEIGHT = 24;
+const NAV_BAR_WIDTH = 48;
 
 // When initializing the widget, set the placement on top or on bottom
 // depending on the clientY position (cursor position) and the height of the dropdown menu to display
