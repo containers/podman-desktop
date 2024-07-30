@@ -110,7 +110,6 @@ import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
 import { AppearanceInit } from './appearance-init.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';
-import { showAccountsMenu } from './authentication-menu.js';
 import { AutostartEngine } from './autostart-engine.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 import { Certificates } from './certificates.js';
@@ -1739,10 +1738,6 @@ export class PluginSystem {
         await authentication.executeSessionRequest(requestId);
       },
     );
-
-    this.ipcHandle('authentication:showAccountsMenu', async (_listener, x: number, y: number): Promise<void> => {
-      return showAccountsMenu(x, y, authentication, navigationManager);
-    });
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
