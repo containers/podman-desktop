@@ -10,6 +10,7 @@ export let clientY: number;
 export let clientX: number;
 
 const STATUS_BAR_HEIGHT = 24;
+const NAV_BAR_WIDTH = 48;
 
 // When initializing the widget, set the placement on top or on bottom
 // depending on the clientY position (cursor position) and the height of the dropdown menu to display
@@ -21,9 +22,13 @@ onMount(() => {
     dropDownElement.style.top = '20px';
   }
 
+<<<<<<< HEAD
   // When initializing the widget, set the placement on left or right
   // depending on the clientX position (cursor position) and the width of the dropdown menu to display
   if (window.innerWidth - clientX < dropDownWidth) {
+=======
+  if (window.innerWidth - clientX - NAV_BAR_WIDTH < dropDownWidth) {
+>>>>>>> c556038c (chore: use dropdownmenu component for always on buddy widget popup menu)
     sideAlign = 'right-0 origin-top-right';
   } else {
     sideAlign = 'left-0 origin-top-left';
