@@ -18,6 +18,8 @@
 
 import type { Port } from '@podman-desktop/api';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -136,6 +138,18 @@ export class ContainerUtils {
     return containerInfo.engineName;
   }
 
+  getImageHref(containerInfo: ContainerInfo): string {
+    const repoTag = containerInfo.ImageBase64RepoTag
+      ? Buffer.from(containerInfo.ImageBase64RepoTag, 'base64').toString()
+      : '';
+    const shortUrl = `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
+    if (repoTag.startsWith('sha256:') || repoTag === '') {
+      return shortUrl;
+    } else {
+      return `${shortUrl}/${containerInfo.ImageBase64RepoTag}/summary`;
+    }
+  }
+
   getContainerInfoUI(
     containerInfo: ContainerInfo,
     context?: ContextUI,
@@ -165,7 +179,7 @@ export class ContainerUtils {
       labels: containerInfo.Labels,
       icon: this.iconClass(containerInfo, context, viewContributions) ?? ContainerIcon,
       imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
-      imageHref: `/images/${containerInfo.ImageID.startsWith('sha256:') ? containerInfo.ImageID.slice(7) : containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
+      imageHref: this.getImageHref(containerInfo),
     };
   }
 
