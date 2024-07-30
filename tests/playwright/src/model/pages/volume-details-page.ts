@@ -20,6 +20,7 @@ import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
+import { VolumeState } from '../core/states';
 import { DetailsPage } from './details-page';
 import { VolumesPage } from './volumes-page';
 
@@ -33,13 +34,8 @@ export class VolumeDetailsPage extends DetailsPage {
     this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete Volume' });
   }
 
-  async getStateLocator(): Promise<Locator> {
-    await this.activateTab(VolumeDetailsPage.SUMMARY_TAB);
-    const summaryTable = this.tabContent.getByRole('table');
-    const stateRow = summaryTable.locator('tr:has-text("State")');
-    const stateCell = stateRow.getByRole('cell').nth(1);
-    await stateCell.waitFor({ state: 'visible', timeout: 500 });
-    return stateCell;
+  async isUsed(): Promise<boolean> {
+    return (await this.header.getByTitle(VolumeState.Used).count()) > 0;
   }
 
   async deleteVolume(): Promise<VolumesPage> {
