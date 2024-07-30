@@ -36,6 +36,7 @@ import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { PodmanInstall } from './podman-install';
+import { PodmanRemoteConnections } from './podman-remote-connections';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import {
@@ -1631,6 +1632,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await registrySetup.setup();
 
   await calcPodmanMachineSetting(podmanConfiguration);
+
+  const podmanRemoteConnections = new PodmanRemoteConnections(extensionContext, provider);
+  podmanRemoteConnections.start();
 }
 
 export async function calcPodmanMachineSetting(podmanConfiguration: PodmanConfiguration): Promise<void> {

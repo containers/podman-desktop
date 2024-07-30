@@ -51,6 +51,11 @@
           "default": "",
           "description": "Custom path to Podman binary (Default is blank)"
         },
+        "podman.system.connections.remote": {
+          "type": "boolean",
+          "default": false,
+          "description": "Load remote system connections (ssh)"
+        },
         "podman.machine.cpus": {
           "type": "number",
           "format": "cpu",
@@ -380,9 +385,11 @@
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
     "compare-versions": "^6.1.1",
-    "ps-list": "^8.1.1"
+    "ps-list": "^8.1.1",
+    "ssh2": "^1.15.0"
   },
   "devDependencies": {
+    "@types/ssh2": "^1.15.0",
     "adm-zip": "^0.5.14",
     "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
