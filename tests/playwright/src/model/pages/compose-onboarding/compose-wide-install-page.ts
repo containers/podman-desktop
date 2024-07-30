@@ -21,12 +21,10 @@ import type { Locator, Page } from 'playwright';
 import { ComposeOnboardingPage } from './compose-onboarding-page';
 
 export class ComposeWideInstallPage extends ComposeOnboardingPage {
-  readonly composeUseMessage: Locator;
   readonly composeCommandMessage: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.composeUseMessage = this.mainPage.getByText('How to use Compose');
-    this.composeCommandMessage = this.mainPage.getByText('$ podman compose up');
+    this.composeCommandMessage = this.mainPage.getByText('$ podman compose up', { exact: true });
   }
 }

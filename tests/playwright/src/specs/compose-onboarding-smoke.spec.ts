@@ -129,7 +129,6 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     const onboardingWidePage = new ComposeWideInstallPage(page);
     await playExpect(onboardingWidePage.onboardingStatusMessage).toHaveText('Compose installed', { timeout: 50000 });
     await playExpect(onboardingWidePage.mainPage.getByRole('heading', { name: 'How To Use Compose' })).toBeVisible();
-    await playExpect(onboardingWidePage.composeUseMessage).toBeVisible();
     await playExpect(onboardingWidePage.composeCommandMessage).toBeVisible();
     await playExpect(onboardingWidePage.nextStepButton).toBeEnabled();
     await onboardingWidePage.nextStepButton.click();
