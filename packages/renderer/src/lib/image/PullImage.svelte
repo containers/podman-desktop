@@ -15,6 +15,8 @@ import Select from '../ui/Select.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
+const DOCKER_PREFIX = 'docker.io';
+
 let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
@@ -140,9 +142,8 @@ async function onChange(value: string): Promise<void> {
   }
   if (!imageNameIsInvalid) {
     let image = imageToPull;
-    if (image.startsWith('docker.io/')) {
-      const parts = image.split('/');
-      image = ['library', parts.slice(1)].join('/');
+    if (image.startsWith(DOCKER_PREFIX + '/')) {
+      image = image.slice(DOCKER_PREFIX.length + 1);
     }
     imageTags = await window.listImageTagsInRegistry({ image });
     if (imageTags.length) {
@@ -163,7 +164,7 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
     query: '',
   };
   if (!value.includes('/')) {
-    options.registry = 'docker.io';
+    options.registry = DOCKER_PREFIX;
     options.query = value;
   } else {
     const [registry, ...rest] = value.split('/');

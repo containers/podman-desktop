@@ -294,4 +294,128 @@ describe('PullImage', () => {
     await userEvent.click(button);
     expect(pullImageMock).toHaveBeenCalledWith(expect.anything(), 'docker.io/an-image:2two', expect.anything());
   });
+
+  test('Except that docker.io registry is used when registry name is omitted', async () => {
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'a-search-without-registry');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    expect(searchImageInRegistryMock).toHaveBeenCalledWith({
+      query: 'a-search-without-registry',
+      registry: 'docker.io',
+    });
+  });
+
+  test('Except that specified registry is used', async () => {
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'my-registry/a-search-with-registry');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    expect(searchImageInRegistryMock).toHaveBeenCalledWith({
+      query: 'a-search-with-registry',
+      registry: 'my-registry',
+    });
+  });
+
+  test('get list of tags from docker.io registry, with implicit registry', async () => {
+    searchImageInRegistryMock.mockReturnValue([
+      {
+        name: 'a-search',
+        is_official: true,
+        star_count: 100,
+      },
+    ]);
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'a-search');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Enter]');
+    expect(listImageTagsInRegistryMock).toHaveBeenCalledWith({
+      image: 'a-search',
+    });
+  });
+
+  test('get list of tags when image is not discoverable', async () => {
+    searchImageInRegistryMock.mockRejectedValue(new Error('an-error'));
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'a-non-discoverable-image');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Enter]');
+    expect(listImageTagsInRegistryMock).toHaveBeenCalledWith({
+      image: 'a-non-discoverable-image',
+    });
+  });
+
+  test('get list of tags from docker.io registry, with explicit registry', async () => {
+    searchImageInRegistryMock.mockReturnValue([
+      {
+        name: 'a-search',
+        is_official: true,
+        star_count: 100,
+      },
+    ]);
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'docker.io/a-search');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Enter]');
+    expect(listImageTagsInRegistryMock).toHaveBeenCalledWith({
+      image: 'a-search',
+    });
+  });
+
+  test('get list of tags from quay.io registry', async () => {
+    searchImageInRegistryMock.mockReturnValue([
+      {
+        name: 'a-search',
+        is_official: true,
+        star_count: 100,
+      },
+    ]);
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'quay.io/a-search');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Enter]');
+    expect(listImageTagsInRegistryMock).toHaveBeenCalledWith({
+      image: 'quay.io/a-search',
+    });
+  });
 });
