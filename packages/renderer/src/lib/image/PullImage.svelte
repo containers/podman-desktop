@@ -170,15 +170,24 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
     options.registry = registry;
     options.query = rest.join('/');
   }
-  const result = await window.searchImageInRegistry(options);
-  return result.map(r => {
-    let official = r.is_official ? ' ✓' : '';
-    let stars = r.star_count ? ` [★${r.star_count}]` : '';
-    return {
-      value: [options.registry, r.name].join('/'),
-      label: `${[options.registry, r.name].join('/')}${stars}${official}`,
-    };
-  });
+  try {
+    const result = await window.searchImageInRegistry(options);
+    return result.map(r => {
+      let official = r.is_official ? ' ✓' : '';
+      let stars = r.star_count ? ` [★${r.star_count}]` : '';
+      return {
+        value: [options.registry, r.name].join('/'),
+        label: `${[options.registry, r.name].join('/')}${stars}${official}`,
+      };
+    });
+  } catch {
+    return [
+      {
+        value: value,
+        label: value,
+      },
+    ];
+  }
 }
 </script>
 

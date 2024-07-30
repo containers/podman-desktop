@@ -23,9 +23,9 @@ export interface ImageSearchOptions {
 
 export interface ImageSearchResult {
   name: string;
-  description: string;
-  star_count: number;
-  is_official: boolean;
+  description?: string;
+  star_count?: number;
+  is_official?: boolean;
 }
 
 export interface ImageTagsListOptions {
