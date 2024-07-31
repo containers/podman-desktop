@@ -206,6 +206,7 @@ describe.each([
         expect.anything(),
         eventCollect,
         undefined,
+        taskId,
       );
       expect(providedKeyLogger).toBeDefined();
 
@@ -397,6 +398,7 @@ test(`Expect create with unchecked and checked checkboxes`, async () => {
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });
 
@@ -460,5 +462,6 @@ test(`Expect create with unchecked and checked checkboxes having multiple scopes
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });
