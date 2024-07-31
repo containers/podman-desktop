@@ -19,6 +19,7 @@ let filesProvider: ImageFilesInfo;
 let selectedLayer: ImageFilesystemLayerUI;
 let showLayerOnly: boolean;
 let loading: boolean;
+let cancellableTokenId: number = 0;
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
@@ -29,19 +30,23 @@ onMount(async () => {
     if (providers.length === 1 && imageInfo) {
       filesProvider = providers[0];
       loading = true;
-      window
-        .imageGetFilesystemLayers(filesProvider.id, imageInfo)
-        .then(layers => {
-          imageLayers = layers;
-        })
-        .finally(() => {
-          loading = false;
-        });
+      window.getCancellableTokenSource().then(token => {
+        cancellableTokenId = token;
+        window
+          .imageGetFilesystemLayers(filesProvider.id, imageInfo, cancellableTokenId)
+          .then(layers => {
+            imageLayers = layers;
+          })
+          .finally(() => {
+            loading = false;
+          });
+      });
     }
   });
 });
 
 onDestroy(() => {
+  window.cancelToken(cancellableTokenId);
   filesProvidersUnsubscribe?.();
 });
 </script>
