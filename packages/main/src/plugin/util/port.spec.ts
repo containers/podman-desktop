@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { once } from 'node:events';
 import * as net from 'node:net';
 
 import { expect, test } from 'vitest';
@@ -59,6 +60,7 @@ test.each(hosts)(
 
     const server = net.createServer();
     server.listen(endRange, host);
+    await once(server, 'listening');
 
     const newRange = await port.getFreePortRange(3);
 
@@ -97,6 +99,7 @@ test.each(hosts)(
     // create a server to make port 20000 busy
     const server = net.createServer();
     server.listen(port20000, host);
+    await once(server, 'listening');
 
     // as 20000 is busy it should increment it and return 20001
     const freePort = await port.getFreePort(port20000);
@@ -118,9 +121,11 @@ test.each(hosts)(
     // create a server to make port 20000 busy
     const server = net.createServer();
     server.listen(port20000, host);
+    await once(server, 'listening');
 
     const server2 = net.createServer();
     server2.listen(port20001, host);
+    await once(server2, 'listening');
 
     // as 20000 is busy it should increment it and return 20001
     const freePort = await port.getFreePort(port20000);
