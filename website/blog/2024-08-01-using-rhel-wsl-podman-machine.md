@@ -6,15 +6,16 @@ tags: [podman-desktop, podman, rhel, wsl, machine]
 hide_table_of_contents: false
 ---
 
-Red Hat provides a tool called image builder that allows developers to build their own custom image of RHEL in a variety of format. Recently, image builder added WSL as a target so you can run RHEL on Windows as a WSL distribution.
+Red Hat provides a tool called Image Builder that allows developers to build their own custom image of RHEL in a variety of formats. Recently, Image Builder added WSL as a target, enabling you to run RHEL on Windows as a WSL distribution.
+
 
 This [article](https://developers.redhat.com/articles/2023/11/15/create-customized-rhel-images-wsl-environment) details the steps and actions required to build and run your RHEL WSL image.
 
-The purpose of this article is to describe the options needed for the RHEL WSL distribution so that is can be used as a Podman machine.
+The purpose of this article is to describe the options needed for the RHEL WSL distribution so that it can be used as a Podman machine.
 
 # Requirements
 
-In order to be used as a Podman machine, we need to ensure that the following packages are installed in the RHEL WSL images:
+To use the RHEL WSL image as a Podman machine, ensure that the following packages are installed:
 
 - podman
 - podman-docker
@@ -26,7 +27,8 @@ In order to be used as a Podman machine, we need to ensure that the following pa
 - sudo
 - systemd-networkd
 
-Luckily, all but the last package are available from the RHEL 8 repositories that are pre configured. The last package (systemd-networkd) is available from the EPEL 8 repository and will need to be configured when building the image.
+Luckily, all but the last package are available from the pre-configured RHEL 8 repositories. The last package (systemd-networkd) is available from the EPEL 8 repository and will need to be configured when building the image.
+
 
 # Build the image
 
@@ -133,7 +135,7 @@ On the **Review** page:
 
 ![images list](img/using-rhel-wsl-podman-machine\rhel-wsl-podman-machine9.png)
 
-The image is being built. Once build is finished, the download link is available. Click on the **Download (.tar.gz)** link and save the downloaded file to one of your local folder.
+The image is being built. Once the build is finished, the download link will be available. Click on the **Download (.tar.gz)** link and save the downloaded file to one of your local folders.
 
 # Create the RHEL WSL podman machine
 
@@ -143,7 +145,7 @@ Launch Podman Desktop and go to the **Settings -> Resources** page:
 
 On the Podman provider, click on **Create new ...**
 
-In the **Create Podman machine** page, select the **Browse** button for the **Image Path** field and select the file downloaded from image builder
+On the **Create Podman machine** page, click the **Browse** button for the **Image Path** field and select the file downloaded from Image Builder.
 
 ![create podman machine](img/using-rhel-wsl-podman-machine\rhel-wsl-podman-machine11.png)
 
