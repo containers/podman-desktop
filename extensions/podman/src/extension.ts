@@ -1759,7 +1759,7 @@ export function isUserModeNetworkingSupported(podmanVersion: string): boolean {
   return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
 }
 
-const PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT = '5.2.0';
+const PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT = '5.2.0-rc1';
 
 // Checks if libkrun is supported. Only Mac platform allows this parameter to be tuned
 export function isLibkrunSupported(podmanVersion: string): boolean {
