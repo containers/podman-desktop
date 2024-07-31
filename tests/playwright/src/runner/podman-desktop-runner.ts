@@ -207,7 +207,11 @@ export class PodmanDesktopRunner {
         console.log(`Trying to kill the electron app process`);
         if (pid) {
           console.log(`Killing the electron app process with PID: ${pid}`);
-          process.kill(pid as number);
+          try {
+            process.kill(pid as number);
+          } catch (error: unknown) {
+            console.log(`Exception thrown when killing the process: ${error}`);
+          }
         }
       }
     }
