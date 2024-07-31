@@ -40,6 +40,22 @@ export class NavigationManager {
     this.apiSender.send('navigate', navigateRequest);
   }
 
+  async navigateToProviderTask(internalProviderId: string, taskId?: number): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.PROVIDER_TASK,
+      parameters: {
+        internalId: internalProviderId,
+        taskId: taskId,
+      },
+    });
+  }
+
+  async navigateToCliTools(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.CLI_TOOLS,
+    });
+  }
+
   async navigateToHelp(): Promise<void> {
     this.navigateTo({
       page: NavigationPage.HELP,
@@ -114,6 +130,12 @@ export class NavigationManager {
   async navigateToImages(): Promise<void> {
     this.navigateTo({
       page: NavigationPage.IMAGES,
+    });
+  }
+
+  async navigateToImageBuild(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.IMAGE_BUILD,
     });
   }
 

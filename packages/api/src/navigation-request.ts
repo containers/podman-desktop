@@ -29,6 +29,7 @@ export interface NavigationParameters {
   [NavigationPage.CONTAINER_KUBE]: { id: string };
   [NavigationPage.DEPLOY_TO_KUBE]: { id: string; engineId: string };
   [NavigationPage.IMAGES]: never;
+  [NavigationPage.IMAGE_BUILD]: never;
   [NavigationPage.IMAGE]: { id: string; engineId: string; tag: string };
   [NavigationPage.PODS]: never;
   [NavigationPage.POD]: { kind: string; name: string; engineId: string };
@@ -40,7 +41,9 @@ export interface NavigationParameters {
   [NavigationPage.WEBVIEW]: { id: string };
   [NavigationPage.AUTHENTICATION]: never;
   [NavigationPage.RESOURCES]: never;
+  [NavigationPage.CLI_TOOLS]: never;
   [NavigationPage.EDIT_CONTAINER_CONNECTION]: { provider: string; name: string };
+  [NavigationPage.PROVIDER_TASK]: { internalId: string; taskId: number | undefined };
 }
 
 // the parameters property is optional when the NavigationParameters say it is
