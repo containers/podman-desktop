@@ -20,7 +20,7 @@ import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
-import { ContainerState } from '../model/core/states';
+import { ContainerState, VolumeState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
@@ -129,7 +129,9 @@ describe('Volume workflow verification', async () => {
       //if there are unused volumes, prune them
       if (previousVolumes - usedVolumes > 0) {
         volumesPage = await volumesPage.pruneVolumes();
-        await playExpect.poll(async () => await volumesPage.waitForPruneVolumes(), { timeout: 10000 }).toBeTruthy();
+        await playExpect
+          .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10000 })
+          .toBe(0);
         previousVolumes = await volumesPage.countVolumesFromTable();
       }
     }
@@ -173,7 +175,9 @@ describe('Volume workflow verification', async () => {
     //prune unused volumes
     volumesPage = await navigationBar.openVolumes();
     volumesPage = await volumesPage.pruneVolumes();
-    await playExpect.poll(async () => await volumesPage.waitForPruneVolumes(), { timeout: 10000 }).toBeTruthy();
+    await playExpect
+      .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10000 })
+      .toBe(0);
     const finalVolumes = await volumesPage.countVolumesFromTable();
     playExpect(finalVolumes - previousVolumes).toBe(0);
   });

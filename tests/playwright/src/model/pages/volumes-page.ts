@@ -101,19 +101,6 @@ export class VolumesPage extends MainPage {
     return true;
   }
 
-  //returns true if the number of volumes with status "UNUSED" is 0 (prune is finished)
-  async waitForPruneVolumes(): Promise<boolean> {
-    let unusedVolumes;
-    await waitWhile(
-      async () => {
-        unusedVolumes = await this.getRowsFromTableByStatus(VolumeState.Unused);
-        return unusedVolumes.length !== 0;
-      },
-      { sendError: false },
-    );
-    return true;
-  }
-
   async pruneVolumes(): Promise<VolumesPage> {
     await playExpect(this.pruneVolumesButton).toBeEnabled();
     await this.pruneVolumesButton.click();

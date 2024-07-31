@@ -100,7 +100,7 @@ export abstract class MainPage extends BasePage {
     return undefined;
   }
 
-  async getRowsFromTableByStatus(status: string): Promise<Array<Locator>> {
+  async getRowsFromTableByStatus(status: string): Promise<Locator[]> {
     await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
 
     const table = this.content.getByRole('table');
