@@ -63,6 +63,9 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
     case NavigationPage.IMAGES:
       router.goto(`/images`);
       break;
+    case NavigationPage.IMAGE_BUILD:
+      router.goto(`/images/build`);
+      break;
     case NavigationPage.IMAGE:
       router.goto(
         `/images/${request.parameters.id}/${request.parameters.engineId}/${Buffer.from(request.parameters.tag).toString('base64')}`,
@@ -88,6 +91,12 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
       break;
     case NavigationPage.HELP:
       router.goto('/help');
+      break;
+    case NavigationPage.CLI_TOOLS:
+      router.goto(`/preferences/cli-tools`);
+      break;
+    case NavigationPage.PROVIDER_TASK:
+      router.goto(`/preferences/provider-task/${request.parameters.internalId}/${request.parameters.taskId}`);
       break;
     case NavigationPage.WEBVIEW:
       router.goto(`/webviews/${request.parameters.id}`);
