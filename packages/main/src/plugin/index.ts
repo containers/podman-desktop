@@ -1189,6 +1189,7 @@ export class PluginSystem {
           })
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to build image: ${String(err)}`;
+            throw err;
           });
       },
     );
@@ -1217,6 +1218,7 @@ export class PluginSystem {
           })
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to export container: ${String(err)}`;
+            throw err;
           });
       },
     );
@@ -1237,6 +1239,7 @@ export class PluginSystem {
           })
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to import container: ${String(err)}`;
+            throw err;
           });
       },
     );
@@ -1257,6 +1260,7 @@ export class PluginSystem {
           })
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to save images: ${String(err)}`;
+            throw err;
           });
       },
     );
@@ -1277,6 +1281,7 @@ export class PluginSystem {
           })
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to load images: ${String(err)}`;
+            throw err;
           });
       },
     );
@@ -1362,6 +1367,7 @@ export class PluginSystem {
           .catch((error: unknown) => {
             task.error = `Something went wrong while trying to update ${tool.name}: ${error}`;
             logger.error(error);
+            throw error;
           })
           .finally(() => {
             logger.onEnd();
@@ -1859,6 +1865,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.state = 'error';
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
@@ -1894,6 +1901,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.state = 'error';
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
@@ -1939,6 +1947,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.error = `Something went wrong while creating container provider: ${err}`;
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
@@ -1974,6 +1983,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to delete ${providerConnectionInfo.name}`;
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
@@ -2019,6 +2029,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to create provider: ${err}`;
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
@@ -2075,6 +2086,7 @@ export class PluginSystem {
           .catch((err: unknown) => {
             task.error = `Something went wrong while trying to create provider: ${err}`;
             logger.error(err);
+            throw err;
           })
           .finally(() => {
             logger.onEnd();
