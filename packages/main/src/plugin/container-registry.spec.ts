@@ -422,6 +422,10 @@ beforeEach(() => {
   containerRegistry = new TestContainerProviderRegistry(apiSender, configurationRegistry, imageRegistry, telemetry);
 });
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 test('tag should reject if no provider', async () => {
   await expect(
     containerRegistry.tagImage('dummy', 'image:latest', 'quay.io/podman-desktop/image'),
@@ -5077,4 +5081,140 @@ test('saveImage canceled during image saving on filesystem', async () => {
   const tmpdir = os.tmpdir();
   const savePromise = containerRegistry.saveImage('podman1', 'an-image', path.join(tmpdir, 'image-to-save'), token);
   await expect(savePromise).rejects.toThrowError('The operation was aborted');
+});
+
+describe('provider update', () => {
+  test('stopped update should reset connection API', async () => {
+    const statusMock = vi.fn();
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api: undefined,
+      libpodApi: undefined,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: statusMock,
+      },
+    };
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', internalContainerProvider);
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: statusMock,
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    const podmanProvider = {
+      name: 'podman',
+      id: 'podman',
+    } as unknown as podmanDesktopAPI.Provider;
+
+    const onBeforeUpdateListeners: ((event: podmanDesktopAPI.UpdateContainerConnectionEvent) => void)[] = [];
+
+    const providerRegistry: ProviderRegistry = {
+      onBeforeDidUpdateContainerConnection: (
+        listener: (event: podmanDesktopAPI.UpdateContainerConnectionEvent) => void,
+      ) => onBeforeUpdateListeners.push(listener),
+    } as unknown as ProviderRegistry;
+
+    // default to started
+    statusMock.mockReturnValue('started');
+
+    containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
+
+    // when the provider is started, we should get the provider
+    const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
+    expect(internal.api).toBeDefined();
+    expect(internal.libpodApi).toBeDefined();
+
+    // mock the status to stopped
+    statusMock.mockReturnValue('stopped');
+    const event: podmanDesktopAPI.UpdateContainerConnectionEvent = {
+      providerId: 'podman',
+      connection: containerProviderConnection,
+      status: 'stopped',
+    };
+
+    // send the stopped event
+    onBeforeUpdateListeners.forEach(listener => listener(event));
+
+    // ensure the provider is not running
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman.podman')).toThrowError(
+      'no running provider for the matching engine',
+    );
+  });
+
+  test('started update should setup connection API ', async () => {
+    vi.useFakeTimers();
+    expect(vi.isFakeTimers()).toBeTruthy();
+
+    const statusMock = vi.fn();
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api: undefined,
+      libpodApi: undefined,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: statusMock,
+      },
+    };
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', internalContainerProvider);
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: statusMock,
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    const podmanProvider = {
+      name: 'podman',
+      id: 'podman',
+    } as unknown as podmanDesktopAPI.Provider;
+
+    const providerRegistry: ProviderRegistry = {
+      onBeforeDidUpdateContainerConnection: vi.fn(),
+    } as unknown as ProviderRegistry;
+
+    // default to stopped
+    statusMock.mockReturnValue('stopped');
+
+    containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
+
+    // ensure the provider is not running
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman.podman')).toThrowError(
+      'no running provider for the matching engine',
+    );
+
+    // mock the new status to started
+    statusMock.mockReturnValue('started');
+
+    vi.advanceTimersByTime(2000);
+
+    // wait for SetInterval to proceed the update
+    await vi.waitFor(() => {
+      // let's get the podman engine, it should be running, and have defined api&libpodApi
+      const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
+      expect(internal.api).toBeDefined();
+      expect(internal.libpodApi).toBeDefined();
+    });
+  });
 });

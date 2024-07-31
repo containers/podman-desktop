@@ -318,16 +318,14 @@ export class ContainerProviderRegistry {
     let previousStatus = containerProviderConnection.status();
 
     providerRegistry.onBeforeDidUpdateContainerConnection(event => {
-      if (event.providerId === provider.id && event.connection.name === containerProviderConnection.name) {
-        const newStatus = event.status;
-        if (newStatus === 'stopped') {
-          internalProvider.api = undefined;
-          internalProvider.libpodApi = undefined;
-          this.apiSender.send('provider-change', {});
-        }
-        if (newStatus === 'started') {
-          this.setupConnectionAPI(internalProvider, containerProviderConnection);
-        }
+      if (
+        event.providerId === provider.id &&
+        event.connection.name === containerProviderConnection.name &&
+        event.status === 'stopped'
+      ) {
+        internalProvider.api = undefined;
+        internalProvider.libpodApi = undefined;
+        this.apiSender.send('provider-change', {});
       }
       previousStatus = event.status;
     });
@@ -339,18 +337,15 @@ export class ContainerProviderRegistry {
     // track the status of the provider
     const timer = setInterval(() => {
       const newStatus = containerProviderConnection.status();
-      if (newStatus !== previousStatus) {
-        if (newStatus === 'stopped') {
-          internalProvider.api = undefined;
-          internalProvider.libpodApi = undefined;
-          this.apiSender.send('provider-change', {});
-        }
-        if (newStatus === 'started') {
-          this.setupConnectionAPI(internalProvider, containerProviderConnection);
-          this.internalProviders.set(id, internalProvider);
-        }
-        previousStatus = newStatus;
+      if (newStatus === 'started' && !internalProvider.api) {
+        this.setupConnectionAPI(internalProvider, containerProviderConnection);
+        this.internalProviders.set(id, internalProvider);
+      } else if (newStatus !== previousStatus && newStatus === 'stopped') {
+        internalProvider.api = undefined;
+        internalProvider.libpodApi = undefined;
+        this.apiSender.send('provider-change', {});
       }
+      previousStatus = newStatus;
     }, 2000);
 
     this.internalProviders.set(id, internalProvider);
