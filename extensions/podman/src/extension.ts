@@ -1224,8 +1224,8 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
   });
 }
 
-async function exec(args?: string[], options?: extensionApi.RunOptions): Promise<extensionApi.RunResult> {
-  return extensionApi.process.exec(getPodmanCli(), args, options);
+async function exec(args: string[], options?: extensionApi.RunOptions): Promise<extensionApi.RunResult> {
+  return execPodman(args, 'podman', options);
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<PodmanExtensionApi> {
