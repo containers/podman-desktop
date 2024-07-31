@@ -153,7 +153,7 @@ describe('PullImage', () => {
     const textbox = screen.getByPlaceholderText('Registry name / Image name');
     await userEvent.type(textbox, 'an-im');
     await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
-    await userEvent.keyboard('[Tab][Enter]');
+    await userEvent.keyboard('[ArrowDown][Tab][Enter]');
 
     expect(button).toBeEnabled();
     await userEvent.click(button);
@@ -282,7 +282,7 @@ describe('PullImage', () => {
     const textbox = screen.getByPlaceholderText('Registry name / Image name');
     await userEvent.type(textbox, 'an-im');
     await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
-    await userEvent.keyboard('[Enter]');
+    await userEvent.keyboard('[ArrowDown][Enter]');
 
     expect(listImageTagsInRegistryMock).toHaveBeenCalled();
     const textboxTags = screen.getByPlaceholderText('Image tag (optional)');

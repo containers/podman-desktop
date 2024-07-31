@@ -171,9 +171,10 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
     options.registry = registry;
     options.query = rest.join('/');
   }
+  let result: { value: string; label: string }[];
   try {
-    const result = await window.searchImageInRegistry(options);
-    return result.map(r => {
+    const searchResult = await window.searchImageInRegistry(options);
+    result = searchResult.map(r => {
       let official = r.is_official ? ' ✓' : '';
       let stars = r.star_count ? ` [★${r.star_count}]` : '';
       return {
@@ -182,13 +183,15 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
       };
     });
   } catch {
-    return [
-      {
-        value: value,
-        label: value,
-      },
-    ];
+    result = [];
   }
+  if (!result.find(r => r.value === value)) {
+    result.unshift({
+      value: value,
+      label: value,
+    });
+  }
+  return result;
 }
 </script>
 
