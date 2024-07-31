@@ -2101,3 +2101,21 @@ describe('checkRosettaMacArm', async () => {
     expect(extensionApi.window.showInformationMessage).toBeCalled();
   });
 });
+
+test('isLibkrunSupported should return true with prelease older than rc1', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  const enabled = extension.isLibkrunSupported('5.2.0-rc2');
+  expect(enabled).toBeTruthy();
+});
+
+test('isLibkrunSupported should return true with 5.2.0 version', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  const enabled = extension.isLibkrunSupported('5.2.0');
+  expect(enabled).toBeTruthy();
+});
+
+test('isLibkrunSupported should return false with previous 5.1.2 version', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  const enabled = extension.isLibkrunSupported('5.1.2');
+  expect(enabled).toBeFalsy();
+});
