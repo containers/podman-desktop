@@ -22,5 +22,5 @@ async function stopExtension(): Promise<void> {
     action="stop"
     icon={faStop}
     state={{ status: extension.type === 'dd' ? 'unsupported' : extension.state, inProgress }}
-    leftPosition="" />
+    leftPosition="left-[0.15rem]" />
 {/if}

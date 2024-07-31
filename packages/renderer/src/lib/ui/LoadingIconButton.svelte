@@ -57,7 +57,7 @@ $: style = disable
       icon={icon}
       loadingWidthClass="w-6"
       loadingHeightClass="h-6"
-      positionTopClass="top-1"
+      positionTopClass="top-0.5"
       positionLeftClass={leftPosition}
       loading={loading} />
   </button>

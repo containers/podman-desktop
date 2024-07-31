@@ -89,7 +89,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 }
               }}
               icon={faCircleArrowUp}
-              leftPosition="left-[0.4rem]"
+              leftPosition="left-[0.25rem]"
               state={cliToolStatus}
               color="primary"
               tooltip={!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`} />
