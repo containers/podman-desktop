@@ -111,6 +111,34 @@ test('check navigateToResources', async () => {
   });
 });
 
+test('check navigateToCliTools', async () => {
+  await navigationManager.navigateToCliTools();
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.CLI_TOOLS,
+  });
+});
+
+test('check navigateToImageBuild', async () => {
+  await navigationManager.navigateToImageBuild();
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.IMAGE_BUILD,
+  });
+});
+
+test('check navigateToProviderTask', async () => {
+  await navigationManager.navigateToProviderTask('internalId', 55);
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.PROVIDER_TASK,
+    parameters: {
+      internalId: 'internalId',
+      taskId: 55,
+    },
+  });
+});
+
 test('check navigateToEditProviderContainerConnection', async () => {
   vi.mocked(providerRegistry.getMatchingProviderInternalId).mockReturnValue('id');
   const connection: ProviderContainerConnection = {
