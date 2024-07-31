@@ -640,11 +640,16 @@ export class ContainerProviderRegistry {
 
         return Promise.all(
           Array.from(fetchedImages).map(async image => {
+            // If image.isManifestList is NOT undefined (5.0.2+), we can use it to determine if the image is a manifest
+            // rather than guessing
+            const isManifest = image.isManifestList ?? guessIsManifest(image, provider.connection.type);
+
+            // Return the base image with the engineName and engineId as well as our isManifest parameter.
             const baseImage = {
               ...image,
               engineName: provider.name,
               engineId: provider.id,
-              isManifest: guessIsManifest(image, provider.connection.type),
+              isManifest,
               Id: image.Digest ? `sha256:${image.Id}` : image.Id,
               Digest: image.Digest || `sha256:${image.Id}`,
             };
