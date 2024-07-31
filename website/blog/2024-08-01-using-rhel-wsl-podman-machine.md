@@ -8,7 +8,6 @@ hide_table_of_contents: false
 
 Red Hat provides a tool called Image Builder that allows developers to build their own custom image of RHEL in a variety of formats. Recently, Image Builder added WSL as a target, enabling you to run RHEL on Windows as a WSL distribution.
 
-
 This [article](https://developers.redhat.com/articles/2023/11/15/create-customized-rhel-images-wsl-environment) details the steps and actions required to build and run your RHEL WSL image.
 
 The purpose of this article is to describe the options needed for the RHEL WSL distribution so that it can be used as a Podman machine.
@@ -27,8 +26,7 @@ To use the RHEL WSL image as a Podman machine, ensure that the following package
 - sudo
 - systemd-networkd
 
-Luckily, all but the last package are available from the pre-configured RHEL 8 repositories. The last package (systemd-networkd) is available from the EPEL 8 repository and will need to be configured when building the image.
-
+Luckily, all but the last package are available from the pre-configured RHEL 9 repositories. The last package (systemd-networkd) is available from the EPEL 9 repository and will need to be configured when building the image.
 
 # Build the image
 
