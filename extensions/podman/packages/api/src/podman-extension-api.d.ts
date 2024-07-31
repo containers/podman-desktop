@@ -19,5 +19,5 @@
 import type { RunOptions, RunResult } from '@podman-desktop/api';
 
 export interface PodmanExtensionApi {
-  exec(args?: string[], options?: RunOptions): Promise<RunResult>;
+  exec(args: string[], options?: RunOptions): Promise<RunResult>;
 }
