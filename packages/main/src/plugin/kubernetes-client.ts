@@ -1194,10 +1194,21 @@ export class KubernetesClient {
    * @param namespace the namespace to use for any resources that don't include one
    * @return an array of resources created
    */
-  async applyResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<KubernetesObject[]> {
-    const manifests = await this.loadManifestsFromFile(filePath);
+  async applyResourcesFromFile(
+    context: string,
+    filePath: string | string[],
+    namespace?: string,
+  ): Promise<KubernetesObject[]> {
+    const manifests: KubernetesObject[] = [];
+    if (typeof filePath === 'string') {
+      manifests.push(...(await this.loadManifestsFromFile(filePath)));
+    } else {
+      for (const path of filePath) {
+        manifests.push(...(await this.loadManifestsFromFile(path)));
+      }
+    }
     if (manifests.filter(s => s?.kind).length === 0) {
-      throw new Error('No valid Kubernetes resources found in file');
+      throw new Error('No valid Kubernetes resources found');
     }
     return this.syncResources(context, manifests, 'apply', namespace);
   }

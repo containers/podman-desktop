@@ -14,38 +14,53 @@ async function kubeApply(): Promise<void> {
 
   const result = await window.openDialog({
     title: 'Select a .yaml file to apply',
+    selectors: ['openFile', 'multiSelections'],
     filters: [
       {
         name: 'YAML files',
-        extensions: ['yaml', 'yml'],
+        extensions: ['yaml', 'yml', 'YAML', 'YML'],
       },
     ],
   });
-  if (result?.length !== 1) {
-    return;
-  }
 
-  let file = result[0];
-  if (!file) {
+  if (!result || result.length === 0) {
     return;
   }
 
   inProgress = true;
   try {
     const namespace = await window.kubernetesGetCurrentNamespace();
-    let objects: KubernetesObject[] = await window.kubernetesApplyResourcesFromFile(contextName, file, namespace);
+    let objects: KubernetesObject[] = await window.kubernetesApplyResourcesFromFile(contextName, result, namespace);
     if (objects.length === 0) {
       await window.showMessageBox({
         title: 'Kubernetes',
         type: 'warning',
-        message: `No resource(s) were applied`,
+        message: `No resource(s) were applied.`,
         buttons: ['OK'],
       });
-    } else {
+    } else if (objects.length === 1) {
       await window.showMessageBox({
         title: 'Kubernetes',
         type: 'info',
-        message: `Successfully applied ${objects.length} resource(s)`,
+        message: `Successfully applied 1 ${objects[0].kind ?? 'unknown resource'}.`,
+        buttons: ['OK'],
+      });
+    } else {
+      const counts = objects.reduce(
+        (acc, obj) => {
+          acc[obj.kind ?? 'unknown'] = (acc[obj.kind ?? 'unknown'] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+      const resources = Object.entries(counts)
+        .map(obj => `${obj[1]} ${obj[0]}`)
+        .join(', ');
+
+      await window.showMessageBox({
+        title: 'Kubernetes',
+        type: 'info',
+        message: `Successfully applied ${objects.length} resources (${resources}).`,
         buttons: ['OK'],
       });
     }
