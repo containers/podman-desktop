@@ -21,13 +21,16 @@
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { configurationProperties } from '../configurationProperties';
 import { fetchNavigationRegistries, navigationRegistry } from './navigation-registry';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
-
+const getConfigurationValueMock = vi.fn();
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock;
+  (window as any).sendNavigationItems = vi.fn();
 });
 
 test('check navigation registry items', async () => {
@@ -36,4 +39,34 @@ test('check navigation registry items', async () => {
   const registries = get(navigationRegistry);
   // expect 7 items in the registry
   expect(registries.length).equal(7);
+});
+
+test('check update properties', async () => {
+  // first, check that all items are visible
+  const items = get(navigationRegistry);
+  items.forEach(item => {
+    expect(item.hidden).toBeFalsy();
+  });
+
+  // Say that Containers and Pods are hidden by the configuration
+  getConfigurationValueMock.mockResolvedValue(['Containers', 'Pods']);
+
+  // do an update to force the update
+  configurationProperties.set([]);
+
+  // wait that the update is done asynchronously
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // and now check the hidden values
+  const hidden = get(navigationRegistry);
+
+  const allItemsExceptContainersAndPods = hidden.filter(item => item.name !== 'Containers' && item.name !== 'Pods');
+  allItemsExceptContainersAndPods.forEach(item => {
+    expect(item.hidden).toBeFalsy();
+  });
+
+  const containersAndPods = hidden.filter(item => item.name === 'Containers' || item.name === 'Pods');
+  containersAndPods.forEach(item => {
+    expect(item.hidden).toBeTruthy();
+  });
 });
