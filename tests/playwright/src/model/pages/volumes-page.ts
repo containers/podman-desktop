@@ -19,7 +19,9 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil, waitWhile } from '../../utility/wait';
+import { VolumeState } from '../core/states';
 import { CreateVolumePage } from './create-volume-page';
 import { MainPage } from './main-page';
 import { VolumeDetailsPage } from './volume-details-page';
@@ -58,6 +60,19 @@ export class VolumesPage extends MainPage {
     return new VolumeDetailsPage(this.page, volumeName);
   }
 
+  async deleteVolume(volumeName: string): Promise<VolumesPage> {
+    const volumeRow = await this.getVolumeRowByName(volumeName);
+    if (volumeRow === undefined) {
+      throw Error(`Volume: ${volumeName} does not exist`);
+    }
+    const containerRowDeleteButton = volumeRow.getByRole('button', { name: 'Delete Volume' });
+    await playExpect(containerRowDeleteButton).toBeEnabled();
+    await containerRowDeleteButton.click();
+    await handleConfirmationDialog(this.page);
+
+    return this;
+  }
+
   async getVolumeRowByName(name: string): Promise<Locator | undefined> {
     return this.getRowFromTableByName(name);
   }
@@ -65,6 +80,14 @@ export class VolumesPage extends MainPage {
   protected async volumeExists(name: string): Promise<boolean> {
     const result = await this.getVolumeRowByName(name);
     return result !== undefined;
+  }
+
+  async countVolumesFromTable(): Promise<number> {
+    return this.countRowsFromTable();
+  }
+
+  async countUsedVolumesFromTable(): Promise<number> {
+    return (await this.getRowsFromTableByStatus(VolumeState.Used)).length;
   }
 
   async waitForVolumeExists(name: string): Promise<boolean> {
@@ -75,5 +98,12 @@ export class VolumesPage extends MainPage {
   async waitForVolumeDelete(name: string): Promise<boolean> {
     await waitWhile(async () => await this.volumeExists(name));
     return true;
+  }
+
+  async pruneVolumes(): Promise<VolumesPage> {
+    await playExpect(this.pruneVolumesButton).toBeEnabled();
+    await this.pruneVolumesButton.click();
+    await handleConfirmationDialog(this.page, 'Prune');
+    return this;
   }
 }

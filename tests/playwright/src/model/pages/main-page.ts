@@ -18,6 +18,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 
+import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
 
 /**
@@ -70,6 +71,10 @@ export abstract class MainPage extends BasePage {
     return this.content.getByRole('table');
   }
 
+  async rowsAreVisible(): Promise<boolean> {
+    return await this.page.getByRole('row').first().isVisible();
+  }
+
   async getRowFromTableByName(name: string): Promise<Locator | undefined> {
     if (await this.pageIsEmpty()) {
       return undefined;
@@ -93,5 +98,26 @@ export abstract class MainPage extends BasePage {
       console.log(`Exception caught on ${this.title} page with message: ${err}`);
     }
     return undefined;
+  }
+
+  async getRowsFromTableByStatus(status: string): Promise<Locator[]> {
+    await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
+
+    const table = this.content.getByRole('table');
+    const rows = await table.getByRole('row').all();
+    const filteredRows = [];
+    for (let rowNum = 1; rowNum < rows.length; rowNum++) {
+      //skip header
+      const statusCount = await rows[rowNum].getByRole('cell').nth(2).getByTitle(status, { exact: true }).count();
+      if (statusCount > 0) filteredRows.push(rows[rowNum]);
+    }
+    return filteredRows;
+  }
+
+  async countRowsFromTable(): Promise<number> {
+    await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
+    const table = this.content.getByRole('table');
+    const rows = await table.getByRole('row').all();
+    return rows.length > 1 ? rows.length - 1 : 0;
   }
 }
