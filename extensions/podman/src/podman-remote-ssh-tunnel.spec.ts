@@ -23,7 +23,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { Server } from 'ssh2';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { generatePrivateKey } from 'sshpk';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { PodmanRemoteSshTunnel } from './podman-remote-ssh-tunnel';
 
@@ -46,17 +47,12 @@ class TestPodmanRemoteSshTunnel extends PodmanRemoteSshTunnel {
   }
 }
 
-// this is a dummy key for testing
-// no leakeage there
-const DUMMY_KEY = `
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACA64q3c1wk0Gwey/p+UnWB3gbX2j6EQBp7rVfIBuUbXxQAAAJhWRLISVkSy
-EgAAAAtzc2gtZWQyNTUxOQAAACA64q3c1wk0Gwey/p+UnWB3gbX2j6EQBp7rVfIBuUbXxQ
-AAAECMAo9dAwYs3Z1Jwn+fVhF/bG6FBMn2QnEWWqdEmAKM+TrirdzXCTQbB7L+n5SdYHeB
-tfaPoRAGnutV8gG5RtfFAAAAFGJlbm9pdGZARmxvcmVudHMtTUJQAQ==
------END OPENSSH PRIVATE KEY-----
-`; // notsecret
+let dummyKey: string;
+beforeAll(async () => {
+  // generate on the fly a dummy key
+  dummyKey = generatePrivateKey('ed25519').toString('ssh');
+});
+
 test('should be able to connect', async () => {
   let sshPort = 0;
   let connected = false;
@@ -65,7 +61,7 @@ test('should be able to connect', async () => {
   // create ssh server
   const sshServer = new Server(
     {
-      hostKeys: [DUMMY_KEY],
+      hostKeys: [dummyKey],
     },
     client => {
       connected = true;
