@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import ImageActions from '/@/lib/image/ImageActions.svelte';
@@ -61,9 +61,12 @@ const fakedImage: ImageInfoUI = {
   name: 'dummy',
 } as unknown as ImageInfoUI;
 
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
 test('Expect showMessageBox to be called when error occurs', async () => {
-  // Mock the showMessageBox to return 0 (yes)
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(withConfirmation).mockImplementation(f => f());
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 
   const image: ImageInfoUI = {
@@ -177,8 +180,6 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
 });
 
 test('Expect Push image to be there', async () => {
-  // Mock the showMessageBox to return 0 (yes)
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 
   const image: ImageInfoUI = {
@@ -197,6 +198,7 @@ test('Expect Push image to be there', async () => {
 });
 
 test('Expect Save image to be there', async () => {
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   const goToMock = vi.spyOn(router, 'goto');
 
   const image: ImageInfoUI = {
