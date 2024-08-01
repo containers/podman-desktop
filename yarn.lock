@@ -194,13 +194,26 @@
     sharp "^0.33.3"
     tmp "^0.2.3"
 
-"@argos-ci/playwright@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.4.0.tgz#6b682073ded7f367fc93b10bc48ec853ad67b0e8"
-  integrity sha512-Qigw3OiJiVO3MO6Vg4DrW4hd+jCJ2lv2WqpDFSEtTNdxnRU02/v2k8enBvrsqbMSPA0YLixjb984wl6yU7NwUg==
+"@argos-ci/core@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-2.4.1.tgz#ecce9759900687559001ba0ffeadc05714823a2a"
+  integrity sha512-Sl+5Zq4LBZF+CDB0eXGdTOLv3E9bubO2tfpDncQku5/s/N+2Ptn0JAw/Vc3EdJAtMWj1G8uy+6cvtV+eaVNnFg==
+  dependencies:
+    "@argos-ci/util" "2.1.0"
+    axios "^1.6.8"
+    convict "^6.2.4"
+    debug "^4.3.4"
+    fast-glob "^3.3.2"
+    sharp "^0.33.3"
+    tmp "^0.2.3"
+
+"@argos-ci/playwright@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.4.1.tgz#1f8743cfb5d1358622ed7968b905e0a16e0eb23a"
+  integrity sha512-zJJmztOVmkzrn5iuB0yAVcBvHGKFqfMZ1oq11eWspXk+eyAPcfBSlpoP4ss9xyxKuXbhOB8FWQbKkd8hV7MV4Q==
   dependencies:
     "@argos-ci/browser" "2.1.2"
-    "@argos-ci/core" "2.4.0"
+    "@argos-ci/core" "2.4.1"
     "@argos-ci/util" "2.1.0"
     chalk "^5.3.0"
     debug "^4.3.4"
