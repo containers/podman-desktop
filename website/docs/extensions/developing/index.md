@@ -371,7 +371,7 @@ export default config;
 
 - All runtime dependencies are inside the final binary.
 
-## Testing and running an extension
+## Running and debugging an extension
 
 #### Prerequisites
 
@@ -380,11 +380,16 @@ export default config;
 
 #### Procedure
 
-1. To start Podman Desktop with your extension loaded, run the following from your clone of the Podman Desktop repo:
+To start Podman Desktop with your extension loaded, run the following from your clone of the Podman Desktop repo:
 
 ```shell
 yarn watch --extension-folder /path/to/your/extension
 ```
+
+If you have a webview created, debugging / accessing the the console of the extension can be done by:
+
+1. Clicking on the extension icon in the sidebar.
+2. Right-click and select **Open Devtools of the webview**.
 
 ## Expanding your extension
 
