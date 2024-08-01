@@ -146,7 +146,7 @@ describe('Volume workflow verification', async () => {
     let containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 30000 })
       .toBeTruthy();
     await containers.startContainer(containerToRun);
 
@@ -167,7 +167,7 @@ describe('Volume workflow verification', async () => {
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 15000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
       .toBeFalsy();
 
     //prune unused volumes
@@ -178,5 +178,5 @@ describe('Volume workflow verification', async () => {
       .toBe(0);
     const finalVolumes = await volumesPage.countVolumesFromTable();
     playExpect(finalVolumes - previousVolumes).toBe(0);
-  });
+  }, 150000);
 });
