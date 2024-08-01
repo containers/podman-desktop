@@ -104,27 +104,20 @@ export abstract class MainPage extends BasePage {
     await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
 
     const table = this.content.getByRole('table');
-    if (await table.isVisible()) {
-      const rows = await table.getByRole('row').all();
-      const filteredRows = [];
-      for (let rowNum = 1; rowNum < rows.length; rowNum++) {
-        //skip header
-        const statusCount = await rows[rowNum].getByRole('cell').nth(2).getByTitle(status, { exact: true }).count();
-        if (statusCount > 0) filteredRows.push(rows[rowNum]);
-      }
-      return filteredRows;
+    const rows = await table.getByRole('row').all();
+    const filteredRows = [];
+    for (let rowNum = 1; rowNum < rows.length; rowNum++) {
+      //skip header
+      const statusCount = await rows[rowNum].getByRole('cell').nth(2).getByTitle(status, { exact: true }).count();
+      if (statusCount > 0) filteredRows.push(rows[rowNum]);
     }
-    return [];
+    return filteredRows;
   }
 
   async countRowsFromTable(): Promise<number> {
     await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
-
     const table = this.content.getByRole('table');
-    if (await table.isVisible()) {
-      const rows = await table.getByRole('row').all();
-      return rows.length > 1 ? rows.length - 1 : 0;
-    }
-    return 0;
+    const rows = await table.getByRole('row').all();
+    return rows.length > 1 ? rows.length - 1 : 0;
   }
 }

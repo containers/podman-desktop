@@ -87,8 +87,7 @@ export class VolumesPage extends MainPage {
   }
 
   async countUsedVolumesFromTable(): Promise<number> {
-    const usedVolumes = await this.getRowsFromTableByStatus(VolumeState.Used);
-    return usedVolumes.length;
+    return (await this.getRowsFromTableByStatus(VolumeState.Used)).length;
   }
 
   async waitForVolumeExists(name: string): Promise<boolean> {

@@ -87,11 +87,10 @@ describe('Volume workflow verification', async () => {
   test('Delete volume from Volumes page', async () => {
     let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
-    let volumeRow = await volumesPage.getVolumeRowByName(volumeName);
+    const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
     volumesPage = await volumesPage.deleteVolume(volumeName);
     await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
-    volumeRow = await volumesPage.getVolumeRowByName(volumeName);
   });
 
   test('Delete volume through details page', async () => {
@@ -107,14 +106,13 @@ describe('Volume workflow verification', async () => {
     //delete it from the details page
     volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
-    let volumeRow = await volumesPage.getVolumeRowByName(volumeName);
+    const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
 
     const volumeDetails = await volumesPage.openVolumeDetails(volumeName);
     volumesPage = await volumeDetails.deleteVolume();
 
     await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
-    volumeRow = await volumesPage.getVolumeRowByName(volumeName);
   });
 
   test('Create volumes from bootc-image-builder', async () => {
