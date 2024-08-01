@@ -41,7 +41,7 @@ The release is a **pre-release**, it means it is not yet the latest version, so 
 
 Inform QE the **pre-release** is out! It allows QE (and everyone else) to download and test these binaries before they go live or are in the package managers.
 
-At this step, it also generates a Flathub pull request so people can test the package from the builders of the pull request.
+The release may be tested using the assets generated within the pre-release.
 
 ## QE and cherry picking fixes
 
