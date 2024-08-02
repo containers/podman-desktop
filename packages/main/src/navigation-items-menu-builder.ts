@@ -49,6 +49,10 @@ export class NavigationItemsMenuBuilder {
     );
   }
 
+  protected escapeLabel(label: string): string {
+    return label.replace('&', '&&');
+  }
+
   protected buildHideMenuItem(linkText: string): MenuItemConstructorOptions {
     const rawItemName = linkText;
 
@@ -56,8 +60,11 @@ export class NavigationItemsMenuBuilder {
     // it's at the end with parenthesis like itemName (2)
     const itemName = rawItemName.replace(/\s\(\d+\)$/, '');
 
+    // on electron, need to esccape the & character to show it
+    const itemDisplayName = this.escapeLabel(itemName);
+
     const item: MenuItemConstructorOptions = {
-      label: `Hide '${itemName}'`,
+      label: `Hide '${itemDisplayName}'`,
       visible: true,
       click: (): void => {
         // flag the item as being disabled
@@ -72,7 +79,7 @@ export class NavigationItemsMenuBuilder {
 
     // add all navigation items to be able to show/hide them
     const menuForNavItems: Electron.MenuItemConstructorOptions[] = this.navigationItems.map(item => ({
-      label: item.name,
+      label: this.escapeLabel(item.name),
       type: 'checkbox',
       checked: item.visible,
       click: (): void => {

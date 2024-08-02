@@ -77,7 +77,7 @@ describe('buildNavigationToggleMenuItems', async () => {
 
     // send 3 items, two being visible, one being hidden
     navigationItemsMenuBuilder.receiveNavigationItems([
-      { name: 'A', visible: true },
+      { name: 'A & A', visible: true },
       { name: 'B', visible: false },
       { name: 'C', visible: true },
     ]);
@@ -90,7 +90,8 @@ describe('buildNavigationToggleMenuItems', async () => {
     // check the first item is a separator
     expect(menu[0].type).toBe('separator');
 
-    expect(menu[1].label).toBe('A');
+    // label should be escaped as we have an &
+    expect(menu[1].label).toBe('A && A');
     expect(menu[1].checked).toBe(true);
     expect(menu[2].label).toBe('B');
     expect(menu[2].checked).toBe(false);
@@ -104,7 +105,8 @@ describe('buildNavigationToggleMenuItems', async () => {
     // if clicking it should send the item to the configuration as being disabled
     expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
       'navbar.disabledItems',
-      ['existing', 'A'],
+      // item A & A should not be escaped
+      ['existing', 'A & A'],
       'DEFAULT',
     );
 
