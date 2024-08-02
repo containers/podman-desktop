@@ -37,6 +37,7 @@ import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { ContainerCreateOptions } from '/@api/container-info.js';
+import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 
@@ -312,6 +313,10 @@ const fakeContainerInspectInfoWithVolume = {
 };
 
 class TestContainerProviderRegistry extends ContainerProviderRegistry {
+  public extractContainerEnvironment(container: ContainerInspectInfo): { [key: string]: string } {
+    return super.extractContainerEnvironment(container);
+  }
+
   public getMatchingEngine(engineId: string): Dockerode {
     return super.getMatchingEngine(engineId);
   }
@@ -5241,5 +5246,41 @@ describe('provider update', () => {
       expect(internal.api).toBeDefined();
       expect(internal.libpodApi).toBeDefined();
     });
+  });
+});
+
+describe('extractContainerEnvironment', () => {
+  test('simple env', async () => {
+    // create a fake inspect info object with env
+    const inspectInfo = {
+      Config: {
+        Env: ['TERM=xterm', 'HOME=/root'],
+      },
+    } as unknown as ContainerInspectInfo;
+
+    const env = containerRegistry.extractContainerEnvironment(inspectInfo);
+
+    expect(env).toBeDefined();
+    expect(Object.keys(env)).toHaveLength(2);
+
+    expect(env['TERM']).toBe('xterm');
+    expect(env['HOME']).toBe('/root');
+  });
+
+  test('simple complex env', async () => {
+    // create a fake inspect info object with env
+    const inspectInfo = {
+      Config: {
+        Env: ['HOME=/root', 'SERVER_ARGS=--host-config=host-secondary.xml --foo-=bar'],
+      },
+    } as unknown as ContainerInspectInfo;
+
+    const env = containerRegistry.extractContainerEnvironment(inspectInfo);
+
+    expect(env).toBeDefined();
+    expect(Object.keys(env)).toHaveLength(2);
+
+    expect(env['HOME']).toBe('/root');
+    expect(env['SERVER_ARGS']).toBe('--host-config=host-secondary.xml --foo-=bar');
   });
 });

@@ -1403,6 +1403,15 @@ export class ContainerProviderRegistry {
     }
   }
 
+  protected extractContainerEnvironment(container: ContainerInspectInfo): { [key: string]: string } {
+    return container.Config.Env.reduce((acc: { [key: string]: string }, env) => {
+      // should handle multiple values after the = sign
+      const [key, ...values] = env.split('=');
+      acc[key] = values.join('=');
+      return acc;
+    }, {});
+  }
+
   async replicatePodmanContainer(
     source: { engineId: string; id: string },
     target: { engineId: string },
@@ -1417,11 +1426,7 @@ export class ContainerProviderRegistry {
       const containerToReplicate = await this.getContainerInspect(source.engineId, source.id);
 
       // convert env from array of string to an object with key being the env name
-      const updatedEnv = containerToReplicate.Config.Env.reduce((acc: { [key: string]: string }, env) => {
-        const [key, value] = env.split('=');
-        acc[key] = value;
-        return acc;
-      }, {});
+      const updatedEnv = this.extractContainerEnvironment(containerToReplicate);
 
       // build create container configuration
       const originalConfiguration = this.getCreateContainsOptionsFromOriginal(containerToReplicate, updatedEnv);
