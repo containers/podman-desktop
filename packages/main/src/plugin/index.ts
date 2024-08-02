@@ -651,7 +651,7 @@ export class PluginSystem {
     );
     await this.extensionLoader.init();
 
-    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
     extensionsCatalog.init();
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
 

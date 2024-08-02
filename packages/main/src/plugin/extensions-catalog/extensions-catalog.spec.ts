@@ -22,6 +22,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 
+import type { ApiSenderType } from '../api.js';
 import type { Certificates } from '../certificates.js';
 import { Emitter } from '../events/emitter.js';
 import type { Proxy } from '../proxy.js';
@@ -32,6 +33,11 @@ let extensionsCatalog: ExtensionsCatalog;
 const fooAssetIcon = {
   assetType: 'icon',
   data: 'fooIcon',
+};
+
+const apiSender: ApiSenderType = {
+  send: vi.fn(),
+  receive: vi.fn(),
 };
 
 // unlisted field is not present (assuming it should be listed then)
@@ -122,7 +128,7 @@ const configurationRegistry: ConfigurationRegistry = {
 
 const originalConsoleError = console.error;
 beforeEach(() => {
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
   vi.resetAllMocks();
   console.error = vi.fn();
   vi.mocked(configurationRegistry.getConfiguration).mockReturnValue({
@@ -193,7 +199,7 @@ test('check getHttpOptions with Proxy', async () => {
     httpsProxy: 'http://localhost',
     noProxy: 'localhost',
   });
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
 
   const options = extensionsCatalog.getHttpOptions();
   expect(options).toBeDefined();
@@ -318,7 +324,7 @@ test('Should use proxy object if proxySettings is undefined', () => {
     httpsProxy: 'https://localhost',
     noProxy: 'localhost',
   });
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
   const options = extensionsCatalog.getHttpOptions();
 
   expect(options).toBeDefined();
