@@ -19161,10 +19161,10 @@ tsutils@^3.0.0, tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsx@^4.16.4:
-  version "4.16.4"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.16.4.tgz#27a29883f015e15d89af5c302be41439fa65cf45"
-  integrity sha512-E0EDobc7FtOxdNtG0ZQWztLa9PK/TqC5QvdV0heyIMJySwcJ8vyvziOznzO1MIM2IDfacLGBgfiCUmba6mvI7Q==
+tsx@^4.16.5:
+  version "4.16.5"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.16.5.tgz#49c2a8f4d4d66bd7cf538e23e7368a1919a9a1ca"
+  integrity sha512-ArsiAQHEW2iGaqZ8fTA1nX0a+lN5mNTyuGRRO6OW3H/Yno1y9/t1f9YOI1Cfoqz63VAthn++ZYcbDP7jPflc+A==
   dependencies:
     esbuild "~0.21.5"
     get-tsconfig "^4.7.5"
