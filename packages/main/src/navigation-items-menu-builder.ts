@@ -21,6 +21,9 @@ import type { ContextMenuParams, MenuItemConstructorOptions } from 'electron';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { CONFIGURATION_DEFAULT_SCOPE } from './plugin/configuration-registry-constants.js';
 
+// items that can't be hidden
+const EXCLUDED_ITEMS = ['Accounts', 'Settings'];
+
 // This class is responsible of creating the items to hide a given selected item of the left navigation bar
 // and also display a list of all items with the ability to toggle the visibility of each item.
 export class NavigationItemsMenuBuilder {
@@ -53,12 +56,16 @@ export class NavigationItemsMenuBuilder {
     return label.replace('&', '&&');
   }
 
-  protected buildHideMenuItem(linkText: string): MenuItemConstructorOptions {
+  protected buildHideMenuItem(linkText: string): MenuItemConstructorOptions | undefined {
     const rawItemName = linkText;
 
     // need to filter any counter from the item name
     // it's at the end with parenthesis like itemName (2)
     const itemName = rawItemName.replace(/\s\(\d+\)$/, '');
+
+    if (EXCLUDED_ITEMS.includes(itemName)) {
+      return undefined;
+    }
 
     // on electron, need to esccape the & character to show it
     const itemDisplayName = this.escapeLabel(itemName);
@@ -103,7 +110,10 @@ export class NavigationItemsMenuBuilder {
     const items: MenuItemConstructorOptions[] = [];
     // allow to hide the item being selected
     if (parameters.linkText && parameters.x < 48 && parameters.y > 76) {
-      items.push(this.buildHideMenuItem(parameters.linkText));
+      const menu = this.buildHideMenuItem(parameters.linkText);
+      if (menu) {
+        items.push(menu);
+      }
     }
     if (parameters.x < 48) {
       // add all navigation items to be able to show/hide them

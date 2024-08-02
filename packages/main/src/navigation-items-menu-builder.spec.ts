@@ -35,7 +35,7 @@ const browserWindowMock = {
 } as unknown as BrowserWindow;
 
 class TestNavigationItemsMenuBuilder extends NavigationItemsMenuBuilder {
-  buildHideMenuItem(linkText: string): MenuItemConstructorOptions {
+  buildHideMenuItem(linkText: string): MenuItemConstructorOptions | undefined {
     return super.buildHideMenuItem(linkText);
   }
   buildNavigationToggleMenuItems(): MenuItemConstructorOptions[] {
@@ -53,10 +53,9 @@ describe('buildHideMenuItem', async () => {
     getConfigurationMock.mockReturnValue({ get: () => [] } as unknown as ConfigurationRegistry);
 
     const menu = navigationItemsMenuBuilder.buildHideMenuItem('Hello');
-
-    expect(menu.label).toBe(`Hide 'Hello'`);
-    expect(menu.click).toBeDefined();
-    expect(menu.visible).toBe(true);
+    expect(menu?.label).toBe(`Hide 'Hello'`);
+    expect(menu?.click).toBeDefined();
+    expect(menu?.visible).toBe(true);
 
     // click on the menu
     menu?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
@@ -68,6 +67,13 @@ describe('buildHideMenuItem', async () => {
       ['Hello'],
       'DEFAULT',
     );
+  });
+
+  test('should not create a menu item if in excluded list', async () => {
+    getConfigurationMock.mockReturnValue({ get: () => [] } as unknown as ConfigurationRegistry);
+
+    const menu = navigationItemsMenuBuilder.buildHideMenuItem('Accounts');
+    expect(menu).toBeUndefined();
   });
 });
 
