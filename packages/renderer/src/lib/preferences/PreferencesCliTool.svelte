@@ -118,6 +118,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
               <div
                 class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
                 aria-label="cli-version">
+                {cliTool.name} v{cliTool.version}
               </div>
             </Tooltip>
             {#if cliTool.newVersion}
