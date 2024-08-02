@@ -47,15 +47,18 @@ function clickSettings(b: boolean) {
   {#each $navigationRegistry as navigationRegistryItem}
     <!-- This is a section -->
     {#if navigationRegistryItem.type === 'section' && navigationRegistryItem.enabled}
-      <NavSection tooltip={navigationRegistryItem.name}>
-        <svelte:component this={navigationRegistryItem.icon.iconComponent} size={iconSize} slot="icon" />
+      {@const allItemsHidden = (navigationRegistryItem.items ?? []).every(item => item.hidden)}
+      {#if !allItemsHidden}
+        <NavSection tooltip={navigationRegistryItem.name}>
+          <svelte:component this={navigationRegistryItem.icon.iconComponent} size={iconSize} slot="icon" />
 
-        {#if navigationRegistryItem.items}
-          {#each navigationRegistryItem.items as item}
-            <NavRegistryEntry entry={item} bind:meta={meta} />
-          {/each}
-        {/if}
-      </NavSection>
+          {#if navigationRegistryItem.items}
+            {#each navigationRegistryItem.items as item}
+              <NavRegistryEntry entry={item} bind:meta={meta} />
+            {/each}
+          {/if}
+        </NavSection>
+      {/if}
     {:else if navigationRegistryItem.items && navigationRegistryItem.type === 'group'}
       <!-- This is a group, list all items from the entry -->
       {#each navigationRegistryItem.items as item}
