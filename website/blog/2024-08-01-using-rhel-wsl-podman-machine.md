@@ -1,6 +1,6 @@
 ---
 title: Using RHEL as a WSL podman machine
-description: Build image and use it directly in your kubernetes cluster
+description: Build RHEL image and use it as the operating system for the WSL podman machine
 authors: [jeffmaury]
 tags: [podman-desktop, podman, rhel, wsl, machine]
 hide_table_of_contents: false
