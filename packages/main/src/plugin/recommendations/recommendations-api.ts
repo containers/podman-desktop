@@ -26,7 +26,9 @@ export interface ExtensionBanner {
   thumbnail: string;
   publishDate?: string;
   background?: {
-    image?: string;
+    // Light and dark colors for the backgrounds in base64. Ex: "data:image/png;base64,<data-here>"
+    light?: string;
+    dark?: string;
     gradient?: {
       start: string;
       end: string;
