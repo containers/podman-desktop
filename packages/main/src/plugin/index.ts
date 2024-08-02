@@ -1614,6 +1614,10 @@ export class PluginSystem {
       return extensionsCatalog.getExtensions();
     });
 
+    this.ipcHandle('catalog:refreshExtensions', async (): Promise<void> => {
+      return extensionsCatalog.refreshCatalog();
+    });
+
     this.ipcHandle('commands:getCommandPaletteCommands', async (): Promise<CommandInfo[]> => {
       return commandRegistry.getCommandPaletteCommands();
     });

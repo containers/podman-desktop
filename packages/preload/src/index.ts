@@ -1317,6 +1317,10 @@ export function initExposure(): void {
     return ipcInvoke('catalog:getExtensions');
   });
 
+  contextBridge.exposeInMainWorld('refreshCatalogExtensions', async (): Promise<void> => {
+    return ipcInvoke('catalog:refreshExtensions');
+  });
+
   contextBridge.exposeInMainWorld('getCommandPaletteCommands', async (): Promise<CommandInfo[]> => {
     return ipcInvoke('commands:getCommandPaletteCommands');
   });
