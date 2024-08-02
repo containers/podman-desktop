@@ -30,9 +30,6 @@ export class NavigationItemsMenuBuilder {
 
   receiveNavigationItems(data: { name: string; visible: boolean }[]): void {
     this.navigationItems = data;
-
-    // sort the items by name
-    this.navigationItems.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   protected async updateNavbarHiddenItem(itemName: string, visible: boolean): Promise<void> {
