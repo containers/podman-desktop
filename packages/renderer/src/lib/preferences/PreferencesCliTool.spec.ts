@@ -117,6 +117,8 @@ suite('CLI Tool item', () => {
     const versionElement = screen.getByLabelText('cli-version');
     expect(versionElement).toBeDefined();
     expect(versionElement.textContent).equal(`${cliToolInfoItem2.name} v${cliToolInfoItem2.version}`);
+    const displayFullPathElement = screen.getByText('Path: path/to/tool-name-2');
+    expect(displayFullPathElement).toBeInTheDocument();
     const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
     expect(updateLoadingButton).toBeInTheDocument();
     expect(updateLoadingButton).toBeDisabled();

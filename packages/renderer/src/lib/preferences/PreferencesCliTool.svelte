@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import type { CliToolInfo } from '/@api/cli-tool-info';
@@ -114,11 +114,13 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         {#if cliTool.version}
           <div
             class="flex flex-row justify-between align-center bg-[var(--pd-invert-content-bg)] p-2 rounded-lg min-w-[320px] w-fit">
-            <div
-              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
-              aria-label="cli-version">
-              {cliTool.name} v{cliTool.version}
-            </div>
+            <Tooltip area-label="cli-full-path" bottomRight={true} tip="Path: {cliTool.path}">
+              <div
+                class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
+                aria-label="cli-version">
+                {cliTool.name} v{cliTool.version}
+              </div>
+            </Tooltip>
             {#if cliTool.newVersion}
               <Button
                 type="link"
