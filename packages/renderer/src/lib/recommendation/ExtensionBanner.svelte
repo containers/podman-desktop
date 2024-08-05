@@ -6,15 +6,20 @@ import FeaturedExtension from '/@/lib/featured/FeaturedExtension.svelte';
 import type { ExtensionBanner } from '../../../../main/src/plugin/recommendations/recommendations-api';
 
 export let banner: ExtensionBanner;
+// Pass in the theme appearance colour of PD to the banner, we do it here so we don't have to do multiple isDarkMode() checks when rendering multiple banners.
+export let isDark: boolean;
 
 let style: string | undefined = undefined;
-let hasBackground: boolean = !!banner.background && (!!banner.background.image || !!banner.background.gradient);
+let hasBackground: boolean =
+  !!banner.background && ((!!banner.background.dark && !!banner.background.light) || !!banner.background.gradient);
 
 onMount(() => {
   if (banner.background?.gradient) {
     style = `background: linear-gradient(${banner.background.gradient.start}, ${banner.background.gradient.end});`;
-  } else if (banner.background?.image) {
-    style = `background-image: url("${banner.background.image}");`;
+  } else if (isDark && banner.background?.dark) {
+    style = `background-image: url("${banner.background.dark}");`;
+  } else if (!isDark && banner.background?.light) {
+    style = `background-image: url("${banner.background.light}");`;
   } else {
     style = undefined;
   }

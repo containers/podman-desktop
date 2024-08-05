@@ -28,8 +28,13 @@ import type { ExtensionBanner } from '../../../../main/src/plugin/recommendation
 
 const getExtensionBannersMock = vi.fn();
 
+// mock window.getConfigurationValue
+const getConfigurationValueMock = vi.fn();
+
 // fake the window.events object
 beforeEach(() => {
+  vi.resetAllMocks();
+  (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).getExtensionBanners = getExtensionBannersMock;
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
