@@ -21,6 +21,7 @@ import { arch, platform } from 'node:os';
 import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
+import { rcompare } from 'semver';
 
 import type { KubectlGithubReleaseArtifactMetadata, KubectlGitHubReleases } from './kubectl-github-releases';
 import type { OS } from './os';
@@ -37,6 +38,8 @@ export class KubectlDownload {
   // and return the artifact metadata
   async getLatestVersionAsset(): Promise<KubectlGithubReleaseArtifactMetadata> {
     const latestReleases = await this.kubectlGitHubReleases.grabLatestsReleasesMetadata();
+    // from biggest to smallest
+    latestReleases.sort((a, b) => rcompare(a.tag, b.tag));
     return latestReleases[0];
   }
 
