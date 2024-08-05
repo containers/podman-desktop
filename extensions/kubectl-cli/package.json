@@ -147,9 +147,11 @@
   "dependencies": {
     "@podman-desktop/api": "^0.0.1",
     "@octokit/rest": "^21.0.1",
+    "semver": "^7.5.8",
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
+    "@types/semver": "^7.5.8",
     "adm-zip": "^0.5.14",
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
