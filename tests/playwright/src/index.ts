@@ -28,6 +28,7 @@ export * from './utility/platform';
 export * from './utility/wait';
 
 // exports Podman Desktop Page Object Module
+export * from './model/core/operations';
 export * from './model/core/platforms';
 export * from './model/core/states';
 export * from './model/core/types';
@@ -60,8 +61,10 @@ export * from './model/pages/pods-details-page';
 export * from './model/pages/pods-page';
 export * from './model/pages/pull-image-page';
 export * from './model/pages/registries-page';
+export * from './model/pages/resource-card-page';
+export * from './model/pages/resource-cli-card-page';
+export * from './model/pages/resource-connection-card-page';
 export * from './model/pages/resources-page';
-export * from './model/pages/resources-podman-connections-page';
 export * from './model/pages/run-image-page';
 export * from './model/pages/settings-bar';
 export * from './model/pages/settings-page';

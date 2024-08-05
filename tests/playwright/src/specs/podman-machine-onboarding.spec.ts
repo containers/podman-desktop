@@ -26,8 +26,8 @@ import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 import type { DashboardPage } from '../model/pages/dashboard-page';
 import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
 import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
+import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
-import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
@@ -37,6 +37,7 @@ import { deletePodmanMachine } from '../utility/operations';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
 const PODMAN_MACHINE_NAME: string = 'Podman Machine';
+const RESOURCE_NAME: string = 'podman';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -98,8 +99,10 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
         settingsBar = await navigationBar.openSettings();
         await settingsBar.resourcesTab.click();
         resourcesPage = new ResourcesPage(page);
-        await playExpect(resourcesPage.podmanResources).toBeVisible();
-        await resourcesPage.podmanResources.getByLabel('Setup Podman').click();
+        await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+        const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
+        const setupButton = podmanResourceCard.providerSetup.getByRole('button', { name: 'Setup Podman' });
+        await setupButton.click();
         podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });
     });
@@ -151,12 +154,12 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
           settingsBar = await navigationBar.openSettings();
           await settingsBar.resourcesTab.click();
           resourcesPage = new ResourcesPage(page);
-          await playExpect(resourcesPage.podmanResources).toBeVisible();
-          const resourcesPodmanConnections = new ResourcesPodmanConnections(page, PODMAN_MACHINE_NAME);
+          await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+          const resourcesPodmanConnections = new ResourceConnectionCardPage(page, RESOURCE_NAME, PODMAN_MACHINE_NAME);
           await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
-          await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeVisible();
-          await playExpect(resourcesPodmanConnections.machineDetailsButton).toBeVisible();
-          await resourcesPodmanConnections.machineDetailsButton.click();
+          await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible();
+          await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
+          await resourcesPodmanConnections.resourceElementDetailsButton.click();
           podmanMachineDetails = new PodmanMachineDetails(page);
           await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
