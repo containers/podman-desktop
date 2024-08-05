@@ -40,6 +40,7 @@ beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
+  process.env.KEEP_TRACES_ON_PASS = 'true';
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -47,7 +48,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
   await pdRunner.close();
 });
 
@@ -66,7 +67,8 @@ describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification
     await createMachineButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
-    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true);
+    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true, false);
+    await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
 
     const machineBox = new ResourcesPodmanConnections(page, MACHINE_VISIBLE_NAME);
     const connectionStatusLabel = await machineBox.machineConnectionStatus.textContent();
