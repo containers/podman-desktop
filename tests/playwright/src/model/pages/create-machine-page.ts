@@ -65,6 +65,7 @@ export class CreateMachinePage extends BasePage {
     isRootful: boolean = true,
     enableUserNet: boolean = false,
     startNow: boolean = true,
+    setAsDefault: boolean = true,
   ): Promise<ResourcesPage> {
     await playExpect(this.podmanMachineConfiguration).toBeVisible();
     await this.podmanMachineName.fill(machineName);
@@ -82,11 +83,14 @@ export class CreateMachinePage extends BasePage {
     }
 
     await this.createMachineButton.click();
+    await this.page.waitForTimeout(60000);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 100000 });
+    await this.handleConnectionDialog(machineName, setAsDefault);
+
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
 
@@ -114,5 +118,24 @@ export class CreateMachinePage extends BasePage {
 
     const clickableCheckbox = upperElement.getByText(checkText);
     await clickableCheckbox.click();
+  }
+
+  async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
+    const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
+    const dialogMessage = connectionDialog.getByText(
+      new RegExp(
+        "Podman Machine '" +
+          machineName +
+          "' is running but not the default machine .+ Do you want to set it as default?",
+      ),
+    );
+    if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
+      let handleButtonName = 'Yes';
+      if (!setAsDefault) {
+        handleButtonName = 'Ignore';
+      }
+      const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
+      await handleButton.click();
+    }
   }
 }
