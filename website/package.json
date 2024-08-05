@@ -44,7 +44,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.4.0",
     "@docusaurus/tsconfig": "^3.4.0",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.4.20",
     "markdownlint": "^0.34.0",
     "markdownlint-cli2": "^0.13.0",
     "postcss": "^8.4.40",
