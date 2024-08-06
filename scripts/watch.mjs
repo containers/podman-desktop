@@ -254,9 +254,17 @@ const setupExtensionApiWatcher = name => {
     // get extensions folder
     const extensionsFolder = resolve(__dirname, '../extensions/');
 
-    // loop on all subfolders from the extensions folder
+    // Loop on all subfolders from the extensions folder.
+    // If package.json is present it is an extension without API.
+    // If package.json is missing look into packages/extension folder
+    // and if package.json is present it is na extension with API.
     readdirSync(extensionsFolder, { recursive: true, withFileTypes: true })
-      //.filter(dirent => dirent.isDirectory() && existsSync(join(extensionsFolder, dirent.name, 'package.json')))
+      .filter(dirent => 
+        dirent.isDirectory() && (
+          existsSync(join(extensionsFolder, dirent.name, 'package.json')) 
+          || existsSync(extensionsFolder, dirent.name, 'packages', 'extension', 'package.json')
+        )
+      )
       .forEach(dirent => {
         if (existsSync(join(extensionsFolder, dirent.name, 'package.json'))) {
           setupExtensionApiWatcher(join(extensionsFolder, dirent.name))
