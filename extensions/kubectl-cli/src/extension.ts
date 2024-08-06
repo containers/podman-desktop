@@ -21,7 +21,7 @@ import * as path from 'node:path';
 import { Octokit } from '@octokit/rest';
 import type { CliTool } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { neq } from 'semver';
+import { gt } from 'semver';
 
 import { installBinaryToSystem } from './cli-run';
 import { Detect } from './detect';
@@ -328,7 +328,7 @@ async function postActivate(
   // check if there is a new version to be installed and register the updater
   const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
   const lastReleaseVersion = lastReleaseMetadata.tag.slice(1);
-  if (neq(lastReleaseVersion, version)) {
+  if (gt(lastReleaseVersion, version)) {
     kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
       version: lastReleaseVersion,
       doUpdate: async _logger => {
