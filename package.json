@@ -97,7 +97,7 @@
     "typecheck:extensions:docker": "tsc --noEmit --project extensions/docker",
     "typecheck:extensions:kube-context": "tsc --noEmit --project extensions/kube-context",
     "typecheck:extensions:lima": "tsc --noEmit --project extensions/lima",
-    "typecheck:extensions:podman": "tsc --noEmit --project extensions/podman",
+    "typecheck:extensions:podman": "tsc --noEmit --project extensions/podman/packages/extension",
     "typecheck:extensions:registries": "tsc --noEmit --project extensions/registries",
     "typecheck:extensions:kubectl-cli": "tsc --noEmit --project extensions/kubectl-cli",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:ui && npm run typecheck:renderer && npm run typecheck:preload-dd-extension && npm run typecheck:preload-webview && npm run typecheck:extensions && npm run typecheck:extension-api",
