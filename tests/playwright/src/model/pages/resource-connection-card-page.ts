@@ -37,8 +37,7 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
 
   public async performConnectionAction(operation: ResourceElementActions): Promise<void> {
     const button = this.resourceElementConnectionActions.getByRole('button', { name: operation, exact: true });
-    await playExpect(button).toBeVisible();
-    await playExpect(button).not.toBeDisabled({ timeout: 10000 });
+    await playExpect(button).toBeEnabled({ timeout: 10000 });
     await button.click();
   }
 }
