@@ -255,9 +255,15 @@ const setupExtensionApiWatcher = name => {
     const extensionsFolder = resolve(__dirname, '../extensions/');
 
     // loop on all subfolders from the extensions folder
-    readdirSync(extensionsFolder, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory() && existsSync(join(extensionsFolder, dirent.name, 'package.json')))
-      .forEach(dirent => setupExtensionApiWatcher(join(extensionsFolder, dirent.name)));
+    readdirSync(extensionsFolder, { recursive: true, withFileTypes: true })
+      //.filter(dirent => dirent.isDirectory() && existsSync(join(extensionsFolder, dirent.name, 'package.json')))
+      .forEach(dirent => {
+        if (existsSync(join(extensionsFolder, dirent.name, 'package.json'))) {
+          setupExtensionApiWatcher(join(extensionsFolder, dirent.name))
+        } else if(existsSync(join(extensionsFolder, dirent.name, 'packages', 'extension', 'package.json'))) {
+          setupExtensionApiWatcher(join(extensionsFolder, dirent.name, 'packages', 'extension'));
+        }
+      });
 
     for (const extension of extensions) {
       setupExtensionApiWatcher(extension);

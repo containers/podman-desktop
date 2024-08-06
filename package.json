@@ -33,7 +33,7 @@
     "build:extensions:kubecontext": "cd ./extensions/kube-context && npm run build",
     "build:extensions:kind": "cd ./extensions/kind && npm run build",
     "build:extensions:lima": "cd ./extensions/lima && npm run build",
-    "build:extensions:podman": "cd ./extensions/podman && npm run build",
+    "build:extensions:podman": "cd ./extensions/podman/packages/extension && npm run build",
     "build:extensions:registries": "cd ./extensions/registries && npm run build",
     "build:extensions:kubectl-cli": "cd ./extensions/kubectl-cli && npm run build",
     "build:extension-api": "cd ./packages/extension-api && vite build",

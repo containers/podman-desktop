@@ -580,7 +580,11 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name));
+      .map(directory =>
+        fs.existsSync(path.join(directory.parentPath, directory.name, 'package.json'))
+          ? path.join(directory.parentPath, directory.name)
+          : path.join(directory.parentPath, directory.name, 'packages', 'extension'),
+      );
   }
 
   async readExternalFolders(): Promise<string[]> {
