@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faKey, faSignIn, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
 
-import DropDownMenuItem from '../../../../ui/dist/dropdownMenu/DropDownMenuItem.svelte';
 import DropDownMenuItems from '../../../../ui/dist/dropdownMenu/DropDownMenuItems.svelte';
 import { authenticationProviders } from '../../stores/authenticationProviders';
 
@@ -39,7 +39,7 @@ export function onButtonClick(e: MouseEvent): void {
 
 {#if showMenu}
   <DropDownMenuItems clientY={clientY} clientX={clientX}>
-    <DropDownMenuItem
+    <DropdownMenu.Item
       title="Manage authentication"
       icon={faKey}
       onClick={() => (window.location.href = '#/preferences/authentication-providers')} />
@@ -48,7 +48,7 @@ export function onButtonClick(e: MouseEvent): void {
       {@const sessionRequests = provider.sessionRequests ?? []}
       {#if provider?.accounts?.length > 0}
         {#each provider.accounts as account}
-          <DropDownMenuItem
+          <DropdownMenu.Item
             title={'Sign out of ' + account.label}
             onClick={() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}
             icon={faSignOut} />
@@ -56,7 +56,7 @@ export function onButtonClick(e: MouseEvent): void {
       {/if}
 
       {#each sessionRequests as request}
-        <DropDownMenuItem
+        <DropdownMenu.Item
           title="Sign in to use {request.extensionLabel}"
           onClick={() => window.requestAuthenticationProviderSignIn(request.id)}
           icon={faSignIn} />
