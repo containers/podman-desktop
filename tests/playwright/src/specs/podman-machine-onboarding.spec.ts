@@ -101,7 +101,7 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
         resourcesPage = new ResourcesPage(page);
         await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
         const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
-        const setupButton = podmanResourceCard.providerSetup.getByRole('button', { name: 'Setup Podman' });
+        const setupButton = podmanResourceCard.setupButton;
         await setupButton.click();
         podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });

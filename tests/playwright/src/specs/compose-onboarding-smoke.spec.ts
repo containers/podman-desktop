@@ -76,7 +76,7 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     const composeResourceCard = new ResourceCliCardPage(page, RESOURCE_NAME);
     await composeResourceCard.card.scrollIntoViewIfNeeded();
-    const setupButton = composeResourceCard.providerSetup.getByRole('button', { name: 'Setup Compose' });
+    const setupButton = composeResourceCard.setupButton;
     await playExpect(
       setupButton,
       'Compose Setup button is not present, perhaps compose is already installed',
@@ -146,7 +146,7 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
     await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     const composeBox = new ResourceCliCardPage(page, RESOURCE_NAME);
-    const setupButton = composeBox.providerSetup.getByRole('button', { name: 'Setup Compose' });
+    const setupButton = composeBox.setupButton;
     await playExpect(setupButton).toBeHidden();
 
     const cliToolsPage = await settingsBar.openTabPage(CLIToolsPage);
@@ -164,7 +164,7 @@ async function openComposeOnboarding(page: Page): Promise<ComposeOnboardingPage>
   await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
   const composeResourceCard = new ResourceCliCardPage(page, RESOURCE_NAME);
   await composeResourceCard.card.scrollIntoViewIfNeeded();
-  const setupButton = composeResourceCard.providerSetup.getByRole('button', { name: 'Setup Compose' });
+  const setupButton = composeResourceCard.setupButton;
   await playExpect(
     setupButton,
     'Compose Setup button is not present, perhaps compose is already installed',

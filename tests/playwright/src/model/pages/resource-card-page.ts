@@ -26,6 +26,7 @@ export abstract class ResourceCardPage extends BasePage {
   readonly providerSetup: Locator;
   readonly providerConnections: Locator;
   readonly markdownContent: Locator;
+  readonly setupButton: Locator;
 
   constructor(page: Page, resourceName: string) {
     super(page);
@@ -34,5 +35,6 @@ export abstract class ResourceCardPage extends BasePage {
     this.providerSetup = this.card.getByRole('region', { name: 'Provider Setup', exact: true });
     this.providerConnections = this.card.getByRole('region', { name: 'Provider Connections', exact: true });
     this.markdownContent = this.providerConnections.getByLabel('markdown-content');
+    this.setupButton = this.providerSetup.getByRole('button', { name: 'Setup' });
   }
 }

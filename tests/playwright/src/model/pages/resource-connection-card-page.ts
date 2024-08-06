@@ -26,6 +26,7 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
   readonly resourceElementDetailsButton: Locator;
   readonly resourceElementConnectionStatus: Locator;
   readonly resourceElementConnectionActions: Locator;
+  readonly createButton: Locator;
 
   constructor(page: Page, resourceName: string, resourceElementVisibleName?: string) {
     super(page, resourceName);
@@ -33,6 +34,7 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
     this.resourceElementDetailsButton = this.resourceElement.getByRole('button', { name: 'details' });
     this.resourceElementConnectionStatus = this.resourceElement.getByLabel('Connection Status Label');
     this.resourceElementConnectionActions = this.resourceElement.getByRole('group', { name: 'Connection Actions' });
+    this.createButton = this.providerSetup.getByRole('button', { name: 'Create' });
   }
 
   public async performConnectionAction(operation: ResourceElementActions): Promise<void> {
