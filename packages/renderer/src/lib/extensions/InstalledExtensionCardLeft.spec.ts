@@ -26,6 +26,7 @@ import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions
 import InstalledExtensionCardLeft from './InstalledExtensionCardLeft.svelte';
 
 beforeEach(() => {
+  (window as any).getConfigurationValue = vi.fn();
   (window as any).ddExtensionDelete = vi.fn();
   (window as any).removeExtension = vi.fn();
 });
@@ -62,6 +63,8 @@ test('Expect to see icon, link, badge and actions', async () => {
   expect(badge).toHaveTextContent('built-in');
 
   // check icon
+  // wait for image to be loaded
+  await new Promise(resolve => setTimeout(resolve, 200));
   const icon = screen.getByRole('img');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('src', 'iconOfMyExtension.png');

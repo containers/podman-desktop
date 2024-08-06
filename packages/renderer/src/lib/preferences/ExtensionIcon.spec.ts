@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import type { ExtensionInfo } from '/@api/extension-info';
 
@@ -27,6 +27,10 @@ import ExtensionIcon from './ExtensionIcon.svelte';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
+
+beforeAll(() => {
+  (window as any).getConfigurationValue = vi.fn();
+});
 
 test('Expect started icon', async () => {
   const extension: ExtensionInfo = {
@@ -43,6 +47,10 @@ test('Expect started icon', async () => {
     icon: 'my-icon',
   };
   render(ExtensionIcon, { extension: extension });
+
+  // wait for image to be loaded
+  await new Promise(resolve => setTimeout(resolve, 200));
+
   const icon = screen.getByRole('img');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('src', extension.icon);
@@ -64,6 +72,10 @@ test('Expect faded icon for other states', async () => {
     icon: 'my-icon',
   };
   render(ExtensionIcon, { extension: extension });
+
+  // wait for image to be loaded
+  await new Promise(resolve => setTimeout(resolve, 200));
+
   const icon = screen.getByRole('img');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('src', extension.icon);
