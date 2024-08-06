@@ -11,6 +11,7 @@ import Fa from 'svelte-fa';
 import EmbeddableCatalogExtensionList from '/@/lib/extensions/EmbeddableCatalogExtensionList.svelte';
 
 import { authenticationProviders } from '../../stores/authenticationProviders';
+import IconImage from '../appearance/IconImage.svelte';
 import KeyIcon from '../images/KeyIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';
 </script>
@@ -37,19 +38,7 @@ import SettingsPage from './SettingsPage.svelte';
             <!-- Icon -->
             <div class="flex">
               {#if provider?.images?.icon}
-                {#if typeof provider.images.icon === 'string'}
-                  <img
-                    src={provider.images.icon}
-                    alt={provider.displayName}
-                    aria-label="Icon for {provider.displayName} provider"
-                    class="max-w-[40px] h-full" />
-                  <!-- TODO check theme used for image, now use dark by default -->
-                {:else}
-                  <img
-                    src={provider.images.icon.dark}
-                    alt="Dark color theme icon for {provider.displayName} provider"
-                    class="max-w-[40px]" />
-                {/if}
+                <IconImage image={provider.images.icon} alt={provider.displayName} class="max-w-[40px] h-full" />
               {:else}
                 <svelte:component
                   this={KeyIcon}
