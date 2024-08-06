@@ -30,9 +30,6 @@ export class AppearanceUtil {
     if (appearance === AppearanceSettings.SystemEnumValue) {
       // need to read the system default theme using the window.matchMedia
       isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      //FIXME: for now we hardcode to the dark theme even if the Operatin System is using light theme
-      // as it renders correctly only in dark mode today
-      isDark = true;
     } else if (appearance === AppearanceSettings.LightEnumValue) {
       isDark = false;
     } else if (appearance === AppearanceSettings.DarkEnumValue) {
@@ -49,9 +46,7 @@ export class AppearanceUtil {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
     if (themeName === AppearanceSettings.SystemEnumValue) {
-      //FIXME: for now we hardcode to the dark theme even if the Operating System is using light theme
-      // return systemTheme;
-      return 'dark';
+      return systemTheme;
     }
 
     return themeName ?? systemTheme;
