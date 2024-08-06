@@ -5,7 +5,7 @@ import Fa from 'svelte-fa';
 
 import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 
-import ProviderLogo from '../dashboard/ProviderLogo.svelte';
+import IconImage from '../appearance/IconImage.svelte';
 
 export let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
 export let preflightChecks: CheckStatus[];
@@ -30,7 +30,10 @@ function openLink(e: MouseEvent, url: string): void {
       <div class="overflow-y-auto px-4 pb-4 text-[var(--pd-modal-text)]">
         <div class="flex flex-col rounded-lg">
           <div class="mx-auto max-w-[250px] mb-5">
-            <ProviderLogo provider={providerToBeInstalled.provider} />
+            <IconImage
+              logo={providerToBeInstalled.provider.images.logo}
+              alt={providerToBeInstalled.provider.name}
+              class="mx-auto max-h-12" />
           </div>
           <div class="flex flex-row mx-auto text-md">Some system requirements are missing.</div>
           <div class="flex flex-col min-h-[150px] mt-5 mx-auto py-4 px-10 rounded-md bg-charcoal-800">
