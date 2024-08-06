@@ -20,9 +20,11 @@ import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import type { TaskResult } from 'vitest';
 
+import { ResourceElementActions } from '../model/core/operations';
+import { ResourceElementState } from '../model/core/states';
 import { RegistriesPage } from '../model/pages/registries-page';
+import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
-import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { waitUntil, waitWhile } from './wait';
@@ -167,32 +169,34 @@ export async function handleConfirmationDialog(
  * @param machineVisibleName Name of the Podman Machine to delete
  */
 export async function deletePodmanMachine(page: Page, machineVisibleName: string): Promise<void> {
+  const RESOURCE_NAME: string = 'podman';
   const navigationBar = new NavigationBar(page);
   const dashboardPage = await navigationBar.openDashboard();
   await playExpect(dashboardPage.mainPage).toBeVisible({ timeout: 3000 });
   const settingsBar = await navigationBar.openSettings();
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-  await playExpect(resourcesPage.podmanResources).toBeVisible({ timeout: 10_000 });
-  const resourcesPodmanConnections = new ResourcesPodmanConnections(page, machineVisibleName);
-  await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
+  await playExpect
+    .poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME), { timeout: 10000 })
+    .toBeTruthy();
+  const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineVisibleName);
+  await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10_000 });
   await waitUntil(
     async () => {
-      return await resourcesPodmanConnections.podmanMachineElement.isVisible();
+      return await podmanResourceCard.resourceElement.isVisible();
     },
     { timeout: 15000 },
   );
-  if (await resourcesPodmanConnections.podmanMachineElement.isVisible()) {
-    await playExpect(resourcesPodmanConnections.machineConnectionActions).toBeVisible({ timeout: 3000 });
-    await playExpect(resourcesPodmanConnections.machineConnectionStatus).toBeVisible({ timeout: 3000 });
-    if ((await resourcesPodmanConnections.machineConnectionStatus.innerText()) === 'RUNNING') {
-      await playExpect(resourcesPodmanConnections.machineStopButton).toBeVisible({ timeout: 3000 });
-      await resourcesPodmanConnections.machineStopButton.click();
-      await playExpect(resourcesPodmanConnections.machineConnectionStatus).toHaveText('OFF', { timeout: 30_000 });
+  if (await podmanResourceCard.resourceElement.isVisible()) {
+    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
+    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
+    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
+      await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
+      await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
+        timeout: 30_000,
+      });
     }
-    await playExpect(resourcesPodmanConnections.machineDeleteButton).toBeVisible({ timeout: 3000 });
-    await waitWhile(() => resourcesPodmanConnections.machineDeleteButton.isDisabled(), { timeout: 10000 });
-    await resourcesPodmanConnections.machineDeleteButton.click();
-    await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeHidden({ timeout: 30_000 });
+    await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
+    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 30_000 });
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
   }
