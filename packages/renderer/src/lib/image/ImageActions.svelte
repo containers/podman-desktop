@@ -59,7 +59,7 @@ onDestroy(() => {
 
 async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);
-  router.goto('/images/run/basic');
+  router.goto('/image/run/basic');
 }
 
 async function deleteImage(): Promise<void> {
