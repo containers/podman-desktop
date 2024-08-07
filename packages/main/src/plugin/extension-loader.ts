@@ -574,9 +574,10 @@ export class ExtensionLoader {
     return sorted;
   }
 
-  getExtensionPath(directory: fs.Dirent): string {
-    const extDir = path.join(directory.parentPath, directory.name);
-    return fs.existsSync(path.join(extDir, 'package.json')) ? extDir : path.join(extDir, 'packages', 'extension');
+  getExtensionPath(directory: string): string {
+    return fs.existsSync(path.join(directory, 'package.json'))
+      ? directory
+      : path.join(directory, 'packages', 'extension');
   }
 
   async readDevelopmentFolders(folderPath: string): Promise<string[]> {
@@ -585,7 +586,7 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => this.getExtensionPath(directory));
+      .map(directory => this.getExtensionPath(path.join(folderPath, directory.name)));
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -603,7 +604,9 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(this.getExtensionPath(directory), `/builtin/${directory.name}.cdix`));
+      .map(directory =>
+        path.join(this.getExtensionPath(path.join(folderPath, directory.name)), `/builtin/${directory.name}.cdix`),
+      );
   }
 
   /**
