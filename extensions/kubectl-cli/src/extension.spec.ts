@@ -90,9 +90,9 @@ beforeEach(() => {
   vi.mocked(KubectlGitHubReleases).mockReturnValue({
     grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
       {
-        label: 'dummy label',
-        tag: 'dummy tag',
-        id: 'dummy id',
+        label: 'Kubernetes v1.30.3',
+        tag: 'v1.30.3',
+        id: 165829199,
       },
     ]),
     getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
@@ -362,6 +362,14 @@ test('findKubeCtl not global kubectl but in storage installed on macOS', async (
 });
 
 describe('postActivate', () => {
+  beforeEach(() => {
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+      stderr: '',
+      stdout: JSON.stringify(jsonStdout),
+      command: 'kubectl version --client=true -o=json',
+    });
+  });
+
   test('postActivate should registerUpdate', async () => {
     const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
@@ -430,5 +438,37 @@ describe('postActivate', () => {
     expect(vi.mocked(installBinaryToSystem).mock.calls[0][0]).toContain(
       path.resolve(extensionContext.storagePath, 'bin', 'kubectl'),
     );
+  });
+
+  test('onUpdate should not be registered if version is bellow current version', async () => {
+    // mock return value bellow current
+    vi.mocked(KubectlGitHubReleases).mockReturnValue({
+      grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
+        {
+          label: 'Kubernetes v1.1.0',
+          tag: 'v1.1.0',
+          id: -1,
+        },
+      ]),
+      getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
+      downloadReleaseAsset: downloadReleaseAssetMock,
+    } as unknown as KubectlGitHubReleases);
+
+    const cliToolMock: extensionApi.CliTool = {
+      registerUpdate: vi.fn(),
+    } as unknown as extensionApi.CliTool;
+
+    vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+      return cliToolMock;
+    });
+
+    await KubectlExtension.activate(extensionContext);
+
+    await vi.waitFor(() => {
+      expect(extensionContext.subscriptions.includes(cliToolMock)).toBeTruthy();
+    });
+
+    expect(extensionApi.cli.createCliTool).toHaveBeenCalled();
+    expect(cliToolMock.registerUpdate).not.toHaveBeenCalled();
   });
 });
