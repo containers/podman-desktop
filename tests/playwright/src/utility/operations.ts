@@ -189,7 +189,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   if (await podmanResourceCard.resourceElement.isVisible()) {
     await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
     await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
-    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
+    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) !== ResourceElementState.Off) {
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 30_000,
