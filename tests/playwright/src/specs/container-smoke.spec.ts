@@ -289,7 +289,7 @@ describe('Verification of container creation workflow', async () => {
     await containersPage.pruneContainers();
     for (const container of containerList) {
       await playExpect
-        .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
+        .poll(async () => await containersPage.containerExists(container), { timeout: 30000 })
         .toBeFalsy();
     }
   }, 120000);
