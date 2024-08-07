@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { execSync } from 'node:child_process';
+
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import type { TaskResult } from 'vitest';
@@ -189,7 +191,15 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   if (await podmanResourceCard.resourceElement.isVisible()) {
     await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
     await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
-    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) !== ResourceElementState.Off) {
+    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Starting) {
+      console.log('Podman machine is in starting currently, will send stop command via CLI');
+      execSync(`podman machine stop ${machineVisibleName}`);
+      await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
+        timeout: 30_000,
+      });
+      console.log('Podman machine stopped via CLI');
+    }
+    if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 30_000,
