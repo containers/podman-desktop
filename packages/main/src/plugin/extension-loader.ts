@@ -574,19 +574,17 @@ export class ExtensionLoader {
     return sorted;
   }
 
-  getExtensionPath(directory: string): string {
-    return fs.existsSync(path.join(directory, 'package.json'))
-      ? directory
-      : path.join(directory, 'packages', 'extension');
-  }
-
   async readDevelopmentFolders(folderPath: string): Promise<string[]> {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => this.getExtensionPath(path.join(folderPath, directory.name)));
+      .map(directory =>
+        fs.existsSync(path.join(folderPath, directory.name, 'package.json'))
+          ? path.join(folderPath, directory.name)
+          : path.join(folderPath, directory.name, 'packages', 'extension'),
+      );
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -604,9 +602,12 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory =>
-        path.join(this.getExtensionPath(path.join(folderPath, directory.name)), `/builtin/${directory.name}.cdix`),
-      );
+      .map(directory => {
+        const noApiExtPath = path.join(folderPath, directory.name, 'builtin', `${directory.name}.cdix`);
+        return fs.existsSync(noApiExtPath)
+          ? noApiExtPath
+          : path.join(folderPath, directory.name, 'packages', 'extension', `/builtin/${directory.name}.cdix`);
+      });
   }
 
   /**
