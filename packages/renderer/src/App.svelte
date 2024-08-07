@@ -128,7 +128,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">
           <KubePlayYAML />
         </Route>
-        <Route path="/image/run/*" breadcrumb="Images">
+        <Route path="/image/run/*" breadcrumb="Run Image">
           <RunImage />
         </Route>
         <Route path="/images" breadcrumb="Images" navigationHint="root">
