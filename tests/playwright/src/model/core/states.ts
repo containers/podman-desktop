@@ -51,4 +51,5 @@ export enum VolumeState {
 export enum ResourceElementState {
   Running = 'RUNNING',
   Off = 'OFF',
+  Starting = 'STARTING',
 }

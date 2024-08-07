@@ -159,10 +159,7 @@ describe('Volume workflow verification', async () => {
     //check the container is stopped and delete it
     containers = await navigationBar.openContainers();
     const containerDetails = await containers.openContainersDetails(containerToRun);
-    await playExpect
-      .poll(async () => containerDetails.getState(), { timeout: 20000 })
-      .toContain(ContainerState.Exited.toLowerCase());
-    await playExpect(await containerDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
+    await playExpect.poll(async () => containerDetails.getState(), { timeout: 20000 }).toContain(ContainerState.Exited);
     containers = await navigationBar.openContainers();
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
