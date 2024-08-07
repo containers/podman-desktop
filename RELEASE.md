@@ -152,6 +152,27 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 1. Create a PR to the repository with a title like `feat: bump to v0.11.0`
 1. If the PR passes all tests, merge the PR
 
+## Updating Podman Desktop associated extensions
+
+There are numerous tightly integrated Podman Desktop integrations that should receive notifications that a new release has gone out.
+
+They should be notified by a message, for example:
+
+```sh
+Podman Desktop X.X.X has been released! Please update your extension with this release to reflect any new API changes.
+```
+
+All extensions maintained by Podman Desktop maintainers which are in the catalog, should ideally be updated.
+
+Notify the following officially supported extensions by opening up an issue, or messaging the corresponding maintainers:
+- [AI Lab](https://github.com/containers/podman-desktop-extension-ai-lab)
+- [BootC](https://github.com/containers/podman-desktop-extension-bootc)
+- [Minikube](https://github.com/containers/podman-desktop-extension-minikube)
+- [OpenShift Checker](https://github.com/redhat-developer/podman-desktop-image-checker-openshift-ext)
+- [Red Hat Account Extension](https://github.com/redhat-developer/podman-desktop-redhat-account-ext)
+- [Red Hat OpenShift Local aka CRC](https://github.com/crc-org/crc-extension)
+- [Red Hat OpenShift Sandbox](https://github.com/redhat-developer/podman-desktop-sandbox-ext)
+
 ## Documentation
 
 ### Release notes
