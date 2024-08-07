@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import ExtensionBanner from '/@/lib/recommendation/ExtensionBanner.svelte';
@@ -54,7 +55,8 @@ const gradientBackground: IExtensionBanner = {
 const imageBackground: IExtensionBanner = {
   ...baseBanner,
   background: {
-    image: 'data:image/png;base64-image',
+    light: 'data:image/png;base64-image-light',
+    dark: 'data:image/png;base64-image-dark',
   },
 };
 
@@ -65,6 +67,7 @@ beforeEach(() => {
 test('banner icon should be visible', () => {
   render(ExtensionBanner, {
     banner: baseBanner,
+    isDark: true,
   });
 
   const img = screen.getByAltText('banner icon');
@@ -75,6 +78,7 @@ test('banner icon should be visible', () => {
 test('thumbnail should be visible', () => {
   render(ExtensionBanner, {
     banner: baseBanner,
+    isDark: true,
   });
 
   const img = screen.getByAltText('banner thumbnail');
@@ -86,6 +90,7 @@ describe('backgrounds', () => {
   test('expect default gradient background', () => {
     render(ExtensionBanner, {
       banner: baseBanner,
+      isDark: true,
     });
 
     const card = screen.getByLabelText('Recommended extension');
@@ -97,20 +102,40 @@ describe('backgrounds', () => {
   test('expect linear gradient background', () => {
     render(ExtensionBanner, {
       banner: gradientBackground,
+      isDark: true,
     });
+    tick();
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
     expect(card.attributes.getNamedItem('style')?.value).toBe('background: linear-gradient(#fff, #000);');
   });
 
-  test('expect image background', () => {
+  test('expect image background for dark theme', () => {
     render(ExtensionBanner, {
       banner: imageBackground,
+      isDark: true,
     });
+    tick();
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
-    expect(card.attributes.getNamedItem('style')?.value).toBe('background-image: url("data:image/png;base64-image");');
+    expect(card.attributes.getNamedItem('style')?.value).toBe(
+      'background-image: url("data:image/png;base64-image-dark");',
+    );
+  });
+
+  test('expect image background for light theme', () => {
+    render(ExtensionBanner, {
+      banner: imageBackground,
+      isDark: false,
+    });
+    tick();
+
+    const card = screen.getByLabelText('Recommended extension');
+    expect(card).toBeDefined();
+    expect(card.attributes.getNamedItem('style')?.value).toBe(
+      'background-image: url("data:image/png;base64-image-light");',
+    );
   });
 });

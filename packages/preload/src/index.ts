@@ -227,6 +227,13 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'sendNavigationItems',
+    async (items: { name: string; visible: boolean }[]): Promise<void> => {
+      return ipcRenderer.invoke('navigation:sendNavigationItems', items);
+    },
+  );
+
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
   });
@@ -1901,7 +1908,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'kubernetesApplyResourcesFromFile',
-    async (context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
+    async (context: string, file: string | string[], namespace?: string): Promise<KubernetesObject[]> => {
       return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file, namespace);
     },
   );

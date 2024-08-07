@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023, 2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { AppearanceSettings } from './appearance-settings.js';
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
-export class AppearanceInit {
+export class NavigationItemsInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
   init(): void {
-    const appearanceConfiguration: IConfigurationNode = {
-      id: 'preferences.appearance',
-      title: 'Appearance',
+    const confirmationConfiguration: IConfigurationNode = {
+      id: 'preferences.navBar',
+      title: 'User Confirmation',
       type: 'object',
       properties: {
-        [AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance]: {
-          description: 'Select between light or dark mode, or use your system setting.',
-          type: 'string',
-          enum: ['system', 'dark', 'light'],
-          default: 'system',
+        ['navbar.disabledItems']: {
+          description: 'Items being disabled in the navigation bar',
+          type: ['boolean'],
+          default: [],
+          hidden: true,
         },
       },
     };
 
-    this.configurationRegistry.registerConfigurations([appearanceConfiguration]);
+    this.configurationRegistry.registerConfigurations([confirmationConfiguration]);
   }
 }

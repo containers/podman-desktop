@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,13 @@ import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } f
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util/main';
 
+import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
 
 const openDevTools = new OpenDevTools();
+let navigationItemsMenuBuilder: NavigationItemsMenuBuilder;
 
 async function createWindow(): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;
@@ -104,8 +106,15 @@ async function createWindow(): Promise<BrowserWindow> {
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
 
+    navigationItemsMenuBuilder = new NavigationItemsMenuBuilder(configurationRegistry);
+
     // open dev tools (if required)
     openDevTools.open(browserWindow, configurationRegistry);
+  });
+
+  // receive the navigation items
+  ipcMain.handle('navigation:sendNavigationItems', (_, data) => {
+    navigationItemsMenuBuilder?.receiveNavigationItems(data);
   });
 
   // receive the message because an update is in progress and we need to quit the app
@@ -195,6 +204,9 @@ async function createWindow(): Promise<BrowserWindow> {
       } else {
         return [];
       }
+    },
+    append: (_defaultActions, parameters) => {
+      return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
     },
   });
 

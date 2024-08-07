@@ -37,6 +37,7 @@ import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { ContainerCreateOptions } from '/@api/container-info.js';
+import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 
@@ -312,6 +313,10 @@ const fakeContainerInspectInfoWithVolume = {
 };
 
 class TestContainerProviderRegistry extends ContainerProviderRegistry {
+  public extractContainerEnvironment(container: ContainerInspectInfo): { [key: string]: string } {
+    return super.extractContainerEnvironment(container);
+  }
+
   public getMatchingEngine(engineId: string): Dockerode {
     return super.getMatchingEngine(engineId);
   }
@@ -4710,6 +4715,18 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
     Containers: 0,
   };
 
+  // Purposely set isManifestList to false
+  const manifestImageWithIsManifestListFalse = {
+    ...manifestImage,
+    isManifestList: false,
+  };
+
+  // Purpose set isManifestList to true
+  const manifestImageWithIsManifestListTrue = {
+    ...manifestImage,
+    isManifestList: true,
+  };
+
   const regularImage = {
     Id: 'ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44',
     Labels: {},
@@ -4748,7 +4765,12 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
     schemaVersion: 1,
   });
 
-  const imagesList = [manifestImage, regularImage];
+  const imagesList = [
+    manifestImage,
+    regularImage,
+    manifestImageWithIsManifestListFalse,
+    manifestImageWithIsManifestListTrue,
+  ];
   nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4771,7 +4793,7 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
   const images = await containerRegistry.podmanListImages();
   // ensure the field are correct
   expect(images).toBeDefined();
-  expect(images).toHaveLength(2);
+  expect(images).toHaveLength(4);
 
   // Expect that inspectManifest was called with manifestId
   expect(inspectManifestMock).toBeCalledWith('manifestImage');
@@ -4796,6 +4818,14 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
   expect(image2.engineName).toBe('podman');
   expect(image2.Id).toBe('ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44');
   expect(image2.isManifest).toBe(false);
+
+  // Check the third image manifest is false due to isManifestList despite all the "guesses" that it should be a manifest
+  const image3 = images[2];
+  expect(image3.isManifest).toBe(false);
+
+  // Check the fourth image manifest is true due to isManifestList being true
+  const image4 = images[3];
+  expect(image4.isManifest).toBe(true);
 });
 
 test('if configuration setting is disabled for using libpodApi, it should fall back to compat api', async () => {
@@ -5216,5 +5246,41 @@ describe('provider update', () => {
       expect(internal.api).toBeDefined();
       expect(internal.libpodApi).toBeDefined();
     });
+  });
+});
+
+describe('extractContainerEnvironment', () => {
+  test('simple env', async () => {
+    // create a fake inspect info object with env
+    const inspectInfo = {
+      Config: {
+        Env: ['TERM=xterm', 'HOME=/root'],
+      },
+    } as unknown as ContainerInspectInfo;
+
+    const env = containerRegistry.extractContainerEnvironment(inspectInfo);
+
+    expect(env).toBeDefined();
+    expect(Object.keys(env)).toHaveLength(2);
+
+    expect(env['TERM']).toBe('xterm');
+    expect(env['HOME']).toBe('/root');
+  });
+
+  test('simple complex env', async () => {
+    // create a fake inspect info object with env
+    const inspectInfo = {
+      Config: {
+        Env: ['HOME=/root', 'SERVER_ARGS=--host-config=host-secondary.xml --foo-=bar'],
+      },
+    } as unknown as ContainerInspectInfo;
+
+    const env = containerRegistry.extractContainerEnvironment(inspectInfo);
+
+    expect(env).toBeDefined();
+    expect(Object.keys(env)).toHaveLength(2);
+
+    expect(env['HOME']).toBe('/root');
+    expect(env['SERVER_ARGS']).toBe('--host-config=host-secondary.xml --foo-=bar');
   });
 });

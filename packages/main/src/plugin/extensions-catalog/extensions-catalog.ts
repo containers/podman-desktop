@@ -65,13 +65,9 @@ export class ExtensionsCatalog {
     this.configurationRegistry.registerConfigurations([recommendationConfiguration]);
   }
 
-  // internal method, not exposed
-  protected async getCatalogJson(): Promise<InternalCatalogJSON | undefined> {
-    // return the cache version if cache is not reached and we have a cached version
-    if (this.lastFetchTime + ExtensionsCatalog.CACHE_TIMEOUT > Date.now() && this.cachedCatalog) {
-      return this.cachedCatalog;
-    }
-
+  // can be called to force the refresh of the catalog
+  // or it is called automatically when asking the catalog
+  public async refreshCatalog(): Promise<void> {
     // get the URL from the configuration
     const catalogUrl = this.configurationRegistry
       .getConfiguration(ExtensionsCatalogSettings.SectionName)
@@ -92,10 +88,24 @@ export class ExtensionsCatalog {
       // unable to fetch the extensions
       // extract only the error message
       if (requestErr.message) {
-        console.error('Unable to fetch the available extensions: ' + requestErr.message);
+        throw new Error(`Unable to fetch the available extensions: ${String(requestErr.message)}`);
       } else {
-        console.error('Unable to fetch the available extensions', requestErr.message);
+        throw new Error(`Unable to fetch the available extensions: ${String(requestErr)}`);
       }
+    }
+  }
+
+  // internal method, not exposed
+  protected async getCatalogJson(): Promise<InternalCatalogJSON | undefined> {
+    // return the cache version if cache is not reached and we have a cached version
+    if (this.lastFetchTime + ExtensionsCatalog.CACHE_TIMEOUT > Date.now() && this.cachedCatalog) {
+      return this.cachedCatalog;
+    }
+
+    try {
+      await this.refreshCatalog();
+    } catch (error: unknown) {
+      console.error(String(error));
     }
     // update the last fetch time
     this.lastFetchTime = Date.now();

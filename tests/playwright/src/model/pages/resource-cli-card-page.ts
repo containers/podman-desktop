@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export enum ContainerState {
-  Starting = 'STARTING',
-  Stopping = 'STOPPING',
-  Running = 'RUNNING',
-  Error = 'ERROR',
-  Exited = 'EXITED',
-  Deleting = 'DELETING',
-  Created = 'CREATED',
-  Paused = 'PAUSED',
-  Unknown = 'UNKNOWN',
-}
+import { type Page } from '@playwright/test';
 
-export enum PodState {
-  Created = 'CREATED',
-  Running = 'RUNNING',
-  Stopped = 'STOPPED',
-  Exited = 'EXITED',
-  Dead = 'DEAD',
-  Starting = 'STARTING',
-  Stopping = 'STOPPING',
-  Deleting = 'DELETING',
-  Restarting = 'RESTARTING',
-  Degraded = 'DEGRADED',
-  Paused = 'PAUSED',
-  Unknown = 'UNKNOWN',
-}
+import { ResourceCardPage } from './resource-card-page';
 
-export enum VolumeState {
-  Used = 'USED',
-  Unused = 'UNUSED',
-}
-
-export enum ResourceElementState {
-  Running = 'RUNNING',
-  Off = 'OFF',
+export class ResourceCliCardPage extends ResourceCardPage {
+  constructor(page: Page, resourceName: string) {
+    super(page, resourceName);
+  }
 }

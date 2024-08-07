@@ -152,6 +152,7 @@ import { downloadGuideList } from './learning-center/learning-center.js';
 import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
+import { NavigationItemsInit } from './navigation-items-init.js';
 import { NotificationRegistry } from './notification-registry.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
@@ -568,6 +569,9 @@ export class PluginSystem {
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
+
+    const navigationItems = new NavigationItemsInit(configurationRegistry);
+    navigationItems.init();
 
     // only in development mode
     if (import.meta.env.DEV) {

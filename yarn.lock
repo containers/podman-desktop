@@ -171,20 +171,20 @@
   resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-2.1.2.tgz#f01a12f77841ed830b5c7169273b49663897a24c"
   integrity sha512-4dpz76kW0KnXCYdxtkcdiaYUM4owmKtT9zPqrd1yPo+VuSNCNULyCZJ4mdy0aXWT716JLMMmIZ3AnQSkyaqvaA==
 
-"@argos-ci/cli@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-2.3.0.tgz#a5be66d94928c3bdce6c4505d3d39bdedd159b2d"
-  integrity sha512-wSyz6P4sVAOwsW0AlQ6EQM6Mhtais+F9SEqRbX4tviogpVzog17yrZ+fN2WRWQVOaZCXjjSkiZkcODDeFqj1oQ==
+"@argos-ci/cli@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-2.3.1.tgz#369ddc52d3010d231264a91f411566023a700bc6"
+  integrity sha512-qYvik4jvw+MXmrcFsRV4osanDlm6BCxfmNPm8SGEl+0O/+cjObtc8pWUliHAC1l6zQZsjolv0N4TxOTsz/1wpw==
   dependencies:
-    "@argos-ci/core" "2.4.0"
+    "@argos-ci/core" "2.4.1"
     commander "^12.0.0"
     ora "^8.0.1"
     update-notifier "^7.0.0"
 
-"@argos-ci/core@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-2.4.0.tgz#4b5631cd644b34d5706857fdc7a1966f9e4afa32"
-  integrity sha512-CY8IQsc71cuIeF2U47aePzH8+YWK4ePG1j+gK5aQ0r744Wc467U4xej7gChMVrAaGlZKsgoIIeXE1ezF+rCryw==
+"@argos-ci/core@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-2.4.1.tgz#ecce9759900687559001ba0ffeadc05714823a2a"
+  integrity sha512-Sl+5Zq4LBZF+CDB0eXGdTOLv3E9bubO2tfpDncQku5/s/N+2Ptn0JAw/Vc3EdJAtMWj1G8uy+6cvtV+eaVNnFg==
   dependencies:
     "@argos-ci/util" "2.1.0"
     axios "^1.6.8"
@@ -194,13 +194,13 @@
     sharp "^0.33.3"
     tmp "^0.2.3"
 
-"@argos-ci/playwright@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.4.0.tgz#6b682073ded7f367fc93b10bc48ec853ad67b0e8"
-  integrity sha512-Qigw3OiJiVO3MO6Vg4DrW4hd+jCJ2lv2WqpDFSEtTNdxnRU02/v2k8enBvrsqbMSPA0YLixjb984wl6yU7NwUg==
+"@argos-ci/playwright@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.4.1.tgz#1f8743cfb5d1358622ed7968b905e0a16e0eb23a"
+  integrity sha512-zJJmztOVmkzrn5iuB0yAVcBvHGKFqfMZ1oq11eWspXk+eyAPcfBSlpoP4ss9xyxKuXbhOB8FWQbKkd8hV7MV4Q==
   dependencies:
     "@argos-ci/browser" "2.1.2"
-    "@argos-ci/core" "2.4.0"
+    "@argos-ci/core" "2.4.1"
     "@argos-ci/util" "2.1.0"
     chalk "^5.3.0"
     debug "^4.3.4"
@@ -6013,6 +6013,13 @@
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-5.0.1.tgz#3286741fb8f1e1580ac28784add4c7a1d49bdfbc"
   integrity sha512-XTIieEY+gvJ39ChLcB4If5zHtPxt3Syj5rgZR+e1ctpmK8NjPf0zFqsz4JpLJT0xla9GFDKjy8Cpu331nrmE1Q==
 
+"@types/asn1@*":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@types/asn1/-/asn1-0.2.4.tgz#a0f89f9ddad8186c9c081c5df2e5cade855d2ac0"
+  integrity sha512-V91DSJ2l0h0gRhVP4oBfBzRBN9lAbPUkGDMCnwedqPKX2d84aAMc9CulOvxdw1f7DfEYx99afab+Rsm3e52jhA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/aws-lambda@^8.10.83":
   version "8.10.97"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.97.tgz#9b2f2adfa63a215173a9da37604e4f65dd56cb98"
@@ -6382,9 +6389,9 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^17.0.5", "@types/node@^18.0.0", "@types/node@^18.11.18", "@types/node@^20", "@types/node@^20.1.1", "@types/node@^20.9.0":
-  version "20.14.13"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.14.13.tgz#bf4fe8959ae1c43bc284de78bd6c01730933736b"
-  integrity sha512-+bHoGiZb8UiQ0+WEtmph2IWQCjIqg8MDZMAV+ppRRhUZnquF5mQkP/9vpSwJClEiSM/C7fZZExPzfU0vJTyp8w==
+  version "20.14.14"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.14.14.tgz#6b655d4a88623b0edb98300bb9dd2107225f885e"
+  integrity sha512-d64f00982fS9YoOgJkAMolK7MN8Iq3TDdVjchbYHdEmjth/DHowx82GnoA+tVUAN+7vxfYUgAzi+JXbKNd2SDQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -6619,6 +6626,14 @@
   integrity sha512-YcT8jP5F8NzWeevWvcyrrLB3zcneVjzYY9ZDSMAMboI+2zR1qYWFhwsyOFVzT7Jorn67vqxC0FRiw8YyG9P1ww==
   dependencies:
     "@types/node" "^18.11.18"
+
+"@types/sshpk@^1.17.4":
+  version "1.17.4"
+  resolved "https://registry.yarnpkg.com/@types/sshpk/-/sshpk-1.17.4.tgz#239f86cc7f39c74285d4aea1cfee9fb3288f856f"
+  integrity sha512-5gI/7eJn6wmkuIuFY8JZJ1g5b30H9K5U5vKrvOuYu+hoZLb2xcVEgxhYZ2Vhbs0w/ACyzyfkJq0hQtBfSCugjw==
+  dependencies:
+    "@types/asn1" "*"
+    "@types/node" "*"
 
 "@types/stream-chain@*":
   version "2.0.1"
@@ -18239,6 +18254,21 @@ ssh2@1.11.0, ssh2@^1.15.0:
     cpu-features "~0.0.4"
     nan "^2.16.0"
 
+sshpk@^1.18.0:
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.18.0.tgz#1663e55cddf4d688b86a46b77f0d5fe363aba028"
+  integrity sha512-2p2KJZTSqQ/I3+HX42EpYOa2l3f8Erv8MWKsy2I9uf4wA7yFIkXRffYdsx86y6z4vHtV8u7g+pPlr8/4ouAxsQ==
+  dependencies:
+    asn1 "~0.2.3"
+    assert-plus "^1.0.0"
+    bcrypt-pbkdf "^1.0.0"
+    dashdash "^1.12.0"
+    ecc-jsbn "~0.1.1"
+    getpass "^0.1.1"
+    jsbn "~0.1.0"
+    safer-buffer "^2.0.2"
+    tweetnacl "~0.14.0"
+
 sshpk@^1.7.0:
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.17.0.tgz#578082d92d4fe612b13007496e543fa0fbcbe4c5"
@@ -18647,10 +18677,10 @@ svelte2tsx@~0.7.0:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@5.0.0-next.203:
-  version "5.0.0-next.203"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.203.tgz#58a0986a70730e05dd49147f9acd801bccecc7ea"
-  integrity sha512-kVJVExxJEU7WTnvLfCXO2+tg20m/lWcszNMtG7sKP+fhlTAWzpZMCjA4PonJWYmJHCrqblZPwfG8o9i5kxnjwg==
+svelte@5.0.0-next.205:
+  version "5.0.0-next.205"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.205.tgz#32bdafc654afdc58092f8e68c142cd2e8436db66"
+  integrity sha512-W0kamGCNps93QRlTxq43qfEaa3Mf1Km99+XcGXF27Ji1e/MykpWyUMhJf3JwvL3XHbyRekJiSEMBRmSJYqsPUQ==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
@@ -19131,10 +19161,10 @@ tsutils@^3.0.0, tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsx@^4.16.3:
-  version "4.16.3"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.16.3.tgz#56eb2f14f67b798e8bd8a907a9ceec57cba0e8b9"
-  integrity sha512-MP8AEUxVnboD2rCC6kDLxnpDBNWN9k3BSVU/0/nNxgm70bPBnfn+yCKcnOsIVPQwdkbKYoFOlKjjWZWJ2XCXUg==
+tsx@^4.16.5:
+  version "4.16.5"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.16.5.tgz#49c2a8f4d4d66bd7cf538e23e7368a1919a9a1ca"
+  integrity sha512-ArsiAQHEW2iGaqZ8fTA1nX0a+lN5mNTyuGRRO6OW3H/Yno1y9/t1f9YOI1Cfoqz63VAthn++ZYcbDP7jPflc+A==
   dependencies:
     esbuild "~0.21.5"
     get-tsconfig "^4.7.5"
@@ -19325,10 +19355,10 @@ undici-types@~5.26.4:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
 
-undici@^6.19.4:
-  version "6.19.4"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.4.tgz#5ec3b191699a1678ee0aa9ed14e443a682d0f7a8"
-  integrity sha512-i3uaEUwNdkRq2qtTRRJb13moW5HWqviu7Vl7oYRYz++uPtGHJj+x7TGjcEuwS5Mt2P4nA0U9dhIX3DdB6JGY0g==
+undici@^6.19.5:
+  version "6.19.5"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.5.tgz#5829101361b583b53206e81579f4df71c56d6be8"
+  integrity sha512-LryC15SWzqQsREHIOUybavaIHF5IoL0dJ9aWWxL/PgT1KfqAW5225FZpDUFlt9xiDMS2/S7DOKhFWA7RLksWdg==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"

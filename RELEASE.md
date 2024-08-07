@@ -37,19 +37,44 @@ Below is what a typical release week may look like:
 
 ## Test release before it is rolling out.
 
-The release is a pre-release, it means it is not yet the latest version, so no clients will automatically update to this version.
+The release is a **pre-release**, it means it is not yet the latest version, so no clients will automatically update to this version.
 
-It allows QE (and everyone else) to test these binaries before they go live or are in the package managers.
+Inform QE the **pre-release** is out! It allows QE (and everyone else) to download and test these binaries before they go live or are in the package managers.
 
-At this step, generates as well Flathub pull request so people can test the package from the builders of the pull request.
+The release may be tested using the assets generated within the pre-release.
 
-## Next phase
+## QE and cherry picking fixes
 
-- ❌ All severe bugs and regressions are investigated and discussed. If we agree any should block the release, need to fix the bugs and do a respin of the release with a new .z release like 1.3.1 instead of 1.3.0.
+- ❌ All severe bugs and regressions brought up by QE are investigated and discussed. If we agree any should block the release, need to fix the bugs and do a respin of the release with a new .z release like 1.3.1 instead of 1.3.0.
 
-Create a branch if it does not exist. For example 1.3.x if 1.3.0 failed. Then, cherry-pick bugfixes in that branch.
+**Cherry picking:**
 
-- ✅ If committers agree we have a green light, proceed. **Do not forget to change the release from 'pre-release' to 'latest release' before proceeding**.
+If there are fixes that need to be made to the release as brought up by QE the following steps need to be completed:
+
+1. Create a branch **FROM THE RELEASE**. Example, 1.3.x of release 1.3.0. **IMPORTANT NOTE:** Literally `1.3.x` not `1.3.1`.
+2. Create PR(s) with the fixes that merge into the 1.3.x branch
+3. Make sure all PR's are merged
+
+**Re-spin a release:**
+
+You'll need to create another release from the 1.3.x branch. This can be done by doing the following:
+1. Go to `Run workflow` in the [release steps](/RELEASE.md#releasing-on-github) again.
+2. **MAKE SURE** you specify that you want to use the `1.3.x` branch, NOT `main` under `Branch to use for the release`.
+3. Version to release should be `1.3.1` **IMPORTANT NOTE:** Literally `1.3.1` NOT the branch name `1.3.x`.
+
+## Change from pre-release to release
+
+✅ If QE agrees with the release, we have a green light!
+
+**DO NOT FORGET to change from pre-release to release!**
+
+This is done on your release URL 
+
+ **Do not forget to change the release from 'pre-release' to 'latest release' before proceeding**.
+
+ 1. Go to your release: https://github.com/containers/podman-desktop/releases/tag/vX.X.X
+ 2. Press the edit button.
+ 3. Uncheck `Set as a pre-release`
 
 ## Updating package managers (Brew, Winget, Chocolatey, Flathub)
 

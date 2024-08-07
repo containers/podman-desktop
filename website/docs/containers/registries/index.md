@@ -121,7 +121,7 @@ If your registry has an insecure certificate, such as a self-signed certificate,
    1. Edit the registry optional configuration file.
 
       ```shell-session
-      # vi /etc/containers/registries.conf`
+      # vi /etc/containers/registries.conf
       ```
 
       For each insecure registry, add a `[[registry]]` section that defines:
