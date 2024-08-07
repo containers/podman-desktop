@@ -20,7 +20,7 @@
     "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.14",
+    "adm-zip": "^0.5.15",
     "@podman-desktop/api": "^0.0.1",
     "mkdirp": "^3.0.1",
     "vite": "^5.3.5",

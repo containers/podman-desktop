@@ -157,7 +157,7 @@
   "devDependencies": {
     "@podman-desktop/api": "^0.0.1",
     "@types/mustache": "^4.2.5",
-    "adm-zip": "^0.5.14",
+    "adm-zip": "^0.5.15",
     "mkdirp": "^3.0.1",
     "vite": "^5.3.5",
     "vitest": "^1.6.0"

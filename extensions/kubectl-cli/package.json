@@ -152,7 +152,7 @@
   },
   "devDependencies": {
     "@types/semver": "^7.5.8",
-    "adm-zip": "^0.5.14",
+    "adm-zip": "^0.5.15",
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
