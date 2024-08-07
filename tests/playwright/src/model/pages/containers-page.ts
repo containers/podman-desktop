@@ -88,7 +88,7 @@ export class ContainersPage extends MainPage {
     const containerDetailsPage = await this.openContainersDetails(container);
     await playExpect(containerDetailsPage.heading).toBeVisible();
     await playExpect(containerDetailsPage.heading).toContainText(container);
-    playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running.toLowerCase());
+    playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running);
     await containerDetailsPage.stopContainer();
     return containerDetailsPage;
   }
