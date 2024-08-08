@@ -75,6 +75,7 @@ beforeAll(() => {
     loadAddon: vi.fn(),
     open: vi.fn(),
     write: vi.fn(),
+    dispose: vi.fn(),
   });
   global.ResizeObserver = vi.fn().mockReturnValue({
     observe: vi.fn(),

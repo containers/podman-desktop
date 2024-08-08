@@ -154,6 +154,9 @@ onMount(async () => {
 onDestroy(() => {
   // Cleanup the observer on destroy
   resizeObserver?.unobserve(logsXtermDiv);
+  if (logsTerminal) {
+    logsTerminal.dispose();
+  }
 });
 </script>
 

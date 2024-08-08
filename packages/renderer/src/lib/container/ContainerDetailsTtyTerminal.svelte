@@ -94,7 +94,9 @@ onMount(async () => {
   await attachToContainer();
 });
 
-onDestroy(() => {});
+onDestroy(() => {
+  attachContainerTerminal?.dispose();
+});
 </script>
 
 <div class="h-full" bind:this={terminalXtermDiv} class:hidden={container.state !== 'RUNNING'}></div>

@@ -26,6 +26,11 @@ import type { ContainerInfoUI } from './ContainerInfoUI';
 
 const getConfigurationValueMock = vi.fn();
 const attachContainerMock = vi.fn();
+vi.mock('xterm', () => {
+  return {
+    Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), dispose: vi.fn() }),
+  };
+});
 
 beforeAll(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;

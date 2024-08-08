@@ -89,6 +89,7 @@ async function refreshTerminal() {
   const existingTerminal = getExistingTerminal(container.engineId, container.id);
 
   if (existingTerminal) {
+    console.log('exists');
     sendCallbackId = existingTerminal.callbackId;
     shellTerminal = existingTerminal.terminal;
     shellTerminal.options = {
@@ -96,6 +97,7 @@ async function refreshTerminal() {
       lineHeight,
     };
   } else {
+    console.log('new');
     shellTerminal = new Terminal({
       fontSize,
       lineHeight,
@@ -103,6 +105,7 @@ async function refreshTerminal() {
       theme: getTerminalTheme(),
     });
   }
+  console.log(shellTerminal);
 
   const fitAddon = new FitAddon();
   shellTerminal.loadAddon(fitAddon);
@@ -133,6 +136,7 @@ onDestroy(() => {
     terminal: shellTerminal,
     callbackId: sendCallbackId,
   });
+  shellTerminal?.dispose();
 });
 </script>
 
