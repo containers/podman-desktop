@@ -143,7 +143,7 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
         </p>{/if}
     </div>
 
-    <div bind:this={pushLogsXtermDiv}></div>
+    <div class="max-h-[195px]" bind:this={pushLogsXtermDiv}></div>
   </div>
 
   <svelte:fragment slot="buttons">
