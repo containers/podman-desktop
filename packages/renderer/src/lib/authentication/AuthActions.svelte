@@ -2,7 +2,9 @@
 import { faKey, faSignIn, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 
-import DropDownMenuItems from '../../../../ui/dist/dropdownMenu/DropDownMenuItems.svelte';
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
+
 import { authenticationProviders } from '../../stores/authenticationProviders';
 
 export let onBeforeToggle = (): void => {};
@@ -38,18 +40,19 @@ export function onButtonClick(e: MouseEvent): void {
 <svelte:window on:keyup={handleEscape} on:click={onWindowClick} />
 
 {#if showMenu}
-  <DropDownMenuItems clientY={clientY} clientX={clientX}>
+  <DropdownMenu.Items clientY={clientY} clientX={clientX}>
     <DropdownMenu.Item
       title="Manage authentication"
       icon={faKey}
-      onClick={() => (window.location.href = '#/preferences/authentication-providers')} />
+      onClick={() => handleNavigation({ page: NavigationPage.AUTHENTICATION })} />
 
     {#each $authenticationProviders as provider}
+      {console.error(provider)}
       {@const sessionRequests = provider.sessionRequests ?? []}
       {#if provider?.accounts?.length > 0}
         {#each provider.accounts as account}
           <DropdownMenu.Item
-            title={'Sign out of ' + account.label}
+            title="Sign out of {provider.displayName} ({account.label})"
             onClick={() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}
             icon={faSignOut} />
         {/each}
@@ -57,10 +60,10 @@ export function onButtonClick(e: MouseEvent): void {
 
       {#each sessionRequests as request}
         <DropdownMenu.Item
-          title="Sign in to use {request.extensionLabel}"
+          title="Sign in with {provider.displayName} to use {request.extensionLabel}"
           onClick={() => window.requestAuthenticationProviderSignIn(request.id)}
           icon={faSignIn} />
       {/each}
     {/each}
-  </DropDownMenuItems>
+  </DropdownMenu.Items>
 {/if}

@@ -17,7 +17,9 @@
  ***********************************************************************/
 import DropdownMenu from './DropdownMenu.svelte';
 import DropDownMenuItem from './DropDownMenuItem.svelte';
+import DropDownMenuItems from './DropDownMenuItems.svelte';
 
 export default Object.assign(DropdownMenu, {
   Item: DropDownMenuItem,
+  Items: DropDownMenuItems,
 });
