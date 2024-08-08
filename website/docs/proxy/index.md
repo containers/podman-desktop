@@ -77,14 +77,14 @@ This tutorial is guiding you through the required steps to work in a restricted 
    <details>
    <summary>
 
-Optionally, when you are using a VPN, consider enabling user mode networking:
+   Optionally, when you are using a VPN, consider enabling user mode networking:
 
    </summary>
    <div>
 
-- When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
+   - When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
 
-  To enable access from your host to resources on your Podman Machine, in the **Create Podman machine** screen, enable the **User mode networking (traffic relayed by a user process)** option.
+     To enable access from your host to resources on your Podman Machine, in the **Create Podman machine** screen, enable the **User mode networking (traffic relayed by a user process)** option.
 
    </div>
    </details>
@@ -97,11 +97,11 @@ Optionally, when you are using a VPN, consider enabling user mode networking:
    It has all artifacts required to install Podman Desktop and Podman, and does not require Internet access to download resources during installation.
    However, it does not contain additional utilities, such as Compose or Kind.
 
-2. Copy the downloaded file to the macOS host in a restricted environment, and double-click it.
+1. Copy the downloaded file to the macOS host in a restricted environment, and double-click it.
 
-3. Drag the Podman Desktop icon to the Applications folder.
+1. Drag the Podman Desktop icon to the Applications folder.
 
-4. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
+1. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
 
    ![Podman needs set up screen](img/dashboard-podman-needs-set-up.png)
 
@@ -122,14 +122,14 @@ Optionally, when you are using a VPN, consider enabling user mode networking:
 
    To install Podman, go to [the Podman website](https://podman.io/), and follow the installation instructions.
 
-2. Download the _AMD64 binary (tar.gz)_ archive from [the Linux Downloads page](https://podman-desktop.io/downloads/linux).
+1. Download the _AMD64 binary (tar.gz)_ archive from [the Linux Downloads page](https://podman-desktop.io/downloads/linux).
 
    It has all artifacts required to install Podman Desktop, and does not require Internet access to download resources during installation.
    However, it does not contain additional utilities, such as Podman CLI, Compose or Kind.
 
-3. Copy the downloaded file to the Linux host in a restricted environment, and extract the archive content.
+1. Copy the downloaded file to the Linux host in a restricted environment, and extract the archive content.
 
-4. In the extracted directory, open the `podman-desktop` executable file.
+1. In the extracted directory, open the `podman-desktop` executable file.
 
 </TabItem>
 </Tabs>
