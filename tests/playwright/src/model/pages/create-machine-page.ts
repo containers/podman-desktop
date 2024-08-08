@@ -124,9 +124,7 @@ export class CreateMachinePage extends BasePage {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
     const dialogMessage = connectionDialog.getByText(
       new RegExp(
-        "Podman Machine '" +
-          machineName +
-          "' is running but not the default machine .+ Do you want to set it as default?",
+        `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
       ),
     );
     if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {

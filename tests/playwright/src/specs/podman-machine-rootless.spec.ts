@@ -22,8 +22,7 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { CreateMachinePage } from '../model/pages/create-machine-page';
-import { ResourcesPage } from '../model/pages/resources-page';
-import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
+import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
@@ -59,19 +58,16 @@ beforeEach<RunnerTestContext>(async ctx => {
 describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification', async () => {
   test('Create a rootless machine', async () => {
     await navBar.openSettings();
-    const resourcesPage = new ResourcesPage(page);
+    const podmanResources = new ResourceConnectionCardPage(page, 'podman');
 
-    const createMachineButton = resourcesPage.podmanResources.getByRole('button', {
-      name: 'Create new Podman machine',
-    });
-    await createMachineButton.click();
+    await podmanResources.createButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
     await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true, false);
     await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
 
-    const machineBox = new ResourcesPodmanConnections(page, MACHINE_VISIBLE_NAME);
-    const connectionStatusLabel = await machineBox.machineConnectionStatus.textContent();
+    const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
+    const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
   }, 150000);
 });

@@ -186,7 +186,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10_000 });
   await waitUntil(
     async function machineExists() {
-      return await resourcesPodmanConnections.podmanMachineElement.isVisible();
+      return await podmanResourceCard.resourceElement.isVisible();
     },
     { timeout: 15000, sendError: false },
   );
