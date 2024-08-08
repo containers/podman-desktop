@@ -532,7 +532,7 @@ function updateKubeResult() {
     {/if}
 
     {#if createdPod}
-      <div class="bg-charcoal-800 p-5 my-4">
+      <div class="bg-[var(--pd-content-card-inset-bg)] p-5 my-4">
         <div class="flex flex-row items-center">
           <div>Created pod:</div>
           {#if openshiftConsoleURL && createdPod?.metadata?.name}
