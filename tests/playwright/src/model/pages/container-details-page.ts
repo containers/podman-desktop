@@ -40,23 +40,18 @@ export class ContainerDetailsPage extends DetailsPage {
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
   }
 
-  async getStateLocator(): Promise<Locator> {
-    await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
-    const summaryTable = this.tabContent.getByRole('table');
-    const stateRow = summaryTable.locator('tr:has-text("State")');
-    const stateCell = stateRow.getByRole('cell').nth(1);
-    await playExpect(stateCell).toBeVisible();
-    return stateCell;
-  }
-
   async getState(): Promise<string> {
-    const stateCell = await this.getStateLocator();
-    return await stateCell.innerText();
+    const currentState = await this.header.getByRole('status').getAttribute('title');
+    for (const state of Object.values(ContainerState)) {
+      if (currentState === state) return state;
+    }
+
+    return ContainerState.Unknown;
   }
 
   async stopContainer(failIfStopped = false): Promise<void> {
     try {
-      await playExpect.poll(async () => await this.getState()).toBe(ContainerState.Running.toLowerCase());
+      await playExpect.poll(async () => await this.getState()).toBe(ContainerState.Running);
       await playExpect(this.stopButton).toBeEnabled();
       await this.stopButton.click();
     } catch (error) {

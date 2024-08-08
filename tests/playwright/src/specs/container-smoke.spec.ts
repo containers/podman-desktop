@@ -108,7 +108,7 @@ describe('Verification of container creation workflow', async () => {
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
-      .toContain(ContainerState.Running.toLowerCase());
+      .toContain(ContainerState.Running);
 
     images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
@@ -136,7 +136,7 @@ describe('Verification of container creation workflow', async () => {
     // test state of container in summary tab
     await pdRunner.screenshot('containers-container-details.png');
     const containerState = await containersDetails.getState();
-    playExpect(containerState).toContain(ContainerState.Running.toLowerCase());
+    playExpect(containerState).toContain(ContainerState.Running);
     // check Logs output
     await containersDetails.activateTab('Logs');
     const helloWorldMessage = containersDetails.getPage().getByText('No Log');
@@ -155,14 +155,12 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    playExpect(await containersDetails.getState()).toContain(ContainerState.Running.toLowerCase());
+    playExpect(await containersDetails.getState()).toContain(ContainerState.Running);
     await containersDetails.stopContainer();
 
     await playExpect
       .poll(async () => await containersDetails.getState(), { timeout: 20000 })
-      .toContain(ContainerState.Exited.toLowerCase());
-    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
-
+      .toContain(ContainerState.Exited);
     const startButton = containersDetails.getPage().getByRole('button', { name: 'Start Container', exact: true });
     await playExpect(startButton).toBeVisible();
   });
@@ -182,8 +180,7 @@ describe('Verification of container creation workflow', async () => {
     await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => containersDetails.getState(), { timeout: 20000 })
-      .toContain(ContainerState.Running.toLowerCase());
-    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Running.toLowerCase());
+      .toContain(ContainerState.Running);
   });
 
   test(`Stop a container from the Containers page`, async () => {
@@ -201,8 +198,7 @@ describe('Verification of container creation workflow', async () => {
     await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => containersDetails.getState(), { timeout: 20000 })
-      .toContain(ContainerState.Exited.toLowerCase());
-    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
+      .toContain(ContainerState.Exited);
   });
 
   test('Deleting a container from Container details', async () => {
@@ -230,7 +226,7 @@ describe('Verification of container creation workflow', async () => {
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
-      .toContain(ContainerState.Running.toLowerCase());
+      .toContain(ContainerState.Running);
 
     images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
@@ -259,9 +255,9 @@ describe('Verification of container creation workflow', async () => {
     for (const container of containerList) {
       let containersPage = new ContainersPage(page);
       const containersDetails = await containersPage.stopContainerFromDetails(container);
-      await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase(), {
-        timeout: 20000,
-      });
+      await playExpect
+        .poll(async () => await containersDetails.getState(), { timeout: 20000 })
+        .toBe(ContainerState.Exited);
       containersPage = await navigationBar.openContainers();
       await playExpect(containersPage.heading).toBeVisible();
       await containersPage.pruneContainers();
@@ -279,9 +275,9 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeTruthy();
       const containersDetails = await containersPage.stopContainerFromDetails(container);
-      await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase(), {
-        timeout: 20000,
-      });
+      await playExpect
+        .poll(async () => await containersDetails.getState(), { timeout: 20000 })
+        .toBe(ContainerState.Exited);
     }
     //Prune the 3 stopped containers at the same time
     const containersPage = await navigationBar.openContainers();

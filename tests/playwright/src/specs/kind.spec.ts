@@ -22,6 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { ExtensionsPage } from '../model/pages/extensions-page';
 import { ResourcesPage } from '../model/pages/resources-page';
+import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
@@ -29,12 +30,16 @@ import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
+const RESOURCE_NAME: string = 'kind';
+const EXTENSION_LABEL: string = 'podman-desktop.kind';
+
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navigationBar: NavigationBar;
 let resourcesPage: ResourcesPage;
 let statusBar: StatusBar;
-const extensionLabel: string = 'podman-desktop.kind';
+let settingsBar: SettingsBar;
+
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
 beforeAll(async () => {
@@ -47,6 +52,7 @@ beforeAll(async () => {
   navigationBar = new NavigationBar(page);
   resourcesPage = new ResourcesPage(page);
   statusBar = new StatusBar(page);
+  settingsBar = new SettingsBar(page);
 });
 
 beforeEach<RunnerTestContext>(async ctx => {
@@ -60,28 +66,31 @@ afterAll(async () => {
 describe('Kind End-to-End Tests', async () => {
   test.skipIf(skipKindInstallation)('Install Kind CLI', async () => {
     await navigationBar.openSettings();
-    await playExpect(resourcesPage.kindResources).not.toBeVisible();
+    await settingsBar.openTabPage(ResourcesPage);
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
     await statusBar.installKindCLI();
     await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
   });
   test('Verify that Kind CLI is installed', async () => {
     await navigationBar.openSettings();
-    await playExpect(resourcesPage.kindResources).toBeVisible();
+    await settingsBar.openTabPage(ResourcesPage);
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
   });
   test('Kind extension lifecycle', async () => {
     const extensionsPage = new ExtensionsPage(page);
     await navigationBar.openExtensions();
-    const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', extensionLabel);
+    const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', EXTENSION_LABEL);
     await playExpect
-      .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 10000 })
+      .poll(async () => await extensionsPage.extensionIsInstalled(EXTENSION_LABEL), { timeout: 10000 })
       .toBeTruthy();
     await playExpect(kindExtension.status).toHaveText('ACTIVE');
     await kindExtension.disableExtension();
     await navigationBar.openSettings();
-    await playExpect(resourcesPage.kindResources).not.toBeVisible();
+    await settingsBar.openTabPage(ResourcesPage);
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
     await navigationBar.openExtensions();
     await kindExtension.enableExtension();
     await navigationBar.openSettings();
-    await playExpect(resourcesPage.kindResources).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
   });
 });

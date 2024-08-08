@@ -655,7 +655,7 @@ export class PluginSystem {
     );
     await this.extensionLoader.init();
 
-    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
     extensionsCatalog.init();
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
 
@@ -1616,6 +1616,10 @@ export class PluginSystem {
 
     this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {
       return extensionsCatalog.getExtensions();
+    });
+
+    this.ipcHandle('catalog:refreshExtensions', async (): Promise<void> => {
+      return extensionsCatalog.refreshCatalog();
     });
 
     this.ipcHandle('commands:getCommandPaletteCommands', async (): Promise<CommandInfo[]> => {

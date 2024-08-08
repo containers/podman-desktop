@@ -128,12 +128,11 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">
           <KubePlayYAML />
         </Route>
-
+        <Route path="/image/run/*" breadcrumb="Run Image">
+          <RunImage />
+        </Route>
         <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
-        </Route>
-        <Route path="/images/run/*" breadcrumb="Run Image">
-          <RunImage />
         </Route>
         <Route path="/images/:id/:engineId" breadcrumb="Images" let:meta navigationHint="root">
           <ImagesList searchTerm={meta.params.id} imageEngineId={meta.params.engineId} />

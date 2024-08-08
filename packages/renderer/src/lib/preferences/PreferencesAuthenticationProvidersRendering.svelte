@@ -92,16 +92,16 @@ import SettingsPage from './SettingsPage.svelte';
                 {#each provider.accounts as account}
                   <div class="flex flex-row">
                     <div class="flex items-center w-full">
-                      <div class="flex flex-row text-xs bg-charcoal-800 p-2 rounded-lg mt-1">
+                      <div class="flex flex-row text-xs p-2 rounded-lg mt-1 bg-[var(--pd-invert-content-bg)]">
                         <span
-                          class="my-auto font-bold col-span-1 text-ellipsis overflow-hidden max-w-64"
+                          class="my-auto font-bold col-span-1 text-ellipsis overflow-hidden max-w-64 text-[var(--pd-invert-content-card-text)]"
                           aria-label="Logged In Username">
                           {account.label}
                         </span>
                         <Tooltip bottomRight tip="Sign out of {account.label}">
                           <button
                             aria-label="Sign out of {account.label}"
-                            class="pl-2 hover:cursor-pointer hover:text-white text-white"
+                            class="pl-2 hover:cursor-pointer"
                             on:click={() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}>
                             <Fa class="h-3 w-3 text-md mr-2" icon={faRightFromBracket} />
                           </button>

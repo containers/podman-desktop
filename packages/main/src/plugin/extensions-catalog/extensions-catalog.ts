@@ -27,6 +27,7 @@ import type {
 } from '/@/plugin/extensions-catalog/extensions-catalog-api.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 
+import type { ApiSenderType } from '../api.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import { ExtensionsCatalogSettings } from './extensions-catalog-settings.js';
 
@@ -44,6 +45,7 @@ export class ExtensionsCatalog {
     private certificates: Certificates,
     private proxy: Proxy,
     private configurationRegistry: ConfigurationRegistry,
+    private apiSender: ApiSenderType,
   ) {}
 
   init(): void {
@@ -82,6 +84,7 @@ export class ExtensionsCatalog {
       this.cachedCatalog = JSON.parse(response.body) as InternalCatalogJSON;
       const endTime = performance.now();
       console.log(`Fetched ${catalogUrl} in ${endTime - startTime}ms`);
+      this.apiSender.send('refresh-catalog');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (requestErr: any) {

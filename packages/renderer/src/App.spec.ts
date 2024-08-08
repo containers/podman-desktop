@@ -59,11 +59,11 @@ beforeEach(() => {
   router.goto('/');
 });
 
-test('test /images/run/* route', async () => {
+test('test /image/run/* route', async () => {
   render(App);
   expect(mocks.RunImage).not.toHaveBeenCalled();
   expect(mocks.DashboardPage).toHaveBeenCalled();
-  router.goto('/images/run/basic');
+  router.goto('/image/run/basic');
   await tick();
   expect(mocks.RunImage).toHaveBeenCalled();
 });

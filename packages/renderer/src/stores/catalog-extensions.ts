@@ -21,7 +21,7 @@ import { type Writable, writable } from 'svelte/store';
 import type { CatalogExtension } from '../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import { EventStore } from './event-store';
 
-const windowEvents: string[] = [];
+const windowEvents: string[] = ['refresh-catalog'];
 const windowListeners = ['system-ready'];
 
 export async function checkForUpdate(): Promise<boolean> {

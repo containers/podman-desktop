@@ -27,6 +27,7 @@ import { ComposeLocalInstallPage } from '../model/pages/compose-onboarding/compo
 import { ComposeOnboardingPage } from '../model/pages/compose-onboarding/compose-onboarding-page';
 import { ComposeVersionPage } from '../model/pages/compose-onboarding/compose-version-page';
 import { ComposeWideInstallPage } from '../model/pages/compose-onboarding/compose-wide-install-page';
+import { ResourceCliCardPage } from '../model/pages/resource-cli-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
@@ -34,6 +35,8 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { isCI, isLinux } from '../utility/platform';
+
+const RESOURCE_NAME: string = 'Compose';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -70,10 +73,10 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
 
-    await playExpect(resourcesPage.composeResources).toBeVisible();
-    await resourcesPage.composeResources.scrollIntoViewIfNeeded();
-
-    const setupButton = resourcesPage.composeResources.getByRole('button', { name: 'Setup Compose' });
+    await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const composeResourceCard = new ResourceCliCardPage(page, RESOURCE_NAME);
+    await composeResourceCard.card.scrollIntoViewIfNeeded();
+    const setupButton = composeResourceCard.setupButton;
     await playExpect(
       setupButton,
       'Compose Setup button is not present, perhaps compose is already installed',
@@ -139,14 +142,15 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
 
   test.skipIf(composePartialInstallation)('Verify Compose was installed', async () => {
     await navBar.openSettings();
-    const resourcesPage = new ResourcesPage(page);
-    const composeBox = resourcesPage.featuredProviderResources.getByRole('region', { name: 'Compose' });
-    const setupButton = composeBox.getByRole('button', { name: 'Setup Compose' });
+    const settingsBar = new SettingsBar(page);
+    const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const composeBox = new ResourceCliCardPage(page, RESOURCE_NAME);
+    const setupButton = composeBox.setupButton;
     await playExpect(setupButton).toBeHidden();
 
-    const settingsBar = new SettingsBar(page);
     const cliToolsPage = await settingsBar.openTabPage(CLIToolsPage);
-    const composeRow = cliToolsPage.toolsTable.getByLabel('Compose');
+    const composeRow = cliToolsPage.toolsTable.getByLabel(RESOURCE_NAME);
     const composeVersionInfo = composeRow.getByLabel('cli-version');
     await playExpect(composeVersionInfo).toHaveText('docker-compose ' + composeVersion);
   });
@@ -157,9 +161,10 @@ async function openComposeOnboarding(page: Page): Promise<ComposeOnboardingPage>
   const settingsBar = new SettingsBar(page);
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible();
-  await playExpect(resourcesPage.composeResources).toBeVisible();
-  await resourcesPage.composeResources.scrollIntoViewIfNeeded();
-  const setupButton = resourcesPage.composeResources.getByRole('button', { name: 'Setup Compose' });
+  await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+  const composeResourceCard = new ResourceCliCardPage(page, RESOURCE_NAME);
+  await composeResourceCard.card.scrollIntoViewIfNeeded();
+  const setupButton = composeResourceCard.setupButton;
   await playExpect(
     setupButton,
     'Compose Setup button is not present, perhaps compose is already installed',

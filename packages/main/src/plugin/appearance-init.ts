@@ -25,11 +25,11 @@ export class AppearanceInit {
   init(): void {
     const appearanceConfiguration: IConfigurationNode = {
       id: 'preferences.appearance',
-      title: 'Experimental Appearance',
+      title: 'Appearance',
       type: 'object',
       properties: {
         [AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance]: {
-          description: 'Experimental setting to test support for light mode',
+          description: 'Select between light or dark mode, or use your system setting.',
           type: 'string',
           enum: ['system', 'dark', 'light'],
           default: 'system',

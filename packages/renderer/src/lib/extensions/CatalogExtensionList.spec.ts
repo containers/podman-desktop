@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
@@ -27,6 +27,8 @@ import CatalogExtensionList from './CatalogExtensionList.svelte';
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).extensionInstallFromImage = vi.fn();
+  (window as any).showMessageBox = vi.fn();
+  (window as any).refreshCatalogExtensions = vi.fn();
 });
 
 const extensionA: CatalogExtensionInfoUI = {
@@ -58,6 +60,30 @@ test('Check with empty', async () => {
   // no 'Available extensions' text
   const availableExtensions = screen.queryByText('Available extensions');
   expect(availableExtensions).not.toBeInTheDocument();
+
+  // check we have the empty screen and the button to refresh the catalog
+  const emptyScreen = screen.getByText('No extensions in the catalog');
+  expect(emptyScreen).toBeInTheDocument();
+
+  const refreshButton = screen.getByRole('button', { name: 'Refresh the catalog' });
+  expect(refreshButton).toBeInTheDocument();
+
+  // make the refresh throwing an error
+  vi.mocked(window.refreshCatalogExtensions).mockRejectedValue(new Error('fake error'));
+
+  // click on the button
+  await fireEvent.click(refreshButton);
+
+  // check the function was called
+  expect(window.refreshCatalogExtensions).toHaveBeenCalled();
+
+  // check error message is displayed
+  expect(window.showMessageBox).toHaveBeenCalledWith({
+    detail: 'Error: fake error',
+    message: 'Failed to refresh the catalog',
+    title: 'Error',
+    type: 'error',
+  });
 });
 
 test('Check with 2 extensions', async () => {
@@ -77,4 +103,8 @@ test('Check with 2 extensions', async () => {
 
   const extensionWidgetB = screen.getByRole('group', { name: 'This is the display name2' });
   expect(extensionWidgetB).toBeInTheDocument();
+
+  // expect to see the refresh button
+  const refreshButton = screen.getByRole('button', { name: 'Refresh the catalog' });
+  expect(refreshButton).toBeInTheDocument();
 });

@@ -118,7 +118,7 @@ const testProvidersInfoWithoutSessionRequests = [
 test('Expect Sign in button to be hidden when there are no session requests', async () => {
   authenticationProviders.set(testProvidersInfoWithoutSessionRequests);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const menuButton = screen.queryAllByRole('button');
+  const menuButton = screen.queryAllByRole('button', { name: 'Sign in' });
   expect(menuButton.length).equals(0); // no menu button
 });
 
@@ -144,7 +144,7 @@ test('Expect Sign In button to be visible when there is only one session request
   const requestSignInMock = vi.fn();
   (window as any).requestAuthenticationProviderSignIn = requestSignInMock;
   render(PreferencesAuthenticationProvidersRendering, {});
-  const menuButton = screen.getByRole('button');
+  const menuButton = screen.getByRole('button', { name: 'Sign in' });
   const tooltip = screen.getByText('Sign in to use Extension Label');
   expect(tooltip).toBeInTheDocument();
   await fireEvent.click(menuButton);
@@ -179,7 +179,7 @@ test('Expect Sign In popup menu to be visible when there is more than one sessio
   authenticationProviders.set(testProvidersInfoWithMultipleSessionRequests);
   (window as any).requestAuthenticationProviderSignIn = vi.fn();
   render(PreferencesAuthenticationProvidersRendering, {});
-  const menuButton = screen.getByRole('button');
+  const menuButton = screen.getByRole('button', { name: 'kebab menu' });
   await fireEvent.click(menuButton);
   // test sign in with extension1
   const menuItem1 = screen.getByText('Sign in to use Extension1 Label');

@@ -33,9 +33,7 @@ beforeEach(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;
 });
 
-// temporary as only dark mode is supported as rendering for now
-// it should return empty later
-test('Expect dark mode using system when OS is set to light', async () => {
+test('Expect light mode using system when OS is set to light', async () => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     matches: false,
     addEventListener: vi.fn(),
@@ -44,8 +42,8 @@ test('Expect dark mode using system when OS is set to light', async () => {
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
 
-  // expect to have class being "dark" as for now we force dark mode in system mode
-  expect(await appearanceUtil.isDarkMode()).toBe(true);
+  // expect to have class being "light" as OS is using light
+  expect(await appearanceUtil.isDarkMode()).toBe(false);
 });
 
 test('Expect dark mode using system when OS is set to dark', async () => {
@@ -130,9 +128,7 @@ describe('getTheme', () => {
 
     const theme = await appearanceUtil.getTheme();
 
-    // FIXME: for now we hardcode to the dark theme even if the Operating System is using light theme
-    // expect(theme).toBe('light');
-    expect(theme).toBe('dark');
+    expect(theme).toBe('light');
   });
 
   test('should return dark if value is dark even if os is light', async () => {
