@@ -120,6 +120,7 @@ async function refreshTerminal() {
     };
     shellTerminal.write(existingTerminal.terminal);
   }
+  console.log(shellTerminal);
 
   const fitAddon = new FitAddon();
   serializeAddon = new SerializeAddon();

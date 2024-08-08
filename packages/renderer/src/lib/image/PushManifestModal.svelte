@@ -85,6 +85,7 @@ let pushLogsXtermDiv: HTMLDivElement;
   title="Push manifest"
   on:close={() => {
     closeCallback();
+    logsPush?.dispose();
   }}>
   <div slot="content" class="flex flex-col leading-5 space-y-5">
     {#if !pushInProgress}

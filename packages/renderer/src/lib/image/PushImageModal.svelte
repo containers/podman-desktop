@@ -114,6 +114,7 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
   title="Push image"
   on:close={() => {
     closeCallback();
+    logsPush?.dispose();
   }}>
   <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
     <div class="pb-4">
