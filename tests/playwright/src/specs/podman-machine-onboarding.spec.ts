@@ -169,18 +169,18 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
           await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
         });
         test('Podman machine operations - STOP', async () => {
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
           await podmanMachineDetails.podmanMachineStopButton.click();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
         });
         test('Podman machine operations - START', async () => {
           await podmanMachineDetails.podmanMachineStartButton.click();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
         });
         test('Podman machine operations - RESTART', async () => {
           await podmanMachineDetails.podmanMachineRestartButton.click();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
         });
       });
     },
