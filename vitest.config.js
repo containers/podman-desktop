@@ -52,7 +52,7 @@ const config = {
     testTimeout: 60_000,
     hookTimeout: 120_000,
     // test reporters - default for all and junit for CI
-    reporters: process.env.CI ? ['default', 'junit'] : ['default'],
+    reporters: process.env.CI ? [['default'], ['junit', { includeConsoleOutput: false }]] : ['default'],
     outputFile: process.env.CI ? { junit: 'tests/playwright/output/junit-results.xml' } : {},
   },
   resolve: {
