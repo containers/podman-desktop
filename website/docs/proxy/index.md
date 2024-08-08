@@ -70,21 +70,21 @@ This tutorial is guiding you through the required steps to work in a restricted 
 
    ![Podman needs set up screen](img/dashboard-podman-needs-set-up.png)
 
-   Click the **Set up** button.
+1. Click the **Set up** button.
 
-   Review and validate all confirmation screens to set up the Podman Machine.
+1. Review and validate all confirmation screens to set up the Podman Machine.
 
    <details>
    <summary>
 
-   Optionally, when you are using a VPN, consider enabling user mode networking:
+Optionally, when you are using a VPN, consider enabling user mode networking:
 
    </summary>
    <div>
 
-   - When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
+- When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
 
-     To enable access from your host to resources on your Podman Machine, in the **Create Podman machine** screen, enable the **User mode networking (traffic relayed by a user process)** option.
+  To enable access from your host to resources on your Podman Machine, in the **Create Podman machine** screen, enable the **User mode networking (traffic relayed by a user process)** option.
 
    </div>
    </details>
@@ -105,9 +105,9 @@ This tutorial is guiding you through the required steps to work in a restricted 
 
    ![Podman needs set up screen](img/dashboard-podman-needs-set-up.png)
 
-   Click the **Set up** button.
+1. Click the **Set up** button.
 
-   Review and validate all confirmation screens to set up the Podman Machine.
+1. Review and validate all confirmation screens to set up the Podman Machine.
 
    :::tip
 
