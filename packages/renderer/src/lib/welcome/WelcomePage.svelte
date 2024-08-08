@@ -1,14 +1,13 @@
 <script lang="ts">
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { Button, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Link, Tooltip } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
-import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo } from '/@api/onboarding';
 
+import IconImage from '../appearance/IconImage.svelte';
 import DesktopIcon from '../images/DesktopIcon.svelte';
 import bgImage from './background.png';
 import { WelcomeUtils } from './welcome-utils';
@@ -34,6 +33,7 @@ let onboardingProviders: OnboardingInfoWithSelected[] = [];
 
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();
+  showWelcome = true;
   if (!ver) {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
@@ -94,7 +94,7 @@ function startOnboardingQueue() {
 
 {#if showWelcome}
   <div
-    class="flex flex-col flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50"
+    class="flex flex-col flex-auto fixed top-0 left-0 right-0 bottom-0 bg-[var(--pd-content-card-bg)] bg-no-repeat z-50"
     style="background-image: url({bgImage}); background-position: 50% -175%; background-size: 100% 75%">
     <!-- Header -->
     <div class="flex flex-row flex-none backdrop-blur p-6 mt-10">
@@ -108,24 +108,20 @@ function startOnboardingQueue() {
         <span class="mr-2">🎉</span>Welcome to Podman Desktop v{podmanDesktopVersion} !
       </div>
       <div class="flex flex-row justify-center">
-        <div class="bg-charcoal-500 px-4 pb-4 pt-2 rounded">
+        <div class="bg-[var(--pd-content-card-inset-bg)] px-4 pb-4 pt-2 rounded">
           {#if onboardingProviders && onboardingProviders.length > 0}
-            <div class="flex justify-center text-sm text-gray-700 pb-2">
+            <div class="flex justify-center text-sm text-[var(--pd-content-card-text)] pb-2">
               <div>Click below to start the onboarding for the following extensions:</div>
             </div>
             <div aria-label="providerList" class="grid grid-cols-3 gap-3">
               {#each onboardingProviders as onboarding}
                 <div
-                  class="rounded-md bg-charcoal-700 flex flex-row justify-between border-2 p-4 {onboarding.selected
-                    ? 'border-purple-500'
-                    : 'border-charcoal-700'}">
+                  class="rounded-md bg-[var(--pd-content-card-bg)] flex flex-row justify-between border-2 p-4 {onboarding.selected
+                    ? 'border-[var(--pd-content-card-border-selected)]'
+                    : 'border-[var(--pd-content-card-border)]'}">
                   <div class="place-items-top flex flex-col flex-1">
                     <div class="flex flex-row place-items-left flex-1">
-                      <div>
-                        {#if typeof onboarding.icon === 'string'}
-                          <img alt="{onboarding.name} logo" class="max-h-12 h-auto w-auto" src={onboarding.icon} />
-                        {/if}
-                      </div>
+                      <IconImage image={onboarding.icon} class="max-h-12 h-auto w-auto" alt="{onboarding.name} logo" />
                       <div
                         class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-left text-capitalize">
                         <Tooltip top tip={onboarding.description}>
@@ -135,25 +131,24 @@ function startOnboardingQueue() {
                     </div>
                   </div>
 
-                  <input
-                    type="checkbox"
-                    aria-label="{onboarding.displayName} checkbox"
+                  <Checkbox
+                    title="{onboarding.displayName} checkbox"
+                    name="{onboarding.displayName} checkbox"
                     bind:checked={onboarding.selected}
                     on:click={() => toggleOnboardingSelection(onboarding.name)}
-                    class="form-checkbox h-5 w-5 text-purple-600" />
+                    class="text-xl" />
                 </div>
               {/each}
             </div>
           {/if}
         </div>
       </div>
-      <div class="flex justify-center p-2 text-sm">
-        Configure these and more under <button
-          class="text-violet-400 pl-1"
+      <div class="flex justify-center p-2 text-sm items-center">
+        Configure these and more under <Link
           on:click={() => {
             closeWelcome();
             router.goto('/preferences');
-          }}>Settings</button
+          }}>Settings</Link
         >.
       </div>
     </div>
@@ -162,50 +157,40 @@ function startOnboardingQueue() {
     {#if showTelemetry}
       <div class="flex flex-col justify-end flex-none p-4">
         <div class="flex flex-row justify-center items-start p-1 text-sm">
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              id="toggle-telemetry"
-              class="sr-only peer"
-              bind:checked={telemetry}
-              name="Enable telemetry"
-              type="checkbox"
-              aria-label="Enable telemetry" />
-            <div
-              class="w-4 h-4 rounded border-2 border-gray-700 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
-            </div>
-            <Fa class="w-4 h-4 absolute text-zinc-700" size="0.6x" icon={faCheck} />
-            <span class="font-medium font-bold px-2">Telemetry:</span>
-          </label>
-          <div class="w-2/5 text-gray-400">
+          <Checkbox
+            id="toggle-telemetry"
+            bind:checked={telemetry}
+            name="Enable telemetry"
+            class="text-lg px-2"
+            title="Enable telemetry"><div class="text-base font-medium">Telemetry:</div></Checkbox>
+          <div class="w-2/5 text-[var(--pd-content-card-text)]">
             Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected.
-            <button
-              class="text-violet-400 pl-1"
+            <Link
               on:click={() => {
                 window.openExternal('https://developers.redhat.com/article/tool-data-collection');
-              }}>Read our privacy statement</button>
+              }}>Read our privacy statement</Link>
           </div>
         </div>
-        <div class="flex justify-center p-1 text-sm text-gray-700">
+        <div class="flex justify-center p-1 text-sm text-[var(--pd-content-card-text)]">
           <div>
-            You can always modify this preference later in <button
-              class="text-gray-700 pl-1"
+            You can always modify this preference later in <Link
               on:click={() => {
                 closeWelcome();
                 router.goto('/preferences/default/preferences.telemetry');
-              }}>Settings &gt; Preferences</button>
+              }}>Settings &gt; Preferences</Link>
           </div>
         </div>
       </div>
     {/if}
 
     <!-- Footer - button bar -->
-    <div class="flex justify-end flex-none bg-charcoal-600 p-8">
+    <div class="flex justify-end flex-none bg-[var(--pd-content-bg)] p-8">
       <div class="flex flex-row">
         <!-- If Providers have any onboarding elements selected, create a button that says "Start onboarding" rather than Go to Podman Desktop -->
         {#if onboardingProviders && onboardingProviders.filter(o => o.selected).length > 0}
           <!-- We will "always" show the "Go to Podman Desktop" button
           in-case anything were to happen with the Start onboarding button / sequence not working correctly.
-        we do not want the user to not be able to continue. -->
+          we do not want the user to not be able to continue. -->
           <Button
             type="secondary"
             on:click={() => {
