@@ -52,6 +52,7 @@ onMount(async () => {
 
 onDestroy(() => {
   window.removeEventListener('resize', resizeHandler);
+  terminal?.dispose();
 });
 </script>
 

@@ -34,6 +34,7 @@ beforeAll(() => {
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
+    removeListener: vi.fn(),
   });
 });
 

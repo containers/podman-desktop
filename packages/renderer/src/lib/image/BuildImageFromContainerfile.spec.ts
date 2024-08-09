@@ -36,7 +36,9 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provid
 // xterm is used in the UI, but not tested, added in order to avoid the multiple warnings being shown during the test.
 vi.mock('xterm', () => {
   return {
-    Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
+    Terminal: vi
+      .fn()
+      .mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn(), dispose: vi.fn() }),
   };
 });
 

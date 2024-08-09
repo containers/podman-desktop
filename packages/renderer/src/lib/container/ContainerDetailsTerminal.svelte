@@ -103,7 +103,6 @@ async function refreshTerminal() {
       theme: getTerminalTheme(),
     });
   }
-
   const fitAddon = new FitAddon();
   shellTerminal.loadAddon(fitAddon);
 
@@ -133,6 +132,7 @@ onDestroy(() => {
     terminal: shellTerminal,
     callbackId: sendCallbackId,
   });
+  shellTerminal?.dispose();
 });
 </script>
 
