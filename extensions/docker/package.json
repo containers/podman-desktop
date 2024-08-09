@@ -25,5 +25,26 @@
     "mkdirp": "^3.0.1",
     "vite": "^5.3.5",
     "vitest": "^1.6.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "dockercontext.switch",
+        "title": "Docker Context: Switch context"
+      },
+      {
+        "command": "dockercontext.quickpick",
+        "title": "Docker Context: Select a context"
+      }
+    ],
+    "icons": {
+      "docker-icon": {
+        "description": "Docker icon",
+        "default": {
+          "fontPath": "docker.woff2",
+          "fontCharacter": "\\0041"
+        }
+      }
+    }
   }
 }
