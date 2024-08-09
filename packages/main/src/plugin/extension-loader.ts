@@ -580,7 +580,11 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name));
+      .map(directory =>
+        fs.existsSync(path.join(folderPath, directory.name, 'package.json'))
+          ? path.join(folderPath, directory.name)
+          : path.join(folderPath, directory.name, 'packages', 'extension'),
+      );
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -598,7 +602,12 @@ export class ExtensionLoader {
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
+      .map(directory => {
+        const noApiExtPath = path.join(folderPath, directory.name, 'builtin', `${directory.name}.cdix`);
+        return fs.existsSync(noApiExtPath)
+          ? noApiExtPath
+          : path.join(folderPath, directory.name, 'packages', 'extension', `/builtin/${directory.name}.cdix`);
+      });
   }
 
   /**
