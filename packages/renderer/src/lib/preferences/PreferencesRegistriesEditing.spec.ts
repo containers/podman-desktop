@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { Registry } from '@podman-desktop/api';
-import { fireEvent, waitFor } from '@testing-library/dom';
+import { waitFor } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
 import { default as userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -82,7 +82,7 @@ describe('PreferencesRegistriesEditing', () => {
     expect(button).toBeInTheDocument();
     expect(button).toBeDisabled();
 
-    const entry = screen.getByPlaceholderText('URL (HTTPS only)');
+    const entry = screen.getByPlaceholderText('https://registry.io');
     expect(entry).toBeInTheDocument();
 
     const loginButton = screen.getByRole('button', { name: 'Login' });
@@ -95,9 +95,9 @@ describe('PreferencesRegistriesEditing', () => {
     const addRegistryBtn = screen.getByRole('button', { name: 'Add registry' });
     await userEvent.click(addRegistryBtn);
     const button = screen.getByRole('button', { name: 'Login' });
-    const password = screen.getByPlaceholderText('Password');
-    const username = screen.getByPlaceholderText('Username');
-    const url = screen.getByPlaceholderText('URL (HTTPS only)');
+    const password = screen.getByPlaceholderText('password');
+    const username = screen.getByPlaceholderText('username');
+    const url = screen.getByPlaceholderText('https://registry.io');
     expect(button).toBeVisible();
     expect(button).toBeDisabled();
     expect(password).toBeVisible();
