@@ -54,10 +54,10 @@ import {
   NetworkingV1Api,
 } from '@kubernetes/client-node';
 
+import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from './api.js';
-import type { KubeContext } from './kubernetes-context.js';
 import {
   backoffInitialValue,
   backoffJitter,
