@@ -42,6 +42,8 @@ function getInitializationContext(id: string): InitializationContext {
     <div class="min-w-full flex-1">
       <NotificationsBox />
       <div class="px-5 space-y-5 h-full">
+        <ExtensionBanners />
+        <LearningCenter />
         <!-- Provider is ready display a box to indicate some information -->
         {#if providersReady.length > 0}
           {#each providersReady as providerReady (providerReady.internalId)}
@@ -98,8 +100,6 @@ function getInitializationContext(id: string): InitializationContext {
             <ProviderStopped provider={providerStopped} />
           {/each}
         {/if}
-        <LearningCenter />
-        <ExtensionBanners />
       </div>
     </div>
   </div>
