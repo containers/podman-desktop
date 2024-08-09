@@ -33,8 +33,9 @@ import { waitForPodmanMachineStartup, waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+// ghcr.io is not searchable, we enter the full image name
+const imageToPullSearchTerm = 'ghcr.io/linuxcontainers/alpine:latest';
 const imageToPull = 'ghcr.io/linuxcontainers/alpine';
-const imageTag = 'latest';
 const containerToRun = 'alpine-container';
 const containerList = ['first', 'second', 'third'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
@@ -84,11 +85,11 @@ afterAll(async () => {
 }, 90000);
 
 describe('Verification of container creation workflow', async () => {
-  test(`Pulling of '${imageToPull}:${imageTag}' image`, { retry: 2, timeout: 90000 }, async () => {
+  test(`Pulling of '${imageToPull}' image`, { retry: 2, timeout: 90000 }, async () => {
     const navigationBar = new NavigationBar(page);
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(imageToPull, imageTag);
+    images = await pullImagePage.pullImage(imageToPullSearchTerm, imageToPull);
 
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
   });

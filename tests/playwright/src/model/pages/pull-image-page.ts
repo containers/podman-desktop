@@ -18,6 +18,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
 
@@ -29,6 +30,7 @@ export class PullImagePage extends BasePage {
   readonly manageRegistriesButton: Locator;
   readonly imageToPullLabel: Locator;
   readonly imageNameInput: Locator;
+  readonly imageTagInput: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -37,13 +39,22 @@ export class PullImagePage extends BasePage {
     this.closeLink = page.getByRole('link', { name: 'Close' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
-    this.imageToPullLabel = page.getByLabel('Image to Pull');
-    this.imageNameInput = page.getByLabel('imageName');
+    this.imageToPullLabel = page.getByPlaceholder('Image to Pull');
+    this.imageNameInput = page.getByPlaceholder('Registry name / Image name');
+    this.imageTagInput = page.getByPlaceholder('Image tag');
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
-    const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
-    await this.imageNameInput.fill(fullImageName);
+  async pullImage(searchTerm: string, imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
+    await this.imageNameInput.fill(searchTerm);
+    await this.selectItem(imageName);
+    await this.imageNameInput.press('Tab');
+
+    if (tag) {
+      await this.imageTagInput.fill(tag);
+      await this.selectItem(tag);
+      await this.imageTagInput.press('Tab');
+    }
+
     await playExpect(this.pullImageButton).toBeEnabled();
     await this.pullImageButton.click();
 
@@ -51,5 +62,28 @@ export class PullImagePage extends BasePage {
     await playExpect(doneButton).toBeEnabled({ timeout: timeout });
     await doneButton.click();
     return new ImagesPage(this.page);
+  }
+
+  async selectItem(text: string, timeout: number = 60000): Promise<void> {
+    await waitUntil(
+      async () => {
+        return await this.page.locator('.list-open').isVisible();
+      },
+      { timeout: timeout },
+    );
+    let initial: boolean = true;
+    for (;;) {
+      // we stop when we come back to the beginning
+      if (!initial) {
+        const firstSelected = await this.page.locator('.list-open').locator('.item.first.hover').isVisible();
+        playExpect(firstSelected).toBeFalsy();
+      }
+      initial = false;
+      const imageSelected = await this.page.locator('.list-open').locator('.item.hover', { hasText: text }).isVisible();
+      if (imageSelected) {
+        return;
+      }
+      await this.imageNameInput.press('ArrowDown');
+    }
   }
 }
