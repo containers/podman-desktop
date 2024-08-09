@@ -18,10 +18,11 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import { Disposable } from '/@/plugin/types/disposable.js';
+
+import type { ApiSenderType } from '../api.js';
 import { NotificationRegistry } from './notification-registry.js';
 import type { TaskManager } from './task-manager.js';
-import { Disposable } from './types/disposable.js';
 
 let notificationRegistry: NotificationRegistry;
 const extensionId = 'myextension.id';
@@ -79,11 +80,13 @@ test('expect notification is disposed correctly', async () => {
   vi.spyOn(notificationRegistry, 'showNotification').mockImplementation(() => {
     return Disposable.create(() => {});
   });
+  const notificationDisposeMock = vi.fn();
   const notificationTask = {
     id: `main-1`,
     name: 'title',
     started: 1721656320682,
     description: 'description',
+    dispose: notificationDisposeMock,
   };
   createNotificationtaskMock.mockImplementation(() => notificationTask);
   let queue = notificationRegistry.getNotifications();
@@ -103,9 +106,9 @@ test('expect notification is disposed correctly', async () => {
   expect(queue[0].type).toEqual('info');
   disposable.dispose();
 
-  expect(deleteTaskMock).toBeCalledWith(notificationTask);
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(0);
+  expect(notificationDisposeMock).toHaveBeenCalledOnce();
 });
 
 test('expect latest added notification is in top of the queue', async () => {

@@ -17,11 +17,8 @@
  ***********************************************************************/
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
-import { router } from 'tinro';
 
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
-import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
-import type { Task } from '/@api/task';
 
 export interface ConnectionCallback extends LoggerType {
   // when build is finished, this function is called
@@ -60,22 +57,10 @@ export interface TaskHold {
 const taskLogCallbacks = new Map<symbol, ConnectionCallback>();
 const taskLogOnHolds = new Map<symbol, TaskHold>();
 const taskLogReplays = new Map<symbol, TaskReplay>();
-const allTasks = new Map<symbol, Task>();
 
-export function startTask(name: string, goToUrl: string, createCallback: ConnectionCallback): symbol {
+export function registerConnectionCallback(createCallback: ConnectionCallback): symbol {
   const key = getKey();
   taskLogCallbacks.set(key, createCallback);
-
-  // start a task
-  const task = createTask(name);
-
-  // go to the images build
-  task.action = {
-    name: 'Go to task >',
-    execute: () => router.goto(goToUrl),
-  };
-  // store the task
-  allTasks.set(key, task);
 
   // create a new replay value
   taskLogReplays.set(key, { log: [], warn: [], error: [], end: false });
@@ -89,13 +74,6 @@ export function clearCreateTask(key: symbol): void {
   taskLogReplays.delete(key);
   // remove current create
   operationConnectionsInfo.set(new Map());
-
-  // remove the task
-  const task = allTasks.get(key);
-  if (task) {
-    removeTask(task.id);
-  }
-  allTasks.delete(key);
 }
 
 // client is leaving the page, disconnect the UI
@@ -162,20 +140,6 @@ function getKey(): symbol {
 }
 
 export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]): void {
-  const task = allTasks.get(key);
-  if (task && isStatefulTask(task)) {
-    if (eventName === 'error') {
-      task.status = 'failure';
-      task.error = args.join('\n');
-      task.state = 'completed';
-    } else if (eventName === 'finish') {
-      if (task.status !== 'failure') {
-        task.status = 'success';
-      }
-      task.state = 'completed';
-    }
-  }
-
   // keep values for replay
   const replay = taskLogReplays.get(key);
   if (replay) {

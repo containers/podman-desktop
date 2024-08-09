@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,27 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type TaskState = 'running' | 'completed';
-type TaskStatus = 'in-progress' | 'success' | 'failure';
+import type { Disposable, Event } from '@podman-desktop/api';
 
-export interface Task {
-  id: string;
+export type TaskState = 'loading' | 'success' | 'error';
+
+export interface TaskAction {
   name: string;
-  started: number;
+  execute: (task: Task) => void;
 }
 
-export interface StatefulTask extends Task {
+export interface TaskUpdateEvent {
+  action: 'update' | 'delete';
+  task: Task;
+}
+
+export interface Task extends Disposable {
+  readonly id: string;
+  name: string;
+  readonly started: number;
   state: TaskState;
-  status: TaskStatus;
-  progress?: number;
-  action?: {
-    name: string;
-    execute: () => void;
-  };
   error?: string;
-}
-
-export interface NotificationTask extends Task {
-  description: string;
-  markdownActions?: string;
+  progress?: number;
+  action?: TaskAction;
+  readonly onUpdate: Event<TaskUpdateEvent>;
 }

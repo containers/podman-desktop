@@ -47,9 +47,18 @@ async function editConnection(
   params: { [key: string]: any },
   key: symbol,
   keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-  tokenId?: number,
+  tokenId: number | undefined,
+  taskId: number | undefined,
 ): Promise<void> {
-  await window.editProviderConnectionLifecycle(internalProviderId, connectionInfo, params, key, keyLogger, tokenId);
+  await window.editProviderConnectionLifecycle(
+    internalProviderId,
+    connectionInfo,
+    params,
+    key,
+    keyLogger,
+    tokenId,
+    taskId,
+  );
 }
 </script>
 

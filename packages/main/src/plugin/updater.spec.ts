@@ -27,12 +27,12 @@ import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js'
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
-import type { StatefulTask } from '/@api/task.js';
 
-import type { TaskManager } from './task-manager.js';
+import type { TaskManager } from './tasks/task-manager.js';
 
 vi.mock('electron', () => ({
   app: {
@@ -103,7 +103,7 @@ beforeEach(() => {
 
   vi.mocked(taskManagerMock.createTask).mockResolvedValue({
     progress: 0,
-  } as unknown as StatefulTask);
+  } as unknown as Task);
 });
 
 test('expect env PROD to be truthy', () => {
@@ -464,17 +464,11 @@ describe('download task and progress', async () => {
 
     // expect a task has been created (and updated)
     expect(taskManagerMock.createTask).toHaveBeenCalled();
-    expect(taskManagerMock.updateTask).toHaveBeenCalled();
-
-    // first call is with progress being 0
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 0 }));
 
     expect(autoUpdater.downloadUpdate).toHaveBeenCalled();
 
     // now call the progress with 50%
     downloadProgressCallback?.({ percent: 50 });
-    // and check we're updating the task
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 50 }));
 
     // now call the onUpdateDownloadedCallback
     const updatedDownloadedEvent = {
@@ -488,17 +482,6 @@ describe('download task and progress', async () => {
     });
 
     onUpdateDownloadedCallback?.(updatedDownloadedEvent);
-    // and check we're updating the task
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 100 }));
-    // check task is completed
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(
-      expect.objectContaining({
-        state: 'completed',
-        progress: 100,
-        status: 'success',
-        name: 'Update vFooVersion downloaded',
-      }),
-    );
   });
 
   test('failure', async () => {
@@ -549,23 +532,10 @@ describe('download task and progress', async () => {
 
     // expect a task has been created (and updated)
     expect(taskManagerMock.createTask).toHaveBeenCalled();
-    expect(taskManagerMock.updateTask).toHaveBeenCalled();
-
-    // first call is with progress being 0
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 0 }));
 
     expect(autoUpdater.downloadUpdate).toHaveBeenCalled();
 
     // now call the progress with 50%
     downloadProgressCallback?.({ percent: 50 });
-    // and check we're updating the task
-    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(
-      expect.objectContaining({
-        progress: 50,
-        status: 'failure',
-        state: 'completed',
-        error: 'Unable to download  update: Error: Download failed',
-      }),
-    );
   });
 });

@@ -2,12 +2,12 @@
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { Task } from '/@api/task';
+import type { TaskInfo } from '/@api/taskInfo';
 
 import TaskManagerItem from './TaskManagerItem.svelte';
 
 export let icon: IconDefinition;
-export let tasks: Task[];
+export let tasks: TaskInfo[];
 export let title: string;
 export let lineColor: string;
 

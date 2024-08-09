@@ -8,7 +8,6 @@ import { get } from 'svelte/store';
 import { router } from 'tinro';
 
 import { providerInfos } from '/@/stores/providers';
-import { createTask } from '/@/stores/tasks';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import EngineFormPage from '../ui/EngineFormPage.svelte';
@@ -80,8 +79,6 @@ async function importContainers() {
 
   inProgress = true;
 
-  const task = createTask('Import containers');
-
   for (const containerImage of containersToImport) {
     try {
       await window.importContainer({
@@ -96,13 +93,7 @@ async function importContainers() {
 
   inProgress = false;
   if (importError === '') {
-    task.status = 'success';
-    task.state = 'completed';
     router.goto('/images');
-  } else {
-    task.status = 'failure';
-    task.error = importError;
-    task.state = 'completed';
   }
 }
 </script>

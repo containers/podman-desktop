@@ -17,10 +17,9 @@
  ***********************************************************************/
 import type * as extensionApi from '@podman-desktop/api';
 
-import type { TaskManager } from '/@/plugin/task-manager.js';
-
 import { findWindow } from '../util.js';
 import { CancellationTokenImpl } from './cancellation-token.js';
+import type { TaskManager } from './tasks/task-manager.js';
 
 export enum ProgressLocation {
   /**
@@ -85,7 +84,7 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
-    const t = this.taskManager.createTask(options.title);
+    const t = this.taskManager.createTask({ title: options.title });
 
     return task(
       {
@@ -96,29 +95,22 @@ export class ProgressImpl {
           if (value.increment) {
             t.progress = value.increment;
           }
-          this.taskManager.updateTask(t);
         },
       },
       new CancellationTokenImpl(),
     )
       .then(value => {
         // Middleware to capture the success of the task
-        t.status = 'success';
-        t.state = 'completed';
+        t.state = 'success';
         // We propagate the result to the caller, so he can use the result
         return value;
       })
       .catch((err: unknown) => {
         // Middleware to set to error the task
-        t.status = 'failure';
-        t.state = 'completed';
+        t.state = 'error';
         t.error = String(err);
         // We propagate the error to the caller, so it can handle it if needed
         throw err;
-      })
-      .finally(() => {
-        // Ensure the taskManager is updated properly is every case
-        this.taskManager.updateTask(t);
       });
   }
 }

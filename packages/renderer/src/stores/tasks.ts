@@ -19,12 +19,14 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
-import type { NotificationTask, StatefulTask, Task } from '/@api/task';
+import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
+
+import type { TaskImpl } from '../../../main/src/plugin/tasks/task-impl';
 
 /**
  * Defines the store used to define the tasks.
  */
-export const tasksInfo: Writable<Task[]> = writable([]);
+export const tasksInfo: Writable<TaskInfo[]> = writable([]);
 
 // refresh the array every second
 setInterval(() => {
@@ -32,11 +34,11 @@ setInterval(() => {
 }, 1000);
 
 // remove element from the store
-export function removeTask(id: string): void {
-  tasksInfo.update(tasks => tasks.filter(task => task.id !== id));
+export function removeTask(taskId: string): void {
+  window.clearTask(taskId);
 }
 
-function updateTask(task: Task): void {
+function updateTask(task: TaskInfo): void {
   tasksInfo.update(tasks => {
     tasks = tasks.filter(t => t.id !== task.id);
     tasks.push(task);
@@ -46,43 +48,19 @@ function updateTask(task: Task): void {
 
 // remove element from the store that are completed
 export function clearNotifications(): void {
-  tasksInfo.update(tasks => tasks.filter(task => isStatefulTask(task) && task.state !== 'completed'));
-}
-
-let taskId = 0;
-
-/**
- * create a new task
- * @deprecated renderer should not create tasks
- * @param name the name of the task
- */
-export function createTask(name: string): StatefulTask {
-  taskId++;
-  const task: StatefulTask = {
-    id: `ui-${taskId}`,
-    name,
-    started: new Date().getTime(),
-    state: 'running',
-    status: 'in-progress',
-  };
-  tasksInfo.update(tasks => [...tasks, task]);
-  return task;
+  window.clearTasks();
 }
 
 window.events?.receive('task-created', (task: unknown) => {
-  tasksInfo.update(tasks => [...tasks, task as Task]);
+  tasksInfo.update(tasks => [...tasks, task as TaskInfo]);
 });
 window.events?.receive('task-updated', (task: unknown) => {
-  updateTask(task as Task);
+  updateTask(task as TaskInfo);
 });
 window.events?.receive('task-removed', (task: unknown) => {
-  removeTask((task as Task).id);
+  tasksInfo.update(tasks => tasks.filter(mTask => mTask.id !== (task as TaskImpl).id));
 });
 
-export function isStatefulTask(task: Task): task is StatefulTask {
-  return 'state' in task;
-}
-
-export function isNotificationTask(task: Task): task is NotificationTask {
-  return 'description' in task;
+export function isNotificationTask(task: TaskInfo): task is NotificationTaskInfo {
+  return 'body' in task;
 }
