@@ -158,7 +158,7 @@
     "fzstd": "^0.1.1",
     "husky": "^9.1.4",
     "js-yaml": "^4.1.0",
-    "lint-staged": "^15.2.7",
+    "lint-staged": "^15.2.8",
     "minimist": "^1.2.8",
     "nock": "^14.0.0-beta.7",
     "postcss-import": "^16.1.0",
