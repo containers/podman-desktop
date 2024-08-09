@@ -33,7 +33,6 @@ let onboardingProviders: OnboardingInfoWithSelected[] = [];
 
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();
-  showWelcome = true;
   if (!ver) {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
