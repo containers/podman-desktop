@@ -301,3 +301,15 @@ The complete list of issues fixed in this release is available [here](https://gi
 
 Get the latest release from the [Downloads](/downloads) section of the website and boost your development journey with Podman Desktop. Additionally, visit the [GitHub repository](https://github.com/containers/podman-desktop) and see how you can help us make Podman Desktop better.
 ```
+
+## Checklist
+
+Use the below checklist to double-check that all of the above steps have been completed:
+
+- [ ] GitHub release completed (NOT set as pre-release)
+- [ ] All package managers updated and PR's merged (ex. flatpak)
+- [ ] Extension maintainers notified of new release
+- [ ] Blog post out and live
+- [ ] podman.io website updated
+- [ ] Announced on mailing list and internally
+- [ ] Posted on social media
