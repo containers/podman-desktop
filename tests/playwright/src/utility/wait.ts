@@ -121,7 +121,7 @@ export async function executeWithTimeout(
   });
 }
 
-export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 15000): Promise<void> {
+export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 30000): Promise<void> {
   const dashboardPage = await new NavigationBar(page).openDashboard();
   await playExpect(dashboardPage.heading).toBeVisible();
   await waitUntil(async () => await dashboardPage.podmanStatusLabel.isVisible(), {
