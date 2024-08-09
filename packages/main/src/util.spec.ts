@@ -17,9 +17,9 @@
  ***********************************************************************/
 import * as fs from 'node:fs';
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { getBase64Image } from './util.js';
+import { getBase64Image, requireNonUndefined } from './util.js';
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -50,4 +50,21 @@ test('getBase64Image - return base64 image', () => {
 
   const result = getBase64Image('path');
   expect(result).toBe('data:image/png;base64,image');
+});
+
+describe('requireNonUndefined', () => {
+  test('should return the value if it is defined', () => {
+    const value = 'test';
+    const result = requireNonUndefined(value);
+    expect(result).toBe(value);
+  });
+
+  test('should throw an error if the value is undefined', () => {
+    expect(() => requireNonUndefined(undefined)).toThrow('Found undefined value.');
+  });
+
+  test('should throw an error with a custom message if the value is undefined', () => {
+    const customMessage = 'Custom error message';
+    expect(() => requireNonUndefined(undefined, customMessage)).toThrow(customMessage);
+  });
 });
