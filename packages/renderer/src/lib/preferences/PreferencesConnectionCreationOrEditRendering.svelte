@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
-import { Button, EmptyScreen, ErrorMessage, LinearProgress, Spinner } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
@@ -453,9 +453,6 @@ function getConnectionResourceConfigurationValue(
         {#if operationStarted || errorMessage}
           <div class="w-4/5">
             <div class="mt-2 mb-8">
-              {#if inProgress}
-                <LinearProgress />
-              {/if}
               <div class="mt-2 float-right">
                 <button
                   aria-label="Show Logs"
