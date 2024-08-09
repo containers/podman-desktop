@@ -18,7 +18,8 @@
 
 import type { Context } from '@kubernetes/client-node';
 
-import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
+import type { KubeContext } from '/@api/kubernetes-context';
+
 import { kubernetesIconBase64 } from './KubeIcon';
 
 // Function that goes through KubeContext and adds kubernetesIconBase64 icon to each context
