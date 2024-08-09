@@ -31,6 +31,6 @@ test('Expect simple column styling', async () => {
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
   expect(text).toHaveClass('max-w-full');
-  expect(text).toHaveClass('overflow-hidden');
-  expect(text).toHaveClass('text-ellipsis');
+  expect(text).toHaveClass('text-wrap');
+  expect(text).toHaveClass('line-clamp-2');
 });
