@@ -65,6 +65,8 @@ async function addElectronFuses(context) {
   });
 }
 
+const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
+
 /**
  * @type {import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -79,12 +81,13 @@ const config = {
   buildDependenciesFromSource: false,
   npmRebuild: false,
   beforePack: async (context) => {
-    context.packager.config.extraResources = ['packages/main/src/assets/**'];
+    context.packager.config.extraResources = DEFAULT_ASSETS;
 
     // universal build, add both pkg files
     // this is hack to avoid issue https://github.com/electron/universal/issues/36
-    if(context.appOutDir.endsWith('mac-universal--x64') || context.appOutDir.endsWith('mac-universal--arm64')){
-      context.packager.config.extraResources.push('extensions/podman/assets/**');
+    if(context.appOutDir.endsWith('mac-universal-x64-temp') || context.appOutDir.endsWith('mac-universal-arm64-temp')){
+      context.packager.config.extraResources  = DEFAULT_ASSETS;
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-universal*.pkg');
       return;
     }
 
