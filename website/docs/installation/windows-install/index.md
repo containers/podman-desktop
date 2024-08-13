@@ -120,7 +120,7 @@ To verify that Podman is set up:
 
   ![Podman is running screen](img/dashboard-podman-is-running.png)
 
-### Use WSL2 as machine provider
+### Use Hyper-V as machine provider
 
 In order to tell podman to use hyperv when creating a podman machine, one needs to setup either:
 * environment variable: `CONTAINERS_MACHINE_PROVIDER=hyperv` on the terminal session or as system env. var.
