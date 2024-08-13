@@ -25,6 +25,7 @@ export enum ContainerState {
   Deleting = 'DELETING',
   Created = 'CREATED',
   Paused = 'PAUSED',
+  Stopped = 'STOPPED',
   Unknown = 'UNKNOWN',
 }
 
