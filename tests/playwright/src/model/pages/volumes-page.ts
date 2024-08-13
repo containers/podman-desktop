@@ -38,6 +38,30 @@ export class VolumesPage extends MainPage {
     this.collectUsageDataButton = this.additionalActions.getByRole('button', { name: 'Gather volume sizes' });
   }
 
+  public async getVolumeNameForContainer(containerName: string): Promise<string | undefined> {
+    try {
+      const rows = await this.getAllTableRows();
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
+        if (volumeName) {
+          const volumeDetails = await this.openVolumeDetails(volumeName);
+          await volumeDetails.activateTab(VolumeDetailsPage.SUMMARY_TAB);
+          const volumeSummaryContent = await volumeDetails.tabContent.allTextContents();
+
+          for (const content of volumeSummaryContent) {
+            if (content.includes(containerName)) {
+              await volumeDetails.backLink.click();
+              return volumeName;
+            }
+          }
+          await volumeDetails.backLink.click();
+        }
+      }
+    } catch (err) {
+      console.log(`Exception caught on ${this.title} page with message: ${err}`);
+    }
+  }
+
   async openCreateVolumePage(volumeName: string): Promise<CreateVolumePage> {
     const row = await this.getVolumeRowByName(volumeName);
     if (row !== undefined) {
