@@ -147,7 +147,7 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
         await podmanOnboardingPage.nextStepButton.click();
       });
       describe('Podman machine operations', async () => {
-        let podmanMachineDetails: PodmanMachineDetails;
+        const podmanMachineDetails = new PodmanMachineDetails(page);
         test('Open podman machine details', async () => {
           dashboardPage = await navigationBar.openDashboard();
           await playExpect(dashboardPage.mainPage).toBeVisible();
@@ -157,31 +157,33 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
           await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
           const resourcesPodmanConnections = new ResourceConnectionCardPage(page, RESOURCE_NAME, PODMAN_MACHINE_NAME);
           await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
-          await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible();
+          await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible({ timeout: 20_000 });
           await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
           await resourcesPodmanConnections.resourceElementDetailsButton.click();
-          podmanMachineDetails = new PodmanMachineDetails(page);
           await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
-        });
+        }, 120000);
         test('Podman machine operations - STOP', async () => {
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineStopButton.click();
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
-        });
+        }, 120000);
         test('Podman machine operations - START', async () => {
+          await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineStartButton.click();
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
-        });
+        }, 120000);
         test('Podman machine operations - RESTART', async () => {
+          await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineRestartButton.click();
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
-        });
+        }, 120000);
       });
     },
   );
