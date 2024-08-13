@@ -172,6 +172,11 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
   registry.source = defaultProviderSourceName;
 
   const newRegistry = registry === newRegistryRequest;
+  if (newRegistry) {
+    registry.serverUrl = registry.serverUrl.trim();
+    registry.username = registry.username.trim();
+    registry.secret = registry.secret.trim();
+  }
 
   // Always check credentials before creating image / updating to see if they pass.
   // if we happen to get a certificate verification issue, as the user if they would like to
@@ -481,9 +486,11 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       <Button type="link" on:click={() => (showNewRegistryForm = false)}>Cancel</Button>
       <Button
         type="primary"
-        disabled={!newRegistryRequest.serverUrl || !newRegistryRequest.username || !newRegistryRequest.secret}
+        disabled={!newRegistryRequest.serverUrl.trim() ||
+          !newRegistryRequest.username.trim() ||
+          !newRegistryRequest.secret.trim()}
         inProgress={loggingIn}
-        on:click={() => loginToRegistry(newRegistryRequest)}>Login</Button>
+        on:click={() => loginToRegistry(newRegistryRequest)}>Add</Button>
     </svelte:fragment>
   </Dialog>
 {/if}

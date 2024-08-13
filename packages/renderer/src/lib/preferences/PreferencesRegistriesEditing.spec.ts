@@ -75,7 +75,7 @@ describe('PreferencesRegistriesEditing', () => {
     expect(button).toBeEnabled();
   });
 
-  test('Expect that adding a registry enables a form, and Login button is initially disabled', async () => {
+  test('Expect that adding a registry enables a form, and Add button is initially disabled', async () => {
     render(PreferencesRegistriesEditing, { showNewRegistryForm: true });
 
     const button = screen.getByRole('button', { name: 'Add registry' });
@@ -85,7 +85,7 @@ describe('PreferencesRegistriesEditing', () => {
     const entry = screen.getByPlaceholderText('https://registry.io');
     expect(entry).toBeInTheDocument();
 
-    const loginButton = screen.getByRole('button', { name: 'Login' });
+    const loginButton = screen.getByRole('button', { name: 'Add' });
     expect(loginButton).toBeInTheDocument();
     expect(loginButton).toBeDisabled();
   });
@@ -94,7 +94,7 @@ describe('PreferencesRegistriesEditing', () => {
     render(PreferencesRegistriesEditing);
     const addRegistryBtn = screen.getByRole('button', { name: 'Add registry' });
     await userEvent.click(addRegistryBtn);
-    const button = screen.getByRole('button', { name: 'Login' });
+    const button = screen.getByRole('button', { name: 'Add' });
     const password = screen.getByPlaceholderText('password');
     const username = screen.getByPlaceholderText('username');
     const url = screen.getByPlaceholderText('https://registry.io');
