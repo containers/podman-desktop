@@ -115,7 +115,7 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
   on:close={() => {
     closeCallback();
   }}>
-  <div slot="content" class="relative flex flex-col text-sm leading-5 space-y-5">
+  <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
     <div class="pb-4">
       <label for="modalImageTag" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Image tag</label>
       {#if isAuthenticatedForThisImage}

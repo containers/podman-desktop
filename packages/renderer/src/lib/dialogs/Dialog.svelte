@@ -19,7 +19,7 @@ export let onclose: () => void = () => {
     <CloseButton on:click={() => onclose()} />
   </div>
 
-  <div class="max-h-80 overflow-auto text-[var(--pd-modal-text)] px-10 py-4">
+  <div class="relative max-h-80 overflow-auto text-[var(--pd-modal-text)] px-10 py-4">
     <slot name="content" />
   </div>
 
