@@ -64,6 +64,7 @@ import * as jsYaml from 'js-yaml';
 import { parseAllDocuments } from 'yaml';
 
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from './api.js';
@@ -71,7 +72,6 @@ import type { PodInfo } from './api/pod-info.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';

@@ -18,7 +18,8 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { KubeContext } from '../../../main/src/plugin/kubernetes-context';
+import type { KubeContext } from '/@api/kubernetes-context';
+
 import { addIconToContexts } from '../lib/kube/KubeContextUI';
 import { EventStore } from './event-store';
 
