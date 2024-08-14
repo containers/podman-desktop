@@ -34,7 +34,7 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 import type { StatefulTask } from '/@api/task.js';
 
-import type { TaskManager } from './task-manager.js';
+import type { TaskManager } from './tasks/task-manager.js';
 
 /**
  * Represents an updater utility for Podman Desktop.

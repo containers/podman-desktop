@@ -25,7 +25,7 @@ import type { ApiSenderType } from '/@/plugin/api.js';
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
-import type { NotificationRegistry } from './notification-registry.js';
+import type { NotificationRegistry } from './tasks/notification-registry.js';
 import type { Disposable } from './types/disposable.js';
 
 let configurationRegistry: ConfigurationRegistry;

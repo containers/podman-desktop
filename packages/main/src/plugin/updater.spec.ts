@@ -32,7 +32,7 @@ import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
 import type { StatefulTask } from '/@api/task.js';
 
-import type { TaskManager } from './task-manager.js';
+import type { TaskManager } from './tasks/task-manager.js';
 
 vi.mock('electron', () => ({
   app: {
