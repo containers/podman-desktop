@@ -76,8 +76,7 @@ function doExecuteAction(task: TaskInfo) {
           <Markdown markdown={task.markdownActions} />
         </div>
       {/if}
-    {/if}
-    {#if task.error}
+    {:else if task.error}
       <div class:hidden={!showError} class="text-xs my-2 break-words text-[var(--pd-modal-text)]">
         {task.error}
       </div>
