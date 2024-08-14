@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 import type { NotificationInfo } from '/@api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from '/@api/task.js';
 
-import type { ApiSenderType } from './api.js';
-import type { CommandRegistry } from './command-registry.js';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { ApiSenderType } from '../api.js';
+import type { CommandRegistry } from '../command-registry.js';
+import type { StatusBarRegistry } from '../statusbar/statusbar-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '../api.js';
+import { Disposable } from '../types/disposable.js';
 import { NotificationRegistry } from './notification-registry.js';
 import type { TaskManager } from './task-manager.js';
-import { Disposable } from './types/disposable.js';
 
 let notificationRegistry: NotificationRegistry;
 const extensionId = 'myextension.id';
