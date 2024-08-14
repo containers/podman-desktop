@@ -159,7 +159,6 @@ export class TaskManager {
   public getTask(taskId: string): Task {
     const task = this.tasks.get(taskId);
     if (!task) {
-      console.log(Array.from(this.tasks.entries()));
       throw new Error(`task with id ${taskId} does not exist.`);
     }
     return task;
