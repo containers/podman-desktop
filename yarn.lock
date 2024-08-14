@@ -18942,10 +18942,10 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-tailwindcss@^3.4.9:
-  version "3.4.9"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.9.tgz#9e04cddce1924d530df62af37d3520f0e2a9d85e"
-  integrity sha512-1SEOvRr6sSdV5IDf9iC+NU4dhwdqzF4zKKq3sAbasUWHEM6lsMhX+eNN5gkPx1BvLFEnZQEUFbXnGj8Qlp83Pg==
+tailwindcss@^3.4.10:
+  version "3.4.10"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.10.tgz#70442d9aeb78758d1f911af29af8255ecdb8ffef"
+  integrity sha512-KWZkVPm7yJRhdu4SRSl9d4AK2wM3a50UsvgHZO7xY77NQr2V+fIrEuoDGQcbvswWvFGbS2f6e+jC/6WJm1Dl0w==
   dependencies:
     "@alloc/quick-lru" "^5.2.0"
     arg "^5.0.2"
