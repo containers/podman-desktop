@@ -58,6 +58,15 @@ export class CreateKindClusterPage extends BasePage {
 
   public async manageCheckboxState(operation: CheckboxOperations): Promise<void> {
     await playExpect(this.controllerCheckbox).toBeVisible();
+
+    const isChecked = await this.checkboxHolder.isChecked();
+    if (
+      (operation === CheckboxOperations.Check && isChecked) ||
+      (operation === CheckboxOperations.Uncheck && !isChecked)
+    ) {
+      return;
+    }
+
     switch (operation) {
       case CheckboxOperations.Check:
         await this.checkboxHolder.check();
