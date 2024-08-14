@@ -17,8 +17,10 @@
  ***********************************************************************/
 import type { Event } from '@podman-desktop/api';
 
+import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
+
 import { Emitter } from '../events/emitter.js';
-import type { Task, TaskAction, TaskState, TaskUpdateEvent } from './tasks.js';
+import type { Task, TaskAction, TaskUpdateEvent } from './tasks.js';
 
 export class TaskImpl implements Task {
   public readonly started: number;
@@ -28,6 +30,7 @@ export class TaskImpl implements Task {
   protected mAction: TaskAction | undefined;
   protected mError: string | undefined;
   protected mState: TaskState;
+  protected mStatus: TaskStatus;
   protected mName: string;
 
   constructor(
@@ -35,7 +38,8 @@ export class TaskImpl implements Task {
     name: string,
   ) {
     this.mName = name;
-    this.mState = 'loading';
+    this.mState = 'running';
+    this.mStatus = 'in-progress';
     this.started = new Date().getTime();
   }
 
@@ -61,6 +65,24 @@ export class TaskImpl implements Task {
     this.notify();
   }
 
+  get status(): TaskStatus {
+    return this.mStatus;
+  }
+
+  set status(status: TaskStatus) {
+    this.mStatus = status;
+    switch (this.mStatus) {
+      case 'in-progress':
+        this.mState = 'running';
+        break;
+      case 'failure':
+      case 'success':
+        this.mState = 'completed';
+        break;
+    }
+    this.notify();
+  }
+
   set action(action: TaskAction | undefined) {
     this.mAction = action;
     this.notify();
@@ -69,7 +91,8 @@ export class TaskImpl implements Task {
   set error(error: string | undefined) {
     this.mError = error;
     if (error) {
-      this.mState = 'error';
+      this.mState = 'completed';
+      this.mStatus = 'failure';
     }
     this.notify();
   }

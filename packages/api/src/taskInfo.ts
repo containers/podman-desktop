@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type TaskState = 'loading' | 'success' | 'error';
+export type TaskState = 'running' | 'completed';
+export type TaskStatus = 'in-progress' | 'success' | 'failure';
 
 export type NotificationTaskInfo = Omit<TaskInfo, 'progress' | 'error'> & {
-  state: 'success';
+  state: 'completed';
+  status: 'success';
   body: string;
   markdownActions?: string;
 };
@@ -29,6 +31,7 @@ export interface TaskInfo {
   name: string;
   started: number;
   state: TaskState;
+  status: TaskStatus;
   error?: string;
   progress?: number;
   action?: string;

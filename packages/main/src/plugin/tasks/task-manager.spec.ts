@@ -47,12 +47,12 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('create stateful task with title', async () => {
+test('create task with title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask({ title: 'title' });
   expect(task.id).equal('task-1');
   expect(task.name).equal('title');
-  expect(task.state).equal('loading');
+  expect(task.state).equal('running');
   expect(apiSenderSendMock).toBeCalledWith(
     'task-created',
     expect.objectContaining({
@@ -63,12 +63,12 @@ test('create stateful task with title', async () => {
   );
 });
 
-test('create stateful task without title', async () => {
+test('create task without title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask();
   expect(task.id).equal('task-1');
   expect(task.name).equal('Task 1');
-  expect(task.state).equal('loading');
+  expect(task.state).equal('running');
   expect(apiSenderSendMock).toBeCalledWith(
     'task-created',
     expect.objectContaining({
@@ -79,12 +79,12 @@ test('create stateful task without title', async () => {
   );
 });
 
-test('create multiple stateful tasks with title', async () => {
+test('create multiple tasks with title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask({ title: 'title' });
   expect(task.id).equal('task-1');
   expect(task.name).equal('title');
-  expect(task.state).equal('loading');
+  expect(task.state).equal('running');
   expect(apiSenderSendMock).toBeCalledWith(
     'task-created',
     expect.objectContaining({
@@ -97,7 +97,7 @@ test('create multiple stateful tasks with title', async () => {
   const task2 = taskManager.createTask({ title: 'another title' });
   expect(task2.id).equal('task-2');
   expect(task2.name).equal('another title');
-  expect(task2.state).equal('loading');
+  expect(task2.state).equal('running');
   expect(apiSenderSendMock).toBeCalledWith(
     'task-created',
     expect.objectContaining({
@@ -110,7 +110,7 @@ test('create multiple stateful tasks with title', async () => {
   const task3 = taskManager.createTask({ title: 'third title' });
   expect(task3.id).equal('task-3');
   expect(task3.name).equal('third title');
-  expect(task3.state).equal('loading');
+  expect(task3.state).equal('running');
   expect(apiSenderSendMock).toBeCalledWith(
     'task-created',
     expect.objectContaining({
@@ -142,7 +142,7 @@ test('create notification task with body', async () => {
   );
 });
 
-test('create stateful task without body', async () => {
+test('create task without body', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
@@ -162,7 +162,7 @@ test('create stateful task without body', async () => {
   );
 });
 
-test('create stateful task with markdown actions', async () => {
+test('create task with markdown actions', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
@@ -237,13 +237,13 @@ test('create multiple stateful tasks with title', async () => {
   );
 });
 
-test('clear tasks should clear task not in loading state', async () => {
+test('clear tasks should clear task not in running state', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
   const task1 = taskManager.createTask({ title: 'Task 1' });
-  task1.state = 'success';
+  task1.status = 'success';
   const task2 = taskManager.createTask({ title: 'Task 2' });
-  task2.state = 'error';
+  task2.status = 'failure';
   const task3 = taskManager.createTask({ title: 'Task 3' });
 
   taskManager.clearTasks();
@@ -309,12 +309,13 @@ test('updating a task should notify apiSender', () => {
   const task = taskManager.createTask({ title: 'Task 1' });
   expect(apiSenderSendMock).toHaveBeenCalledWith('task-created', expect.anything());
 
-  task.state = 'success';
+  task.status = 'success';
 
   expect(apiSenderSendMock).toHaveBeenCalledWith(
     'task-updated',
     expect.objectContaining({
-      state: 'success',
+      state: 'completed',
+      status: 'success',
       id: task.id,
     }),
   );

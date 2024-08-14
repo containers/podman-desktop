@@ -21,7 +21,8 @@
 import type { Event } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { Task, TaskAction, TaskState, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import type { TaskManager } from './task-manager.js';
@@ -35,6 +36,7 @@ class TestTaskImpl implements Task {
     public readonly id: string,
     public name: string,
     public state: TaskState,
+    public status: TaskStatus,
   ) {
     this.started = 0;
   }
@@ -57,7 +59,7 @@ beforeEach(() => {
 });
 
 test('Should create a task and report update', async () => {
-  const task = new TestTaskImpl('test-task-id', 'test-title', 'loading');
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
   const progress = new ProgressImpl(taskManager);
@@ -67,7 +69,7 @@ test('Should create a task and report update', async () => {
 });
 
 test('Should create a task and report progress', async () => {
-  const task = new TestTaskImpl('test-task-id', 'test-title', 'loading');
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
   const progress = new ProgressImpl(taskManager);
@@ -80,7 +82,7 @@ test('Should create a task and report progress', async () => {
 });
 
 test('Should create a task and propagate the exception', async () => {
-  const task = new TestTaskImpl('test-task-id', 'test-title', 'loading');
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
   const progress = new ProgressImpl(taskManager);
@@ -97,7 +99,7 @@ test('Should create a task and propagate the exception', async () => {
 });
 
 test('Should create a task and propagate the result', async () => {
-  const task = new TestTaskImpl('test-task-id', 'test-title', 'loading');
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
   const progress = new ProgressImpl(taskManager);
@@ -114,7 +116,7 @@ test('Should create a task and propagate the result', async () => {
 });
 
 test('Should update the task name', async () => {
-  const task = new TestTaskImpl('test-task-id', 'test-title', 'loading');
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
   const progress = new ProgressImpl(taskManager);

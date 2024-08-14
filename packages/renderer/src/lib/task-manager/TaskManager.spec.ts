@@ -40,15 +40,17 @@ const started = new Date().getTime();
 const IN_PROGRESS_TASK: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
-  state: 'loading',
+  state: 'running',
+  status: 'in-progress',
   started,
 };
-const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', state: 'success', started };
+const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', state: 'completed', status: 'success', started };
 const NOTIFICATION_TASK: NotificationTaskInfo = {
   id: '1',
   name: 'Notification Task 1',
   body: ' description',
-  state: 'success',
+  status: 'success',
+  state: 'completed',
   started,
 };
 

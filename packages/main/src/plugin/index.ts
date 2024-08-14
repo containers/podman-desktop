@@ -1201,7 +1201,7 @@ export class PluginSystem {
             },
           )
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -1230,7 +1230,7 @@ export class PluginSystem {
         return containerProviderRegistry
           .exportContainer(engine, options)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -1251,7 +1251,7 @@ export class PluginSystem {
         return containerProviderRegistry
           .importContainer(options)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -1272,7 +1272,7 @@ export class PluginSystem {
         return containerProviderRegistry
           .saveImages(options)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -1293,7 +1293,7 @@ export class PluginSystem {
         return containerProviderRegistry
           .loadImages(options)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -1382,7 +1382,7 @@ export class PluginSystem {
         return cliToolRegistry
           .updateCliTool(id, logger)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((error: unknown) => {
@@ -1906,11 +1906,11 @@ export class PluginSystem {
         return providerRegistry
           .startProviderConnection(providerId, providerConnectionInfo, logger)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
-            task.state = 'error';
+            task.error = `Something went wrong while starting container provider: ${err}`;
             logger.error(err);
             throw err;
           })
@@ -1942,11 +1942,11 @@ export class PluginSystem {
         await providerRegistry
           .stopProviderConnection(providerId, providerConnectionInfo, logger)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
-            task.state = 'error';
+            task.error = `Something went wrong while stopping container provider: ${err}`;
             logger.error(err);
             throw err;
           })
@@ -1988,7 +1988,7 @@ export class PluginSystem {
         return providerRegistry
           .editProviderConnection(providerId, providerConnectionInfo, params, logger, token)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -2024,7 +2024,7 @@ export class PluginSystem {
         return providerRegistry
           .deleteProviderConnection(providerId, providerConnectionInfo, logger)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -2070,7 +2070,7 @@ export class PluginSystem {
         return providerRegistry
           .createContainerProviderConnection(internalProviderId, params, logger, token)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {
@@ -2127,7 +2127,7 @@ export class PluginSystem {
         return providerRegistry
           .createKubernetesProviderConnection(internalProviderId, params, logger, token)
           .then(result => {
-            task.state = 'success';
+            task.status = 'success';
             return result;
           })
           .catch((err: unknown) => {

@@ -18,7 +18,7 @@
 
 import type { Disposable, Event } from '@podman-desktop/api';
 
-export type TaskState = 'loading' | 'success' | 'error';
+import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
 export interface TaskAction {
   name: string;
@@ -35,6 +35,7 @@ export interface Task extends Disposable {
   name: string;
   readonly started: number;
   state: TaskState;
+  status: TaskStatus;
   error?: string;
   progress?: number;
   action?: TaskAction;

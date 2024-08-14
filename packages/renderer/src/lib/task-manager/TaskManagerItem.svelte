@@ -22,8 +22,8 @@ let showError = false;
 let icon: IconDefinition;
 let iconColor: string;
 onMount(() => {
-  switch (task.state) {
-    case 'loading':
+  switch (task.status) {
+    case 'in-progress':
       icon = faInfoCircle;
       iconColor = 'text-[var(--pd-invert-content-info-icon)]';
       break;
@@ -31,7 +31,7 @@ onMount(() => {
       icon = faSquareCheck;
       iconColor = 'text-[var(--pd-state-success)]';
       break;
-    case 'error':
+    case 'failure':
       icon = faTriangleExclamation;
       iconColor = 'text-[var(--pd-state-error)]';
       break;
@@ -63,7 +63,7 @@ function doExecuteAction(task: TaskInfo) {
 
       <div class="flex flex-col flex-grow items-end">
         <!-- if completed task, display a close icon-->
-        {#if task.state === 'success'}
+        {#if task.state === 'completed'}
           <button title="Clear notification" class="text-[var(--pd-modal-text)]" on:click={() => closeCompleted(task)}
             ><Fa size="0.75x" icon={faClose} /></button>
         {/if}
@@ -87,7 +87,7 @@ function doExecuteAction(task: TaskInfo) {
     </div>
 
     <!-- if in-progress task, display a link to resume-->
-    {#if task.state === 'loading'}
+    {#if task.state === 'running'}
       <div class="flex flex-row w-full">
         {#if (task.progress ?? 0) >= 0}
           <ProgressBar progress={task.progress} />
@@ -95,21 +95,19 @@ function doExecuteAction(task: TaskInfo) {
       </div>
     {/if}
 
-    {#if task.state !== 'error'}
+    {#if task.action}
       <div class="flex flex-row w-full">
         <div class="flex flex-1 flex-col w-full items-end text-[var(--pd-button-secondary)] text-xs">
-          {#if task.action}
-            <button
-              class="text-[var(--pd-button-secondary)] cursor-pointer"
-              on:click={() => doExecuteAction(task)}
-              aria-label="action button">{task.action}</button>
-          {/if}
+          <button
+            class="text-[var(--pd-button-secondary)] cursor-pointer"
+            on:click={() => doExecuteAction(task)}
+            aria-label="action button">{task.action}</button>
         </div>
       </div>
     {/if}
 
     <!-- if failed task, display the error-->
-    {#if task.state === 'error'}
+    {#if task.status === 'failure'}
       <div class="flex flex-col w-full items-end">
         <button on:click={() => (showError = !showError)} class="text-[var(--pd-button-secondary)] text-xs">
           View Error

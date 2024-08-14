@@ -31,6 +31,7 @@ export class NotificationImpl extends TaskImpl implements NotificationTask {
     public readonly highlight: boolean,
   ) {
     super(id, title);
-    this.mState = 'success';
+    this.mState = 'completed';
+    this.mStatus = 'success';
   }
 }

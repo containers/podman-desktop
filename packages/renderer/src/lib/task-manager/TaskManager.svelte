@@ -12,8 +12,8 @@ import TaskManagerGroup from './TaskManagerGroup.svelte';
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;
 
-$: runningTasks = $tasksInfo.filter(task => task.state === 'loading');
-$: completedTasks = $tasksInfo.filter(task => task.state !== 'loading');
+$: runningTasks = $tasksInfo.filter(task => task.state === 'running');
+$: completedTasks = $tasksInfo.filter(task => task.state !== 'running');
 
 // hide the task manager
 function hide() {

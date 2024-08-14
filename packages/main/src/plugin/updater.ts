@@ -178,7 +178,7 @@ export class Updater {
           await autoUpdater.downloadUpdate();
         } catch (error: unknown) {
           console.error('Update error: ', error);
-          this.#downloadTask.state = 'error';
+          this.#downloadTask.status = 'success';
           this.#downloadTask.error = `Unable to download ${updateVersion} update: ${String(error)}`;
           await this.messageBox.showMessageBox({
             type: 'error',
@@ -276,7 +276,7 @@ export class Updater {
     if (this.#downloadTask) {
       this.#downloadTask.progress = 100;
       this.#downloadTask.name = `Update v${updatedDownloadedEvent.version} downloaded`;
-      this.#downloadTask.state = 'success';
+      this.#downloadTask.status = 'success';
     }
 
     this.messageBox

@@ -29,7 +29,8 @@ const started = new Date().getTime();
 const IN_PROGRESS_TASK: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
-  state: 'loading',
+  state: 'running',
+  status: 'in-progress',
   started,
   action: 'Task action',
 };
@@ -37,7 +38,8 @@ const IN_PROGRESS_TASK: TaskInfo = {
 const IN_PROGRESS_TASK_2: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
-  state: 'loading',
+  state: 'running',
+  status: 'in-progress',
   started,
 };
 

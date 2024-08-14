@@ -104,7 +104,7 @@ export class TaskManager {
    */
   public clearTasks(): void {
     Array.from(this.tasks.values()).forEach(task => {
-      if (task.state !== 'loading') {
+      if (task.state !== 'running') {
         this.removeTask(task);
       }
     });
@@ -134,9 +134,10 @@ export class TaskManager {
         name: task.name,
         started: task.started,
         action: task.action?.name,
+        status: 'success',
         markdownActions: task.markdownActions,
-        body: task.body,
-        state: 'success',
+        body: task.body ?? '',
+        state: 'completed',
         error: undefined,
       };
     }
@@ -146,6 +147,7 @@ export class TaskManager {
       name: task.name,
       started: task.started,
       state: task.state,
+      status: task.status,
       progress: task.progress,
       error: task.error,
       action: task.action?.name,

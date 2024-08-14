@@ -101,13 +101,12 @@ export class ProgressImpl {
     )
       .then(value => {
         // Middleware to capture the success of the task
-        t.state = 'success';
+        t.status = 'success';
         // We propagate the result to the caller, so he can use the result
         return value;
       })
       .catch((err: unknown) => {
         // Middleware to set to error the task
-        t.state = 'error';
         t.error = String(err);
         // We propagate the error to the caller, so it can handle it if needed
         throw err;

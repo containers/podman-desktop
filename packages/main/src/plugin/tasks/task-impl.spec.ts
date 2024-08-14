@@ -65,11 +65,12 @@ describe('update field should send an update event', () => {
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
-    task.state = 'error';
+    task.status = 'failure';
     expect(onUpdateListenerMock).toHaveBeenCalledWith({
       action: 'update',
       task: expect.objectContaining({
-        state: 'error',
+        state: 'completed',
+        status: 'failure',
       }),
     });
   });
@@ -84,7 +85,8 @@ describe('update field should send an update event', () => {
       action: 'update',
       task: expect.objectContaining({
         error: 'random error',
-        state: 'error',
+        state: 'completed',
+        status: 'failure',
       }),
     });
   });
