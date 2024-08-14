@@ -18,14 +18,11 @@
 
 export type TaskState = 'loading' | 'success' | 'error';
 
-export interface NotificationTaskInfo extends TaskInfo {
+export type NotificationTaskInfo = Omit<TaskInfo, 'progress' | 'error'> & {
+  state: 'success';
   body: string;
   markdownActions?: string;
-  // overwrite some fields type
-  state: 'success';
-  progress: undefined;
-  error: undefined;
-}
+};
 
 export interface TaskInfo {
   id: string;

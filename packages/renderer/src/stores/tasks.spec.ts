@@ -31,8 +31,6 @@ const NOTIFICATION_TASK: NotificationTaskInfo = {
   name: 'Notification Task 1',
   body: ' description',
   state: 'success',
-  error: undefined,
-  progress: undefined,
   started,
 };
 
