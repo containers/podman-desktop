@@ -37,7 +37,10 @@ async function refreshTerminal(): Promise<void> {
     disableStdin: disableStdIn,
     theme: getTerminalTheme(),
     convertEol: convertEol,
+<<<<<<< HEAD
     screenReaderMode: screenReaderMode,
+=======
+>>>>>>> 0fd5b269 (chore: move terminal to use TerminalWindow UI component)
   });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);

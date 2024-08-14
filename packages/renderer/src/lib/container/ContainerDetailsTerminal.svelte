@@ -114,26 +114,13 @@ async function refreshTerminal() {
     theme: getTerminalTheme(),
   });
   if (existingTerminal) {
-<<<<<<< HEAD
-=======
     sendCallbackId = existingTerminal.callbackId;
     shellTerminal = existingTerminal.terminal;
->>>>>>> 4bf6440a (chore: remove console logs)
     shellTerminal.options = {
       fontSize,
       lineHeight,
     };
-<<<<<<< HEAD
     shellTerminal.write(existingTerminal.terminal);
-=======
-  } else {
-    shellTerminal = new Terminal({
-      fontSize,
-      lineHeight,
-      screenReaderMode,
-      theme: getTerminalTheme(),
-    });
->>>>>>> 4bf6440a (chore: remove console logs)
   }
   const fitAddon = new FitAddon();
   serializeAddon = new SerializeAddon();
