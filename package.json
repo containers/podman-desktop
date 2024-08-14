@@ -205,6 +205,7 @@
   "resolutions": {
     "trim": "0.0.3",
     "ssh2": "1.11.0",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "**/react-dev-utils/loader-utils": "^3.2.1"
   }
 }
