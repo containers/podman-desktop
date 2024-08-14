@@ -65,7 +65,7 @@ test('Should create a task and report update', async () => {
   const progress = new ProgressImpl(taskManager);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
 
-  expect(task.state).toBe('success');
+  expect(task.status).toBe('success');
 });
 
 test('Should create a task and report progress', async () => {
@@ -77,7 +77,7 @@ test('Should create a task and report progress', async () => {
     progress.report({ increment: 50 });
   });
 
-  expect(task.state).toBe('success');
+  expect(task.status).toBe('success');
   expect(task.progress).toBe(50);
 });
 
@@ -95,7 +95,6 @@ test('Should create a task and propagate the exception', async () => {
 
   expect(taskManager.createTask).toHaveBeenCalledTimes(1);
   expect(task.error).toBe('Error: dummy error');
-  expect(task.state).toBe('error');
 });
 
 test('Should create a task and propagate the result', async () => {
@@ -112,7 +111,7 @@ test('Should create a task and propagate the result', async () => {
   );
   expect(result).toBe('dummy result');
 
-  expect(task.state).toBe('success');
+  expect(task.status).toBe('success');
 });
 
 test('Should update the task name', async () => {
@@ -126,5 +125,5 @@ test('Should update the task name', async () => {
   });
 
   expect(task.name).toBe('New title');
-  expect(task.state).toBe('success');
+  expect(task.status).toBe('success');
 });

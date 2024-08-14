@@ -30,5 +30,5 @@ test('NotificationImpl should have success state', () => {
     'info',
     false,
   );
-  expect(notificationTask.state).toBe('success');
+  expect(notificationTask.state).toBe('completed');
 });
