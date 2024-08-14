@@ -14,9 +14,9 @@ Containers can be created, started, stopped, and deleted as if managed locally.
 
 This functionality is enabled by connecting via SSH to the Podman socket on the remote host.
 
-**Ed25519** keys, an **SSH** connection, and an enabled **Podman Socket** are required for remote access.
+**ed25519** keys, an **SSH** connection, and an enabled **Podman Socket** are required for remote access.
 
-RSA keys are _not supported_; Ed25519 keys are the recommended and only current method to set up a remote connection.
+[RSA keys are not supported](https://github.com/mscdex/ssh2/issues/1375); ed25519 keys are the recommended and only current method to set up a remote connection.
 
 #### Prerequisites
 
@@ -24,17 +24,19 @@ RSA keys are _not supported_; Ed25519 keys are the recommended and only current 
 
 #### Procedure
 
-1. Enable Podman Remote in the Podman **Settings**:
+Podman Desktop will automatically detect and show any `podman system connection ls` connections within the GUI by enabling the setting:
 
 ![Enable the remote setting](img/remote.png)
 
-2. Generate a local Ed25519 key:
+If you have not added a remote podman connection yet, you can follow the [official Podman guide](https://github.com/containers/podman/blob/main/docs/tutorials/remote_client.md) or follow the steps below:
+
+1. Generate a local ed25519 key:
 
 ```sh
 $ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
 ```
 
-3. Copy your **public** Ed25519 key to the server:
+2. Copy your **public** ed25519 key to the server:
 
 Your public SSH key needs to be copied to the `~/.ssh/authorized_keys` file on the Linux server:
 
@@ -42,7 +44,7 @@ Your public SSH key needs to be copied to the `~/.ssh/authorized_keys` file on t
 $ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@my-server-ip
 ```
 
-4. Enable the Podman socket on the remote connection:
+3. Enable the Podman socket on the remote connection:
 
 By default, the podman.socket is **disabled** in Podman installations. Enabling the systemd socket allows remote clients to control Podman.
 
@@ -51,7 +53,13 @@ $ systemctl enable podman.socket
 $ systemctl start podman.socket
 ```
 
-5. Add the connection to `podman system connection ls`:
+Confirm that the socket is enabled by checking the status:
+
+```sh
+$ systemctl status podman.socket
+```
+
+4. Add the connection to `podman system connection ls`:
 
 It's important to know which socket path you are using, as this varies between regular users and root.
 
@@ -79,7 +87,7 @@ $ podman system connection add my-remote-machine --identity ~/.ssh/id_ed25519 ss
 $ podman system connection add my-remote-machine --identity ~/.ssh/id_ed25519 ssh://root@my-server-ip/run/podman/podman.sock
 ```
 
-6. Check within Podman Desktop such as the **Containers** section that you can now access your remote instance.
+5. Check within Podman Desktop such as the **Containers** section that you can now access your remote instance.
 
 #### Verification
 
