@@ -18,8 +18,8 @@
 import type * as extensionApi from '@podman-desktop/api';
 
 import { findWindow } from '../../util.js';
-import { CancellationTokenImpl } from './cancellation-token.js';
-import type { TaskManager } from './tasks/task-manager.js';
+import { CancellationTokenImpl } from '../cancellation-token.js';
+import type { TaskManager } from './task-manager.js';
 
 export enum ProgressLocation {
   /**

@@ -24,7 +24,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { Task, TaskAction, TaskState, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
-import type { TaskManager } from './tasks/task-manager.js';
+import type { TaskManager } from './task-manager.js';
 
 const taskManager = {
   createTask: vi.fn(),
