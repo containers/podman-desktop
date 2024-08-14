@@ -123,7 +123,7 @@ To verify that Podman is set up:
 ### Use Hyper-V as machine provider
 
 In order to tell podman to use Hyper-V when creating a podman machine, one needs to setup either:
-* environment variable: `CONTAINERS_MACHINE_PROVIDER=hyperv` on the terminal session or as system env. var.
+* environment variable: `CONTAINERS_MACHINE_PROVIDER=hyperv` on the terminal session or as system environment variable.
 OR
 * configure container.conf file attribute provider before creating a machine, the file might be placed at `~/.config/containers/containers.conf` (not supported atm) or under `AppData`: `C:\Users\myuser\AppData\Roaming\containers\containers.conf`
 ```powershell
