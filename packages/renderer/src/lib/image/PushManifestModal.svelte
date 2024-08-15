@@ -6,9 +6,8 @@ import { Terminal } from '@xterm/xterm';
 import { tick } from 'svelte';
 import { router } from 'tinro';
 
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import Dialog from '../dialogs/Dialog.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
@@ -16,47 +15,11 @@ export let manifestInfoToPush: ImageInfoUI;
 
 let pushInProgress = false;
 let pushFinished = false;
+let initTerminal = false;
 let logsPush: Terminal;
 
-let terminalIntialized = false;
-
-async function initTerminal() {
-  if (terminalIntialized) {
-    return;
-  }
-
-  // missing element, return
-  if (!pushLogsXtermDiv) {
-    return;
-  }
-
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsPush = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme() });
-  const fitAddon = new FitAddon();
-  logsPush.loadAddon(fitAddon);
-
-  logsPush.open(pushLogsXtermDiv);
-  // disable cursor
-  logsPush.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    fitAddon.fit();
-  });
-  fitAddon.fit();
-  terminalIntialized = true;
-}
-
 async function pushManifest() {
-  await tick();
-  await initTerminal();
+  initTerminal = true;
   await tick();
   logsPush?.reset();
 
@@ -78,7 +41,6 @@ async function pushManifestFinished() {
   closeCallback();
   router.goto('/images');
 }
-let pushLogsXtermDiv: HTMLDivElement;
 </script>
 
 <Dialog
@@ -97,7 +59,9 @@ let pushLogsXtermDiv: HTMLDivElement;
         {/if}
       </p>
     {/if}
-    <div bind:this={pushLogsXtermDiv}></div>
+    <div hidden={initTerminal === false}>
+      <TerminalWindow bind:terminal={logsPush} disableStdIn />
+    </div>
   </div>
 
   <svelte:fragment slot="buttons">

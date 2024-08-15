@@ -10,6 +10,7 @@ import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let container: ContainerInfoUI;
+export let screenReaderMode = false;
 let attachContainerTerminal: Terminal;
 let closed = false;
 
@@ -49,7 +50,7 @@ onMount(async () => {
 </script>
 
 <div class="h-full" class:hidden={container.state !== 'RUNNING'}>
-  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} />
+  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} screenReaderMode={screenReaderMode} />
 </div>
 
 <EmptyScreen

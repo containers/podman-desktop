@@ -37,10 +37,7 @@ async function refreshTerminal(): Promise<void> {
     disableStdin: disableStdIn,
     theme: getTerminalTheme(),
     convertEol: convertEol,
-<<<<<<< HEAD
     screenReaderMode: screenReaderMode,
-=======
->>>>>>> 0fd5b269 (chore: move terminal to use TerminalWindow UI component)
   });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
@@ -61,6 +58,8 @@ async function refreshTerminal(): Promise<void> {
 onMount(async () => {
   await refreshTerminal();
   dispatch('init');
+  await new Promise(resolve => setTimeout(resolve, 20));
+  window.dispatchEvent(new Event('resize'));
 });
 
 onDestroy(() => {

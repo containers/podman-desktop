@@ -15,7 +15,7 @@ export let container: ContainerInfoUI;
 // Log
 let refContainer: ContainerInfoUI;
 // logs has been initialized
-let noLogs = false;
+let noLogs = true;
 
 // need to refresh logs when container is switched or state changes
 $: {

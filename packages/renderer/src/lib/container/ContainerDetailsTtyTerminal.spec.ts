@@ -68,15 +68,18 @@ test('expect being able to attach terminal ', async () => {
   // wait attachContainerMock is called
   await waitFor(() => expect(attachContainerMock).toHaveBeenCalled());
 
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
   // write some data on the terminal
   onDataCallback(Buffer.from('hello\nworld'));
 
   // wait 1s
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 2500));
 
   // search a div having aria-live="assertive" attribute
+  await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]') !== undefined);
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
-
+  console.log(terminalLinesLiveRegion);
   // check the content
   expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
 
