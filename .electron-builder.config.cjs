@@ -86,7 +86,6 @@ const config = {
     // universal build, add both pkg files
     // this is hack to avoid issue https://github.com/electron/universal/issues/36
     if(context.appOutDir.endsWith('mac-universal-x64-temp') || context.appOutDir.endsWith('mac-universal-arm64-temp')){
-      context.packager.config.extraResources  = DEFAULT_ASSETS;
       context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-universal*.pkg');
       return;
     }
@@ -120,7 +119,7 @@ const config = {
   afterPack: async context => {
     await addElectronFuses(context);
   },
-  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
+  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**', 'packages/main/src/assets/**'],
   portable: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
   },
