@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { nativeTheme } from 'electron';
+
 import { AppearanceSettings } from './appearance-settings.js';
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
@@ -38,5 +40,22 @@ export class AppearanceInit {
     };
 
     this.configurationRegistry.registerConfigurations([appearanceConfiguration]);
+
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
+      if (e.key === AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance) {
+        this.updateNativeTheme(e.value);
+      }
+    });
+  }
+
+  updateNativeTheme(appearance: string): void {
+    // appearance config values match the enum values for themeSource, but lets be expicit
+    if (appearance === AppearanceSettings.LightEnumValue) {
+      nativeTheme.themeSource = 'light';
+    } else if (appearance === AppearanceSettings.DarkEnumValue) {
+      nativeTheme.themeSource = 'dark';
+    } else {
+      nativeTheme.themeSource = 'system';
+    }
   }
 }
