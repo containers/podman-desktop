@@ -42,7 +42,7 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import checkDiskSpacePkg from 'check-disk-space';
 import type Dockerode from 'dockerode';
 import type { WebContents } from 'electron';
-import { app, BrowserWindow, clipboard, ipcMain, nativeTheme, shell } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron/main';
 
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
@@ -1892,10 +1892,6 @@ export class PluginSystem {
     });
     this.ipcHandle('os:getHostCpu', async (): Promise<number> => {
       return os.cpus().length;
-    });
-
-    this.ipcHandle('native:theme', async (_listener, themeSource: 'system' | 'light' | 'dark'): Promise<void> => {
-      nativeTheme.themeSource = themeSource;
     });
 
     this.ipcHandle(
