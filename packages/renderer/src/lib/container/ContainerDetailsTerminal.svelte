@@ -122,6 +122,7 @@ async function refreshTerminal() {
     };
     shellTerminal.write(existingTerminal.terminal);
   }
+
   const fitAddon = new FitAddon();
   serializeAddon = new SerializeAddon();
   shellTerminal.loadAddon(fitAddon);
