@@ -140,7 +140,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "31.3.1",
+    "electron": "31.4.0",
     "electron-builder": "24.13.3",
     "electron-builder-notarize": "^1.5.2",
     "electron-devtools-installer": "^3.2.0",
@@ -184,7 +184,7 @@
     "date.js": "^0.3.3",
     "dockerode": "^4.0.2",
     "electron-context-menu": "^4.0.1",
-    "electron-updater": "6.2.1",
+    "electron-updater": "6.3.3",
     "electron-util": "^0.18.1",
     "express": "^4.19.2",
     "getos": "^3.2.1",
@@ -205,6 +205,8 @@
   "resolutions": {
     "trim": "0.0.3",
     "ssh2": "1.11.0",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "**/react-dev-utils/loader-utils": "^3.2.1",
+    "**/recursive-readdir/minimatch": "^3.0.5"
   }
 }

@@ -175,7 +175,6 @@ const config = {
     icon: './buildResources/icon-512x512.png',
     target: ['flatpak', 'tar.gz'],
   },
-  afterSign: 'electron-builder-notarize',
   mac: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
     hardenedRuntime: true,
@@ -220,6 +219,12 @@ if (process.env.AIRGAP_DOWNLOAD) {
     publishAutoUpdate: false,
     provider: 'github'
   };
+}
+
+if (process.env.APPLE_TEAM_ID) {
+  config.mac.notarize = {
+    teamId: process.env.APPLE_TEAM_ID,
+  }
 }
 
 const azureCodeSign = filePath => {

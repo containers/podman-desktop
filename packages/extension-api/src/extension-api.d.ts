@@ -139,7 +139,7 @@ declare module '@podman-desktop/api' {
     event: Event<T>;
     /**
      * To fire an event to the subscribers
-     * @param event The event to send to the registered listeners
+     * @param data The event to send to the registered listeners
      */
     fire(data: T): void;
     /**
@@ -2114,7 +2114,6 @@ declare module '@podman-desktop/api' {
 
     /**
      * Add a KubernetesGenerator to KubernetesGeneratorRegistry
-     * @param selector
      * @param provider the custom provider to add
      */
     export function registerKubernetesGenerator(provider: KubernetesGeneratorProvider): Disposable;
@@ -3953,7 +3952,7 @@ declare module '@podman-desktop/api' {
      * @param id The unique identifier of the provider.
      * @param label The human-readable name of the provider.
      * @param provider The authentication provider provider.
-     * @params options Additional options for the provider.
+     * @param options Additional options for the provider.
      * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
      */
     export function registerAuthenticationProvider(
@@ -4007,7 +4006,7 @@ declare module '@podman-desktop/api' {
     /**
      * Opens a link externally using the default application. Depending on the
      *
-     * @param target The uri that should be opened.
+     * @param uri The uri that should be opened.
      * @returns A promise indicating if open was successful.
      */
     export function openExternal(uri: Uri): Promise<boolean>;
