@@ -132,7 +132,7 @@ const config = {
   afterPack: async context => {
     await addElectronFuses(context);
   },
-  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
+  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**', 'packages/main/src/assets/**'],
   portable: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
   },
