@@ -65,7 +65,7 @@ async function addElectronFuses(context) {
   });
 }
 
-const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
+const DEFAULT_ASSETS = [];
 
 /**
  * @type {import('electron-builder').Configuration}
