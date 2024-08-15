@@ -6,7 +6,7 @@
   <developer id="com.redhat">
     <name>Red Hat, Inc.</name>
   </developer>
-  <summary>Manage Podman and other container engines from a single UI and tray</summary>
+  <summary>Manage Podman and other container engines from a single UI</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://podman-desktop.io/</url>
   <url type="bugtracker">https://github.com/containers/podman-desktop/issues</url>
