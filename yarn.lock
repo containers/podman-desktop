@@ -4494,12 +4494,7 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.4.15":
-  version "1.4.15"
-  resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz#d7c6e6755c78567a951e04ab52ef0fd26de59f32"
-  integrity sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==
-
-"@jridgewell/sourcemap-codec@^1.5.0":
+"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.4.15", "@jridgewell/sourcemap-codec@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.0.tgz#3188bcb273a414b0d215fd22a58540b989b9409a"
   integrity sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==
@@ -18914,10 +18909,10 @@ svelte2tsx@~0.7.0:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@5.0.0-next.210:
-  version "5.0.0-next.210"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.210.tgz#c20f9e8a6be9cbfd4b911f263c50c0caa3b7c521"
-  integrity sha512-6QZpzr31weKDyAKifOdXJHK9oEeBE2Z/z/h1IX4tmJRuWPE/2Wc7Lzpfxl+0irS19GZH6V5YZnZLNTRJKjGzfg==
+svelte@5.0.0-next.222:
+  version "5.0.0-next.222"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.222.tgz#a2b86db6d54cd008541d560d20172d0105ea7686"
+  integrity sha512-+dPkIIyoqDYVwBBJL/nu3at8oCfg5jsUx+/qLl6/l2QpLrXVN4zfe9VS4rc//qNJmA59i/TBzWGRl/KTplQVTw==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
