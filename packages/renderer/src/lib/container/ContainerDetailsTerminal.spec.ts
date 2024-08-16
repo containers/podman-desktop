@@ -67,7 +67,7 @@ test('expect being able to reconnect ', async () => {
   );
 
   // render the component with a terminal
-  const renderObject = render(ContainerDetailsTerminal, { container, screenReaderMode: true });
+  let renderObject = render(ContainerDetailsTerminal, { container, screenReaderMode: true });
 
   // wait shellInContainerMock is called
   await waitFor(() => expect(shellInContainerMock).toHaveBeenCalled());
@@ -96,11 +96,19 @@ test('expect being able to reconnect ', async () => {
   expect(terminalsAfterDestroy.length).toBe(1);
 
   // ok, now render a new terminal widget, it should reuse data from the store
-  render(ContainerDetailsTerminal, { container, screenReaderMode: true });
+  renderObject = render(ContainerDetailsTerminal, { container, screenReaderMode: true });
+
+  // wait shellInContainerMock is called
+  await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledTimes(2));
 
   // wait 1s that everything is done
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // no new call to shellInContainerMock should be done
-  expect(shellInContainerMock).toHaveBeenCalledTimes(1);
+  const terminalLinesLiveRegion2 = renderObject.container.querySelector('div[aria-live="assertive"]');
+
+  // check the content
+  expect(terminalLinesLiveRegion2).toHaveTextContent('hello world');
+
+  // creating a new terminal requires new shellInContainer call
+  expect(shellInContainerMock).toHaveBeenCalledTimes(2);
 });

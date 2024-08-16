@@ -33,7 +33,7 @@ export interface TerminalOfContainer {
   // id of the callbacks
   callbackId?: number;
 
-  terminal: Terminal;
+  terminal: string;
 }
 
 /**
@@ -68,6 +68,10 @@ containersInfos.subscribe(containers => {
 
 export function registerTerminal(terminal: TerminalOfContainer) {
   containerTerminals.update(terminals => {
+    // remove old instance(s) of terminal if exists
+    terminals = terminals.filter(
+      term => !(terminal.containerId === term.containerId && terminal.engineId === term.engineId),
+    );
     terminals.push(terminal);
     return terminals;
   });
