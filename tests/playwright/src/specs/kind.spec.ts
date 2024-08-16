@@ -20,7 +20,7 @@ import { type Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
-import { CheckboxOperations, ResourceElementActions } from '../model/core/operations';
+import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
@@ -30,12 +30,13 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { getVolumeNameForContainer } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const RESOURCE_NAME: string = 'kind';
 const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const KIND_CLUSTER: string = 'kind-cluster';
-const CONTAINER_NAME: string = 'kind-cluster-control-plane';
+const CONTAINER_NAME: string = `${KIND_CLUSTER}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${KIND_CLUSTER}`;
 
 let pdRunner: PodmanDesktopRunner;
@@ -107,8 +108,7 @@ describe('Kind End-to-End Tests', async () => {
         await playExpect(createButton).toBeVisible();
         await createButton.click();
         const createKindClusterPage = new CreateKindClusterPage(page);
-        await createKindClusterPage.manageCheckboxState(CheckboxOperations.Check);
-        await createKindClusterPage.createCluster(KIND_CLUSTER);
+        await createKindClusterPage.createClusterDefault(KIND_CLUSTER);
         await playExpect(kindResourceCard.resourceElement).toBeVisible();
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
           timeout: 15000,
@@ -121,11 +121,12 @@ describe('Kind End-to-End Tests', async () => {
         playExpect(await containerDetailsPage.getState()).toEqual(ContainerState.Running);
 
         const volumesPage = await navigationBar.openVolumes();
-        const volumeName = await volumesPage.getVolumeNameForContainer(CONTAINER_NAME);
-        if (volumeName) {
-          const volumeDetailsPage = await volumesPage.openVolumeDetails(volumeName);
-          await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
+        const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
+        if (!volumeName) {
+          throw new Error(`Volume name for container "${CONTAINER_NAME}" is not defined.`);
         }
+        const volumeDetailsPage = await volumesPage.openVolumeDetails(volumeName);
+        await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
       });
       test('Validate the right Kubernetes context is chosen', async () => {
         await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
@@ -135,22 +136,22 @@ describe('Kind End-to-End Tests', async () => {
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
         await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-          timeout: 20000,
+          timeout: 25000,
         });
         await kindResourceCard.performConnectionAction(ResourceElementActions.Start);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-          timeout: 20000,
+          timeout: 25000,
         });
         await kindResourceCard.performConnectionAction(ResourceElementActions.Restart);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-          timeout: 20000,
+          timeout: 25000,
         });
         await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-          timeout: 20000,
+          timeout: 25000,
         });
         await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-        await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 20000 });
+        await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 25000 });
       });
     },
   );

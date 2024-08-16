@@ -20,3 +20,12 @@ export interface ContainerInteractiveParams {
   interactive?: boolean;
   attachTerminal?: boolean;
 }
+
+export interface KindClusterOptions {
+  clusterName?: string;
+  changeProvideType?: boolean;
+  httpPort?: string;
+  httpsPort?: string;
+  disableIngressController?: boolean;
+  containerImage?: string;
+}

@@ -76,7 +76,8 @@ export abstract class MainPage extends BasePage {
   }
 
   async getAllTableRows(): Promise<Array<Locator>> {
-    return await this.getTable().getByRole('row').all();
+    const table = await this.getTable();
+    return await table.getByRole('row').all();
   }
 
   async getRowFromTableByName(name: string): Promise<Locator | undefined> {

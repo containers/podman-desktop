@@ -22,8 +22,3 @@ export enum ResourceElementActions {
   Stop = 'Stop',
   Delete = 'Delete',
 }
-
-export enum CheckboxOperations {
-  Check = 'check',
-  Uncheck = 'uncheck',
-}

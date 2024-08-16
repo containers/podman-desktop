@@ -18,7 +18,7 @@
 
 import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
-import { CheckboxOperations } from '../core/operations';
+import type { KindClusterOptions } from '../core/types';
 import { BasePage } from './base-page';
 
 export class CreateKindClusterPage extends BasePage {
@@ -29,6 +29,10 @@ export class CreateKindClusterPage extends BasePage {
   readonly goBackButton: Locator;
   readonly checkboxHolder: Locator;
   readonly logsButton: Locator;
+  readonly providerType: Locator;
+  readonly httpPort: Locator;
+  readonly httpsPort: Locator;
+  readonly containerImage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -40,42 +44,63 @@ export class CreateKindClusterPage extends BasePage {
     // Locator for the parent element of the ingress controller checkbox, used to change its value
     this.checkboxHolder = this.controllerCheckbox.locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
+    this.logsButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Show Logs' });
+    this.providerType = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
+    this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
+    this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
+    this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
     this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
-    this.logsButton = this.page.getByRole('button', { name: 'Show Logs' });
   }
 
-  public async createCluster(clusterName: string): Promise<void> {
-    await playExpect(this.clusterNameField).toBeVisible();
-    if ((await this.clusterNameField.textContent()) !== clusterName) {
-      await this.clusterNameField.fill('');
-      await this.clusterNameField.fill(clusterName);
+  public async createClusterDefault(clusterName: string): Promise<void> {
+    await this.fillTextbox(this.clusterNameField, clusterName);
+    await playExpect(this.providerType).toHaveValue('podman');
+    await playExpect(this.httpPort).toHaveValue('9090');
+    await playExpect(this.httpsPort).toHaveValue('9443');
+    await playExpect(this.checkboxHolder).toBeChecked();
+    await playExpect(this.containerImage).toBeEmpty();
+    await this.createCluster();
+  }
+
+  public async createClusterParametrized({
+    clusterName = 'kind-cluster',
+    changeProvideType = false,
+    httpPort = '9090',
+    httpsPort = '9443',
+    disableIngressController = false,
+    containerImage = '',
+  }: KindClusterOptions = {}): Promise<void> {
+    await this.fillTextbox(this.clusterNameField, clusterName);
+
+    if (changeProvideType) {
+      await playExpect(this.providerType).toBeVisible();
+      await this.providerType.selectOption({ value: 'docker' });
+      await playExpect(this.providerType).toHaveValue('docker');
     }
+
+    await this.fillTextbox(this.httpPort, httpPort);
+    await this.fillTextbox(this.httpsPort, httpsPort);
+
+    if (disableIngressController) {
+      await playExpect(this.checkboxHolder).toBeEnabled();
+      await this.checkboxHolder.uncheck();
+      await playExpect(this.checkboxHolder).not.toBeChecked();
+    }
+
+    await this.fillTextbox(this.containerImage, containerImage);
+    await this.createCluster();
+  }
+
+  private async createCluster(): Promise<void> {
     await playExpect(this.clusterCreationButton).toBeVisible();
     await this.clusterCreationButton.click();
     await playExpect(this.goBackButton).toBeVisible({ timeout: 120000 });
     await this.goBackButton.click();
   }
 
-  public async manageCheckboxState(operation: CheckboxOperations): Promise<void> {
-    await playExpect(this.controllerCheckbox).toBeVisible();
-
-    const isChecked = await this.checkboxHolder.isChecked();
-    if (
-      (operation === CheckboxOperations.Check && isChecked) ||
-      (operation === CheckboxOperations.Uncheck && !isChecked)
-    ) {
-      return;
-    }
-
-    switch (operation) {
-      case CheckboxOperations.Check:
-        await this.checkboxHolder.check();
-        await playExpect(this.controllerCheckbox).toBeChecked();
-        break;
-      case CheckboxOperations.Uncheck:
-        await this.checkboxHolder.uncheck();
-        await playExpect(this.controllerCheckbox).not.toBeChecked();
-        break;
-    }
+  private async fillTextbox(textbox: Locator, text: string): Promise<void> {
+    await playExpect(textbox).toBeVisible();
+    await textbox.fill(text);
+    await playExpect(textbox).toHaveValue(text);
   }
 }
