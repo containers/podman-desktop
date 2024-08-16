@@ -27,7 +27,6 @@ export class CreateKindClusterPage extends BasePage {
   readonly controllerCheckbox: Locator;
   readonly clusterCreationButton: Locator;
   readonly goBackButton: Locator;
-  readonly checkboxHolder: Locator;
   readonly logsButton: Locator;
   readonly providerType: Locator;
   readonly httpPort: Locator;
@@ -38,11 +37,12 @@ export class CreateKindClusterPage extends BasePage {
     super(page);
     this.clusterPropertiesInformation = this.page.getByRole('form', { name: 'Properties Information' });
     this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
-    this.controllerCheckbox = this.clusterPropertiesInformation.getByRole('checkbox', {
-      name: 'Setup an ingress controller',
-    });
     // Locator for the parent element of the ingress controller checkbox, used to change its value
-    this.checkboxHolder = this.controllerCheckbox.locator('..');
+    this.controllerCheckbox = this.clusterPropertiesInformation
+      .getByRole('checkbox', {
+        name: 'Setup an ingress controller',
+      })
+      .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Show Logs' });
     this.providerType = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
@@ -57,7 +57,7 @@ export class CreateKindClusterPage extends BasePage {
     await playExpect(this.providerType).toHaveValue('podman');
     await playExpect(this.httpPort).toHaveValue('9090');
     await playExpect(this.httpsPort).toHaveValue('9443');
-    await playExpect(this.checkboxHolder).toBeChecked();
+    await playExpect(this.controllerCheckbox).toBeChecked();
     await playExpect(this.containerImage).toBeEmpty();
     await this.createCluster();
   }
@@ -82,9 +82,9 @@ export class CreateKindClusterPage extends BasePage {
     await this.fillTextbox(this.httpsPort, httpsPort);
 
     if (disableIngressController) {
-      await playExpect(this.checkboxHolder).toBeEnabled();
-      await this.checkboxHolder.uncheck();
-      await playExpect(this.checkboxHolder).not.toBeChecked();
+      await playExpect(this.controllerCheckbox).toBeEnabled();
+      await this.controllerCheckbox.uncheck();
+      await playExpect(this.controllerCheckbox).not.toBeChecked();
     }
 
     await this.fillTextbox(this.containerImage, containerImage);
