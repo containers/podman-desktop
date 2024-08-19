@@ -79,7 +79,7 @@ export async function deleteImage(page: Page, name: string): Promise<void> {
     console.log(`image '${name}' does not exist, skipping...`);
   } else {
     const deleteButton = row.getByRole('button', { name: 'Delete Image' });
-    if (await deleteButton.isEnabled({ timeout: 2000 })) {
+    if (await deleteButton.isEnabled({ timeout: 2_000 })) {
       await deleteButton.click();
       await handleConfirmationDialog(page);
     } else {
@@ -94,7 +94,7 @@ export async function deleteImage(page: Page, name: string): Promise<void> {
           const result = await images.getImageRowByName(name);
           return !!result;
         },
-        { timeout: 10000, sendError: false },
+        { timeout: 10_000, sendError: false },
       );
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
@@ -140,7 +140,7 @@ export async function deletePod(page: Page, name: string): Promise<void> {
         async () => {
           return !!(await pods.getPodRowByName(name));
         },
-        { timeout: 20000 },
+        { timeout: 20_000 },
       );
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
@@ -160,7 +160,7 @@ export async function handleConfirmationDialog(
 ): Promise<void> {
   // wait for dialog to appear using waitFor
   const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
-  await dialog.waitFor({ state: 'visible', timeout: 3000 });
+  await dialog.waitFor({ state: 'visible', timeout: 3_000 });
   const button = confirm
     ? dialog.getByRole('button', { name: confirmationButton })
     : dialog.getByRole('button', { name: cancelButton });
@@ -176,11 +176,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   const RESOURCE_NAME: string = 'podman';
   const navigationBar = new NavigationBar(page);
   const dashboardPage = await navigationBar.openDashboard();
-  await playExpect(dashboardPage.mainPage).toBeVisible({ timeout: 3000 });
+  await playExpect(dashboardPage.mainPage).toBeVisible({ timeout: 3_000 });
   const settingsBar = await navigationBar.openSettings();
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect
-    .poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME), { timeout: 10000 })
+    .poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME), { timeout: 10_000 })
     .toBeTruthy();
   const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineVisibleName);
   await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10_000 });
@@ -188,11 +188,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     async function machineExists() {
       return await podmanResourceCard.resourceElement.isVisible();
     },
-    { timeout: 15000, sendError: false },
+    { timeout: 15_000, sendError: false },
   );
   if (await podmanResourceCard.resourceElement.isVisible()) {
-    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
-    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
+    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3_000 });
+    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3_000 });
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Starting) {
       console.log('Podman machine is in starting currently, will send stop command via CLI');
       // eslint-disable-next-line sonarjs/os-command
