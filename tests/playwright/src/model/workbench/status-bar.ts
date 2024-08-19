@@ -30,7 +30,7 @@ export class StatusBar extends BasePage {
     this.kindInstallationButton = this.page.getByTitle(
       'Kind not found on your system, click to download and install it',
     );
-    this.kubernetesContext = this.page.getByTitle('Current Kubernetes contex');
+    this.kubernetesContext = this.page.getByTitle('Current Kubernetes Context');
   }
 
   public async installKindCLI(): Promise<void> {

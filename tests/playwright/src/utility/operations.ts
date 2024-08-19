@@ -28,7 +28,6 @@ import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumeDetailsPage } from '../model/pages/volume-details-page';
-import { VolumesPage } from '../model/pages/volumes-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { waitUntil, waitWhile } from './wait';
@@ -219,9 +218,10 @@ export function checkForFailedTest(result: TaskResult, runner: PodmanDesktopRunn
 }
 
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string | undefined> {
-  const volumePage = new VolumesPage(page);
+  const navigationBar = new NavigationBar(page);
+  const volumePage = await navigationBar.openVolumes();
   const rows = await volumePage.getAllTableRows();
-  for (let i = rows.length - 1; i >= 0; i--) {
+  for (let i = rows.length - 1; i > 0; i--) {
     const volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
     if (volumeName) {
       const volumeDetails = await volumePage.openVolumeDetails(volumeName);

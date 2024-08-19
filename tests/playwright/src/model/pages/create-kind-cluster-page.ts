@@ -28,7 +28,7 @@ export class CreateKindClusterPage extends BasePage {
   readonly clusterCreationButton: Locator;
   readonly goBackButton: Locator;
   readonly logsButton: Locator;
-  readonly providerType: Locator;
+  readonly providerTypeCombobox: Locator;
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
@@ -45,7 +45,7 @@ export class CreateKindClusterPage extends BasePage {
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Show Logs' });
-    this.providerType = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
+    this.providerTypeCombobox = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
@@ -54,7 +54,7 @@ export class CreateKindClusterPage extends BasePage {
 
   public async createClusterDefault(clusterName: string): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
-    await playExpect(this.providerType).toHaveValue('podman');
+    await playExpect(this.providerTypeCombobox).toHaveValue('podman');
     await playExpect(this.httpPort).toHaveValue('9090');
     await playExpect(this.httpsPort).toHaveValue('9443');
     await playExpect(this.controllerCheckbox).toBeChecked();
@@ -63,32 +63,45 @@ export class CreateKindClusterPage extends BasePage {
   }
 
   public async createClusterParametrized({
-    clusterName = 'kind-cluster',
-    changeProvideType = false,
-    httpPort = '9090',
-    httpsPort = '9443',
-    disableIngressController = false,
-    containerImage = '',
+    clusterName,
+    providerType,
+    httpPort,
+    httpsPort,
+    useIngressController,
+    containerImage,
   }: KindClusterOptions = {}): Promise<void> {
-    await this.fillTextbox(this.clusterNameField, clusterName);
-
-    if (changeProvideType) {
-      await playExpect(this.providerType).toBeVisible();
-      await this.providerType.selectOption({ value: 'docker' });
-      await playExpect(this.providerType).toHaveValue('docker');
+    if (clusterName) {
+      await this.fillTextbox(this.clusterNameField, clusterName);
     }
 
-    await this.fillTextbox(this.httpPort, httpPort);
-    await this.fillTextbox(this.httpsPort, httpsPort);
+    if (providerType) {
+      await playExpect(this.providerTypeCombobox).toBeVisible();
+      const providerTypeOptions = await this.providerTypeCombobox.locator('option').allInnerTexts();
+      if (providerTypeOptions.includes(providerType)) {
+        await this.providerTypeCombobox.selectOption({ value: providerType });
+        await playExpect(this.providerTypeCombobox).toHaveValue(providerType);
+      } else {
+        throw new Error(`${providerType} doesn't exist`);
+      }
 
-    if (disableIngressController) {
-      await playExpect(this.controllerCheckbox).toBeEnabled();
-      await this.controllerCheckbox.uncheck();
-      await playExpect(this.controllerCheckbox).not.toBeChecked();
+      if (httpPort) {
+        await this.fillTextbox(this.httpPort, httpPort);
+      }
+      if (httpsPort) {
+        await this.fillTextbox(this.httpsPort, httpsPort);
+      }
+
+      if (!useIngressController) {
+        await playExpect(this.controllerCheckbox).toBeEnabled();
+        await this.controllerCheckbox.uncheck();
+        await playExpect(this.controllerCheckbox).not.toBeChecked();
+      }
+
+      if (containerImage) {
+        await this.fillTextbox(this.containerImage, containerImage);
+      }
+      await this.createCluster();
     }
-
-    await this.fillTextbox(this.containerImage, containerImage);
-    await this.createCluster();
   }
 
   private async createCluster(): Promise<void> {

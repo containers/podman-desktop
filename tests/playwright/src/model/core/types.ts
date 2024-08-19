@@ -23,9 +23,9 @@ export interface ContainerInteractiveParams {
 
 export interface KindClusterOptions {
   clusterName?: string;
-  changeProvideType?: boolean;
+  providerType?: string;
   httpPort?: string;
   httpsPort?: string;
-  disableIngressController?: boolean;
+  useIngressController?: boolean;
   containerImage?: string;
 }
