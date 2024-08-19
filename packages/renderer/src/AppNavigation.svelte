@@ -50,6 +50,7 @@ function clickSettings(b: boolean) {
       {@const allItemsHidden = (navigationRegistryItem.items ?? []).every(item => item.hidden)}
       {#if !allItemsHidden}
         <NavSection tooltip={navigationRegistryItem.name}>
+          <!-- svelte-ignore svelte_component_deprecated -->
           <svelte:component this={navigationRegistryItem.icon.iconComponent} size={iconSize} slot="icon" />
 
           {#if navigationRegistryItem.items}
