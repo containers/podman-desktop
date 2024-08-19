@@ -133,6 +133,7 @@ import type {
   PlayKubeInfo,
 } from './dockerode/libpod-dockerode.js';
 import { EditorInit } from './editor-init.js';
+import type { Emitter } from './events/emitter.js';
 import { ExtensionLoader } from './extension-loader.js';
 import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
 import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
@@ -405,8 +406,20 @@ export class PluginSystem {
     };
   }
 
+  protected initConfigurationRegistry(
+    apiSender: ApiSenderType,
+    directories: Directories,
+    notifications: NotificationCardOptions[],
+    configurationRegistryEmitter: Emitter<ConfigurationRegistry>,
+  ): ConfigurationRegistry {
+    const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+    notifications.push(...configurationRegistry.init());
+    configurationRegistryEmitter.fire(configurationRegistry);
+    return configurationRegistry;
+  }
+
   // initialize extension loader mechanism
-  async initExtensions(): Promise<ExtensionLoader> {
+  async initExtensions(configurationRegistryEmitter: Emitter<ConfigurationRegistry>): Promise<ExtensionLoader> {
     const notifications: NotificationCardOptions[] = [];
 
     this.isReady = false;
@@ -432,8 +445,12 @@ export class PluginSystem {
     const safeStorageRegistry = new SafeStorageRegistry(directories);
     notifications.push(...(await safeStorageRegistry.init()));
 
-    const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
-    notifications.push(...configurationRegistry.init());
+    const configurationRegistry = this.initConfigurationRegistry(
+      apiSender,
+      directories,
+      notifications,
+      configurationRegistryEmitter,
+    );
 
     const colorRegistry = new ColorRegistry(apiSender, configurationRegistry);
     colorRegistry.init();
