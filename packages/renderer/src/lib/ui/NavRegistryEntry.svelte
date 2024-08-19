@@ -18,6 +18,7 @@ let { entry, meta = $bindable() }: { entry: NavigationRegistryEntry; meta: Tinro
     {:else if entry.icon.faIcon}
       <Fa icon={entry.icon.faIcon.definition} size={entry.icon.faIcon.size} />
     {:else if entry.icon.iconComponent}
+      <!-- svelte-ignore svelte_component_deprecated -->
       <svelte:component this={entry.icon.iconComponent} size="24" />
     {:else if entry.icon.iconImage && typeof entry.icon.iconImage === 'string'}
       <img src={entry.icon.iconImage} width="22" height="22" alt={entry.name} />
