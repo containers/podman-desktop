@@ -26,7 +26,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import type { ImageInfoUI } from './ImageInfoUI';
 import PushManifestModal from './PushManifestModal.svelte';
 
-vi.mock('xterm', () => {
+vi.mock('@xterm/xterm', () => {
   return {
     Terminal: vi
       .fn()

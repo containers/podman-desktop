@@ -32,7 +32,7 @@ import PodDetails from './PodDetails.svelte';
 const mocks = vi.hoisted(() => ({
   TerminalMock: vi.fn(),
 }));
-vi.mock('xterm', () => ({
+vi.mock('@xterm/xterm', () => ({
   Terminal: mocks.TerminalMock,
 }));
 

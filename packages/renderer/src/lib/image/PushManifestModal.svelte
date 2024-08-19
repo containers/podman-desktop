@@ -1,10 +1,10 @@
 <script lang="ts">
 import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
 import { tick } from 'svelte';
 import { router } from 'tinro';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';

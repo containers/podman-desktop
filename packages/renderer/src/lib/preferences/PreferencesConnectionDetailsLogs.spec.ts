@@ -23,8 +23,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import { Terminal } from '@xterm/xterm';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { Terminal } from 'xterm';
 
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 

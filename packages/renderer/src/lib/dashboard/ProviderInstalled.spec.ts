@@ -30,7 +30,7 @@ import type { ProviderInfo } from '/@api/provider-info';
 
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
-vi.mock('xterm', () => {
+vi.mock('@xterm/xterm', () => {
   return {
     Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
   };

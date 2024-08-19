@@ -34,7 +34,7 @@ import { recommendedRegistries } from '/@/stores/recommendedRegistries';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 // xterm is used in the UI, but not tested, added in order to avoid the multiple warnings being shown during the test.
-vi.mock('xterm', () => {
+vi.mock('@xterm/xterm', () => {
   return {
     Terminal: vi
       .fn()

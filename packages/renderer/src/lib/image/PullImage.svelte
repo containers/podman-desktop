@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faArrowCircleDown, faCog } from '@fortawesome/free-solid-svg-icons';
 import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
-import type { Terminal } from 'xterm';
 
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import type { PullEvent } from '/@api/pull-event';

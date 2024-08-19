@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ITheme } from '@xterm/xterm';
 import { describe, expect, test, vi } from 'vitest';
-import type { ITheme } from 'xterm';
 
 import { getTerminalTheme } from './terminal-theme.js';
 
