@@ -44,6 +44,9 @@ function callback(name: string, data: string) {
       logsTerminal?.write(data + '\r');
     }
   }
+  if (!noLogs) {
+    window.dispatchEvent(new Event('resize'));
+  }
 }
 
 async function fetchContainerLogs() {

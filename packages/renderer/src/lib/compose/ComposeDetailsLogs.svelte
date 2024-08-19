@@ -41,6 +41,9 @@ function callback(name: string, data: string) {
     // 2: STDERR
     logsTerminal?.write(data + '\r');
   }
+  if (!noLogs) {
+    window.dispatchEvent(new Event('resize'));
+  }
 }
 
 // Fetches the logs for each container in the compose group

@@ -58,8 +58,6 @@ async function refreshTerminal(): Promise<void> {
 onMount(async () => {
   await refreshTerminal();
   dispatch('init');
-  await new Promise(resolve => setTimeout(resolve, 20));
-  window.dispatchEvent(new Event('resize'));
 });
 
 onDestroy(() => {

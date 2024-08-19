@@ -16,7 +16,7 @@ export let pod: PodInfoUI;
 // Log
 let refPod: PodInfoUI;
 // Logs has been initialized
-let noLogs = true;
+let noLogs = false;
 let logsTerminal: Terminal;
 
 // need to refresh logs when pod is switched or state changes
@@ -45,6 +45,9 @@ function callback(name: string, data: string) {
     // 1: STDOUT
     // 2: STDERR
     logsTerminal?.write(data + '\r');
+  }
+  if (!noLogs) {
+    window.dispatchEvent(new Event('resize'));
   }
 }
 
@@ -102,5 +105,5 @@ onMount(async () => {
   class:invisible={noLogs === true}
   class:h-0={noLogs === true}
   class:h-full={noLogs === false}>
-  <TerminalWindow class="h-full" bind:terminal={logsTerminal} bind:noLogs={noLogs} convertEol disableStdIn />
+  <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn />
 </div>
