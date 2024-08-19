@@ -593,7 +593,7 @@ export class PluginSystem {
 
     const authentication = new AuthenticationImpl(apiSender, messageBox);
 
-    const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
+    const cliToolRegistry = new CliToolRegistry(apiSender, exec);
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
@@ -1239,6 +1239,10 @@ export class PluginSystem {
         return troubleshooting.generateLogFileName(filename, prefix);
       },
     );
+
+    this.ipcHandle('cli-tool-registry:selectCliToolVersionToUpdate', async (_listener, id: string): Promise<string> => {
+      return cliToolRegistry.selectCliToolVersionToUpdate(id);
+    });
 
     this.ipcHandle(
       'cli-tool-registry:updateCliTool',

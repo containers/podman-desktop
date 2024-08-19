@@ -12,24 +12,37 @@ import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;
 let showError = false;
+let newVersion: string | undefined = cliTool.newVersion;
 let cliToolStatus: ILoadingStatus = {
   inProgress: false,
-  status: cliTool.newVersion ? 'toUpdate' : 'unknown',
+  status: cliTool.canUpdate ? 'toUpdate' : 'unknown',
   action: 'update',
 };
 
 async function update(cliTool: CliToolInfo) {
+  newVersion = cliTool.newVersion;
+  if (!newVersion) {
+    // user has to select the version to update to
+    try {
+      newVersion = await window.selectCliToolVersionToUpdate(cliTool.id);
+    } catch (e) {
+      // do nothing
+      console.log(e);
+    }
+  }
+  if (!newVersion) {
+    return;
+  }
   try {
     cliToolStatus.inProgress = true;
     cliToolStatus = cliToolStatus;
     const loggerHandlerKey = startTask(
-      `Update ${cliTool.name} to v${cliTool.newVersion}`,
+      `Update ${cliTool.name} to v${newVersion}`,
       '/preferences/cli-tools',
       getLoggerHandler(cliTool.id),
     );
     await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
-    cliToolStatus.status = 'unknown';
   } catch (e) {
     showError = true;
   } finally {
@@ -79,12 +92,12 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             class="my-auto ml-3 break-words font-semibold text-[var(--pd-invert-content-header-text)]"
             aria-label="cli-name">{cliTool.name}</span>
         </div>
-        {#if cliTool.version && cliToolStatus}
+        {#if cliTool.version && cliTool.canUpdate && cliToolStatus}
           <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
             <LoadingIconButton
               action="update"
               clickAction={() => {
-                if (cliTool.newVersion) {
+                if (cliTool.canUpdate) {
                   update(cliTool);
                 }
               }}
@@ -92,7 +105,11 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
               leftPosition="left-[0.25rem]"
               state={cliToolStatus}
               color="primary"
-              tooltip={!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`} />
+              tooltip={!cliTool.canUpdate
+                ? 'No updates'
+                : cliTool.newVersion
+                  ? `Update to v${cliTool.newVersion}`
+                  : 'Upgrade/Downgrade'} />
           </div>
         {/if}
       </div>
@@ -121,20 +138,20 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 {cliTool.name} v{cliTool.version}
               </div>
             </Tooltip>
-            {#if cliTool.newVersion}
+            {#if cliTool.canUpdate}
               <Button
                 type="link"
                 class="underline"
                 padding="p-0"
                 on:click={() => {
-                  if (cliTool.newVersion) {
+                  if (cliTool.canUpdate) {
                     update(cliTool);
                   }
                 }}
-                title={`${cliTool.displayName} will be updated to v${cliTool.newVersion}`}
-                disabled={!cliTool.newVersion}
+                title={`${cliTool.displayName} will be updated`}
+                disabled={!cliTool.canUpdate}
                 aria-label="Update available">
-                Update available
+                {`${cliTool.newVersion ? 'Update available' : 'Upgrade/Downgrade'}`}
               </Button>
             {/if}
           </div>

@@ -18,7 +18,9 @@
 
 import type {
   CliTool,
+  CliToolInstallationSource,
   CliToolOptions,
+  CliToolSelectUpdate,
   CliToolState,
   CliToolUpdate,
   CliToolUpdateOptions,
@@ -78,6 +80,11 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this._options.images);
   }
 
+  // it returns the installation source of the cli tool. If not specified, we default to user which is the most restrictive way (prevent to update it)
+  get installationSource(): CliToolInstallationSource {
+    return this._options.installationSource ?? 'userInstalled';
+  }
+
   dispose(): void {
     this.registry.disposeCliTool(this);
   }
@@ -90,11 +97,12 @@ export class CliToolImpl implements CliTool, Disposable {
       markdownDescription: options.markdownDescription ?? this._options.markdownDescription,
       path: options.path ?? this._options.path,
       version: options.version,
+      installationSource: 'appInstalled',
     };
     this._onDidUpdateVersion.fire(options.version);
   }
 
-  registerUpdate(update: CliToolUpdate): Disposable {
+  registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable {
     return this.registry.registerUpdate(this, update);
   }
 }
