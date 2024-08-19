@@ -83,14 +83,14 @@ export class CreateMachinePage extends BasePage {
     }
 
     await this.createMachineButton.click();
-    await this.page.waitForTimeout(60000);
+    await this.page.waitForTimeout(60_000);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
     await this.handleConnectionDialog(machineName, setAsDefault);
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10000 });
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
 
