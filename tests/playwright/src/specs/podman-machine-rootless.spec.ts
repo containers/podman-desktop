@@ -69,5 +69,5 @@ describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification
     const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
     const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
-  }, 150000);
+  }, 150_000);
 });
