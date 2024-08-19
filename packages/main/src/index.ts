@@ -32,6 +32,7 @@ import type { ExtensionLoader } from './plugin/extension-loader.js';
 import { PluginSystem } from './plugin/index.js';
 import { Deferred } from './plugin/util/deferred.js';
 import { StartupInstall } from './system/startup-install.js';
+import { WindowHandler } from './system/window/window-handler.js';
 import { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
 import { isMac, isWindows, stoppedExtensions } from './util.js';
@@ -241,6 +242,19 @@ app.whenReady().then(
 
       // Share configuration registry with renderer process
       ipcMain.emit('configuration-registry', '', configurationRegistry);
+
+      // Register the window configuration
+      // This is used to save/restore the window size and position
+      mainWindowDeferred.promise
+        .then(browserWindow => {
+          const windowHandler = new WindowHandler(configurationRegistry, browserWindow);
+          windowHandler.init();
+          // send window Handler
+          ipcMain.emit('window-handler', '', windowHandler);
+        })
+        .catch((error: unknown) => {
+          console.error('Error initializing window handler', error);
+        });
 
       // Configure automatic startup
       const automaticStartup = new StartupInstall(configurationRegistry);

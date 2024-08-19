@@ -19,7 +19,7 @@
 import { join } from 'node:path';
 import { URL } from 'node:url';
 
-import type { BrowserWindowConstructorOptions } from 'electron';
+import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
 import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util/main';
@@ -27,6 +27,7 @@ import { aboutMenuItem } from 'electron-util/main';
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
+import type { WindowHandler } from './system/window/window-handler.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
 
 const openDevTools = new OpenDevTools();
@@ -72,18 +73,20 @@ async function createWindow(): Promise<BrowserWindow> {
   }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
+
   const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
   const workArea = getDisplayNearestPoint(getCursorScreenPoint()).workArea;
 
   const x = Math.round(workArea.width / 2 - INITIAL_APP_WIDTH / 2 + workArea.x);
   const y = Math.round(workArea.height / 2 - INITIAL_APP_HEIGHT / 2);
 
-  browserWindow.setBounds({
+  const initialBounds: Rectangle = {
     x: x,
     y: y,
-    width: browserWindowConstructorOptions.width,
-    height: browserWindowConstructorOptions.height,
-  });
+    width: INITIAL_APP_WIDTH,
+    height: INITIAL_APP_HEIGHT,
+  };
+  browserWindow.setBounds(initialBounds);
 
   /**
    * If you install `show: true` then it can cause issues when trying to close the window.
@@ -110,6 +113,21 @@ async function createWindow(): Promise<BrowserWindow> {
 
     // open dev tools (if required)
     openDevTools.open(browserWindow, configurationRegistry);
+  });
+
+  let windowHandler: WindowHandler | undefined;
+  ipcMain.on('window-handler', (_, windowHandlerParam) => {
+    // try to restore the window position and size
+    windowHandler = windowHandlerParam;
+    windowHandler?.restore(initialBounds);
+  });
+
+  browserWindow.on('resize', () => {
+    windowHandler?.savePositionAndSize();
+  });
+
+  browserWindow.on('move', () => {
+    windowHandler?.savePositionAndSize();
   });
 
   // receive the navigation items
