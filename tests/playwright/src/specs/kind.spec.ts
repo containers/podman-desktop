@@ -39,6 +39,7 @@ const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
 const CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
+const CLUSTER_CREATION_TIMEOUT: number = 120000;
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -101,19 +102,23 @@ describe('Kind End-to-End Tests', async () => {
   describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
     'Kind cluster operations',
     async () => {
-      test('Create a Kind cluster', async () => {
-        await navigationBar.openSettings();
-        await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-        await playExpect(kindResourceCard.markdownContent).toBeVisible();
-        await playExpect(kindResourceCard.createButton).toBeVisible();
-        await kindResourceCard.createButton.click();
-        const createKindClusterPage = new CreateKindClusterPage(page);
-        await createKindClusterPage.createClusterDefault(CLUSTER_NAME);
-        await playExpect(kindResourceCard.resourceElement).toBeVisible();
-        await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-          timeout: 15000,
-        });
-      }, 120000);
+      test(
+        'Create a Kind cluster',
+        async () => {
+          await navigationBar.openSettings();
+          await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+          await playExpect(kindResourceCard.markdownContent).toBeVisible();
+          await playExpect(kindResourceCard.createButton).toBeVisible();
+          await kindResourceCard.createButton.click();
+          const createKindClusterPage = new CreateKindClusterPage(page);
+          await createKindClusterPage.createClusterDefault(CLUSTER_NAME, CLUSTER_CREATION_TIMEOUT);
+          await playExpect(kindResourceCard.resourceElement).toBeVisible();
+          await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
+            timeout: 15000,
+          });
+        },
+        CLUSTER_CREATION_TIMEOUT,
+      );
       test('Check resources added with the Kind cluster', async () => {
         const containersPage = await navigationBar.openContainers();
         await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();

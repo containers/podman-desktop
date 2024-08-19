@@ -52,24 +52,20 @@ export class CreateKindClusterPage extends BasePage {
     this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
   }
 
-  public async createClusterDefault(clusterName: string): Promise<void> {
+  public async createClusterDefault(clusterName: string, timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
     await playExpect(this.providerTypeCombobox).toHaveValue('podman');
     await playExpect(this.httpPort).toHaveValue('9090');
     await playExpect(this.httpsPort).toHaveValue('9443');
     await playExpect(this.controllerCheckbox).toBeChecked();
     await playExpect(this.containerImage).toBeEmpty();
-    await this.createCluster();
+    await this.createCluster(timeout);
   }
 
-  public async createClusterParametrized({
-    clusterName,
-    providerType,
-    httpPort,
-    httpsPort,
-    useIngressController,
-    containerImage,
-  }: KindClusterOptions = {}): Promise<void> {
+  public async createClusterParametrized(
+    { clusterName, providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
+    timeout?: number,
+  ): Promise<void> {
     if (clusterName) {
       await this.fillTextbox(this.clusterNameField, clusterName);
     }
@@ -100,14 +96,14 @@ export class CreateKindClusterPage extends BasePage {
       if (containerImage) {
         await this.fillTextbox(this.containerImage, containerImage);
       }
-      await this.createCluster();
+      await this.createCluster(timeout);
     }
   }
 
-  private async createCluster(): Promise<void> {
+  private async createCluster(timeout: number = 120000): Promise<void> {
     await playExpect(this.clusterCreationButton).toBeVisible();
     await this.clusterCreationButton.click();
-    await playExpect(this.goBackButton).toBeVisible({ timeout: 120000 });
+    await playExpect(this.goBackButton).toBeVisible({ timeout: timeout });
     await this.goBackButton.click();
   }
 
