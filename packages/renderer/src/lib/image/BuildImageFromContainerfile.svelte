@@ -4,9 +4,9 @@
 import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, Input } from '@podman-desktop/ui-svelte';
+import type { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
-import type { Terminal } from 'xterm';
 
 import FileInput from '/@/lib/ui/FileInput.svelte';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';

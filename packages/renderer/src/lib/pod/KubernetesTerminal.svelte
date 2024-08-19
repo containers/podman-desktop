@@ -1,8 +1,8 @@
 <script lang="ts">
+import { FitAddon } from '@xterm/addon-fit';
+import { type IDisposable, Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
-import { type IDisposable, Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import { terminalStates } from '/@/stores/kubernetes-terminal-state-store';
 

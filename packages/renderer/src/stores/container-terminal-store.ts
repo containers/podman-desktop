@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Terminal } from '@xterm/xterm';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
-import type { Terminal } from 'xterm';
 
 import { containersInfos } from './containers';
 

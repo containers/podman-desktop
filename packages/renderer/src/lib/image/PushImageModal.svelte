@@ -1,11 +1,11 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, Link } from '@podman-desktop/ui-svelte';
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';

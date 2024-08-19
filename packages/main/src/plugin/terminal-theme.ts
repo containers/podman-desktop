@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ITheme } from 'xterm';
+import type { ITheme } from '@xterm/xterm';
 
 // Array of strings to extract from the CSS variables
 // we list it here as we cannot infer the properties from the ITheme type at runtime. Another reason is to avoid

@@ -1,10 +1,10 @@
 <script lang="ts">
-import 'xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from '/@api/provider-info';
 

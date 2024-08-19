@@ -2,12 +2,12 @@
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
 import { Button, EmptyScreen, ErrorMessage, LinearProgress, Spinner } from '@podman-desktop/ui-svelte';
+import type { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { get, type Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
-import type { Terminal } from 'xterm';
 
 import type { ContextUI } from '/@/lib/context/context';
 import { context } from '/@/stores/context';

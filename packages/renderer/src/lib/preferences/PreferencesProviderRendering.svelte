@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { Button, ErrorMessage, Modal } from '@podman-desktop/ui-svelte';
+import type { Terminal } from '@xterm/xterm';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
-import type { Terminal } from 'xterm';
 
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import type {
