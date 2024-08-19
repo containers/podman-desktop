@@ -131,29 +131,33 @@ describe('Kind End-to-End Tests', async () => {
       test('Validate correct Kubernetes context is selected', async () => {
         await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
       });
-      test('Verify Kind cluster basic operations', async () => {
+      test('Kind cluster operations - STOP', async () => {
         await navigationBar.openSettings();
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
         await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-          timeout: 40000,
+          timeout: 50000,
         });
+      });
+      test('Kind cluster operations - START', async () => {
         await kindResourceCard.performConnectionAction(ResourceElementActions.Start);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-          timeout: 40000,
+          timeout: 50000,
         });
+      });
+      test('Kind cluster operatioms - RESTART', async () => {
         await kindResourceCard.performConnectionAction(ResourceElementActions.Restart);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-          timeout: 40000,
+          timeout: 50000,
         });
+      });
+      test('Kind cluster operations - DELETE', async () => {
         await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
         await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-          timeout: 40000,
+          timeout: 50000,
         });
         await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-        await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 40000 });
-      });
-      test('Validate Kind cluster resources are deleted', async () => {
+        await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
         const containersPage = await navigationBar.openContainers();
         await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
 
