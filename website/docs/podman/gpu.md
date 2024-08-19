@@ -17,6 +17,7 @@ Leveraging GPU capabilities within a Podman container provides a powerful and ef
 #### Prerequisites
 
 - NVIDIA Graphics Card (Pascal or later)
+- WSL2 (Hyper-V is not supported)
 
 #### Procedure
 
