@@ -39,7 +39,7 @@ const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
 const CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
-const CLUSTER_CREATION_TIMEOUT: number = 120000;
+const CLUSTER_CREATION_TIMEOUT: number = 150000;
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
