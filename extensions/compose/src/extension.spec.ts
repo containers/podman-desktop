@@ -227,7 +227,7 @@ describe('registerCLITool', () => {
         images: expect.anything(),
         version: '0.0.0',
         path: 'system-wide-path',
-        installationSource: 'appInstalled',
+        installationSource: 'extension',
       });
     });
 
@@ -254,7 +254,7 @@ describe('registerCLITool', () => {
         images: expect.anything(),
         version: '0.0.0',
         path: 'user-system-wide-path',
-        installationSource: 'userInstalled',
+        installationSource: 'external',
       });
     });
 
@@ -314,7 +314,7 @@ describe('registerCLITool', () => {
     expect(detectMock.getStoragePath).toHaveBeenCalled();
     expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('extension-storage-path', 'docker-compose');
     expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
-      installationSource: 'appInstalled',
+      installationSource: 'extension',
       version: '1.0.0',
     });
   });

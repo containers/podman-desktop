@@ -4300,7 +4300,7 @@ declare module '@podman-desktop/api' {
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 
-  export type CliToolInstallationSource = 'userInstalled' | 'appInstalled';
+  export type CliToolInstallationSource = 'extension' | 'external';
 
   /**
    * Options to create new CliTool instance and register it in podman desktop
@@ -4324,8 +4324,8 @@ declare module '@podman-desktop/api' {
 
     /**
      * How the cli tool has been installed
-     * - user: it has been installed by the user externally from podman desktop. Its update process is disable.
-     * - app: it has been installed through podman desktop. It can be updated
+     * - external: it has been installed by the user externally from podman desktop. Its update process is disable.
+     * - extension: it has been installed by podman desktop extension. It can be updated
      */
     installationSource?: CliToolInstallationSource;
   }

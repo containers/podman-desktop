@@ -82,7 +82,7 @@ export class CliToolImpl implements CliTool, Disposable {
 
   // it returns the installation source of the cli tool. If not specified, we default to user which is the most restrictive way (prevent to update it)
   get installationSource(): CliToolInstallationSource {
-    return this._options.installationSource ?? 'userInstalled';
+    return this._options.installationSource ?? 'external';
   }
 
   dispose(): void {
@@ -97,7 +97,7 @@ export class CliToolImpl implements CliTool, Disposable {
       markdownDescription: options.markdownDescription ?? this._options.markdownDescription,
       path: options.path ?? this._options.path,
       version: options.version,
-      installationSource: 'appInstalled',
+      installationSource: 'extension',
     };
     this._onDidUpdateVersion.fire(options.version);
   }

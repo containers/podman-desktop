@@ -136,7 +136,7 @@ describe('cli tool', () => {
       name: 'kind',
       images: expect.anything(),
       markdownDescription: expect.any(String),
-      installationSource: 'appInstalled',
+      installationSource: 'extension',
     });
   });
 
@@ -163,7 +163,7 @@ describe('cli tool', () => {
       name: 'kind',
       images: expect.anything(),
       markdownDescription: expect.any(String),
-      installationSource: 'userInstalled',
+      installationSource: 'external',
     });
   });
 
@@ -207,7 +207,7 @@ describe('cli tool', () => {
       name: 'kind',
       images: expect.anything(),
       markdownDescription: expect.any(String),
-      installationSource: 'appInstalled',
+      installationSource: 'extension',
     });
   });
 });

@@ -112,7 +112,7 @@ suite('cli module', () => {
         images: {},
         version: '1.0.1',
         path: 'path/to/tool-name',
-        installationSource: 'appInstalled',
+        installationSource: 'extension',
       };
       const updater: CliToolSelectUpdate = {
         doUpdate: vi.fn(),
@@ -142,7 +142,7 @@ suite('cli module', () => {
         images: {},
         version: '1.0.1',
         path: 'path/to/tool-name',
-        installationSource: 'userInstalled',
+        installationSource: 'external',
       };
       const updater: CliToolSelectUpdate = {
         doUpdate: vi.fn(),

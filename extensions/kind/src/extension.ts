@@ -342,7 +342,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   try {
     binary = await getKindBinaryInfo('kind');
     const systemPath = getSystemBinaryPath('kind');
-    installationSource = path.normalize(binary.path) === path.normalize(systemPath) ? 'appInstalled' : 'userInstalled';
+    installationSource = path.normalize(binary.path) === path.normalize(systemPath) ? 'extension' : 'external';
   } catch (err: unknown) {
     console.error(err);
   }
@@ -351,7 +351,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (!binary) {
     try {
       binary = await getKindBinaryInfo(installer.getInternalDestinationPath());
-      installationSource = 'appInstalled';
+      installationSource = 'extension';
     } catch (err: unknown) {
       console.error(err);
     }
@@ -435,7 +435,7 @@ async function kindInstall(
     path: binaryInfo.path,
     displayName: 'kind',
     markdownDescription: KIND_MARKDOWN,
-    installationSource: 'appInstalled',
+    installationSource: 'extension',
   });
 
   await createProvider(extensionContext, telemetryLogger);

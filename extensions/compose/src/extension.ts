@@ -182,7 +182,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         composeCliTool?.updateVersion({
           version: versionInstalled,
           path: getSystemBinaryPath(composeCliName),
-          installationSource: 'appInstalled',
+          installationSource: 'extension',
         });
         // if installed version is the newest, dispose the updater
         installed = true;
@@ -240,15 +240,14 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   if (installedSystemWide) {
     binaryInfo = await detect.getDockerComposeBinaryInfo(executable);
     const systemPath = getSystemBinaryPath(composeCliName);
-    installationSource =
-      path.normalize(binaryInfo.path) === path.normalize(systemPath) ? 'appInstalled' : 'userInstalled';
+    installationSource = path.normalize(binaryInfo.path) === path.normalize(systemPath) ? 'extension' : 'external';
   } else {
     // if not installed, let's check for local version
     const extensionExecutable = await detect.getStoragePath();
     // if local version exists
     if (extensionExecutable.length !== 0) {
       binaryInfo = await detect.getDockerComposeBinaryInfo(executable, detect.getExtensionStorageBin());
-      installationSource = 'appInstalled';
+      installationSource = 'extension';
     }
   }
 
@@ -278,7 +277,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   }
 
   // if the tool has been installed by the user we do not register the updater
-  if (installationSource === 'userInstalled') {
+  if (installationSource === 'external') {
     return;
   }
   // register the updater to allow users to upgrade/downgrade their cli
@@ -310,7 +309,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       await installBinaryToSystem(binaryPath, composeCliName);
       composeCliTool?.updateVersion({
         version: releaseVersionToUpdateTo,
-        installationSource: 'appInstalled',
+        installationSource: 'extension',
       });
       currentVersion = releaseVersionToUpdateTo;
       releaseVersionToUpdateTo = undefined;

@@ -140,7 +140,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('kubectlIsNotDownloaded', false, 'onboarding');
         kubectlCliTool?.updateVersion({
           version: kubectlVersionMetadata.tag.slice(1),
-          installationSource: 'appInstalled',
+          installationSource: 'extension',
         });
         downloaded = true;
       } finally {
@@ -310,8 +310,8 @@ async function postActivate(
   const installationSource =
     path.normalize(kubectl.path) === path.normalize(systemPath) ||
     path.normalize(kubectl.path) === path.normalize(localStorage)
-      ? 'appInstalled'
-      : 'userInstalled';
+      ? 'extension'
+      : 'external';
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
   // checking the binary. If it exists, we will run `--version` and parse the information.
   kubectlCliTool = extensionApi.cli.createCliTool({
@@ -329,7 +329,7 @@ async function postActivate(
   extensionContext.subscriptions.push(kubectlCliTool);
 
   // if the tool has been installed by the user externally desktop, it cannot be updated
-  if (installationSource === 'userInstalled') {
+  if (installationSource === 'external') {
     return;
   }
 
@@ -354,7 +354,7 @@ async function postActivate(
       await installBinaryToSystem(binaryPath, 'kubectl');
       kubectlCliTool?.updateVersion({
         version: releaseVersionToUpdateTo,
-        installationSource: 'appInstalled',
+        installationSource: 'extension',
       });
       currentVersion = releaseVersionToUpdateTo;
       releaseVersionToUpdateTo = undefined;

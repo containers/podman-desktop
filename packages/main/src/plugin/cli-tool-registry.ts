@@ -82,7 +82,7 @@ export class CliToolRegistry {
       // if updater is the one with a default version that the tool will use to get updated we use it
       const newVersion = updater && this.isUpdaterToPredefinedVersion(updater) ? updater.version : undefined;
       // if the cli tool has an updater registered and its binary has been installed by podman desktop, it can be updated
-      const canUpdate = !!updater && cliTool.installationSource === 'appInstalled';
+      const canUpdate = !!updater && cliTool.installationSource === 'extension';
 
       return {
         id: cliTool.id,
