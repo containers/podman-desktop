@@ -173,7 +173,7 @@
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.3.4",
-    "@kubernetes/client-node": "^0.21.0",
+    "@kubernetes/client-node": "^1.0.0-rc6",
     "@segment/analytics-node": "^2.1.2",
     "@types/semver": "^7.5.8",
     "@types/stream-json": "^1.7.7",
