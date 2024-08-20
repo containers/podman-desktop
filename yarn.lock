@@ -9810,10 +9810,10 @@ electron-util@^0.18.1:
     electron-is-dev "^3.0.1"
     new-github-issue-url "^1.0.0"
 
-electron@31.4.0:
-  version "31.4.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-31.4.0.tgz#fd55fd882117b09fd68b2d182c8fda2dbb7ef454"
-  integrity sha512-YTwKoAA+nrJMlI1TTHnIXLYWoQLKnhbkz0qxZcI7Hadcy0UaFMFs9xzwvH2MnrRpVJy7RKo49kVGuvSdRl8zMA==
+electron@32.0.0:
+  version "32.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-32.0.0.tgz#ccb1334d7f1f1a5387ad8f16a06180053ea9278a"
+  integrity sha512-rs+VkhztJd2LvRX7d3ikKH+EIHMW4vKM2l5qp7Dx/dLQAKKz3IFNKyYhYzczDnqO+/jUvx0ic0SQvqpv1/ZAsw==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^20.9.0"
