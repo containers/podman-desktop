@@ -17,8 +17,6 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import { IncomingMessage } from 'node:http';
-import { Socket } from 'node:net';
 import type { Readable, Writable } from 'node:stream';
 
 import {
@@ -265,7 +263,15 @@ beforeAll(() => {
       NetworkingV1Api: {},
       VersionApi: {},
       makeInformer: vi.fn(),
+      createConfiguration: vi.fn(),
       KubernetesObjectApi: vi.fn(),
+      FetchError: class FetchError extends Error {
+        statusCode: number;
+        constructor(statusCode: number, message: string) {
+          super(message);
+          this.statusCode = statusCode;
+        }
+      },
       HttpError: class HttpError extends Error {
         statusCode: number;
         constructor(statusCode: number, message: string) {
@@ -567,7 +573,7 @@ test('should return empty deployment list if cannot connect to cluster', async (
 test('should return empty deployment list if cannot execute call to cluster', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
     listNamespacedDeployent: () => Promise.reject(new Error('K8sError')),
   });
 
@@ -585,12 +591,10 @@ test('should return deployment list if connection to cluster is ok', async () =>
   };
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
     listNamespacedDeployment: () =>
       Promise.resolve({
-        body: {
-          items: [v1Deployment],
-        },
+        items: [v1Deployment],
       }),
   });
 
@@ -618,8 +622,8 @@ test('should throw error if cannot call the cluster', async () => {
 test('should return undefined if deployment does not exist', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedDeployment: () => Promise.resolve({}),
+    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
+    readNamespacedDeployment: () => Promise.resolve(undefined),
   });
 
   const deployment = await client.readNamespacedDeployment('deployment', 'default');
@@ -637,10 +641,7 @@ test('should return deployment if it exists', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedDeployment: () =>
-      Promise.resolve({
-        body: v1Deployment,
-      }),
+    readNamespacedDeployment: () => Promise.resolve(v1Deployment),
   });
 
   const deployment = await client.readNamespacedDeployment('deployment', 'default');
@@ -690,9 +691,7 @@ test('should return ingress list if connection to cluster is ok', async () => {
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
     listNamespacedIngress: () =>
       Promise.resolve({
-        body: {
-          items: [v1Ingress],
-        },
+        items: [v1Ingress],
       }),
   });
 
@@ -721,7 +720,7 @@ test('should return undefined if ingress does not exist', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedIngress: () => Promise.resolve({}),
+    readNamespacedIngress: () => Promise.resolve(undefined),
   });
 
   const ingress = await client.readNamespacedIngress('ingress', 'default');
@@ -739,10 +738,7 @@ test('should return ingress if it exists', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedIngress: () =>
-      Promise.resolve({
-        body: v1Ingress,
-      }),
+    readNamespacedIngress: () => Promise.resolve(v1Ingress),
   });
 
   const ingress = await client.readNamespacedIngress('ingress', 'default');
@@ -809,7 +805,7 @@ test('should return route list if connection to cluster is ok', async () => {
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
     listNamespacedCustomObject: () =>
       Promise.resolve({
-        body: { items: [v1Route] },
+        items: [v1Route],
       }),
   });
 
@@ -997,9 +993,7 @@ test('should return service list if connection to cluster is ok', async () => {
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
     listNamespacedService: () =>
       Promise.resolve({
-        body: {
-          items: [v1Service],
-        },
+        items: [v1Service],
       }),
   });
 
@@ -1028,7 +1022,7 @@ test('should return undefined if service does not exist', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedService: () => Promise.resolve({}),
+    readNamespacedService: () => Promise.resolve(undefined),
   });
 
   const service = await client.readNamespacedService('service', 'default');
@@ -1046,10 +1040,7 @@ test('should return service if it exists', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedService: () =>
-      Promise.resolve({
-        body: v1Service,
-      }),
+    readNamespacedService: () => Promise.resolve(v1Service),
   });
 
   const service = await client.readNamespacedService('service', 'default');
@@ -1124,7 +1115,7 @@ test('Expect apply should create if object does not exist', async () => {
   const createdObj = { kind: 'created' };
   vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
   makeApiClientMock.mockReturnValue({
-    create: vi.fn().mockReturnValue({ body: createdObj }),
+    create: vi.fn().mockReturnValue(createdObj),
   });
 
   const objects = await client.applyResourcesFromFile('default', 'some-file.yaml');
@@ -1141,7 +1132,7 @@ test('Expect apply should patch if object exists', async () => {
   const patchMock = vi.fn();
   makeApiClientMock.mockReturnValue({
     read: vi.fn(),
-    patch: patchMock.mockReturnValue({ body: patchedObj }),
+    patch: patchMock.mockReturnValue(patchedObj),
   });
 
   const objects = await client.applyResourcesFromFile('default', 'some-file.yaml');
@@ -1173,7 +1164,7 @@ test('Expect apply should work with multiple files', async () => {
   let count = 0;
   vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
   makeApiClientMock.mockReturnValue({
-    create: vi.fn().mockReturnValue({ body: createdObjs[count++] }),
+    create: vi.fn().mockReturnValue(createdObjs[count++]),
   });
 
   const objects = await client.applyResourcesFromFile('default', ['some-file.yaml', 'another-file.yaml']);
@@ -1187,16 +1178,15 @@ test('If Kubernetes returns a http error, output the http body message error.', 
   const client = createTestClient();
   makeApiClientMock.mockReturnValue({
     read: vi.fn().mockReturnValue({}),
-    create: vi
-      .fn()
-      .mockRejectedValue(
-        new clientNode.HttpError(
-          new IncomingMessage(new Socket()),
-          { body: { message: 'A K8sError within message body' } },
-          500,
-        ),
-      ),
+    create: vi.fn().mockRejectedValue(
+      new clientNode.FetchError('A K8sError within message body', 'foo', {
+        code: '500',
+        name: 'foo',
+        message: 'foo',
+      }),
+    ),
   });
+
   try {
     await client.createResources('dummy', [{ apiVersion: 'v1' }]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1708,11 +1698,8 @@ test('Expect readNamespacedSecret to return the secret', async () => {
     },
   };
   makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    readNamespacedSecret: () =>
-      Promise.resolve({
-        body: v1Secret,
-      }),
+    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
+    readNamespacedSecret: () => Promise.resolve(v1Secret),
   });
 
   const secret = await client.readNamespacedSecret('secret', 'default');
@@ -1787,7 +1774,7 @@ test('Should return true if pods are deleted within the timeout', async () => {
   const namespace = 'test-namespace';
   const selector = 'app=test-app';
 
-  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ body: { items: [] } });
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ items: [] });
 
   const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector);
   expect(result).toBe(true);
@@ -1810,7 +1797,7 @@ test('Should return false if the timeout is reached but pods still exist', async
   const selector = 'app=test-app';
   const timeout = 1000;
 
-  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ body: { items: [existingPodMock] } });
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ items: [existingPodMock] });
 
   const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector, timeout);
   expect(result).toBe(false);
@@ -1937,7 +1924,7 @@ function configureClientToTestRestartJob(): {
   const batchApiMock = vi.fn() as unknown as BatchV1Api;
   const coreApiMock = vi.fn() as unknown as CoreV1Api;
   const client = createTestClient('default');
-  batchApiMock.readNamespacedJob = vi.fn().mockResolvedValue({ body: mockV1Job });
+  batchApiMock.readNamespacedJob = vi.fn().mockResolvedValue(mockV1Job);
   batchApiMock.deleteNamespacedJob = vi.fn().mockResolvedValue({});
   batchApiMock.createNamespacedJob = vi.fn().mockResolvedValue({});
 
@@ -1963,16 +1950,13 @@ test('Should restart a job', async () => {
 
   await expect(client.testRestartJob('test-job', 'test-namespace')).resolves.not.toThrow();
 
-  expect(batchApiMock.readNamespacedJob).toHaveBeenCalledWith('test-job', 'test-namespace');
-  expect(batchApiMock.deleteNamespacedJob).toHaveBeenCalledWith(
-    'test-job',
-    'test-namespace',
-    'true',
-    undefined,
-    undefined,
-    undefined,
-    'Background',
-  );
+  expect(batchApiMock.readNamespacedJob).toHaveBeenCalledWith({ name: 'test-job', namespace: 'test-namespace' });
+  expect(batchApiMock.deleteNamespacedJob).toHaveBeenCalledWith({
+    name: 'test-job',
+    namespace: 'test-namespace',
+    pretty: 'true',
+    propagationPolicy: 'Background',
+  });
   expect(batchApiMock.createNamespacedJob).toHaveBeenCalled();
 });
 
@@ -2022,22 +2006,25 @@ test('Should correctly calls scale API for Deployments', async () => {
   const client = createTestClient('default');
   const namespace = 'default';
   const replicas = 3;
-  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
 
   await client.testScaleController(appsApiMock, namespace, 'my-deployment', 'Deployment', replicas);
 
   expect(appsApiMock.patchNamespacedDeploymentScale).toHaveBeenCalledOnce();
   expect(appsApiMock.patchNamespacedDeploymentScale).toHaveBeenCalledWith(
-    'my-deployment',
-    namespace,
-    { spec: { replicas } },
+    {
+      body: {
+        spec: { replicas },
+      },
+      name: 'my-deployment',
+      namespace,
+    },
     undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    headers,
   );
+
+  // check header is customized
+  expect(clientNode.createConfiguration).toHaveBeenCalled();
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  expect(config?.middleware?.length).toBe(1);
 });
 
 test('correctly calls scale API for ReplicaSets', async () => {
@@ -2045,22 +2032,25 @@ test('correctly calls scale API for ReplicaSets', async () => {
   const client = createTestClient('default');
   const namespace = 'default';
   const replicas = 3;
-  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
 
   await client.testScaleController(appsApiMock, namespace, 'my-replicaset', 'ReplicaSet', replicas);
 
   expect(appsApiMock.patchNamespacedReplicaSetScale).toHaveBeenCalledOnce();
   expect(appsApiMock.patchNamespacedReplicaSetScale).toHaveBeenCalledWith(
-    'my-replicaset',
-    namespace,
-    { spec: { replicas } },
+    {
+      body: {
+        spec: { replicas },
+      },
+      name: 'my-replicaset',
+      namespace,
+    },
     undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    headers,
   );
+
+  // check header is customized
+  expect(clientNode.createConfiguration).toHaveBeenCalled();
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  expect(config?.middleware?.length).toBe(1);
 });
 
 test('correctly calls scale API for StatefulSets', async () => {
@@ -2068,22 +2058,25 @@ test('correctly calls scale API for StatefulSets', async () => {
   const client = createTestClient('default');
   const namespace = 'default';
   const replicas = 3;
-  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
 
   await client.testScaleController(appsApiMock, namespace, 'my-statefulset', 'StatefulSet', replicas);
 
   expect(appsApiMock.patchNamespacedStatefulSetScale).toHaveBeenCalledOnce();
   expect(appsApiMock.patchNamespacedStatefulSetScale).toHaveBeenCalledWith(
-    'my-statefulset',
-    namespace,
-    { spec: { replicas } },
+    {
+      body: {
+        spec: { replicas },
+      },
+      name: 'my-statefulset',
+      namespace,
+    },
     undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    headers,
   );
+
+  // check header is customized
+  expect(clientNode.createConfiguration).toHaveBeenCalled();
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  expect(config?.middleware?.length).toBe(1);
 });
 
 function configureClientToScalePod(): { client: TestKubernetesClient; appsApiMock: AppsV1Api } {
@@ -2138,9 +2131,7 @@ test('Should correctly scale a Deployment to restart pods', async () => {
   const initialReplicas = 3;
   const scaleTimeout = 1000;
 
-  (appsApiMock.readNamespacedDeployment as Mock).mockResolvedValue({
-    body: { spec: { replicas: initialReplicas } },
-  });
+  (appsApiMock.readNamespacedDeployment as Mock).mockResolvedValue({ spec: { replicas: initialReplicas } });
 
   await callScaleControllerAndCheckExpectValues(
     client,
@@ -2160,9 +2151,7 @@ test('Should correctly scale a ReplicaSet to restart pods', async () => {
   const initialReplicas = 5;
   const scaleTimeout = 1000;
 
-  (appsApiMock.readNamespacedReplicaSet as Mock).mockResolvedValue({
-    body: { spec: { replicas: initialReplicas } },
-  });
+  (appsApiMock.readNamespacedReplicaSet as Mock).mockResolvedValue({ spec: { replicas: initialReplicas } });
 
   await callScaleControllerAndCheckExpectValues(
     client,
@@ -2182,9 +2171,7 @@ test('Should correctly scale a StatefulSet to restart pods', async () => {
   const initialReplicas = 2;
   const scaleTimeout = 1000;
 
-  (appsApiMock.readNamespacedStatefulSet as Mock).mockResolvedValue({
-    body: { spec: { replicas: initialReplicas } },
-  });
+  (appsApiMock.readNamespacedStatefulSet as Mock).mockResolvedValue({ spec: { replicas: initialReplicas } });
 
   await callScaleControllerAndCheckExpectValues(
     client,
@@ -2291,23 +2278,24 @@ test('Should delete and recreate the pod successfully', async () => {
 
   await client.testRestartManuallyCreatedPod(podMock.metadata.name, podMock.metadata.namespace, podMock);
 
-  expect(coreApiMock.deleteNamespacedPod).toHaveBeenCalledWith(podMock.metadata.name, podMock.metadata.namespace);
+  expect(coreApiMock.deleteNamespacedPod).toHaveBeenCalledWith({
+    name: podMock.metadata.name,
+    namespace: podMock.metadata.namespace,
+  });
   expect(client.waitForPodDeletion).toHaveBeenCalledWith(
     expect.anything(),
     podMock.metadata.name,
     podMock.metadata.namespace,
   );
-  expect(coreApiMock.createNamespacedPod).toHaveBeenCalledWith(
-    podMock.metadata.namespace,
-    expect.objectContaining({
-      metadata: expect.not.objectContaining({
-        resourceVersion: expect.anything(),
-        uid: expect.anything(),
-        selfLink: expect.anything(),
-        creationTimestamp: expect.anything(),
-      }),
-    }),
-  );
+  expect(coreApiMock.createNamespacedPod).toHaveBeenCalledWith({
+    body: {
+      metadata: {
+        name: podMock.metadata.name,
+        namespace: podMock.metadata.namespace,
+      },
+    },
+    namespace: podMock.metadata.namespace,
+  });
 });
 
 test('Should throw an error if the pod is not deleted within the expected timeframe', async () => {

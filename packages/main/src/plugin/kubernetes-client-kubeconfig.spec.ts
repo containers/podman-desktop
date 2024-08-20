@@ -49,8 +49,8 @@ class TestKubernetesClient extends KubernetesClient {
 describe('context tests', () => {
   const originalUsers = [{ name: 'user1' }, { name: 'user2' }];
   const originalClusters = [
-    { name: 'cluster1', server: 'server1' },
-    { name: 'cluster2', server: 'server2' },
+    { name: 'cluster1', server: 'server1' } as Cluster,
+    { name: 'cluster2', server: 'server2' } as Cluster,
   ];
   const originalContexts = [
     { name: 'ctx1', user: 'user1', cluster: 'cluster1', currentContext: true },
