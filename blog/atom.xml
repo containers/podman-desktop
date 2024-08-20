@@ -331,6 +331,150 @@
         <category label="podman" term="podman"/>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Using RHEL as a WSL podman machine]]></title>
+        <id>https://podman-desktop.io/blog/2024/08/01/using-rhel-wsl-podman-machine</id>
+        <link href="https://podman-desktop.io/blog/2024/08/01/using-rhel-wsl-podman-machine"/>
+        <updated>2024-08-01T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Build RHEL image and use it as the operating system for the WSL podman machine]]></summary>
+        <content type="html"><![CDATA[<p>Red Hat provides a tool called Image Builder that allows developers to build their own custom image of RHEL in a variety of formats. Recently, Image Builder added WSL as a target, enabling you to run RHEL on Windows as a WSL distribution.</p>
+<p>This <a href="https://developers.redhat.com/articles/2023/11/15/create-customized-rhel-images-wsl-environment" target="_blank" rel="noopener noreferrer">article</a> details the steps and actions required to build and run your RHEL WSL image.</p>
+<p>The purpose of this article is to describe the options needed for the RHEL WSL distribution so that it can be used as a Podman machine.</p>
+<p>To use the RHEL WSL image as a Podman machine, ensure that the following packages are installed:</p>
+<ul>
+<li>podman</li>
+<li>podman-docker</li>
+<li>procps-ng</li>
+<li>openssh-server</li>
+<li>net-tools</li>
+<li>iproute</li>
+<li>dhcp-client</li>
+<li>sudo</li>
+<li>systemd-networkd</li>
+</ul>
+<p>Luckily, all but the last package are available from the pre-configured RHEL 9 repositories. The last package (systemd-networkd) is available from the EPEL 9 repository and will need to be configured when building the image.</p>
+<h1>Build the image</h1>
+<p>Navigate to <a href="https://console.redhat.com/insights/image-builder" target="_blank" rel="noopener noreferrer">image builder</a></p>
+<p><img decoding="async" loading="lazy" alt="image builder" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine1-a03f67afde625190d74d0e7aa117528a.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>On the upper right menu, enable the <strong>Preview</strong> mode.</p>
+<p><img decoding="async" loading="lazy" alt="image builder preview" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine2-cd1aedd3acf8bf835fe3761f5331e065.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>Click <strong>Add blueprint</strong> to open the <strong>Create image</strong> dialog wizard.</p>
+<p><img decoding="async" loading="lazy" alt="image wizard" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine3-3722e30a8756b4114c518e869ec034aa.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>On the <strong>Image output</strong> page, select the following:</p>
+<ul>
+<li>From the <strong>Release</strong> list, select Red Hat Enterprise Linux (RHEL) 9.</li>
+<li>From the <strong>Select target environments</strong> option, select <strong>WSL - Windows Subsystem for Linux (<strong><code>.tar.gz</code></strong>)</strong>.</li>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+<p>On the <strong>Register</strong> page, select <strong>Automatically register and enable advanced capabilities.</strong></p>
+<ul>
+<li>From the dropdown menu, choose an activation key to use for the image. See <a href="https://access.redhat.com/documentation/en-us/subscription_central/2023/html/getting_started_with_activation_keys_on_the_hybrid_cloud_console/assembly-creating-managing-activation-keys#proc-creating-act-keys-console_" target="_blank" rel="noopener noreferrer">Creating an activation key</a>.</li>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+<p>On the <strong>OpenSCAP</strong> page, as it is not supported for WSL images, click <strong>Next</strong>.</p>
+<p>On the <strong>File system configuration</strong> page, select <strong>Recommended: Use automatic partitioning</strong>.</p>
+<ul>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+<p>On the <strong>Content</strong> page, complete the following steps to add additional packages to your image:</p>
+<ul>
+<li>
+<p>On the Repository snapshot step:</p>
+<ul>
+<li>Select Use latest content.</li>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+</li>
+<li>
+<p>On the Custom repositories step:</p>
+</li>
+</ul>
+<p><img decoding="async" loading="lazy" alt="custom repositories" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine4-85bd2ff6a0121c1e269baf50be44e5e5.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>Click on the <a href="https://console.redhat.com/preview/settings/content" target="_blank" rel="noopener noreferrer">Create and manage repositories here</a> link. This will open a new tab</p>
+<p><img decoding="async" loading="lazy" alt="custom repositories" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine5-bbc7d7a14a6b6fda13bc70f5000d34b6.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>Click <strong>Add repositories now</strong></p>
+<p><img decoding="async" loading="lazy" alt="add custom repository" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine6-9475a7bcf94316356a15c48df3308a44.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>Click <strong>Add repositories</strong></p>
+<p><img decoding="async" loading="lazy" alt="add custom repository" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine7-115c825fbcff74a9f074995d29811662.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>On the <strong>Add custom repositories</strong> page, select the following:</p>
+<ul>
+<li>In the <strong>Name</strong> list, enter EPEL 9.</li>
+<li>In the <strong>URL</strong> field, enter <a href="https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/" target="_blank" rel="noopener noreferrer">https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/</a></li>
+<li>In the <strong>GPG key</strong> field, enter <a href="https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9" target="_blank" rel="noopener noreferrer">https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9</a></li>
+<li>Click <strong>Save</strong>.</li>
+</ul>
+<p>Close the tab and switch back to the previous one</p>
+<ul>
+<li>In the filter input field, type EPEL</li>
+<li>Select the EPEL 9 repository</li>
+</ul>
+<p><img decoding="async" loading="lazy" alt="custom repository created" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine8-1eb9c53d13af934379575dfbfe18b719.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>Click <strong>Next</strong></p>
+<ul>
+<li>
+<p>On the Additional packages step:</p>
+<ul>
+<li>On the <strong>Available packages</strong> search field, enter podman and click the <strong>→</strong> button.</li>
+<li>Select the podman and podman-docker packages.</li>
+<li>On the <strong>Available packages</strong> search field, enter procps-ng and click the <strong>→</strong> button.</li>
+<li>Select the procps-ng package.</li>
+<li>On the <strong>Available packages</strong> search field, enter openssh-server and click the <strong>→</strong> button.</li>
+<li>Select the openssh-server package.</li>
+<li>On the <strong>Available packages</strong> search field, enter net-tools and click the <strong>→</strong> button.</li>
+<li>Select the net-tools package.</li>
+<li>On the <strong>Available packages</strong> search field, enter iproute and click the <strong>→</strong> button.</li>
+<li>Select the iproute package.</li>
+<li>On the <strong>Available packages</strong> search field, enter dhcp-client and click the <strong>→</strong> button.</li>
+<li>Select the dhcp-client package.</li>
+<li>On the <strong>Available packages</strong> search field, enter sudo and click the <strong>→</strong> button.</li>
+<li>Select the sudo package and click the <strong>&gt;</strong> button to add the selected package shown in the package search results to the <strong>Chosen packages</strong> dual list box.</li>
+<li>On the <strong>Available packages</strong> search field, enter systemd and click the <strong>→</strong> button.</li>
+<li>Select the systemd-networkd package.</li>
+<li>Click <strong>Next</strong></li>
+</ul>
+</li>
+</ul>
+<p>On the <strong>First boot script configuration</strong> page:</p>
+<ul>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+<p>On the <strong>Details</strong> page:</p>
+<ul>
+<li>In the <strong>Blueprint name</strong>, enter rhel-wsl.</li>
+<li>Click <strong>Next</strong>.</li>
+</ul>
+<p>On the <strong>Review</strong> page:</p>
+<ul>
+<li>Click <strong>Create blueprint and build image</strong>.</li>
+</ul>
+<p><img decoding="async" loading="lazy" alt="images list" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine9-016d0ae2258367bed247abcd6248cc9c.png" width="1920" height="1032" class="img_SS3x"></p>
+<p>The image is being built. Once the build is finished, the download link will be available. Click on the <strong>Download (.tar.gz)</strong> link and save the downloaded file to one of your local folders.</p>
+<h1>Create the RHEL WSL podman machine</h1>
+<p>Launch Podman Desktop and go to the <strong>Settings -&gt; Resources</strong> page:</p>
+<p><img decoding="async" loading="lazy" alt="images list" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine10-6b7afc55336df9306d0d9a43aced99a1.png" width="1314" height="876" class="img_SS3x"></p>
+<p>On the Podman provider, click on <strong>Create new ...</strong></p>
+<p>On the <strong>Create Podman machine</strong> page, click the <strong>Browse</strong> button for the <strong>Image Path</strong> field and select the file downloaded from Image Builder.</p>
+<p><img decoding="async" loading="lazy" alt="create podman machine" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine11-e62f8ba4c90180494a862954dc2c9e7d.png" width="1314" height="1020" class="img_SS3x"></p>
+<p>Click on the <strong>Create</strong> button: the machine will be created and started. After a short time, the operation status should be reported.</p>
+<p><img decoding="async" loading="lazy" alt="podman machine created" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine12-dc8c5c8da02f8bc30f77e061540dd502.png" width="1314" height="1020" class="img_SS3x"></p>
+<h1>Let's play with the RHEL WSL podman machine</h1>
+<p>Go to the <strong>Images</strong> page and pull the <strong>httpd</strong> image</p>
+<p><img decoding="async" loading="lazy" alt="pull httpd image" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine13-6b5d5d6b88bb552fad67b7e6c532c8eb.png" width="1314" height="1020" class="img_SS3x"></p>
+<p>Click on <strong>Done</strong></p>
+<p><img decoding="async" loading="lazy" alt="images list" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine14-2787f96f2d303d0738a032ba87b413f0.png" width="1314" height="1020" class="img_SS3x"></p>
+<p>Start the image by clicking on the <strong>Run image</strong> icon</p>
+<p><img decoding="async" loading="lazy" alt="images list" src="https://podman-desktop.io/assets/images/rhel-wsl-podman-machine15-36a0a93c5e31b7fb4967daa43f545961.png" width="1314" height="1020" class="img_SS3x"></p>
+<p>Once the container is started, the Apache server can be accessed on <a href="http://localhost:9000/" target="_blank" rel="noopener noreferrer">http://localhost:9000</a></p>]]></content>
+        <author>
+            <name>Jeff Maury</name>
+            <uri>https://github.com/jeffmaury</uri>
+        </author>
+        <category label="podman-desktop" term="podman-desktop"/>
+        <category label="podman" term="podman"/>
+        <category label="rhel" term="rhel"/>
+        <category label="wsl" term="wsl"/>
+        <category label="machine" term="machine"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Podman Desktop 1.11 Release]]></title>
         <id>https://podman-desktop.io/blog/podman-desktop-release-1.11</id>
         <link href="https://podman-desktop.io/blog/podman-desktop-release-1.11"/>
@@ -2795,106 +2939,6 @@ This is functionally equal to the <code>frontend</code> deployment that the Kube
         </author>
         <category label="podman-desktop" term="podman-desktop"/>
         <category label="story" term="story"/>
-        <category label="kubernetes" term="kubernetes"/>
-        <category label="kind" term="kind"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Release Notes - Podman Desktop 0.14]]></title>
-        <id>https://podman-desktop.io/blog/podman-desktop-release-0.14</id>
-        <link href="https://podman-desktop.io/blog/podman-desktop-release-0.14"/>
-        <updated>2023-04-14T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Podman Desktop 0.14 has been released!]]></summary>
-        <content type="html"><![CDATA[<p>Podman Desktop 0.14 - Our Kind-est release yet!</p>
-<p>We have been working on a Kind extension for a while now, and decided it is time to promote it
-into a release just in time for KubeCon and CloudNativeCon Europe!</p>
-<p>We're especially excited about releasing Kind because it finally shows the full purpose
-of Podman Desktop: not just local container engines, but Kubernetes too. More importantly,
-providing tools that allow you to manage both environments and seamlessly move between them.</p>
-<p>Some of these features were available in development mode over the last few releases,
-but since they are now in the release build, we will do a full roundup and talk about
-all the Kind features.</p>
-<ul>
-<li><strong>Kind Installation</strong>: Install Kind from the status bar</li>
-<li><strong>Manage Kind Clusters</strong>: Create and manage Kind clusters from <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Resources</strong></li>
-<li><strong>Using Kind</strong>: Deploying YAML and sharing images to a cluster</li>
-<li><strong>Kind Ingress</strong>: Install a Contour ingress controller</li>
-<li><strong>UX and UI Improvements</strong>: Updated preferences and telemetry prompt</li>
-</ul>
-<p>Podman Desktop 0.14 is now available. <a href="https://podman-desktop.io/downloads">Click here to download it</a>!</p>
-<p><img decoding="async" loading="lazy" alt="Podman-desktop-0-14-hero" src="https://podman-desktop.io/assets/images/podman-desktop-release-0.14-5d7adb6814b7191ab2623cdd431642f3.png" width="1140" height="1097" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="release-details">Release details<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#release-details" class="hash-link" aria-label="Direct link to Release details" title="Direct link to Release details">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="kind-installation">Kind Installation<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#kind-installation" class="hash-link" aria-label="Direct link to Kind Installation" title="Direct link to Kind Installation">​</a></h3>
-<p>Get Kind up and running in seconds! The Kind extension is now bundled as part of Podman Desktop
-<a href="https://github.com/containers/podman-desktop/issues/1421" target="_blank" rel="noopener noreferrer">1421</a>
-and allows you to easily <a href="https://podman-desktop.io/docs/kind/installing">install Kind directly from the status bar</a>
-<a href="https://github.com/containers/podman-desktop/issues/1257" target="_blank" rel="noopener noreferrer">1257</a>.</p>
-<p>The installed <code>kind</code> CLI is available from the system shell <a href="https://github.com/containers/podman-desktop/issues/1516" target="_blank" rel="noopener noreferrer">1516</a>,
-allowing you to open a terminal window to <code>kind get clusters</code> or work with other tools.</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="manage-kind-clusters">Manage Kind Clusters<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#manage-kind-clusters" class="hash-link" aria-label="Direct link to Manage Kind Clusters" title="Direct link to Manage Kind Clusters">​</a></h3>
-<p>Once Kind is installed (or if you already had it), you can manage your clusters in <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Resources</strong>.
-From here you can <a href="https://podman-desktop.io/docs/kind/creating-a-kind-cluster">create Kind clusters</a>,
-start/stop <a href="https://github.com/containers/podman-desktop/issues/1953" target="_blank" rel="noopener noreferrer">1953</a>
-or delete <a href="https://github.com/containers/podman-desktop/issues/1977" target="_blank" rel="noopener noreferrer">1977</a> them.</p>
-<p><img decoding="async" loading="lazy" alt="kind-clusters" src="https://podman-desktop.io/assets/images/kind-clusters-580828529dfdd23680262d7ee586823d.png" width="1484" height="364" class="img_SS3x"></p>
-<p>The Kind control plane runs as a container. You will see this container
-in the <strong>Container</strong> list and can also start or stop it from there.</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="using-kind">Using Kind<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#using-kind" class="hash-link" aria-label="Direct link to Using Kind" title="Direct link to Using Kind">​</a></h3>
-<p>Now that you have Kind installed and running, what can you do with it?
-If you like terminals, you can always open one up and use the Kind CLI to
-<a href="https://kind.sigs.k8s.io/docs/user/quick-start/#interacting-with-your-cluster" target="_blank" rel="noopener noreferrer">interact with your cluster</a>.</p>
-<p>Within Podman Desktop we have started with two ways to interact with the cluster.
-The first is the ability to play local YAML files on your Kind (or any other Kubernetes!) cluster <a href="https://github.com/containers/podman-desktop/issues/1261" target="_blank" rel="noopener noreferrer">1261</a>. This allows you to take existing Kubernetes YAML definitions -
-your deployments, services, or other objects - and deploy it to the cluster.</p>
-<div style="width:100%;height:100%"></div>
-<p>As you deploy pods, they will automatically appear in the list of <strong>Pods</strong> <a href="https://github.com/containers/podman-desktop/issues/1263" target="_blank" rel="noopener noreferrer">1263</a>, allowing you to start, stop, and interact them just like pods running on Podman.</p>
-<p>One of the most common uses is to deploy a container that you have been running on Podman, and this will fail
-if the image is not available in Kind. To solve this we have made it easy to push images from
-Podman to Kind <a href="https://github.com/containers/podman-desktop/issues/1448" target="_blank" rel="noopener noreferrer">1448</a>.</p>
-<p><img decoding="async" loading="lazy" alt="push-image-kind" src="https://podman-desktop.io/assets/images/push-image-kind-ea3f19b80ab3ce13cdfadbbb63762780.png" width="1054" height="152" class="img_SS3x"></p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="kind-ingress">Kind Ingress<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#kind-ingress" class="hash-link" aria-label="Direct link to Kind Ingress" title="Direct link to Kind Ingress">​</a></h3>
-<p>If you deploy a pod to Kind, you are also going to want to reach it! To do this you will need to install a load balancer or
-ingress controller so that the pod is accessible from outside the cluster. We made it easy to install the Contour ingress
-controller while creating a Kind cluster <a href="https://github.com/containers/podman-desktop/issues/1675" target="_blank" rel="noopener noreferrer">1675</a>,
-so if you created your cluster with Podman Desktop it is already there!</p>
-<p><img decoding="async" loading="lazy" alt="kind-ingress" src="https://podman-desktop.io/assets/images/kind-ingress-ab2dd4054a7ce838c758ddc0d98cc5cb.png" width="1328" height="1238" class="img_SS3x"></p>
-<p>We have several other Kind and Kubernetes features planned to expand the supported scenarios, but hopefully this
-makes it easy to get started with Kind and shows where we're headed. As always, feedback is appreciated!</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="ui-and-ux-improvements">UI and UX improvements<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#ui-and-ux-improvements" class="hash-link" aria-label="Direct link to UI and UX improvements" title="Direct link to UI and UX improvements">​</a></h3>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="updated-preferences">Updated Preferences<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#updated-preferences" class="hash-link" aria-label="Direct link to Updated Preferences" title="Direct link to Updated Preferences">​</a></h4>
-<p>The <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Preferences</strong> page has been updated with a new design <a href="https://github.com/containers/podman-desktop/pull/1913" target="_blank" rel="noopener noreferrer">1913</a>,
-making it easier to see and change preferences. Changes are live, no more Update button.</p>
-<p><img decoding="async" loading="lazy" src="https://user-images.githubusercontent.com/49404737/229498507-e754b55c-dcbd-486d-9ee3-a1fe3bed7271.gif" alt="preferences" class="img_SS3x"></p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="telemetry-prompt">Telemetry Prompt<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#telemetry-prompt" class="hash-link" aria-label="Direct link to Telemetry Prompt" title="Direct link to Telemetry Prompt">​</a></h4>
-<p>The prompt to enable or disable telemetry has been moved from its own dialog into the <strong>Welcome</strong> screen.
-<a href="https://github.com/containers/podman-desktop/pull/1927" target="_blank" rel="noopener noreferrer">1927</a>
-This is more usable, one less prompt, and solves a window-layering issue for some users!</p>
-<p><img decoding="async" loading="lazy" src="https://user-images.githubusercontent.com/19958075/229577331-365a9a01-0426-4482-a95d-f5dfe39af90a.png" alt="telemetry prompt" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="other-notable-enhancements">Other notable enhancements<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#other-notable-enhancements" class="hash-link" aria-label="Direct link to Other notable enhancements" title="Direct link to Other notable enhancements">​</a></h2>
-<ul>
-<li>Extension support for opening an external URL <a href="https://github.com/containers/podman-desktop/pull/2028" target="_blank" rel="noopener noreferrer">2028</a> and
-accessing the clipboard <a href="https://github.com/containers/podman-desktop/pull/2023" target="_blank" rel="noopener noreferrer">2023</a></li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="documentation">Documentation<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#documentation" class="hash-link" aria-label="Direct link to Documentation" title="Direct link to Documentation">​</a></h2>
-<p>Naturally, we have a section in the documentation just for <a href="https://podman-desktop.io/docs/kind" target="_blank" rel="noopener noreferrer">Kind</a>.</p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="notable-bug-fixes">Notable bug fixes<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#notable-bug-fixes" class="hash-link" aria-label="Direct link to Notable bug fixes" title="Direct link to Notable bug fixes">​</a></h2>
-<ul>
-<li>Avoid a dialog box if unable to check for updates <a href="https://github.com/containers/podman-desktop/pull/2062" target="_blank" rel="noopener noreferrer">2062</a></li>
-<li>Unable to get to the Dashboard if Kind (or Kubernetes) cluster was not running <a href="https://github.com/containers/podman-desktop/issues/2052" target="_blank" rel="noopener noreferrer">2052</a></li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="final-notes">Final notes<a href="https://podman-desktop.io/blog/podman-desktop-release-0.14#final-notes" class="hash-link" aria-label="Direct link to Final notes" title="Direct link to Final notes">​</a></h2>
-<p>The complete list of issues fixed in this release is available <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A0.14.0" target="_blank" rel="noopener noreferrer">here</a>.</p>
-<p>Get the latest release from the <a href="https://podman-desktop.io/downloads">Downloads</a> section of the website and boost your development journey with Podman Desktop. Additionally, visit the <a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer">GitHub repository</a> and see how you can help us make Podman Desktop better.</p>]]></content>
-        <author>
-            <name>Tim deBoer</name>
-            <uri>https://github.com/deboer-tim</uri>
-        </author>
-        <category label="podman-desktop" term="podman-desktop"/>
-        <category label="release" term="release"/>
         <category label="kubernetes" term="kubernetes"/>
         <category label="kind" term="kind"/>
     </entry>
