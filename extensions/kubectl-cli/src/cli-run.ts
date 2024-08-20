@@ -29,6 +29,25 @@ export interface RunOptions {
 
 const localBinDir = '/usr/local/bin';
 
+export function getSystemBinaryPath(binaryName: string): string {
+  switch (process.platform) {
+    case 'win32':
+      return path.join(
+        os.homedir(),
+        'AppData',
+        'Local',
+        'Microsoft',
+        'WindowsApps',
+        binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
+      );
+    case 'darwin':
+    case 'linux':
+      return path.join(localBinDir, binaryName);
+    default:
+      throw new Error(`unsupported platform: ${process.platform}.`);
+  }
+}
+
 // Takes a binary path (e.g. /tmp/kubectl) and installs it to the system. Renames it based on binaryName
 export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
   const system = process.platform;
@@ -45,19 +64,16 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
 
   // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
   // and the appropriate command to move the binary to the destination path
-  let destinationPath: string;
+  const destinationPath: string = getSystemBinaryPath(binaryName);
   let args: string[] = [];
   let command: string | undefined;
   if (system === 'win32') {
-    destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
     command = 'copy';
     args = [`"${binaryPath}"`, `"${destinationPath}"`];
   } else if (system === 'darwin') {
-    destinationPath = path.join(localBinDir, binaryName);
     command = 'exec';
     args = ['cp', binaryPath, destinationPath];
   } else if (system === 'linux') {
-    destinationPath = path.join(localBinDir, binaryName);
     command = '/bin/sh';
     args = ['-c', `cp ${binaryPath} ${destinationPath}`];
   }

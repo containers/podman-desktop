@@ -44,15 +44,17 @@ export class KubectlDownload {
   }
 
   // Create a "quickpick" prompt to ask the user which version of kubectl they want to download
-  async promptUserForVersion(): Promise<KubectlGithubReleaseArtifactMetadata> {
+  async promptUserForVersion(currentKubectlTag?: string): Promise<KubectlGithubReleaseArtifactMetadata> {
     // Get the latest releases
-    const lastReleasesMetadata = await this.kubectlGitHubReleases.grabLatestsReleasesMetadata();
-
+    let lastReleasesMetadata = await this.kubectlGitHubReleases.grabLatestsReleasesMetadata();
+    // if the user already has an installed version, we remove it from the list
+    if (currentKubectlTag) {
+      lastReleasesMetadata = lastReleasesMetadata.filter(release => release.tag.slice(1) !== currentKubectlTag);
+    }
     // Show the quickpick
     const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
       placeHolder: 'Select kubectl version to download',
     });
-
     if (selectedRelease) {
       return selectedRelease;
     } else {

@@ -20,12 +20,13 @@
 import * as path from 'node:path';
 import { afterEach } from 'node:test';
 
-import type { CliToolUpdate, Configuration, Logger } from '@podman-desktop/api';
+import type { CliToolSelectUpdate, Configuration, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { installBinaryToSystem } from './cli-run';
+import * as cliRun from './cli-run';
 import * as KubectlExtension from './extension';
+import type { KubectlGithubReleaseArtifactMetadata } from './kubectl-github-releases';
 import { KubectlGitHubReleases } from './kubectl-github-releases';
 
 const extensionContext = {
@@ -35,6 +36,7 @@ const extensionContext = {
 
 vi.mock('./cli-run', () => ({
   installBinaryToSystem: vi.fn(),
+  getSystemBinaryPath: vi.fn(),
 }));
 
 vi.mock('./kubectl-github-releases', () => ({
@@ -75,6 +77,9 @@ vi.mock('@podman-desktop/api', () => {
     },
     provider: {
       createProvider: vi.fn(),
+    },
+    window: {
+      showQuickPick: vi.fn(),
     },
   };
 });
@@ -127,6 +132,7 @@ test('kubectl CLI tool registered when detected and extension is activated', asy
     stdout: JSON.stringify(jsonStdout),
     command: 'kubectl version --client=true -o=json',
   });
+  vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('path');
 
   const deferred = new Promise<void>(resolve => {
     vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
@@ -362,19 +368,30 @@ test('findKubeCtl not global kubectl but in storage installed on macOS', async (
 });
 
 describe('postActivate', () => {
-  beforeEach(() => {
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
-      stderr: '',
-      stdout: JSON.stringify(jsonStdout),
-      command: 'kubectl version --client=true -o=json',
-    });
-  });
-
   test('postActivate should registerUpdate', async () => {
-    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          if (_args?.[0] === 'version') {
+            resolve({
+              stderr: '',
+              stdout: JSON.stringify(jsonStdout),
+              command: 'kubectl version --client=true -o=json',
+            });
+            return;
+          }
+          resolve({
+            stderr: '',
+            stdout: 'system-path',
+            command: 'which kubectl',
+          });
+        }),
+    );
+    const deferredCliUpdate: Promise<CliToolSelectUpdate> = new Promise<CliToolSelectUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
         return {
-          registerUpdate: (listener: CliToolUpdate) => {
+          registerUpdate: (listener: CliToolSelectUpdate) => {
             resolve(listener);
             return {
               dispose: vi.fn(),
@@ -390,34 +407,47 @@ describe('postActivate', () => {
     return deferredCliUpdate;
   });
 
-  test('onUpdate should dispose itself', async () => {
-    const disposeMock = vi.fn();
-    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
-      vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
-        return {
-          registerUpdate: (listener: CliToolUpdate) => {
-            resolve(listener);
-            return {
-              dispose: disposeMock,
-            };
-          },
-          updateVersion: vi.fn(),
-        } as unknown as extensionApi.CliTool;
-      });
-    });
-
-    await KubectlExtension.activate(extensionContext);
-
-    const cliUpdate = await deferredCliUpdate;
-    await cliUpdate.doUpdate({} as unknown as Logger);
-    expect(disposeMock).toHaveBeenCalled();
-  });
-
   test('onUpdate should download and install binary', async () => {
-    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          if (_args?.[0] === 'version') {
+            resolve({
+              stderr: '',
+              stdout: JSON.stringify(jsonStdout),
+              command: 'kubectl version --client=true -o=json',
+            });
+            return;
+          }
+          resolve({
+            stderr: '',
+            stdout: 'system-path',
+            command: 'which kubectl',
+          });
+        }),
+    );
+    vi.mocked(extensionApi.window.showQuickPick).mockResolvedValue({
+      label: 'Kubernetes v1.1.0',
+      tag: 'v1.1.0',
+      id: -1,
+    } as KubectlGithubReleaseArtifactMetadata);
+    // mock return value bellow current
+    vi.mocked(KubectlGitHubReleases).mockReturnValue({
+      grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
+        {
+          label: 'Kubernetes v1.1.0',
+          tag: 'v1.1.0',
+          id: -1,
+        },
+      ]),
+      getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
+      downloadReleaseAsset: downloadReleaseAssetMock,
+    } as unknown as KubectlGitHubReleases);
+    const deferredCliUpdate: Promise<CliToolSelectUpdate> = new Promise<CliToolSelectUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
         return {
-          registerUpdate: (listener: CliToolUpdate) => {
+          registerUpdate: (listener: CliToolSelectUpdate) => {
             resolve(listener);
             return {
               dispose: vi.fn(),
@@ -431,16 +461,36 @@ describe('postActivate', () => {
     await KubectlExtension.activate(extensionContext);
 
     const cliUpdate = await deferredCliUpdate;
+    await cliUpdate.selectVersion();
     await cliUpdate.doUpdate({} as unknown as Logger);
 
     expect(downloadReleaseAssetMock).toHaveBeenCalledWith('dummy download url', expect.anything());
-    expect(installBinaryToSystem).toHaveBeenCalledWith(expect.anything(), 'kubectl');
-    expect(vi.mocked(installBinaryToSystem).mock.calls[0][0]).toContain(
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith(expect.anything(), 'kubectl');
+    expect(vi.mocked(cliRun.installBinaryToSystem).mock.calls[0][0]).toContain(
       path.resolve(extensionContext.storagePath, 'bin', 'kubectl'),
     );
   });
 
-  test('onUpdate should not be registered if version is bellow current version', async () => {
+  test('onUpdate should not be registered if tool has been installed by user', async () => {
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          if (_args?.[0] === 'version') {
+            resolve({
+              stderr: '',
+              stdout: JSON.stringify(jsonStdout),
+              command: 'kubectl version --client=true -o=json',
+            });
+            return;
+          }
+          resolve({
+            stderr: '',
+            stdout: 'user-path',
+            command: 'which kubectl',
+          });
+        }),
+    );
     // mock return value bellow current
     vi.mocked(KubectlGitHubReleases).mockReturnValue({
       grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([

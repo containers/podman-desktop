@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as path from 'node:path';
+
 import type {
   AuditRequestItems,
   CancellationToken,
@@ -32,7 +34,7 @@ import { connectionAuditor, createCluster } from './create-cluster';
 import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
 import { KindInstaller } from './kind-installer';
-import { getKindBinaryInfo, getKindPath } from './util';
+import { getKindBinaryInfo, getKindPath, getSystemBinaryPath } from './util';
 
 const KIND_MARKDOWN = `Podman Desktop can help you run Kind-powered local Kubernetes clusters on a container engine, such as Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/kind)`;
 
@@ -335,9 +337,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
 
   let binary: { path: string; version: string } | undefined = undefined;
+  let installationSource: extensionApi.CliToolInstallationSource | undefined;
   // let's try to get system-wide kind install first
   try {
     binary = await getKindBinaryInfo('kind');
+    const systemPath = getSystemBinaryPath('kind');
+    installationSource = path.normalize(binary.path) === path.normalize(systemPath) ? 'appInstalled' : 'userInstalled';
   } catch (err: unknown) {
     console.error(err);
   }
@@ -346,6 +351,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (!binary) {
     try {
       binary = await getKindBinaryInfo(installer.getInternalDestinationPath());
+      installationSource = 'appInstalled';
     } catch (err: unknown) {
       console.error(err);
     }
@@ -353,7 +359,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // if the binary exists (either system-wide or in extension storage)
   // we register it
-  if (binary) {
+  if (binary && installationSource) {
     kindPath = binary.path;
     kindCli = extensionApi.cli.createCliTool({
       name: 'kind',
@@ -364,6 +370,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       path: binary.path,
       displayName: 'kind',
       markdownDescription: KIND_MARKDOWN,
+      installationSource,
     });
   }
 
@@ -428,6 +435,7 @@ async function kindInstall(
     path: binaryInfo.path,
     displayName: 'kind',
     markdownDescription: KIND_MARKDOWN,
+    installationSource: 'appInstalled',
   });
 
   await createProvider(extensionContext, telemetryLogger);
