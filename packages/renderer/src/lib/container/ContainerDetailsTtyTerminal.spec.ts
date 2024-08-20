@@ -79,7 +79,6 @@ test('expect being able to attach terminal ', async () => {
   // search a div having aria-live="assertive" attribute
   await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]') !== undefined);
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
-  console.log(terminalLinesLiveRegion);
   // check the content
   expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
 

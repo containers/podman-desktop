@@ -16,7 +16,7 @@ export let pod: PodInfoUI;
 // Log
 let refPod: PodInfoUI;
 // Logs has been initialized
-let noLogs = false;
+let noLogs = true;
 let logsTerminal: Terminal;
 
 // need to refresh logs when pod is switched or state changes
