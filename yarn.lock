@@ -18931,10 +18931,10 @@ undici-types@~6.19.2:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.6.tgz#e218c3df0987f4c0e0008ca00d6b6472d9b89b36"
   integrity sha512-e/vggGopEfTKSvj4ihnOLTsqhrKRN3LeO6qSN/GxohhuRv8qH9bNQ4B8W7e/vFL+0XTnmHPB4/kegunZGA4Org==
 
-undici@^6.19.5, undici@^6.19.6:
-  version "6.19.7"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.7.tgz#7d4cf26dc689838aa8b6753a3c5c4288fc1e0216"
-  integrity sha512-HR3W/bMGPSr90i8AAp2C4DM3wChFdJPLrWYpIS++LxS8K+W535qftjt+4MyjNYHeWabMj1nvtmLIi7l++iq91A==
+undici@^6.19.5, undici@^6.19.8:
+  version "6.19.8"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.8.tgz#002d7c8a28f8cc3a44ff33c3d4be4d85e15d40e1"
+  integrity sha512-U8uCCl2x9TK3WANvmBavymRzxbfFYG+tAu+fgx3zxQy3qdagQqBLwJVrdyO1TBfUXvfKveMKJZhpvUYoOjM+4g==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
