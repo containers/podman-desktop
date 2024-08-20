@@ -10,7 +10,7 @@ import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let terminal: Terminal;
 export let convertEol: boolean | undefined = undefined;
-export let disableStdIn: boolean | undefined = undefined;
+export let disableStdIn: boolean = true;
 export let screenReaderMode: boolean | undefined = undefined;
 
 let logsXtermDiv: HTMLDivElement;
