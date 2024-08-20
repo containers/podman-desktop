@@ -27,6 +27,7 @@ import { DetailsPage } from './details-page';
 export class ContainerDetailsPage extends DetailsPage {
   readonly stopButton: Locator;
   readonly deleteButton: Locator;
+  readonly imageLink: Locator;
 
   static readonly SUMMARY_TAB = 'Summary';
   static readonly LOGS_TAB = 'Logs';
@@ -38,6 +39,7 @@ export class ContainerDetailsPage extends DetailsPage {
     super(page, name);
     this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
+    this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
   }
 
   async getState(): Promise<string> {

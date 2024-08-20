@@ -23,6 +23,7 @@ import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainersPage } from '../model/pages/containers-page';
+import { ImageDetailsPage } from '../model/pages/image-details-page';
 import type { ImagesPage } from '../model/pages/images-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
@@ -147,7 +148,18 @@ describe('Verification of container creation workflow', async () => {
     await containersDetails.activateTab('Terminal');
     // TODO: After updating of accessibility of various element in containers pages, we can extend test
   });
-
+  test('Redirecting to image details from a container details', async () => {
+    const navigationBar = new NavigationBar(page);
+    const containers = await navigationBar.openContainers();
+    const containersDetails = await containers.openContainersDetails(containerToRun);
+    await playExpect(containersDetails.heading).toBeVisible();
+    await playExpect(containersDetails.heading).toContainText(containerToRun);
+    await playExpect(containersDetails.imageLink).toBeVisible();
+    await containersDetails.imageLink.click();
+    const imageDetails = new ImageDetailsPage(page, imageToPull);
+    await playExpect(imageDetails.heading).toBeVisible();
+    await playExpect(imageDetails.heading).toContainText(imageToPull);
+  });
   test('Stopping a container from Container details', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();

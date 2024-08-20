@@ -69,6 +69,7 @@ onMount(() => {
     <StatusIcon slot="icon" icon={ContainerIcon} size={24} status={container.state} />
     <svelte:fragment slot="subtitle">
       <Link
+        aria-label="Image Details"
         on:click={() => {
           if (container.imageHref) {
             router.goto(container.imageHref);
