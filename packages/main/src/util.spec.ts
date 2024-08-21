@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,9 @@ test('getBase64Image - return undefined if erroring durin execution', () => {
 });
 
 test('getBase64Image - return base64 image', () => {
-  const buffer: Buffer = {} as Buffer;
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'readFileSync').mockReturnValue('file');
-  vi.spyOn(Buffer, 'from').mockReturnValue(buffer);
-  vi.spyOn(buffer, 'toString').mockReturnValue('image');
+  vi.spyOn(fs, 'readFileSync').mockReturnValue('image');
 
   const result = getBase64Image('path');
-  expect(result).toBe('data:image/png;base64,image');
+  expect(result).toBe('data:image/png;base64,aW1hZ2U=');
 });
