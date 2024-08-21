@@ -262,11 +262,13 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
 
   // update existing CLI tool
   if (composeCliTool) {
-    composeCliTool.updateVersion({
-      version: binaryVersion,
-      path: binaryPath,
-      installationSource,
-    });
+    if (binaryVersion) {
+      composeCliTool.updateVersion({
+        version: binaryVersion,
+        path: binaryPath,
+        installationSource,
+      });
+    }
   } else {
     // Register the CLI tool so it appears in the preferences page.
     composeCliTool = extensionApi.cli.createCliTool({
