@@ -36,6 +36,13 @@ export class WindowHandler {
     this.#configurationRegistry = configurationRegistry;
   }
 
+  // sets the bounds of the Window
+  protected resizeWindow(bounds: Rectangle): void {
+    // we do not use setBounds as it seems it's setting/keeping data per screen
+    this.#browserWindow.setSize(bounds.width, bounds.height);
+    this.#browserWindow.setPosition(bounds.x, bounds.y);
+  }
+
   // try to restore the window position and size
   restore(initialBounds: Rectangle): void {
     // grab value of the width and height from the configuration
@@ -79,14 +86,14 @@ export class WindowHandler {
           centeredBounds.y > newScreenArea.y + newScreenArea.height
         ) {
           // no, restore to initial bounds (default size and location)
-          this.#browserWindow.setBounds(initialBounds);
+          this.resizeWindow(initialBounds);
         } else {
           // restore it centered but using the saved width and height
-          this.#browserWindow.setBounds(centeredBounds);
+          this.resizeWindow(centeredBounds);
         }
       } else {
         // restore the window position and size to its saved state
-        this.#browserWindow.setBounds(bounds);
+        this.resizeWindow(bounds);
       }
     }
   }

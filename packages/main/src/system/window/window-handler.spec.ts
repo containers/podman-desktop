@@ -41,7 +41,8 @@ const configurationRegistryMock = {
 } as unknown as ConfigurationRegistry;
 
 const browserWindowMock = {
-  setBounds: vi.fn(),
+  setSize: vi.fn(),
+  setPosition: vi.fn(),
   getBounds: vi.fn(),
 } as unknown as BrowserWindow;
 
@@ -76,7 +77,8 @@ describe('restore window', () => {
     // only one call to get the configuration
     expect(vi.mocked(configurationMock.get)).toBeCalledTimes(1);
 
-    expect(vi.mocked(browserWindowMock).setBounds).not.toBeCalled();
+    expect(vi.mocked(browserWindowMock).setPosition).not.toBeCalled();
+    expect(vi.mocked(browserWindowMock).setSize).not.toBeCalled();
   });
 
   test('perform restore if configuration is enabled', async () => {
@@ -98,7 +100,8 @@ describe('restore window', () => {
     // 5 calls to get the configuration
     expect(vi.mocked(configurationMock.get)).toBeCalledTimes(2);
 
-    expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith(savedBounds);
+    expect(vi.mocked(browserWindowMock).setSize).toBeCalledWith(savedBounds.width, savedBounds.height);
+    expect(vi.mocked(browserWindowMock).setPosition).toBeCalledWith(savedBounds.x, savedBounds.y);
   });
 
   test('perform restore if configuration is enabled but screen is different with saved width/height', async () => {
@@ -128,7 +131,8 @@ describe('restore window', () => {
     centeredBounds.x = Math.floor(display.workArea.x + (display.workArea.width - savedBounds.width) / 2);
     centeredBounds.y = Math.floor(display.workArea.y + (display.workArea.height - savedBounds.height) / 2);
 
-    expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith(centeredBounds);
+    expect(vi.mocked(browserWindowMock).setSize).toBeCalledWith(centeredBounds.width, centeredBounds.height);
+    expect(vi.mocked(browserWindowMock).setPosition).toBeCalledWith(centeredBounds.x, centeredBounds.y);
   });
 
   test('perform restore if configuration is enabled but screen is different with initial width/height', async () => {
@@ -154,12 +158,8 @@ describe('restore window', () => {
 
     // expect we got the initial bounds as it is not fitting
 
-    expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith({
-      height: 768,
-      width: 1024,
-      x: 100,
-      y: 200,
-    });
+    expect(vi.mocked(browserWindowMock).setSize).toBeCalledWith(1024, 768);
+    expect(vi.mocked(browserWindowMock).setPosition).toBeCalledWith(100, 200);
   });
 });
 
