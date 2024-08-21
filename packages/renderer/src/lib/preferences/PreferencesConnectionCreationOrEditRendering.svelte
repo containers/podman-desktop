@@ -209,6 +209,10 @@ function handleInvalidComponent() {
 async function handleValidComponent() {
   isValid = true;
 
+  // it can happen (at least in tests) that some fields are not set yet (NumberItem will wait 500ms before to change value)
+  if (!formEl) {
+    return;
+  }
   const formData = new FormData(formEl);
   const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
