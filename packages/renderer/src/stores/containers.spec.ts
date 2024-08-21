@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const listContainersMock: Mock<any, Promise<ContainerInfo[]>> = vi.fn();
+const listContainersMock: Mock<() => Promise<ContainerInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

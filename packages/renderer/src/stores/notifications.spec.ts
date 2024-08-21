@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const listNotificationsMock: Mock<any, Promise<NotificationCard[]>> = vi.fn();
+const listNotificationsMock: Mock<() => Promise<NotificationCard[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

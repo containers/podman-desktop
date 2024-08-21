@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const listViewsMock: Mock<any, Promise<ViewInfoUI[]>> = vi.fn();
+const listViewsMock: Mock<() => Promise<ViewInfoUI[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
