@@ -1276,6 +1276,28 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle(
+      'cli-tool-registry:selectCliToolVersionToInstall',
+      async (_listener, id: string): Promise<string> => {
+        return cliToolRegistry.selectCliToolVersionToInstall(id);
+      },
+    );
+
+    this.ipcHandle(
+      'cli-tool-registry:installCliTool',
+      async (_listener, id: string, loggerId: string): Promise<void> => {
+        const logger = this.getLogHandler('provider-registry:installCliTool-onData', loggerId);
+        try {
+          await cliToolRegistry.installCliTool(id, logger);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
+      },
+    );
+
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
       return menuRegistry.getContributedMenus(context);
     });

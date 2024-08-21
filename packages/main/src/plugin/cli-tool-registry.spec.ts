@@ -18,7 +18,7 @@
 
 import { afterEach } from 'node:test';
 
-import type { CliToolOptions, CliToolSelectUpdate, CliToolUpdate, Logger } from '@podman-desktop/api';
+import type { CliToolInstaller, CliToolOptions, CliToolSelectUpdate, CliToolUpdate, Logger } from '@podman-desktop/api';
 import { beforeEach, expect, suite, test, vi } from 'vitest';
 
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
@@ -268,7 +268,7 @@ suite('cli module', () => {
       );
     });
 
-    test('throw if there is no updater registered', async () => {
+    test('check the selectVersion function of the updater is called correctly', async () => {
       const updateMock = vi.fn();
       const selectVersionMock = vi.fn();
       const updater: CliToolSelectUpdate = {
@@ -308,6 +308,94 @@ suite('cli module', () => {
       };
       const isCliToolUpdate = cliToolRegistry.isUpdaterToPredefinedVersion(updater);
       expect(isCliToolUpdate).toBeFalsy();
+    });
+  });
+
+  suite('selectCliToolVersionToInstall', () => {
+    test('throw if there is a no installer registered', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      await expect(cliToolRegistry.selectCliToolVersionToInstall(newCliTool.id)).rejects.toThrowError(
+        `No installer registered for ${newCliTool.id}`,
+      );
+    });
+
+    test('check the selectVersion function of the installer is called correctly', async () => {
+      const installMock = vi.fn();
+      const selectVersionMock = vi.fn();
+      const installer: CliToolInstaller = {
+        doInstall: installMock,
+        selectVersion: selectVersionMock,
+      };
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      // register the updater and call the selectCliTool
+      cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
+      await cliToolRegistry.selectCliToolVersionToInstall(newCliTool.id);
+      expect(selectVersionMock).toBeCalled();
+    });
+  });
+
+  suite('installCliTool', () => {
+    const installMock = vi.fn();
+    const selectVersionMock = vi.fn();
+    const installer: CliToolInstaller = {
+      doInstall: installMock,
+      selectVersion: selectVersionMock,
+    };
+    beforeEach(() => {
+      vi.resetAllMocks();
+      vi.restoreAllMocks();
+    });
+    test('check install is not called if there is no installer registered', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      await cliToolRegistry.installCliTool(newCliTool.id, {} as Logger);
+      expect(installMock).not.toBeCalled();
+    });
+
+    test('check install is not called if the installer has been disposed', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      // register the updater and call the selectCliTool
+      const dispose = cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
+      dispose.dispose();
+      await cliToolRegistry.installCliTool(newCliTool.id, {} as Logger);
+      expect(installMock).not.toBeCalled();
+    });
+
+    test('check the install function of the installer is called correctly', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      // register the updater and call the selectCliTool
+      cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
+      await cliToolRegistry.installCliTool(newCliTool.id, {} as Logger);
+      expect(installMock).toBeCalled();
     });
   });
 });
