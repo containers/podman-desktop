@@ -100,6 +100,67 @@ describe('restore window', () => {
 
     expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith(savedBounds);
   });
+
+  test('perform restore if configuration is enabled but screen is different with saved width/height', async () => {
+    const savedBounds: Rectangle = { height: 500, width: 1000, x: 2000, y: 2000 };
+    const display = {
+      workArea: { x: 0, y: 0, width: 1920, height: 1080 },
+    } as Display;
+    vi.mocked(screen.getDisplayMatching).mockReturnValue(display);
+    vi.mocked(configurationMock.get).mockReturnValueOnce(true);
+    vi.mocked(configurationMock.get).mockReturnValueOnce(savedBounds);
+
+    windowHandler.restore(initialBounds);
+
+    // should be the directory provided as env var
+    expect(configurationRegistryMock.getConfiguration).toBeCalledWith('window');
+
+    // first call should be false
+    expect(getConfigurationMock).toBeCalledWith('window');
+
+    // 5 calls to get the configuration
+    expect(vi.mocked(configurationMock.get)).toBeCalledTimes(2);
+
+    // expect we got the centered bounds with existing width and height as current width and height fit
+    const centeredBounds = {
+      ...savedBounds,
+    };
+    centeredBounds.x = Math.floor(display.workArea.x + (display.workArea.width - savedBounds.width) / 2);
+    centeredBounds.y = Math.floor(display.workArea.y + (display.workArea.height - savedBounds.height) / 2);
+
+    expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith(centeredBounds);
+  });
+
+  test('perform restore if configuration is enabled but screen is different with initial width/height', async () => {
+    const savedBounds: Rectangle = { height: 800, width: 1000, x: 2000, y: 2000 };
+    // display is too small to fit the saved window
+    const display = {
+      workArea: { x: 0, y: 0, width: 780, height: 1080 },
+    } as Display;
+    vi.mocked(screen.getDisplayMatching).mockReturnValue(display);
+    vi.mocked(configurationMock.get).mockReturnValueOnce(true);
+    vi.mocked(configurationMock.get).mockReturnValueOnce(savedBounds);
+
+    windowHandler.restore(initialBounds);
+
+    // should be the directory provided as env var
+    expect(configurationRegistryMock.getConfiguration).toBeCalledWith('window');
+
+    // first call should be false
+    expect(getConfigurationMock).toBeCalledWith('window');
+
+    // 5 calls to get the configuration
+    expect(vi.mocked(configurationMock.get)).toBeCalledTimes(2);
+
+    // expect we got the initial bounds as it is not fitting
+
+    expect(vi.mocked(browserWindowMock).setBounds).toBeCalledWith({
+      height: 768,
+      width: 1024,
+      x: 100,
+      y: 200,
+    });
+  });
 });
 
 describe('save window', () => {

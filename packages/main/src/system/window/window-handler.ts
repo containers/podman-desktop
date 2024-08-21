@@ -37,7 +37,7 @@ export class WindowHandler {
   }
 
   // try to restore the window position and size
-  restore(initalBounds: Rectangle): void {
+  restore(initialBounds: Rectangle): void {
     // grab value of the width and height from the configuration
     const windowPreferences = this.#configurationRegistry.getConfiguration(WindowSettings.SectionName);
     const restore = windowPreferences.get<boolean>(WindowSettings.RestorePosition);
@@ -61,7 +61,29 @@ export class WindowHandler {
         bounds.y > screenArea.y + screenArea.height
       ) {
         // Previous stored location is no longer available, restore window into an initial state
-        this.#browserWindow.setBounds(initalBounds);
+
+        // check if we can restore using the current width and height
+        const centeredBounds = {
+          x: Math.floor(screenArea.x + (screenArea.width - bounds.width) / 2),
+          y: Math.floor(screenArea.y + (screenArea.height - bounds.height) / 2),
+          width: bounds.width,
+          height: bounds.height,
+        };
+        const newScreenArea = screen.getDisplayMatching(centeredBounds).workArea;
+
+        // does it fit ?
+        if (
+          centeredBounds.x > newScreenArea.x + newScreenArea.width ||
+          centeredBounds.x < newScreenArea.x ||
+          centeredBounds.y < newScreenArea.y ||
+          centeredBounds.y > newScreenArea.y + newScreenArea.height
+        ) {
+          // no, restore to initial bounds (default size and location)
+          this.#browserWindow.setBounds(initialBounds);
+        } else {
+          // restore it centered but using the saved width and height
+          this.#browserWindow.setBounds(centeredBounds);
+        }
       } else {
         // restore the window position and size to its saved state
         this.#browserWindow.setBounds(bounds);
