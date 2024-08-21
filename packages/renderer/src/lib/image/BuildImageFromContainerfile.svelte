@@ -9,7 +9,9 @@ import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
 
 import FileInput from '/@/lib/ui/FileInput.svelte';
+import { handleNavigation } from '/@/navigation';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
+import { NavigationPage } from '/@api/navigation-page';
 /* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
@@ -249,8 +251,8 @@ function cleanupBuild(): void {
     buildImageInfo = undefined;
   }
 
-  // redirect to the imlage list
-  window.location.href = '#/images';
+  // redirect to the image list
+  handleNavigation({ page: NavigationPage.IMAGES });
 }
 
 onMount(async () => {
