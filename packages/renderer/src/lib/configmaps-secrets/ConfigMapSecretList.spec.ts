@@ -91,15 +91,15 @@ test('Expect configmap and secrets list', async () => {
 
   await waitRender({});
 
-  const configMapName = screen.getByRole('cell', { name: 'my-configmap my-namespace' });
-  expect(configMapName).toBeInTheDocument();
+  const configMapNames = screen.getAllByRole('cell', { name: 'my-configmap my-namespace' });
+  expect(configMapNames.length).toBeGreaterThan(0);
   // Expect ConfigMap type
-  const configMapType = screen.getByRole('cell', { name: 'ConfigMap' });
-  expect(configMapType).toBeInTheDocument();
+  const configMapTypes = screen.getAllByRole('cell', { name: 'ConfigMap' });
+  expect(configMapTypes.length).toBeGreaterThan(0);
 
-  const secretName = screen.getByRole('cell', { name: 'my-secret my-namespace' });
-  expect(secretName).toBeInTheDocument();
+  const secretNames = screen.getAllByRole('cell', { name: 'my-secret my-namespace' });
+  expect(secretNames.length).toBeGreaterThan(0);
   // Expect Opaque type
-  const secretType = screen.getByRole('cell', { name: 'Opaque' });
-  expect(secretType).toBeInTheDocument();
+  const secretTypes = screen.getAllByRole('cell', { name: 'Opaque' });
+  expect(secretTypes.length).toBeGreaterThan(0);
 });

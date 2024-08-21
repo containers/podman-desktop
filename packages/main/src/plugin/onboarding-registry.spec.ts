@@ -45,7 +45,6 @@ const configurationRegistry = {
 } as unknown as ConfigurationRegistry;
 
 const readFileSync = vi.spyOn(fs, 'readFileSync');
-const bufferFrom = vi.spyOn(Buffer, 'from');
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 const context = new Context(apiSender);
 
@@ -84,7 +83,6 @@ describe('an OnboardingRegistry instance exists', () => {
 
     vi.mock('node:fs');
     readFileSync.mockReturnValue(JSON.stringify({}));
-    bufferFrom.mockReturnValue(Buffer.from(''));
   });
 
   test('Should always return onboarding', async () => {
