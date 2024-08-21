@@ -25,7 +25,7 @@ import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 import * as shellPath from 'shell-path';
-import type { Mock, SpyInstance } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi, vitest } from 'vitest';
 
 import { Detect } from './detect';
@@ -246,7 +246,7 @@ describe('Check docker socket', async () => {
       };
     });
 
-    const spyGet = vi.spyOn(http, 'get') as unknown as SpyInstance;
+    const spyGet = vi.spyOn(http, 'get') as unknown as MockInstance;
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as unknown as http.ClientRequest;
 
@@ -279,7 +279,7 @@ describe('Check docker socket', async () => {
       };
     });
 
-    const spyGet = vi.spyOn(http, 'get') as unknown as SpyInstance;
+    const spyGet = vi.spyOn(http, 'get') as unknown as MockInstance;
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as unknown as http.ClientRequest;
 
@@ -309,7 +309,7 @@ describe('Check docker socket', async () => {
       };
     });
 
-    const spyGet = vi.spyOn(http, 'get') as unknown as SpyInstance;
+    const spyGet = vi.spyOn(http, 'get') as unknown as MockInstance;
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as unknown as http.ClientRequest;
     const spyOnce = vi.spyOn(clientRequestEmitter, 'once');

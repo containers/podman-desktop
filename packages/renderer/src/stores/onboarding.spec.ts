@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const listOnboardingMock: Mock<any, Promise<OnboardingInfo[]>> = vi.fn();
+const listOnboardingMock: Mock<() => Promise<OnboardingInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

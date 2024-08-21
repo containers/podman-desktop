@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type * as PodmanDesktop from '@podman-desktop/api';
-import type { SpyInstance } from 'vitest';
+import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ExtensionModule } from './module-loader.js';
@@ -35,7 +35,7 @@ const fakeModule1 = {
 };
 const fakeApi = {} as typeof PodmanDesktop;
 
-let loadSpy: SpyInstance;
+let loadSpy: MockInstance;
 
 beforeEach(() => {
   loadSpy = vi.spyOn(fakeModule, '_load');

@@ -94,10 +94,9 @@ vi.mock('electron', async () => {
 });
 
 let spyIpcRendererOn: MockInstance<
-  [channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void],
-  void
+  (channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) => void
 >;
-let spyBuildApi: MockInstance<[], WebviewApi>;
+let spyBuildApi: MockInstance<() => WebviewApi>;
 beforeEach(() => {
   vi.resetAllMocks();
   webviewPreload = new TestWebwiewPreload('123');

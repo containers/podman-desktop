@@ -75,7 +75,7 @@ const fakeRouter = {
   get: getRouterMock,
 } as unknown as Router;
 
-let spyRouter: MockInstance<[], Router>;
+let spyRouter: MockInstance<() => Router>;
 
 const currentConsoleLog = console.log;
 beforeEach(() => {

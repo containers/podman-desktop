@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const getCommandPaletteCommandsMock: Mock<any, Promise<CommandInfo[]>> = vi.fn();
+const getCommandPaletteCommandsMock: Mock<() => Promise<CommandInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
