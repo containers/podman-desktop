@@ -66,10 +66,10 @@ function validate(event: any) {
       <select
         class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
         id="toggle-proxy"
-        bind:value="{proxyState}">
-        <option value="{0}">System</option>
-        <option value="{1}">Manual</option>
-        <option value="{2}">Disabled</option>
+        bind:value={proxyState}>
+        <option value={0}>System</option>
+        <option value={1}>Manual</option>
+        <option value={2}>Disabled</option>
       </select>
     </label>
 
@@ -83,8 +83,8 @@ function validate(event: any) {
         <Input
           name="httpProxy"
           id="httpProxy"
-          disabled="{proxyState !== ProxyState.PROXY_MANUAL}"
-          bind:value="{proxySettings.httpProxy}"
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
+          bind:value={proxySettings.httpProxy}
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -101,8 +101,8 @@ function validate(event: any) {
         <Input
           name="httpsProxy"
           id="httpsProxy"
-          disabled="{proxyState !== 1}"
-          bind:value="{proxySettings.httpsProxy}"
+          disabled={proxyState !== 1}
+          bind:value={proxySettings.httpsProxy}
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -119,13 +119,13 @@ function validate(event: any) {
         <Input
           name="noProxy"
           id="noProxy"
-          disabled="{proxyState !== 1}"
-          bind:value="{proxySettings.noProxy}"
+          disabled={proxyState !== 1}
+          bind:value={proxySettings.noProxy}
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click="{() => updateProxySettings()}" class="w-full" icon="{faPen}">Update</Button>
+        <Button on:click={() => updateProxySettings()} class="w-full" icon={faPen}>Update</Button>
       </div>
     {/if}
   </div>
