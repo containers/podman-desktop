@@ -33,7 +33,7 @@ const eventEmitter = {
   },
 };
 
-const listPodsMock: Mock<any, Promise<PodInfo[]>> = vi.fn();
+const listPodsMock: Mock<() => Promise<PodInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
