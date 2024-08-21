@@ -12,6 +12,7 @@ import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;
 let showError = false;
+let errorMessage = '';
 let newVersion: string | undefined = cliTool.newVersion;
 let cliToolUpdateStatus: ILoadingStatus;
 $: cliToolUpdateStatus = {
@@ -51,6 +52,7 @@ async function update(cliTool: CliToolInfo) {
     await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {
+    errorMessage = `Unable to update ${cliTool.displayName} to version ${newVersion}.`;
     showError = true;
   } finally {
     cliToolUpdateStatus.inProgress = false;
@@ -65,7 +67,9 @@ async function install(cliTool: CliToolInfo) {
     versionToInstall = await window.selectCliToolVersionToInstall(cliTool.id);
   } catch (e) {
     // do nothing
-    console.log(e);
+    errorMessage = `Error when selecting a version: ${String(e)}`;
+    console.error(e);
+    showError = true;
   }
   if (!versionToInstall) {
     return;
@@ -81,6 +85,7 @@ async function install(cliTool: CliToolInfo) {
     await window.installCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {
+    errorMessage = `Unable to install ${cliTool.displayName} to version ${versionToInstall}.`;
     showError = true;
   } finally {
     cliToolInstallStatus.inProgress = false;
@@ -240,7 +245,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
   {#if showError}
     <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
       <Fa icon={faCircleXmark} class="mr-1 text-red-500" />
-      <span>Unable to update {cliTool.displayName} to version {cliTool.newVersion}. </span>
+      <span>{errorMessage}</span>
       <Button
         type="link"
         padding="p-0"
