@@ -33,7 +33,7 @@ let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
 const PODMAN_MACHINE_NAME: string = 'podman-machine-user-mode';
-const MACHINE_VISIBLE_NAME: string = 'Podman Machine User Mode';
+const MACHINE_VISIBLE_NAME: string = 'Podman Machine user-mode';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
