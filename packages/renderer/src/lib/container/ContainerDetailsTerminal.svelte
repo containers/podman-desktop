@@ -3,8 +3,8 @@ import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
-import { Terminal } from '@xterm/xterm';
 import { SerializeAddon } from '@xterm/addon-serialize';
+import { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
