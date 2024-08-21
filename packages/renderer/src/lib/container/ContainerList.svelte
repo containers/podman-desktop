@@ -15,7 +15,9 @@ import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
+import { handleNavigation } from '/@/navigation';
 import type { ContainerInfo } from '/@api/container-info';
+import { NavigationPage } from '/@api/navigation-page';
 import type { ViewInfoUI } from '/@api/view-info';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
@@ -59,7 +61,7 @@ $: updateContainers(containersInfo, globalContext, viewContributions, searchTerm
 
 function fromExistingImage(): void {
   openChoiceModal = false;
-  window.location.href = '#/images';
+  handleNavigation({ page: NavigationPage.IMAGES });
 }
 
 $: providerConnections = $providerInfos
