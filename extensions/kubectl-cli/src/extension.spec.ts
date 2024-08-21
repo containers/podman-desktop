@@ -397,6 +397,7 @@ describe('postActivate', () => {
               dispose: vi.fn(),
             };
           },
+          registerInstaller: vi.fn(),
           updateVersion: vi.fn(),
         } as unknown as extensionApi.CliTool;
       });
@@ -453,6 +454,7 @@ describe('postActivate', () => {
               dispose: vi.fn(),
             };
           },
+          registerInstaller: vi.fn(),
           updateVersion: vi.fn(),
         } as unknown as extensionApi.CliTool;
       });
@@ -520,5 +522,72 @@ describe('postActivate', () => {
 
     expect(extensionApi.cli.createCliTool).toHaveBeenCalled();
     expect(cliToolMock.registerUpdate).not.toHaveBeenCalled();
+  });
+
+  test('doInstall should download and install binary', async () => {
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          if (_args?.[0] === 'version') {
+            resolve({
+              stderr: '',
+              stdout: '',
+              command: 'kubectl version --client=true -o=json',
+            });
+            return;
+          }
+          resolve({
+            stderr: '',
+            stdout: 'system-path',
+            command: 'which kubectl',
+          });
+        }),
+    );
+    vi.mocked(extensionApi.window.showQuickPick).mockResolvedValue({
+      label: 'Kubernetes v1.1.0',
+      tag: 'v1.1.0',
+      id: -1,
+    } as KubectlGithubReleaseArtifactMetadata);
+    // mock return value bellow current
+    vi.mocked(KubectlGitHubReleases).mockReturnValue({
+      grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
+        {
+          label: 'Kubernetes v1.1.0',
+          tag: 'v1.1.0',
+          id: -1,
+        },
+      ]),
+      getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
+      downloadReleaseAsset: downloadReleaseAssetMock,
+    } as unknown as KubectlGitHubReleases);
+    const deferredCliUpdate: Promise<extensionApi.CliToolInstaller> = new Promise<extensionApi.CliToolInstaller>(
+      resolve => {
+        vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+          return {
+            registerUpdate: vi.fn(),
+            registerInstaller: (listener: extensionApi.CliToolInstaller) => {
+              resolve(listener);
+              return {
+                dispose: vi.fn(),
+              };
+            },
+            updateVersion: vi.fn(),
+          } as unknown as extensionApi.CliTool;
+        });
+      },
+    );
+
+    await KubectlExtension.activate(extensionContext);
+
+    const cliUpdate = await deferredCliUpdate;
+    await cliUpdate.selectVersion();
+    await cliUpdate.doInstall({} as unknown as Logger);
+
+    expect(downloadReleaseAssetMock).toHaveBeenCalledWith('dummy download url', expect.anything());
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith(expect.anything(), 'kubectl');
+    expect(vi.mocked(cliRun.installBinaryToSystem).mock.calls[0][0]).toContain(
+      path.resolve(extensionContext.storagePath, 'bin', 'kubectl'),
+    );
   });
 });

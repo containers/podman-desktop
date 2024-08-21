@@ -39,6 +39,7 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
       withProgress: vi.fn(),
+      createStatusBarItem: vi.fn(),
     },
     cli: {
       createCliTool: vi.fn(),
@@ -167,8 +168,11 @@ describe('cli tool', () => {
     });
   });
 
-  test('activation should not register cli tool when does not exist', async () => {
+  test('activation should register cli tool when does not exist', async () => {
     vi.spyOn(util, 'getKindBinaryInfo').mockRejectedValue(new Error('does not exist'));
+    vi.spyOn(podmanDesktopApi.window, 'createStatusBarItem').mockReturnValue({
+      show: vi.fn(),
+    } as unknown as extensionApi.StatusBarItem);
 
     await activate(
       vi.mocked<extensionApi.ExtensionContext>({
@@ -179,7 +183,14 @@ describe('cli tool', () => {
       } as unknown as extensionApi.ExtensionContext),
     );
 
-    expect(podmanDesktopApi.cli.createCliTool).not.toHaveBeenCalled();
+    expect(podmanDesktopApi.cli.createCliTool).toHaveBeenCalledWith({
+      name: 'kind',
+      images: {
+        icon: './icon.png',
+      },
+      displayName: 'kind',
+      markdownDescription: expect.any(String),
+    });
   });
 
   test('activation should register cli tool when available in storage path', async () => {
