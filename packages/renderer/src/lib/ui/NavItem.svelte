@@ -14,6 +14,7 @@ export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 export let counter: number | undefined = undefined;
+export let tooltipHidden = false;
 
 let inSection: boolean = false;
 let uri: string;
@@ -24,6 +25,13 @@ $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 const navItems: Writable<number> = getContext('nav-items');
 
 $: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
+
+function hideTooltip(node: any) {
+  node.addEventListener('contextmenu', () => {
+    tooltipHidden = true;
+    console.log('hide tooltip');
+  });
+}
 
 onMount(() => {
   inSection = navItems !== undefined;
@@ -38,7 +46,8 @@ onDestroy(() => {
   href={onClick ? '#top' : uri}
   class=""
   aria-label={ariaLabel ? ariaLabel : tooltip}
-  on:click|preventDefault={onClick}>
+  on:click|preventDefault={onClick}
+  use:hideTooltip>
   <div
     class="flex py-2 justify-center items-center cursor-pointer min-h-9"
     class:border-x-[4px]={!inSection}
@@ -53,7 +62,7 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]={!selected || inSection}
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]={!selected || inSection}
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]={!selected && !inSection}>
-    <Tooltip right tip={tooltipText}>
+    <Tooltip right tip={tooltipHidden ? '' : tooltipText}>
       <slot />
     </Tooltip>
   </div>

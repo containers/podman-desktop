@@ -25,10 +25,15 @@ let authActions = $state<AuthActions>();
 let outsideWindow = $state<HTMLDivElement>();
 
 const iconSize = '22';
+let tooltipHidden = $state(false);
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
+  window.addEventListener('click', () => {
+    tooltipHidden = false;
+    console.log('view tooltip');
+  });
 });
 
 function clickSettings(b: boolean) {
@@ -44,7 +49,7 @@ function clickSettings(b: boolean) {
 <nav
   class="group w-leftnavbar min-w-leftnavbar flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
-  <NavItem href="/" tooltip="Dashboard" bind:meta={meta}>
+  <NavItem href="/" tooltip="Dashboard" bind:meta={meta} bind:tooltipHidden={tooltipHidden}>
     <div class="relative w-full">
       <div class="flex items-center w-full h-full">
         <DashboardIcon size={iconSize} />
@@ -63,7 +68,7 @@ function clickSettings(b: boolean) {
 
           {#if navigationRegistryItem.items}
             {#each navigationRegistryItem.items as item}
-              <NavRegistryEntry entry={item} bind:meta={meta} />
+              <NavRegistryEntry entry={item} bind:meta={meta} bind:tooltipHidden={tooltipHidden} />
             {/each}
           {/if}
         </NavSection>
@@ -71,10 +76,10 @@ function clickSettings(b: boolean) {
     {:else if navigationRegistryItem.items && navigationRegistryItem.type === 'group'}
       <!-- This is a group, list all items from the entry -->
       {#each navigationRegistryItem.items as item}
-        <NavRegistryEntry entry={item} bind:meta={meta} />
+        <NavRegistryEntry entry={item} bind:meta={meta} bind:tooltipHidden={tooltipHidden} />
       {/each}
     {:else if navigationRegistryItem.type === 'entry'}
-      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} />
+      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} bind:tooltipHidden={tooltipHidden} />
     {/if}
   {/each}
 
