@@ -123,7 +123,7 @@ describe('Kind End-to-End Tests', async () => {
         const containersPage = await navigationBar.openContainers();
         await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
         const containerDetailsPage = await containersPage.openContainersDetails(CONTAINER_NAME);
-        playExpect(await containerDetailsPage.getState()).toEqual(ContainerState.Running);
+        await playExpect.poll(async () => await containerDetailsPage.getState()).toEqual(ContainerState.Running);
 
         const volumesPage = new VolumesPage(page);
         const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
