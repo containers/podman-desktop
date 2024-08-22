@@ -265,7 +265,6 @@ async function updateOnboardingStep() {
 
 function setDisplayCancelSetup(display: boolean) {
   displayCancelSetup = display;
-  router.goto('/');
 }
 
 async function cancelSetup() {
