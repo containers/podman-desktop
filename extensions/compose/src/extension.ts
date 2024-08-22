@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { Octokit } from '@octokit/rest';
@@ -313,6 +314,30 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       binaryVersion = releaseVersionToInstall;
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!binaryVersion) {
+        throw new Error(`Cannot uninstall ${composeCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = await detect.getStoragePath();
+      if (storagePath) {
+        await fs.promises.unlink(storagePath);
+      }
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(composeCliName);
+      if (fs.existsSync(systemPath)) {
+        await fs.promises.unlink(systemPath);
+      }
+
+      // update the version to undefined
+      binaryVersion = undefined;
+      composeCliTool?.updateVersion({
+        version: undefined,
+        path: undefined,
+      });
     },
   });
 

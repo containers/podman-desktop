@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { Octokit } from '@octokit/rest';
@@ -361,6 +362,30 @@ async function postActivate(
       currentVersion = releaseVersionToInstall;
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!currentVersion) {
+        throw new Error(`Cannot uninstall ${kubectlCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = getStorageKubectlPath(extensionContext);
+      if (fs.existsSync(storagePath)) {
+        await fs.promises.unlink(storagePath);
+      }
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(kubectlCliName);
+      if (fs.existsSync(systemPath)) {
+        await fs.promises.unlink(systemPath);
+      }
+
+      // update the version to undefined
+      currentVersion = undefined;
+      kubectlCliTool?.updateVersion({
+        version: undefined,
+        path: undefined,
+      });
     },
   });
 
