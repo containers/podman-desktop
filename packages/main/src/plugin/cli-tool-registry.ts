@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliTool, CliToolOptions, CliToolSelectUpdate, CliToolUpdate, Logger } from '@podman-desktop/api';
+import type {
+  CliTool,
+  CliToolInstaller,
+  CliToolOptions,
+  CliToolSelectUpdate,
+  CliToolUpdate,
+  Logger,
+} from '@podman-desktop/api';
 
 import type { CliToolExtensionInfo, CliToolInfo } from '/@api/cli-tool-info.js';
 
@@ -33,6 +40,7 @@ export class CliToolRegistry {
 
   private cliTools = new Map<string, CliToolImpl>();
   private cliToolsUpdater = new Map<string, CliToolUpdate | CliToolSelectUpdate>();
+  private cliToolsInstaller = new Map<string, CliToolInstaller>();
 
   createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
     const cliTool = new CliToolImpl(this.apiSender, this.exec, extensionInfo, this, options);
@@ -51,10 +59,26 @@ export class CliToolRegistry {
     });
   }
 
+  registerInstaller(cliTool: CliToolImpl, installer: CliToolInstaller): Disposable {
+    this.cliToolsInstaller.set(cliTool.id, installer);
+
+    return Disposable.create(() => {
+      this.cliToolsInstaller.delete(cliTool.id);
+      this.apiSender.send('cli-tool-change', cliTool.id);
+    });
+  }
+
   async updateCliTool(id: string, logger: Logger): Promise<void> {
     const cliToolUpdater = this.cliToolsUpdater.get(id);
     if (cliToolUpdater) {
       await cliToolUpdater.doUpdate(logger);
+    }
+  }
+
+  async installCliTool(id: string, logger: Logger): Promise<void> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (cliToolInstaller) {
+      await cliToolInstaller.doInstall(logger);
     }
   }
 
@@ -66,6 +90,14 @@ export class CliToolRegistry {
     return cliToolUpdater.selectVersion();
   }
 
+  async selectCliToolVersionToInstall(id: string): Promise<string> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (!cliToolInstaller) {
+      throw new Error(`No installer registered for ${id}`);
+    }
+    return cliToolInstaller.selectVersion();
+  }
+
   isUpdaterToPredefinedVersion(update: CliToolUpdate | CliToolSelectUpdate): update is CliToolUpdate {
     return (update as CliToolUpdate).version !== undefined;
   }
@@ -73,11 +105,16 @@ export class CliToolRegistry {
   disposeCliTool(cliTool: CliToolImpl): void {
     this.cliTools.delete(cliTool.id);
     this.cliToolsUpdater.delete(cliTool.id);
+    this.cliToolsInstaller.delete(cliTool.id);
     this.apiSender.send('cli-tool-remove', cliTool.id);
   }
 
   getCliToolInfos(): CliToolInfo[] {
     return Array.from(this.cliTools.values()).map(cliTool => {
+      const installer = this.cliToolsInstaller.get(cliTool.id);
+      // if the installer has been registered, enable install
+      const canInstall = !!installer;
+
       const updater = this.cliToolsUpdater.get(cliTool.id);
       // if updater is the one with a default version that the tool will use to get updated we use it
       const newVersion = updater && this.isUpdaterToPredefinedVersion(updater) ? updater.version : undefined;
@@ -96,6 +133,7 @@ export class CliToolRegistry {
         path: cliTool.path,
         newVersion,
         canUpdate,
+        canInstall,
       };
     });
   }

@@ -4318,9 +4318,10 @@ declare module '@podman-desktop/api' {
      * Passing in path will also help to show where the CLI tool is expected to be installed.
      * This is usually the ~/.local/share/containers/podman-desktop/extensions-storage directory.
      * Note: The expected value should not include 'v'.
+     * Note: If the version and path are not defined (= the tool is not installed), the install logic should be implemented
      */
-    version: string;
-    path: string;
+    version?: string;
+    path?: string;
 
     /**
      * How the cli tool has been installed
@@ -4352,6 +4353,11 @@ declare module '@podman-desktop/api' {
     doUpdate: (logger: Logger) => Promise<void>;
   }
 
+  export interface CliToolInstaller {
+    selectVersion: () => Promise<string>;
+    doInstall: (logger: Logger) => Promise<void>;
+  }
+
   export type CliToolState = 'registered';
 
   export interface CliTool extends Disposable {
@@ -4371,6 +4377,9 @@ declare module '@podman-desktop/api' {
 
     // register cli update flow
     registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
+
+    // register cli installer
+    registerInstaller(installer: CliToolInstaller): Disposable;
   }
 
   /**

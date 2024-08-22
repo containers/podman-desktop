@@ -19,6 +19,7 @@
 import type {
   CliTool,
   CliToolInstallationSource,
+  CliToolInstaller,
   CliToolOptions,
   CliToolSelectUpdate,
   CliToolState,
@@ -68,11 +69,11 @@ export class CliToolImpl implements CliTool, Disposable {
     return this._options.markdownDescription;
   }
 
-  get version(): string {
+  get version(): string | undefined {
     return this._options.version;
   }
 
-  get path(): string {
+  get path(): string | undefined {
     return this._options.path;
   }
 
@@ -104,5 +105,9 @@ export class CliToolImpl implements CliTool, Disposable {
 
   registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable {
     return this.registry.registerUpdate(this, update);
+  }
+
+  registerInstaller(installer: CliToolInstaller): Disposable {
+    return this.registry.registerInstaller(this, installer);
   }
 }

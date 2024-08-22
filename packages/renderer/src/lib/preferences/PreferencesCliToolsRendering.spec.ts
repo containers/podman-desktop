@@ -46,6 +46,7 @@ const cliToolInfoItem1: CliToolInfo = {
   version: '1.0.1',
   path: 'path/to/tool-name-1',
   canUpdate: false,
+  canInstall: false,
 };
 
 const cliToolInfoItem2: CliToolInfo = {
@@ -62,6 +63,7 @@ const cliToolInfoItem2: CliToolInfo = {
   version: '1.0.2',
   path: 'path/to/tool-name-2',
   canUpdate: false,
+  canInstall: false,
 };
 
 const cliToolInfoItem3: CliToolInfo = {
@@ -80,6 +82,7 @@ const cliToolInfoItem3: CliToolInfo = {
   version: '1.0.3',
   path: 'path/to/tool-name-3',
   canUpdate: false,
+  canInstall: false,
 };
 
 const cliToolInfoItem4: CliToolInfo = {
@@ -96,6 +99,7 @@ const cliToolInfoItem4: CliToolInfo = {
   version: '', // version is empty, so it should be showing the error
   path: '',
   canUpdate: false,
+  canInstall: false,
 };
 
 suite('CLI Tool Prefernces page shows', () => {
