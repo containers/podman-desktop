@@ -4335,7 +4335,7 @@ declare module '@podman-desktop/api' {
    * Options to update CliTool instance
    */
   export interface CliToolUpdateOptions {
-    version: string;
+    version?: string;
     displayName?: string;
     markdownDescription?: string;
     images?: ProviderImages;
@@ -4356,6 +4356,7 @@ declare module '@podman-desktop/api' {
   export interface CliToolInstaller {
     selectVersion: () => Promise<string>;
     doInstall: (logger: Logger) => Promise<void>;
+    doUninstall: (logger: Logger) => Promise<void>;
   }
 
   export type CliToolState = 'registered';

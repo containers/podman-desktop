@@ -38,8 +38,8 @@ import { Emitter } from './events/emitter.js';
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
   private _state: CliToolState = 'registered';
-  private readonly _onDidUpdateVersion = new Emitter<string>();
-  readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
+  private readonly _onDidUpdateVersion = new Emitter<string | undefined>();
+  readonly onDidUpdateVersion: Event<string | undefined> = this._onDidUpdateVersion.event;
 
   constructor(
     readonly extensionInfo: CliToolExtensionInfo,

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faCircleArrowDown, faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowDown, faCircleArrowUp, faCircleXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
@@ -29,6 +29,12 @@ $: cliToolInstallStatus = {
   inProgress: false,
   status: cliTool.canInstall ? 'toInstall' : 'unknown',
   action: 'install',
+};
+let cliToolUninstallStatus: ILoadingStatus;
+$: cliToolUninstallStatus = {
+  inProgress: false,
+  status: cliTool.canInstall ? 'toUninstall' : 'unknown',
+  action: 'uninstall',
 };
 
 async function update(cliTool: CliToolInfo) {
@@ -78,7 +84,7 @@ async function install(cliTool: CliToolInfo) {
     cliToolInstallStatus.inProgress = true;
     cliToolInstallStatus = cliToolInstallStatus;
     const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
-    await window.installCliTool(cliTool.id, loggerHandlerKey, eventCollect);
+    await window.installCliTool(cliTool.id, versionToInstall, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {
     errorMessage = `Unable to install ${cliTool.displayName} to version ${versionToInstall}.`;
@@ -86,6 +92,22 @@ async function install(cliTool: CliToolInfo) {
   } finally {
     cliToolInstallStatus.inProgress = false;
     cliToolInstallStatus = cliToolInstallStatus;
+  }
+}
+
+async function uninstall(cliTool: CliToolInfo) {
+  try {
+    cliToolUninstallStatus.inProgress = true;
+    cliToolUninstallStatus = cliToolUninstallStatus;
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
+    await window.uninstallCliTool(cliTool.id, loggerHandlerKey, eventCollect);
+    showError = false;
+  } catch (e) {
+    errorMessage = `Unable to uninstall ${cliTool.displayName}. Error: ${String(e)}`;
+    showError = true;
+  } finally {
+    cliToolUninstallStatus.inProgress = false;
+    cliToolUninstallStatus = cliToolUninstallStatus;
   }
 }
 
@@ -130,42 +152,60 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             class="my-auto ml-3 break-words font-semibold text-[var(--pd-invert-content-header-text)]"
             aria-label="cli-name">{cliTool.name}</span>
         </div>
-        {#if !cliTool.version && cliTool.canInstall && cliToolInstallStatus}
-          <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
-            <LoadingIconButton
-              action="install"
-              clickAction={() => {
-                if (cliTool.canInstall) {
-                  install(cliTool);
-                }
-              }}
-              icon={faCircleArrowDown}
-              leftPosition="left-[0.25rem]"
-              state={cliToolInstallStatus}
-              color="primary"
-              tooltip={`Install ${cliTool.displayName}`} />
-          </div>
-        {/if}
-        {#if cliTool.version && cliTool.canUpdate && cliToolUpdateStatus}
-          <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
-            <LoadingIconButton
-              action="update"
-              clickAction={() => {
-                if (cliTool.canUpdate) {
-                  update(cliTool);
-                }
-              }}
-              icon={faCircleArrowUp}
-              leftPosition="left-[0.25rem]"
-              state={cliToolUpdateStatus}
-              color="primary"
-              tooltip={!cliTool.canUpdate
-                ? 'No updates'
-                : cliTool.newVersion
-                  ? `Update to v${cliTool.newVersion}`
-                  : 'Upgrade/Downgrade'} />
-          </div>
-        {/if}
+        <div class="flex flex-row space-x-1 w-full">
+          {#if !cliTool.version && cliTool.canInstall && cliToolInstallStatus}
+            <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
+              <LoadingIconButton
+                action="install"
+                clickAction={() => {
+                  if (cliTool.canInstall) {
+                    install(cliTool);
+                  }
+                }}
+                icon={faCircleArrowDown}
+                leftPosition="left-[0.25rem]"
+                state={cliToolInstallStatus}
+                color="primary"
+                tooltip={`Install ${cliTool.displayName}`} />
+            </div>
+          {/if}
+          {#if cliTool.version && cliTool.canUpdate && cliToolUpdateStatus}
+            <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
+              <LoadingIconButton
+                action="update"
+                clickAction={() => {
+                  if (cliTool.canUpdate) {
+                    update(cliTool);
+                  }
+                }}
+                icon={faCircleArrowUp}
+                leftPosition="left-[0.25rem]"
+                state={cliToolUpdateStatus}
+                color="primary"
+                tooltip={!cliTool.canUpdate
+                  ? 'No updates'
+                  : cliTool.newVersion
+                    ? `Update to v${cliTool.newVersion}`
+                    : 'Upgrade/Downgrade'} />
+            </div>
+          {/if}
+          {#if cliTool.version && cliTool.canInstall && cliToolUninstallStatus}
+            <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
+              <LoadingIconButton
+                action="uninstall"
+                clickAction={() => {
+                  if (cliTool.canInstall) {
+                    uninstall(cliTool);
+                  }
+                }}
+                icon={faTrash}
+                leftPosition="left-[0.25rem]"
+                state={cliToolUninstallStatus}
+                color="secondary"
+                tooltip={`Uninstall ${cliTool.displayName}`} />
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
     <!-- cli-tools columns -->

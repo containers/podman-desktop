@@ -85,6 +85,13 @@ export class CliToolRegistry {
     }
   }
 
+  async uninstallCliTool(id: string, logger: Logger): Promise<void> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (cliToolInstaller) {
+      await cliToolInstaller.doUninstall(logger);
+    }
+  }
+
   async selectCliToolVersionToUpdate(id: string): Promise<string> {
     const cliToolUpdater = this.cliToolsUpdater.get(id);
     if (!cliToolUpdater || this.isUpdaterToPredefinedVersion(cliToolUpdater)) {
