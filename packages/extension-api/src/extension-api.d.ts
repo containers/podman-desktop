@@ -4395,6 +4395,23 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
+
+    /**
+     * given an id, return the corresponding CLI Tool
+     * @param id cli tool
+     */
+    export function getCliTool(id: string): CliTool | undefined;
+
+    /**
+     * All extensions currently known to the system.
+     */
+    export const all: readonly CliTool[];
+
+    /**
+     * An event which fires when `cli.all` changes. This can happen when extensions are
+     * installed, uninstalled, enabled or disabled.
+     */
+    export const onDidChange: Event<void>;
   }
 
   /**

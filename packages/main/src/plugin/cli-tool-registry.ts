@@ -29,6 +29,8 @@ import type { CliToolExtensionInfo, CliToolInfo } from '/@api/cli-tool-info.js';
 
 import type { ApiSenderType } from './api.js';
 import { CliToolImpl } from './cli-tool-impl.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
 import { Disposable } from './types/disposable.js';
 
 export class CliToolRegistry {
@@ -38,10 +40,14 @@ export class CliToolRegistry {
   private cliToolsUpdater = new Map<string, CliToolUpdate | CliToolSelectUpdate>();
   private cliToolsInstaller = new Map<string, CliToolInstaller>();
 
+  private readonly _onDidCliToolsChange = new Emitter<void>();
+  readonly onDidCliToolsChange: Event<void> = this._onDidCliToolsChange.event;
+
   createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
     const cliTool = new CliToolImpl(extensionInfo, this, options);
     this.cliTools.set(cliTool.id, cliTool);
     this.apiSender.send('cli-tool-create');
+    this._onDidCliToolsChange.fire();
     cliTool.onDidUpdateVersion(() => this.apiSender.send('cli-tool-change', cliTool.id));
     return cliTool;
   }
@@ -100,6 +106,7 @@ export class CliToolRegistry {
 
   disposeCliTool(cliTool: CliToolImpl): void {
     this.cliTools.delete(cliTool.id);
+    this._onDidCliToolsChange.fire();
     this.cliToolsUpdater.delete(cliTool.id);
     this.cliToolsInstaller.delete(cliTool.id);
     this.apiSender.send('cli-tool-remove', cliTool.id);
@@ -132,5 +139,13 @@ export class CliToolRegistry {
         canInstall,
       };
     });
+  }
+
+  getCliTool(id: string): CliTool | undefined {
+    return this.cliTools.get(id);
+  }
+
+  getCliTools(): CliTool[] {
+    return Array.from(this.cliTools.values());
   }
 }
