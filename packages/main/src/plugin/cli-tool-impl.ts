@@ -38,8 +38,10 @@ import { Emitter } from './events/emitter.js';
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
   private _state: CliToolState = 'registered';
-  private readonly _onDidUpdateVersion = new Emitter<string | undefined>();
-  readonly onDidUpdateVersion: Event<string | undefined> = this._onDidUpdateVersion.event;
+  private readonly _onDidUpdateVersion = new Emitter<string>();
+  readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
+  private readonly _onDidUninstall = new Emitter<void>();
+  readonly onDidUninstall: Event<void> = this._onDidUninstall.event;
 
   constructor(
     readonly extensionInfo: CliToolExtensionInfo,
@@ -97,6 +99,15 @@ export class CliToolImpl implements CliTool, Disposable {
       installationSource: 'extension',
     };
     this._onDidUpdateVersion.fire(options.version);
+  }
+
+  uninstall(): void {
+    this._options = {
+      ...this._options,
+      path: undefined,
+      version: undefined,
+    };
+    this._onDidUninstall.fire();
   }
 
   registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable {

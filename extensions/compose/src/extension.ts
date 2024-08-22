@@ -334,10 +334,6 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
 
       // update the version to undefined
       binaryVersion = undefined;
-      composeCliTool?.updateVersion({
-        version: undefined,
-        path: undefined,
-      });
     },
   });
 

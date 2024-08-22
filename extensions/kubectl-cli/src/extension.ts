@@ -382,10 +382,6 @@ async function postActivate(
 
       // update the version to undefined
       currentVersion = undefined;
-      kubectlCliTool?.updateVersion({
-        version: undefined,
-        path: undefined,
-      });
     },
   });
 

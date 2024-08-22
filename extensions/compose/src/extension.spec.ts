@@ -437,9 +437,5 @@ describe('registerCLITool', () => {
     await installer?.doUninstall({} as unknown as Logger);
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, 'storage-path');
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-wide-path');
-    expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
-      version: undefined,
-      path: undefined,
-    });
   });
 });

@@ -421,10 +421,13 @@ suite('cli module', () => {
         images: {},
       };
       const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      const uninstallCliMock = vi.fn();
+      (newCliTool as CliToolImpl).uninstall = uninstallCliMock;
       // register the updater and call the selectCliTool
       cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
       await cliToolRegistry.uninstallCliTool(newCliTool.id, {} as Logger);
       expect(uninstallMock).toBeCalled();
+      expect(uninstallCliMock).toBeCalled();
     });
   });
 
