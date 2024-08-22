@@ -32,7 +32,6 @@ onMount(async () => {
   commandRegistry.init();
   window.addEventListener('click', () => {
     tooltipHidden = false;
-    console.log('view tooltip');
   });
 });
 

@@ -29,7 +29,6 @@ $: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 function hideTooltip(node: any) {
   node.addEventListener('contextmenu', () => {
     tooltipHidden = true;
-    console.log('hide tooltip');
   });
 }
 
