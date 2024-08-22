@@ -3,6 +3,7 @@ import { createEventDispatcher } from 'svelte';
 
 import { ImageUtils } from './image-utils';
 import type { ImageFilesystemLayerUI } from './imageDetailsFiles';
+import ImageDetailsFilesExpandableCommand from './ImageDetailsFilesExpandableCommand.svelte';
 
 const dispatch = createEventDispatcher();
 
@@ -20,11 +21,11 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
     on:click={() => onLayerSelected(layer)}
     role="row"
     aria-label={layer.id}
-    class="rounded-lg mb-4 p-4 flex flex-col w-full text-left truncate hover:bg-[var(--pd-content-card-hover-bg)]"
+    class="rounded-lg mb-4 p-4 flex flex-col w-full text-left hover:bg-[var(--pd-content-card-hover-bg)]"
     class:bg-[var(--pd-content-card-bg)]={layer.id !== currentLayerId}
     class:bg-[var(--pd-content-card-selected-bg)]={layer.id === currentLayerId}>
     <div>
-      <div>{layer.createdBy}</div>
+      <ImageDetailsFilesExpandableCommand command={layer.createdBy} />
       <div class="text-sm opacity-70">{layer.id}</div>
       <div class="text-sm opacity-70">
         <span>{new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
