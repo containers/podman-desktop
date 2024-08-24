@@ -24,7 +24,7 @@
     "@tsconfig/svelte": "^5.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/validator": "^13.12.1",
-    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.2.0",
     "@xterm/addon-serialize": "^0.13.0",
     "autoprefixer": "^10.4.20",
     "eslint-plugin-svelte": "^2.43.0",
@@ -56,6 +56,8 @@
     "@podman-desktop/ui-svelte": "^0.0.1",
     "@zerodevx/svelte-toast": "^0.9.5",
     "electron-context-menu": "^4.0.2",
-    "tinro": "^0.6.12"
+    "js-yaml": "^4.1.0",
+    "tinro": "^0.6.12",
+    "validator": "^13.12.0"
   }
 }

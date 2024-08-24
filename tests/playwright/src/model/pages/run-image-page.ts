@@ -89,7 +89,11 @@ export class RunImagePage extends BasePage {
       // disable the checkbox in advanced tab
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
-      optionalParams.attachTerminal ? await checkbox.check() : await checkbox.uncheck();
+      if (optionalParams.attachTerminal) {
+        await checkbox.check();
+      } else {
+        await checkbox.uncheck();
+      }
       await playExpect(checkbox).toBeChecked({ checked: optionalParams.attachTerminal });
     }
 
@@ -97,7 +101,11 @@ export class RunImagePage extends BasePage {
       // disable the checkbox in advanced tab
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Interactive: Keep STDIN' });
-      optionalParams.interactive ? await checkbox.check() : await checkbox.uncheck();
+      if (optionalParams.interactive) {
+        await checkbox.check();
+      } else {
+        await checkbox.uncheck();
+      }
       await playExpect(checkbox).toBeChecked({ checked: optionalParams.interactive });
     }
 

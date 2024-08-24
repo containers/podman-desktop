@@ -799,8 +799,6 @@ export class ExtensionLoader {
       },
     };
 
-    //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
-
     const providerRegistry = this.providerRegistry;
     const imageFilesRegistry = this.imageFilesRegistry;
 

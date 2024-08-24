@@ -90,21 +90,21 @@ beforeEach(() => {
 test('getOptions return options w/o agent if proxy not enabled', () => {
   const proxy = createProxy(false);
   const options = ProxyResolver.getOptions(proxy, false);
-  expect(options.agent).to.be.undefined;
+  expect(options.agent).toBeUndefined();
 });
 
 test('getOptions return options w/ agent for https proxy', () => {
   const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const options = ProxyResolver.getOptions(proxy, true);
-  expect(options.agent).is.not.undefined;
-  expect((options.agent as any).https).is.true;
+  expect(options.agent).not.toBeUndefined();
+  expect((options.agent as any).https).toBeTruthy();
 });
 
 test('getOptions return options w/ https.Agent for https proxy', () => {
   const proxy = createProxy(true, undefined, HttpProxyUrl);
   const options = ProxyResolver.getOptions(proxy, false);
-  expect(options.agent).is.not.undefined;
-  expect((options.agent as any).https).is.false;
+  expect(options.agent).not.toBeUndefined();
+  expect((options.agent as any).https).toBeFalsy();
 });
 
 test('patched http get calls original with the original parameters when proxy is not enabled', () => {

@@ -82,7 +82,7 @@ test('Tray delete provider item', () => {
     (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.filter(
       it => it.label === 'SomeLabel',
     ),
-  ).to.be.empty;
+  ).toStrictEqual([]);
 });
 
 test('Tray update provider not delete provider items', () => {
@@ -112,7 +112,7 @@ test('Tray update provider not delete provider items', () => {
     (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.filter(
       it => it.label === 'SomeLabel',
     ),
-  ).to.be.not.empty;
+  ).toBeDefined();
 });
 
 test('Tray provider configured state same as stopped', () => {
@@ -147,8 +147,8 @@ test('Tray provider start enabled when configured state', () => {
   const startItem = (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.find(
     it => it.label === 'Start',
   );
-  expect(startItem).to.be.not.undefined;
-  expect(startItem?.enabled).to.be.true;
+  expect(startItem).toBeDefined();
+  expect(startItem?.enabled).toBeTruthy();
 });
 
 test('Tray click trigger is only added on Windows devices', () => {
