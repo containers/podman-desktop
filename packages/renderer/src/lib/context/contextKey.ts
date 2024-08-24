@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2144,7 +2144,7 @@ export interface IContextKeyService {
   readonly _serviceBrand: undefined;
 
   onDidChangeContext: Event<IContextKeyChangeEvent>;
-  /* eslint-disable-next-line @typescript-eslint/ban-types */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   bufferChangeEvents(callback: Function): void;
 
   createKey<T extends ContextKeyValue>(key: string, defaultValue: T | undefined): IContextKey<T>;

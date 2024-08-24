@@ -320,7 +320,9 @@ export class ExtensionInstaller {
       analyzedExtensions
         .filter(extension => extension !== undefined)
         .forEach(extension => {
-          extension?.path && fs.rmdirSync(extension.path, { recursive: true });
+          if (extension?.path) {
+            fs.rmdirSync(extension.path, { recursive: true });
+          }
         });
       sendError(`Error while installing extension ${imageName}: ${errors.join('\n')}`);
       return;

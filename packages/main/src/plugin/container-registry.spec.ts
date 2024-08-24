@@ -2454,7 +2454,7 @@ test('container logs callback notified when messages arrive', async () => {
   expect(callback).toHaveBeenCalledWith('first-message', '');
   expect(callback).toHaveBeenCalledWith('data', 'log message');
   expect(callback).toHaveBeenCalledWith('end', '');
-  expect(telemetry.track).toHaveBeenCalled;
+  expect(telemetry.track).toHaveBeenCalled();
 });
 
 describe('createContainer', () => {

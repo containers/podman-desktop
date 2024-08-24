@@ -313,7 +313,7 @@ test('app-ready event with activate event', async () => {
   let activateCallback: ((event: unknown) => void) | undefined = undefined;
 
   // capture activate event
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   vi.mocked(app.on).mockImplementation((event: string, callback: Function): App => {
     if (event === 'activate') {
       activateCallback = callback as (event: unknown) => void;

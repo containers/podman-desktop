@@ -82,7 +82,7 @@ test('module loader trow exception if override is a function and request came no
   } catch (err) {
     error = err;
   }
-  expect(error).is.not.undefined;
+  expect(error).not.toBeUndefined();
 });
 
 test('module loader calls calls original _load function for not registered module', () => {

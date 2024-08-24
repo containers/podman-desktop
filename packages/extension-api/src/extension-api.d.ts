@@ -88,7 +88,7 @@ declare module '@podman-desktop/api' {
      * on dispose.
      * @param callOnDispose Function that disposes something.
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     constructor(callOnDispose: Function);
 
     /**
@@ -2913,7 +2913,7 @@ declare module '@podman-desktop/api' {
     /**
      * An object mapping ports to an empty object in the form: `{"<port>/<tcp|udp|sctp>": {}}`
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     ExposedPorts?: { [port: string]: {} };
 
     /**

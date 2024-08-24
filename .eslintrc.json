@@ -88,7 +88,7 @@
   "rules": {
     "eqeqeq": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "caughtErrors": "none" }],
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-explicit-any": "error",
@@ -99,6 +99,7 @@
     "@typescript-eslint/prefer-optional-chain": "error",
     "no-null/no-null": "error",
     "@typescript-eslint/prefer-nullish-coalescing": ["error", { "ignoreConditionalTests": true }],
+    "@typescript-eslint/no-require-imports": "off",
 
     /**
      * Having a semicolon helps the optimizer interpret your code correctly.
