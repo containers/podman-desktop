@@ -61,8 +61,8 @@ test('View context should have a single entry', async () => {
   expect(views).toBeDefined();
   expectTypeOf(views).toBeArray();
   expect(views.length).toBe(1);
-  expect((views[0].value as ViewContributionIcon).when).toBe('io.x-k8s.kind.cluster in containerLabelKeys');
-  expect((views[0].value as ViewContributionIcon).icon).toBe('${kind-icon}');
+  expect((views[0]?.value as ViewContributionIcon).when).toBe('io.x-k8s.kind.cluster in containerLabelKeys');
+  expect((views[0]?.value as ViewContributionIcon).icon).toBe('${kind-icon}');
 });
 
 test('Should not find menus after dispose', async () => {

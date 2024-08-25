@@ -110,7 +110,7 @@ export class EnvfileParser {
     }
 
     return {
-      key: key.trim(),
+      key: key?.trim(),
       value: updatedValue?.replace(/\\"/g, '"'),
     };
   }

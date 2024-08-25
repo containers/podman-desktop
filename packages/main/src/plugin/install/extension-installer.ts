@@ -45,7 +45,7 @@ export class ExtensionInstaller {
     private extensionCatalog: ExtensionsCatalog,
     private telemetry: Telemetry,
     private directories: Directories,
-    private contributionManager: ContributionManager,
+    contributionManager: ContributionManager,
   ) {
     this.#dockerDesktopInstaller = new DockerDesktopInstaller(contributionManager);
   }
@@ -154,7 +154,12 @@ export class ExtensionInstaller {
     // strip the tag (ending with :something) from the image name if any
     let imageNameWithoutTag: string;
     if (imageName.includes(':')) {
-      imageNameWithoutTag = imageName.split(':')[0];
+      const splitten = imageName.split(':')[0];
+      if (!splitten) {
+        sendError(`Image ${imageName} is not a Podman Desktop Extension`);
+        return;
+      }
+      imageNameWithoutTag = splitten;
     } else {
       imageNameWithoutTag = imageName;
     }
@@ -209,6 +214,7 @@ export class ExtensionInstaller {
     } else if (isDDExtension) {
       return this.#dockerDesktopInstaller.setupContribution(titleLabel, imageName, finalFolderPath, sendLog, sendError);
     }
+    return undefined;
   }
 
   async analyzeTransitiveDependencies(

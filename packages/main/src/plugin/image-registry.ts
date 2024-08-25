@@ -93,7 +93,7 @@ export class ImageRegistry {
     const splitParts = imageName.split('/');
     if (
       splitParts.length === 1 ||
-      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] !== 'localhost')
+      (!splitParts[0]?.includes('.') && !splitParts[0]?.includes(':') && splitParts[0] !== 'localhost')
     ) {
       return 'docker.io';
     } else {
@@ -130,6 +130,7 @@ export class ImageRegistry {
         serveraddress,
       };
     }
+    return undefined;
   }
 
   /**
@@ -312,7 +313,9 @@ export class ImageRegistry {
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
     if (parsed?.groups) {
       const { realm, service, scope, scheme } = parsed.groups;
-      return { authUrl: realm, service, scope, scheme };
+      if (realm && scheme) {
+        return { authUrl: realm, service, scope, scheme };
+      }
     }
     return undefined;
   }
@@ -409,7 +412,7 @@ export class ImageRegistry {
       name = `library/${slashes[0]}`;
       valid = true;
     } else if (slashes.length === 2) {
-      if (slashes[0].startsWith('localhost')) {
+      if (slashes[0]?.startsWith('localhost') && slashes[1]) {
         registry = slashes[0];
         name = slashes[1];
       } else {
@@ -417,7 +420,7 @@ export class ImageRegistry {
         name = `${slashes[0]}/${slashes[1]}`;
       }
       valid = true;
-    } else if (slashes.length > 2) {
+    } else if (slashes.length > 2 && slashes[0]) {
       registry = slashes[0];
       name = `${slashes[1]}/${slashes[2]}`;
       valid = true;
@@ -552,7 +555,7 @@ export class ImageRegistry {
     options.headers = options.headers ?? {};
 
     // add the Bearer token
-    options.headers.Authorization = `Bearer ${token}`;
+    options.headers['Authorization'] = `Bearer ${token}`;
 
     // replace all special characters with _ in digest
     const digestWithoutSpecialChars = digest.replace(/[^a-zA-Z0-9]/g, '_');
@@ -601,7 +604,7 @@ export class ImageRegistry {
     const options = this.getOptions();
     options.headers = options.headers ?? {};
     // add the Bearer token
-    options.headers.Authorization = `Bearer ${token}`;
+    options.headers['Authorization'] = `Bearer ${token}`;
 
     // say we want to return JSON from got
     const blobURL = `${imageData.registryURL}/${imageData.name}/blobs/${digest}`;
@@ -633,15 +636,15 @@ export class ImageRegistry {
     options.headers = options.headers ?? {};
 
     // add the Bearer token
-    options.headers.Authorization = `Bearer ${token}`;
+    options.headers['Authorization'] = `Bearer ${token}`;
 
     // add the manifest accept headers
     const acceptHeaders = [];
-    if (options.headers.Accept) {
-      if (typeof options.headers.Accept === 'string') {
-        acceptHeaders.push(options.headers.Accept);
-      } else if (Array.isArray(options.headers.Accept)) {
-        acceptHeaders.push(...options.headers.Accept);
+    if (options.headers['Accept']) {
+      if (typeof options.headers['Accept'] === 'string') {
+        acceptHeaders.push(options.headers['Accept']);
+      } else if (Array.isArray(options.headers['Accept'])) {
+        acceptHeaders.push(...options.headers['Accept']);
       }
     }
     acceptHeaders.push('application/vnd.oci.image.manifest.v1+json');
@@ -651,7 +654,7 @@ export class ImageRegistry {
     acceptHeaders.push('application/vnd.docker.distribution.manifest.list.v2+json');
     acceptHeaders.push('application/vnd.oci.image.index.v1+json');
 
-    options.headers.Accept = acceptHeaders;
+    options.headers['Accept'] = acceptHeaders;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parsedManifest: any;
@@ -854,7 +857,7 @@ export class ImageRegistry {
     if (authServer) {
       options.headers = options.headers ?? {};
       const loginAndPassWord = `${authServer.username}:${authServer.password}`;
-      options.headers.Authorization = `Basic ${Buffer.from(loginAndPassWord).toString('base64')}`;
+      options.headers['Authorization'] = `Basic ${Buffer.from(loginAndPassWord).toString('base64')}`;
     }
     // need to replace repository%3Auser with repository:user coming from imageData
     let tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
@@ -953,7 +956,7 @@ export class ImageRegistry {
     const opts = this.getOptions();
     opts.headers = opts.headers ?? {};
     // add the Bearer token
-    opts.headers.Authorization = `Bearer ${token}`;
+    opts.headers['Authorization'] = `Bearer ${token}`;
 
     try {
       const catalog = await got.get(`${imageData.registryURL}/${imageData.name}/tags/list`, opts);

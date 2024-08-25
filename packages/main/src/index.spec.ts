@@ -304,6 +304,9 @@ test('app-ready event with activate event', async () => {
   expect(windows).toHaveLength(1);
 
   const window = windows[0];
+  if (!window) {
+    assert.fail('window is undefined');
+  }
   const spyShow = vi.spyOn(window, 'show');
   const spyFocus = vi.spyOn(window, 'focus');
 

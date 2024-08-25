@@ -36,7 +36,6 @@ import { stoppedExtensions } from '../../util.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
-import type { Proxy } from '../proxy.js';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { Identity } from './identity.js';
 import type { TelemetryRule } from './telemetry-api.js';
@@ -84,10 +83,7 @@ export class Telemetry {
   private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
   readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
 
-  constructor(
-    private configurationRegistry: ConfigurationRegistry,
-    private proxy: Proxy,
-  ) {
+  constructor(private configurationRegistry: ConfigurationRegistry) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
   }
@@ -176,7 +172,7 @@ export class Telemetry {
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
         data = data ?? {};
-        data.sourceError = error.message;
+        data['sourceError'] = error.message;
         thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
       },
       async flush(): Promise<void> {
@@ -318,7 +314,7 @@ export class Telemetry {
           // it was not there, so we can send it
           if (!previousTime) {
             this.lastTimeEvents.set(eventName, Date.now());
-            return false;
+            return;
           } else {
             // it was there, so we check if it was more than 24h ago
             const now = Date.now();

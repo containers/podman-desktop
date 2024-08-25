@@ -49,10 +49,11 @@ export class DockerPluginAdapter {
     let result: string[] = [];
     for (let i = args.length - 1; i >= 0; i--) {
       const j = i - 1;
+      const value = args[i];
       if (j >= 0 && args[j] === '-v' && args[i] === '/var/run/docker.sock:/var/run/docker.sock') {
         i--;
-      } else {
-        result = [args[i], ...result];
+      } else if (value) {
+        result = [value, ...result];
       }
     }
     return [cmd, ...result];
@@ -63,13 +64,13 @@ export class DockerPluginAdapter {
     const contributionPath = this.contributionManager.getExtensionPath(extensionId);
     if (contributionPath) {
       if (os.platform() === 'win32') {
-        if (process.env.Path) {
-          env.Path = `${contributionPath};${process.env.Path}`;
+        if (process.env['Path']) {
+          env['Path'] = `${contributionPath};${process.env['Path']}`;
         } else {
-          env.Path = `${contributionPath}`;
+          env['Path'] = `${contributionPath}`;
         }
       } else {
-        env.PATH = `${contributionPath}:${env.PATH}`;
+        env['PATH'] = `${contributionPath}:${env['PATH']}`;
       }
     }
   }
@@ -149,8 +150,8 @@ export class DockerPluginAdapter {
     }
 
     const env = process.env;
-    if (os.platform() === 'darwin' && env.PATH) {
-      env.PATH = env.PATH.concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
+    if (os.platform() === 'darwin' && env['PATH']) {
+      env['PATH'] = env['PATH'].concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
     }
 
     // In production mode, applications don't have access to the 'user' path like brew
@@ -241,8 +242,8 @@ export class DockerPluginAdapter {
     let updatedCommand;
     let updatedArgs;
     const env = process.env;
-    if (os.platform() === 'darwin' && env.PATH) {
-      env.PATH = env.PATH.concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
+    if (os.platform() === 'darwin' && env['PATH']) {
+      env['PATH'] = env['PATH'].concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
     }
     if (launcher) {
       updatedCommand = launcher;
@@ -302,7 +303,7 @@ export class DockerPluginAdapter {
     ipcMain.handle(
       'docker-plugin-adapter:exec',
       async (
-        event: IpcMainInvokeEvent,
+        _event: IpcMainInvokeEvent,
         contributionId: string,
         launcher: string | undefined,
         cmd: string,

@@ -194,16 +194,16 @@ test('should register a configuration', async () => {
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
   // take first argument of first call
-  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0][0][0];
-  expect(configurationNode.id).toBe('preferences.savePosition');
-  expect(configurationNode.title).toBe('Window');
-  expect(configurationNode.type).toBe('object');
-  expect(configurationNode.properties).toBeDefined();
-  expect(configurationNode.properties?.['window.bounds']).toBeDefined();
-  expect(configurationNode.properties?.['window.bounds'].description).toBe('bounds of the window');
-  expect(configurationNode.properties?.['window.restorePosition'].type).toBe('boolean');
-  expect(configurationNode.properties?.['window.restorePosition'].description).toBe(
+  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0]?.[0][0];
+  expect(configurationNode?.id).toBe('preferences.savePosition');
+  expect(configurationNode?.title).toBe('Window');
+  expect(configurationNode?.type).toBe('object');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(configurationNode?.properties?.['window.bounds']).toBeDefined();
+  expect(configurationNode?.properties?.['window.bounds']?.description).toBe('bounds of the window');
+  expect(configurationNode?.properties?.['window.restorePosition']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['window.restorePosition']?.description).toBe(
     'Restore position and size of the window after a restart',
   );
-  expect(configurationNode.properties?.['window.restorePosition'].default).toBeTruthy();
+  expect(configurationNode?.properties?.['window.restorePosition']?.default).toBeTruthy();
 });

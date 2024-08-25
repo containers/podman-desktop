@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,11 @@ test('should register a configuration', async () => {
 test('should set default value of configuraton registry on Linux to true', async () => {
   vi.spyOn(util, 'isLinux').mockImplementation(() => true);
   await closeBehavior.init();
-  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeTruthy();
+  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose']?.default).toBeTruthy();
 });
 
 test('should set default value of configuraton registry if not Linux', async () => {
   vi.spyOn(util, 'isLinux').mockImplementation(() => false);
   await closeBehavior.init();
-  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeFalsy();
+  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose']?.default).toBeFalsy();
 });

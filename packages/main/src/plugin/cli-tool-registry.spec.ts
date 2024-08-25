@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { CliToolImpl } from './cli-tool-impl.js';
 import { CliToolRegistry } from './cli-tool-registry.js';
-import type { Exec } from './util/exec.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -36,7 +35,7 @@ const apiSender: ApiSenderType = {
 let cliToolRegistry: CliToolRegistry;
 suite('cli module', () => {
   beforeEach(() => {
-    cliToolRegistry = new CliToolRegistry(apiSender, vi.fn() as unknown as Exec);
+    cliToolRegistry = new CliToolRegistry(apiSender);
   });
 
   afterEach(() => {

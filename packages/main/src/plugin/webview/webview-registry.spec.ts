@@ -39,7 +39,7 @@ vi.mock('express', () => ({
   default: (): any => {
     return {
       use: vi.fn(),
-      listen: vi.fn().mockImplementation((portNumber, func: any) => {
+      listen: vi.fn().mockImplementation((_portNumber, func: any) => {
         func();
         return { on: vi.fn() };
       }),
@@ -54,11 +54,11 @@ vi.mock('../util/port.js', () => ({
 }));
 
 class TestWebviewRegistry extends WebviewRegistry {
-  buildRouter(): Router {
+  override buildRouter(): Router {
     return super.buildRouter();
   }
 
-  configureRouter(router: express.Router): void {
+  override configureRouter(router: express.Router): void {
     super.configureRouter(router);
   }
 }
@@ -451,13 +451,13 @@ test('check listWebviews', async () => {
 
   // check
   expect(webviews.length).toBe(2);
-  expect(webviews[0].id).toBe(panelImpl1.internalId);
-  expect(webviews[0].viewType).toBe('viewTypeInfo');
-  expect(webviews[0].html).toBe('html1');
+  expect(webviews[0]?.id).toBe(panelImpl1.internalId);
+  expect(webviews[0]?.viewType).toBe('viewTypeInfo');
+  expect(webviews[0]?.html).toBe('html1');
 
-  expect(webviews[1].id).toBe(panelImpl2.internalId);
-  expect(webviews[1].viewType).toBe('viewTypeInfo');
-  expect(webviews[1].html).toBe('html2');
+  expect(webviews[1]?.id).toBe(panelImpl2.internalId);
+  expect(webviews[1]?.viewType).toBe('viewTypeInfo');
+  expect(webviews[1]?.html).toBe('html2');
 });
 
 test('check listSimpleWebviews', async () => {
@@ -481,13 +481,13 @@ test('check listSimpleWebviews', async () => {
 
   // check
   expect(webviews.length).toBe(2);
-  expect(webviews[0].id).toBe(panelImpl1.internalId);
-  expect(webviews[0].viewType).toBe('viewTypeInfo');
-  expect(webviews[0].title).toBe('customTitle1');
+  expect(webviews[0]?.id).toBe(panelImpl1.internalId);
+  expect(webviews[0]?.viewType).toBe('viewTypeInfo');
+  expect(webviews[0]?.title).toBe('customTitle1');
 
-  expect(webviews[1].id).toBe(panelImpl2.internalId);
-  expect(webviews[1].viewType).toBe('viewTypeInfo');
-  expect(webviews[1].title).toBe('customTitle2');
+  expect(webviews[1]?.id).toBe(panelImpl2.internalId);
+  expect(webviews[1]?.viewType).toBe('viewTypeInfo');
+  expect(webviews[1]?.title).toBe('customTitle2');
 });
 
 test('check disposeWebviewPanel', async () => {

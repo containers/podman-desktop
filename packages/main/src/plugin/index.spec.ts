@@ -40,7 +40,7 @@ import { Deferred } from './util/deferred.js';
 let pluginSystem: TestPluginSystem;
 
 class TestPluginSystem extends PluginSystem {
-  initConfigurationRegistry(
+  override initConfigurationRegistry(
     apiSender: ApiSenderType,
     directories: Directories,
     notifications: NotificationCardOptions[],

@@ -640,8 +640,8 @@ test('should retrieve cleanup actions without provider Id', async () => {
 
   expect(allActions).toBeDefined();
   expect(allActions).lengthOf(2);
-  expect(allActions[0].providerName).toBe('internal1');
-  expect(allActions[1].providerName).toBe('internal2');
+  expect(allActions[0]?.providerName).toBe('internal1');
+  expect(allActions[1]?.providerName).toBe('internal2');
 });
 
 test('should retrieve cleanup actions with a given provider Id', async () => {
@@ -672,7 +672,7 @@ test('should retrieve cleanup actions with a given provider Id', async () => {
 
   expect(allActions).toBeDefined();
   expect(allActions).lengthOf(1);
-  expect(allActions[0].providerName).toBe('internal1');
+  expect(allActions[0]?.providerName).toBe('internal1');
 });
 
 test('should execute actions', async () => {

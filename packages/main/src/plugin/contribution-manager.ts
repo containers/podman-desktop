@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,6 +184,7 @@ export class ContributionManager {
         return undefined;
       }
     }
+    return undefined;
   }
 
   async startVM(extensionId: string, vmCustomizedComposeFile?: string, monitorVM?: boolean): Promise<void> {
@@ -540,6 +541,7 @@ export class ContributionManager {
       await fs.promises.writeFile(composeFilePath, jsYaml.dump(afterTransformationCompose, { lineWidth: 1000 }));
       return composeFilePath;
     }
+    return undefined;
   }
 
   // enhance the compose file with different things like:
@@ -585,32 +587,34 @@ export class ContributionManager {
       const service = services[serviceKey];
 
       // add custom labels
-      service.labels = service.labels ?? {};
-      service.labels['io.podman_desktop.PodmanDesktop.extension'] = 'true';
-      service.labels['io.podman_desktop.PodmanDesktop.extensionName'] = extensionName;
+      if (service) {
+        service.labels = service?.labels ?? {};
+        service.labels['io.podman_desktop.PodmanDesktop.extension'] = 'true';
+        service.labels['io.podman_desktop.PodmanDesktop.extensionName'] = extensionName;
 
-      // then for compatibility
-      service.labels['com.docker.desktop.extension'] = 'true';
-      service.labels['com.docker.desktop.extension.name'] = extensionName;
+        // then for compatibility
+        service.labels['com.docker.desktop.extension'] = 'true';
+        service.labels['com.docker.desktop.extension.name'] = extensionName;
 
-      if (service?.image === '${DESKTOP_PLUGIN_IMAGE}') {
-        service.image = ociImageName;
+        if (service?.image === '${DESKTOP_PLUGIN_IMAGE}') {
+          service.image = ociImageName;
 
-        // flag this container as being the VM service label
-        service.labels['io.podman_desktop.PodmanDesktop.vm-service'] = 'true';
-      }
+          // flag this container as being the VM service label
+          service.labels['io.podman_desktop.PodmanDesktop.vm-service'] = 'true';
+        }
 
-      // apply restart policy if not specified
-      service.deploy = service.deploy ?? {};
-      service.deploy.restart_policy = service.deploy.restart_policy ?? {};
-      if (!service.deploy.restart_policy.condition) {
-        service.deploy.restart_policy.condition = 'always';
-      }
+        // apply restart policy if not specified
+        service.deploy = service.deploy ?? {};
+        service.deploy.restart_policy = service.deploy.restart_policy ?? {};
+        if (!service.deploy.restart_policy.condition) {
+          service.deploy.restart_policy.condition = 'always';
+        }
 
-      // add the volume from the podman-desktop-socket (only if not inside the service itself)
-      if (serviceKey !== PODMAN_DESKTOP_SOCKET_SERVICE) {
-        service.volumes_from = service.volumes_from ?? [];
-        service.volumes_from.push(PODMAN_DESKTOP_SOCKET_SERVICE);
+        // add the volume from the podman-desktop-socket (only if not inside the service itself)
+        if (serviceKey !== PODMAN_DESKTOP_SOCKET_SERVICE) {
+          service.volumes_from = service.volumes_from ?? [];
+          service.volumes_from.push(PODMAN_DESKTOP_SOCKET_SERVICE);
+        }
       }
     }
     return composeObject;

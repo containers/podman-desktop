@@ -32,10 +32,8 @@ import type {
 
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 
-import type { ApiSenderType } from './api.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import { Emitter } from './events/emitter.js';
-import type { Exec } from './util/exec.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
@@ -44,8 +42,6 @@ export class CliToolImpl implements CliTool, Disposable {
   readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
 
   constructor(
-    private _apiSender: ApiSenderType,
-    private _exec: Exec,
     readonly extensionInfo: CliToolExtensionInfo,
     readonly registry: CliToolRegistry,
     private _options: CliToolOptions,

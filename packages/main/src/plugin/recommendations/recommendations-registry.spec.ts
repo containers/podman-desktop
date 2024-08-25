@@ -101,17 +101,17 @@ test('should register a configuration', async () => {
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
   // take first argument of first call
-  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0][0][0];
-  expect(configurationNode.id).toBe('preferences.extensions');
-  expect(configurationNode.title).toBe('Extensions');
-  expect(configurationNode.type).toBe('object');
-  expect(configurationNode.properties).toBeDefined();
-  expect(configurationNode.properties?.['extensions.ignoreRecommendations']).toBeDefined();
-  expect(configurationNode.properties?.['extensions.ignoreRecommendations'].description).toBe(
+  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0]?.[0]?.[0];
+  expect(configurationNode?.id).toBe('preferences.extensions');
+  expect(configurationNode?.title).toBe('Extensions');
+  expect(configurationNode?.type).toBe('object');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(configurationNode?.properties?.['extensions.ignoreRecommendations']).toBeDefined();
+  expect(configurationNode?.properties?.['extensions.ignoreRecommendations']?.description).toBe(
     'When enabled, the notifications for extension recommendations will not be shown.',
   );
-  expect(configurationNode.properties?.['extensions.ignoreRecommendations'].type).toBe('boolean');
-  expect(configurationNode.properties?.['extensions.ignoreRecommendations'].default).toBeFalsy();
+  expect(configurationNode?.properties?.['extensions.ignoreRecommendations']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['extensions.ignoreRecommendations']?.default).toBeFalsy();
 });
 
 describe('isRecommendationEnabled', () => {
@@ -175,12 +175,12 @@ describe('getExtensionBanners', () => {
 
     const extensions = await recommendationsRegistry.getExtensionBanners();
     expect(extensions.length).toBe(1);
-    expect(extensions[0].featured).toStrictEqual(featured);
-    expect(extensions[0].extensionId).toBe('dummy.id-0');
-    expect(extensions[0].title).toBe('dummy title');
-    expect(extensions[0].description).toBe('dummy description');
-    expect(extensions[0].icon).toBe('data:image/png;base64-icon');
-    expect(extensions[0].thumbnail).toBe('data:image/png;base64-thumbnail');
+    expect(extensions[0]?.featured).toStrictEqual(featured);
+    expect(extensions[0]?.extensionId).toBe('dummy.id-0');
+    expect(extensions[0]?.title).toBe('dummy title');
+    expect(extensions[0]?.description).toBe('dummy description');
+    expect(extensions[0]?.icon).toBe('data:image/png;base64-icon');
+    expect(extensions[0]?.thumbnail).toBe('data:image/png;base64-thumbnail');
 
     expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
   });
@@ -322,7 +322,10 @@ describe('getExtensionBanners', () => {
       const banners = await recommendationsRegistry.getExtensionBanners(1);
       expect(banners.length).toBe(1);
 
-      actualsIds.add(banners[0].extensionId);
+      const actualExtensionId = banners[0]?.extensionId;
+      expect(actualExtensionId).toBeDefined();
+      const actualExtensionIdString = actualExtensionId as string;
+      actualsIds.add(actualExtensionIdString);
     }
 
     expect(expectedIds).toStrictEqual(actualsIds);
@@ -358,7 +361,9 @@ describe('getRegistries', () => {
 
     const registries = await recommendationsRegistry.getRegistries();
     expect(registries.length).toBe(1);
-
+    if (!registries[0]) {
+      throw new Error('registry is undefined');
+    }
     expect(registries[0].extensionId).toBe('my.extensionId');
 
     expect(vi.mocked(extensionLoaderMock).listExtensions).toHaveBeenCalled();

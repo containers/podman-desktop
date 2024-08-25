@@ -226,6 +226,9 @@ test('Authentication provider creates session when session request is executed',
   expect(authModule.getSessionRequests()).length(1);
 
   const [signInRequest] = authModule.getSessionRequests();
+  if (!signInRequest) {
+    throw new Error('Sign in request is not defined');
+  }
   await authModule.executeSessionRequest(signInRequest.id);
   expect(createSessionSpy).toBeCalledTimes(1);
 });

@@ -32,10 +32,10 @@ import { NavigationManager } from './navigation-manager.js';
 let navigationManager: TestNavigationManager;
 
 class TestNavigationManager extends NavigationManager {
-  assertContributionExist(name: string): void {
+  override assertContributionExist(name: string): void {
     return super.assertContributionExist(name);
   }
-  assertWebviewExist(webviewId: string): void {
+  override assertWebviewExist(webviewId: string): void {
     return super.assertWebviewExist(webviewId);
   }
 }

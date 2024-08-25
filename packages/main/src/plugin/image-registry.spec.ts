@@ -27,7 +27,7 @@ import type { Registry } from '@podman-desktop/api';
 import * as fzstd from 'fzstd';
 import nock from 'nock';
 import * as nodeTar from 'tar';
-import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 
 import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
 import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
@@ -46,7 +46,7 @@ const pxoxyIsEnabledMock = vi.fn();
 const proxyGetProxyMock = vi.fn();
 
 const telemetry: Telemetry = {
-  track(event: EventType, eventProperties?: any): void {},
+  track(_event: EventType, _eventProperties?: any): void {},
 } as Telemetry;
 const certificates: Certificates = {
   init: vi.fn(),
@@ -62,7 +62,7 @@ Object.defineProperty(proxy, 'proxy', {
   get: proxyGetProxyMock,
 });
 const apiSender: ApiSenderType = {
-  send(channel: string, data?: any): void {},
+  send(_channel: string, _data?: any): void {},
 } as ApiSenderType;
 
 beforeAll(async () => {
@@ -834,7 +834,7 @@ test('getManifestFromUrl returns the expected manifest with docker manifest v2',
   expect(manifest).toHaveProperty('endManifest', true);
   expect(spyGetBestManifest).toHaveBeenCalled();
   // check first item of the call and first element of the array
-  expect(spyGetBestManifest.mock.calls[0][0][0]).contains({ name: 'docker-manifest' });
+  expect(spyGetBestManifest.mock.calls[0]?.[0][0]).contains({ name: 'docker-manifest' });
 });
 
 test('getAuthconfigForServer returns the expected authconfig', async () => {
