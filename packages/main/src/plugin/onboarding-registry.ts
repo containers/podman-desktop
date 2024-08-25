@@ -22,7 +22,6 @@ import * as path from 'node:path';
 import type { Onboarding, OnboardingInfo, OnboardingStatus } from '/@api/onboarding.js';
 
 import { getBase64Image } from '../util.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { Context } from './context/context.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import { Disposable } from './types/disposable.js';
@@ -30,10 +29,7 @@ import { Disposable } from './types/disposable.js';
 export class OnboardingRegistry {
   private onboardingInfos: Map<string, OnboardingInfo> = new Map<string, OnboardingInfo>();
 
-  constructor(
-    private configurationRegistry: ConfigurationRegistry,
-    private context: Context,
-  ) {}
+  constructor(private context: Context) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): Disposable {
     const onInfo = this.createOnboardingInfo(extension, onboarding);

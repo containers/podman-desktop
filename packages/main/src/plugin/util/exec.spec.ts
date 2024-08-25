@@ -563,17 +563,17 @@ describe('getInstallationPath', () => {
   let originalPath: string | undefined;
 
   beforeEach(() => {
-    originalPath = process.env.PATH;
+    originalPath = process.env['PATH'];
   });
 
   afterEach(() => {
-    process.env.PATH = originalPath;
+    process.env['PATH'] = originalPath;
   });
 
   test('should return the installation path for Windows', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => true);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
-    process.env.PATH = '';
+    process.env['PATH'] = '';
 
     const path = getInstallationPath();
 
@@ -583,7 +583,7 @@ describe('getInstallationPath', () => {
   test('should return the installation path for Windows with pre-filled PATH', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => true);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
-    process.env.PATH = 'c:\\Local';
+    process.env['PATH'] = 'c:\\Local';
 
     const path = getInstallationPath();
 
@@ -593,7 +593,7 @@ describe('getInstallationPath', () => {
   test('should return the installation path for Windows with defined param', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => true);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
-    process.env.PATH = 'c:\\Local';
+    process.env['PATH'] = 'c:\\Local';
 
     const path = getInstallationPath('c:\\Directory');
 
@@ -604,7 +604,7 @@ describe('getInstallationPath', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => true);
 
-    process.env.PATH = '/usr/bin';
+    process.env['PATH'] = '/usr/bin';
 
     const path = getInstallationPath();
 
@@ -615,7 +615,7 @@ describe('getInstallationPath', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => true);
 
-    process.env.PATH = '/usr/bin';
+    process.env['PATH'] = '/usr/bin';
 
     const path = getInstallationPath('/usr/other');
 
@@ -625,7 +625,7 @@ describe('getInstallationPath', () => {
   test('should return the installation path for other platforms', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
-    process.env.PATH = '/usr/bin'; // Example PATH for other platforms
+    process.env['PATH'] = '/usr/bin'; // Example PATH for other platforms
 
     const path = getInstallationPath();
 
@@ -635,7 +635,7 @@ describe('getInstallationPath', () => {
   test('should return the installation path for other platforms with defined param', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
-    process.env.PATH = '/usr/bin'; // Example PATH for other platforms
+    process.env['PATH'] = '/usr/bin'; // Example PATH for other platforms
 
     const path = getInstallationPath('/usr/other');
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,17 +40,17 @@ test('should register a configuration', async () => {
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
   // take first argument of first call
-  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0][0][0];
-  expect(configurationNode.id).toBe('preferences.OpenDevTools');
-  expect(configurationNode.title).toBe('Open Dev Tools');
-  expect(configurationNode.type).toBe('object');
-  expect(configurationNode.properties).toBeDefined();
-  expect(configurationNode.properties?.['preferences.OpenDevTools']).toBeDefined();
-  expect(configurationNode.properties?.['preferences.OpenDevTools'].description).toBe(
+  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0]?.[0][0];
+  expect(configurationNode?.id).toBe('preferences.OpenDevTools');
+  expect(configurationNode?.title).toBe('Open Dev Tools');
+  expect(configurationNode?.type).toBe('object');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.OpenDevTools']).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.OpenDevTools']?.description).toBe(
     'Open DevTools when launching Podman Desktop in development mode.',
   );
-  expect(configurationNode.properties?.['preferences.OpenDevTools'].type).toBe('string');
-  expect(configurationNode.properties?.['preferences.OpenDevTools'].enum).toEqual([
+  expect(configurationNode?.properties?.['preferences.OpenDevTools']?.type).toBe('string');
+  expect(configurationNode?.properties?.['preferences.OpenDevTools']?.enum).toEqual([
     'left',
     'right',
     'bottom',
@@ -58,5 +58,5 @@ test('should register a configuration', async () => {
     'detach',
     'none',
   ]);
-  expect(configurationNode.properties?.['preferences.OpenDevTools'].default).toBe('undocked');
+  expect(configurationNode?.properties?.['preferences.OpenDevTools']?.default).toBe('undocked');
 });

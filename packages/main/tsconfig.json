@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "module": "node16",
     "target": "esnext",
@@ -9,6 +10,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "isolatedModules": true,
+    "exactOptionalPropertyTypes": false,
 
     "types": ["node"],
 

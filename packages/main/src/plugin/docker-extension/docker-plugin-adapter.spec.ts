@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ vi.mock('electron', () => {
 const contributionManager = {} as unknown as ContributionManager;
 
 class TestDockerPluginAdapter extends DockerPluginAdapter {
-  async getVmServiceContainer(contributionId: string): Promise<SimpleContainerInfo> {
+  override async getVmServiceContainer(contributionId: string): Promise<SimpleContainerInfo> {
     return super.getVmServiceContainer(contributionId);
   }
 }

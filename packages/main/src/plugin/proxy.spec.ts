@@ -42,6 +42,8 @@ function getConfigurationRegistry(
       return https;
     } else if (name === 'no') {
       return no;
+    } else {
+      return '';
     }
   });
   return {

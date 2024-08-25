@@ -565,9 +565,12 @@ export class ProviderRegistry {
 
     if (provider.containerConnections && provider.containerConnections.length > 0) {
       const connection = provider.containerConnections[0];
-      const lifecycle = connection.lifecycle;
+      const lifecycle = connection?.lifecycle;
       if (!lifecycle?.start) {
         throw new Error('The container connection does not support start lifecycle');
+      }
+      if (!connection) {
+        throw new Error('The provider does not have a container connection to start');
       }
 
       const context = this.connectionLifecycleContexts.get(connection);

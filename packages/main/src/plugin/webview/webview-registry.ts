@@ -129,6 +129,10 @@ export class WebviewRegistry {
       // check if hostname matches uuid pattern
       const uuidPattern = new RegExp('^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$');
       const uuid = req.hostname.split('.')[0];
+      if (!uuid) {
+        res.status(500).send('invalid request: uuid');
+        return;
+      }
       if (!uuidPattern.test(uuid)) {
         res.status(404).send('not found');
         return;

@@ -93,7 +93,7 @@ export class DockerDesktopInstaller {
       // do we have binaries ?
       if (metadata.host.binaries) {
         metadata.host.binaries.forEach((binary: { [key: string]: { path: string }[] }) => {
-          binary[platform].forEach(binaryPlatform => {
+          binary[platform]?.forEach(binaryPlatform => {
             hostFiles.push(binaryPlatform.path);
           });
         });

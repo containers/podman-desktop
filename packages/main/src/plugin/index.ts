@@ -284,6 +284,7 @@ export class PluginSystem {
 
       if (toAppend !== '') return `[${toAppend}]`;
     }
+    return undefined;
   }
 
   // log locally and also send it to the renderer process
@@ -458,7 +459,7 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const telemetry = new Telemetry(configurationRegistry, proxy);
+    const telemetry = new Telemetry(configurationRegistry);
     await telemetry.init();
 
     const exec = new Exec(proxy);
@@ -487,7 +488,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
-    const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    const onboardingRegistry = new OnboardingRegistry(context);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -497,7 +498,7 @@ export class PluginSystem {
 
     // Don't show the tray icon options on Mac
     if (!isMac()) {
-      const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
+      const trayIconColor = new TrayIconColor(configurationRegistry);
       await trayIconColor.init();
     }
 
@@ -610,13 +611,13 @@ export class PluginSystem {
 
     const authentication = new AuthenticationImpl(apiSender, messageBox);
 
-    const cliToolRegistry = new CliToolRegistry(apiSender, exec);
+    const cliToolRegistry = new CliToolRegistry(apiSender);
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
     const imageFiles = new ImageFilesRegistry(apiSender);
 
-    const troubleshooting = new Troubleshooting(apiSender);
+    const troubleshooting = new Troubleshooting();
 
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
 

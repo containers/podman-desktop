@@ -848,7 +848,7 @@ export class ContextsManager {
     });
   }
 
-  public createNodeInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Node> {
+  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): Informer<V1Node> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NodeList> => k8sApi.listNode();
     const path = '/api/v1/nodes';

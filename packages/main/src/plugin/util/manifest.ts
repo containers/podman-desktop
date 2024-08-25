@@ -53,6 +53,10 @@ export function guessIsManifest(image: ImageInfo, connectionType: string): boole
   if (image.RepoDigests) {
     for (const digest of image.RepoDigests) {
       const [repo, hash] = digest.split('@');
+      if (!hash || !repo) {
+        // This is an invalid digest, skip it
+        continue;
+      }
       const tagSet = digestMap.get(hash) ?? new Set<string>();
       image?.RepoTags?.forEach(tag => {
         if (tag.includes(repo)) {

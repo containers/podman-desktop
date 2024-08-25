@@ -21,10 +21,8 @@ import { expect, test, vi } from 'vitest';
 
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 
-import type { ApiSenderType } from './api.js';
 import { CliToolImpl } from './cli-tool-impl.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
-import type { Exec } from './util/exec.js';
 
 test('check updateVersion updates CliTool', () => {
   const options: CliToolOptions = {
@@ -36,8 +34,6 @@ test('check updateVersion updates CliTool', () => {
     path: 'path/to/tool-name',
   };
   const newCliTool = new CliToolImpl(
-    vi.fn() as unknown as ApiSenderType,
-    vi.fn() as unknown as Exec,
     vi.fn() as unknown as CliToolExtensionInfo,
     vi.fn() as unknown as CliToolRegistry,
     options,

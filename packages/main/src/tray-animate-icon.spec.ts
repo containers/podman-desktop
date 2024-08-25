@@ -25,11 +25,11 @@ import { AnimatedTray } from './tray-animate-icon.js';
 
 // to call protected methods
 class TestAnimatedTray extends AnimatedTray {
-  getAssetsFolder(): string {
+  override getAssetsFolder(): string {
     return super.getAssetsFolder();
   }
 
-  isProd(): boolean {
+  override isProd(): boolean {
     return super.isProd();
   }
 }

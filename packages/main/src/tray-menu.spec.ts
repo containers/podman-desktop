@@ -72,14 +72,14 @@ test('Tray delete provider item', () => {
     internalId: 'internalId',
   } as ProviderInfo);
 
-  onSpy.mock.calls[0][1](undefined as unknown as Electron.IpcMainEvent, {
+  onSpy.mock.calls[0]?.[1](undefined as unknown as Electron.IpcMainEvent, {
     providerId: 'testId',
     menuItem: { id: 'itemId', label: 'SomeLabel' },
   });
 
   trayMenu.deleteProviderItem('testId', 'itemId');
   expect(
-    (menuBuild.mock.lastCall?.[0][0].submenu as Array<MenuItemConstructorOptions>)?.filter(
+    (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.filter(
       it => it.label === 'SomeLabel',
     ),
   ).to.be.empty;
@@ -97,7 +97,7 @@ test('Tray update provider not delete provider items', () => {
     internalId: 'internalId',
   } as ProviderInfo);
 
-  onSpy.mock.calls[0][1](undefined as unknown as Electron.IpcMainEvent, {
+  onSpy.mock.calls[0]?.[1](undefined as unknown as Electron.IpcMainEvent, {
     providerId: 'testId',
     menuItem: { id: 'itemId', label: 'SomeLabel' },
   });
@@ -109,7 +109,7 @@ test('Tray update provider not delete provider items', () => {
   } as ProviderInfo);
 
   expect(
-    (menuBuild.mock.lastCall?.[0][0].submenu as Array<MenuItemConstructorOptions>)?.filter(
+    (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.filter(
       it => it.label === 'SomeLabel',
     ),
   ).to.be.not.empty;
@@ -144,7 +144,7 @@ test('Tray provider start enabled when configured state', () => {
     status: 'configured',
   } as ProviderInfo);
 
-  const startItem = (menuBuild.mock.lastCall?.[0][0].submenu as Array<MenuItemConstructorOptions>)?.find(
+  const startItem = (menuBuild.mock.lastCall?.[0]?.[0]?.submenu as Array<MenuItemConstructorOptions>)?.find(
     it => it.label === 'Start',
   );
   expect(startItem).to.be.not.undefined;

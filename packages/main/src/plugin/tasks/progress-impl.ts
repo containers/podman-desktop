@@ -58,7 +58,7 @@ export class ProgressImpl {
   }
 
   withApplicationIcon<R>(
-    options: extensionApi.ProgressOptions,
+    _options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
       token: extensionApi.CancellationToken,

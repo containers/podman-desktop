@@ -35,6 +35,7 @@ export function ensureURL(urlstring: string | undefined): string | undefined {
     }
     return `http://${urlstring}`;
   }
+  return undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

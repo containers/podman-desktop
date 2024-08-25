@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ export class TrayMenuRegistry {
         this.trayMenu.updateProvider(providerInfo);
       }
     });
-    providerRegistry.addProviderLifecycleListener((name: string, provider: ProviderInfo) => {
+    providerRegistry.addProviderLifecycleListener((_name: string, provider: ProviderInfo) => {
       this.registerProvider(provider);
     });
 

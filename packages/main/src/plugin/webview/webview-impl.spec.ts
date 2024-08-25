@@ -86,7 +86,7 @@ test('allow to update options', async () => {
   expect(webviewImpl.options).toBeDefined();
   expect(webviewImpl.options.localResourceRoots).toBeDefined();
   expect(webviewImpl.options.localResourceRoots).toHaveLength(1);
-  expect(webviewImpl.options.localResourceRoots?.[0].toString()).toBe('https://www.podman-desktop.io/');
+  expect(webviewImpl.options.localResourceRoots?.[0]?.toString()).toBe('https://www.podman-desktop.io/');
 
   // expect apiSender.send has been called with correct parameters
   expect(apiSender.send).toHaveBeenCalledWith('webview-update:options', {
