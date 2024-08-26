@@ -340,7 +340,7 @@ export class PodmanInstall {
         'Yes',
         'No',
         'Ignore',
-        'Open release note',
+        'Open release notes',
       );
       if (answer === 'Yes') {
         await this.getInstaller()?.update();
@@ -368,10 +368,8 @@ export class PodmanInstall {
         }
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
-      } else if (answer === 'Open release note') {
-        await extensionApi.env.openExternal(
-          extensionApi.Uri.parse(`https://github.com/containers/podman/releases/tag/v${updateInfo.bundledVersion}`),
-        );
+      } else if (answer === 'Open release notes') {
+        await extensionApi.env.openExternal(extensionApi.Uri.parse(podman5JSON.releaseNotes.href));
       }
     }
   }

@@ -1,5 +1,8 @@
 {
   "version": "5.2.0",
+  "releaseNotes": {
+    "href": "https://github.com/containers/podman/releases/tag/v5.2.0"
+  },
   "platform": {
     "win32": {
       "version": "v5.2.0",

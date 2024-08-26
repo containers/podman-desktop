@@ -23,15 +23,10 @@ import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { InstalledPodman } from './podman-cli';
-import type {
-  getBundledPodmanVersion,
-  Installer,
-  PodmanInfo,
-  PodmanInstall,
-  UpdateCheck,
-  WinInstaller,
-} from './podman-install';
+import type { Installer, PodmanInfo, UpdateCheck } from './podman-install';
+import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
 import * as podmanInstallObj from './podman-install';
+import { releaseNotes } from './podman5.json';
 import * as utils from './util';
 
 const originalConsoleError = console.error;
@@ -884,12 +879,12 @@ describe('performUpdate', () => {
       'Yes',
       'No',
       'Ignore',
-      'Open release note',
+      'Open release notes',
     );
   });
 
   test('user clicking on Open release note should open external link', async () => {
-    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue('Open release note');
+    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue('Open release notes');
 
     const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
     // mock initialized
@@ -909,7 +904,7 @@ describe('performUpdate', () => {
 
     await podmanInstall.performUpdate(providerMock, undefined);
 
-    expect(extensionApi.Uri.parse).toHaveBeenCalledWith('https://github.com/containers/podman/releases/tag/v0.9.8');
+    expect(extensionApi.Uri.parse).toHaveBeenCalledWith(releaseNotes.href);
     expect(extensionApi.env.openExternal).toHaveBeenCalled();
   });
 });
