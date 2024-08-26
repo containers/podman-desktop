@@ -120,7 +120,7 @@ export class InputQuickPickRegistry {
         const allItems = indexes.map(index => callback.items[index]);
         // resolve the promise
         callback.deferred.resolve(allItems);
-      } else if (indexes[0]) {
+      } else if (indexes[0] !== undefined) {
         // grab item
         const item = callback.items[indexes[0]];
 
