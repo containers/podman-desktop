@@ -73,7 +73,7 @@ import { Exec } from './util/exec.js';
 import type { ViewRegistry } from './view-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
-  public async setupScanningDirectory(): Promise<void> {
+  public override async setupScanningDirectory(): Promise<void> {
     return super.setupScanningDirectory();
   }
 
@@ -96,7 +96,7 @@ class TestExtensionLoader extends ExtensionLoader {
     return this.extensionStateErrors;
   }
 
-  doRequire(module: string): NodeRequire {
+  override doRequire(module: string): NodeRequire {
     return super.doRequire(module);
   }
 
@@ -593,10 +593,10 @@ test('Verify setExtensionsUpdates', async () => {
 
   // check we have our extension
   expect(extensions.length).toBe(1);
-  expect(extensions[0].id).toBe(extensionId);
+  expect(extensions[0]?.id).toBe(extensionId);
 
   // check that update field is empty
-  expect(extensions[0].update).toBeUndefined();
+  expect(extensions[0]?.update).toBeUndefined();
 
   // now call the update
 
@@ -614,10 +614,10 @@ test('Verify setExtensionsUpdates', async () => {
   const extensionsAfterUpdate = await extensionLoader.listExtensions();
   // check we have our extension
   expect(extensionsAfterUpdate.length).toBe(1);
-  expect(extensionsAfterUpdate[0].id).toBe(extensionId);
+  expect(extensionsAfterUpdate[0]?.id).toBe(extensionId);
 
   // check that update field is set
-  expect(extensionsAfterUpdate[0].update).toStrictEqual({
+  expect(extensionsAfterUpdate[0]?.update).toStrictEqual({
     ociUri: 'quay.io/extension',
     version: newVersion,
   });
@@ -1093,7 +1093,7 @@ test('Verify extension uri', async () => {
   expect(activateMethod).toBeCalled();
 
   // check extensionUri
-  const grabUri: containerDesktopAPI.Uri = activateMethod.mock.calls[0][0].extensionUri;
+  const grabUri: containerDesktopAPI.Uri = activateMethod.mock.calls[0]?.[0].extensionUri;
   expect(grabUri).toBeDefined();
   expect(grabUri.fsPath).toBe('dummy');
 });
@@ -1145,7 +1145,7 @@ test('Verify exports and packageJSON', async () => {
   expect(allExtensions).toBeDefined();
   // 1 item
   expect(allExtensions.length).toBe(1);
-  expect(allExtensions[0].exports.hello()).toBe('world');
+  expect(allExtensions[0]?.exports.hello()).toBe('world');
   expect((allExtensions[0] as any).packageJSON.foo).toBe('bar');
 });
 
@@ -1719,12 +1719,12 @@ test('check listWebviews', async () => {
   // esnure we got result
   expect(result).toBeDefined();
   expect(result.length).toBe(2);
-  expect(result[0].id).toBe('123');
-  expect(result[0].viewType).toBe('customView');
-  expect(result[0].title).toBe('customTitle1');
-  expect(result[1].id).toBe('456');
-  expect(result[1].viewType).toBe('anotherView');
-  expect(result[1].title).toBe('customTitle2');
+  expect(result[0]?.id).toBe('123');
+  expect(result[0]?.viewType).toBe('customView');
+  expect(result[0]?.title).toBe('customTitle1');
+  expect(result[1]?.id).toBe('456');
+  expect(result[1]?.viewType).toBe('anotherView');
+  expect(result[1]?.title).toBe('customTitle2');
 });
 
 test('check version', async () => {
@@ -1852,7 +1852,7 @@ describe('authentication Provider', async () => {
     const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
 
     // get options from the call
-    const options = call[3];
+    const options = call?.[3];
 
     expect(options?.images?.logo).toBeUndefined();
     expect(options?.images?.icon).toBeUndefined();
@@ -1875,7 +1875,7 @@ describe('authentication Provider', async () => {
     const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
 
     // get options from the call
-    const options = call[3];
+    const options = call?.[3];
 
     expect(options?.images?.logo).equals(BASE64ENCODEDIMAGE);
     expect(options?.images?.icon).equals(BASE64ENCODEDIMAGE);
@@ -1904,7 +1904,7 @@ describe('authentication Provider', async () => {
     const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
 
     // get options from the call
-    const options = call[3];
+    const options = call?.[3];
 
     const themeIcon = typeof options?.images?.icon === 'string' ? undefined : options?.images?.icon;
     expect(themeIcon).toBeDefined();
@@ -2016,8 +2016,8 @@ describe('window', async () => {
     const urisArray = uris as containerDesktopAPI.Uri[];
 
     expect(dialogRegistry.openDialog).toBeCalled();
-    expect(urisArray[0].fsPath).toContain('path-to-file1');
-    expect(urisArray[1].fsPath).toContain('path-to-file2');
+    expect(urisArray[0]?.fsPath).toContain('path-to-file1');
+    expect(urisArray[1]?.fsPath).toContain('path-to-file2');
   });
 
   test('showSaveDialog ', async () => {
@@ -2245,9 +2245,9 @@ test('load extensions sequentially', async () => {
 
   // check if loadExtension is called in order
   expect(loadExtensionMock).toBeCalledTimes(3);
-  expect(loadExtensionMock.mock.calls[0][0]).toBe(analyzedExtension1);
-  expect(loadExtensionMock.mock.calls[1][0]).toBe(analyzedExtension2);
-  expect(loadExtensionMock.mock.calls[2][0]).toBe(analyzedExtension3);
+  expect(loadExtensionMock.mock.calls[0]?.[0]).toBe(analyzedExtension1);
+  expect(loadExtensionMock.mock.calls[1]?.[0]).toBe(analyzedExtension2);
+  expect(loadExtensionMock.mock.calls[2]?.[0]).toBe(analyzedExtension3);
 });
 
 test('when loading registry registerRegistry, do not push to disposables', async () => {

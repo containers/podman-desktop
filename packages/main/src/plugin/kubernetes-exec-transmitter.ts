@@ -35,7 +35,7 @@ export class ExecStreamWriter extends Writable {
     this.transmitter = transmitter;
   }
 
-  _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+  override _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.transmitter._write(chunk, encoding, callback);
   }
 }
@@ -54,7 +54,7 @@ export class ResizableTerminalWriter extends ExecStreamWriter {
     this.rows = terminalSize.height;
   }
 
-  _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+  override _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     super._write(chunk, encoding, callback);
   }
 
@@ -81,7 +81,7 @@ export class BufferedStreamWriter extends Writable {
     this.transmitFn = transmitFn;
   }
 
-  _write(chunk: Buffer, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+  override _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.transmitFn(chunk);
     callback();
   }
@@ -102,7 +102,7 @@ export class StringLineReader extends Readable {
     }
   }
 
-  _read(): void {
+  override _read(): void {
     this.isReading = true;
     const data = this.dataQueue.shift();
 

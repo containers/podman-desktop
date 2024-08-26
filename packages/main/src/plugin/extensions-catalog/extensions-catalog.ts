@@ -156,7 +156,7 @@ export class ExtensionsCatalog {
       // we have a list of extensions
       catalogJSON.extensions.forEach(extension => {
         const notPreviewVersions = extension.versions.filter(v => v.preview !== true);
-        if (notPreviewVersions.length > 0) {
+        if (notPreviewVersions.length > 0 && notPreviewVersions[0]) {
           // take the first version
           fetchableExtensions.push({
             extensionId: `${extension.publisher.publisherName}.${extension.extensionName}`,

@@ -304,13 +304,16 @@ test('app-ready event with activate event', async () => {
   expect(windows).toHaveLength(1);
 
   const window = windows[0];
+  if (!window) {
+    assert.fail('window is undefined');
+  }
   const spyShow = vi.spyOn(window, 'show');
   const spyFocus = vi.spyOn(window, 'focus');
 
   let activateCallback: ((event: unknown) => void) | undefined = undefined;
 
   // capture activate event
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   vi.mocked(app.on).mockImplementation((event: string, callback: Function): App => {
     if (event === 'activate') {
       activateCallback = callback as (event: unknown) => void;

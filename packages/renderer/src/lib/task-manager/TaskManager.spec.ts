@@ -23,7 +23,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { tasksInfo } from '/@/stores/tasks';
-import type { NotificationTask, StatefulTask } from '/@api/task';
+import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
 
 import TaskManager from './TaskManager.svelte';
 
@@ -37,18 +37,20 @@ beforeAll(() => {
 });
 
 const started = new Date().getTime();
-const IN_PROGRESS_TASK: StatefulTask = {
+const IN_PROGRESS_TASK: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
   state: 'running',
-  started,
   status: 'in-progress',
+  started,
 };
-const SUCCEED_TASK: StatefulTask = { id: '1', name: 'Running Task 1', state: 'completed', started, status: 'success' };
-const NOTIFICATION_TASK: NotificationTask = {
+const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', state: 'completed', status: 'success', started };
+const NOTIFICATION_TASK: NotificationTaskInfo = {
   id: '1',
   name: 'Notification Task 1',
-  description: ' description',
+  body: ' description',
+  status: 'success',
+  state: 'completed',
   started,
 };
 
@@ -120,6 +122,9 @@ test('Expect tasks', async () => {
 });
 
 test('Expect delete completed tasks remove tasks', async () => {
+  const clearTasksMock = vi.fn();
+  (window as { clearTasks: () => void }).clearTasks = clearTasksMock;
+
   tasksInfo.set([SUCCEED_TASK]);
   render(TaskManager, { showTaskManager: true });
 
@@ -132,31 +137,8 @@ test('Expect delete completed tasks remove tasks', async () => {
   expect(clearNotificationsButton).toBeInTheDocument();
   await fireEvent.click(clearNotificationsButton);
 
-  // expect the task name is not visible
-  const afterTask = screen.queryByText(SUCCEED_TASK.name);
-  expect(afterTask).not.toBeInTheDocument();
-
-  // button is also gone
-  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear' });
-  expect(afterClearNotificationsButton).not.toBeInTheDocument();
-});
-
-test('Expect click on faClose icon remove the task', async () => {
-  tasksInfo.set([SUCCEED_TASK]);
-  render(TaskManager, { showTaskManager: true });
-
-  // expect the task name is visible
-  const task = screen.queryByText(SUCCEED_TASK.name);
-  expect(task).toBeInTheDocument();
-
-  // click on the button with title "Clear notification"
-  const clearCompletedButton = screen.getByRole('button', { name: 'Clear' });
-  expect(clearCompletedButton).toBeInTheDocument();
-  await fireEvent.click(clearCompletedButton);
-
-  // expect the task name is not visible
-  const afterTask = screen.queryByText(SUCCEED_TASK.name);
-  expect(afterTask).not.toBeInTheDocument();
+  // expect window/clearTasks to have been called
+  expect(clearTasksMock).toHaveBeenCalled();
 });
 
 test('Expect to have tasks when only having notification task', async () => {
@@ -170,32 +152,4 @@ test('Expect to have tasks when only having notification task', async () => {
   // expect the task is visible
   const task = screen.queryByText(NOTIFICATION_TASK.name);
   expect(task).toBeInTheDocument();
-});
-
-test('Expect clear notifications remove completed tasks and notifications', async () => {
-  tasksInfo.set([SUCCEED_TASK, NOTIFICATION_TASK]);
-  render(TaskManager, { showTaskManager: true });
-
-  // expect the task name is visible
-  const task = screen.queryByText(SUCCEED_TASK.name);
-  expect(task).toBeInTheDocument();
-
-  // expect the notification name is visible
-  const notification = screen.queryByText(NOTIFICATION_TASK.name);
-  expect(notification).toBeInTheDocument();
-
-  // click on the button "Clear notifications"
-  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear' });
-  expect(clearNotificationsButton).toBeInTheDocument();
-  await fireEvent.click(clearNotificationsButton);
-
-  // expect the task name and notification name are not visible
-  const afterTask = screen.queryByText(SUCCEED_TASK.name);
-  expect(afterTask).not.toBeInTheDocument();
-  const afterNotification = screen.queryByText(NOTIFICATION_TASK.name);
-  expect(afterNotification).not.toBeInTheDocument();
-
-  // button is also gone
-  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear' });
-  expect(afterClearNotificationsButton).not.toBeInTheDocument();
 });

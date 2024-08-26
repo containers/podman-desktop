@@ -58,7 +58,7 @@ describe('getTerminalTheme', () => {
           '--pd-terminal-brightCyan': '#55ffff',
           '--pd-terminal-brightWhite': '#ffffff',
         };
-        return cssVariables[property] || '';
+        return cssVariables[property] ?? '';
       },
     };
 

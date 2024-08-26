@@ -192,18 +192,23 @@ async function createWindow(): Promise<BrowserWindow> {
       if (import.meta.env.DEV) {
         let extensionId = '';
         if (parameters?.linkURL?.includes('/contribs')) {
-          extensionId = parameters.linkURL.split('/contribs/')[1];
-          return [
-            {
-              label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
-              // make it visible when link contains contribs and we're inside the extension
-              visible:
-                parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
-              click: (): void => {
-                browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
+          const extensionIdVal = parameters.linkURL.split('/contribs/')[1];
+          if (extensionIdVal) {
+            extensionId = extensionIdVal;
+            return [
+              {
+                label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
+                // make it visible when link contains contribs and we're inside the extension
+                visible:
+                  parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
+                click: (): void => {
+                  browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
+                },
               },
-            },
-          ];
+            ];
+          } else {
+            return [];
+          }
         } else if (parameters?.linkURL?.includes('/webviews/')) {
           const webviewId = parameters.linkURL.split('/webviews/')[1];
           return [

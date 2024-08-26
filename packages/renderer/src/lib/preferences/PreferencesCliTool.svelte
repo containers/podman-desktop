@@ -7,7 +7,11 @@ import type { CliToolInfo } from '/@api/cli-tool-info';
 
 import Markdown from '../markdown/Markdown.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import {
+  type ConnectionCallback,
+  eventCollect,
+  registerConnectionCallback,
+} from './preferences-connection-rendering-task';
 import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;
@@ -44,11 +48,7 @@ async function update(cliTool: CliToolInfo) {
   try {
     cliToolUpdateStatus.inProgress = true;
     cliToolUpdateStatus = cliToolUpdateStatus;
-    const loggerHandlerKey = startTask(
-      `Update ${cliTool.name} to v${newVersion}`,
-      '/preferences/cli-tools',
-      getLoggerHandler(cliTool.id),
-    );
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
     await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {
@@ -77,11 +77,7 @@ async function install(cliTool: CliToolInfo) {
   try {
     cliToolInstallStatus.inProgress = true;
     cliToolInstallStatus = cliToolInstallStatus;
-    const loggerHandlerKey = startTask(
-      `Install ${cliTool.name} v${newVersion}`,
-      '/preferences/cli-tools',
-      getLoggerHandler(cliTool.id),
-    );
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
     await window.installCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {

@@ -16,18 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import sveltePreprocess from 'svelte-preprocess';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import type { NotificationType } from '@podman-desktop/api';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import type { Task } from '/@/plugin/tasks/tasks.js';
 
-export default {
-  // Consult https://github.com/sveltejs/svelte-preprocess
-  // for more information about preprocessors
-  preprocess: sveltePreprocess({
-    postcss: {
-      configFilePath: join(__dirname, 'postcss.config.cjs'),
-    },
-  }),
-};
+export interface NotificationTask extends Task {
+  readonly title?: string;
+  readonly body?: string;
+  readonly silent?: boolean;
+  readonly markdownActions?: string;
+  readonly type?: NotificationType;
+  readonly highlight?: boolean;
+}

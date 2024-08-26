@@ -206,6 +206,7 @@ describe.each([
         expect.anything(),
         eventCollect,
         undefined,
+        taskId,
       );
       expect(providedKeyLogger).toBeDefined();
 
@@ -286,7 +287,7 @@ describe.each([
       name: providerInfo.name,
     });
     // expect it is sucessful
-    expect(cancelTokenMock).toBeCalled;
+    vi.waitFor(() => expect(cancelTokenMock).toBeCalled(), { timeout: 3000 });
   });
 
   test('Expect Close button and main image to not be visible if hidden using properties', async () => {
@@ -397,6 +398,7 @@ test(`Expect create with unchecked and checked checkboxes`, async () => {
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });
 
@@ -460,5 +462,6 @@ test(`Expect create with unchecked and checked checkboxes having multiple scopes
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });

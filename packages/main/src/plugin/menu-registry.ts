@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ export class MenuRegistry {
   registerMenus(menus: { [key: string]: Menu[] }): Disposable {
     for (const name in menus) {
       const contextMenus = menus[name];
-      contextMenus.forEach(menu => this.registerMenu(name, menu));
+      contextMenus?.forEach(menu => this.registerMenu(name, menu));
     }
 
     return Disposable.create(() => {
@@ -52,7 +52,7 @@ export class MenuRegistry {
   unregisterMenus(menus: { [key: string]: Menu[] }): void {
     for (const name in menus) {
       const contextMenus = menus[name];
-      contextMenus.forEach(menu => this.unregisterMenu(name, menu));
+      contextMenus?.forEach(menu => this.unregisterMenu(name, menu));
     }
   }
 

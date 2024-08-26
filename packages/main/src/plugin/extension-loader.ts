@@ -133,8 +133,6 @@ export interface RequireCacheDict {
 }
 
 export class ExtensionLoader {
-  private overrideRequireDone = false;
-
   private moduleLoader: ModuleLoader;
 
   protected activatedExtensions = new Map<string, ActivatedExtension>();
@@ -248,6 +246,7 @@ export class ExtensionLoader {
     if (activatedExtension) {
       return this.transformActivatedExtensionToExposedExtension(activatedExtension);
     }
+    return undefined;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -590,7 +589,8 @@ export class ExtensionLoader {
         pathes.push(process.argv[++index]);
       }
     }
-    return pathes;
+    // filter all undefined values
+    return pathes.filter(path => path !== undefined);
   }
 
   async readProductionFolders(folderPath: string): Promise<string[]> {
@@ -798,8 +798,6 @@ export class ExtensionLoader {
         return commandRegistry.executeCommand(commandId, ...args);
       },
     };
-
-    //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
     const providerRegistry = this.providerRegistry;
     const imageFilesRegistry = this.imageFilesRegistry;
@@ -1026,6 +1024,7 @@ export class ExtensionLoader {
         if (result) {
           return result.map(uri => Uri.file(uri));
         }
+        return undefined;
       },
       showSaveDialog: async (
         options?: containerDesktopAPI.SaveDialogOptions,
@@ -1480,6 +1479,8 @@ export class ExtensionLoader {
     if (extension.mainPath) {
       return this.doRequire(extension.mainPath);
     }
+
+    return undefined;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -448,7 +448,7 @@ export class KubernetesClient {
       try {
         const namespaces = await ctx.makeApiClient(CoreV1Api).listNamespace();
         if (namespaces?.items.length > 0) {
-          namespace = namespaces?.items[0].metadata?.name;
+          namespace = namespaces?.items[0]?.metadata?.name;
         }
       } catch (error) {
         // unable to list namespaces, can be due to a connection refused (cluster not up)
@@ -1022,11 +1022,12 @@ export class KubernetesClient {
    */
   groupAndVersion(apiVersion: string): { group: string; version: string } {
     const v = apiVersion.split('/');
-    if (v.length === 1) {
+    if (v.length === 1 && v[0]) {
       return { group: '', version: v[0] };
-    } else {
+    } else if (v.length > 1 && v[0] && v[1]) {
       return { group: v[0], version: v[1] };
     }
+    throw new Error(`Invalid apiVersion: ${apiVersion}`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1279,7 +1280,7 @@ export class KubernetesClient {
       action: action,
     };
     if (namespace) {
-      telemetryOptions.namespace = namespace;
+      telemetryOptions['namespace'] = namespace;
     }
 
     try {
@@ -1330,7 +1331,7 @@ export class KubernetesClient {
       }
       return created;
     } catch (error: unknown) {
-      telemetryOptions.error = error;
+      telemetryOptions['error'] = error;
       if (error instanceof FetchError) {
         const httpError = error as FetchError;
 

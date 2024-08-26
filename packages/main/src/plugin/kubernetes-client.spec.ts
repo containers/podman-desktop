@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ class TestKubernetesClient extends KubernetesClient {
 
   public declare currentNamespace: string | undefined;
 
-  public createWatchObject(): Watch {
+  public override createWatchObject(): Watch {
     return super.createWatchObject();
   }
 
@@ -166,7 +166,7 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public waitForPodDeletion(
+  public override waitForPodDeletion(
     coreApi: CoreV1Api,
     name: string,
     namespace: string,
@@ -176,7 +176,7 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public waitForPodsDeletion(
+  public override waitForPodsDeletion(
     coreApi: CoreV1Api,
     namespace: string,
     selector: string,
@@ -186,7 +186,7 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public waitForJobDeletion(
+  public override waitForJobDeletion(
     batchApi: BatchV1Api,
     name: string,
     namespace: string,
@@ -196,7 +196,7 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public scaleController(
+  public override scaleController(
     appsApi: AppsV1Api,
     namespace: string,
     controllerName: string,
@@ -207,17 +207,17 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public checkPodCreationSource(podMetadata: V1ObjectMeta): PodCreationSource {
+  public override checkPodCreationSource(podMetadata: V1ObjectMeta): PodCreationSource {
     return super.checkPodCreationSource(podMetadata);
   }
 
   // need only to be mocked in several test methods
-  public restartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
+  public override restartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
     return super.restartManuallyCreatedPod(name, namespace, pod);
   }
 
   // need only to be mocked in several test methods
-  public scaleControllerToRestartPods(
+  public override scaleControllerToRestartPods(
     namespace: string,
     controllerName: string,
     controllerType: ScalableControllerType,
@@ -227,12 +227,12 @@ class TestKubernetesClient extends KubernetesClient {
   }
 
   // need only to be mocked in several test methods
-  public getPodController(podMetadata: V1ObjectMeta): V1OwnerReference | undefined {
+  public override getPodController(podMetadata: V1ObjectMeta): V1OwnerReference | undefined {
     return super.getPodController(podMetadata);
   }
 
   // need only to be mocked in several test methods
-  public restartJob(name: string, namespace: string): Promise<void> {
+  public override restartJob(name: string, namespace: string): Promise<void> {
     return super.restartJob(name, namespace);
   }
 }
@@ -600,7 +600,7 @@ test('should return deployment list if connection to cluster is ok', async () =>
 
   const list = await client.listDeployments();
   expect(list.length).toBe(1);
-  expect(list[0].metadata?.name).toEqual('deployment');
+  expect(list[0]?.metadata?.name).toEqual('deployment');
 });
 
 test('should throw error if cannot call the cluster', async () => {
@@ -697,7 +697,7 @@ test('should return ingress list if connection to cluster is ok', async () => {
 
   const list = await client.listIngresses();
   expect(list.length).toBe(1);
-  expect(list[0].metadata?.name).toEqual('ingress');
+  expect(list[0]?.metadata?.name).toEqual('ingress');
 });
 
 test('should throw error if cannot call the cluster', async () => {
@@ -811,7 +811,7 @@ test('should return route list if connection to cluster is ok', async () => {
 
   const list = await client.listRoutes();
   expect(list.length).toBe(1);
-  expect(list[0].metadata?.name).toEqual('route');
+  expect(list[0]?.metadata?.name).toEqual('route');
 });
 
 test('should throw error if cannot call the cluster', async () => {
@@ -999,7 +999,7 @@ test('should return service list if connection to cluster is ok', async () => {
 
   const list = await client.listServices();
   expect(list.length).toBe(1);
-  expect(list[0].metadata?.name).toEqual('service');
+  expect(list[0]?.metadata?.name).toEqual('service');
 });
 
 test('should throw error if cannot call the cluster', async () => {
@@ -2023,7 +2023,7 @@ test('Should correctly calls scale API for Deployments', async () => {
 
   // check header is customized
   expect(clientNode.createConfiguration).toHaveBeenCalled();
-  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0]?.[0];
   expect(config?.middleware?.length).toBe(1);
 });
 
@@ -2049,7 +2049,7 @@ test('correctly calls scale API for ReplicaSets', async () => {
 
   // check header is customized
   expect(clientNode.createConfiguration).toHaveBeenCalled();
-  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0]?.[0];
   expect(config?.middleware?.length).toBe(1);
 });
 
@@ -2075,7 +2075,7 @@ test('correctly calls scale API for StatefulSets', async () => {
 
   // check header is customized
   expect(clientNode.createConfiguration).toHaveBeenCalled();
-  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0][0];
+  const config = vi.mocked(clientNode.createConfiguration).mock.calls[0]?.[0];
   expect(config?.middleware?.length).toBe(1);
 });
 

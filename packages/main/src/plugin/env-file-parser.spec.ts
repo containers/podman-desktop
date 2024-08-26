@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ beforeAll(() => {
 });
 
 class TestEnvfileParser extends EnvfileParser {
-  public async parseEnvFile(envFile: string): Promise<string[]> {
+  public override async parseEnvFile(envFile: string): Promise<string[]> {
     return super.parseEnvFile(envFile);
   }
 
-  public envFileCleanEntry(entry: string): { key: string | undefined; value: string | undefined } {
+  public override envFileCleanEntry(entry: string): { key: string | undefined; value: string | undefined } {
     return super.envFileCleanEntry(entry);
   }
 }

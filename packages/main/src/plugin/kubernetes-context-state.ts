@@ -85,7 +85,7 @@ interface ContextState {
 }
 
 // A selection of resources, to indicate the 'general' status of a context
-const selectedResources = ['pods', 'deployments'] as const;
+type selectedResources = ['pods', 'deployments'];
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
@@ -99,7 +99,7 @@ const secondaryResources = [
   'persistentvolumeclaims',
 ] as const;
 
-export type SelectedResourceName = (typeof selectedResources)[number];
+export type SelectedResourceName = selectedResources[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
 export type ResourceName = SelectedResourceName | SecondaryResourceName;
 
@@ -848,7 +848,7 @@ export class ContextsManager {
     });
   }
 
-  public createNodeInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Node> {
+  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): Informer<V1Node> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NodeList> => k8sApi.listNode();
     const path = '/api/v1/nodes';

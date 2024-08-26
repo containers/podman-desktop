@@ -1821,8 +1821,9 @@ describe('update', async () => {
     );
 
     makeInformerMock.mockClear();
-
-    config.contexts[0].namespace = 'other-ns';
+    if (config.contexts[0]) {
+      config.contexts[0].namespace = 'other-ns';
+    }
     kubeConfig.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
@@ -2061,7 +2062,7 @@ describe('update', async () => {
       const makeInformerMock = vi.mocked(makeInformer);
       makeInformerMock.mockImplementation(
         (
-          kubeconfig: kubeclient.KubeConfig,
+          _kubeconfig: kubeclient.KubeConfig,
           path: string,
           _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
         ) => {
@@ -2091,12 +2092,12 @@ describe('update', async () => {
         expect(informerStopMock).toHaveBeenNthCalledWith(
           1,
           'context2',
-          `/api/v1/namespaces/${initialConfig.contexts[1].namespace}/pods`,
+          `/api/v1/namespaces/${initialConfig.contexts[1]?.namespace}/pods`,
         );
         expect(informerStopMock).toHaveBeenNthCalledWith(
           2,
           'context2',
-          `/apis/apps/v1/namespaces/${initialConfig.contexts[1].namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${initialConfig.contexts[1]?.namespace}/deployments`,
         );
       }
 
@@ -2105,13 +2106,13 @@ describe('update', async () => {
         expect(makeInformerMock).toHaveBeenNthCalledWith(
           1,
           expect.any(KubeConfig),
-          `/api/v1/namespaces/${updateConfig.contexts[1].namespace}/pods`,
+          `/api/v1/namespaces/${updateConfig.contexts[1]?.namespace}/pods`,
           expect.anything(),
         );
         expect(makeInformerMock).toHaveBeenNthCalledWith(
           2,
           expect.any(KubeConfig),
-          `/apis/apps/v1/namespaces/${updateConfig.contexts[1].namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${updateConfig.contexts[1]?.namespace}/deployments`,
           expect.anything(),
         );
       }

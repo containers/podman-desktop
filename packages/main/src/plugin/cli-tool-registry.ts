@@ -30,20 +30,16 @@ import type { CliToolExtensionInfo, CliToolInfo } from '/@api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import { CliToolImpl } from './cli-tool-impl.js';
 import { Disposable } from './types/disposable.js';
-import type { Exec } from './util/exec.js';
 
 export class CliToolRegistry {
-  constructor(
-    private apiSender: ApiSenderType,
-    private exec: Exec,
-  ) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   private cliTools = new Map<string, CliToolImpl>();
   private cliToolsUpdater = new Map<string, CliToolUpdate | CliToolSelectUpdate>();
   private cliToolsInstaller = new Map<string, CliToolInstaller>();
 
   createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
-    const cliTool = new CliToolImpl(this.apiSender, this.exec, extensionInfo, this, options);
+    const cliTool = new CliToolImpl(extensionInfo, this, options);
     this.cliTools.set(cliTool.id, cliTool);
     this.apiSender.send('cli-tool-create');
     cliTool.onDidUpdateVersion(() => this.apiSender.send('cli-tool-change', cliTool.id));

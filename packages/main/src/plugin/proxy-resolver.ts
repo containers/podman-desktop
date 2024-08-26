@@ -57,6 +57,7 @@ export function getProxyUrl(proxy: Proxy, secure: boolean): string | undefined {
   if (proxy.isEnabled()) {
     return secure ? proxy.proxy?.httpsProxy : proxy.proxy?.httpProxy;
   }
+  return undefined;
 }
 
 type ProxyOptions = { agent?: http.Agent | https.Agent };

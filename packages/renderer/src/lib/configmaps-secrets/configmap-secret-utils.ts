@@ -28,7 +28,7 @@ export class ConfigMapSecretUtils {
 
   // If it is a configMap, then the type property will either be undefined, or it will be 'ConfigMap'
   isConfigMap(storage: V1ConfigMap | V1Secret): storage is V1ConfigMap {
-    return ('type' in storage && storage.type === 'ConfigMap') || 'type' in storage === undefined;
+    return ('type' in storage && storage.type === 'ConfigMap') || !('type' in storage);
   }
 
   getConfigMapSecretUI(storage: V1ConfigMap | V1Secret): ConfigMapSecretUI {

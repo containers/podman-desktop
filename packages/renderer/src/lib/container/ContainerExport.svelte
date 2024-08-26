@@ -7,7 +7,6 @@ import { router } from 'tinro';
 import { ContainerUtils } from '/@/lib/container/container-utils';
 import { handleNavigation } from '/@/navigation';
 import { containersInfos } from '/@/stores/containers';
-import { createTask } from '/@/stores/tasks';
 import { NavigationPage } from '/@api/navigation-page';
 
 import EngineFormPage from '../ui/EngineFormPage.svelte';
@@ -70,29 +69,17 @@ async function exportContainer() {
 
   exportedError = '';
   inProgress = true;
-  const task = createTask(`Export container ${container.name}`);
-  task.action = {
-    name: 'Open folder >',
-    execute: () => {
-      window.openDialog({
-        defaultUri: outputUri,
-      });
-    },
-  };
+
   try {
     await window.exportContainer(container.engineId, {
       id: container.id,
       outputTarget: outputUri.fsPath,
     });
-    task.status = 'success';
     // go back to containers list
     router.goto('/containers/');
   } catch (error) {
-    task.status = 'failure';
-    task.error = String(error);
     exportedError = String(error);
   } finally {
-    task.state = 'completed';
     inProgress = false;
   }
 }

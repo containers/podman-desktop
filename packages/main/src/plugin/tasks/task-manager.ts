@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NotificationInfo } from '/@api/notification.js';
-import type { NotificationTask, StatefulTask, Task } from '/@api/task.js';
+import type { NotificationOptions } from '@podman-desktop/api';
+
+import { NotificationImpl } from '/@/plugin/tasks/notification-impl.js';
+import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
+import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
+import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo.js';
 
 import type { ApiSenderType } from '../api.js';
 import type { CommandRegistry } from '../command-registry.js';
 import type { StatusBarRegistry } from '../statusbar/statusbar-registry.js';
 
-/**
- * Contribution manager to provide the list of external OCI contributions
- */
 export class TaskManager {
   private taskId = 0;
 
-  private tasks = new Map<string, Task>();
+  private tasks = new Map<string, TaskImpl>();
 
   constructor(
     private apiSender: ApiSenderType,
@@ -62,53 +64,125 @@ export class TaskManager {
     );
   }
 
-  public createTask(title: string | undefined): StatefulTask {
+  public createNotificationTask(options: NotificationOptions): NotificationTask {
     this.taskId++;
-    const task: StatefulTask = {
-      id: `main-${this.taskId}`,
-      name: title ? title : `Task ${this.taskId}`,
-      started: new Date().getTime(),
-      state: 'running',
-      status: 'in-progress',
-    };
+    const notificationTask = new NotificationImpl(
+      `notification-${this.taskId}`,
+      options.title ?? `Task ${this.taskId}`,
+      options.body ?? '',
+      options.silent ?? false,
+      options.markdownActions,
+      options.type ?? 'info',
+      options.highlight ?? false,
+    );
+
+    this.registerTask(notificationTask);
+    return notificationTask;
+  }
+
+  protected registerTask(task: TaskImpl): void {
     this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
+
+    task.onUpdate(this.updateTask.bind(this));
+
+    // notify renderer
+    this.apiSender.send('task-created', this.toInfo(task));
     this.setStatusBarEntry(true);
+  }
+
+  public createTask(options?: { title?: string; action?: TaskAction }): Task {
+    this.taskId++;
+
+    const task = new TaskImpl(`task-${this.taskId}`, options?.title ? options.title : `Task ${this.taskId}`);
+    task.action = options?.action;
+    this.registerTask(task);
     return task;
   }
 
-  public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
-    this.taskId++;
-    const task: NotificationTask = {
-      id: `main-${this.taskId}`,
-      name: notificationInfo.title,
-      started: new Date().getTime(),
-      description: notificationInfo.body ?? '',
-      markdownActions: notificationInfo.markdownActions,
-    };
-    this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
-    this.setStatusBarEntry(true);
-    return task;
+  /**
+   * Clearing tasks will remove all tasks not in loading state
+   */
+  public clearTasks(): void {
+    Array.from(this.tasks.values()).forEach(task => {
+      if (task.state !== 'running') {
+        this.removeTask(task);
+      }
+    });
   }
 
-  public updateTask(task: Task): void {
-    this.apiSender.send('task-updated', task);
-    if (this.isStatefulTask(task) && task.state === 'completed') {
-      this.tasks.delete(task.id);
+  /**
+   * Given a task id will execute the corresponding action configured
+   * @param taskId
+   */
+  public execute(taskId: string): void {
+    const task = this.tasks.get(taskId);
+    if (!task) throw new Error(`task with id ${taskId} does not exist.`);
+
+    if (!task.action) throw new Error(`task with id ${taskId} (${task.name}) does not have an action.`);
+    task.action.execute(task);
+  }
+
+  /**
+   * Utility method to serialize a Task (extension&main) to a TaskInfo (renderer)
+   * @param task
+   * @protected
+   */
+  protected toInfo(task: Task): TaskInfo | NotificationTaskInfo {
+    if (this.isNotificationTask(task)) {
+      return {
+        id: task.id,
+        name: task.name,
+        started: task.started,
+        action: task.action?.name,
+        status: 'success',
+        markdownActions: task.markdownActions,
+        body: task.body ?? '',
+        state: 'completed',
+        error: undefined,
+      };
     }
+
+    return {
+      id: task.id,
+      name: task.name,
+      started: task.started,
+      state: task.state,
+      status: task.status,
+      progress: task.progress,
+      error: task.error,
+      action: task.action?.name,
+    };
   }
 
-  public deleteTask(task: Task): void {
-    this.tasks.delete(task.id);
-    this.apiSender.send('task-removed', task);
+  protected isNotificationTask(task: Task): task is NotificationTask {
+    return 'title' in task;
   }
 
-  isStatefulTask(task: Task): task is StatefulTask {
-    return 'state' in task;
+  public getTask(taskId: string): Task {
+    const task = this.tasks.get(taskId);
+    if (!task) {
+      throw new Error(`task with id ${taskId} does not exist.`);
+    }
+    return task;
   }
 
-  isNotificationTask(task: Task): task is NotificationTask {
-    return 'description' in task;
+  protected removeTask(task: Task): void {
+    const taskImpl = this.tasks.get(task.id);
+    if (taskImpl) {
+      this.tasks.delete(task.id);
+      taskImpl.dispose();
+    }
+    this.apiSender.send('task-removed', this.toInfo(task));
+  }
+
+  protected updateTask(event: TaskUpdateEvent): void {
+    switch (event.action) {
+      case 'update':
+        this.apiSender.send('task-updated', this.toInfo(event.task));
+        break;
+      case 'delete':
+        this.removeTask(event.task);
+        break;
+    }
   }
 }

@@ -312,7 +312,7 @@ export interface ContainerStore {
   stopped: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface GraphOptions {}
 
 export interface GraphStatus {

@@ -63,16 +63,16 @@ export class NotificationRegistry {
       markdownActions: notification.markdownActions,
     });
     // we show the notification
-    const disposeShowNotification = this.showNotification({
+    const electronNotification = this.showNotification({
       title: notification.title,
       body: notification.body,
       silent: notification.silent,
     });
     // return disposable object
     return Disposable.create(() => {
-      disposeShowNotification.dispose();
-      this.removeNotificationById(notification.id);
-      this.taskManager.deleteTask(notificationTask);
+      notificationTask.dispose();
+      electronNotification.dispose();
+      this.removeNotificationById(this.notificationId);
     });
   }
 
