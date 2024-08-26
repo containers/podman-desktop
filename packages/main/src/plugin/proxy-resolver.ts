@@ -127,7 +127,7 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
         const host = options.hostname ?? options.host;
         const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1';
         if (!isLocalhost) {
-          options = Object.assign({}, options, getOptions(proxy, options.protocol === 'https:'));
+          options = { ...options, ...getOptions(proxy, options.protocol === 'https:') };
         }
 
         return original(options, callback);
@@ -141,8 +141,8 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createHttpPatchedModules(proxy: Proxy): any {
   const res = {
-    http: Object.assign({}, http, createHttpPatch(http, proxy)),
-    https: Object.assign({}, https, createHttpPatch(https, proxy)),
+    http: { ...http, ...createHttpPatch(http, proxy) },
+    https: { ...https, ...createHttpPatch(https, proxy) },
   };
   return { ...res, 'node:https': res.https, 'node:http': res.http };
 }

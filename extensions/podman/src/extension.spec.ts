@@ -297,16 +297,13 @@ test('verify create command called with correct values', async () => {
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
 
-  await extension.createMachine(
-    {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.image-path': 'path',
-      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
-      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
-      'podman.factory.machine.provider': LIBKRUN_LABEL,
-    },
-    undefined,
-  );
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-path': 'path',
+    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  });
   expect(spyExecPromise).toBeCalledWith(
     podmanCli.getPodmanCli(),
     ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
@@ -339,17 +336,13 @@ test('verify create command called with correct values with user mode networking
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
 
-  await extension.createMachine(
-    {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.image-path': 'path',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
-      'podman.factory.machine.user-mode-networking': true,
-    },
-    undefined,
-    undefined,
-  );
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-path': 'path',
+    'podman.factory.machine.memory': '1048000000',
+    'podman.factory.machine.diskSize': '250000000000',
+    'podman.factory.machine.user-mode-networking': true,
+  });
   const parameters = [
     'machine',
     'init',
@@ -389,17 +382,13 @@ test('verify create command called with now flag if start machine after creation
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
 
-  await extension.createMachine(
-    {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.image-path': 'path',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
-      'podman.factory.machine.now': true,
-    },
-    undefined,
-    undefined,
-  );
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-path': 'path',
+    'podman.factory.machine.memory': '1048000000',
+    'podman.factory.machine.diskSize': '250000000000',
+    'podman.factory.machine.now': true,
+  });
   const parameters = [
     'machine',
     'init',
@@ -430,17 +419,13 @@ test('verify error contains name, message and stderr if creation fails', async (
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
   await expect(
-    extension.createMachine(
-      {
-        'podman.factory.machine.cpus': '2',
-        'podman.factory.machine.image-path': 'path',
-        'podman.factory.machine.memory': '1048000000',
-        'podman.factory.machine.diskSize': '250000000000',
-        'podman.factory.machine.now': true,
-      },
-      undefined,
-      undefined,
-    ),
+    extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+    }),
   ).rejects.toThrowError('name\ndescription\nerror\n');
 });
 
@@ -455,16 +440,12 @@ test('verify create command called with embedded image if using podman v5', asyn
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
 
-  await extension.createMachine(
-    {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
-      'podman.factory.machine.now': true,
-    },
-    undefined,
-    undefined,
-  );
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.memory': '1048000000',
+    'podman.factory.machine.diskSize': '250000000000',
+    'podman.factory.machine.now': true,
+  });
 
   // check telemetry is called with telemetryRecords.imagePath
   await vi.waitFor(() => {
@@ -549,11 +530,8 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
     },
   ];
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult);
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
   await extension.checkDefaultMachine(fakeJSON);
@@ -566,12 +544,9 @@ test('if a machine is successfully started it changes its state to started', asy
     return;
   });
 
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  const spyExecPromise = vi
+    .spyOn(extensionApi.process, 'exec')
+    .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
   await extension.startMachine(provider, podmanConfiguration, machineInfo);
 
   expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'start', 'name'], {
@@ -585,12 +560,9 @@ test('if a machine is successfully started it changes its state to started', asy
 });
 
 test('if a machine is successfully reporting telemetry', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  const spyExecPromise = vi
+    .spyOn(extensionApi.process, 'exec')
+    .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
   await extension.startMachine(provider, podmanConfiguration, machineInfo);
 
   // wait a call on telemetryLogger.logUsage
@@ -628,26 +600,18 @@ test('if a machine is successfully reporting an error in telemetry', async () =>
 });
 
 test('if a machine failed to start with a generic error, this is thrown', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject(new Error('generic error') as extensionApi.RunError);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw new Error('generic error');
+  });
 
   await expect(extension.startMachine(provider, podmanConfiguration, machineInfo)).rejects.toThrow('generic error');
   expect(console.error).toBeCalled();
 });
 
 test('if a machine failed to start with a wsl distro not found error, the user is asked what to do', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject(new Error('wsl bootstrap script failed: exit status 0xffffffff') as extensionApi.RunError);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw new Error('wsl bootstrap script failed: exit status 0xffffffff');
+  });
 
   await expect(extension.startMachine(provider, podmanConfiguration, machineInfo)).rejects.toThrow(
     'wsl bootstrap script failed: exit status 0xffffffff',
@@ -708,11 +672,8 @@ test('test checkDefaultMachine - if there is no machine marked as default, take 
     },
   ];
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult);
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
   await extension.checkDefaultMachine(fakeJSON);
@@ -761,11 +722,8 @@ test('test checkDefaultMachine - if there is no machine marked as default, take 
     },
   ];
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult);
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
   await extension.checkDefaultMachine(fakeJSON);
@@ -980,11 +938,8 @@ test('handlecompatibilitymodesetting: enable called when configuration setting h
   });
 
   // Fake machine output
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult);
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult),
   );
 
   // Spy on get configuration to just return true regardless of handleCompatibilityModeSetting
@@ -1030,11 +985,8 @@ test('handlecompatibilitymodesetting: disable compatibility called when configur
   });
 
   // Fake machine output
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult);
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult),
   );
 
   // Spy on get configuration to just return false regardless of handleCompatibilityModeSetting

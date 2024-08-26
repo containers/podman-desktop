@@ -180,12 +180,10 @@ export async function getMemTotalInfo(socketPath: string): Promise<number> {
           } catch (e) {
             reject(e);
           }
+        } else if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
+          reject(new Error(err.message));
         } else {
-          if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
-            reject(new Error(err.message));
-          } else {
-            reject(new Error(String(err)));
-          }
+          reject(new Error(String(err)));
         }
       });
     });

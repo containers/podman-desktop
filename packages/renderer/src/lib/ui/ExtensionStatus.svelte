@@ -1,14 +1,14 @@
 <script lang="ts">
 export let status: string;
 
-interface connectionStatusStyle {
+interface ConnectionStatusStyle {
   bgColor: string;
   txtColor: string;
   label: string;
 }
 const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
 const labelStyle = 'my-auto ml-1 font-bold text-[9px]';
-const statusesStyle = new Map<string, connectionStatusStyle>([
+const statusesStyle = new Map<string, ConnectionStatusStyle>([
   [
     'started',
     {

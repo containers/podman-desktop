@@ -53,5 +53,6 @@ export function extractSitemapPathnames(sitemapPath: string): string[] {
 
 // Converts a pathname to a decent screenshot name
 export function pathnameToArgosName(pathname: string): string {
+  // eslint-disable-next-line sonarjs/anchor-precedence
   return pathname.replace(/^\/|\/$/g, '') || 'index';
 }

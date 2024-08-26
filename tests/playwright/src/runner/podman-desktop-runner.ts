@@ -84,7 +84,8 @@ export class PodmanDesktopRunner {
       const exe = this.getElectronApp().evaluate(async ({ app }) => {
         return app.getPath('exe');
       });
-      console.log(`The Executable Electron app. file: ${exe}`);
+      const filePath = await exe;
+      console.log(`The Executable Electron app. file: ${filePath}`);
 
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered

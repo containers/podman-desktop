@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ export const StatusBarAlignLeft = 'LEFT';
 export const StatusBarAlignRight = 'RIGHT';
 export const StatusBarItemDefaultPriority = 0;
 
+type IconClassType = string | { active: string; inactive: string } | undefined;
 export class StatusBarItemImpl implements StatusBarItem {
   private readonly _id: string;
   private readonly _alignment: StatusBarAlignment;
@@ -34,7 +35,7 @@ export class StatusBarItemImpl implements StatusBarItem {
   private _text: string | undefined;
   private _tooltip: string | undefined;
   private isVisible = false;
-  private _iconClass: string | { active: string; inactive: string } | undefined;
+  private _iconClass: IconClassType;
   private _enabled = true;
   private _highlight = false;
 
@@ -86,11 +87,11 @@ export class StatusBarItemImpl implements StatusBarItem {
     this.update();
   }
 
-  public get iconClass(): string | { active: string; inactive: string } | undefined {
+  public get iconClass(): IconClassType {
     return this._iconClass;
   }
 
-  public set iconClass(iconClass: string | { active: string; inactive: string } | undefined) {
+  public set iconClass(iconClass: IconClassType) {
     this._iconClass = iconClass;
     this.update();
   }
@@ -160,5 +161,5 @@ export class StatusBarItemImpl implements StatusBarItem {
     return StatusBarItemImpl.ID_PREFIX + ':' + generatedId;
   }
 
-  static ID_PREFIX = 'status-bar-item';
+  static readonly ID_PREFIX = 'status-bar-item';
 }

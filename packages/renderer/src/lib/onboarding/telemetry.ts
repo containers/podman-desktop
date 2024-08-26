@@ -143,8 +143,8 @@ function telemetryToSend(data: OnboardingTelemetryData) {
   }
   data.stepsDetails = {};
   data.errors = [];
-  for (let i = 0; i < data.steps.length; i++) {
-    const step = data.steps[i];
+  for (const element of data.steps) {
+    const step = element;
     if (!data.stepsDetails[step.id]) {
       data.stepsDetails[step.id] = {
         count: 0,

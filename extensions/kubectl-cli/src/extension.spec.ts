@@ -17,6 +17,7 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { afterEach } from 'node:test';
 
@@ -31,7 +32,7 @@ import { KubectlGitHubReleases } from './kubectl-github-releases';
 
 const extensionContext = {
   subscriptions: [],
-  storagePath: '/tmp/kubectl-cli',
+  storagePath: path.resolve(tmpdir(), 'kubectl-cli'),
 } as unknown as extensionApi.ExtensionContext;
 
 vi.mock('./cli-run', () => ({

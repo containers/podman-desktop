@@ -18,7 +18,7 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 
-import type { Color, ColorDefinition, ColorInfo } from '/@api/color-info.js';
+import type { ColorDefinition, ColorInfo } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
@@ -33,7 +33,7 @@ export class ColorRegistry {
   #configurationRegistry: ConfigurationRegistry | undefined;
   #definitions: Map<string, ColorDefinition>;
   #initDone = false;
-  #themes: Map<string, Map<string, Color>>;
+  #themes: Map<string, Map<string, string>>;
   #parentThemes: Map<string, string>;
 
   constructor(apiSender?: ApiSenderType, configurationRegistry?: ConfigurationRegistry) {
@@ -89,7 +89,7 @@ export class ColorRegistry {
       const parentTheme = this.#themes.get(parent);
 
       // register theme
-      const colorMap = new Map<string, Color>();
+      const colorMap = new Map<string, string>();
       this.#themes.set(theme.id, colorMap);
 
       // iterate over all color definitions and register either default or provided color

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,7 @@ export class Featured {
 
     // now, randomize the list to have only 6 items and list first the non installed extensions and then the installed one
     // shuffle the list of featured extensions
+    // eslint-disable-next-line sonarjs/pseudo-random
     featuredExtensions.sort(() => Math.random() - 0.5);
 
     // and then by non installed first

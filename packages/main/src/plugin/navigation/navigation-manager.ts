@@ -154,7 +154,7 @@ export class NavigationManager {
 
   async assertVolumeExist(id: string, engineId: string): Promise<void> {
     if (!(await this.containerRegistry.volumeExist(id, engineId)))
-      throw new Error(`Volume with name ${name} and engine id ${engineId} cannot be found.`);
+      throw new Error(`Volume with id ${id} and engine id ${engineId} cannot be found.`);
   }
 
   async navigateToVolumes(): Promise<void> {

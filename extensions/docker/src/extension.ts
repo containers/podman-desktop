@@ -148,14 +148,12 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext): 
         provider.updateStatus('started');
       }
     }
-  } else {
+  } else if (providerState === 'started') {
     // no longer alive but it was running before so we need to update status
-    if (providerState === 'started') {
-      // dispose the current connection
-      containerProviderConnectionDisposable?.dispose();
-      providerState = 'stopped';
-      provider.updateStatus('stopped');
-    }
+    // dispose the current connection
+    containerProviderConnectionDisposable?.dispose();
+    providerState = 'stopped';
+    provider.updateStatus('stopped');
   }
 }
 

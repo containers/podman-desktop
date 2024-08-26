@@ -90,6 +90,8 @@ spec:
         - containerPort: 80
 `;
 
+type ControllerType = 'Deployment' | 'ReplicaSet' | 'StatefulSet';
+
 class TestKubernetesClient extends KubernetesClient {
   declare kubeConfig;
 
@@ -126,7 +128,7 @@ class TestKubernetesClient extends KubernetesClient {
     name: string,
     timeout?: number,
   ): Promise<boolean> {
-    return this.waitForJobDeletion(batchApi, namespace, name, timeout);
+    return this.waitForJobDeletion(batchApi, name, namespace, timeout);
   }
 
   public testRestartJob(namespace: string, jobName: string): Promise<void> {
@@ -137,7 +139,7 @@ class TestKubernetesClient extends KubernetesClient {
     appsApi: AppsV1Api,
     namespace: string,
     controllerName: string,
-    controllerType: 'Deployment' | 'ReplicaSet' | 'StatefulSet',
+    controllerType: ControllerType,
     replicas: number,
   ): Promise<void> {
     return this.scaleController(appsApi, namespace, controllerName, controllerType, replicas);
@@ -2099,8 +2101,8 @@ async function callScaleControllerAndCheckExpectValues(
   namespace: string,
   controllerName: string,
   controllerType: 'Deployment' | 'ReplicaSet' | 'StatefulSet',
-  timeout: number = 10000,
   initialReplicas: number,
+  timeout: number = 10000,
 ): Promise<void> {
   await client.testScaleControllerToRestartPods(namespace, controllerName, controllerType, timeout);
 
@@ -2138,8 +2140,8 @@ test('Should correctly scale a Deployment to restart pods', async () => {
     namespace,
     controllerName,
     controllerType,
-    scaleTimeout,
     initialReplicas,
+    scaleTimeout,
   );
 });
 
@@ -2158,8 +2160,8 @@ test('Should correctly scale a ReplicaSet to restart pods', async () => {
     namespace,
     controllerName,
     controllerType,
-    scaleTimeout,
     initialReplicas,
+    scaleTimeout,
   );
 });
 
@@ -2178,8 +2180,8 @@ test('Should correctly scale a StatefulSet to restart pods', async () => {
     namespace,
     controllerName,
     controllerType,
-    scaleTimeout,
     initialReplicas,
+    scaleTimeout,
   );
 });
 

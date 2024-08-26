@@ -316,7 +316,7 @@ export class DockerDesktopInstallation {
 
     try {
       await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
-        if (pullEvent.progress || pullEvent.progressDetail) {
+        if (pullEvent.progress ?? pullEvent.progressDetail) {
           console.log(pullEvent.progress);
         } else if (pullEvent.status) {
           reportLog(pullEvent.status);

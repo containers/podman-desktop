@@ -265,6 +265,7 @@ export class ExtensionLoader {
     fs.mkdirSync(unpackedDirectory, { recursive: true });
     // extract to an existing directory
     const admZip = new AdmZip(filePath);
+    // eslint-disable-next-line sonarjs/no-unsafe-unzip
     admZip.extractAllTo(unpackedDirectory, true);
 
     const extension = await this.analyzeExtension(unpackedDirectory, true);
@@ -1471,6 +1472,7 @@ export class ExtensionLoader {
           delete childMod.exports;
           mod?.children.splice(i, 1);
           for (let j = 0; j < childMod.children.length; j++) {
+            // eslint-disable-next-line sonarjs/no-array-delete
             delete childMod.children[j];
           }
         }
@@ -1479,8 +1481,10 @@ export class ExtensionLoader {
       if (key.startsWith(extension.path)) {
         // delete the entry
         delete require.cache[key];
+        // eslint-disable-next-line sonarjs/deprecation
         const ix = mod?.parent?.children.indexOf(mod) ?? 0;
         if (ix >= 0) {
+          // eslint-disable-next-line sonarjs/deprecation
           mod?.parent?.children.splice(ix, 1);
         }
       }
