@@ -18,6 +18,7 @@
 
 import type {
   CliTool,
+  CliToolInfo as CliToolInfoApi,
   CliToolInstaller,
   CliToolOptions,
   CliToolSelectUpdate,
@@ -141,11 +142,39 @@ export class CliToolRegistry {
     });
   }
 
-  getCliTool(id: string): CliTool | undefined {
-    return this.cliTools.get(id);
+  getCliTool(id: string): CliToolInfoApi | undefined {
+    const cliTool = this.cliTools.get(id);
+    if (!cliTool) {
+      return undefined;
+    }
+    return {
+      id: cliTool.id,
+      name: cliTool.name,
+      displayName: cliTool.displayName,
+      markdownDescription: cliTool.markdownDescription,
+      state: cliTool.state,
+      images: cliTool.images,
+      extensionInfo: {
+        id: cliTool.extensionInfo.id,
+        label: cliTool.extensionInfo.label,
+      },
+    };
   }
 
-  getCliTools(): CliTool[] {
-    return Array.from(this.cliTools.values());
+  getCliTools(): CliToolInfoApi[] {
+    return Array.from(this.cliTools.values()).map(cliTool => {
+      return {
+        id: cliTool.id,
+        name: cliTool.name,
+        displayName: cliTool.displayName,
+        markdownDescription: cliTool.markdownDescription,
+        state: cliTool.state,
+        images: cliTool.images,
+        extensionInfo: {
+          id: cliTool.extensionInfo.id,
+          label: cliTool.extensionInfo.label,
+        },
+      };
+    });
   }
 }

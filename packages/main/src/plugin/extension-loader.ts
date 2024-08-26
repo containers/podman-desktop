@@ -1323,7 +1323,7 @@ export class ExtensionLoader {
         disposables.push(cliTool);
         return cliTool;
       },
-      getCliTool: (id: string): containerDesktopAPI.CliTool | undefined => {
+      getCliTool: (id: string): containerDesktopAPI.CliToolInfo | undefined => {
         return instance.cliToolRegistry.getCliTool(id);
       },
       get all() {
