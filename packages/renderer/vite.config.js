@@ -39,6 +39,9 @@ export default defineConfig({
       '/@api/': join(PACKAGE_ROOT, '../api/src') + '/',
     },
   },
+  css: {
+    transformer: 'postcss',
+  },
   plugins: [svelte({ hot: !process.env.VITEST }), svelteTesting()],
   optimizeDeps: {
     exclude: ['tinro'],

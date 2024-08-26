@@ -38,6 +38,9 @@ export default defineConfig({
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
+  css: {
+    transformer: 'postcss',
+  },
   plugins: [svelte({ hot: !process.env.VITEST }), svelteTesting()],
   test: {
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
