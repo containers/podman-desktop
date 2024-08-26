@@ -77,11 +77,7 @@ async function install(cliTool: CliToolInfo) {
   try {
     cliToolInstallStatus.inProgress = true;
     cliToolInstallStatus = cliToolInstallStatus;
-    const loggerHandlerKey = startTask(
-      `Install ${cliTool.name} v${newVersion}`,
-      '/preferences/cli-tools',
-      getLoggerHandler(cliTool.id),
-    );
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
     await window.installCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
   } catch (e) {

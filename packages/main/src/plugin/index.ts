@@ -1407,14 +1407,34 @@ export class PluginSystem {
       'cli-tool-registry:installCliTool',
       async (_listener, id: string, loggerId: string): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:installCliTool-onData', loggerId);
-        try {
-          await cliToolRegistry.installCliTool(id, logger);
-        } catch (error) {
-          logger.error(error);
-          throw error;
-        } finally {
-          logger.onEnd();
-        }
+        const tool = cliToolRegistry.getCliToolInfos().find(tool => tool.id === id);
+        if (!tool) throw new Error(`cannot find cli tool with id ${id}`);
+
+        // create task
+        const task = taskManager.createTask({
+          title: `Install ${tool.name} to v${tool.newVersion}`,
+          action: {
+            name: 'goto task >',
+            execute: (): void => {
+              navigationManager.navigateToCliTools().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return cliToolRegistry
+          .installCliTool(id, logger)
+          .then(result => {
+            task.status = 'success';
+            return result;
+          })
+          .catch((error: unknown) => {
+            task.error = `Something went wrong while trying to install ${tool.name}: ${error}`;
+            logger.error(error);
+            throw error;
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
       },
     );
 
