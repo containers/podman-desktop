@@ -116,12 +116,7 @@ test('expect update on windows to show notification in case of 0 exit code', asy
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -137,13 +132,10 @@ test('expect update on windows not to show notification in case of 1602 exit cod
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject({ exitCode: 1602 } as extensionApi.RunError);
-      }),
-  );
+  const customError = { exitCode: 1602 } as extensionApi.RunError;
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -159,14 +151,11 @@ test('expect update on windows to throw error if non zero exit code', async () =
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
+  const customError = { exitCode: -1, stderr: 'CustomError' } as extensionApi.RunError;
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject({ exitCode: -1, stderr: 'CustomError' } as extensionApi.RunError);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -285,16 +274,12 @@ test('expect winMemory preflight check return failure result if the machine has 
 });
 
 test('expect winVirtualMachine preflight check return successful result if the virtual machine platform feature is enabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'VirtualMachinePlatform',
-          stderr: '',
-          command: 'command',
-        });
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({
+      stdout: 'VirtualMachinePlatform',
+      stderr: '',
+      command: 'command',
+    }),
   );
 
   const installer = new WinInstaller(extensionContext);
@@ -305,16 +290,12 @@ test('expect winVirtualMachine preflight check return successful result if the v
 });
 
 test('expect winVirtualMachine preflight check return successful result if the virtual machine platform feature is disabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'some message',
-          stderr: '',
-          command: 'command',
-        });
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({
+      stdout: 'some message',
+      stderr: '',
+      command: 'command',
+    }),
   );
 
   const installer = new WinInstaller(extensionContext);
@@ -330,13 +311,9 @@ test('expect winVirtualMachine preflight check return successful result if the v
 });
 
 test('expect winVirtualMachine preflight check return successful result if there is an error when checking if virtual machine platform feature is enabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((_, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('');
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw new Error();
+  });
 
   const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
@@ -439,22 +416,16 @@ test('expect WSLVersion preflight check return fail result if first line output 
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and do not need to reboot', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'blabla',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'blabla',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -469,13 +440,10 @@ test('expect winWSL2 preflight check return successful result if the machine has
 test('expect winWSL2 preflight check return failure result if the machine has WSL2 installed but needs a reboot', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
       return new Promise<extensionApi.RunResult>((resolve, reject) => {
@@ -515,13 +483,10 @@ test('expect winWSL2 preflight check return failure result if the machine has WS
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and the reboot check fails with a code different from WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
       return new Promise<extensionApi.RunResult>((resolve, reject) => {
@@ -555,22 +520,16 @@ test('expect winWSL2 preflight check return successful result if the machine has
 test('expect winWSL2 preflight check return failure result if user do not have wsl but he is admin', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -588,22 +547,16 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 test('expect winWSL2 preflight check return failure result if user do not have wsl but he is not admin', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'False',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'False',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -621,18 +574,12 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 test('expect winWSL2 preflight check return failure result if it fails when checking if wsl is installed', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((_, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('');
-      });
+      throw new Error();
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });

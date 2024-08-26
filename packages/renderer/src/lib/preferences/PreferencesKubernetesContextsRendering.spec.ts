@@ -185,7 +185,7 @@ test('state and resources counts are displayed in contexts', () => {
   const checkCount = (el: HTMLElement, label: string, count: number) => {
     const countEl = within(el).getByLabelText(label);
     expect(countEl).toBeInTheDocument();
-    expect(within(countEl).queryByText(count));
+    expect(within(countEl).queryByText(count)).toBeTruthy();
   };
   checkCount(context1, 'Context Pods Count', 1);
   checkCount(context1, 'Context Deployments Count', 2);

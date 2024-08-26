@@ -97,8 +97,6 @@ export class WebviewPreload {
 
     if (userTheme === AppearanceSettings.SystemEnumValue) {
       userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      // for now it's dark for system
-      userTheme = 'dark';
     }
 
     const isDarkTheme = await this.isDarkTheme(userTheme);
@@ -126,6 +124,7 @@ export class WebviewPreload {
       });
 
       this.#cssStyleElement = document.createElement('style');
+      // eslint-disable-next-line sonarjs/deprecation
       this.#cssStyleElement.type = 'text/css';
       this.#cssStyleElement.id = 'podman-desktop-colors-styles';
       this.#cssStyleElement.media = 'screen';

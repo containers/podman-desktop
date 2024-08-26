@@ -90,6 +90,7 @@ test.each(hosts)(
 );
 
 test('return first empty port, no port is used', async () => {
+  // eslint-disable-next-line sonarjs/pseudo-random
   const start = 21000 + Math.floor(Math.random() * 100);
   const freePort = await port.getFreePort(start);
 

@@ -45,22 +45,20 @@ $: {
     if (type !== 'danger') {
       classes += ' text-[var(--pd-button-disabled-text)]';
     }
+  } else if (type === 'primary') {
+    classes =
+      'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] border-none hover:bg-[var(--pd-button-primary-hover-bg)]';
+  } else if (type === 'secondary') {
+    classes =
+      'border-[1px] border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:bg-[var(--pd-button-secondary-hover)] hover:border-[var(--pd-button-secondary-hover)] hover:text-[var(--pd-button-text)]';
+  } else if (type === 'danger') {
+    classes =
+      'border-2 border-[var(--pd-button-danger-border)] bg-[var(--pd-button-danger-bg)] text-[var(--pd-button-danger-text)] hover:bg-[var(--pd-button-danger-hover-bg)] hover:text-[var(--pd-button-danger-hover-text)]';
+  } else if (type === 'tab') {
+    classes = 'border-b-[3px] border-[var(--pd-button-tab-border)]';
   } else {
-    if (type === 'primary') {
-      classes =
-        'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] border-none hover:bg-[var(--pd-button-primary-hover-bg)]';
-    } else if (type === 'secondary') {
-      classes =
-        'border-[1px] border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:bg-[var(--pd-button-secondary-hover)] hover:border-[var(--pd-button-secondary-hover)] hover:text-[var(--pd-button-text)]';
-    } else if (type === 'danger') {
-      classes =
-        'border-2 border-[var(--pd-button-danger-border)] bg-[var(--pd-button-danger-bg)] text-[var(--pd-button-danger-text)] hover:bg-[var(--pd-button-danger-hover-bg)] hover:text-[var(--pd-button-danger-hover-text)]';
-    } else if (type === 'tab') {
-      classes = 'border-b-[3px] border-[var(--pd-button-tab-border)]';
-    } else {
-      // link
-      classes = 'border-none text-[var(--pd-button-link-text)] hover:bg-[var(--pd-button-link-hover-bg)]';
-    }
+    // link
+    classes = 'border-none text-[var(--pd-button-link-text)] hover:bg-[var(--pd-button-link-hover-bg)]';
   }
 
   if (type !== 'tab') {

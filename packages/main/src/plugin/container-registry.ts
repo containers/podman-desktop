@@ -392,10 +392,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listSimpleContainers',
-      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
-    );
+    this.telemetryService.track('listSimpleContainers', { total: flattenedContainers.length, ...telemetryOptions });
 
     return flattenedContainers;
   }
@@ -554,10 +551,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listContainers',
-      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
-    );
+    this.telemetryService.track('listContainers', { total: flattenedContainers.length, ...telemetryOptions });
 
     return flattenedContainers;
   }
@@ -596,7 +590,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedImages = images.flat();
-    this.telemetryService.track('listImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+    this.telemetryService.track('listImages', { total: flattenedImages.length, ...telemetryOptions });
 
     return flattenedImages;
   }
@@ -671,7 +665,7 @@ export class ContainerProviderRegistry {
     );
 
     const flattenedImages = images.flat();
-    this.telemetryService.track('podmanListImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+    this.telemetryService.track('podmanListImages', { total: flattenedImages.length, ...telemetryOptions });
 
     return flattenedImages;
   }
@@ -724,7 +718,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedPods = pods.flat();
-    this.telemetryService.track('listPods', Object.assign({ total: flattenedPods.length }, telemetryOptions));
+    this.telemetryService.track('listPods', { total: flattenedPods.length, ...telemetryOptions });
 
     return flattenedPods;
   }
@@ -755,7 +749,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', Object.assign({ total: flattenedNetworks.length }, telemetryOptions));
+    this.telemetryService.track('listNetworks', { total: flattenedNetworks.length, ...telemetryOptions });
 
     return flattenedNetworks;
   }
@@ -847,7 +841,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', Object.assign({ total: flattenedVolumes.length }, telemetryOptions));
+    this.telemetryService.track('listVolumes', { total: flattenedVolumes.length, ...telemetryOptions });
 
     return flattenedVolumes;
   }
@@ -1089,10 +1083,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'tagImage',
-        Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions),
-      );
+      this.telemetryService.track('tagImage', { imageName: this.getImageHash(imageTag), ...telemetryOptions });
     }
   }
 
@@ -1128,10 +1119,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pushImage',
-        Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions),
-      );
+      this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag), ...telemetryOptions });
     }
   }
 
@@ -1183,10 +1171,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pullImage',
-        Object.assign({ imageName: this.getImageHash(imageName) }, telemetryOptions),
-      );
+      this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName), ...telemetryOptions });
     }
   }
 

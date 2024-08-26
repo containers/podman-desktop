@@ -77,7 +77,7 @@ export class VolumeUtils {
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,
       selected: false,
-      status: (volumeInfo.UsageData?.RefCount || 0) > 0 ? 'USED' : 'UNUSED',
+      status: (volumeInfo.UsageData?.RefCount ?? 0) > 0 ? 'USED' : 'UNUSED',
       containersUsage: volumeInfo.containersUsage,
     };
   }

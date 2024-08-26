@@ -194,6 +194,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Starting) {
       console.log('Podman machine is in starting currently, will send stop command via CLI');
+      // eslint-disable-next-line sonarjs/os-command
       execSync(`podman machine stop ${machineVisibleName}`);
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 30_000,

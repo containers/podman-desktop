@@ -47,7 +47,7 @@ export class Exec {
   constructor(private proxy: Proxy) {}
 
   exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
-    let env = Object.assign({}, process.env);
+    let env = { ...process.env };
 
     if (options?.env) {
       env = Object.assign(env, options.env);
@@ -85,7 +85,7 @@ export class Exec {
            * See https://github.com/jorangreef/sudo-prompt/blob/c3cc31a51bc50fe21fadcbf76a88609c0c77026f/index.js#L96
            */
           for (const key of Object.keys(sudoEnv)) {
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+            if (!/^[a-zA-Z_]\w*$/.test(key)) {
               delete sudoEnv[key];
             }
           }

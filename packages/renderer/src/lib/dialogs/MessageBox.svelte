@@ -51,12 +51,10 @@ const showMessageBoxCallback = (messageBoxParameter: unknown) => {
   // use the provided default (primary) id, otherwise the first non-cancel button is the default
   if (options?.defaultId) {
     defaultId = options.defaultId;
+  } else if (cancelId === 0) {
+    defaultId = 1;
   } else {
-    if (cancelId === 0) {
-      defaultId = 1;
-    } else {
-      defaultId = 0;
-    }
+    defaultId = 0;
   }
 
   // move cancel button to the start/left and default button to the end/right

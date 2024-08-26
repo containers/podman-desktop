@@ -171,7 +171,7 @@ export class Proxy {
     globalThis.fetch = function (url: any, opts?: any): Promise<Response> {
       const proxyurl = getProxyUrl(_me, asURL(url).protocol === 'https');
       if (proxyurl) {
-        opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });
+        opts = { ...opts, dispatcher: new ProxyAgent(proxyurl) };
       }
 
       return original(url, opts);

@@ -167,13 +167,13 @@ export class Telemetry {
     return {
       // prefix with extension id the event
       sendEventData(eventName: string, data?: Record<string, unknown>): void {
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]);
+        thisArg.track(`${extensionInfo.id}.${eventName}`, data);
       },
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
         data = data ?? {};
         data['sourceError'] = error.message;
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
+        thisArg.track(`${extensionInfo.id}.error`, data);
       },
       async flush(): Promise<void> {
         await instanceFlush?.();
@@ -304,6 +304,7 @@ export class Telemetry {
           // telemetry is entirely disabled for this event
           dropIt = true;
         }
+        // eslint-disable-next-line sonarjs/pseudo-random
         if (entry.ratio && entry.ratio < 1 && Math.random() > entry.ratio) {
           // if a ratio is specified, we randomly drop
           dropIt = true;
@@ -485,7 +486,7 @@ export class TelemetryLoggerImpl implements TelemetryLogger {
   logError(eventName: string | Error, data?: RecordInfo): void {
     data = this.setupData(data);
 
-    let error = eventName;
+    let error;
     if (eventName instanceof Error) {
       error = eventName;
     } else {

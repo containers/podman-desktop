@@ -247,7 +247,7 @@ async function createWindow(): Promise<BrowserWindow> {
           // create new submenu
           // also add a separator before the About entry
           const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
-          return Object.assign({}, i, { submenu: newSubMenu });
+          return { ...i, submenu: newSubMenu };
         }
         return i;
       }),

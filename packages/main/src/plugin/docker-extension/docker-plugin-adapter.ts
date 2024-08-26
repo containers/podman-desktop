@@ -37,7 +37,7 @@ export interface RawExecResult {
 }
 
 export class DockerPluginAdapter {
-  static MACOS_EXTRA_PATH = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+  static readonly MACOS_EXTRA_PATH = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
   constructor(
     private contributionManager: ContributionManager,
@@ -168,6 +168,7 @@ export class DockerPluginAdapter {
         updatedArgs = args;
       }
 
+      // eslint-disable-next-line sonarjs/os-command
       const spawnProcess = spawn(updatedCommand, updatedArgs, { env, shell: true });
       spawnProcess.stdout.setEncoding('utf8');
       spawnProcess.stdout.on('data', data => {

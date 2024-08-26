@@ -524,7 +524,7 @@ export class LibpodDockerode {
     prototypeOfDockerode.pruneAllImages = function (): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/images/prune?all=true&', // this works
-        // For some reason the below doesn't work? TODO / help / fixme
+        // For some reason the below doesn't work
         // options: {all: 'true'}, // this doesn't work
         method: 'POST',
         statusCodes: {

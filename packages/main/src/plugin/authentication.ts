@@ -294,7 +294,7 @@ export class AuthenticationImpl {
     }
 
     const providerData = this._authenticationProviders.get(providerId);
-    const sortedScopes = [...scopes].sort();
+    const sortedScopes = [...scopes].sort((a, b) => a.localeCompare(b));
 
     const sessions = providerData ? await providerData.provider.getSessions(sortedScopes) : [];
 
