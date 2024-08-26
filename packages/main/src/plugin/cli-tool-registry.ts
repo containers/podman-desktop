@@ -147,6 +147,16 @@ export class CliToolRegistry {
     if (!cliTool) {
       return undefined;
     }
+    return this.convertToCliToolInfo(cliTool);
+  }
+
+  getCliTools(): CliToolInfoApi[] {
+    return Array.from(this.cliTools.values()).map(cliTool => {
+      return this.convertToCliToolInfo(cliTool);
+    });
+  }
+
+  private convertToCliToolInfo(cliTool: CliTool): CliToolInfoApi {
     return {
       id: cliTool.id,
       name: cliTool.name,
@@ -159,22 +169,5 @@ export class CliToolRegistry {
         label: cliTool.extensionInfo.label,
       },
     };
-  }
-
-  getCliTools(): CliToolInfoApi[] {
-    return Array.from(this.cliTools.values()).map(cliTool => {
-      return {
-        id: cliTool.id,
-        name: cliTool.name,
-        displayName: cliTool.displayName,
-        markdownDescription: cliTool.markdownDescription,
-        state: cliTool.state,
-        images: cliTool.images,
-        extensionInfo: {
-          id: cliTool.extensionInfo.id,
-          label: cliTool.extensionInfo.label,
-        },
-      };
-    });
   }
 }

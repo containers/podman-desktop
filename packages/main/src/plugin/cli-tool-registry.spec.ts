@@ -431,4 +431,20 @@ suite('cli module', () => {
       expect(cliToolsUpdateNumbers).equals(2);
     });
   });
+
+  test('check conversion from cliTool to cliToolInfo is performed well', async () => {
+    const options: CliToolOptions = {
+      name: 'tool-name',
+      displayName: 'tool-display-name',
+      markdownDescription: 'markdown description',
+      images: {},
+    };
+    const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+    const cliToolInfo = cliToolRegistry['convertToCliToolInfo'](newCliTool);
+
+    expect('updateVersion' in cliToolInfo).toBeFalsy();
+    expect(cliToolInfo.name).equals(newCliTool.name);
+    expect(cliToolInfo.displayName).equals(newCliTool.displayName);
+    expect(cliToolInfo.markdownDescription).equals(newCliTool.markdownDescription);
+  });
 });

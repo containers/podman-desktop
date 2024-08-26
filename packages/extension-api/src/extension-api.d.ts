@@ -4405,12 +4405,12 @@ declare module '@podman-desktop/api' {
     export function getCliTool(id: string): CliToolInfo | undefined;
 
     /**
-     * All extensions currently known to the system.
+     * All cli tools currently known to the system.
      */
     export const all: readonly CliToolInfo[];
 
     /**
-     * An event which fires when `cli.all` changes. This can happen when extensions are
+     * An event which fires when `cli.all` changes. This can happen when cli are
      * installed, uninstalled, enabled or disabled.
      */
     export const onDidChange: Event<void>;
