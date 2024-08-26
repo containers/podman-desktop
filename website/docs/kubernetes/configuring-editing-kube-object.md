@@ -1,12 +1,12 @@
 ---
 sidebar_position: 12
-title: Configuring or editing an object
-description: Configuring or editing a kubernetes object
-keywords: [podman desktop, podman, deploying, images, kubernetes]
-tags: [configuring-kubernetes, images]
+title: Managing objects
+description: Creating and updating a kubernetes object
+keywords: [podman desktop, podman, deploying, objects, kubernetes]
+tags: [managing-kubernetes, objects]
 ---
 
-# Configuring or editing a Kubernetes object
+# Managing Kubernetes objects
 
 With Podman Desktop, you can enhance your Kubernetes management experience by using the features that are part of the Kubernetes explorer. As a developer, you can easily transition from containers to Kubernetes and deploy a complete Kubernetes environment with necessary objects. You have the ability:
 
@@ -29,7 +29,7 @@ With Podman Desktop, you can enhance your Kubernetes management experience by us
 - You have set your Kubernetes context in which you want to configure a Kubernetes object. See [Viewing and selecting the current Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
 - Your have created an object configuration file.
 
-#### Procedure: Configuring a new object
+#### Procedure: Creating an object
 
 1. In the Kubernetes explorer, click one of the options to open the respective object page.
    ![kube objects](img/kube-objects.png)
@@ -37,7 +37,7 @@ With Podman Desktop, you can enhance your Kubernetes management experience by us
    ![configuring a node](img/example-config-node.png)
 3. Click **Ok**.
 
-#### Procedure: Editing an existing object
+#### Procedure: Updating an existing object
 
 1. In the Kubernetes explorer, click one of the options to open the respective object page.
 2. Click the name of the object.
