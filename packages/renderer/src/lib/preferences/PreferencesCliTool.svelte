@@ -96,6 +96,16 @@ async function install(cliTool: CliToolInfo) {
 }
 
 async function uninstall(cliTool: CliToolInfo) {
+  const result = await window.showMessageBox({
+    title: 'Uninstall',
+    message: `Uninstall ${cliTool.displayName} ${cliTool.version} ?`,
+    buttons: ['Yes', 'Cancel'],
+  });
+
+  if (!result || result.response !== 0) {
+    return;
+  }
+
   try {
     cliToolUninstallStatus.inProgress = true;
     cliToolUninstallStatus = cliToolUninstallStatus;

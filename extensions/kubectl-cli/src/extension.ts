@@ -370,15 +370,11 @@ async function postActivate(
 
       // delete the executable stored in the storage folder
       const storagePath = getStorageKubectlPath(extensionContext);
-      if (fs.existsSync(storagePath)) {
-        await fs.promises.unlink(storagePath);
-      }
+      await deleteFile(storagePath);
 
       // delete the executable in the system path
       const systemPath = getSystemBinaryPath(kubectlCliName);
-      if (fs.existsSync(systemPath)) {
-        await fs.promises.unlink(systemPath);
-      }
+      await deleteFile(systemPath);
 
       // update the version to undefined
       currentVersion = undefined;
@@ -430,4 +426,38 @@ function extractVersion(stdout: string): string {
     return version;
   }
   throw new Error('Cannot extract version from stdout');
+}
+
+async function deleteFile(filePath: string): Promise<void> {
+  if (filePath && fs.existsSync(filePath)) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'EACCES' || error.code === 'EPERM')
+      ) {
+        await deleteFileAsAdmin(filePath);
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+async function deleteFileAsAdmin(filePath: string): Promise<void> {
+  const system = process.platform;
+
+  const args: string[] = [filePath];
+  const command = system === 'win32' ? 'del' : 'rm';
+
+  try {
+    // Use admin prileges
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+  } catch (error) {
+    console.error(`Failed to uninstall '${filePath}': ${error}`);
+    throw error;
+  }
 }
