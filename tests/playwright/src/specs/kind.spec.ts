@@ -166,6 +166,7 @@ describe('Kind End-to-End Tests', async () => {
         const containersPage = await navigationBar.openContainers();
         await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
 
+        await page.waitForTimeout(2000);
         const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
         await playExpect.poll(async () => volumeName).toBeFalsy();
       });

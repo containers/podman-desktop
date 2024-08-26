@@ -79,25 +79,28 @@ export class CreateKindClusterPage extends BasePage {
       } else {
         throw new Error(`${providerType} doesn't exist`);
       }
-
-      if (httpPort) {
-        await this.fillTextbox(this.httpPort, httpPort);
-      }
-      if (httpsPort) {
-        await this.fillTextbox(this.httpsPort, httpsPort);
-      }
-
-      if (!useIngressController) {
-        await playExpect(this.controllerCheckbox).toBeEnabled();
-        await this.controllerCheckbox.uncheck();
-        await playExpect(this.controllerCheckbox).not.toBeChecked();
-      }
-
-      if (containerImage) {
-        await this.fillTextbox(this.containerImage, containerImage);
-      }
-      await this.createCluster(timeout);
     }
+
+    if (httpPort) {
+      await this.fillTextbox(this.httpPort, httpPort);
+    }
+    if (httpsPort) {
+      await this.fillTextbox(this.httpsPort, httpsPort);
+    }
+
+    await playExpect(this.controllerCheckbox).toBeEnabled();
+    if (!useIngressController) {
+      await this.controllerCheckbox.uncheck();
+      await playExpect(this.controllerCheckbox).not.toBeChecked();
+    } else {
+      await this.controllerCheckbox.check();
+      await playExpect(this.controllerCheckbox).toBeChecked();
+    }
+
+    if (containerImage) {
+      await this.fillTextbox(this.containerImage, containerImage);
+    }
+    await this.createCluster(timeout);
   }
 
   private async createCluster(timeout: number = 120000): Promise<void> {
