@@ -138,7 +138,7 @@
     "@sveltejs/package": "^2.3.4",
     "@sveltejs/vite-plugin-svelte": "4.0.0-next.6",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/svelte": "^5.2.1",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
