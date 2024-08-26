@@ -44,7 +44,7 @@
     "svelte-preprocess": "^6.0.2",
     "svelte-steps": "2.4.1",
     "tailwindcss": "^3.4.10",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "typescript": "^5.5.4",
     "vite": "^5.4.2",
     "vitest": "^2.0.5",
