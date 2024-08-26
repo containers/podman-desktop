@@ -120,7 +120,7 @@ describe('context tests', () => {
     await client.deleteContext(originalContexts[0].name);
 
     if (!originalContexts[1]?.name) {
-      throw new Error('originalContexts[0].name should be defined');
+      throw new Error('originalContexts[1].name should be defined');
     }
 
     const contexts = await client.deleteContext(originalContexts[1].name);
