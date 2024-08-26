@@ -27,7 +27,7 @@ beforeEach(() => {
 
 describe('update field should send an update event', () => {
   test('name', () => {
-    const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
@@ -41,7 +41,7 @@ describe('update field should send an update event', () => {
   });
 
   test('action', () => {
-    const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
@@ -61,7 +61,7 @@ describe('update field should send an update event', () => {
   });
 
   test('state', () => {
-    const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
@@ -76,7 +76,7 @@ describe('update field should send an update event', () => {
   });
 
   test('error', () => {
-    const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
@@ -92,7 +92,7 @@ describe('update field should send an update event', () => {
   });
 
   test('progress', () => {
-    const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
     const task = new TaskImpl('test-id', 'Test name');
     task.onUpdate(onUpdateListenerMock);
 
@@ -107,7 +107,7 @@ describe('update field should send an update event', () => {
 });
 
 test('dispose should send a delete TaskUpdateEvent', () => {
-  const onUpdateListenerMock = vi.fn<[TaskUpdateEvent], void>();
+  const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
   const task = new TaskImpl('test-id', 'Test name');
   task.onUpdate(onUpdateListenerMock);
 
