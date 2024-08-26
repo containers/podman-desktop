@@ -23,8 +23,14 @@ import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { InstalledPodman } from './podman-cli';
-import type { Installer, UpdateCheck } from './podman-install';
-import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
+import type {
+  getBundledPodmanVersion,
+  Installer,
+  PodmanInfo,
+  PodmanInstall,
+  UpdateCheck,
+  WinInstaller,
+} from './podman-install';
 import * as podmanInstallObj from './podman-install';
 import * as utils from './util';
 
@@ -60,12 +66,14 @@ vi.mock('@podman-desktop/api', async () => {
     },
     env: {
       isMac: true,
+      openExternal: vi.fn(),
     },
     window: {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
       showErrorMessage: vi.fn(),
       showInformationMessage: vi.fn(),
+      showWarningMessage: vi.fn(),
     },
     ProgressLocation: {},
     process: {
@@ -73,6 +81,9 @@ vi.mock('@podman-desktop/api', async () => {
     },
     configuration: {
       getConfiguration: vi.fn(),
+    },
+    Uri: {
+      parse: vi.fn(),
     },
   };
 });
@@ -815,5 +826,90 @@ test('checkForUpdate should return installed version and update if the installed
     installedVersion: '1.1',
     hasUpdate: true,
     bundledVersion: podmanInstallObj.getBundledPodmanVersion(),
+  });
+});
+
+const providerMock: extensionApi.Provider = {} as unknown as extensionApi.Provider;
+
+describe('performUpdate', () => {
+  test('should raise an error if no podmanInfo provided', async () => {
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+
+    await expect(() => {
+      return podmanInstall.performUpdate(providerMock, undefined);
+    }).rejects.toThrowError('The podman extension has not been successfully initialized');
+  });
+
+  test('should call showWarningMessage if stopPodmanMachinesIfAnyBeforeUpdating resolve false', async () => {
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+    // E.g. user cancel stop
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(false);
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.window.showWarningMessage).toHaveBeenCalledWith('Podman update has been canceled.', 'OK');
+  });
+
+  test('should call showInformationMessage ', async () => {
+    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue(undefined);
+
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+
+    // all podman machine are stopped
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(true);
+    // return true if data have been cleaned or if user skip it
+    vi.spyOn(podmanInstall, 'wipeAllDataBeforeUpdatingToV5').mockResolvedValue(true);
+
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.window.showInformationMessage).toHaveBeenCalledWith(
+      'You have Podman 1.0.0.\nDo you want to update to 0.9.8?',
+      'Yes',
+      'No',
+      'Ignore',
+      'Open release note',
+    );
+  });
+
+  test('user clicking on Open release note should open external link', async () => {
+    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue('Open release note');
+
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+
+    // all podman machine are stopped
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(true);
+    // return true if data have been cleaned or if user skip it
+    vi.spyOn(podmanInstall, 'wipeAllDataBeforeUpdatingToV5').mockResolvedValue(true);
+
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.Uri.parse).toHaveBeenCalledWith('https://github.com/containers/podman/releases/tag/v0.9.8');
+    expect(extensionApi.env.openExternal).toHaveBeenCalled();
   });
 });
