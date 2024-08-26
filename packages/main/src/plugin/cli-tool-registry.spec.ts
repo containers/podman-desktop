@@ -416,6 +416,10 @@ suite('cli module', () => {
       // check the cliTools list contains our cli tool
       let cliTools = cliToolRegistry.getCliTools();
       expect(cliTools.length).equals(1);
+      if (!cliTools[0]) {
+        throw new Error('no valid cli tool found');
+      }
+      expect(cliTools[0]).toBeDefined();
       expect(cliTools[0].name).equals('tool-name');
 
       // check the cliTools returned is the correct one
