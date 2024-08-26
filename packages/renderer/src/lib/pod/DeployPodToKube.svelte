@@ -461,7 +461,7 @@ function updateKubeResult() {
           name="serviceName"
           id="serviceName"
           class=" cursor-default w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-          aria-label="Select a Pod"
+          aria-label="Select a Port"
           required>
           <option value="" disabled selected>Select a port</option>
           {#each containerPortArray as port}
