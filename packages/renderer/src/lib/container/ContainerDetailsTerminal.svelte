@@ -23,6 +23,19 @@ let currentRouterPath: string;
 let sendCallbackId: number | undefined;
 let terminalContent: string = '';
 let serializeAddon: SerializeAddon;
+let lastState: string;
+
+$: {
+  if (lastState === 'STARTING' && container.state === 'RUNNING') {
+    restartTerminal();
+  }
+  lastState = container.state;
+}
+
+async function restartTerminal() {
+  await executeShellIntoContainer();
+  window.dispatchEvent(new Event('resize'));
+}
 
 // update current route scheme
 router.subscribe(route => {
