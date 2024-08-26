@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,46 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { get } from 'svelte/store';
-import { expect, test } from 'vitest';
+import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
 
-import type { NotificationTask, StatefulTask } from '/@api/task';
-
-import { clearNotifications, isNotificationTask, isStatefulTask, tasksInfo } from './tasks';
+import { clearNotifications, isNotificationTask } from './tasks';
 
 const started = new Date().getTime();
-const IN_PROGRESS_TASK: StatefulTask = {
-  id: '1',
-  name: 'Running Task 1',
-  state: 'running',
-  started,
-  status: 'in-progress',
-};
-const SUCCEED_TASK: StatefulTask = { id: '1', name: 'Running Task 1', state: 'completed', started, status: 'success' };
-const NOTIFICATION_TASK: NotificationTask = {
+
+const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', status: 'success', state: 'completed', started };
+
+const NOTIFICATION_TASK: NotificationTaskInfo = {
   id: '1',
   name: 'Notification Task 1',
-  description: ' description',
+  body: ' description',
+  state: 'completed',
+  status: 'success',
   started,
 };
 
-test('Expect clearNotification removes all completed tasks and notifications', async () => {
-  tasksInfo.set([SUCCEED_TASK, NOTIFICATION_TASK, IN_PROGRESS_TASK]);
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
+test('Expect clearNotification to call window.clearTasks', async () => {
+  const clearTasksMock = vi.fn();
+  (window as { clearTasks: () => void }).clearTasks = clearTasksMock;
 
   clearNotifications();
 
-  const tasks = get(tasksInfo);
-  expect(tasks.length).equal(1);
-  expect(tasks[0].name).equal(IN_PROGRESS_TASK.name);
+  expect(clearTasksMock).toHaveBeenCalled();
 });
 
-test('return true if statefulTask', async () => {
-  const result = isStatefulTask(SUCCEED_TASK);
-  expect(result).toBeTruthy();
-});
+describe('isNotificationTask', () => {
+  test('return true if notificationTask', async () => {
+    const result = isNotificationTask(NOTIFICATION_TASK);
+    expect(result).toBeTruthy();
+  });
 
-test('return false if it is not a statefulTask', async () => {
-  const result = isStatefulTask(NOTIFICATION_TASK);
-  expect(result).toBeFalsy();
-});
-
-test('return true if notificationTask', async () => {
-  const result = isNotificationTask(NOTIFICATION_TASK);
-  expect(result).toBeTruthy();
-});
-
-test('return false if it is not a notificationTask', async () => {
-  const result = isNotificationTask(SUCCEED_TASK);
-  expect(result).toBeFalsy();
+  test('return false if it is not a notificationTask', async () => {
+    const result = isNotificationTask(SUCCEED_TASK);
+    expect(result).toBeFalsy();
+  });
 });

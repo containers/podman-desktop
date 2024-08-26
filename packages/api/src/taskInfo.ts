@@ -17,26 +17,22 @@
  ***********************************************************************/
 
 export type TaskState = 'running' | 'completed';
-type TaskStatus = 'in-progress' | 'success' | 'failure';
+export type TaskStatus = 'in-progress' | 'success' | 'failure';
 
-export interface Task {
+export type NotificationTaskInfo = Omit<TaskInfo, 'progress' | 'error'> & {
+  state: 'completed';
+  status: 'success';
+  body: string;
+  markdownActions?: string;
+};
+
+export interface TaskInfo {
   id: string;
   name: string;
   started: number;
-}
-
-export interface StatefulTask extends Task {
   state: TaskState;
   status: TaskStatus;
-  progress?: number;
-  action?: {
-    name: string;
-    execute: () => void;
-  };
   error?: string;
-}
-
-export interface NotificationTask extends Task {
-  description: string;
-  markdownActions?: string;
+  progress?: number;
+  action?: string;
 }
