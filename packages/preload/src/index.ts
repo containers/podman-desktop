@@ -1455,6 +1455,10 @@ export function initExposure(): void {
     apiSender.send('dev-tools:open-webview', webviewId);
   });
 
+  ipcRenderer.on('context-menu:close', () => {
+    apiSender.send('context-menu:close');
+  });
+
   // Handle callback on dialogs by calling the callback once we get the answer
   ipcRenderer.on('dialog:open-save-dialog-response', (_, dialogId: string, result: string | string[] | undefined) => {
     // grab from stored map

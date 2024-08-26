@@ -30,7 +30,7 @@ let tooltipHidden = $state(false);
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
-  window.addEventListener('click', () => {
+  window.events?.receive('context-menu:close', () => {
     tooltipHidden = false;
   });
 });
