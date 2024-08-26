@@ -47,7 +47,6 @@ export function onButtonClick(e: MouseEvent): void {
       onClick={() => handleNavigation({ page: NavigationPage.AUTHENTICATION })} />
 
     {#each $authenticationProviders as provider}
-      {console.error(provider)}
       {@const sessionRequests = provider.sessionRequests ?? []}
       {#if provider?.accounts?.length > 0}
         {#each provider.accounts as account}
