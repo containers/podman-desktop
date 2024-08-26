@@ -42,6 +42,9 @@ beforeAll(() => {
   (window as any).events = eventsMock;
   (window as any).getConfigurationValue = vi.fn();
   (window as any).sendNavigationItems = vi.fn();
+  (window.events as unknown) = {
+    receive: vi.fn(),
+  };
 });
 
 test('Test rendering of the navigation bar with empty items', async () => {
