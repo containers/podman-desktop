@@ -2,8 +2,8 @@
 import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import { onMount } from 'svelte';
 import type { Terminal } from '@xterm/xterm';
+import { onMount } from 'svelte';
 
 import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import { isMultiplexedLog } from '../stream/stream-utils';
