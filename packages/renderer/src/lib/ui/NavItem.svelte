@@ -21,6 +21,10 @@ let uri: string;
 $: uri = encodeURI(href);
 let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
+let thisTooltipHidden = false;
+$: if (!tooltipHidden && thisTooltipHidden) {
+  thisTooltipHidden = false;
+}
 
 const navItems: Writable<number> = getContext('nav-items');
 
@@ -29,6 +33,7 @@ $: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 function hideTooltip(node: any) {
   node.addEventListener('contextmenu', () => {
     tooltipHidden = true;
+    thisTooltipHidden = true;
   });
 }
 
@@ -61,7 +66,7 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]={!selected || inSection}
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]={!selected || inSection}
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]={!selected && !inSection}>
-    <Tooltip right tip={tooltipHidden ? '' : tooltipText}>
+    <Tooltip right tip={thisTooltipHidden ? '' : tooltipText}>
       <slot />
     </Tooltip>
   </div>
