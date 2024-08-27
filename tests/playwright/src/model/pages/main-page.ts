@@ -75,14 +75,18 @@ export abstract class MainPage extends BasePage {
     return await this.page.getByRole('row').first().isVisible();
   }
 
+  async getAllTableRows(): Promise<Locator[]> {
+    const table = await this.getTable();
+    return await table.getByRole('row').all();
+  }
+
   async getRowFromTableByName(name: string): Promise<Locator | undefined> {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
 
     try {
-      const table = await this.getTable();
-      const rows = await table.getByRole('row').all();
+      const rows = await this.getAllTableRows();
       for (let i = rows.length - 1; i >= 0; i--) {
         const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
         if (nameCell) {
