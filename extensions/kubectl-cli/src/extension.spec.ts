@@ -652,4 +652,72 @@ describe('postActivate', () => {
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, path.join('/tmp/kubectl-cli', 'bin', 'kubectl'));
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-path');
   });
+
+  test('if unlink fails because of a permission issue, it should delete all binaries as admin', async () => {
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          if (_args?.[0] === 'version') {
+            resolve({
+              stderr: '',
+              stdout: JSON.stringify(jsonStdout),
+              command: 'kubectl version --client=true -o=json',
+            });
+            return;
+          }
+          resolve({
+            stderr: '',
+            stdout: 'system-path',
+            command: 'which kubectl',
+          });
+        }),
+    );
+    // mock return value bellow current
+    vi.mocked(KubectlGitHubReleases).mockReturnValue({
+      grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
+        {
+          label: 'Kubernetes v1.1.0',
+          tag: 'v1.1.0',
+          id: -1,
+        },
+      ]),
+      getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
+      downloadReleaseAsset: downloadReleaseAssetMock,
+    } as unknown as KubectlGitHubReleases);
+    const deferredCliInstall: Promise<extensionApi.CliToolInstaller> = new Promise<extensionApi.CliToolInstaller>(
+      resolve => {
+        vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+          return {
+            registerUpdate: vi.fn(),
+            registerInstaller: (listener: extensionApi.CliToolInstaller) => {
+              resolve(listener);
+              return {
+                dispose: vi.fn(),
+              };
+            },
+            updateVersion: vi.fn(),
+          } as unknown as extensionApi.CliTool;
+        });
+      },
+    );
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.promises.unlink).mockRejectedValue({
+      code: 'EACCES',
+    } as unknown as Error);
+    const command = process.platform === 'win32' ? 'del' : 'rm';
+
+    await KubectlExtension.activate(extensionContext);
+
+    const cliInstaller = await deferredCliInstall;
+    await cliInstaller.doUninstall({} as unknown as Logger);
+
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(
+      4,
+      command,
+      [path.join('/tmp/kubectl-cli', 'bin', 'kubectl')],
+      { isAdmin: true },
+    );
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(5, command, ['system-path'], { isAdmin: true });
+  });
 });

@@ -353,7 +353,7 @@ describe('registerCLITool', () => {
     });
 
     await expect(() => installer?.doInstall({} as unknown as Logger)).rejects.toThrowError(
-      `Cannot install docker-compose. Version 0.0.0 is already installed.`,
+      `Cannot install docker-compose. Version 0.0.0 in system-wide-path is already installed.`,
     );
   });
 
@@ -437,5 +437,37 @@ describe('registerCLITool', () => {
     await installer?.doUninstall({} as unknown as Logger);
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, 'storage-path');
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-wide-path');
+  });
+
+  test('if unlink fails because of a permission issue, it should delete all binaries as admin', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
+    vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+      version: 'v0.0.0',
+      path: 'system-wide-path',
+      updatable: false, // not updatable as unknown location
+    });
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('storage-path');
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.promises.unlink).mockRejectedValue({
+      code: 'EACCES',
+    } as unknown as Error);
+    const command = process.platform === 'win32' ? 'del' : 'rm';
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await installer?.doUninstall({} as unknown as Logger);
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(1, command, ['storage-path'], { isAdmin: true });
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(2, command, ['system-wide-path'], { isAdmin: true });
   });
 });
