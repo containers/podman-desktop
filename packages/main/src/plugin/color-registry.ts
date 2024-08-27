@@ -22,6 +22,7 @@ import type { Color, ColorDefinition, ColorInfo } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
+import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
@@ -318,7 +319,7 @@ export class ColorRegistry {
 
   protected initTitlebar(): void {
     this.registerColor('titlebar-bg', {
-      dark: colorPalette.charcoal[900],
+      dark: isWindows() ? '#202020' : colorPalette.charcoal[900],
       light: colorPalette.gray[50],
     });
 
@@ -330,6 +331,15 @@ export class ColorRegistry {
     this.registerColor('titlebar-icon', {
       dark: colorPalette.white,
       light: colorPalette.purple[900],
+    });
+
+    this.registerColor('titlebar-windows-hover-exit-bg', {
+      dark: '#be4425',
+      light: '#be4425',
+    });
+    this.registerColor('titlebar-windows-hover-bg', {
+      dark: '#2d2d2d',
+      light: '#2d2d2d',
     });
   }
 
