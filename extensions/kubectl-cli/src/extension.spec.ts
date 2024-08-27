@@ -17,8 +17,8 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { tmpdir } from 'node:os';
 import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { afterEach } from 'node:test';
 
