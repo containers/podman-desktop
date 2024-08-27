@@ -114,8 +114,6 @@ async function refreshTerminal() {
     theme: getTerminalTheme(),
   });
   if (existingTerminal) {
-    sendCallbackId = existingTerminal.callbackId;
-    shellTerminal = existingTerminal.terminal;
     shellTerminal.options = {
       fontSize,
       lineHeight,
