@@ -4378,6 +4378,7 @@ declare module '@podman-desktop/api' {
     markdownDescription: string;
     state: CliToolState;
     images: ProviderImages;
+    version?: string;
     extensionInfo: {
       id: string;
       label: string;

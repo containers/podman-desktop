@@ -164,6 +164,7 @@ export class CliToolRegistry {
       markdownDescription: cliTool.markdownDescription,
       state: cliTool.state,
       images: cliTool.images,
+      version: cliTool.version,
       extensionInfo: {
         id: cliTool.extensionInfo.id,
         label: cliTool.extensionInfo.label,
