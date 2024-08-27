@@ -57,7 +57,7 @@ export class PodmanDesktopRunner {
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdate = autoCheckUpdate;
-    this._testPassed = true;
+    this._testPassed = false;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
