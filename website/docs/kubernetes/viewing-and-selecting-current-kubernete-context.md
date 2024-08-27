@@ -29,7 +29,7 @@ When you select a Kubernetes context, you can access all the namespaces associat
 - You have a Kubernetes context in your kubeconfig file: _&lt;your_kubernetes_cluster&gt;_.
   For example, [Creating a kind cluster](/docs/kind/creating-a-kind-cluster).
 
-#### Procedure: Using status bar
+#### Procedure: Using the status bar
 
 1. To view your current Kubernetes context, in the **Podman Desktop** main window status bar, see the name next to the **Current Kubernetes context** icon.
 
@@ -38,7 +38,7 @@ When you select a Kubernetes context, you can access all the namespaces associat
    2. Select a Kubernetes context to activate from the dropdown list.
       ![selecting a context from dropdown](img/selecting-context-from-dropdown.png)
 
-#### Procedure: Using Podman Desktop Settings
+#### Procedure: Using the Podman Desktop Settings
 
 1. Go to **Settings > Kubernetes** to view the configured Kubernetes contexts.
 1. Optional: Click the **Set as Current Context** icon to change your context.
