@@ -4361,6 +4361,7 @@ declare module '@podman-desktop/api' {
   export type CliToolState = 'registered';
 
   export interface CliTool extends CliToolInfo, Disposable {
+    state: CliToolState;
     updateVersion(version: CliToolUpdateOptions): void;
     onDidUpdateVersion: Event<string>;
 
@@ -4376,7 +4377,6 @@ declare module '@podman-desktop/api' {
     name: string;
     displayName: string;
     markdownDescription: string;
-    state: CliToolState;
     images: ProviderImages;
     version?: string;
     extensionInfo: {
