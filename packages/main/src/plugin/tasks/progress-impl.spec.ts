@@ -37,6 +37,7 @@ class TestTaskImpl implements Task {
     public name: string,
     public state: TaskState,
     public status: TaskStatus,
+    public action?: TaskAction,
   ) {
     this.started = 0;
   }
@@ -44,7 +45,6 @@ class TestTaskImpl implements Task {
   started: number;
   error?: string;
   progress?: number;
-  action?: TaskAction;
 
   get onUpdate(): Event<TaskUpdateEvent> {
     throw new Error('not implemented');
@@ -126,4 +126,36 @@ test('Should update the task name', async () => {
 
   expect(task.name).toBe('New title');
   expect(task.status).toBe('success');
+});
+
+test('action should be propagated to task', async () => {
+  const executeMock = vi.fn<() => void>();
+  const action = {
+    name: 'Dummy action',
+    execute: executeMock,
+  };
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress', action);
+  vi.mocked(taskManager.createTask).mockReturnValue(task);
+
+  const progress = new ProgressImpl(taskManager);
+
+  await progress.withProgress<void>(
+    {
+      location: ProgressLocation.TASK_WIDGET,
+      title: 'My task',
+      action: action,
+    },
+    async progress => {
+      progress.report({ message: 'New title' });
+    },
+  );
+
+  expect(taskManager.createTask).toHaveBeenCalledWith({
+    title: 'My task',
+    action: action,
+  });
+  expect(task.action).toBeDefined();
+  task.action?.execute(task);
+
+  expect(executeMock).toHaveBeenCalledWith(task);
 });

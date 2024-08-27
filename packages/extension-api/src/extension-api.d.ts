@@ -1070,6 +1070,51 @@ declare module '@podman-desktop/api' {
      * button.
      */
     cancellable?: boolean;
+
+    /**
+     * Progress may have an associate action
+     *
+     * @example
+     * Action could be used to redirect the user to a specific page
+     * ```ts
+     * import { window, navigation } from '@podman-desktop/api';
+     *
+     * window.withProgress({
+     *   title: 'Collecting container logs',
+     *   action: {
+     *     name: 'See details',
+     *     execute: () => {
+     *       navigation.navigateToContainerLogs('container-id');
+     *     },
+     *   },
+     * }, () => {
+     *   // code to execute
+     * });
+     * ```
+     *
+     * @example
+     * Action could be used to open an external page
+     * ```ts
+     * import { window, env, Uri } from '@podman-desktop/api';
+     *
+     * window.withProgress({
+     *   title: 'Updating something',
+     *   action: {
+     *     name: 'See release notes',
+     *     execute: () => {
+     *       env.openExternal(Uri.parse("https://github.com/containers/podman/releases/tag/v5.2.2"));
+     *     },
+     *   },
+     * }, () => {
+     *   // code to execute
+     * });
+     * ```
+     *
+     */
+    action?: {
+      name: string;
+      execute: () => void;
+    };
   }
 
   /**
