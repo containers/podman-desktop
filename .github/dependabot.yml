@@ -28,4 +28,8 @@ updates:
         applies-to: version-updates
         patterns:
           - "@fortawesome/*"
-
+      typescript-eslint:
+        applies-to: version-updates
+        patterns:
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
