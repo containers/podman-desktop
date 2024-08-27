@@ -295,8 +295,10 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       return releaseVersionToInstall;
     },
     doInstall: async _logger => {
-      if (binaryVersion ?? binaryPath) {
-        throw new Error(`Cannot install ${composeCliName}. Version ${binaryVersion} is already installed.`);
+      if (binaryVersion || binaryPath) {
+        throw new Error(
+          `Cannot install ${composeCliName}. Version ${binaryVersion} in ${binaryPath} is already installed.`,
+        );
       }
       if (!releaseToInstall || !releaseVersionToInstall) {
         throw new Error(`Cannot install ${composeCliName}. No release selected.`);
