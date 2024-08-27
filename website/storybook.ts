@@ -48,7 +48,6 @@ function populate(folder: string, storybookStatic: string): void {
   const groups = new Map<string, PropSidebarItem[]>();
 
   for (const item of Object.values(index['entries']) as StorybookItem[]) {
-    console.log('title', item.title);
     groups.set(item.title, [
       ...(groups.get(item.title) ?? []),
       {
@@ -59,13 +58,13 @@ function populate(folder: string, storybookStatic: string): void {
     ]);
   }
 
-  const sidebar = Array.from(groups.entries()).map(([key, value]) => ({
+  const sidebar: PropSidebarItem[] = Array.from(groups.entries()).map(([key, value]) => ({
     type: 'category',
     label: key,
     items: value,
+    collapsed: false,
+    collapsible: true,
   }));
-
-  console.log('sidebar', sidebar);
 
   // Write the generate sidebar to the output directory
   fs.writeFileSync(join(folder, 'sidebar.cjs'), `module.exports = ${JSON.stringify(sidebar)};`);
