@@ -33,7 +33,13 @@ import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
-import { PodmanConfiguration } from './podman-configuration';
+import type { PodmanConfiguration } from './podman-configuration';
+import {
+  HyperVConfiguration,
+  PodmanConfigurationProvider,
+  ProxyConfiguration,
+  RosettaConfiguration,
+} from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { PodmanInstall } from './podman-install';
 import { PodmanRemoteConnections } from './podman-remote-connections';
@@ -829,7 +835,8 @@ export async function registerProviderFor(
 export async function checkRosettaMacArm(podmanConfiguration: PodmanConfiguration): Promise<void> {
   // check that rosetta is there for macOS / arm as the machine may fail to start
   if (isMac() && os.arch() === 'arm64') {
-    const isEnabled = await podmanConfiguration.isRosettaEnabled();
+    const rosettaConfiguration = new RosettaConfiguration(podmanConfiguration);
+    const isEnabled = await rosettaConfiguration.isRosettaEnabled();
     if (isEnabled) {
       // call the command `arch -arch x86_64 uname -m` to check if rosetta is enabled
       // if not installed, it will fail
@@ -851,7 +858,7 @@ export async function checkRosettaMacArm(podmanConfiguration: PodmanConfiguratio
               'Please install Rosetta from the command line by running `softwareupdate --install-rosetta`',
             );
           } else if (result === 'Disable rosetta support') {
-            await podmanConfiguration.updateRosettaSetting(false);
+            await rosettaConfiguration.updateRosettaSetting(false);
           }
         }
       }
@@ -1309,8 +1316,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   ];
 
-  const podmanConfiguration = new PodmanConfiguration();
-  await podmanConfiguration.init();
+  const podmanConfiguration = new PodmanConfigurationProvider().getConfiguration();
+  const proxyConfiguration = new ProxyConfiguration(podmanConfiguration);
+  await proxyConfiguration.registerHandlers();
 
   const provider = extensionApi.provider.createProvider(providerOptions);
 
@@ -1644,7 +1652,7 @@ export async function calcPodmanMachineSetting(podmanConfiguration: PodmanConfig
 
   if (isWindows()) {
     const isPodmanHyperv_Env = process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv';
-    const isPodmanHyperv_Config = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
+    const isPodmanHyperv_Config = await new HyperVConfiguration(podmanConfiguration).isHyperVEnabled();
     cpuSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
     memorySupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
     diskSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
