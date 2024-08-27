@@ -28,6 +28,7 @@ export class ContainerDetailsPage extends DetailsPage {
   readonly stopButton: Locator;
   readonly deleteButton: Locator;
   readonly imageLink: Locator;
+  readonly deployButton: Locator;
 
   static readonly SUMMARY_TAB = 'Summary';
   static readonly LOGS_TAB = 'Logs';
@@ -40,6 +41,7 @@ export class ContainerDetailsPage extends DetailsPage {
     this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
     this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
+    this.deployButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Deploy to Kubernetes'));
   }
 
   async getState(): Promise<string> {
