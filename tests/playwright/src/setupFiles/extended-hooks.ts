@@ -26,5 +26,5 @@ afterEach(async (context: RunnerTestContext) => {
 });
 
 beforeEach(async (context: RunnerTestContext) => {
-  context.pdRunner.setTestPassed(true);
+  context?.pdRunner?.setTestPassed(true);
 });
