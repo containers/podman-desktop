@@ -331,6 +331,7 @@ suite('cli module', () => {
       const installer: CliToolInstaller = {
         doInstall: installMock,
         selectVersion: selectVersionMock,
+        doUninstall: vi.fn(),
       };
       const options: CliToolOptions = {
         name: 'tool-name',
@@ -348,9 +349,11 @@ suite('cli module', () => {
 
   suite('installCliTool', () => {
     const installMock = vi.fn();
+    const uninstallMock = vi.fn();
     const selectVersionMock = vi.fn();
     const installer: CliToolInstaller = {
       doInstall: installMock,
+      doUninstall: uninstallMock,
       selectVersion: selectVersionMock,
     };
     beforeEach(() => {
@@ -396,6 +399,35 @@ suite('cli module', () => {
       cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
       await cliToolRegistry.installCliTool(newCliTool.id, {} as Logger);
       expect(installMock).toBeCalled();
+    });
+
+    test('check uninstall is not called if there is no installer registered', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      await cliToolRegistry.uninstallCliTool(newCliTool.id, {} as Logger);
+      expect(uninstallMock).not.toBeCalled();
+    });
+
+    test('check the uninstall function of the installer is called correctly', async () => {
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      const uninstallCliMock = vi.fn();
+      (newCliTool as CliToolImpl).uninstall = uninstallCliMock;
+      // register the updater and call the selectCliTool
+      cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
+      await cliToolRegistry.uninstallCliTool(newCliTool.id, {} as Logger);
+      expect(uninstallMock).toBeCalled();
+      expect(uninstallCliMock).toBeCalled();
     });
   });
 

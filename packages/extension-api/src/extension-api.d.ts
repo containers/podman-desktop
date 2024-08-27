@@ -4356,6 +4356,7 @@ declare module '@podman-desktop/api' {
   export interface CliToolInstaller {
     selectVersion: () => Promise<string>;
     doInstall: (logger: Logger) => Promise<void>;
+    doUninstall: (logger: Logger) => Promise<void>;
   }
 
   export type CliToolState = 'registered';
@@ -4364,6 +4365,8 @@ declare module '@podman-desktop/api' {
     state: CliToolState;
     updateVersion(version: CliToolUpdateOptions): void;
     onDidUpdateVersion: Event<string>;
+
+    onDidUninstall: Event<void>;
 
     // register cli update flow
     registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;

@@ -1404,14 +1404,14 @@ export class PluginSystem {
 
     this.ipcHandle(
       'cli-tool-registry:installCliTool',
-      async (_listener, id: string, loggerId: string): Promise<void> => {
+      async (_listener, id: string, versionToInstall: string, loggerId: string): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:installCliTool-onData', loggerId);
         const tool = cliToolRegistry.getCliToolInfos().find(tool => tool.id === id);
         if (!tool) throw new Error(`cannot find cli tool with id ${id}`);
 
         // create task
         const task = taskManager.createTask({
-          title: `Install ${tool.name} to v${tool.newVersion}`,
+          title: `Install ${tool.name} to v${versionToInstall}`,
           action: {
             name: 'goto task >',
             execute: (): void => {
@@ -1428,6 +1428,41 @@ export class PluginSystem {
           })
           .catch((error: unknown) => {
             task.error = `Something went wrong while trying to install ${tool.name}: ${error}`;
+            logger.error(error);
+            throw error;
+          })
+          .finally(() => {
+            logger.onEnd();
+          });
+      },
+    );
+
+    this.ipcHandle(
+      'cli-tool-registry:uninstallCliTool',
+      async (_listener, id: string, loggerId: string): Promise<void> => {
+        const logger = this.getLogHandler('provider-registry:installCliTool-onData', loggerId);
+        const tool = cliToolRegistry.getCliToolInfos().find(tool => tool.id === id);
+        if (!tool) throw new Error(`cannot find cli tool with id ${id}`);
+
+        // create task
+        const task = taskManager.createTask({
+          title: `Uninstall ${tool.name} v${tool.version}`,
+          action: {
+            name: 'goto task >',
+            execute: (): void => {
+              navigationManager.navigateToCliTools().catch((err: unknown) => console.error(err));
+            },
+          },
+        });
+
+        return cliToolRegistry
+          .uninstallCliTool(id, logger)
+          .then(result => {
+            task.status = 'success';
+            return result;
+          })
+          .catch((error: unknown) => {
+            task.error = `Something went wrong while trying to uninstall ${tool.name}: ${error}`;
             logger.error(error);
             throw error;
           })
