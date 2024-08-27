@@ -649,7 +649,7 @@ describe('postActivate', () => {
     const cliInstaller = await deferredCliInstall;
     await cliInstaller.doUninstall({} as unknown as Logger);
 
-    expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, path.join('/tmp/kubectl-cli', 'bin', 'kubectl'));
+    expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, path.join(extensionContext.storagePath, 'bin', 'kubectl'));
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-path');
   });
 
@@ -715,7 +715,7 @@ describe('postActivate', () => {
     expect(extensionApi.process.exec).toHaveBeenNthCalledWith(
       4,
       command,
-      [path.join('/tmp/kubectl-cli', 'bin', 'kubectl')],
+      [path.join(extensionContext.storagePath, 'bin', 'kubectl')],
       { isAdmin: true },
     );
     expect(extensionApi.process.exec).toHaveBeenNthCalledWith(5, command, ['system-path'], { isAdmin: true });
