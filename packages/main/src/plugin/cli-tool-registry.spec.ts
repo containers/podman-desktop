@@ -160,6 +160,7 @@ suite('cli module', () => {
         images: newCliTool.images,
         extensionInfo: newCliTool.extensionInfo,
         canUpdate: false,
+        version: newCliTool.version,
       });
     });
   });
@@ -450,5 +451,6 @@ suite('cli module', () => {
     expect(cliToolInfo.name).equals(newCliTool.name);
     expect(cliToolInfo.displayName).equals(newCliTool.displayName);
     expect(cliToolInfo.markdownDescription).equals(newCliTool.markdownDescription);
+    expect(cliToolInfo.version).equals(newCliTool.version);
   });
 });
