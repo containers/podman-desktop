@@ -9,12 +9,9 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let terminal: Terminal;
-<<<<<<< HEAD
 export let convertEol: boolean | undefined = undefined;
 export let disableStdIn: boolean = true;
 export let screenReaderMode: boolean | undefined = undefined;
-=======
->>>>>>> d1136da4 (chore: remove changes to TerminalWindow)
 
 let logsXtermDiv: HTMLDivElement;
 let resizeHandler: () => void;
@@ -34,7 +31,14 @@ async function refreshTerminal(): Promise<void> {
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
-  terminal = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme() });
+  terminal = new Terminal({
+    fontSize,
+    lineHeight,
+    disableStdin: disableStdIn,
+    theme: getTerminalTheme(),
+    convertEol: convertEol,
+    screenReaderMode: screenReaderMode,
+  });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
 
