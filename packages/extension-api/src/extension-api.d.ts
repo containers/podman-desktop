@@ -4360,7 +4360,18 @@ declare module '@podman-desktop/api' {
 
   export type CliToolState = 'registered';
 
-  export interface CliTool extends Disposable {
+  export interface CliTool extends CliToolInfo, Disposable {
+    updateVersion(version: CliToolUpdateOptions): void;
+    onDidUpdateVersion: Event<string>;
+
+    // register cli update flow
+    registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
+
+    // register cli installer
+    registerInstaller(installer: CliToolInstaller): Disposable;
+  }
+
+  export interface CliToolInfo {
     id: string;
     name: string;
     displayName: string;
@@ -4371,15 +4382,6 @@ declare module '@podman-desktop/api' {
       id: string;
       label: string;
     };
-
-    updateVersion(version: CliToolUpdateOptions): void;
-    onDidUpdateVersion: Event<string>;
-
-    // register cli update flow
-    registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
-
-    // register cli installer
-    registerInstaller(installer: CliToolInstaller): Disposable;
   }
 
   /**
@@ -4395,6 +4397,23 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
+
+    /**
+     * given an id, return the corresponding CLI Tool
+     * @param id cli tool
+     */
+    export function getCliTool(id: string): CliToolInfo | undefined;
+
+    /**
+     * All cli tools currently known to the system.
+     */
+    export const all: readonly CliToolInfo[];
+
+    /**
+     * An event which fires when `cli.all` changes. This can happen when cli are
+     * installed, uninstalled, enabled or disabled.
+     */
+    export const onDidChange: Event<void>;
   }
 
   /**

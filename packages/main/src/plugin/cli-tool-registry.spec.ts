@@ -397,4 +397,58 @@ suite('cli module', () => {
       expect(installMock).toBeCalled();
     });
   });
+
+  suite('cliTools', () => {
+    test('check cliTool is correctly registered and disposed', async () => {
+      let cliToolsUpdateNumbers = 0;
+      cliToolRegistry.onDidCliToolsChange(() => {
+        cliToolsUpdateNumbers++;
+      });
+
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+
+      // check the cliTools list contains our cli tool
+      let cliTools = cliToolRegistry.getCliTools();
+      expect(cliTools.length).equals(1);
+      if (!cliTools[0]) {
+        throw new Error('no valid cli tool found');
+      }
+      expect(cliTools[0]).toBeDefined();
+      expect(cliTools[0].name).equals('tool-name');
+
+      // check the cliTools returned is the correct one
+      const cliTool = cliToolRegistry.getCliTool(cliTools[0].id);
+      expect(cliTool).toStrictEqual(cliTools[0]);
+
+      // check the list is updated after disposing
+      newCliTool.dispose();
+      cliTools = cliToolRegistry.getCliTools();
+      expect(cliTools.length).equals(0);
+
+      // the onDidCliToolsChange should have been fired twice (creation, deletion)
+      expect(cliToolsUpdateNumbers).equals(2);
+    });
+  });
+
+  test('check conversion from cliTool to cliToolInfo is performed well', async () => {
+    const options: CliToolOptions = {
+      name: 'tool-name',
+      displayName: 'tool-display-name',
+      markdownDescription: 'markdown description',
+      images: {},
+    };
+    const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+    const cliToolInfo = cliToolRegistry['convertToCliToolInfo'](newCliTool);
+
+    expect('updateVersion' in cliToolInfo).toBeFalsy();
+    expect(cliToolInfo.name).equals(newCliTool.name);
+    expect(cliToolInfo.displayName).equals(newCliTool.displayName);
+    expect(cliToolInfo.markdownDescription).equals(newCliTool.markdownDescription);
+  });
 });

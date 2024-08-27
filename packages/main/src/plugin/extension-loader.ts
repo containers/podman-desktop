@@ -1319,9 +1319,18 @@ export class ExtensionLoader {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        const cliTool = this.cliToolRegistry.createCliTool(extensionInfo, options);
+        const cliTool = instance.cliToolRegistry.createCliTool(extensionInfo, options);
         disposables.push(cliTool);
         return cliTool;
+      },
+      getCliTool: (id: string): containerDesktopAPI.CliToolInfo | undefined => {
+        return instance.cliToolRegistry.getCliTool(id);
+      },
+      get all() {
+        return instance.cliToolRegistry.getCliTools();
+      },
+      onDidChange: (listener, thisArg, disposables) => {
+        return instance.cliToolRegistry.onDidCliToolsChange(listener, thisArg, disposables);
       },
     };
 
