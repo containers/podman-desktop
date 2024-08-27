@@ -16,39 +16,50 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliTool, CliToolOptions, CliToolUpdate, Logger } from '@podman-desktop/api';
+import type {
+  CliTool,
+  CliToolInstaller,
+  CliToolOptions,
+  CliToolSelectUpdate,
+  CliToolUpdate,
+  Logger,
+} from '@podman-desktop/api';
 
 import type { CliToolExtensionInfo, CliToolInfo } from '/@api/cli-tool-info.js';
 
 import type { ApiSenderType } from './api.js';
 import { CliToolImpl } from './cli-tool-impl.js';
-import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
-import type { Exec } from './util/exec.js';
 
 export class CliToolRegistry {
-  constructor(
-    private apiSender: ApiSenderType,
-    private exec: Exec,
-    private telemetryService: Telemetry,
-  ) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   private cliTools = new Map<string, CliToolImpl>();
-  private cliToolsUpdater = new Map<string, CliToolUpdate>();
+  private cliToolsUpdater = new Map<string, CliToolUpdate | CliToolSelectUpdate>();
+  private cliToolsInstaller = new Map<string, CliToolInstaller>();
 
   createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
-    const cliTool = new CliToolImpl(this.apiSender, this.exec, extensionInfo, this, options);
+    const cliTool = new CliToolImpl(extensionInfo, this, options);
     this.cliTools.set(cliTool.id, cliTool);
     this.apiSender.send('cli-tool-create');
     cliTool.onDidUpdateVersion(() => this.apiSender.send('cli-tool-change', cliTool.id));
     return cliTool;
   }
 
-  registerUpdate(cliTool: CliToolImpl, updater: CliToolUpdate): Disposable {
+  registerUpdate(cliTool: CliToolImpl, updater: CliToolUpdate | CliToolSelectUpdate): Disposable {
     this.cliToolsUpdater.set(cliTool.id, updater);
 
     return Disposable.create(() => {
       this.cliToolsUpdater.delete(cliTool.id);
+      this.apiSender.send('cli-tool-change', cliTool.id);
+    });
+  }
+
+  registerInstaller(cliTool: CliToolImpl, installer: CliToolInstaller): Disposable {
+    this.cliToolsInstaller.set(cliTool.id, installer);
+
+    return Disposable.create(() => {
+      this.cliToolsInstaller.delete(cliTool.id);
       this.apiSender.send('cli-tool-change', cliTool.id);
     });
   }
@@ -60,14 +71,52 @@ export class CliToolRegistry {
     }
   }
 
+  async installCliTool(id: string, logger: Logger): Promise<void> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (cliToolInstaller) {
+      await cliToolInstaller.doInstall(logger);
+    }
+  }
+
+  async selectCliToolVersionToUpdate(id: string): Promise<string> {
+    const cliToolUpdater = this.cliToolsUpdater.get(id);
+    if (!cliToolUpdater || this.isUpdaterToPredefinedVersion(cliToolUpdater)) {
+      throw new Error(`No updater registered for ${id}`);
+    }
+    return cliToolUpdater.selectVersion();
+  }
+
+  async selectCliToolVersionToInstall(id: string): Promise<string> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (!cliToolInstaller) {
+      throw new Error(`No installer registered for ${id}`);
+    }
+    return cliToolInstaller.selectVersion();
+  }
+
+  isUpdaterToPredefinedVersion(update: CliToolUpdate | CliToolSelectUpdate): update is CliToolUpdate {
+    return (update as CliToolUpdate).version !== undefined;
+  }
+
   disposeCliTool(cliTool: CliToolImpl): void {
     this.cliTools.delete(cliTool.id);
     this.cliToolsUpdater.delete(cliTool.id);
+    this.cliToolsInstaller.delete(cliTool.id);
     this.apiSender.send('cli-tool-remove', cliTool.id);
   }
 
   getCliToolInfos(): CliToolInfo[] {
     return Array.from(this.cliTools.values()).map(cliTool => {
+      const installer = this.cliToolsInstaller.get(cliTool.id);
+      // if the installer has been registered, enable install
+      const canInstall = !!installer;
+
+      const updater = this.cliToolsUpdater.get(cliTool.id);
+      // if updater is the one with a default version that the tool will use to get updated we use it
+      const newVersion = updater && this.isUpdaterToPredefinedVersion(updater) ? updater.version : undefined;
+      // if the cli tool has an updater registered and its binary has been installed by podman desktop, it can be updated
+      const canUpdate = !!updater && cliTool.installationSource === 'extension';
+
       return {
         id: cliTool.id,
         name: cliTool.name,
@@ -78,7 +127,9 @@ export class CliToolRegistry {
         extensionInfo: cliTool.extensionInfo,
         version: cliTool.version,
         path: cliTool.path,
-        newVersion: this.cliToolsUpdater.get(cliTool.id)?.version,
+        newVersion,
+        canUpdate,
+        canInstall,
       };
     });
   }

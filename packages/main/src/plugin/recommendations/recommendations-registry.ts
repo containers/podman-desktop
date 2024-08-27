@@ -95,7 +95,7 @@ export class RecommendationsRegistry {
     // Filter and shuffle the extensions
     const extensionBanners: ExtensionBanner[] = recommendations.extensions.reduce((prev, extension) => {
       // ensure the extension is in the featured extensions and is not install
-      if (!(extension.extensionId in featuredExtensions) || featuredExtensions[extension.extensionId].installed) {
+      if (!(extension.extensionId in featuredExtensions) || featuredExtensions[extension.extensionId]?.installed) {
         return prev;
       }
 
@@ -107,10 +107,13 @@ export class RecommendationsRegistry {
         }
       }
 
-      prev.push({
-        ...extension,
-        featured: featuredExtensions[extension.extensionId],
-      });
+      const featured = featuredExtensions[extension.extensionId];
+      if (featured) {
+        prev.push({
+          ...extension,
+          featured,
+        });
+      }
 
       return prev;
     }, [] as ExtensionBanner[]);
@@ -121,7 +124,11 @@ export class RecommendationsRegistry {
       const startingIndex = new Date().getHours() % extensionBanners.length;
 
       // Let's return the subset of banners starting at the chosen index
-      return Array.from({ length: limit }, (_, i) => extensionBanners[(startingIndex + i) % extensionBanners.length]);
+      // and filter out all potential undefined items
+      return Array.from(
+        { length: limit },
+        (_, i) => extensionBanners[(startingIndex + i) % extensionBanners.length],
+      ).filter((value): value is ExtensionBanner => value !== undefined);
     }
     return extensionBanners;
   }

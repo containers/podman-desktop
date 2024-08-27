@@ -34,7 +34,7 @@ const eventEmitter = {
   },
 };
 
-const listImagesMock: Mock<any, Promise<ImageInfo[]>> = vi.fn();
+const listImagesMock: Mock<() => Promise<ImageInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

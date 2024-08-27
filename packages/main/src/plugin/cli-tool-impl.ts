@@ -18,7 +18,10 @@
 
 import type {
   CliTool,
+  CliToolInstallationSource,
+  CliToolInstaller,
   CliToolOptions,
+  CliToolSelectUpdate,
   CliToolState,
   CliToolUpdate,
   CliToolUpdateOptions,
@@ -29,10 +32,8 @@ import type {
 
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 
-import type { ApiSenderType } from './api.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import { Emitter } from './events/emitter.js';
-import type { Exec } from './util/exec.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
@@ -41,8 +42,6 @@ export class CliToolImpl implements CliTool, Disposable {
   readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
 
   constructor(
-    private _apiSender: ApiSenderType,
-    private _exec: Exec,
     readonly extensionInfo: CliToolExtensionInfo,
     readonly registry: CliToolRegistry,
     private _options: CliToolOptions,
@@ -66,16 +65,21 @@ export class CliToolImpl implements CliTool, Disposable {
     return this._options.markdownDescription;
   }
 
-  get version(): string {
+  get version(): string | undefined {
     return this._options.version;
   }
 
-  get path(): string {
+  get path(): string | undefined {
     return this._options.path;
   }
 
   get images(): ProviderImages {
     return Object.freeze(this._options.images);
+  }
+
+  // it returns the installation source of the cli tool. If not specified, we default to user which is the most restrictive way (prevent to update it)
+  get installationSource(): CliToolInstallationSource {
+    return this._options.installationSource ?? 'external';
   }
 
   dispose(): void {
@@ -90,11 +94,16 @@ export class CliToolImpl implements CliTool, Disposable {
       markdownDescription: options.markdownDescription ?? this._options.markdownDescription,
       path: options.path ?? this._options.path,
       version: options.version,
+      installationSource: 'extension',
     };
     this._onDidUpdateVersion.fire(options.version);
   }
 
-  registerUpdate(update: CliToolUpdate): Disposable {
+  registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable {
     return this.registry.registerUpdate(this, update);
+  }
+
+  registerInstaller(installer: CliToolInstaller): Disposable {
+    return this.registry.registerInstaller(this, installer);
   }
 }

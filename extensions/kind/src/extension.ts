@@ -16,15 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type {
-  AuditRequestItems,
-  CancellationToken,
-  CliTool,
-  ExtensionContext,
-  Logger,
-  StatusBarItem,
-  TelemetryLogger,
-} from '@podman-desktop/api';
+import * as path from 'node:path';
+
+import type { AuditRequestItems, CancellationToken, CliTool, Logger, StatusBarItem } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { ProgressLocation, window } from '@podman-desktop/api';
 
@@ -32,7 +26,7 @@ import { connectionAuditor, createCluster } from './create-cluster';
 import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
 import { KindInstaller } from './kind-installer';
-import { getKindBinaryInfo, getKindPath } from './util';
+import { getKindBinaryInfo, getKindPath, getSystemBinaryPath } from './util';
 
 const KIND_MARKDOWN = `Podman Desktop can help you run Kind-powered local Kubernetes clusters on a container engine, such as Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/kind)`;
 
@@ -335,9 +329,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
 
   let binary: { path: string; version: string } | undefined = undefined;
+  let installationSource: extensionApi.CliToolInstallationSource | undefined;
   // let's try to get system-wide kind install first
   try {
     binary = await getKindBinaryInfo('kind');
+    const systemPath = getSystemBinaryPath('kind');
+    installationSource = path.normalize(binary.path) === path.normalize(systemPath) ? 'extension' : 'external';
   } catch (err: unknown) {
     console.error(err);
   }
@@ -346,44 +343,45 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (!binary) {
     try {
       binary = await getKindBinaryInfo(installer.getInternalDestinationPath());
+      installationSource = 'extension';
     } catch (err: unknown) {
       console.error(err);
     }
   }
 
-  // if the binary exists (either system-wide or in extension storage)
-  // we register it
+  // if the binary exists (either system-wide or in extension storage), we get its version/path
+  let binaryVersion: string | undefined;
+  let binaryPath: string | undefined;
   if (binary) {
-    kindPath = binary.path;
-    kindCli = extensionApi.cli.createCliTool({
-      name: 'kind',
-      images: {
-        icon: './icon.png',
-      },
-      version: binary.version,
-      path: binary.path,
-      displayName: 'kind',
-      markdownDescription: KIND_MARKDOWN,
-    });
+    binaryVersion = binary.version;
+    binaryPath = binary.path;
+    kindPath = binaryPath;
   }
+  // we register it
+  kindCli = extensionApi.cli.createCliTool({
+    name: 'kind',
+    images: {
+      icon: './icon.png',
+    },
+    version: binaryVersion,
+    path: binaryPath,
+    displayName: 'kind',
+    markdownDescription: KIND_MARKDOWN,
+    installationSource,
+  });
 
-  // if the CLI tool exists, let's create a provider
-  if (kindCli) {
-    await createProvider(extensionContext, telemetryLogger);
-    return;
-  }
+  // let's create a provider
+  await createProvider(extensionContext, telemetryLogger);
 
   // if we do not have anything installed, let's add it to the status bar
-  if (await installer.isAvailable()) {
+  if (!binaryVersion && (await installer.isAvailable())) {
     const statusBarItem = extensionApi.window.createStatusBarItem();
     statusBarItem.text = 'Kind';
     statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
     statusBarItem.command = KIND_INSTALL_COMMAND;
     statusBarItem.iconClass = 'fa fa-exclamation-triangle';
     extensionContext.subscriptions.push(
-      extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
-        kindInstall(installer, statusBarItem, extensionContext, telemetryLogger),
-      ),
+      extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () => kindInstall(installer, statusBarItem)),
       statusBarItem,
     );
     statusBarItem.show();
@@ -397,13 +395,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
  * @param extensionContext
  * @param telemetryLogger
  */
-async function kindInstall(
-  installer: KindInstaller,
-  statusBarItem: StatusBarItem,
-  extensionContext: ExtensionContext,
-  telemetryLogger: TelemetryLogger,
-): Promise<void> {
-  if (kindCli || kindPath) throw new Error('kind cli is already registered');
+async function kindInstall(installer: KindInstaller, statusBarItem: StatusBarItem): Promise<void> {
+  if (kindPath) throw new Error('kind cli is already registered');
 
   let path: string;
   try {
@@ -419,18 +412,10 @@ async function kindInstall(
   const binaryInfo = await getKindBinaryInfo(path);
 
   kindPath = path;
-  kindCli = extensionApi.cli.createCliTool({
-    name: 'kind',
-    images: {
-      icon: './icon.png',
-    },
+  kindCli?.updateVersion({
     version: binaryInfo.version,
     path: binaryInfo.path,
-    displayName: 'kind',
-    markdownDescription: KIND_MARKDOWN,
   });
-
-  await createProvider(extensionContext, telemetryLogger);
 }
 
 export function deactivate(): void {

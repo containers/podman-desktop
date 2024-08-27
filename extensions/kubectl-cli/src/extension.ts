@@ -21,9 +21,8 @@ import * as path from 'node:path';
 import { Octokit } from '@octokit/rest';
 import type { CliTool } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { gt } from 'semver';
 
-import { installBinaryToSystem } from './cli-run';
+import { getSystemBinaryPath, installBinaryToSystem } from './cli-run';
 import { Detect } from './detect';
 import { KubectlDownload } from './download';
 import * as handler from './handler';
@@ -141,12 +140,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('kubectlIsNotDownloaded', false, 'onboarding');
         kubectlCliTool?.updateVersion({
           version: kubectlVersionMetadata.tag.slice(1),
+          installationSource: 'extension',
         });
-        // if installed version is the newest, dispose the updater
-        const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
-        if (lastReleaseMetadata.tag === kubectlVersionMetadata.tag) {
-          kubectlCliToolUpdaterDisposable?.dispose();
-        }
         downloaded = true;
       } finally {
         // Make sure we log the telemetry even if we encounter an error
@@ -238,8 +233,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 }
 
 interface CliFinder {
-  version: string;
-  path: string;
+  version?: string;
+  path?: string;
 }
 
 export function getStorageKubectlPath(extensionContext: extensionApi.ExtensionContext): string {
@@ -248,8 +243,8 @@ export function getStorageKubectlPath(extensionContext: extensionApi.ExtensionCo
 }
 
 export async function findKubeCtl(extensionContext: extensionApi.ExtensionContext): Promise<CliFinder> {
-  let binaryVersion = '';
-  let binaryPath = '';
+  let binaryVersion: string | undefined;
+  let binaryPath: string | undefined;
 
   // Retrieve the version of the binary by running exec with --client
   try {
@@ -261,7 +256,6 @@ export async function findKubeCtl(extensionContext: extensionApi.ExtensionContex
       'json',
     ]);
     binaryVersion = extractVersion(result.stdout);
-
     // grab full path for Linux and mac
     if (extensionApi.env.isLinux || extensionApi.env.isMac) {
       try {
@@ -301,7 +295,6 @@ export async function findKubeCtl(extensionContext: extensionApi.ExtensionContex
       console.warn('Error getting kubectl version system from extension storage path', error);
     }
   }
-
   return { version: binaryVersion, path: binaryPath };
 }
 
@@ -310,7 +303,18 @@ async function postActivate(
   extensionContext: extensionApi.ExtensionContext,
   kubectlDownload: KubectlDownload,
 ): Promise<void> {
-  const { version, path } = await findKubeCtl(extensionContext);
+  const kubectl = await findKubeCtl(extensionContext);
+
+  let installationSource: extensionApi.CliToolInstallationSource | undefined;
+  if (kubectl.path) {
+    const systemPath = getSystemBinaryPath(kubectlCliName);
+    const localStorage = getStorageKubectlPath(extensionContext);
+    installationSource =
+      path.normalize(kubectl.path) === path.normalize(systemPath) ||
+      path.normalize(kubectl.path) === path.normalize(localStorage)
+        ? 'extension'
+        : 'external';
+  }
 
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
   // checking the binary. If it exists, we will run `--version` and parse the information.
@@ -321,29 +325,81 @@ async function postActivate(
     images: {
       icon: imageLocation,
     },
-    version,
-    path,
+    version: kubectl.version,
+    path: kubectl.path,
+    installationSource,
   });
 
-  // check if there is a new version to be installed and register the updater
-  const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
-  const lastReleaseVersion = lastReleaseMetadata.tag.slice(1);
-  if (gt(lastReleaseVersion, version)) {
-    kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
-      version: lastReleaseVersion,
-      doUpdate: async _logger => {
-        // download, install system wide and update cli version
-        const binaryPath = await kubectlDownload.download(lastReleaseMetadata);
-        await installBinaryToSystem(binaryPath, 'kubectl');
-        kubectlCliTool?.updateVersion({
-          version: lastReleaseVersion,
-        });
-        kubectlCliToolUpdaterDisposable?.dispose();
-      },
-    });
+  extensionContext.subscriptions.push(kubectlCliTool);
+
+  // create and register the installer
+  let releaseToInstall: KubectlGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToInstall: string | undefined;
+  let currentVersion = kubectl.version;
+
+  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerInstaller({
+    selectVersion: async () => {
+      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
+      releaseToInstall = selected;
+      releaseVersionToInstall = selected.tag.slice(1);
+      return releaseVersionToInstall;
+    },
+    doInstall: async _logger => {
+      if (currentVersion) {
+        throw new Error(`Cannot install ${kubectlCliName}. Version ${currentVersion} is already installed.`);
+      }
+      if (!releaseToInstall || !releaseVersionToInstall) {
+        throw new Error(`Cannot update ${kubectl.path}. No release selected.`);
+      }
+      // download, install system wide and update cli version
+      const binaryPath = await kubectlDownload.download(releaseToInstall);
+      await installBinaryToSystem(binaryPath, 'kubectl');
+      kubectlCliTool?.updateVersion({
+        version: releaseVersionToInstall,
+        installationSource: 'extension',
+      });
+      currentVersion = releaseVersionToInstall;
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+  });
+
+  extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
+
+  // if the tool has been installed by the user externally desktop, it cannot be updated
+  if (installationSource === 'external') {
+    return;
   }
 
-  extensionContext.subscriptions.push(kubectlCliTool);
+  // check if there is a new version to be installed and register the updater
+  let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToUpdateTo: string | undefined;
+
+  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
+    selectVersion: async () => {
+      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
+      releaseToUpdateTo = selected;
+      releaseVersionToUpdateTo = selected.tag.slice(1);
+      return releaseVersionToUpdateTo;
+    },
+    doUpdate: async _logger => {
+      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
+        throw new Error(`Cannot update ${path}. No release selected.`);
+      }
+      // download, install system wide and update cli version
+      const binaryPath = await kubectlDownload.download(releaseToUpdateTo);
+      await installBinaryToSystem(binaryPath, 'kubectl');
+      kubectlCliTool?.updateVersion({
+        version: releaseVersionToUpdateTo,
+        installationSource: 'extension',
+      });
+      currentVersion = releaseVersionToUpdateTo;
+      releaseVersionToUpdateTo = undefined;
+      releaseToUpdateTo = undefined;
+    },
+  });
+
+  extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
 }
 
 function extractVersion(stdout: string): string {

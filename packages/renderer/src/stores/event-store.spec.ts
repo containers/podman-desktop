@@ -91,19 +91,15 @@ test('should call fetch method using window event', async () => {
 
   await callback();
 
-  // wait updater method being called
-  while (updater.mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
   // check the updater is called
-  expect(updater).toHaveBeenCalled();
+  await vi.waitFor(() => {
+    expect(updater).toHaveBeenCalled();
+  });
 
   // check the store is updated
-  expect(get(myStoreInfo)).toStrictEqual([myCustomTypeInfo]);
-
-  // check the store is updated
-  expect(get(myStoreInfo)).toStrictEqual([myCustomTypeInfo]);
+  await vi.waitFor(() => {
+    expect(get(myStoreInfo)).toStrictEqual([myCustomTypeInfo]);
+  });
 
   // check buffer events
   expect(eventStoreInfo.bufferEvents.length).toBe(1);
@@ -154,16 +150,15 @@ test('should call fetch method using listener event', async () => {
 
   await callback();
 
-  // wait updater being called
-  while (updater.mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
   // check the updater is called
-  expect(updater).toHaveBeenCalled();
+  await vi.waitFor(() => {
+    expect(updater).toHaveBeenCalled();
+  });
 
   // check the store is updated
-  expect(get(myStoreInfo)).toStrictEqual([myCustomTypeInfo]);
+  await vi.waitFor(() => {
+    expect(get(myStoreInfo)).toStrictEqual([myCustomTypeInfo]);
+  });
 
   // check buffer events
   expect(eventStoreInfo.bufferEvents.length).toBe(1);

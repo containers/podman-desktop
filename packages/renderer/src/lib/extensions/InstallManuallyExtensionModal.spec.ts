@@ -85,8 +85,8 @@ function mockExtensionInstallFromImage(): {
 } {
   const resolve = vi.fn();
   const reject = vi.fn();
-  const logCallback = vi.fn<[string], void>();
-  const errorCallback = vi.fn<[string], void>();
+  const logCallback = vi.fn<(data: string) => void>();
+  const errorCallback = vi.fn<(data: string) => void>();
   vi.mocked(window.extensionInstallFromImage).mockImplementation((_image, mLogCallback, mErrorCallback) => {
     logCallback.mockImplementation((content: string) => mLogCallback(content));
     errorCallback.mockImplementation((content: string) => mErrorCallback(content));

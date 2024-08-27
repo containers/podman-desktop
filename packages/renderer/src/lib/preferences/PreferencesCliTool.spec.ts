@@ -41,6 +41,8 @@ const cliToolInfoItem1: CliToolInfo = {
     label: 'ext-label1',
   },
   path: 'path/to/tool-name-1',
+  canUpdate: false,
+  canInstall: false,
 };
 
 const cliToolInfoItem2: CliToolInfo = {
@@ -55,6 +57,8 @@ const cliToolInfoItem2: CliToolInfo = {
   },
   version: '1.0.1',
   path: 'path/to/tool-name-2',
+  canUpdate: false,
+  canInstall: false,
 };
 
 const cliToolInfoItem3: CliToolInfo = {
@@ -70,6 +74,52 @@ const cliToolInfoItem3: CliToolInfo = {
   version: '1.0.1',
   path: 'path/to/tool-name-3',
   newVersion: '2.0.1',
+  canUpdate: true,
+  canInstall: false,
+};
+
+const cliToolInfoItem4: CliToolInfo = {
+  id: 'ext-id.tool-name4',
+  name: 'tool-name4',
+  description: 'markdown description4',
+  displayName: 'tools-display-name4',
+  state: 'registered',
+  extensionInfo: {
+    id: 'ext-id4',
+    label: 'ext-label4',
+  },
+  version: '1.0.1',
+  path: 'path/to/tool-name-4',
+  canUpdate: true,
+  canInstall: false,
+};
+
+const cliToolInfoItem5: CliToolInfo = {
+  id: 'ext-id.tool-name4',
+  name: 'tool-name4',
+  description: 'markdown description4',
+  displayName: 'tools-display-name4',
+  state: 'registered',
+  extensionInfo: {
+    id: 'ext-id4',
+    label: 'ext-label4',
+  },
+  canUpdate: false,
+  canInstall: false,
+};
+
+const cliToolInfoItem6: CliToolInfo = {
+  id: 'ext-id.tool-name4',
+  name: 'tool-name4',
+  description: 'markdown description4',
+  displayName: 'tools-display-name4',
+  state: 'registered',
+  extensionInfo: {
+    id: 'ext-id4',
+    label: 'ext-label4',
+  },
+  canUpdate: false,
+  canInstall: true,
 };
 
 const updateCliToolMock = vi.fn();
@@ -119,9 +169,8 @@ suite('CLI Tool item', () => {
     expect(versionElement.textContent).equal(`${cliToolInfoItem2.name} v${cliToolInfoItem2.version}`);
     const displayFullPathElement = screen.getByText('Path: path/to/tool-name-2');
     expect(displayFullPathElement).toBeInTheDocument();
-    const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
-    expect(updateLoadingButton).toBeInTheDocument();
-    expect(updateLoadingButton).toBeDisabled();
+    const updateLoadingButton = screen.queryByRole('button', { name: 'Update' });
+    expect(updateLoadingButton).not.toBeInTheDocument();
   });
 
   test('check tool infos are displayed as expected and there is a new version available', () => {
@@ -164,5 +213,75 @@ suite('CLI Tool item', () => {
 
     const failedErrorButton2 = screen.getByRole('button', { name: `${cliToolInfoItem3.displayName} failed` });
     expect(failedErrorButton2).toBeInTheDocument();
+  });
+
+  test('check tool infos are displayed as expected and without a new version', async () => {
+    updateCliToolMock.mockRejectedValue('');
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem4,
+    });
+    const nameElement = screen.getByLabelText('cli-name');
+    expect(nameElement).toBeDefined();
+    expect(nameElement.textContent).equal(cliToolInfoItem4.name);
+    const registeredByElement = screen.getByLabelText('cli-registered-by');
+    expect(registeredByElement).toBeDefined();
+    expect(registeredByElement.textContent).equal(`Registered by ${cliToolInfoItem4.extensionInfo.label}`);
+    const displayNameElement = screen.getByLabelText('cli-display-name');
+    expect(displayNameElement).toBeDefined();
+    expect(displayNameElement.textContent).equal(cliToolInfoItem4.displayName);
+    const versionElement = screen.getByLabelText('cli-version');
+    expect(versionElement).toBeDefined();
+    expect(versionElement.textContent).equal(`${cliToolInfoItem4.name} v${cliToolInfoItem4.version}`);
+    const updateAvailableElement = screen.getByRole('button', { name: 'Update available' });
+    expect(updateAvailableElement).toBeDefined();
+    expect(updateAvailableElement.textContent).toBe('Upgrade/Downgrade');
+    const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
+    expect(updateLoadingButton).toBeInTheDocument();
+    expect(updateLoadingButton).toBeEnabled();
+  });
+
+  test('check no install button is displayed if there is no version and no installer registered', async () => {
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem5,
+    });
+    const nameElement = screen.getByLabelText('cli-name');
+    expect(nameElement).toBeDefined();
+    expect(nameElement.textContent).equal(cliToolInfoItem4.name);
+    const registeredByElement = screen.getByLabelText('cli-registered-by');
+    expect(registeredByElement).toBeDefined();
+    expect(registeredByElement.textContent).equal(`Registered by ${cliToolInfoItem4.extensionInfo.label}`);
+    const displayNameElement = screen.getByLabelText('cli-display-name');
+    expect(displayNameElement).toBeDefined();
+    expect(displayNameElement.textContent).equal(cliToolInfoItem4.displayName);
+    const versionElement = screen.queryByLabelText('cli-version');
+    expect(versionElement).not.toBeInTheDocument();
+    const noVersionElement = screen.getByLabelText('no-cli-version');
+    expect(noVersionElement).toBeDefined();
+    expect(noVersionElement.textContent).equal('No version detected');
+    const installLoadingButton = screen.queryByRole('button', { name: 'Install' });
+    expect(installLoadingButton).not.toBeInTheDocument();
+  });
+
+  test('check the install button is displayed if there is no version and an installer has been registered', async () => {
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem6,
+    });
+    const nameElement = screen.getByLabelText('cli-name');
+    expect(nameElement).toBeDefined();
+    expect(nameElement.textContent).equal(cliToolInfoItem4.name);
+    const registeredByElement = screen.getByLabelText('cli-registered-by');
+    expect(registeredByElement).toBeDefined();
+    expect(registeredByElement.textContent).equal(`Registered by ${cliToolInfoItem4.extensionInfo.label}`);
+    const displayNameElement = screen.getByLabelText('cli-display-name');
+    expect(displayNameElement).toBeDefined();
+    expect(displayNameElement.textContent).equal(cliToolInfoItem4.displayName);
+    const versionElement = screen.queryByLabelText('cli-version');
+    expect(versionElement).not.toBeInTheDocument();
+    const noVersionElement = screen.getByLabelText('no-cli-version');
+    expect(noVersionElement).toBeDefined();
+    expect(noVersionElement.textContent).equal('No version detected');
+    const installLoadingButton = screen.getByRole('button', { name: 'Install' });
+    expect(installLoadingButton).toBeInTheDocument();
+    expect(installLoadingButton).toBeEnabled();
   });
 });

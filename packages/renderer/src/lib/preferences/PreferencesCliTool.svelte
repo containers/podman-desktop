@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowDown, faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
@@ -7,34 +7,85 @@ import type { CliToolInfo } from '/@api/cli-tool-info';
 
 import Markdown from '../markdown/Markdown.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import {
+  type ConnectionCallback,
+  eventCollect,
+  registerConnectionCallback,
+} from './preferences-connection-rendering-task';
 import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;
 let showError = false;
-let cliToolStatus: ILoadingStatus = {
+let errorMessage = '';
+let newVersion: string | undefined = cliTool.newVersion;
+let cliToolUpdateStatus: ILoadingStatus;
+$: cliToolUpdateStatus = {
   inProgress: false,
-  status: cliTool.newVersion ? 'toUpdate' : 'unknown',
+  status: cliTool.canUpdate ? 'toUpdate' : 'unknown',
   action: 'update',
+};
+let cliToolInstallStatus: ILoadingStatus;
+$: cliToolInstallStatus = {
+  inProgress: false,
+  status: cliTool.canInstall ? 'toInstall' : 'unknown',
+  action: 'install',
 };
 
 async function update(cliTool: CliToolInfo) {
+  newVersion = cliTool.newVersion;
+  if (!newVersion) {
+    // user has to select the version to update to
+    try {
+      newVersion = await window.selectCliToolVersionToUpdate(cliTool.id);
+    } catch (e) {
+      // do nothing
+      console.log(e);
+    }
+  }
+  if (!newVersion) {
+    return;
+  }
   try {
-    cliToolStatus.inProgress = true;
-    cliToolStatus = cliToolStatus;
-    const loggerHandlerKey = startTask(
-      `Update ${cliTool.name} to v${cliTool.newVersion}`,
-      '/preferences/cli-tools',
-      getLoggerHandler(cliTool.id),
-    );
+    cliToolUpdateStatus.inProgress = true;
+    cliToolUpdateStatus = cliToolUpdateStatus;
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
     await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
     showError = false;
-    cliToolStatus.status = 'unknown';
   } catch (e) {
+    errorMessage = `Unable to update ${cliTool.displayName} to version ${newVersion}.`;
     showError = true;
   } finally {
-    cliToolStatus.inProgress = false;
-    cliToolStatus = cliToolStatus;
+    cliToolUpdateStatus.inProgress = false;
+    cliToolUpdateStatus = cliToolUpdateStatus;
+  }
+}
+
+async function install(cliTool: CliToolInfo) {
+  // user has to select the version to install
+  let versionToInstall;
+  try {
+    versionToInstall = await window.selectCliToolVersionToInstall(cliTool.id);
+  } catch (e) {
+    // do nothing
+    errorMessage = `Error when selecting a version: ${String(e)}`;
+    console.error(e);
+    showError = true;
+  }
+  if (!versionToInstall) {
+    return;
+  }
+  try {
+    cliToolInstallStatus.inProgress = true;
+    cliToolInstallStatus = cliToolInstallStatus;
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
+    await window.installCliTool(cliTool.id, loggerHandlerKey, eventCollect);
+    showError = false;
+  } catch (e) {
+    errorMessage = `Unable to install ${cliTool.displayName} to version ${versionToInstall}.`;
+    showError = true;
+  } finally {
+    cliToolInstallStatus.inProgress = false;
+    cliToolInstallStatus = cliToolInstallStatus;
   }
 }
 
@@ -79,20 +130,40 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             class="my-auto ml-3 break-words font-semibold text-[var(--pd-invert-content-header-text)]"
             aria-label="cli-name">{cliTool.name}</span>
         </div>
-        {#if cliTool.version && cliToolStatus}
+        {#if !cliTool.version && cliTool.canInstall && cliToolInstallStatus}
+          <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
+            <LoadingIconButton
+              action="install"
+              clickAction={() => {
+                if (cliTool.canInstall) {
+                  install(cliTool);
+                }
+              }}
+              icon={faCircleArrowDown}
+              leftPosition="left-[0.25rem]"
+              state={cliToolInstallStatus}
+              color="primary"
+              tooltip={`Install ${cliTool.displayName}`} />
+          </div>
+        {/if}
+        {#if cliTool.version && cliTool.canUpdate && cliToolUpdateStatus}
           <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
             <LoadingIconButton
               action="update"
               clickAction={() => {
-                if (cliTool.newVersion) {
+                if (cliTool.canUpdate) {
                   update(cliTool);
                 }
               }}
               icon={faCircleArrowUp}
               leftPosition="left-[0.25rem]"
-              state={cliToolStatus}
+              state={cliToolUpdateStatus}
               color="primary"
-              tooltip={!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`} />
+              tooltip={!cliTool.canUpdate
+                ? 'No updates'
+                : cliTool.newVersion
+                  ? `Update to v${cliTool.newVersion}`
+                  : 'Upgrade/Downgrade'} />
           </div>
         {/if}
       </div>
@@ -121,20 +192,45 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 {cliTool.name} v{cliTool.version}
               </div>
             </Tooltip>
-            {#if cliTool.newVersion}
+            {#if cliTool.canUpdate}
               <Button
                 type="link"
                 class="underline"
                 padding="p-0"
                 on:click={() => {
-                  if (cliTool.newVersion) {
+                  if (cliTool.canUpdate) {
                     update(cliTool);
                   }
                 }}
-                title={`${cliTool.displayName} will be updated to v${cliTool.newVersion}`}
-                disabled={!cliTool.newVersion}
+                title={`${cliTool.displayName} will be updated`}
+                disabled={!cliTool.canUpdate}
                 aria-label="Update available">
-                Update available
+                {`${cliTool.newVersion ? 'Update available' : 'Upgrade/Downgrade'}`}
+              </Button>
+            {/if}
+          </div>
+        {:else}
+          <div
+            class="flex flex-row justify-between align-center bg-[var(--pd-invert-content-bg)] p-2 rounded-lg min-w-[320px] w-fit">
+            <div
+              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
+              aria-label="no-cli-version">
+              No version detected
+            </div>
+            {#if cliTool.canInstall}
+              <Button
+                type="link"
+                class="underline"
+                padding="p-0"
+                on:click={() => {
+                  if (cliTool.canInstall) {
+                    install(cliTool);
+                  }
+                }}
+                title={`${cliTool.displayName} will be installed`}
+                disabled={!cliTool.canInstall}
+                aria-label={`Install ${cliTool.displayName}`}>
+                Install
               </Button>
             {/if}
           </div>
@@ -145,7 +241,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
   {#if showError}
     <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
       <Fa icon={faCircleXmark} class="mr-1 text-red-500" />
-      <span>Unable to update {cliTool.displayName} to version {cliTool.newVersion}. </span>
+      <span>{errorMessage}</span>
       <Button
         type="link"
         padding="p-0"

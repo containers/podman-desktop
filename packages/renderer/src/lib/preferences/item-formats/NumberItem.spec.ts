@@ -20,10 +20,14 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import NumberItem from './NumberItem.svelte';
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 test('Expect tooltip if value input is invalid', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
@@ -125,4 +129,26 @@ test('Expect decrement button only works one if minimum value is reached after o
   await userEvent.click(input);
 
   expect(input).toBeDisabled();
+});
+
+test('Expect zero value set correctly', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: -1,
+    maximum: 34,
+  };
+  const onChange = vi.fn();
+  const value = 1;
+  render(NumberItem, { record, value, onChange });
+
+  const input = screen.getByLabelText('decrement');
+  expect(input).toBeInTheDocument();
+  await userEvent.click(input);
+  vi.advanceTimersByTime(510);
+  expect(onChange).toHaveBeenCalledWith('record', 0);
 });

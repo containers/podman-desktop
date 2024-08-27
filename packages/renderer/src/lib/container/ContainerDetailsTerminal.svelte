@@ -1,11 +1,12 @@
 <script lang="ts">
-import 'xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { FitAddon } from '@xterm/addon-fit';
+import { SerializeAddon } from '@xterm/addon-serialize';
+import { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import { getExistingTerminal, registerTerminal } from '/@/stores/container-terminal-store';
 
@@ -20,6 +21,8 @@ let terminalXtermDiv: HTMLDivElement;
 let shellTerminal: Terminal;
 let currentRouterPath: string;
 let sendCallbackId: number | undefined;
+let terminalContent: string = '';
+let serializeAddon: SerializeAddon;
 
 // update current route scheme
 router.subscribe(route => {
@@ -50,24 +53,22 @@ async function executeShellIntoContainer() {
     return;
   }
 
-  if (!sendCallbackId) {
-    // grab logs of the container
-    const callbackId = await window.shellInContainer(
-      container.engineId,
-      container.id,
-      receiveDataCallback,
-      () => {},
-      receiveEndCallback,
-    );
-    await window.shellInContainerResize(callbackId, shellTerminal.cols, shellTerminal.rows);
-    // pass data from xterm to container
-    shellTerminal?.onData(data => {
-      window.shellInContainerSend(callbackId, data);
-    });
+  // grab logs of the container
+  const callbackId = await window.shellInContainer(
+    container.engineId,
+    container.id,
+    receiveDataCallback,
+    () => {},
+    receiveEndCallback,
+  );
+  await window.shellInContainerResize(callbackId, shellTerminal.cols, shellTerminal.rows);
+  // pass data from xterm to container
+  shellTerminal?.onData(data => {
+    window.shellInContainerSend(callbackId, data);
+  });
 
-    // store it
-    sendCallbackId = callbackId;
-  }
+  // store it
+  sendCallbackId = callbackId;
 }
 
 // refresh
@@ -88,24 +89,24 @@ async function refreshTerminal() {
   // get terminal if any
   const existingTerminal = getExistingTerminal(container.engineId, container.id);
 
+  shellTerminal = new Terminal({
+    fontSize,
+    lineHeight,
+    screenReaderMode,
+    theme: getTerminalTheme(),
+  });
   if (existingTerminal) {
-    sendCallbackId = existingTerminal.callbackId;
-    shellTerminal = existingTerminal.terminal;
     shellTerminal.options = {
       fontSize,
       lineHeight,
     };
-  } else {
-    shellTerminal = new Terminal({
-      fontSize,
-      lineHeight,
-      screenReaderMode,
-      theme: getTerminalTheme(),
-    });
+    shellTerminal.write(existingTerminal.terminal);
   }
 
   const fitAddon = new FitAddon();
+  serializeAddon = new SerializeAddon();
   shellTerminal.loadAddon(fitAddon);
+  shellTerminal.loadAddon(serializeAddon);
 
   shellTerminal.open(terminalXtermDiv);
 
@@ -126,13 +127,16 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  terminalContent = serializeAddon.serialize();
   // register terminal for reusing it
   registerTerminal({
     engineId: container.engineId,
     containerId: container.id,
-    terminal: shellTerminal,
+    terminal: terminalContent,
     callbackId: sendCallbackId,
   });
+  serializeAddon?.dispose();
+  shellTerminal?.dispose();
 });
 </script>
 

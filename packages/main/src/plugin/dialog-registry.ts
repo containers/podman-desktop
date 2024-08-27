@@ -87,6 +87,8 @@ export class DialogRegistry {
       // return the URIs if dialogId is not provided (call from main process)
       return paths;
     }
+
+    return undefined;
   }
 
   async saveDialog(options?: SaveDialogOptions, dialogId?: string): Promise<APIUri | undefined> {
@@ -123,5 +125,6 @@ export class DialogRegistry {
     } else {
       return fileUri;
     }
+    return undefined;
   }
 }

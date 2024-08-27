@@ -88,7 +88,7 @@ declare module '@podman-desktop/api' {
      * on dispose.
      * @param callOnDispose Function that disposes something.
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     constructor(callOnDispose: Function);
 
     /**
@@ -139,7 +139,7 @@ declare module '@podman-desktop/api' {
     event: Event<T>;
     /**
      * To fire an event to the subscribers
-     * @param event The event to send to the registered listeners
+     * @param data The event to send to the registered listeners
      */
     fire(data: T): void;
     /**
@@ -2114,7 +2114,6 @@ declare module '@podman-desktop/api' {
 
     /**
      * Add a KubernetesGenerator to KubernetesGeneratorRegistry
-     * @param selector
      * @param provider the custom provider to add
      */
     export function registerKubernetesGenerator(provider: KubernetesGeneratorProvider): Disposable;
@@ -2914,7 +2913,7 @@ declare module '@podman-desktop/api' {
     /**
      * An object mapping ports to an empty object in the form: `{"<port>/<tcp|udp|sctp>": {}}`
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     ExposedPorts?: { [port: string]: {} };
 
     /**
@@ -3953,7 +3952,7 @@ declare module '@podman-desktop/api' {
      * @param id The unique identifier of the provider.
      * @param label The human-readable name of the provider.
      * @param provider The authentication provider provider.
-     * @params options Additional options for the provider.
+     * @param options Additional options for the provider.
      * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
      */
     export function registerAuthenticationProvider(
@@ -4007,7 +4006,7 @@ declare module '@podman-desktop/api' {
     /**
      * Opens a link externally using the default application. Depending on the
      *
-     * @param target The uri that should be opened.
+     * @param uri The uri that should be opened.
      * @returns A promise indicating if open was successful.
      */
     export function openExternal(uri: Uri): Promise<boolean>;
@@ -4301,6 +4300,8 @@ declare module '@podman-desktop/api' {
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 
+  export type CliToolInstallationSource = 'extension' | 'external';
+
   /**
    * Options to create new CliTool instance and register it in podman desktop
    */
@@ -4317,9 +4318,17 @@ declare module '@podman-desktop/api' {
      * Passing in path will also help to show where the CLI tool is expected to be installed.
      * This is usually the ~/.local/share/containers/podman-desktop/extensions-storage directory.
      * Note: The expected value should not include 'v'.
+     * Note: If the version and path are not defined (= the tool is not installed), the install logic should be implemented
      */
-    version: string;
-    path: string;
+    version?: string;
+    path?: string;
+
+    /**
+     * How the cli tool has been installed
+     * - external: it has been installed by the user externally from podman desktop. Its update process is disable.
+     * - extension: it has been installed by podman desktop extension. It can be updated
+     */
+    installationSource?: CliToolInstallationSource;
   }
 
   /**
@@ -4331,11 +4340,22 @@ declare module '@podman-desktop/api' {
     markdownDescription?: string;
     images?: ProviderImages;
     path?: string;
+    installationSource?: CliToolInstallationSource;
   }
 
   export interface CliToolUpdate {
     version: string;
     doUpdate: (logger: Logger) => Promise<void>;
+  }
+
+  export interface CliToolSelectUpdate {
+    selectVersion: () => Promise<string>;
+    doUpdate: (logger: Logger) => Promise<void>;
+  }
+
+  export interface CliToolInstaller {
+    selectVersion: () => Promise<string>;
+    doInstall: (logger: Logger) => Promise<void>;
   }
 
   export type CliToolState = 'registered';
@@ -4356,7 +4376,10 @@ declare module '@podman-desktop/api' {
     onDidUpdateVersion: Event<string>;
 
     // register cli update flow
-    registerUpdate(update: CliToolUpdate): Disposable;
+    registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
+
+    // register cli installer
+    registerInstaller(installer: CliToolInstaller): Disposable;
   }
 
   /**

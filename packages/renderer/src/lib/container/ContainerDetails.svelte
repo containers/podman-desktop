@@ -1,5 +1,5 @@
 <script lang="ts">
-import 'xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 
 import { ErrorMessage, Link, StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
@@ -69,6 +69,7 @@ onMount(() => {
     <StatusIcon slot="icon" icon={ContainerIcon} size={24} status={container.state} />
     <svelte:fragment slot="subtitle">
       <Link
+        aria-label="Image Details"
         on:click={() => {
           if (container.imageHref) {
             router.goto(container.imageHref);

@@ -44,9 +44,7 @@ const config: StorybookConfig = {
     name: getAbsolutePath('@storybook/svelte-vite'),
     options: {},
   },
-  docs: {
-    autodocs: 'tag',
-  },
+  docs: {},
   // @ts-ignore
   css: {
     postcss: {

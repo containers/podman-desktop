@@ -69,7 +69,6 @@ const _shutdown = async function (): Promise<void> {
 
 beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
-  ctx.task.fails;
 });
 
 describe.each([

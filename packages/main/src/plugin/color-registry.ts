@@ -96,7 +96,7 @@ export class ColorRegistry {
       for (const colorDefinitionId of this.#definitions.keys()) {
         // get the color from the theme
         // need to convert kebab-case to camelCase as in json it's contributed with camelCase
-        const camelCaseColorDefinitionId = colorDefinitionId.replace(/-([a-z])/g, g => g[1].toUpperCase());
+        const camelCaseColorDefinitionId = colorDefinitionId.replace(/-([a-z])/g, g => (g[1] ?? '').toUpperCase());
         let color: string | undefined = theme.colors[camelCaseColorDefinitionId];
         if (!color) {
           color = parentTheme?.get(colorDefinitionId);

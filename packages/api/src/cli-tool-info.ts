@@ -35,4 +35,6 @@ export interface CliToolInfo {
   version?: string;
   path?: string;
   newVersion?: string;
+  canUpdate: boolean;
+  canInstall: boolean;
 }

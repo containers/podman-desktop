@@ -17,13 +17,9 @@
  ***********************************************************************/
 
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
-import type { ProviderRegistry } from './provider-registry.js';
 
 export class TrayIconColor {
-  constructor(
-    private configurationRegistry: ConfigurationRegistry,
-    private providerRegistry: ProviderRegistry,
-  ) {}
+  constructor(private configurationRegistry: ConfigurationRegistry) {}
 
   async init(): Promise<void> {
     // add configuration

@@ -25,14 +25,21 @@ import * as port from './port.js';
 
 const hosts = ['127.0.0.1', '0.0.0.0'];
 
+function getInt(val: string | undefined): number {
+  if (!val) {
+    throw new Error('Value is empty');
+  }
+  return parseInt(val);
+}
+
 test('return valid port range', async () => {
   const range = await port.getFreePortRange(3);
 
   const rangeValues = range.split('-');
   expect(rangeValues.length).toBe(2);
 
-  const startRange = parseInt(rangeValues[0]);
-  const endRange = parseInt(rangeValues[1]);
+  const startRange = getInt(rangeValues[0]);
+  const endRange = getInt(rangeValues[1]);
 
   expect(isNaN(startRange)).toBe(false);
   expect(isNaN(endRange)).toBe(false);
@@ -50,8 +57,8 @@ test.each(hosts)(
     const rangeValues = range.split('-');
     expect(rangeValues.length).toBe(2);
 
-    const startRange = parseInt(rangeValues[0]);
-    const endRange = parseInt(rangeValues[1]);
+    const startRange = getInt(rangeValues[0]);
+    const endRange = getInt(rangeValues[1]);
 
     expect(isNaN(startRange)).toBe(false);
     expect(isNaN(endRange)).toBe(false);
@@ -69,8 +76,8 @@ test.each(hosts)(
     const newRangeValues = newRange.split('-');
     expect(newRangeValues.length).toBe(2);
 
-    const startNewRange = parseInt(newRangeValues[0]);
-    const endNewRange = parseInt(newRangeValues[1]);
+    const startNewRange = getInt(newRangeValues[0]);
+    const endNewRange = getInt(newRangeValues[1]);
 
     expect(isNaN(startNewRange)).toBe(false);
     expect(isNaN(endNewRange)).toBe(false);

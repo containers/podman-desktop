@@ -16,8 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IncomingMessage } from 'node:http';
-
 import type {
   Cluster,
   Context,
@@ -25,7 +23,6 @@ import type {
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
-  ObjectCache,
   User,
   V1ConfigMap,
   V1ConfigMapList,
@@ -71,7 +68,7 @@ import {
 const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
 
 // ContextInternalState stores informers for a kube context
-type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;
+type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
 
 // CheckingState indicates the state of the check for a context
 export interface CheckingState {
@@ -88,7 +85,7 @@ interface ContextState {
 }
 
 // A selection of resources, to indicate the 'general' status of a context
-const selectedResources = ['pods', 'deployments'] as const;
+type selectedResources = ['pods', 'deployments'];
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
@@ -102,7 +99,7 @@ const secondaryResources = [
   'persistentvolumeclaims',
 ] as const;
 
-export type SelectedResourceName = (typeof selectedResources)[number];
+export type SelectedResourceName = selectedResources[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
 export type ResourceName = SelectedResourceName | SecondaryResourceName;
 
@@ -223,11 +220,7 @@ export class ContextsStates {
     }
   }
 
-  setResourceInformer(
-    contextName: string,
-    resourceName: ResourceName,
-    informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
-  ): void {
+  setResourceInformer(contextName: string, resourceName: ResourceName, informer: Informer<KubernetesObject>): void {
     const informers = this.informers.get(contextName);
     if (!informers) {
       throw new Error(`watchers for context ${contextName} not found`);
@@ -592,7 +585,7 @@ export class ContextsManager {
     });
 
     const ns = context.namespace ?? 'default';
-    const result = new Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>();
+    const result = new Map<ResourceName, Informer<KubernetesObject>>();
     result.set('pods', this.createPodInformer(kc, ns, context));
     result.set('deployments', this.createDeploymentInformer(kc, ns, context));
     return result;
@@ -605,7 +598,7 @@ export class ContextsManager {
     }
     const kubeContext: KubeContext = this.getKubeContext(context);
     const ns = context.namespace ?? 'default';
-    let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
+    let informer: Informer<KubernetesObject>;
     switch (resourceName) {
       case 'services':
         informer = this.createServiceInformer(this.kubeConfig, ns, kubeContext);
@@ -646,10 +639,10 @@ export class ContextsManager {
     };
   }
 
-  private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
+  private createPodInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Pod> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{ response: IncomingMessage; body: V1PodList }> => k8sApi.listNamespacedPod(ns);
-    const path = `/api/v1/namespaces/${ns}/pods`;
+    const listFn = (): Promise<V1PodList> => k8sApi.listNamespacedPod({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/pods`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('pods', timer, connectionDelay);
@@ -698,17 +691,10 @@ export class ContextsManager {
     });
   }
 
-  private createDeploymentInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1Deployment> & ObjectCache<V1Deployment> {
+  private createDeploymentInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Deployment> {
     const k8sApi = kc.makeApiClient(AppsV1Api);
-    const listFn = (): Promise<{
-      response: IncomingMessage;
-      body: V1DeploymentList;
-    }> => k8sApi.listNamespacedDeployment(ns);
-    const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
+    const listFn = (): Promise<V1DeploymentList> => k8sApi.listNamespacedDeployment({ namespace });
+    const path = `/apis/apps/v1/namespaces/${namespace}/deployments`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('deployments', timer, connectionDelay);
@@ -743,15 +729,10 @@ export class ContextsManager {
     });
   }
 
-  public createConfigMapInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1ConfigMap> & ObjectCache<V1ConfigMap> {
+  public createConfigMapInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1ConfigMap> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{ response: IncomingMessage; body: V1ConfigMapList }> =>
-      k8sApi.listNamespacedConfigMap(ns);
-    const path = `/api/v1/namespaces/${ns}/configmaps`;
+    const listFn = (): Promise<V1ConfigMapList> => k8sApi.listNamespacedConfigMap({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/configmaps`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('configmaps', timer, connectionDelay);
@@ -786,14 +767,10 @@ export class ContextsManager {
     });
   }
 
-  public createSecretInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1Secret> & ObjectCache<V1Secret> {
+  public createSecretInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Secret> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{ response: IncomingMessage; body: V1SecretList }> => k8sApi.listNamespacedSecret(ns);
-    const path = `/api/v1/namespaces/${ns}/secrets`;
+    const listFn = (): Promise<V1SecretList> => k8sApi.listNamespacedSecret({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/secrets`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('secrets', timer, connectionDelay);
@@ -828,13 +805,13 @@ export class ContextsManager {
 
   public createPersistentVolumeClaimInformer(
     kc: KubeConfig,
-    ns: string,
+    namespace: string,
     context: KubeContext,
-  ): Informer<V1PersistentVolumeClaim> & ObjectCache<V1PersistentVolumeClaim> {
+  ): Informer<V1PersistentVolumeClaim> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{ response: IncomingMessage; body: V1PersistentVolumeClaimList }> =>
-      k8sApi.listNamespacedPersistentVolumeClaim(ns);
-    const path = `/api/v1/namespaces/${ns}/persistentvolumeclaims`;
+    const listFn = (): Promise<V1PersistentVolumeClaimList> =>
+      k8sApi.listNamespacedPersistentVolumeClaim({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/persistentvolumeclaims`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('persistentvolumeclaims', timer, connectionDelay);
@@ -871,9 +848,9 @@ export class ContextsManager {
     });
   }
 
-  public createNodeInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Node> & ObjectCache<V1Node> {
+  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): Informer<V1Node> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{ response: IncomingMessage; body: V1NodeList }> => k8sApi.listNode();
+    const listFn = (): Promise<V1NodeList> => k8sApi.listNode();
     const path = '/api/v1/nodes';
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
@@ -904,17 +881,10 @@ export class ContextsManager {
     });
   }
 
-  public createServiceInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1Service> & ObjectCache<V1Service> {
+  public createServiceInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Service> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = (): Promise<{
-      response: IncomingMessage;
-      body: V1ServiceList;
-    }> => k8sApi.listNamespacedService(ns);
-    const path = `/api/v1/namespaces/${ns}/services`;
+    const listFn = (): Promise<V1ServiceList> => k8sApi.listNamespacedService({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/services`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('services', timer, connectionDelay);
@@ -947,17 +917,10 @@ export class ContextsManager {
     });
   }
 
-  public createIngressInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1Ingress> & ObjectCache<V1Ingress> {
+  public createIngressInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Ingress> {
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-    const listFn = (): Promise<{
-      response: IncomingMessage;
-      body: V1IngressList;
-    }> => k8sNetworkingApi.listNamespacedIngress(ns);
-    const path = `/apis/networking.k8s.io/v1/namespaces/${ns}/ingresses`;
+    const listFn = (): Promise<V1IngressList> => k8sNetworkingApi.listNamespacedIngress({ namespace });
+    const path = `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('ingresses', timer, connectionDelay);
@@ -990,21 +953,16 @@ export class ContextsManager {
     });
   }
 
-  public createRouteInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1Route> & ObjectCache<V1Route> {
+  public createRouteInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Route> {
     const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
-    const listFn = (): Promise<{
-      response: IncomingMessage;
-      body: KubernetesListObject<V1Route>;
-    }> =>
-      customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
-        response: IncomingMessage;
-        body: KubernetesListObject<V1Route>;
-      }>;
-    const path = `/apis/route.openshift.io/v1/namespaces/${ns}/routes`;
+    const listFn = (): Promise<KubernetesListObject<V1Route>> =>
+      customObjectsApi.listNamespacedCustomObject({
+        group: 'route.openshift.io',
+        version: 'v1',
+        namespace,
+        plural: 'routes',
+      }) as Promise<KubernetesListObject<V1Route>>;
+    const path = `/apis/route.openshift.io/v1/namespaces/${namespace}/routes`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
     this.setConnectionTimers('routes', timer, connectionDelay);
@@ -1047,7 +1005,7 @@ export class ContextsManager {
     path: string,
     listPromiseFn: ListPromise<T>,
     options: CreateInformerOptions<T>,
-  ): Informer<T> & ObjectCache<T> {
+  ): Informer<T> {
     const informer = makeInformer(kc, path, listPromiseFn);
 
     informer.on('add', (obj: T) => {
@@ -1133,7 +1091,7 @@ export class ContextsManager {
   }
 
   private restartInformer<T extends KubernetesObject>(
-    informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
+    informer: Informer<T>,
     context: KubeContext,
     options: CreateInformerOptions<T>,
   ): void {

@@ -16,7 +16,8 @@ export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined
 export let counter: number | undefined = undefined;
 
 let inSection: boolean = false;
-let uri = encodeURI(href);
+let uri: string;
+$: uri = encodeURI(href);
 let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 

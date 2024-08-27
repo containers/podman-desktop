@@ -69,7 +69,7 @@ test('Should pass proper providerId field', () => {
   menuRegistry.registerProviderMenuItem('testId', menuItem);
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const lastIpcArguments = ipcEmit.mock.lastCall!;
-  expect(lastIpcArguments).is.not.undefined;
+  expect(lastIpcArguments).not.toBeUndefined();
   expect(lastIpcArguments[0]).eqls('tray:add-provider-menu-item');
   expect(lastIpcArguments[1]).eqls('');
   expect(lastIpcArguments[2]).eqls({ providerId: 'testId', menuItem: menuItem });

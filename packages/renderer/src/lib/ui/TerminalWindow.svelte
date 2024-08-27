@@ -1,14 +1,17 @@
 <script lang="ts">
-import 'xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
 import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let terminal: Terminal;
+export let convertEol: boolean | undefined = undefined;
+export let disableStdIn: boolean = true;
+export let screenReaderMode: boolean | undefined = undefined;
 
 let logsXtermDiv: HTMLDivElement;
 let resizeHandler: () => void;
@@ -28,7 +31,14 @@ async function refreshTerminal(): Promise<void> {
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
-  terminal = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme() });
+  terminal = new Terminal({
+    fontSize,
+    lineHeight,
+    disableStdin: disableStdIn,
+    theme: getTerminalTheme(),
+    convertEol: convertEol,
+    screenReaderMode: screenReaderMode,
+  });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
 

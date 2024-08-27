@@ -27,6 +27,8 @@ import type {
   Context,
   KubernetesListObject,
   KubernetesObject,
+  RequestContext,
+  ResponseContext,
   V1APIGroup,
   V1APIResource,
   V1ConfigMap,
@@ -49,9 +51,10 @@ import {
   AppsV1Api,
   BatchV1Api,
   CoreV1Api,
+  createConfiguration,
   CustomObjectsApi,
   Exec,
-  HttpError,
+  FetchError,
   KubeConfig,
   KubernetesObjectApi,
   Log,
@@ -59,6 +62,7 @@ import {
   VersionApi,
   Watch,
 } from '@kubernetes/client-node';
+import { PromiseMiddlewareWrapper } from '@kubernetes/client-node/dist/gen/middleware.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 import { parseAllDocuments } from 'yaml';
@@ -297,7 +301,7 @@ export class KubernetesClient {
     try {
       if (this.kubeConfig) {
         const result = await this.kubeConfig.makeApiClient(ApisApi).getAPIVersions();
-        this.apiGroups = result?.body.groups;
+        this.apiGroups = result?.groups;
       }
     } catch (err) {
       console.log(`Error while fetching API groups: ${err}`);
@@ -433,7 +437,7 @@ export class KubernetesClient {
       if (projectGroupSupported) {
         const projects = await ctx
           .makeApiClient(CustomObjectsApi)
-          .listClusterCustomObject(OPENSHIFT_PROJECT_API_GROUP, 'v1', 'projects');
+          .listClusterCustomObject({ group: OPENSHIFT_PROJECT_API_GROUP, version: 'v1', plural: 'projects' });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((projects?.body as any)?.items.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -443,8 +447,8 @@ export class KubernetesClient {
     } catch (err) {
       try {
         const namespaces = await ctx.makeApiClient(CoreV1Api).listNamespace();
-        if (namespaces?.body?.items.length > 0) {
-          namespace = namespaces?.body?.items[0].metadata?.name;
+        if (namespaces?.items.length > 0) {
+          namespace = namespaces?.items[0]?.metadata?.name;
         }
       } catch (error) {
         // unable to list namespaces, can be due to a connection refused (cluster not up)
@@ -502,8 +506,7 @@ export class KubernetesClient {
     const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
 
     try {
-      const createdPodData = await k8sCoreApi.createNamespacedPod(namespace, body);
-      return createdPodData.body;
+      return await k8sCoreApi.createNamespacedPod({ namespace, body });
     } catch (error) {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
@@ -517,8 +520,7 @@ export class KubernetesClient {
     const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
 
     try {
-      const createdPodData = await k8sCoreApi.createNamespacedService(namespace, body);
-      return createdPodData.body;
+      return await k8sCoreApi.createNamespacedService({ namespace, body });
     } catch (error) {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
@@ -532,8 +534,7 @@ export class KubernetesClient {
     const k8sCoreApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
 
     try {
-      const createdIngressData = await k8sCoreApi.createNamespacedIngress(namespace, body);
-      return createdIngressData.body;
+      return await k8sCoreApi.createNamespacedIngress({ namespace, body });
     } catch (error) {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
@@ -547,14 +548,13 @@ export class KubernetesClient {
     const k8sCustomObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
 
     try {
-      const createdPodData = await k8sCustomObjectsApi.createNamespacedCustomObject(
-        'route.openshift.io',
-        'v1',
+      return await k8sCustomObjectsApi.createNamespacedCustomObject({
+        group: 'route.openshift.io',
+        version: 'v1',
         namespace,
-        'routes',
+        plural: 'routes',
         body,
-      );
-      return createdPodData.body as V1Route;
+      });
     } catch (error) {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
@@ -566,21 +566,11 @@ export class KubernetesClient {
   async listNamespacedPod(namespace: string, fieldSelector?: string, labelSelector?: string): Promise<V1PodList> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.listNamespacedPod(
+      return await k8sApi.listNamespacedPod({
         namespace,
-        undefined,
-        undefined,
-        undefined,
         fieldSelector,
         labelSelector,
-      );
-      if (res?.body) {
-        return res.body;
-      } else {
-        return {
-          items: [],
-        };
-      }
+      });
     } catch (error) {
       throw this.wrapK8sClientError(error);
     }
@@ -599,15 +589,15 @@ export class KubernetesClient {
 
   // List all deployments
   async listDeployments(): Promise<V1Deployment[]> {
-    const ns = this.getCurrentNamespace();
+    const namespace = this.getCurrentNamespace();
     // Only retrieve deployments if valid namespace && valid connection, otherwise we will return an empty array
     const connected = await this.checkConnection();
-    if (ns && connected) {
+    if (namespace && connected) {
       // Get the deployments via the kubernetes api
       try {
         const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        const deployments = await k8sAppsApi.listNamespacedDeployment(ns);
-        return deployments.body.items;
+        const deployments = await k8sAppsApi.listNamespacedDeployment({ namespace });
+        return deployments.items;
       } catch (_) {
         // do nothing
       }
@@ -617,15 +607,15 @@ export class KubernetesClient {
 
   // List all ingresses
   async listIngresses(): Promise<V1Ingress[]> {
-    const ns = this.getCurrentNamespace();
+    const namespace = this.getCurrentNamespace();
     // Only retrieve ingresses if valid namespace && valid connection, otherwise we will return an empty array
     const connected = await this.checkConnection();
-    if (ns && connected) {
+    if (namespace && connected) {
       // Get the ingresses via the kubernetes api
       try {
         const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-        const ingresses = await k8sNetworkingApi.listNamespacedIngress(ns);
-        return ingresses.body.items;
+        const ingresses = await k8sNetworkingApi.listNamespacedIngress({ namespace });
+        return ingresses.items;
       } catch (_) {
         // do nothing
       }
@@ -635,15 +625,20 @@ export class KubernetesClient {
 
   // List all routes
   async listRoutes(): Promise<V1Route[]> {
-    const ns = this.getCurrentNamespace();
+    const namespace = this.getCurrentNamespace();
     // Only retrieve routes if valid namespace && valid connection, otherwise we will return an empty array
     const connected = await this.checkConnection();
-    if (ns && connected) {
+    if (namespace && connected) {
       try {
         // Get the routes via the kubernetes api
         const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
-        const routes = await customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes');
-        const body = routes.body as KubernetesListObject<V1Route>;
+        const routes = await customObjectsApi.listNamespacedCustomObject({
+          group: 'route.openshift.io',
+          version: 'v1',
+          namespace,
+          plural: 'routes',
+        });
+        const body = routes as KubernetesListObject<V1Route>;
         return body.items;
       } catch (_) {
         // catch 404 error
@@ -655,15 +650,15 @@ export class KubernetesClient {
 
   // List all services
   async listServices(): Promise<V1Service[]> {
-    const ns = this.getCurrentNamespace();
+    const namespace = this.getCurrentNamespace();
     // Only retrieve services if valid namespace && valid connection, otherwise we will return an empty array
     const connected = await this.checkConnection();
-    if (ns && connected) {
+    if (namespace && connected) {
       // Get the services via the kubernetes api
       try {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        const services = await k8sApi.listNamespacedService(ns);
-        return services.body.items;
+        const services = await k8sApi.listNamespacedService({ namespace });
+        return services.items;
       } catch (_) {
         // do nothing
       }
@@ -691,10 +686,10 @@ export class KubernetesClient {
   async deletePod(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.currentNamespace;
-      if (ns) {
+      const namespace = this.currentNamespace;
+      if (namespace) {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        await k8sApi.deleteNamespacedPod(name, ns);
+        await k8sApi.deleteNamespacedPod({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -707,12 +702,12 @@ export class KubernetesClient {
   async deleteDeployment(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete deployment if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        await k8sAppsApi.deleteNamespacedDeployment(name, ns);
+        await k8sAppsApi.deleteNamespacedDeployment({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -725,12 +720,12 @@ export class KubernetesClient {
   async deleteConfigMap(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete config map if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        await k8sApi.deleteNamespacedConfigMap(name, ns);
+        await k8sApi.deleteNamespacedConfigMap({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -743,12 +738,12 @@ export class KubernetesClient {
   async deleteSecret(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete secret if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        await k8sApi.deleteNamespacedSecret(name, ns);
+        await k8sApi.deleteNamespacedSecret({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -761,12 +756,12 @@ export class KubernetesClient {
   async deletePersistentVolumeClaim(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete PVC if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        await k8sApi.deleteNamespacedPersistentVolumeClaim(name, ns);
+        await k8sApi.deleteNamespacedPersistentVolumeClaim({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -779,12 +774,12 @@ export class KubernetesClient {
   async deleteIngress(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete ingress if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const networkingK8sApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-        await networkingK8sApi.deleteNamespacedIngress(name, ns);
+        await networkingK8sApi.deleteNamespacedIngress({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -797,12 +792,18 @@ export class KubernetesClient {
   async deleteRoute(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete route if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
-        await customObjectsApi.deleteNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes', name);
+        await customObjectsApi.deleteNamespacedCustomObject({
+          group: 'route.openshift.io',
+          version: 'v1',
+          namespace,
+          plural: 'routes',
+          name,
+        });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -815,12 +816,12 @@ export class KubernetesClient {
   async deleteService(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      const ns = this.getCurrentNamespace();
+      const namespace = this.getCurrentNamespace();
       // Only delete service if valid namespace && valid connection
       const connected = await this.checkConnection();
-      if (ns && connected) {
+      if (namespace && connected) {
         const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        await k8sApi.deleteNamespacedService(name, ns);
+        await k8sApi.deleteNamespacedService({ name, namespace });
       }
     } catch (error) {
       telemetryOptions = { error: error };
@@ -833,11 +834,11 @@ export class KubernetesClient {
   async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNamespacedPod(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sApi.readNamespacedPod({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedPod.error', error);
       throw this.wrapK8sClientError(error);
@@ -847,11 +848,11 @@ export class KubernetesClient {
   async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment | undefined> {
     const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
     try {
-      const res = await k8sAppsApi.readNamespacedDeployment(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sAppsApi.readNamespacedDeployment({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedDeployment.error', error);
       throw this.wrapK8sClientError(error);
@@ -864,11 +865,11 @@ export class KubernetesClient {
   ): Promise<V1PersistentVolumeClaim | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNamespacedPersistentVolumeClaim(name, namespace);
-      if (res?.body?.metadata?.managedFields) {
-        delete res?.body.metadata?.managedFields;
+      const res = await k8sApi.readNamespacedPersistentVolumeClaim({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res?.metadata?.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedPersistentVolumeClaim.error', error);
       throw this.wrapK8sClientError(error);
@@ -878,11 +879,11 @@ export class KubernetesClient {
   async readNode(name: string): Promise<V1Node | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNode(name);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sApi.readNode({ name });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNode.error', error);
       throw this.wrapK8sClientError(error);
@@ -892,11 +893,11 @@ export class KubernetesClient {
   async readNamespacedIngress(name: string, namespace: string): Promise<V1Ingress | undefined> {
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
     try {
-      const res = await k8sNetworkingApi.readNamespacedIngress(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sNetworkingApi.readNamespacedIngress({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedIngress.error', error);
       throw this.wrapK8sClientError(error);
@@ -906,13 +907,13 @@ export class KubernetesClient {
   async readNamespacedRoute(name: string, namespace: string): Promise<V1Route | undefined> {
     const k8sCustomObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
     try {
-      const res = await k8sCustomObjectsApi.getNamespacedCustomObject(
-        'route.openshift.io',
-        'v1',
+      const res = await k8sCustomObjectsApi.getNamespacedCustomObject({
+        group: 'route.openshift.io',
+        version: 'v1',
         namespace,
-        'routes',
+        plural: 'routes',
         name,
-      );
+      });
       const route = res?.body as V1Route;
       if (route?.metadata?.managedFields) {
         delete route.metadata.managedFields;
@@ -927,11 +928,11 @@ export class KubernetesClient {
   async readNamespacedService(name: string, namespace: string): Promise<V1Service | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNamespacedService(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sApi.readNamespacedService({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedService.error', error);
       throw this.wrapK8sClientError(error);
@@ -941,11 +942,11 @@ export class KubernetesClient {
   async readNamespacedConfigMap(name: string, namespace: string): Promise<V1ConfigMap | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNamespacedConfigMap(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sApi.readNamespacedConfigMap({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedConfigMap.error', error);
       throw this.wrapK8sClientError(error);
@@ -955,11 +956,11 @@ export class KubernetesClient {
   async readNamespacedSecret(name: string, namespace: string): Promise<V1Secret | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
-      const res = await k8sApi.readNamespacedSecret(name, namespace);
-      if (res.body?.metadata?.managedFields) {
-        delete res.body.metadata.managedFields;
+      const res = await k8sApi.readNamespacedSecret({ name, namespace });
+      if (res?.metadata?.managedFields) {
+        delete res.metadata.managedFields;
       }
-      return res?.body;
+      return res;
     } catch (error) {
       this.telemetry.track('kubernetesReadNamespacedSecret.error', error);
       throw this.wrapK8sClientError(error);
@@ -969,14 +970,7 @@ export class KubernetesClient {
   async listNamespaces(): Promise<V1NamespaceList> {
     try {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-      const res = await k8sApi.listNamespace();
-      if (res?.body) {
-        return res.body;
-      } else {
-        return {
-          items: [],
-        };
-      }
+      return await k8sApi.listNamespace();
     } catch (error) {
       throw this.wrapK8sClientError(error);
     }
@@ -1028,11 +1022,12 @@ export class KubernetesClient {
    */
   groupAndVersion(apiVersion: string): { group: string; version: string } {
     const v = apiVersion.split('/');
-    if (v.length === 1) {
+    if (v.length === 1 && v[0]) {
       return { group: '', version: v[0] };
-    } else {
+    } else if (v.length > 1 && v[0] && v[1]) {
       return { group: v[0], version: v[1] };
     }
+    throw new Error(`Invalid apiVersion: ${apiVersion}`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1056,17 +1051,17 @@ export class KubernetesClient {
     } else if (manifest.kind === 'PersistentVolumeClaim') {
       return client.createNamespacedPersistentVolumeClaim(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'PodBinding') {
-      return client.createNamespacedPodBinding(
-        manifest.metadata.name,
-        optionalNamespace ?? manifest.metadata.namespace,
-        manifest,
-      );
+      return client.createNamespacedPodBinding({
+        name: manifest.metadata.name,
+        namespace: optionalNamespace ?? manifest.metadata.namespace,
+        body: manifest,
+      });
     } else if (manifest.kind === 'PodEviction') {
-      return client.createNamespacedPodEviction(
-        manifest.metadata.name,
-        optionalNamespace ?? manifest.metadata.namespace,
-        manifest,
-      );
+      return client.createNamespacedPodEviction({
+        name: manifest.metadata.name,
+        namespace: optionalNamespace ?? manifest.metadata.namespace,
+        body: manifest,
+      });
     } else if (manifest.kind === 'PodTemplate') {
       return client.createNamespacedPodTemplate(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ReplicationController') {
@@ -1078,11 +1073,11 @@ export class KubernetesClient {
     } else if (manifest.kind === 'ServiceAccount') {
       return client.createNamespacedServiceAccount(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ServiceAccountToken') {
-      return client.createNamespacedServiceAccountToken(
-        manifest.metadata.name,
-        optionalNamespace ?? manifest.metadata.namespace,
-        manifest,
-      );
+      return client.createNamespacedServiceAccountToken({
+        name: manifest.metadata.name,
+        namespace: optionalNamespace ?? manifest.metadata.namespace,
+        body: manifest,
+      });
     }
     return Promise.reject(new Error(`Unsupported kind ${manifest.kind}`));
   }
@@ -1098,9 +1093,14 @@ export class KubernetesClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     if (namespace) {
-      return client.createNamespacedCustomObject(group, version, namespace, plural, manifest);
+      return client.createNamespacedCustomObject({ group, version, namespace, plural, body: manifest });
     } else {
-      return client.createClusterCustomObject(group, version, manifest.kind.toLowerCase() + 's', manifest);
+      return client.createClusterCustomObject({
+        group,
+        version,
+        plural: manifest.kind.toLowerCase() + 's',
+        body: manifest,
+      });
     }
   }
 
@@ -1126,7 +1126,11 @@ export class KubernetesClient {
   ): Promise<V1APIResource> {
     let apiResources = this.apiResources.get(apiGroup.group + '/' + apiGroup.version);
     if (!apiResources) {
-      const response = await client.listClusterCustomObject(apiGroup.group, apiGroup.version, '');
+      const response = await client.listClusterCustomObject({
+        group: apiGroup.group,
+        version: apiGroup.version,
+        plural: '',
+      });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       apiResources = (response.body as any).resources;
       this.apiResources.set(apiGroup.group + '/' + apiGroup.version, apiResources as V1APIResource[]);
@@ -1276,7 +1280,7 @@ export class KubernetesClient {
       action: action,
     };
     if (namespace) {
-      telemetryOptions.namespace = namespace;
+      telemetryOptions['namespace'] = namespace;
     }
 
     try {
@@ -1317,24 +1321,24 @@ export class KubernetesClient {
               undefined /* dryRun */,
               FIELD_MANAGER /* fieldManager */,
             );
-            created.push(response.body);
+            created.push(response);
           }
         } catch (error) {
           // we did not get the resource, so it does not exist: create it
           const response = await client.create(spec);
-          created.push(response.body);
+          created.push(response);
         }
       }
       return created;
     } catch (error: unknown) {
-      telemetryOptions.error = error;
-      if (error instanceof HttpError) {
-        const httpError = error as HttpError;
+      telemetryOptions['error'] = error;
+      if (error instanceof FetchError) {
+        const httpError = error as FetchError;
 
         // If there is a "message" in the body of the http error, throw that
         // as that's where Kubernetes tends to put the error message
-        if (httpError.body?.message) {
-          throw new Error(httpError.body.message);
+        if (httpError.message) {
+          throw new Error(httpError.message);
         }
 
         // Otherwise, throw the "generic" HTTP error message
@@ -1343,7 +1347,7 @@ export class KubernetesClient {
         }
 
         // If all else fails, throw the body of the error
-        throw new Error(httpError.body);
+        throw new Error(httpError.message);
       }
       throw error;
     } finally {
@@ -1481,7 +1485,7 @@ export class KubernetesClient {
 
   protected async restartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
     const coreApi = this.kubeConfig.makeApiClient(CoreV1Api);
-    await coreApi.deleteNamespacedPod(name, namespace);
+    await coreApi.deleteNamespacedPod({ name, namespace });
 
     const isDeleted = await this.waitForPodDeletion(coreApi, name, namespace);
     if (!isDeleted) {
@@ -1495,7 +1499,7 @@ export class KubernetesClient {
     delete pod.status;
 
     const newPod: V1Pod = { ...pod };
-    await coreApi.createNamespacedPod(namespace, newPod);
+    await coreApi.createNamespacedPod({ namespace, body: newPod });
   }
 
   protected async waitForPodDeletion(
@@ -1508,7 +1512,7 @@ export class KubernetesClient {
 
     while (Date.now() - startTime < timeout) {
       try {
-        await coreApi.readNamespacedPodStatus(name, namespace);
+        await coreApi.readNamespacedPodStatus({ name, namespace });
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (e) {
         const error = e ?? {};
@@ -1535,13 +1539,13 @@ export class KubernetesClient {
 
     let currentReplicas = 0;
     if (controllerType === 'Deployment') {
-      const { body: currentDeployment } = await appsApi.readNamespacedDeployment(controllerName, namespace);
+      const currentDeployment = await appsApi.readNamespacedDeployment({ name: controllerName, namespace });
       currentReplicas = currentDeployment.spec?.replicas ?? 1;
     } else if (controllerType === 'ReplicaSet') {
-      const { body: currentReplicaSet } = await appsApi.readNamespacedReplicaSet(controllerName, namespace);
+      const currentReplicaSet = await appsApi.readNamespacedReplicaSet({ name: controllerName, namespace });
       currentReplicas = currentReplicaSet.spec?.replicas ?? 1;
     } else if (controllerType === 'StatefulSet') {
-      const { body: currentStatefulSet } = await appsApi.readNamespacedStatefulSet(controllerName, namespace);
+      const currentStatefulSet = await appsApi.readNamespacedStatefulSet({ name: controllerName, namespace });
       currentReplicas = currentStatefulSet.spec?.replicas ?? 1;
     }
 
@@ -1559,41 +1563,36 @@ export class KubernetesClient {
     controllerType: ScalableControllerType,
     replicas: number,
   ): Promise<void> {
+    const headerPatchMiddleware = new PromiseMiddlewareWrapper({
+      pre: async (requestContext: RequestContext): Promise<RequestContext> => {
+        requestContext.setHeaderParam('Content-type', 'application/json-patch+json');
+        return requestContext;
+      },
+      post: async (context: ResponseContext): Promise<ResponseContext> => {
+        return context;
+      },
+    });
+
+    const configuration = createConfiguration({ middleware: [headerPatchMiddleware] });
+
     if (controllerType === 'Deployment') {
       await appsApi.patchNamespacedDeploymentScale(
-        controllerName,
-        namespace,
-        { spec: { replicas } },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+        { name: controllerName, namespace, body: { spec: { replicas } } },
+        configuration,
       );
     } else if (controllerType === 'ReplicaSet') {
       await appsApi.patchNamespacedReplicaSetScale(
-        controllerName,
-        namespace,
-        { spec: { replicas } },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+        {
+          name: controllerName,
+          namespace,
+          body: { spec: { replicas } },
+        },
+        configuration,
       );
     } else if (controllerType === 'StatefulSet') {
       await appsApi.patchNamespacedStatefulSetScale(
-        controllerName,
-        namespace,
-        { spec: { replicas } },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+        { name: controllerName, namespace, body: { spec: { replicas } } },
+        configuration,
       );
     }
   }
@@ -1602,8 +1601,13 @@ export class KubernetesClient {
     const batchApi = this.kubeConfig.makeApiClient(BatchV1Api);
     const coreApi = this.kubeConfig.makeApiClient(CoreV1Api);
 
-    const { body: existingJob } = await batchApi.readNamespacedJob(name, namespace);
-    await batchApi.deleteNamespacedJob(name, namespace, 'true', undefined, undefined, undefined, 'Background');
+    const existingJob = await batchApi.readNamespacedJob({ name, namespace });
+    await batchApi.deleteNamespacedJob({
+      name,
+      namespace,
+      pretty: 'true',
+      propagationPolicy: 'Background',
+    });
 
     const isJobDeleted = await this.waitForJobDeletion(batchApi, name, namespace);
     if (!isJobDeleted) {
@@ -1617,7 +1621,6 @@ export class KubernetesClient {
         `not all pods with selector "${labelSelector}" in namespace "${namespace}" were deleted within the expected timeframe`,
       );
     }
-
     delete existingJob.metadata!.creationTimestamp;
     delete existingJob.metadata!.resourceVersion;
     delete existingJob.metadata!.selfLink;
@@ -1638,7 +1641,7 @@ export class KubernetesClient {
       delete existingJob.metadata.labels['job-name'];
     }
 
-    await batchApi.createNamespacedJob(namespace, existingJob);
+    await batchApi.createNamespacedJob({ namespace, body: existingJob });
   }
 
   protected async waitForJobDeletion(
@@ -1651,7 +1654,7 @@ export class KubernetesClient {
 
     while (Date.now() - startTime < timeout) {
       try {
-        await batchApi.readNamespacedJobStatus(name, namespace);
+        await batchApi.readNamespacedJobStatus({ name, namespace });
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (e) {
         const error = e ?? {};
@@ -1677,14 +1680,7 @@ export class KubernetesClient {
     const startTime = Date.now();
 
     while (Date.now() - startTime < timeout) {
-      const { body: podList } = await coreApi.listNamespacedPod(
-        namespace,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        selector,
-      );
+      const podList = await coreApi.listNamespacedPod({ namespace, labelSelector: selector });
       if (podList.items.length === 0) {
         return true;
       }

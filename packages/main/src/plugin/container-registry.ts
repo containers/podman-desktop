@@ -453,7 +453,9 @@ export class ContainerProviderRegistry {
               if (podmanContainer.Labels) {
                 // copy all labels
                 for (const label of Object.keys(podmanContainer.Labels)) {
-                  Labels[label] = podmanContainer.Labels[label];
+                  if (podmanContainer.Labels[label]) {
+                    Labels[label] = podmanContainer.Labels[label];
+                  }
                 }
               }
 
@@ -970,7 +972,7 @@ export class ContainerProviderRegistry {
     });
 
     const matchingConnection = matchingContainerProviders[0];
-    if (!matchingConnection[1].api) {
+    if (!matchingConnection?.[1].api) {
       throw new Error('No provider with a running engine');
     }
 
@@ -1070,7 +1072,7 @@ export class ContainerProviderRegistry {
 
   getImageName(inspectInfo: Dockerode.ImageInspectInfo): string {
     const tags = inspectInfo.RepoTags;
-    if (!tags) {
+    if (!tags?.[0]) {
       throw new Error('Cannot push an image without a tag');
     }
     // take the first tag
@@ -1147,7 +1149,6 @@ export class ContainerProviderRegistry {
         authconfig,
         abortSignal: abortController?.signal,
       });
-      // eslint-disable-next-line @typescript-eslint/ban-types
       let resolve: () => void;
       let reject: (err: Error) => void;
       const promise = new Promise<void>((res, rej) => {
@@ -1155,7 +1156,6 @@ export class ContainerProviderRegistry {
         reject = rej;
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-types
       const onFinished = (err: Error | null): void => {
         if (err) {
           return reject(err);
@@ -1407,7 +1407,9 @@ export class ContainerProviderRegistry {
     return container.Config.Env.reduce((acc: { [key: string]: string }, env) => {
       // should handle multiple values after the = sign
       const [key, ...values] = env.split('=');
-      acc[key] = values.join('=');
+      if (key) {
+        acc[key] = values.join('=');
+      }
       return acc;
     }, {});
   }
@@ -2009,7 +2011,9 @@ export class ContainerProviderRegistry {
     // convert env from array of string to an object with key being the env name
     const updatedEnv = options.Env?.reduce((acc: { [key: string]: string }, env) => {
       const [key, value] = env.split('=');
-      acc[key] = value;
+      if (key && value) {
+        acc[key] = value;
+      }
       return acc;
     }, {});
 
@@ -2076,7 +2080,7 @@ export class ContainerProviderRegistry {
         if (hostItems.length !== 2) {
           continue;
         }
-        dns_server.push(hostItems[1].split('.').map(v => parseInt(v)));
+        dns_server.push((hostItems[1]?.split('.') ?? []).map(v => parseInt(v)));
       }
     }
 
@@ -2122,7 +2126,7 @@ export class ContainerProviderRegistry {
     const options = ['rbind'];
     let propagation = 'rprivate';
     if (bindItems.length === 3) {
-      const flags = bindItems[2].split(',');
+      const flags = bindItems[2]?.split(',') ?? [];
       for (const flag of flags) {
         switch (flag) {
           case 'Z':
@@ -2139,6 +2143,10 @@ export class ContainerProviderRegistry {
             break;
         }
       }
+    }
+
+    if (bindItems[0] === undefined || bindItems[1] === undefined) {
+      return undefined;
     }
 
     return {
@@ -2491,7 +2499,7 @@ export class ContainerProviderRegistry {
         throw error;
       }
       eventCollect('stream', `Building ${options?.tag}...\r\n`);
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       let resolve: (output: {}) => void;
       let reject: (err: Error) => void;
       const promise = new Promise((res, rej) => {
@@ -2499,7 +2507,7 @@ export class ContainerProviderRegistry {
         reject = rej;
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       const onFinished = (err: Error | null, output: {}): void => {
         if (err) {
           eventCollect('finish', err.message);

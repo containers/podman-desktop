@@ -17,7 +17,7 @@ let error: string | undefined = undefined;
 
 $: recordValue = value ?? 0;
 
-$: if (recordValue) {
+$: {
   const newValue = Number(recordValue);
   // if the value is different from the original update
   if (record.id && newValue !== lastValue && !error) {

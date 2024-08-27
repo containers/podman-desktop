@@ -24,7 +24,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ExtensionInfo } from '/@api/extension-info.js';
 
 import type { ConfigurationRegistry } from '../configuration-registry.js';
-import type { Proxy } from '../proxy.js';
 import { TelemetryTrustedValue } from '../types/telemetry.js';
 import { Telemetry, TelemetryLoggerImpl } from './telemetry.js';
 import { TelemetrySettings } from './telemetry-settings.js';
@@ -52,21 +51,21 @@ vi.mock('../../../../../telemetry.json', () => ({
 
 class TelemetryTest extends Telemetry {
   constructor() {
-    super(configurationRegistryMock, {} as Proxy);
+    super(configurationRegistryMock);
   }
   public getLastTimeEvents(): Map<string, number> {
     return this.lastTimeEvents;
   }
 
-  public shouldDropEvent(eventName: string): boolean {
+  public override shouldDropEvent(eventName: string): boolean {
     return super.shouldDropEvent(eventName);
   }
 
-  public listenForTelemetryUpdates(): void {
+  public override listenForTelemetryUpdates(): void {
     super.listenForTelemetryUpdates();
   }
 
-  public createBuiltinTelemetrySender(extensionInfo: ExtensionInfo): TelemetrySender {
+  public override createBuiltinTelemetrySender(extensionInfo: ExtensionInfo): TelemetrySender {
     return super.createBuiltinTelemetrySender(extensionInfo);
   }
 }

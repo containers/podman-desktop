@@ -37,7 +37,7 @@ const eventEmitter = {
   },
 };
 
-const getCatalogExtensionsMock: Mock<any, Promise<CatalogExtension[]>> = vi.fn();
+const getCatalogExtensionsMock: Mock<() => Promise<CatalogExtension[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

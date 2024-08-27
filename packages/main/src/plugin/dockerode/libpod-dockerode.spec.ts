@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ beforeAll(() => {
 test('Check force is not given with default remove pod options', async () => {
   nock('http://localhost')
     .delete('/v4.2.0/libpod/pods/dummy')
-    .query(query => !query.force)
+    .query(query => !query['force'])
     .reply(200);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy');
@@ -45,7 +45,7 @@ test('Check force is not given with default remove pod options', async () => {
 test('Check force is given with remove pod options', async () => {
   nock('http://localhost')
     .delete('/v4.2.0/libpod/pods/dummy')
-    .query(query => query.force === 'true')
+    .query(query => query['force'] === 'true')
     .reply(200);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy', { force: true });
@@ -72,7 +72,7 @@ test('Check list of images using Podman API', async () => {
   const listOfImages = await (api as unknown as LibPod).podmanListImages({} as PodmanListImagesOptions);
   expect(listOfImages.length).toBe(1);
   const firstImage = listOfImages[0];
-  expect(firstImage.Id).toBe('sha256:1234567890');
+  expect(firstImage?.Id).toBe('sha256:1234567890');
 });
 
 test('Check list of containers using Podman API', async () => {
@@ -118,7 +118,7 @@ test('Check list of containers using Podman API', async () => {
   const listOfContainers = await (api as unknown as LibPod).listPodmanContainers();
   expect(listOfContainers.length).toBe(1);
   const firstContainer = listOfContainers[0];
-  expect(firstContainer.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
+  expect(firstContainer?.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
 });
 
 test('Check list of containers using Podman API and all true options', async () => {
@@ -164,7 +164,7 @@ test('Check list of containers using Podman API and all true options', async () 
   const listOfContainers = await (api as unknown as LibPod).listPodmanContainers({ all: true });
   expect(listOfContainers.length).toBe(1);
   const firstContainer = listOfContainers[0];
-  expect(firstContainer.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
+  expect(firstContainer?.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
 });
 
 test('Check attach API', async () => {
@@ -253,11 +253,11 @@ test('Check using libpod/manifests/{name}/json endpoint', async () => {
   expect(manifest.manifests.length).toBe(1);
 
   // Check manifest.manifests
-  expect(manifest.manifests[0].mediaType).toBe('application/vnd.docker.distribution.manifest.v2+json');
-  expect(manifest.manifests[0].platform.architecture).toBe('amd64');
-  expect(manifest.manifests[0].platform.os).toBe('linux');
-  expect(manifest.manifests[0].size).toBe(0);
-  expect(manifest.manifests[0].urls).toEqual([]);
+  expect(manifest.manifests[0]?.mediaType).toBe('application/vnd.docker.distribution.manifest.v2+json');
+  expect(manifest.manifests[0]?.platform.architecture).toBe('amd64');
+  expect(manifest.manifests[0]?.platform.os).toBe('linux');
+  expect(manifest.manifests[0]?.size).toBe(0);
+  expect(manifest.manifests[0]?.urls).toEqual([]);
 });
 
 test('Check create volume', async () => {

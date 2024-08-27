@@ -37,7 +37,7 @@ const eventEmitter = {
   },
 };
 
-const getRecommendedRegistriesMock: Mock<any, Promise<RecommendedRegistry[]>> = vi.fn();
+const getRecommendedRegistriesMock: Mock<() => Promise<RecommendedRegistry[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

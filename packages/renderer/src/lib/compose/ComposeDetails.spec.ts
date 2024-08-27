@@ -35,7 +35,7 @@ const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
-vi.mock('xterm', () => {
+vi.mock('@xterm/xterm', () => {
   return {
     Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
   };

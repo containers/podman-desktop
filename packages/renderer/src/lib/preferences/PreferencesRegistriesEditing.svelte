@@ -1,12 +1,13 @@
 <script lang="ts">
 import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Button, DropdownMenu, Input } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import PasswordInput from '/@/lib/ui/PasswordInput.svelte';
 
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
+import Dialog from '../dialogs/Dialog.svelte';
 import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
@@ -171,6 +172,11 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
   registry.source = defaultProviderSourceName;
 
   const newRegistry = registry === newRegistryRequest;
+  if (newRegistry) {
+    registry.serverUrl = registry.serverUrl.trim();
+    registry.username = registry.username.trim();
+    registry.secret = registry.secret.trim();
+  }
 
   // Always check credentials before creating image / updating to see if they pass.
   // if we happen to get a certificate verification issue, as the user if they would like to
@@ -438,46 +444,53 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
         </div>
         <!-- Add new registry form end -->
       {/each}
-
-      {#if showNewRegistryForm}
-        <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]">
-          <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
-            <div class="pl-5 w-2/5">
-              <Input
-                placeholder="URL (HTTPS only)"
-                aria-label="Register URL"
-                bind:value={newRegistryRequest.serverUrl} />
-            </div>
-            <div class="w-1/5">
-              <Input placeholder="Username" aria-label="Username" bind:value={newRegistryRequest.username} />
-            </div>
-            <div class="w-1/5">
-              <PasswordInput
-                id="newRegistryRequest"
-                bind:password={newRegistryRequest.secret}
-                on:action={() =>
-                  setPasswordForRegistryVisible(newRegistryRequest, !showPasswordForServerUrls.some(r => r === ''))} />
-            </div>
-            <div class="w-1/5 flex space-x-2 justify-end" role="cell">
-              <Button
-                on:click={() => loginToRegistry(newRegistryRequest)}
-                disabled={!newRegistryRequest.serverUrl || !newRegistryRequest.username || !newRegistryRequest.secret}
-                inProgress={loggingIn}>
-                Login
-              </Button>
-              <Button on:click={() => setNewRegistryFormVisible(false)} type="link">Cancel</Button>
-            </div>
-          </div>
-          <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
-            <span class="font-bold whitespace-pre-line">
-              {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
-            </span>
-          </div>
-        </div>
-        <!-- Add new registry form end -->
-      {/if}
     </div>
     <!-- Registries table end -->
   </div>
 </SettingsPage>
+
+{#if showNewRegistryForm}
+  <Dialog
+    title="Add Registry"
+    on:close={() => {
+      setNewRegistryFormVisible(false);
+    }}>
+    <div slot="content" class="flex flex-col text-[var(--pd-modal-text)] space-y-5">
+      <div>
+        <div>URL (HTTPS only)</div>
+        <Input placeholder="https://registry.io" bind:value={newRegistryRequest.serverUrl}></Input>
+      </div>
+
+      <div class="flex flex-row space-x-5 justify-stretch w-full">
+        <div class="w-full">
+          <div>Username</div>
+          <Input placeholder="username" bind:value={newRegistryRequest.username}></Input>
+        </div>
+
+        <div class="w-full">
+          <div>Password</div>
+          <PasswordInput
+            id="newRegistryRequest"
+            bind:password={newRegistryRequest.secret}
+            on:action={() =>
+              setPasswordForRegistryVisible(newRegistryRequest, !showPasswordForServerUrls.some(r => r === ''))}
+          ></PasswordInput>
+        </div>
+      </div>
+    </div>
+    <svelte:fragment slot="validation"
+      ><ErrorMessage error={errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
+      ></ErrorMessage
+      ></svelte:fragment>
+    <svelte:fragment slot="buttons">
+      <Button type="link" on:click={() => (showNewRegistryForm = false)}>Cancel</Button>
+      <Button
+        type="primary"
+        disabled={!newRegistryRequest.serverUrl.trim() ||
+          !newRegistryRequest.username.trim() ||
+          !newRegistryRequest.secret.trim()}
+        inProgress={loggingIn}
+        on:click={() => loginToRegistry(newRegistryRequest)}>Add</Button>
+    </svelte:fragment>
+  </Dialog>
+{/if}

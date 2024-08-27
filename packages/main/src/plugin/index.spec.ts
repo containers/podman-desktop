@@ -18,19 +18,37 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EventEmitter } from 'node:events';
+import { tmpdir } from 'node:os';
 
 import type { BrowserWindow, WebContents } from 'electron';
 import { clipboard, shell } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
+import type { NotificationCardOptions } from '/@api/notification.js';
+
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
+import type { ApiSenderType } from './api.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { Directories } from './directories.js';
+import { Emitter } from './events/emitter.js';
 import { PluginSystem } from './index.js';
 import type { MessageBox } from './message-box.js';
 import { Deferred } from './util/deferred.js';
 
-let pluginSystem: PluginSystem;
+let pluginSystem: TestPluginSystem;
+
+class TestPluginSystem extends PluginSystem {
+  override initConfigurationRegistry(
+    apiSender: ApiSenderType,
+    directories: Directories,
+    notifications: NotificationCardOptions[],
+    configurationRegistryEmitter: Emitter<ConfigurationRegistry>,
+  ): ConfigurationRegistry {
+    return super.initConfigurationRegistry(apiSender, directories, notifications, configurationRegistryEmitter);
+  }
+}
 
 const emitter = new EventEmitter();
 const webContents = emitter as unknown as WebContents;
@@ -56,7 +74,7 @@ beforeAll(() => {
     };
   });
   const trayMenuMock = {} as unknown as TrayMenu;
-  pluginSystem = new PluginSystem(trayMenuMock, mainWindowDeferred);
+  pluginSystem = new TestPluginSystem(trayMenuMock, mainWindowDeferred);
 });
 
 beforeEach(() => {
@@ -237,4 +255,32 @@ test('Should return AbortController that should be aborted if token is cancelled
   token?.cancel();
 
   expect(abortMock).toBeCalled();
+});
+
+test('configurationRegistry propagated', async () => {
+  const configurationRegistryEmitter = new Emitter<ConfigurationRegistry>();
+  const onDidCallConfigurationRegistry = configurationRegistryEmitter.event;
+
+  const spyFire = vi.spyOn(configurationRegistryEmitter, 'fire');
+
+  let receivedConfig: ConfigurationRegistry | undefined;
+  onDidCallConfigurationRegistry(config => (receivedConfig = config));
+
+  const apiSenderMock = {} as unknown as ApiSenderType;
+  const directoriesMock = {
+    getConfigurationDirectory: vi.fn().mockReturnValue(tmpdir()),
+  } as unknown as Directories;
+  const notifications: NotificationCardOptions[] = [];
+
+  const configurationRegistry = pluginSystem.initConfigurationRegistry(
+    apiSenderMock,
+    directoriesMock,
+    notifications,
+    configurationRegistryEmitter,
+  );
+
+  expect(spyFire).toHaveBeenCalled();
+  expect(receivedConfig).toBeDefined();
+  expect(receivedConfig).toBe(configurationRegistry);
+  expect(notifications.length).toBe(0);
 });

@@ -18,32 +18,29 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { expect, test, vi } from 'vitest';
 
-import type { StatefulTask } from '/@api/task';
+import type { TaskInfo } from '/@api/taskInfo';
 
 import TaskManagerItem from './TaskManagerItem.svelte';
 
 const started = new Date().getTime();
-const IN_PROGRESS_TASK: StatefulTask = {
+const IN_PROGRESS_TASK: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
   state: 'running',
-  started,
   status: 'in-progress',
-  action: {
-    name: 'action',
-    execute: () => {},
-  },
+  started,
+  action: 'Task action',
 };
 
-const IN_PROGRESS_TASK_2: StatefulTask = {
+const IN_PROGRESS_TASK_2: TaskInfo = {
   id: '1',
   name: 'Running Task 1',
   state: 'running',
-  started,
   status: 'in-progress',
+  started,
 };
 
 test('Expect that the action button is visible', async () => {
@@ -53,7 +50,20 @@ test('Expect that the action button is visible', async () => {
   // expect the tasks manager is not visible by default
   const actionBtn = screen.getByRole('button', { name: 'action button' });
   expect(actionBtn).toBeInTheDocument();
-  expect(actionBtn.textContent).equal('action');
+  expect(actionBtn.textContent).equal('Task action');
+});
+
+test('Expect that the action button call window.executeTask', async () => {
+  const executeTaskMock = vi.fn();
+  (window as { executeTask: (taskId: string) => void }).executeTask = executeTaskMock;
+
+  render(TaskManagerItem, {
+    task: IN_PROGRESS_TASK,
+  });
+  const actionBtn = screen.getByRole('button', { name: 'action button' });
+  await fireEvent.click(actionBtn);
+
+  expect(executeTaskMock).toHaveBeenCalledWith(IN_PROGRESS_TASK.id);
 });
 
 test('Expect that the action button is hidden', async () => {

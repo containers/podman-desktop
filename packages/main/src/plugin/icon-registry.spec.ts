@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,16 +75,16 @@ test('should register icon contribution', async () => {
   const allIcons = iconRegistry.listIcons();
   expect(allIcons).toHaveLength(1);
   const icon = allIcons[0];
-  expect(icon.id).toBe('my-icon-id');
-  expect(icon.definition.fontCharacter).toBe(fontCharacter);
-  expect(icon.definition.description).toBe(iconDescription);
-  expect(icon.definition.font).toBeDefined();
-  expect(icon.definition.font?.src).toStrictEqual([
+  expect(icon?.id).toBe('my-icon-id');
+  expect(icon?.definition.fontCharacter).toBe(fontCharacter);
+  expect(icon?.definition.description).toBe(iconDescription);
+  expect(icon?.definition.font).toBeDefined();
+  expect(icon?.definition.font?.src).toStrictEqual([
     {
       format: 'woff2',
       location: `${extensionPath}${path.sep}${fontPath}`,
       browserURL: `url('file://${extensionPath}${path.sep}${fontPath}')`,
     },
   ]);
-  expect(icon.definition.font?.fontId).toBe(`${extensionId}-${fontPath}`);
+  expect(icon?.definition.font?.fontId).toBe(`${extensionId}-${fontPath}`);
 });

@@ -4,6 +4,8 @@
 import { onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
+import { NavigationPage } from '/@api/navigation-page';
+
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import AccountIcon from './lib/images/AccountIcon.svelte';
@@ -12,6 +14,7 @@ import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
 import NavRegistryEntry from './lib/ui/NavRegistryEntry.svelte';
 import NavSection from './lib/ui/NavSection.svelte';
+import { handleNavigation } from './navigation';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 
 let { exitSettingsCallback, meta = $bindable() }: { exitSettingsCallback: () => void; meta: TinroRouteMeta } = $props();
@@ -27,7 +30,7 @@ function clickSettings(b: boolean) {
   if (b) {
     exitSettingsCallback();
   } else {
-    window.location.href = '#/preferences/resources';
+    handleNavigation({ page: NavigationPage.RESOURCES });
   }
 }
 </script>
@@ -50,6 +53,7 @@ function clickSettings(b: boolean) {
       {@const allItemsHidden = (navigationRegistryItem.items ?? []).every(item => item.hidden)}
       {#if !allItemsHidden}
         <NavSection tooltip={navigationRegistryItem.name}>
+          <!-- svelte-ignore svelte_component_deprecated -->
           <svelte:component this={navigationRegistryItem.icon.iconComponent} size={iconSize} slot="icon" />
 
           {#if navigationRegistryItem.items}

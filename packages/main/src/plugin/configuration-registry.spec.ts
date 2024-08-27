@@ -25,7 +25,7 @@ import type { ApiSenderType } from '/@/plugin/api.js';
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
-import type { NotificationRegistry } from './notification-registry.js';
+import type { NotificationRegistry } from './tasks/notification-registry.js';
 import type { Disposable } from './types/disposable.js';
 
 let configurationRegistry: ConfigurationRegistry;
@@ -226,7 +226,7 @@ test('addConfigurationEnum', async () => {
   const records = configurationRegistry.getConfigurationProperties();
   const record = records['my.fake.enum.property'];
   expect(record).toBeDefined();
-  expect(record.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
+  expect(record?.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
 
   // now call the dispose
   disposable.dispose();
@@ -235,7 +235,7 @@ test('addConfigurationEnum', async () => {
 
   const afterDisposeRecord = records['my.fake.enum.property'];
   expect(afterDisposeRecord).toBeDefined();
-  expect(afterDisposeRecord.enum).toEqual(['myValue1', 'myValue2']);
+  expect(afterDisposeRecord?.enum).toEqual(['myValue1', 'myValue2']);
 });
 
 test('addConfigurationEnum with a previous default value', async () => {
@@ -264,7 +264,7 @@ test('addConfigurationEnum with a previous default value', async () => {
   const records = configurationRegistry.getConfigurationProperties();
   const record = records['my.fake.enum.property'];
   expect(record).toBeDefined();
-  expect(record.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
+  expect(record?.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
 
   // now call the dispose
   disposable.dispose();

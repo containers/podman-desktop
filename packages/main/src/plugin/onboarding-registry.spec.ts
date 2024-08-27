@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import { afterEach, beforeEach, describe, expect, expectTypeOf, test, vi } from 
 import type { OnboardingState } from '/@api/onboarding.js';
 
 import type { ApiSenderType } from './api.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Context } from './context/context.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
@@ -38,14 +37,8 @@ const getConfigurationMock = vi.fn();
 getConfigurationMock.mockReturnValue({
   get: getConfigMock,
 });
-const configurationRegistry = {
-  registerConfigurations: vi.fn(),
-  onDidChangeConfiguration: vi.fn(),
-  getConfiguration: getConfigurationMock,
-} as unknown as ConfigurationRegistry;
 
 const readFileSync = vi.spyOn(fs, 'readFileSync');
-const bufferFrom = vi.spyOn(Buffer, 'from');
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 const context = new Context(apiSender);
 
@@ -55,7 +48,7 @@ describe('an OnboardingRegistry instance exists', () => {
   /* eslint-disable @typescript-eslint/no-empty-function */
   beforeEach(() => {
     vi.clearAllMocks();
-    onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    onboardingRegistry = new OnboardingRegistry(context);
     const manifest = {
       contributes: {
         onboarding: {
@@ -84,7 +77,6 @@ describe('an OnboardingRegistry instance exists', () => {
 
     vi.mock('node:fs');
     readFileSync.mockReturnValue(JSON.stringify({}));
-    bufferFrom.mockReturnValue(Buffer.from(''));
   });
 
   test('Should always return onboarding', async () => {
@@ -120,15 +112,15 @@ describe('an OnboardingRegistry instance exists', () => {
     expect(onboarding).toBeDefined();
     expectTypeOf(onboarding).toBeArray();
     expect(onboarding.length).toBe(1);
-    expect(onboarding[0].title).toBe('Get started with Podman Desktop');
+    expect(onboarding[0]?.title).toBe('Get started with Podman Desktop');
   });
 
   test('Should update state of step', async () => {
     onboardingRegistry.updateStepState('completed', extensionId, stepId);
     const onboarding = onboardingRegistry.getOnboarding(extensionId);
     expect(onboarding).toBeDefined();
-    expect(onboarding?.steps[0].status).toBeDefined();
-    expect(onboarding?.steps[0].status).toBe('completed');
+    expect(onboarding?.steps[0]?.status).toBeDefined();
+    expect(onboarding?.steps[0]?.status).toBe('completed');
   });
 
   test('Should update state of onboarding', async () => {
@@ -162,8 +154,8 @@ describe('an OnboardingRegistry instance exists', () => {
     expect(onboarding).toBeDefined();
     expect(onboarding?.status).toBeDefined();
     expect(onboarding?.status).toBe('completed');
-    expect(onboarding?.steps[0].status).toBeDefined();
-    expect(onboarding?.steps[0].status).toBe('completed');
+    expect(onboarding?.steps[0]?.status).toBeDefined();
+    expect(onboarding?.steps[0]?.status).toBe('completed');
     expect(context.getValue(contextKey)).toBe('test');
     // reset all states
     onboardingRegistry.resetOnboarding([extensionId]);
@@ -171,7 +163,7 @@ describe('an OnboardingRegistry instance exists', () => {
     onboarding = onboardingRegistry.getOnboarding(extensionId);
     expect(onboarding).toBeDefined();
     expect(onboarding?.status).toBe(undefined);
-    expect(onboarding?.steps[0].status).toBe(undefined);
+    expect(onboarding?.steps[0]?.status).toBe(undefined);
     expect('test' in context.collectAllValues()).toBe(false);
   });
 
@@ -196,7 +188,7 @@ describe('checkIdsReadability tests', () => {
   });
 
   test('checkIdsReadability should detect non valid ids', () => {
-    const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    const onboardingRegistry = new OnboardingRegistry(context);
     const extensionPath = '/root/path';
     const extension = {
       path: extensionPath,

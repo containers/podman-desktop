@@ -65,6 +65,8 @@ async function addElectronFuses(context) {
   });
 }
 
+const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
+
 /**
  * @type {import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -79,12 +81,13 @@ const config = {
   buildDependenciesFromSource: false,
   npmRebuild: false,
   beforePack: async (context) => {
-    context.packager.config.extraResources = ['packages/main/src/assets/**'];
+    context.packager.config.extraResources = DEFAULT_ASSETS;
 
     // universal build, add both pkg files
     // this is hack to avoid issue https://github.com/electron/universal/issues/36
-    if(context.appOutDir.endsWith('mac-universal--x64') || context.appOutDir.endsWith('mac-universal--arm64')){
-      context.packager.config.extraResources.push('extensions/podman/assets/**');
+    if(context.appOutDir.endsWith('mac-universal-x64-temp') || context.appOutDir.endsWith('mac-universal-arm64-temp')){
+      context.packager.config.extraResources  = DEFAULT_ASSETS;
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-universal*.pkg');
       return;
     }
 
@@ -172,7 +175,6 @@ const config = {
     icon: './buildResources/icon-512x512.png',
     target: ['flatpak', 'tar.gz'],
   },
-  afterSign: 'electron-builder-notarize',
   mac: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
     hardenedRuntime: true,
@@ -217,6 +219,12 @@ if (process.env.AIRGAP_DOWNLOAD) {
     publishAutoUpdate: false,
     provider: 'github'
   };
+}
+
+if (process.env.APPLE_TEAM_ID) {
+  config.mac.notarize = {
+    teamId: process.env.APPLE_TEAM_ID,
+  }
 }
 
 const azureCodeSign = filePath => {

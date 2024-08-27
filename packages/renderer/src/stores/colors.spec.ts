@@ -41,7 +41,7 @@ vi.mock('../lib/appearance/appearance-util', () => {
   };
 });
 
-const listColorsMock: Mock<any, Promise<ColorInfo[]>> = vi.fn();
+const listColorsMock: Mock<() => Promise<ColorInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {

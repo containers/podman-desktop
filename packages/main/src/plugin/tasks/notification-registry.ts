@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import { Notification } from 'electron';
 
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '../api.js';
+import { Disposable } from '../types/disposable.js';
 import type { TaskManager } from './task-manager.js';
-import { Disposable } from './types/disposable.js';
 
 export class NotificationRegistry {
   private notificationId = 0;
@@ -63,16 +63,16 @@ export class NotificationRegistry {
       markdownActions: notification.markdownActions,
     });
     // we show the notification
-    const disposeShowNotification = this.showNotification({
+    const electronNotification = this.showNotification({
       title: notification.title,
       body: notification.body,
       silent: notification.silent,
     });
     // return disposable object
     return Disposable.create(() => {
-      disposeShowNotification.dispose();
-      this.removeNotificationById(notification.id);
-      this.taskManager.deleteTask(notificationTask);
+      notificationTask.dispose();
+      electronNotification.dispose();
+      this.removeNotificationById(this.notificationId);
     });
   }
 

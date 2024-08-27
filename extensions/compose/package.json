@@ -150,7 +150,7 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.1",
+    "@octokit/rest": "^21.0.2",
     "mustache": "^4.2.0",
     "shell-path": "^3.0.0"
   },
@@ -159,7 +159,7 @@
     "@types/mustache": "^4.2.5",
     "adm-zip": "^0.5.15",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.0",
-    "vitest": "^1.6.0"
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
   }
 }
