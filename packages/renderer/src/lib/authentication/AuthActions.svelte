@@ -9,6 +9,8 @@ import { authenticationProviders } from '../../stores/authenticationProviders';
 
 export let onBeforeToggle = (): void => {};
 let showMenu = false;
+export let showTooltip = true;
+$: showTooltip = !showMenu;
 
 let clientY: number;
 let clientX: number;

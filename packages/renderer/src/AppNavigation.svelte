@@ -23,6 +23,7 @@ let { exitSettingsCallback, meta = $bindable() }: { exitSettingsCallback: () => 
 
 let authActions = $state<AuthActions>();
 let outsideWindow = $state<HTMLDivElement>();
+let showAccountsTooltip = $state(true);
 
 const iconSize = '22';
 
@@ -82,10 +83,10 @@ function clickSettings(b: boolean) {
 
   <div bind:this={outsideWindow}>
     <NavItem href="/accounts" tooltip="" bind:meta={meta} onClick={event => authActions?.onButtonClick(event)}>
-      <Tooltip bottomRight tip="Accounts">
+      <Tooltip bottomRight tip={showAccountsTooltip ? 'Accounts' : ''}>
         <AccountIcon size={iconSize} />
       </Tooltip>
-      <AuthActions bind:this={authActions} outsideWindow={outsideWindow} />
+      <AuthActions bind:this={authActions} outsideWindow={outsideWindow} bind:showTooltip={showAccountsTooltip} />
     </NavItem>
   </div>
 
