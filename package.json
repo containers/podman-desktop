@@ -211,6 +211,7 @@
     "trim": "0.0.3",
     "@types/node": "^20",
     "**/react-dev-utils/loader-utils": "^3.2.1",
-    "**/recursive-readdir/minimatch": "^3.0.5"
+    "**/recursive-readdir/minimatch": "^3.0.5",
+    "**/markdownlint-cli2/micromatch": "~4.0.8"
   }
 }
