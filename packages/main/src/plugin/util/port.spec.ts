@@ -32,6 +32,11 @@ function getInt(val: string | undefined): number {
   return parseInt(val);
 }
 
+async function closeServer(server: net.Server): Promise<void> {
+  server.close();
+  await once(server, 'close');
+}
+
 test('return valid port range', async () => {
   const range = await port.getFreePortRange(3);
 
@@ -71,7 +76,7 @@ test.each(hosts)(
 
     const newRange = await port.getFreePortRange(3);
 
-    server.close();
+    await closeServer(server);
 
     const newRangeValues = newRange.split('-');
     expect(newRangeValues.length).toBe(2);
@@ -112,7 +117,7 @@ test.each(hosts)(
     // as 20000 is busy it should increment it and return 20001
     const freePort = await port.getFreePort(port20000);
 
-    server.close();
+    await closeServer(server);
 
     expect(freePort).toBe(port20001);
     expect(await port.isFreePort(freePort)).toBe(true);
@@ -140,6 +145,8 @@ test.each(hosts)(
 
     server.close();
     server2.close();
+    await closeServer(server);
+    await closeServer(server2);
 
     expect(freePort).toBe(port20002);
     expect(await port.isFreePort(freePort)).toBe(true);
