@@ -8,21 +8,11 @@ import type { NavigationRegistryEntry } from '/@/stores/navigation/navigation-re
 
 import NavItem from './NavItem.svelte';
 
-let {
-  entry,
-  meta = $bindable(),
-  tooltipHidden = $bindable(),
-}: { entry: NavigationRegistryEntry; meta: TinroRouteMeta; tooltipHidden: boolean } = $props();
+let { entry, meta = $bindable() }: { entry: NavigationRegistryEntry; meta: TinroRouteMeta } = $props();
 </script>
 
 {#if !entry.hidden}
-  <NavItem
-    href={entry.link}
-    counter={entry.counter}
-    tooltip={entry.tooltip}
-    ariaLabel={entry.name}
-    bind:meta={meta}
-    bind:tooltipHidden={tooltipHidden}>
+  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta}>
     {#if entry.icon === undefined}
       {entry.name}
     {:else if entry.icon.faIcon}

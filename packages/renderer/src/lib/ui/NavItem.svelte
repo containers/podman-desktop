@@ -14,7 +14,6 @@ export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 export let counter: number | undefined = undefined;
-export let tooltipHidden = false;
 
 let inSection: boolean = false;
 let uri: string;
@@ -22,20 +21,10 @@ $: uri = encodeURI(href);
 let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 let thisTooltipHidden = false;
-$: if (!tooltipHidden && thisTooltipHidden) {
-  thisTooltipHidden = false;
-}
 
 const navItems: Writable<number> = getContext('nav-items');
 
 $: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
-
-function hideTooltip(node: any) {
-  node.addEventListener('contextmenu', () => {
-    tooltipHidden = true;
-    thisTooltipHidden = true;
-  });
-}
 
 onMount(() => {
   inSection = navItems !== undefined;
@@ -50,8 +39,7 @@ onDestroy(() => {
   href={onClick ? '#top' : uri}
   class=""
   aria-label={ariaLabel ? ariaLabel : tooltip}
-  on:click|preventDefault={onClick}
-  use:hideTooltip>
+  on:click|preventDefault={onClick}>
   <div
     class="flex py-2 justify-center items-center cursor-pointer min-h-9"
     class:border-x-[4px]={!inSection}

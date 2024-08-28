@@ -78,6 +78,11 @@ router.subscribe(function (navigation) {
   }
 });
 
+window.events?.receive('context-menu:close', () => {
+  console.log('context menu closed renderer');
+  window.dispatchEvent(new Event('context-menu-closed'));
+});
+
 window.events?.receive('navigate', (navigationRequest: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleNavigation(navigationRequest as NavigationRequest<any>);
