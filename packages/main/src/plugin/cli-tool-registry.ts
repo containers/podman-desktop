@@ -50,6 +50,7 @@ export class CliToolRegistry {
     this.apiSender.send('cli-tool-create');
     this._onDidCliToolsChange.fire();
     cliTool.onDidUpdateVersion(() => this.apiSender.send('cli-tool-change', cliTool.id));
+    cliTool.onDidUninstall(() => this.apiSender.send('cli-tool-change', cliTool.id));
     return cliTool;
   }
 
@@ -82,6 +83,15 @@ export class CliToolRegistry {
     const cliToolInstaller = this.cliToolsInstaller.get(id);
     if (cliToolInstaller) {
       await cliToolInstaller.doInstall(logger);
+    }
+  }
+
+  async uninstallCliTool(id: string, logger: Logger): Promise<void> {
+    const cliToolInstaller = this.cliToolsInstaller.get(id);
+    if (cliToolInstaller) {
+      await cliToolInstaller.doUninstall(logger);
+      // notify the tool has been uninstalled
+      this.cliTools.get(id)?.uninstall();
     }
   }
 
@@ -162,7 +172,6 @@ export class CliToolRegistry {
       name: cliTool.name,
       displayName: cliTool.displayName,
       markdownDescription: cliTool.markdownDescription,
-      state: cliTool.state,
       images: cliTool.images,
       version: cliTool.version,
       extensionInfo: {

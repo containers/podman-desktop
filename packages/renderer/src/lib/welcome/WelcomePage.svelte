@@ -37,6 +37,7 @@ onMount(async () => {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
   }
+  router.goto('/');
 
   const telemetryPrompt = await welcomeUtils.havePromptedForTelemetry();
   if (!telemetryPrompt) {
