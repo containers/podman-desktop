@@ -21,9 +21,9 @@ import { expect as playExpect, test } from '@playwright/test';
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
+import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainerDetailsPage } from '../model/pages/container-details-page';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
-import { DeployToKubernetesPage } from '../model/pages/deploy-to-kubernetes-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
@@ -40,11 +40,12 @@ const CLUSTER_NAME: string = 'kind-cluster';
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
 const CLUSTER_CREATION_TIMEOUT: number = 150000;
-const IMAGE_TO_PULL: string = 'quay.io/podman-desktop-demo/podify-demo-backend:v1';
-const IMAGE_NAME: string = 'quay.io/podman-desktop-demo/podify-demo-backend';
-const CONTAINER_NAME: string = 'backend-container';
+const IMAGE_TO_PULL: string = 'ghcr.io/linuxcontainers/alpine';
+const IMAGE_TAG: string = 'latest';
+const CONTAINER_NAME: string = 'alphine-container';
 const NAMESPACE: string = 'default';
 const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_CONTAINER_NAME} ${NAMESPACE}`;
+const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: false };
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

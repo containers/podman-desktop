@@ -22,6 +22,7 @@ import { expect as playExpect } from '@playwright/test';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { ContainerState } from '../core/states';
 import { ContainersPage } from './containers-page';
+import { DeployToKubernetesPage } from './deploy-to-kubernetes-page';
 import { DetailsPage } from './details-page';
 
 export class ContainerDetailsPage extends DetailsPage {
@@ -81,5 +82,11 @@ export class ContainerDetailsPage extends DetailsPage {
     const portsCell = portsRow.getByRole('cell').nth(1);
     await playExpect(portsCell).toBeVisible();
     return await portsCell.innerText();
+  }
+
+  async openDeployToKubernetesPage(): Promise<DeployToKubernetesPage> {
+    await playExpect(this.deployButton).toBeVisible();
+    await this.deployButton.click();
+    return new DeployToKubernetesPage(this.page);
   }
 }
