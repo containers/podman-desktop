@@ -30,7 +30,7 @@ You can also use the Kubernetes CLI to configure access to your Kubernetes clust
 
 #### Verification
 
-- You can [view and select the Kubernetes cluster in Podman Desktop](/docs/kubernetes/viewing-and-selecting-current-kubernete-context)
+- You can [view and select the Kubernetes cluster in Podman Desktop](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context)
 
 #### Additional resopurces
 
