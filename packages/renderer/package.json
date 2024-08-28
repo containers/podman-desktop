@@ -54,7 +54,7 @@
   "dependencies": {
     "@podman-desktop/ui-svelte": "^0.0.1",
     "@zerodevx/svelte-toast": "^0.9.5",
-    "electron-context-menu": "4.0.1",
+    "electron-context-menu": "4.0.3",
     "js-yaml": "^4.1.0",
     "tinro": "^0.6.12",
     "validator": "^13.12.0"
