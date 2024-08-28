@@ -9,6 +9,7 @@ export let cards: any[];
 export let cardWidth = 340;
 
 let cardsFit = 1;
+// eslint-disable-next-line sonarjs/pseudo-random
 let containerId = Math.random().toString(36).slice(-6);
 
 $: visibleCards = cards.slice(0, cardsFit);

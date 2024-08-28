@@ -203,6 +203,6 @@ test('test generateLogFileName', async () => {
   const filename = ts.generateLogFileName('test');
 
   // Simple regex to check that the file name is in the correct format (YYYMMDDHHmmss)
-  expect(filename).toMatch(/[0-9]{14}/);
+  expect(filename).toMatch(/\d{14}/);
   expect(filename).toContain('test');
 });

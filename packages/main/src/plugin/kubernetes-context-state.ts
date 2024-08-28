@@ -197,6 +197,7 @@ class Backoff {
   }
 
   private getJitter(): number {
+    // eslint-disable-next-line sonarjs/pseudo-random
     return Math.floor(this.jitter * Math.random());
   }
 }

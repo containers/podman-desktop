@@ -65,6 +65,6 @@ test('Renders pod spec correctly', () => {
   expect(screen.getByText('Restart Policy')).toBeInTheDocument();
   expect(screen.getByText('Always')).toBeInTheDocument();
 
-  expect(screen.getAllByText('nginx-container'));
-  expect(screen.getAllByText('redis-container'));
+  expect(screen.getAllByText('nginx-container')).toHaveLength(2);
+  expect(screen.getAllByText('redis-container')).toHaveLength(2);
 });

@@ -68,7 +68,7 @@ import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
 
-router.mode.hash();
+router.mode.memory();
 
 //remember from where we come to preference pages
 let nonSettingsPage = '/';

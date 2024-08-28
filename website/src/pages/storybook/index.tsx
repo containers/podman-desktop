@@ -81,6 +81,7 @@ function StorybookRoot(): JSX.Element {
     observe(e.currentTarget);
 
     // https://github.com/storybookjs/storybook/blob/1943ee6b88d89c963f15ef4087aeabe64d05c9a1/code/lib/core-events/src/index.ts#L65
+    // eslint-disable-next-line sonarjs/post-message
     window.addEventListener('message', message => {
       if (message.source !== iframeRef?.current?.contentWindow) {
         return;

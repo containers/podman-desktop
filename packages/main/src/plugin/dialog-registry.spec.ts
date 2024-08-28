@@ -18,6 +18,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import { type BrowserWindow, dialog } from 'electron';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -76,10 +79,12 @@ test('check failure on init method', async () => {
   });
 });
 
+const tmpMyPath = path.resolve(tmpdir(), 'my/path');
+
 describe('showOpenDialog', () => {
   beforeEach(() => {
     vi.mocked(dialog.showOpenDialog).mockResolvedValue({
-      filePaths: ['/tmp/my/path'],
+      filePaths: [tmpMyPath],
       canceled: false,
     });
   });
@@ -95,7 +100,7 @@ describe('showOpenDialog', () => {
 
   test('check with no options should open a file', async () => {
     const result = await dialogRegistry.openDialog();
-    expect(result).toStrictEqual(['/tmp/my/path']);
+    expect(result).toStrictEqual([tmpMyPath]);
 
     expect(dialog.showOpenDialog).toHaveBeenCalledWith(
       fakeBrowserWindow,
@@ -114,7 +119,7 @@ describe('showOpenDialog', () => {
     expect(fakeBrowserWindow.webContents.send).toHaveBeenCalledWith(
       'dialog:open-save-dialog-response',
       'my-dialog-id',
-      ['/tmp/my/path'],
+      [tmpMyPath],
     );
 
     expect(dialog.showOpenDialog).toHaveBeenCalledWith(
@@ -127,19 +132,19 @@ describe('showOpenDialog', () => {
     const result = await dialogRegistry.openDialog({
       selectors: ['openDirectory'],
       filters: [{ name: 'All Files', extensions: ['*'] }],
-      defaultUri: { scheme: 'file', fsPath: '/tmp/my/path' } as Uri,
+      defaultUri: { scheme: 'file', fsPath: tmpMyPath } as Uri,
       title: 'my title',
       openLabel: 'my open label',
     });
 
-    expect(result).toStrictEqual(['/tmp/my/path']);
+    expect(result).toStrictEqual([tmpMyPath]);
 
     expect(dialog.showOpenDialog).toHaveBeenCalledWith(
       fakeBrowserWindow,
       expect.objectContaining({
         properties: ['openDirectory'],
         filters: [{ name: 'All Files', extensions: ['*'] }],
-        defaultPath: '/tmp/my/path',
+        defaultPath: tmpMyPath,
         title: 'my title',
         message: 'my title',
         buttonLabel: 'my open label',
@@ -154,7 +159,7 @@ describe('showOpenDialog', () => {
 describe('showSaveDialog', () => {
   beforeEach(() => {
     vi.mocked(dialog.showSaveDialog).mockResolvedValue({
-      filePath: '/tmp/my/path',
+      filePath: tmpMyPath,
       canceled: false,
     });
   });
@@ -170,7 +175,7 @@ describe('showSaveDialog', () => {
 
   test('check with no options', async () => {
     const result = await dialogRegistry.saveDialog();
-    expect(result).toStrictEqual(Uri.file('/tmp/my/path'));
+    expect(result).toStrictEqual(Uri.file(tmpMyPath));
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(fakeBrowserWindow, expect.anything());
 
@@ -186,7 +191,7 @@ describe('showSaveDialog', () => {
     expect(fakeBrowserWindow.webContents.send).toHaveBeenCalledWith(
       'dialog:open-save-dialog-response',
       'my-dialog-id',
-      Uri.file('/tmp/my/path'),
+      Uri.file(tmpMyPath),
     );
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(fakeBrowserWindow, expect.anything());
@@ -195,18 +200,18 @@ describe('showSaveDialog', () => {
   test('check with all options', async () => {
     const result = await dialogRegistry.saveDialog({
       filters: [{ name: 'All Files', extensions: ['*'] }],
-      defaultUri: { scheme: 'file', fsPath: '/tmp/my/path' } as Uri,
+      defaultUri: { scheme: 'file', fsPath: tmpMyPath } as Uri,
       title: 'my title',
       saveLabel: 'my save label',
     });
 
-    expect(result).toStrictEqual(Uri.file('/tmp/my/path'));
+    expect(result).toStrictEqual(Uri.file(tmpMyPath));
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(
       fakeBrowserWindow,
       expect.objectContaining({
         filters: [{ name: 'All Files', extensions: ['*'] }],
-        defaultPath: '/tmp/my/path',
+        defaultPath: tmpMyPath,
         title: 'my title',
         message: 'my title',
         buttonLabel: 'my save label',

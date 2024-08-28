@@ -130,16 +130,16 @@ test('Expect to be start, delete actions enabled and stop, restart disabled when
   render(PreferencesResourcesRendering, {});
   const startButton = screen.getByRole('button', { name: 'Start' });
   expect(startButton).toBeInTheDocument();
-  expect(!startButton.classList.contains('cursor-not-allowed'));
+  expect(!startButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const stopButton = screen.getByRole('button', { name: 'Stop' });
   expect(stopButton).toBeInTheDocument();
-  expect(stopButton.classList.contains('cursor-not-allowed'));
+  expect(stopButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const restartButton = screen.getByRole('button', { name: 'Restart' });
   expect(restartButton).toBeInTheDocument();
-  expect(restartButton.classList.contains('cursor-not-allowed'));
+  expect(restartButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const deleteButton = screen.getByRole('button', { name: 'Delete' });
   expect(deleteButton).toBeInTheDocument();
-  expect(!deleteButton.classList.contains('cursor-not-allowed'));
+  expect(!deleteButton.classList.contains('cursor-not-allowed')).toBeTruthy();
 });
 
 test('Expect to be start, delete actions disabled and stop, restart enabled when container running', async () => {
@@ -148,16 +148,16 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
   render(PreferencesResourcesRendering, {});
   const startButton = screen.getByRole('button', { name: 'Start' });
   expect(startButton).toBeInTheDocument();
-  expect(startButton.classList.contains('cursor-not-allowed'));
+  expect(startButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const stopButton = screen.getByRole('button', { name: 'Stop' });
   expect(stopButton).toBeInTheDocument();
-  expect(!stopButton.classList.contains('cursor-not-allowed'));
+  expect(!stopButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const restartButton = screen.getByRole('button', { name: 'Restart' });
   expect(restartButton).toBeInTheDocument();
-  expect(!restartButton.classList.contains('cursor-not-allowed'));
+  expect(!restartButton.classList.contains('cursor-not-allowed')).toBeTruthy();
   const deleteButton = screen.getByRole('button', { name: 'Delete' });
   expect(deleteButton).toBeInTheDocument();
-  expect(deleteButton.classList.contains('cursor-not-allowed'));
+  expect(deleteButton.classList.contains('cursor-not-allowed')).toBeTruthy();
 });
 
 test('Expect type to be reported for Podman engines', async () => {

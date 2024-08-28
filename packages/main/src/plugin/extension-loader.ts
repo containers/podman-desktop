@@ -265,6 +265,7 @@ export class ExtensionLoader {
     fs.mkdirSync(unpackedDirectory, { recursive: true });
     // extract to an existing directory
     const admZip = new AdmZip(filePath);
+    // eslint-disable-next-line sonarjs/no-unsafe-unzip
     admZip.extractAllTo(unpackedDirectory, true);
 
     const extension = await this.analyzeExtension(unpackedDirectory, true);
@@ -1319,9 +1320,18 @@ export class ExtensionLoader {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        const cliTool = this.cliToolRegistry.createCliTool(extensionInfo, options);
+        const cliTool = instance.cliToolRegistry.createCliTool(extensionInfo, options);
         disposables.push(cliTool);
         return cliTool;
+      },
+      getCliTool: (id: string): containerDesktopAPI.CliToolInfo | undefined => {
+        return instance.cliToolRegistry.getCliTool(id);
+      },
+      get all() {
+        return instance.cliToolRegistry.getCliTools();
+      },
+      onDidChange: (listener, thisArg, disposables) => {
+        return instance.cliToolRegistry.onDidCliToolsChange(listener, thisArg, disposables);
       },
     };
 
@@ -1462,6 +1472,7 @@ export class ExtensionLoader {
           delete childMod.exports;
           mod?.children.splice(i, 1);
           for (let j = 0; j < childMod.children.length; j++) {
+            // eslint-disable-next-line sonarjs/no-array-delete
             delete childMod.children[j];
           }
         }
@@ -1470,8 +1481,10 @@ export class ExtensionLoader {
       if (key.startsWith(extension.path)) {
         // delete the entry
         delete require.cache[key];
+        // eslint-disable-next-line sonarjs/deprecation
         const ix = mod?.parent?.children.indexOf(mod) ?? 0;
         if (ix >= 0) {
+          // eslint-disable-next-line sonarjs/deprecation
           mod?.parent?.children.splice(ix, 1);
         }
       }

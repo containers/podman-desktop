@@ -65,24 +65,16 @@ afterEach(() => {
 
 describe('Check for kubectl', async () => {
   test('not installed', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    const throwError = { exitCode: -1 } as extensionApi.RunError;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw throwError;
+    });
     const result = await detect.checkForKubectl();
     expect(result).toBeFalsy();
   });
 
   test('installed', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>(resolve => {
-          resolve({} as extensionApi.RunResult);
-        }),
-    );
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
     const result = await detect.checkForKubectl();
     expect(result).toBeTruthy();
   });
@@ -90,26 +82,21 @@ describe('Check for kubectl', async () => {
 
 describe('Check for path', async () => {
   test('not included', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    const customError = { exitCode: -1 } as extensionApi.RunError;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw customError;
+    });
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/different-path');
     const result = await detect.checkStoragePath();
     expect(result).toBeFalsy();
   });
 
   test('included', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    const customError = { exitCode: -1 } as extensionApi.RunError;
+
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw customError;
+    });
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue(path.resolve('/', 'storage-path', 'bin'));
     const result = await detect.checkStoragePath();
     expect(result).toBeTruthy();

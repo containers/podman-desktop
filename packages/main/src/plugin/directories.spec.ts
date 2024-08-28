@@ -35,7 +35,7 @@ const originalProcessEnv = process.env;
 
 beforeEach(() => {
   // mock the env variable
-  process.env = Object.assign({}, process.env);
+  process.env = { ...process.env };
 
   // mock the fs module
   vi.mock('node:fs');

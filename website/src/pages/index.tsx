@@ -34,7 +34,7 @@ function DownloadClientLinks(): JSX.Element {
     varIcon = 'faWindows';
   } else if (userAgent.indexOf('Mac') !== -1) {
     operatingSystem = 'macOS';
-    url = 'macos';
+    // do not need to set url to macos as it is already set
     varIcon = 'faApple';
   } else if (userAgent.indexOf('Linux') !== -1) {
     operatingSystem = 'Linux';
@@ -134,7 +134,7 @@ function Hero(): JSX.Element {
   );
 }
 
-function SectionTitle(props: { name: string }): JSX.Element {
+function SectionTitle(props: Readonly<{ name: string }>): JSX.Element {
   return (
     <div>
       <p className="inline-block px-3 py-px mb-4 text-xs font-semibold tracking-wider text-purple-800 uppercase rounded-full dark:bg-purple-400 bg-purple-400">

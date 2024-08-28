@@ -37,9 +37,10 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
     this.createButton = this.providerSetup.getByRole('button', { name: 'Create' });
   }
 
-  public async performConnectionAction(operation: ResourceElementActions): Promise<void> {
+  public async performConnectionAction(operation: ResourceElementActions, timeout: number = 25000): Promise<void> {
     const button = this.resourceElementConnectionActions.getByRole('button', { name: operation, exact: true });
-    await playExpect(button).toBeEnabled({ timeout: 10000 });
+    await playExpect(button).toBeEnabled({ timeout: timeout });
+    // eslint-disable-next-line sonarjs/no-base-to-string
     console.log(`Performing connection action '${operation}' on resource element '${this.resourceElement}'`);
     await button.click();
   }

@@ -23,9 +23,10 @@ import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { InstalledPodman } from './podman-cli';
-import type { Installer, UpdateCheck } from './podman-install';
+import type { Installer, PodmanInfo, UpdateCheck } from './podman-install';
 import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
 import * as podmanInstallObj from './podman-install';
+import { releaseNotes } from './podman5.json';
 import * as utils from './util';
 
 const originalConsoleError = console.error;
@@ -60,12 +61,14 @@ vi.mock('@podman-desktop/api', async () => {
     },
     env: {
       isMac: true,
+      openExternal: vi.fn(),
     },
     window: {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
       showErrorMessage: vi.fn(),
       showInformationMessage: vi.fn(),
+      showWarningMessage: vi.fn(),
     },
     ProgressLocation: {},
     process: {
@@ -73,6 +76,9 @@ vi.mock('@podman-desktop/api', async () => {
     },
     configuration: {
       getConfiguration: vi.fn(),
+    },
+    Uri: {
+      parse: vi.fn(),
     },
   };
 });
@@ -116,12 +122,7 @@ test('expect update on windows to show notification in case of 0 exit code', asy
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -137,13 +138,10 @@ test('expect update on windows not to show notification in case of 1602 exit cod
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject({ exitCode: 1602 } as extensionApi.RunError);
-      }),
-  );
+  const customError = { exitCode: 1602 } as extensionApi.RunError;
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -159,14 +157,11 @@ test('expect update on windows to throw error if non zero exit code', async () =
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
+  const customError = { exitCode: -1, stderr: 'CustomError' } as extensionApi.RunError;
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject({ exitCode: -1, stderr: 'CustomError' } as extensionApi.RunError);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -285,16 +280,12 @@ test('expect winMemory preflight check return failure result if the machine has 
 });
 
 test('expect winVirtualMachine preflight check return successful result if the virtual machine platform feature is enabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'VirtualMachinePlatform',
-          stderr: '',
-          command: 'command',
-        });
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({
+      stdout: 'VirtualMachinePlatform',
+      stderr: '',
+      command: 'command',
+    }),
   );
 
   const installer = new WinInstaller(extensionContext);
@@ -305,16 +296,12 @@ test('expect winVirtualMachine preflight check return successful result if the v
 });
 
 test('expect winVirtualMachine preflight check return successful result if the virtual machine platform feature is disabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'some message',
-          stderr: '',
-          command: 'command',
-        });
-      }),
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() =>
+    Promise.resolve({
+      stdout: 'some message',
+      stderr: '',
+      command: 'command',
+    }),
   );
 
   const installer = new WinInstaller(extensionContext);
@@ -330,13 +317,9 @@ test('expect winVirtualMachine preflight check return successful result if the v
 });
 
 test('expect winVirtualMachine preflight check return successful result if there is an error when checking if virtual machine platform feature is enabled', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>((_, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('');
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw new Error();
+  });
 
   const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
@@ -439,22 +422,16 @@ test('expect WSLVersion preflight check return fail result if first line output 
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and do not need to reboot', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'blabla',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'blabla',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -469,13 +446,10 @@ test('expect winWSL2 preflight check return successful result if the machine has
 test('expect winWSL2 preflight check return failure result if the machine has WSL2 installed but needs a reboot', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
       return new Promise<extensionApi.RunResult>((resolve, reject) => {
@@ -515,13 +489,10 @@ test('expect winWSL2 preflight check return failure result if the machine has WS
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and the reboot check fails with a code different from WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
       return new Promise<extensionApi.RunResult>((resolve, reject) => {
@@ -555,22 +526,16 @@ test('expect winWSL2 preflight check return successful result if the machine has
 test('expect winWSL2 preflight check return failure result if user do not have wsl but he is admin', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'True',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'True',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -588,22 +553,16 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 test('expect winWSL2 preflight check return failure result if user do not have wsl but he is not admin', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: 'False',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: 'False',
+        stderr: '',
+        command: 'command',
       });
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -621,18 +580,12 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 test('expect winWSL2 preflight check return failure result if it fails when checking if wsl is installed', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      return new Promise<extensionApi.RunResult>((_, reject) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('');
-      });
+      throw new Error();
     } else {
-      return new Promise<extensionApi.RunResult>((resolve, _) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        resolve({
-          stdout: '',
-          stderr: '',
-          command: 'command',
-        });
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+        command: 'command',
       });
     }
   });
@@ -868,5 +821,90 @@ test('checkForUpdate should return installed version and update if the installed
     installedVersion: '1.1',
     hasUpdate: true,
     bundledVersion: podmanInstallObj.getBundledPodmanVersion(),
+  });
+});
+
+const providerMock: extensionApi.Provider = {} as unknown as extensionApi.Provider;
+
+describe('performUpdate', () => {
+  test('should raise an error if no podmanInfo provided', async () => {
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+
+    await expect(() => {
+      return podmanInstall.performUpdate(providerMock, undefined);
+    }).rejects.toThrowError('The podman extension has not been successfully initialized');
+  });
+
+  test('should call showWarningMessage if stopPodmanMachinesIfAnyBeforeUpdating resolve false', async () => {
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+    // E.g. user cancel stop
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(false);
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.window.showWarningMessage).toHaveBeenCalledWith('Podman update has been canceled.', 'OK');
+  });
+
+  test('should call showInformationMessage ', async () => {
+    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue(undefined);
+
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+
+    // all podman machine are stopped
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(true);
+    // return true if data have been cleaned or if user skip it
+    vi.spyOn(podmanInstall, 'wipeAllDataBeforeUpdatingToV5').mockResolvedValue(true);
+
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.window.showInformationMessage).toHaveBeenCalledWith(
+      'You have Podman 1.0.0.\nDo you want to update to 0.9.8?',
+      'Yes',
+      'No',
+      'Ignore',
+      'Open release notes',
+    );
+  });
+
+  test('user clicking on Open release note should open external link', async () => {
+    vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue('Open release notes');
+
+    const podmanInstall: TestPodmanInstall = new TestPodmanInstall(extensionContext);
+    // mock initialized
+    podmanInstall['podmanInfo'] = {} as unknown as PodmanInfo;
+
+    // all podman machine are stopped
+    vi.spyOn(podmanInstall, 'stopPodmanMachinesIfAnyBeforeUpdating').mockResolvedValue(true);
+    // return true if data have been cleaned or if user skip it
+    vi.spyOn(podmanInstall, 'wipeAllDataBeforeUpdatingToV5').mockResolvedValue(true);
+
+    // mock checkForUpdate
+    vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+      hasUpdate: true,
+      installedVersion: '1.0.0',
+      bundledVersion: '0.9.8',
+    });
+
+    await podmanInstall.performUpdate(providerMock, undefined);
+
+    expect(extensionApi.Uri.parse).toHaveBeenCalledWith(releaseNotes.href);
+    expect(extensionApi.env.openExternal).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -267,16 +267,11 @@ export class ImageRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'createRegistry',
-        Object.assign(
-          {
-            serverUrlHash: this.getRegistryHash(registryCreateOptions),
-            total: this.registries.length,
-          },
-          telemetryOptions,
-        ),
-      );
+      this.telemetryService.track('createRegistry', {
+        serverUrlHash: this.getRegistryHash(registryCreateOptions),
+        total: this.registries.length,
+        ...telemetryOptions,
+      });
     }
   }
 
@@ -389,7 +384,7 @@ export class ImageRegistry {
 
     // check that there is no protocol prefix in the image name
     // like http:// or https://, etc.
-    if (imageName.match(/^[a-zA-Z0-9+.-]+:\/\//)) {
+    if (RegExp(/^[a-zA-Z0-9+.-]+:\/\//).exec(imageName)) {
       throw new Error(`Invalid image name: ${imageName}`);
     }
 
@@ -682,10 +677,8 @@ export class ImageRegistry {
       // need to grab correct manifest from the index corresponding to our platform
       let platformArch: 'amd64' | 'arm64' = 'amd64';
       const arch = os.arch();
-      if (arch === 'x64') {
-        // default to amd64
-        platformArch = 'amd64';
-      } else if (arch === 'arm64') {
+      // only change arch if we are on arm64
+      if (arch === 'arm64') {
         platformArch = 'arm64';
       }
 

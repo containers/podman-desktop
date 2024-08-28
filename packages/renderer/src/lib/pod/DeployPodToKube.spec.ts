@@ -423,7 +423,7 @@ test('When deploying a pod, restricted security context is added', async () => {
   expect(createButton).toBeEnabled();
 
   // Click restricted
-  const useRestricted = screen.getByRole('checkbox', { name: 'Use restricted security context' });
+  const useRestricted = screen.getByRole('checkbox', { name: 'Use Restricted Security Context' });
   await fireEvent.click(useRestricted);
 
   // Press the deploy button

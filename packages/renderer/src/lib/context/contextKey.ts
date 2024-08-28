@@ -24,7 +24,10 @@
 /* eslint-disable sonarjs/no-identical-functions */
 /* eslint-disable sonarjs/no-nested-switch */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-
+/* eslint-disable sonarjs/different-types-comparison */
+/* eslint-disable sonarjs/single-character-alternation */
+/* eslint-disable sonarjs/updated-loop-counter */
+/* eslint-disable sonarjs/function-return-type */
 import type { Event } from '@podman-desktop/api';
 
 import type { ContextKeyValue, IContext } from '../../../../main/src/plugin/api/context-info.js';
@@ -758,7 +761,7 @@ function cmp(a: ContextKeyExpression, b: ContextKeyExpression): number {
 }
 
 export class ContextKeyFalseExpr implements IContextKeyExpression {
-  public static INSTANCE = new ContextKeyFalseExpr();
+  public static readonly INSTANCE = new ContextKeyFalseExpr();
 
   public readonly type = ContextKeyExprType.False;
 
@@ -798,7 +801,7 @@ export class ContextKeyFalseExpr implements IContextKeyExpression {
 }
 
 export class ContextKeyTrueExpr implements IContextKeyExpression {
-  public static INSTANCE = new ContextKeyTrueExpr();
+  public static readonly INSTANCE = new ContextKeyTrueExpr();
 
   public readonly type = ContextKeyExprType.True;
 

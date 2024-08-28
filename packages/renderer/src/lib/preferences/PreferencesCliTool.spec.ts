@@ -122,6 +122,22 @@ const cliToolInfoItem6: CliToolInfo = {
   canInstall: true,
 };
 
+const cliToolInfoItem7: CliToolInfo = {
+  id: 'ext-id.tool-name7',
+  name: 'tool-name7',
+  description: 'markdown description7',
+  displayName: 'tools-display-name7',
+  state: 'registered',
+  extensionInfo: {
+    id: 'ext-id7',
+    label: 'ext-label7',
+  },
+  version: '1.0.1',
+  path: 'path/to/tool-name-7',
+  canUpdate: true,
+  canInstall: true,
+};
+
 const updateCliToolMock = vi.fn();
 beforeEach(() => {
   (window as any).updateCliTool = updateCliToolMock;
@@ -283,5 +299,51 @@ suite('CLI Tool item', () => {
     const installLoadingButton = screen.getByRole('button', { name: 'Install' });
     expect(installLoadingButton).toBeInTheDocument();
     expect(installLoadingButton).toBeEnabled();
+  });
+
+  test('check no uninstall button is displayed if there is a version and no installer registered', async () => {
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem4,
+    });
+    const nameElement = screen.getByLabelText('cli-name');
+    expect(nameElement).toBeDefined();
+    expect(nameElement.textContent).equal(cliToolInfoItem4.name);
+    const registeredByElement = screen.getByLabelText('cli-registered-by');
+    expect(registeredByElement).toBeDefined();
+    expect(registeredByElement.textContent).equal(`Registered by ${cliToolInfoItem4.extensionInfo.label}`);
+    const displayNameElement = screen.getByLabelText('cli-display-name');
+    expect(displayNameElement).toBeDefined();
+    expect(displayNameElement.textContent).equal(cliToolInfoItem4.displayName);
+    const versionElement = screen.getByLabelText('cli-version');
+    expect(versionElement).toBeInTheDocument();
+    expect(versionElement.textContent).equal(`${cliToolInfoItem4.name} v${cliToolInfoItem4.version}`);
+    const uninstallLoadingButton = screen.queryByRole('button', { name: 'Uninstall' });
+    expect(uninstallLoadingButton).not.toBeInTheDocument();
+  });
+
+  test('check the uninstall button is displayed if there is a version and an installer has been registered', async () => {
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem7,
+    });
+    const nameElement = screen.getByLabelText('cli-name');
+    expect(nameElement).toBeDefined();
+    expect(nameElement.textContent).equal(cliToolInfoItem7.name);
+    const registeredByElement = screen.getByLabelText('cli-registered-by');
+    expect(registeredByElement).toBeDefined();
+    expect(registeredByElement.textContent).equal(`Registered by ${cliToolInfoItem7.extensionInfo.label}`);
+    const displayNameElement = screen.getByLabelText('cli-display-name');
+    expect(displayNameElement).toBeDefined();
+    expect(displayNameElement.textContent).equal(cliToolInfoItem7.displayName);
+    const versionElement = screen.getByLabelText('cli-version');
+    expect(versionElement).toBeInTheDocument();
+    expect(versionElement.textContent).equal(`${cliToolInfoItem7.name} v${cliToolInfoItem7.version}`);
+    const uninstallLoadingButton = screen.getByRole('button', { name: 'Uninstall' });
+    expect(uninstallLoadingButton).toBeInTheDocument();
+    expect(uninstallLoadingButton).toBeEnabled();
+    const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
+    expect(updateLoadingButton).toBeInTheDocument();
+    expect(updateLoadingButton).toBeEnabled();
+    const installLoadingButton = screen.queryByRole('button', { name: 'Install' });
+    expect(installLoadingButton).not.toBeInTheDocument();
   });
 });

@@ -121,7 +121,7 @@ declare module '@podman-desktop/api' {
      * @param disposables An array to which a {@link Disposable} will be added.
      * @return A disposable which unsubscribes the event listener.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any,  sonarjs/prefer-function-type
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
   }
 
@@ -4356,30 +4356,36 @@ declare module '@podman-desktop/api' {
   export interface CliToolInstaller {
     selectVersion: () => Promise<string>;
     doInstall: (logger: Logger) => Promise<void>;
+    doUninstall: (logger: Logger) => Promise<void>;
   }
 
   export type CliToolState = 'registered';
 
-  export interface CliTool extends Disposable {
-    id: string;
-    name: string;
-    displayName: string;
-    markdownDescription: string;
+  export interface CliTool extends CliToolInfo, Disposable {
     state: CliToolState;
-    images: ProviderImages;
-    extensionInfo: {
-      id: string;
-      label: string;
-    };
-
     updateVersion(version: CliToolUpdateOptions): void;
     onDidUpdateVersion: Event<string>;
+
+    onDidUninstall: Event<void>;
 
     // register cli update flow
     registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
 
     // register cli installer
     registerInstaller(installer: CliToolInstaller): Disposable;
+  }
+
+  export interface CliToolInfo {
+    id: string;
+    name: string;
+    displayName: string;
+    markdownDescription: string;
+    images: ProviderImages;
+    version?: string;
+    extensionInfo: {
+      id: string;
+      label: string;
+    };
   }
 
   /**
@@ -4395,6 +4401,23 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
+
+    /**
+     * given an id, return the corresponding CLI Tool
+     * @param id cli tool
+     */
+    export function getCliTool(id: string): CliToolInfo | undefined;
+
+    /**
+     * All cli tools currently known to the system.
+     */
+    export const all: readonly CliToolInfo[];
+
+    /**
+     * An event which fires when `cli.all` changes. This can happen when cli are
+     * installed, uninstalled, enabled or disabled.
+     */
+    export const onDidChange: Event<void>;
   }
 
   /**

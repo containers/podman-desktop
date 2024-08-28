@@ -73,51 +73,36 @@ afterEach(() => {
 
 describe('Check for Docker Compose', async () => {
   test('not installed', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    const customError = { exitCode: -1 } as extensionApi.RunError;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw customError;
+    });
     const result = await detect.checkForDockerCompose();
     expect(result).toBeFalsy();
   });
 
   test('installed', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>(resolve => {
-          resolve({} as extensionApi.RunResult);
-        }),
-    );
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
     const result = await detect.checkForDockerCompose();
     expect(result).toBeTruthy();
   });
 });
 
 describe('Check for path', async () => {
+  const customError = { exitCode: -1 } as extensionApi.RunError;
   test('not included', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw customError;
+    });
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/different-path');
     const result = await detect.checkStoragePath();
     expect(result).toBeFalsy();
   });
 
   test('included', async () => {
-    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>((resolve, reject) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          reject({ exitCode: -1 } as extensionApi.RunError);
-        }),
-    );
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw customError;
+    });
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue(path.resolve('/', 'storage-path', 'bin'));
     const result = await detect.checkStoragePath();
     expect(result).toBeTruthy();
@@ -143,11 +128,8 @@ describe('Check storage path', async () => {
 
 describe('Check getDockerComposePath uses proper tooling by platform', () => {
   beforeEach(() => {
-    vi.mocked(extensionApi.process.exec).mockImplementation(
-      () =>
-        new Promise<extensionApi.RunResult>(resolve => {
-          resolve({ exitCode: 0, stdout: 'hello-world' } as extensionApi.RunError);
-        }),
+    vi.mocked(extensionApi.process.exec).mockImplementation(() =>
+      Promise.resolve({ exitCode: 0, stdout: 'hello-world' } as extensionApi.RunError),
     );
   });
 

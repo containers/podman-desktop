@@ -267,7 +267,7 @@ describe('RunImage', () => {
   });
 
   test('Expect that image without cmd is sent to API', async () => {
-    await createRunImage(['entrypoint1', 'entrypoint2'], undefined);
+    await createRunImage(['entrypoint1', 'entrypoint2']);
 
     const button = screen.getByRole('button', { name: 'Start Container' });
 

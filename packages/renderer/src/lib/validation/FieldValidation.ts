@@ -32,9 +32,7 @@ export type UpdateAction = {
   update(value: string): void;
 };
 
-export type ActivateFunction = {
-  (_node: unknown, binding: unknown): UpdateAction;
-};
+export type ActivateFunction = (_node: unknown, binding: unknown) => UpdateAction;
 
 export function createFieldValidator(
   ...validators: ((value: string) => [boolean, string])[]

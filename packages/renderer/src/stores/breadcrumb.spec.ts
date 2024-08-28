@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ export function mockBreadcrumb() {
 test('Confirm mock values', async () => {
   mockBreadcrumb();
 
-  const cur = get(lastPage);
-  expect(cur.name, 'Current');
+  const cur = get(currentPage);
+  expect(cur.name).toBe('Current');
 
   const last = get(lastPage);
-  expect(last.name, 'Previous');
+  expect(last.name).toBe('Previous');
 
   const hist = get(history);
-  expect(hist[0].name, 'List');
+  expect(hist[0].name).toBe('List');
 });

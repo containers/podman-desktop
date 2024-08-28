@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { Octokit } from '@octokit/rest';
@@ -294,8 +295,10 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       return releaseVersionToInstall;
     },
     doInstall: async _logger => {
-      if (binaryVersion || binaryPath) {
-        throw new Error(`Cannot install ${composeCliName}. Version ${binaryVersion} is already installed.`);
+      if (binaryVersion ?? binaryPath) {
+        throw new Error(
+          `Cannot install ${composeCliName}. Version ${binaryVersion} in ${binaryPath} is already installed.`,
+        );
       }
       if (!releaseToInstall || !releaseVersionToInstall) {
         throw new Error(`Cannot install ${composeCliName}. No release selected.`);
@@ -313,6 +316,22 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       binaryVersion = releaseVersionToInstall;
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!binaryVersion) {
+        throw new Error(`Cannot uninstall ${composeCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = await detect.getStoragePath();
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(composeCliName);
+      await deleteFile(systemPath);
+
+      // update the version to undefined
+      binaryVersion = undefined;
     },
   });
 
@@ -358,6 +377,40 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       releaseToUpdateTo = undefined;
     },
   });
+}
+
+async function deleteFile(filePath: string): Promise<void> {
+  if (filePath && fs.existsSync(filePath)) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'EACCES' || error.code === 'EPERM')
+      ) {
+        await deleteFileAsAdmin(filePath);
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+async function deleteFileAsAdmin(filePath: string): Promise<void> {
+  const system = process.platform;
+
+  const args: string[] = [filePath];
+  const command = system === 'win32' ? 'del' : 'rm';
+
+  try {
+    // Use admin prileges
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+  } catch (error) {
+    console.error(`Failed to uninstall '${filePath}': ${error}`);
+    throw error;
+  }
 }
 
 function removeVersionPrefix(version: string): string {

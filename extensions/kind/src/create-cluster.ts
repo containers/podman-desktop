@@ -118,7 +118,7 @@ export async function createCluster(
     provider = params['kind.cluster.creation.provider'];
   }
 
-  const env = Object.assign({}, process.env) as { [key: string]: string };
+  const env = { ...process.env } as { [key: string]: string };
   // add KIND_EXPERIMENTAL_PROVIDER env variable if needed
   if (provider === 'podman') {
     env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';

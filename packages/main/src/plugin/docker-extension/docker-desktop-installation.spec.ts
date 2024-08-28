@@ -250,8 +250,8 @@ describe('handleExtensionVMServiceRequest', () => {
   });
 
   test('Check unknown error ', async () => {
-    vi.spyOn(dockerDesktopInstallation, 'asGotMethod').mockImplementationOnce(() => {
-      throw 'foo error';
+    vi.spyOn(dockerDesktopInstallation, 'asGotMethod').mockImplementation(() => {
+      throw new Error('foo error');
     });
 
     await expect(
@@ -261,7 +261,7 @@ describe('handleExtensionVMServiceRequest', () => {
         url: '/foo/bar',
         data: undefined,
       }),
-    ).rejects.toThrowError('Unknown error: foo error');
+    ).rejects.toThrowError('foo error');
   });
 });
 

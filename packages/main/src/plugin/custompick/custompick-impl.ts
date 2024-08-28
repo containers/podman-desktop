@@ -22,10 +22,11 @@ import { Emitter } from '../events/emitter.js';
 import type { IDisposable } from '../types/disposable.js';
 import type { CustomPickRegistry } from './custompick-registry.js';
 
+type IconClassType = string | { light: string; dark: string } | undefined;
 export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, IDisposable {
   private _title: string | undefined;
   private _description: string | undefined;
-  private _icon: string | { light: string; dark: string } | undefined;
+  private _icon: IconClassType;
   private _items: T[] = [];
   private _canSelectMany = false;
   private _hideItemSections = false;
@@ -58,11 +59,11 @@ export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, 
     this._description = description;
   }
 
-  get icon(): string | { light: string; dark: string } | undefined {
+  get icon(): IconClassType {
     return this._icon;
   }
 
-  set icon(icon: string | { light: string; dark: string } | undefined) {
+  set icon(icon: IconClassType) {
     this._icon = icon;
   }
 

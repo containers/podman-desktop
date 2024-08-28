@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ test('return default number value if less than maximum number value', () => {
 });
 
 test('return false if scope is undefined and targetScope is defined', () => {
-  const result = isTargetScope('DEFAULT', undefined);
+  const result = isTargetScope('DEFAULT');
   expect(result).toBe(false);
 });
 

@@ -136,7 +136,7 @@ describe('context tests', () => {
 
   test('should not delete context if saving to file fails', async () => {
     client.saveKubeConfig = vi.fn().mockImplementation((_config: KubeConfig) => {
-      throw 'an error';
+      throw new Error('an error');
     });
 
     const originalContextName = originalContexts[0]?.name;
