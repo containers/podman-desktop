@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import { join } from 'node:path';
 
+import type { PropSidebarItem } from '@docusaurus/plugin-content-docs';
 import type { LoadContext, Plugin, PluginOptions as DocusaurusOptions } from '@docusaurus/types';
 
 export interface PluginOptions extends DocusaurusOptions {
@@ -29,24 +30,44 @@ export interface PluginOptions extends DocusaurusOptions {
   storybookStatic: string;
 }
 
+export interface StorybookItem {
+  type: 'story' | 'docs';
+  id: string;
+  name: string;
+  title: string;
+  importPath: string;
+  tags: string[];
+}
+
 function populate(folder: string, storybookStatic: string): void {
   const index = require(join(storybookStatic, 'index.json'));
 
   if (index['v'] !== 5)
     throw new Error(`index version is not compatible with current script. Expected 5 got ${index['v']}.`);
 
-  const items = [];
+  const groups = new Map<string, PropSidebarItem[]>();
 
-  for (const [key] of Object.entries(index['entries'])) {
-    items.push({
-      type: 'doc',
-      id: `${key}`,
-      label: `${key}`,
-    });
+  for (const item of Object.values(index['entries']) as StorybookItem[]) {
+    groups.set(item.title, [
+      ...(groups.get(item.title) ?? []),
+      {
+        type: 'link',
+        label: item.name,
+        href: `/storybook?id=${item.id}`,
+      },
+    ]);
   }
 
+  const sidebar: PropSidebarItem[] = Array.from(groups.entries()).map(([key, value]) => ({
+    type: 'category',
+    label: key,
+    items: value,
+    collapsed: false,
+    collapsible: true,
+  }));
+
   // Write the generate sidebar to the output directory
-  fs.writeFileSync(join(folder, 'sidebar.cjs'), `module.exports = ${JSON.stringify(items)};`);
+  fs.writeFileSync(join(folder, 'sidebar.cjs'), `module.exports = ${JSON.stringify(sidebar)};`);
 }
 
 function parseOptions(opts: unknown): PluginOptions {
