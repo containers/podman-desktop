@@ -79,7 +79,6 @@ router.subscribe(function (navigation) {
 });
 
 window.events?.receive('context-menu:close', () => {
-  console.log('context menu closed renderer');
   window.dispatchEvent(new Event('context-menu-closed'));
 });
 

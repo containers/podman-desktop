@@ -20,7 +20,6 @@ let uri: string;
 $: uri = encodeURI(href);
 let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
-let thisTooltipHidden = false;
 
 const navItems: Writable<number> = getContext('nav-items');
 
@@ -54,7 +53,7 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]={!selected || inSection}
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]={!selected || inSection}
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]={!selected && !inSection}>
-    <Tooltip right tip={thisTooltipHidden ? '' : tooltipText}>
+    <Tooltip right tip={tooltipText}>
       <slot />
     </Tooltip>
   </div>
