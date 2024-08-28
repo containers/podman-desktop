@@ -30,7 +30,8 @@ let extensionsStarted = false;
 export async function checkForUpdate(eventName: string): Promise<boolean> {
   // trigger update after all extensions started
   if (eventName === 'extensions-already-started') {
-    return (extensionsStarted = true);
+    extensionsStarted = true;
+    return true;
   }
 
   // ignore individual tools created from extension activation methods until

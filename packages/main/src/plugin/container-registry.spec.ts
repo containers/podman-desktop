@@ -3851,7 +3851,7 @@ describe('getContainerCreateMountOptionFromBind', () => {
   function verifyGetContainerCreateMountOptionFromBind(options: OptionFromBindOptions): void {
     let bind = `${options.source}:${options.destination}`;
     const mountOptions = ['rbind'];
-    if (options.mode || options.propagation) {
+    if (options.mode ?? options.propagation) {
       bind += ':';
       if (options.mode) {
         mountOptions.push(options.mode);

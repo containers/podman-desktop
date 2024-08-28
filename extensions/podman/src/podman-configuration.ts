@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ export class PodmanConfiguration {
     if (
       extensionApi.proxy.getProxySettings() === undefined &&
       extensionApi.proxy.isEnabled() &&
-      (httpsProxy || httpProxy || noProxy)
+      (httpsProxy ?? httpProxy ?? noProxy)
     ) {
       await extensionApi.proxy.setProxy(proxySettings);
     }
@@ -257,14 +257,11 @@ export class PodmanConfiguration {
         if (proxySettings?.httpsProxy && proxySettings?.httpsProxy !== '') {
           engineEnv.push(httpsProxyEnvValue);
         }
+      } else if (!proxySettings?.httpsProxy || proxySettings?.httpsProxy === '') {
+        // delete the httpsProxyIndex in the engineEnv array
+        engineEnv.splice(httpsProxyIndex, 1);
       } else {
-        // empty or undefined ? needs to unset
-        if (!proxySettings?.httpsProxy || proxySettings?.httpsProxy === '') {
-          // delete the httpsProxyIndex in the engineEnv array
-          engineEnv.splice(httpsProxyIndex, 1);
-        } else {
-          engineEnv[httpsProxyIndex] = httpsProxyEnvValue;
-        }
+        engineEnv[httpsProxyIndex] = httpsProxyEnvValue;
       }
       // now update values
       const httpProxyIndex = engineEnv.findIndex(item => item.startsWith('http_proxy='));
@@ -275,14 +272,12 @@ export class PodmanConfiguration {
         if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
           engineEnv.push(httpProxyEnvValue);
         }
-      } else {
+      } else if (!proxySettings?.httpProxy || proxySettings?.httpProxy === '') {
         // empty or undefined ? needs to unset
-        if (!proxySettings?.httpProxy || proxySettings?.httpProxy === '') {
-          // delete the httpProxyIndex in the engineEnv array
-          engineEnv.splice(httpProxyIndex, 1);
-        } else {
-          engineEnv[httpProxyIndex] = httpProxyEnvValue;
-        }
+        // delete the httpProxyIndex in the engineEnv array
+        engineEnv.splice(httpProxyIndex, 1);
+      } else {
+        engineEnv[httpProxyIndex] = httpProxyEnvValue;
       }
 
       // now update values
@@ -294,14 +289,11 @@ export class PodmanConfiguration {
         if (proxySettings?.noProxy && proxySettings?.noProxy !== '') {
           engineEnv.push(noProxyEnvValue);
         }
+      } else if (!proxySettings?.noProxy || proxySettings?.noProxy === '') {
+        // delete the noProxyIndex in the engineEnv array
+        engineEnv.splice(noProxyIndex, 1);
       } else {
-        // empty or undefined ? needs to unset
-        if (!proxySettings?.noProxy || proxySettings?.noProxy === '') {
-          // delete the noProxyIndex in the engineEnv array
-          engineEnv.splice(noProxyIndex, 1);
-        } else {
-          engineEnv[noProxyIndex] = noProxyEnvValue;
-        }
+        engineEnv[noProxyIndex] = noProxyEnvValue;
       }
 
       containersConfContent['engine'].env = engineEnv;

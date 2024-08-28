@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { Octokit } from '@octokit/rest';
@@ -362,6 +363,22 @@ async function postActivate(
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
     },
+    doUninstall: async _logger => {
+      if (!currentVersion) {
+        throw new Error(`Cannot uninstall ${kubectlCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = getStorageKubectlPath(extensionContext);
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(kubectlCliName);
+      await deleteFile(systemPath);
+
+      // update the version to undefined
+      currentVersion = undefined;
+    },
   });
 
   extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
@@ -409,4 +426,38 @@ function extractVersion(stdout: string): string {
     return version;
   }
   throw new Error('Cannot extract version from stdout');
+}
+
+async function deleteFile(filePath: string): Promise<void> {
+  if (filePath && fs.existsSync(filePath)) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'EACCES' || error.code === 'EPERM')
+      ) {
+        await deleteFileAsAdmin(filePath);
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+async function deleteFileAsAdmin(filePath: string): Promise<void> {
+  const system = process.platform;
+
+  const args: string[] = [filePath];
+  const command = system === 'win32' ? 'del' : 'rm';
+
+  try {
+    // Use admin prileges
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+  } catch (error) {
+    console.error(`Failed to uninstall '${filePath}': ${error}`);
+    throw error;
+  }
 }

@@ -43,8 +43,6 @@ beforeEach(() => {
 
 vi.mock('electron', async () => {
   class Notification {
-    constructor() {}
-
     show(): void {}
   }
 

@@ -343,7 +343,7 @@ export class Scanner {
     this._tokens.push(errToken);
   }
 
-  /* eslint-disable-next-line no-useless-escape */
+  /* eslint-disable-next-line no-useless-escape, sonarjs/duplicates-in-character-class */
   private stringRe = /[a-zA-Z0-9_<>\-\./\\:\*\?\+\[\]\^,#@;"%\$\p{L}-]+/uy;
   private _string() {
     this.stringRe.lastIndex = this._start;

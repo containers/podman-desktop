@@ -43,6 +43,7 @@ export class PodmanDesktopRunner {
   private _autoUpdate: boolean;
   private _autoCheckUpdate: boolean;
   private _testPassed: boolean;
+  private _suitePassed: boolean;
 
   constructor({
     profile = '',
@@ -57,7 +58,8 @@ export class PodmanDesktopRunner {
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdate = autoCheckUpdate;
-    this._testPassed = true;
+    this._testPassed = false;
+    this._suitePassed = true;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -84,7 +86,8 @@ export class PodmanDesktopRunner {
       const exe = this.getElectronApp().evaluate(async ({ app }) => {
         return app.getPath('exe');
       });
-      console.log(`The Executable Electron app. file: ${exe}`);
+      const filePath = await exe;
+      console.log(`The Executable Electron app. file: ${filePath}`);
 
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
@@ -234,7 +237,7 @@ export class PodmanDesktopRunner {
       rmSync(rawTracesPath, { recursive: true, force: true, maxRetries: 5 });
     }
 
-    if (!this._testPassed || !this._videoAndTraceName) return;
+    if (!this._testPassed || !this._suitePassed || !this._videoAndTraceName) return;
 
     if (!process.env.KEEP_TRACES_ON_PASS) {
       const tracesPath = join(this._testOutput, 'traces', `${this._videoAndTraceName}_trace.zip`);
@@ -345,6 +348,10 @@ export class PodmanDesktopRunner {
 
   public setTestPassed(value: boolean): void {
     this._testPassed = value;
+  }
+
+  public setSuitePassed(value: boolean): void {
+    this._suitePassed = value;
   }
 
   public get options(): object {

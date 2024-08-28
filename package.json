@@ -118,8 +118,8 @@
     "*.{md,css,json}": "prettier --write"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.4.0",
-    "@commitlint/config-conventional": "^19.2.2",
+    "@commitlint/cli": "^19.4.1",
+    "@commitlint/config-conventional": "^19.4.1",
     "@electron/fuses": "^1.8.0",
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
@@ -139,8 +139,8 @@
     "@types/tar": "^6.1.13",
     "@types/tar-fs": "^2.0.4",
     "@types/validator": "^13.12.1",
-    "@typescript-eslint/eslint-plugin": "^8.2.0",
-    "@typescript-eslint/parser": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
     "@vitest/coverage-v8": "^2.0.5",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
@@ -156,7 +156,7 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-sonarjs": "^1.0.4",
+    "eslint-plugin-sonarjs": "^2.0.1",
     "eslint-plugin-unicorn": "^55.0.0",
     "fzstd": "^0.1.1",
     "globals": "^15.9.0",
@@ -170,7 +170,7 @@
     "prettier-plugin-svelte": "^3.2.6",
     "proxy": "^2.2.0",
     "typescript": "5.5.4",
-    "typescript-eslint": "^8.2.0",
+    "typescript-eslint": "^8.3.0",
     "validator": "^13.12.0",
     "vite": "^5.4.2",
     "vitest": "^2.0.5",
@@ -188,7 +188,7 @@
     "compare-versions": "^6.1.1",
     "date.js": "^0.3.3",
     "dockerode": "^4.0.2",
-    "electron-context-menu": "^4.0.2",
+    "electron-context-menu": "4.0.1",
     "electron-updater": "6.3.4",
     "electron-util": "^0.18.1",
     "express": "^4.19.2",
@@ -211,6 +211,7 @@
     "trim": "0.0.3",
     "@types/node": "^20",
     "**/react-dev-utils/loader-utils": "^3.2.1",
-    "**/recursive-readdir/minimatch": "^3.0.5"
+    "**/recursive-readdir/minimatch": "^3.0.5",
+    "**/markdownlint-cli2/micromatch": "~4.0.8"
   }
 }

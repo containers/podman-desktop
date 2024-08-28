@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,9 @@ function strEncodeUTF16(str: string): Uint16Array {
 }
 
 test('expect exec called with CONTAINERS_MACHINE_PROVIDER if a provider is defined', async () => {
-  const execMock = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  const execMock = vi
+    .spyOn(extensionApi.process, 'exec')
+    .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   await execPodman(['machine', 'inspect'], 'libkrun', {
     env: {
@@ -104,12 +101,9 @@ test('expect exec called with CONTAINERS_MACHINE_PROVIDER if a provider is defin
 });
 
 test('expect exec called without CONTAINERS_MACHINE_PROVIDER if a provider is NOT defined', async () => {
-  const execMock = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  const execMock = vi
+    .spyOn(extensionApi.process, 'exec')
+    .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   await execPodman(['machine', 'inspect'], undefined, {
     env: {

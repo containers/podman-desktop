@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,12 +90,7 @@ test('darwin: DarwinSocketCompatibility class, test promptRestart ran within run
 
   const socketCompatClass = new DarwinSocketCompatibility();
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   const spyFindRunningMachine = vi.spyOn(extension, 'findRunningMachine');
   spyFindRunningMachine.mockImplementation(() => {
@@ -169,12 +164,7 @@ test('linux: pass enabling when systemctl command exists', async () => {
     value: 'linux',
   });
 
-  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
-    () =>
-      new Promise<extensionApi.RunResult>(resolve => {
-        resolve({} as extensionApi.RunResult);
-      }),
-  );
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
 
   const socketCompatClass = new LinuxSocketCompatibility();
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -939,16 +939,12 @@ async function doHandleWSLDistroNotFoundError(
           provider.updateStatus('configuring');
           await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
           progress.report({ increment: 40 });
-          await createMachine(
-            {
-              'podman.factory.machine.name': machineInfo.name,
-              'podman.factory.machine.cpus': machineInfo.cpus,
-              'podman.factory.machine.memory': machineInfo.memory,
-              'podman.factory.machine.diskSize': machineInfo.diskSize,
-            },
-            undefined,
-            undefined,
-          );
+          await createMachine({
+            'podman.factory.machine.name': machineInfo.name,
+            'podman.factory.machine.cpus': machineInfo.cpus,
+            'podman.factory.machine.memory': machineInfo.memory,
+            'podman.factory.machine.diskSize': machineInfo.diskSize,
+          });
         } catch (error) {
           console.error(error);
         } finally {
@@ -1455,7 +1451,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // the lifecycle management of one.
   if (isMac() || isWindows()) {
     provider.setContainerProviderConnectionFactory({
-      initialize: () => createMachine({}, undefined),
+      initialize: () => createMachine({}),
       create: createMachine,
       creationDisplayName: 'Podman machine',
     });

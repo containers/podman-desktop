@@ -42,6 +42,7 @@ export class Detect {
       await extensionApi.process.exec('docker-compose', ['--version']);
       return true;
     } catch (e) {
+      console.debug('Error trying to run the version on docker-compose. Binary might not be there', e);
       return false;
     }
   }
@@ -57,6 +58,7 @@ export class Detect {
       });
       return true;
     } catch (e) {
+      console.debug('Error trying to run the version on docker-compose. Binary might not be there', e);
       return false;
     }
   }

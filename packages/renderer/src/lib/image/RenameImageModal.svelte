@@ -13,8 +13,10 @@ export let imageInfoToRename: ImageInfoUI;
 let imageName = '';
 let imageTag = '';
 onMount(async () => {
-  imageName = imageInfoToRename.name;
-  imageTag = imageInfoToRename.tag;
+  if (imageInfoToRename.name !== '<none>') {
+    imageName = imageInfoToRename.name;
+    imageTag = imageInfoToRename.tag;
+  }
 });
 
 function disableSave(name: string, tag: string): boolean {
@@ -45,11 +47,21 @@ function validateImageTag(event: any): void {
 }
 
 async function renameImage(imageName: string, imageTag: string) {
-  const currentImageNameTag = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
+  let currentImageNameTag: string;
+  let shouldDelete: boolean;
+  if (imageInfoToRename.name === '<none>') {
+    currentImageNameTag = imageInfoToRename.id;
+    shouldDelete = false;
+  } else {
+    shouldDelete = true;
+    currentImageNameTag = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
+  }
 
   try {
     await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
-    await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
+    if (shouldDelete) {
+      await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
+    }
     closeCallback();
   } catch (error: any) {
     imageNameErrorMessage = error.message;

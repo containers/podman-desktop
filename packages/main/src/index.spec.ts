@@ -80,8 +80,7 @@ vi.mock('./util', async () => {
 
 vi.mock('electron', async () => {
   class MyCustomWindow {
-    static singleton = new MyCustomWindow();
-    constructor() {}
+    static readonly singleton = new MyCustomWindow();
 
     loadURL(): void {}
     setBounds(): void {}

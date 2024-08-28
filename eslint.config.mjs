@@ -181,6 +181,29 @@ export default [
       'sonarjs/no-duplicate-string': 'off',
       'sonarjs/no-empty-collection': 'off',
       'sonarjs/no-small-switch': 'off',
+      // redundant with @typescript-eslint/no-unused-vars
+      'sonarjs/no-ignored-exceptions': 'off',
+      'sonarjs/no-nested-functions': 'off',
+      'sonarjs/todo-tag': 'off',
+      'sonarjs/no-nested-functions': 'off',
+      'sonarjs/sonar-max-params': 'off',
+      'sonarjs/no-nested-conditional': 'off',
+      'sonarjs/no-empty-function': 'off',
+      'sonarjs/no-base-to-string': 'off',
+      'sonarjs/unnecessary-character-escapes': 'off',
+      'sonarjs/different-types-comparison': 'off',
+      'sonarjs/new-cap': 'off',
+      'sonarjs/no-invariant-returns': 'off',
+      'sonarjs/updated-loop-counter': 'off',
+      'sonarjs/no-redundant-type-constituents': 'off',
+      'sonarjs/function-return-type': 'off',
+      'sonarjs/no-lonely-if': 'off',
+      'sonarjs/deprecation': 'off',
+      'sonarjs/use-type-alias': 'off',
+
+      // failing with the AST parser
+      'sonarjs/sonar-no-fallthrough': 'off',
+      'sonarjs/prefer-enum-initializers': 'off',
 
       // etc custom rules
       'etc/no-deprecated': 'off',
@@ -211,6 +234,8 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off',
       'unicorn/prefer-node-protocol': 'off',
+      'sonarjs/no-nested-assignment': 'off',
+      'sonarjs/no-alphabetical-sort': 'off',
     },
   },
 
@@ -253,6 +278,36 @@ export default [
       'no-undef': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       'no-self-assign': 'off',
+      'sonarjs/no-empty-function': 'off',
+      'sonarjs/sonar-prefer-regexp-exec': 'off',
+      'sonarjs/no-dead-store': 'off',
+      'sonarjs/sonar-no-regex-spaces': 'off',
+      'sonarjs/no-redundant-assignments': 'off',
+      'sonarjs/function-return-type': 'off',
+      'sonarjs/argument-type': 'off',
+      'sonarjs/slow-regex': 'off',
+
+      // reactive statements are not expressions
+      'sonarjs/no-unused-expressions': 'off',
+    },
+  },
+
+  {
+    files: ['**/*.spec.ts'],
+
+    rules: {
+      'sonarjs/no-hardcoded-ip': 'off',
+      'sonarjs/no-clear-text-protocols': 'off',
+      'sonarjs/slow-regex': 'off',
+      'sonarjs/publicly-writable-directories': 'off',
+    },
+  },
+
+  {
+    files: ['website/**'],
+    rules: {
+      'sonarjs/no-unknown-property': 'off',
+      'sonarjs/media-has-caption': 'off',
     },
   },
 ];

@@ -42,7 +42,7 @@ With Podman Desktop, you can configure access to your Developer Sandbox instance
 
    ![Developer Sandbox is running](img/resources-developer-sandbox-running.png)
 
-1. [Select your Developer Sandbox in the Podman Desktop tray](/docs/kubernetes/viewing-and-selecting-current-kubernete-context)
+1. [Select your Developer Sandbox in the Podman Desktop tray](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context)
 1. Run basic tasks such as:
    - [Deploying a container](/docs/kubernetes/deploying-a-container-to-kubernetes)
    - [Deploying a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes)

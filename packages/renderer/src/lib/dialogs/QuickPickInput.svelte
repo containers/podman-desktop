@@ -198,12 +198,10 @@ function validateQuickPick() {
         currentId,
         selectedItems.map(item => quickPickItems.indexOf(item)),
       );
+    } else if (quickPickSelectedIndex >= 0) {
+      window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
     } else {
-      if (quickPickSelectedIndex >= 0) {
-        window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
-      } else {
-        window.sendShowQuickPickValues(currentId, []);
-      }
+      window.sendShowQuickPickValues(currentId, []);
     }
   }
   cleanup();
