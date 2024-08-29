@@ -9,13 +9,6 @@ import { authenticationProviders } from '../../stores/authenticationProviders';
 
 export let onBeforeToggle = (): void => {};
 let showMenu = false;
-$: {
-  if (showMenu) {
-    window.dispatchEvent(new Event('tooltip-hide'));
-  } else if (!showMenu) {
-    window.dispatchEvent(new Event('tooltip-show'));
-  }
-}
 
 let clientY: number;
 let clientX: number;
