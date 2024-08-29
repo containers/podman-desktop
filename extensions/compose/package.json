@@ -155,7 +155,7 @@
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
-    "@podman-desktop/api": "^0.0.1",
+    "@podman-desktop/api": "workspace:*",
     "@types/mustache": "^4.2.5",
     "adm-zip": "^0.5.15",
     "mkdirp": "^3.0.1",

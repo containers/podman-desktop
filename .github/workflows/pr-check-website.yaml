@@ -21,7 +21,7 @@ on:
   pull_request:
     paths:
       - 'package.json'
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - 'website/**'
       - 'storybook/**'
       - 'packages/extension-api/src/**'
@@ -32,27 +32,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run website
-        run: yarn website:build
+        run: pnpm website:build
 
       - name: Store pull request details for publish-netlify
         run: |

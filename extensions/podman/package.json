@@ -383,7 +383,7 @@
   },
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
-    "@podman-desktop/api": "^0.0.1",
+    "@podman-desktop/api": "workspace:*",
     "compare-versions": "^6.1.1",
     "ps-list": "^8.1.1",
     "ssh2": "^1.15.0"
@@ -394,7 +394,7 @@
     "adm-zip": "^0.5.15",
     "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
-    "nock": "^14.0.0-beta.7",
+    "nock": "14.0.0-beta.7",
     "octokit": "^4.0.2",
     "sshpk": "^1.18.0",
     "tsx": "^4.19.0",

@@ -9,7 +9,7 @@
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest watch --coverage --passWithNoTests",
     "svelte:check": "svelte-check --tsconfig ./tsconfig.json",
-    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    "publish:next": "pnpm publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "files": [
     "dist",
