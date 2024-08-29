@@ -38,7 +38,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1",
+    "@podman-desktop/api": "workspace:*",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

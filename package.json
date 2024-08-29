@@ -11,18 +11,6 @@
     "npm": ">=10.2.3"
   },
   "main": "packages/main/dist/index.cjs",
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "extensions/*",
-      "storybook",
-      "website",
-      "website-argos",
-      "tools",
-      "tests/*",
-      "scripts"
-    ]
-  },
   "scripts": {
     "build": "npm run build:main && npm run build:preload && npm run build:preload-docker-extension && npm run build:preload-webview && npm run build:ui && npm run build:renderer && npm run build:extensions",
     "build:main": "cd ./packages/main && vite build",
@@ -102,13 +90,13 @@
     "typecheck:extensions:registries": "tsc --noEmit --project extensions/registries",
     "typecheck:extensions:kubectl-cli": "tsc --noEmit --project extensions/kubectl-cli",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:ui && npm run typecheck:renderer && npm run typecheck:preload-dd-extension && npm run typecheck:preload-webview && npm run typecheck:extensions && npm run typecheck:extension-api",
-    "website:build": "yarn run storybook:build && cd website && yarn run docusaurus build",
-    "website:prod": "yarn run website:build && cd website/build && yarn serve",
-    "website:dev": "yarn run storybook:build && cd website && yarn run docusaurus start",
-    "website:screenshots": "cd website-argos && yarn run screenshot",
+    "website:build": "pnpm run storybook:build && cd website && pnpm run docusaurus build",
+    "website:prod": "pnpm run website:build && cd website/build && pnpm serve",
+    "website:dev": "pnpm run storybook:build && cd website && pnpm run docusaurus start",
+    "website:screenshots": "cd website-argos && pnpm run screenshot",
     "storybook:css": "tsx ./scripts/generate-stylesheet.ts --output storybook/.storybook/themes.css",
-    "storybook:dev": "npm run storybook:css && cd storybook && yarn run dev",
-    "storybook:build": "npm run build:ui && npm run storybook:css && cd storybook && yarn run build",
+    "storybook:dev": "npm run storybook:css && cd storybook && pnpm run dev",
+    "storybook:build": "npm run build:ui && npm run storybook:css && cd storybook && pnpm run build",
     "prepare": "husky install",
     "postinstall": "playwright install"
   },
@@ -127,6 +115,7 @@
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@playwright/test": "1.46.1",
+    "@podman-desktop/api": "workspace:",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -167,7 +156,7 @@
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.9",
     "minimist": "^1.2.8",
-    "nock": "^14.0.0-beta.7",
+    "nock": "14.0.0-beta.7",
     "postcss-import": "^16.1.0",
     "prettier": "^3.3.3",
     "prettier-plugin-svelte": "^3.2.6",
@@ -210,11 +199,5 @@
     "win-ca": "^3.5.1",
     "yaml": "^2.5.0"
   },
-  "resolutions": {
-    "trim": "0.0.3",
-    "@types/node": "^20",
-    "**/react-dev-utils/loader-utils": "^3.2.1",
-    "**/recursive-readdir/minimatch": "^3.0.5",
-    "**/markdownlint-cli2/micromatch": "~4.0.8"
-  }
+  "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
 }

@@ -141,49 +141,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.tag.outputs.githubTag}}
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
-      - name: Get yarn cache directory path (Windows)
-        if: ${{ matrix.os=='windows-2022' }}
-        id: yarn-cache-dir-path-windows
-        run: echo "dir=$(yarn cache dir)" >> ${env:GITHUB_OUTPUT}
-
-      - name: Get yarn cache directory path (mac/Linux)
-        if: ${{ matrix.os=='ubuntu-24.04' || matrix.os=='macos-14' }}
-        id: yarn-cache-dir-path-unix
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        if: ${{ matrix.os=='windows-2022' }}
-        id: yarn-cache-windows
-        with:
-          path: ${{ steps.yarn-cache-dir-path-windows.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - uses: actions/cache@v4
-        if: ${{ matrix.os=='ubuntu-24.04' || matrix.os=='macos-14' }}
-        id: yarn-cache-unix
-        with:
-          path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
       - name: setup telemetry key for production
         run: |
           sed -i -r -e "s/SEGMENT_KEY = '.*'/SEGMENT_KEY = '${{ secrets.SEGMENT_WRITE_KEY }}'/" packages/main/src/plugin/telemetry/telemetry.ts
 
-      - name: yarn
-        run: |
-          yarn --frozen-lockfile --network-timeout 180000
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Install flatpak on Linux
         if: ${{ matrix.os=='ubuntu-24.04' }}
@@ -217,7 +195,7 @@ jobs:
         timeout-minutes: 40
         env:
           AIRGAP_DOWNLOAD: ${{ matrix.airgap == 'true' && '1' || ''  }}
-        run: yarn compile:next
+        run: pnpm compile:next
 
   release:
     needs: [tag, build]
@@ -240,24 +218,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile --network-timeout 180000
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Set-up npmjs auth token
         run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
@@ -266,22 +238,22 @@ jobs:
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
-          cd packages/extension-api && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/extension-api && pnpm publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
 
       - name: Publish Webview API to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/webview-api/package.json
-          cd packages/webview-api && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/webview-api && pnpm publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
 
       - name: Publish ui/svelte to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/ui/package.json
-          cd packages/ui && yarn build && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/ui && pnpm build && pnpm publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
 
       - name: Publish tests-playwright to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" tests/playwright/package.json
-          cd tests/playwright && yarn build && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd tests/playwright && pnpm build && pnpm publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public

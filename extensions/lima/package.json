@@ -64,7 +64,7 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1"
+    "@podman-desktop/api": "workspace:*"
   },
   "devDependencies": {
     "adm-zip": "^0.5.15",

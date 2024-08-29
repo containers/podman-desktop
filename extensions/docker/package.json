@@ -17,11 +17,11 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1"
+    "@podman-desktop/api": "workspace:*"
   },
   "devDependencies": {
+    "@podman-desktop/api": "workspace:*",
     "adm-zip": "^0.5.15",
-    "@podman-desktop/api": "^0.0.1",
     "mkdirp": "^3.0.1",
     "vite": "^5.4.2",
     "vitest": "^2.0.5"

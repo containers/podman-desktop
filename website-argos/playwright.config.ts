@@ -23,7 +23,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     cwd: '../website',
     port: 3000,
-    command: 'yarn serve',
+    command: 'pnpm serve',
   },
   projects: [
     {
