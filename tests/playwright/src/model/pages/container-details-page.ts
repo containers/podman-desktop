@@ -42,7 +42,7 @@ export class ContainerDetailsPage extends DetailsPage {
     this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
     this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
-    this.deployButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Deploy to Kubernetes'));
+    this.deployButton = this.controlActions.getByRole('button', { name: 'Deploy to Kubernetes' });
   }
 
   async getState(): Promise<string> {

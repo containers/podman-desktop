@@ -26,6 +26,10 @@ export class DeployToKubernetesPage extends BasePage {
   readonly deployButton: Locator;
   readonly doneButton: Locator;
   readonly namespaceCombobox: Locator;
+  readonly servicesCheckbox: Locator;
+  readonly restrictedContextCheckbox: Locator;
+  readonly createIngressCheckbox: Locator;
+  readonly selectPortCombobox: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,6 +39,10 @@ export class DeployToKubernetesPage extends BasePage {
     this.namespaceCombobox = this.content.getByRole('combobox', { name: 'Select a Kubernetes Namespace' });
     this.deployButton = this.content.getByRole('button', { name: 'Deploy' });
     this.doneButton = this.content.getByRole('button', { name: 'Done' });
+    this.servicesCheckbox = this.content.getByRole('checkbox', { name: 'Use Services' });
+    this.restrictedContextCheckbox = this.content.getByRole('checkbox', { name: 'Use restricted security context' });
+    this.createIngressCheckbox = this.content.getByRole('checkbox', { name: 'Create Ingress' });
+    this.selectPortCombobox = this.content.getByRole('combobox', { name: 'Select a Port' });
   }
 
   public async deployPod(name: string, context: string, namespace: string = 'default'): Promise<void> {
