@@ -232,7 +232,10 @@ async function createWindow(): Promise<BrowserWindow> {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
     },
     onClose: () => {
-      browserWindow.webContents.send('context-menu:close');
+      browserWindow.webContents.send('context-menu:visible', false);
+    },
+    onShow: () => {
+      browserWindow.webContents.send('context-menu:visible', true);
     },
   });
 

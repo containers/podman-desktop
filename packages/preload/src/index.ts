@@ -1455,8 +1455,8 @@ export function initExposure(): void {
     apiSender.send('dev-tools:open-webview', webviewId);
   });
 
-  ipcRenderer.on('context-menu:close', () => {
-    apiSender.send('context-menu:close');
+  ipcRenderer.on('context-menu:visible', (_, visible: boolean) => {
+    apiSender.send('context-menu:visible', visible);
   });
 
   // Handle callback on dialogs by calling the callback once we get the answer

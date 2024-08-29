@@ -78,12 +78,12 @@ router.subscribe(function (navigation) {
   }
 });
 
-window.events?.receive('context-menu:close', () => {
-  window.dispatchEvent(new Event('tooltip-show'));
-});
-
-window.addEventListener('contextmenu', () => {
-  window.dispatchEvent(new Event('tooltip-hide'));
+window.events?.receive('context-menu:visible', visible => {
+  if (visible) {
+    window.dispatchEvent(new Event('tooltip-hide'));
+  } else {
+    window.dispatchEvent(new Event('tooltip-show'));
+  }
 });
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
