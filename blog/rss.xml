@@ -359,7 +359,7 @@
 <p>On the <strong>Image output</strong> page, select the following:</p>
 <ul>
 <li>From the <strong>Release</strong> list, select Red Hat Enterprise Linux (RHEL) 9.</li>
-<li>From the <strong>Select target environments</strong> option, select <strong>WSL - Windows Subsystem for Linux (<strong><code>.tar.gz</code></strong>)</strong>.</li>
+<li>From the <strong>Select target environments</strong> option, select <strong>WSL - Windows Subsystem for Linux (</strong><code>.tar.gz</code><strong>)</strong>.</li>
 <li>Click <strong>Next</strong>.</li>
 </ul>
 <p>On the <strong>Register</strong> page, select <strong>Automatically register and enable advanced capabilities.</strong></p>
