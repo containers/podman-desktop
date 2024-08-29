@@ -52,7 +52,7 @@
     "test:e2e:build": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build",
     "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/playwright/src/specs/ --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
     "test:e2e:smoke": "npm run test:e2e:build && npm run test:e2e:smoke:run",
-    "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/*smoke.spec.ts",
+    "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/*smoke.spec.ts --workers=1",
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/playwright/src/specs/extension-installation.spec.ts --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
     "test:e2e:pw": "npm run test:e2e:build && npm run test:e2e:pw:run",
