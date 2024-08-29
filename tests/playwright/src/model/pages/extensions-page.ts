@@ -21,9 +21,9 @@ import { expect as playExpect } from '@playwright/test';
 
 import { ExtensionCardPage } from './extension-card-page';
 import type { ExtensionDetailsPage } from './extension-details-page';
-import { MainPage } from './main-page';
 
-export class ExtensionsPage extends MainPage {
+export class ExtensionsPage {
+  readonly page: Page;
   readonly heading: Locator;
   readonly header: Locator;
   readonly content: Locator;
@@ -33,7 +33,7 @@ export class ExtensionsPage extends MainPage {
   readonly installExtensionFromOCIImageButton: Locator;
 
   constructor(page: Page) {
-    super(page, 'extensions');
+    this.page = page;
     this.header = page.getByRole('region', { name: 'header' });
     this.content = page.getByRole('region', { name: 'content' });
     this.heading = this.header.getByLabel('Title').getByText('extensions');

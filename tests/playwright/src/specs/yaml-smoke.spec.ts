@@ -71,7 +71,7 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
 
     const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
     podsPage = await playYamlPage.playYaml(yamlFilePath);
-    await playExpect(podsPage.heading).toBeVisible({ timeout: 10000 });
+    await playExpect(podsPage.heading).toBeVisible();
   });
 
   test('Checking that created pod from yaml is correct', async () => {
