@@ -13,6 +13,13 @@ export let title = '';
 
 // Show and hide the menu using clickOutside
 let showMenu = false;
+$: {
+  if (showMenu) {
+    window.dispatchEvent(new Event('menu-open'));
+  } else if (!showMenu) {
+    window.dispatchEvent(new Event('menu-closed'));
+  }
+}
 
 // If we touch outside the window, hide the menu
 let outsideWindow: HTMLButtonElement;
