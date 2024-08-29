@@ -33,8 +33,9 @@ function getInt(val: string | undefined): number {
 }
 
 async function closeServer(server: net.Server): Promise<void> {
+  const promise = once(server, 'close');
   server.close();
-  await once(server, 'close');
+  await promise;
 }
 
 test('return valid port range', async () => {
