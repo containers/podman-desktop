@@ -12,3 +12,4 @@ dist
 /kind.exe
 /storybook/.storybook/themes.css
 /storybook/storybook-static/
+/test-results
