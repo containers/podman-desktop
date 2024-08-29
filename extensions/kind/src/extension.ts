@@ -16,23 +16,31 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { AuditRequestItems, CancellationToken, CliTool, Logger, StatusBarItem } from '@podman-desktop/api';
+import { Octokit } from '@octokit/rest';
+import type { AuditRequestItems, CancellationToken, CliTool, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { ProgressLocation, window } from '@podman-desktop/api';
 
 import { connectionAuditor, createCluster } from './create-cluster';
 import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
+import type { KindGithubReleaseArtifactMetadata } from './kind-installer';
 import { KindInstaller } from './kind-installer';
-import { getKindBinaryInfo, getKindPath, getSystemBinaryPath } from './util';
+import {
+  getKindBinaryInfo,
+  getKindPath,
+  getSystemBinaryPath,
+  installBinaryToSystem,
+  removeVersionPrefix,
+} from './util';
 
+const KIND_CLI_NAME = 'kind';
+const KIND_DISPLAY_NAME = 'Kind';
 const KIND_MARKDOWN = `Podman Desktop can help you run Kind-powered local Kubernetes clusters on a container engine, such as Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/kind)`;
 
 const API_KIND_INTERNAL_API_PORT = 6443;
-
-const KIND_INSTALL_COMMAND = 'kind.install';
 
 const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
 let imagesPushInProgressToKind: string[] = [];
@@ -270,7 +278,7 @@ export async function createProvider(
       telemetryLogger.logUsage('moveImage');
 
       return extensionApi.window.withProgress(
-        { location: ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to kind.` },
+        { location: extensionApi.ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to kind.` },
         async progress => await moveImage(progress, image),
       );
     }),
@@ -326,7 +334,8 @@ export async function moveImage(
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const telemetryLogger = extensionApi.env.createTelemetryLogger();
-  const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
+  const octokit = new Octokit();
+  const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger, octokit);
 
   let binary: { path: string; version: string } | undefined = undefined;
   let installationSource: extensionApi.CliToolInstallationSource | undefined;
@@ -359,13 +368,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
   // we register it
   kindCli = extensionApi.cli.createCliTool({
-    name: 'kind',
+    name: KIND_CLI_NAME,
     images: {
       icon: './icon.png',
     },
     version: binaryVersion,
     path: binaryPath,
-    displayName: 'kind',
+    displayName: KIND_DISPLAY_NAME,
     markdownDescription: KIND_MARKDOWN,
     installationSource,
   });
@@ -374,51 +383,131 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await createProvider(extensionContext, telemetryLogger);
 
   // if we do not have anything installed, let's add it to the status bar
-  if (!binaryVersion && (await installer.isAvailable())) {
-    const statusBarItem = extensionApi.window.createStatusBarItem();
-    statusBarItem.text = 'Kind';
-    statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
-    statusBarItem.command = KIND_INSTALL_COMMAND;
-    statusBarItem.iconClass = 'fa fa-exclamation-triangle';
-    extensionContext.subscriptions.push(
-      extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () => kindInstall(installer, statusBarItem)),
-      statusBarItem,
-    );
-    statusBarItem.show();
+  let releaseToInstall: KindGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToInstall: string | undefined;
+  kindCli.registerInstaller({
+    selectVersion: async () => {
+      const selected = await installer.promptUserForVersion();
+      releaseToInstall = selected;
+      releaseVersionToInstall = removeVersionPrefix(selected.tag);
+      return releaseVersionToInstall;
+    },
+    doInstall: async _logger => {
+      if (binaryVersion ?? binaryPath) {
+        throw new Error(
+          `Cannot install ${KIND_CLI_NAME}. Version ${binaryVersion} in ${binaryPath} is already installed.`,
+        );
+      }
+      if (!releaseToInstall || !releaseVersionToInstall) {
+        throw new Error(`Cannot install ${KIND_CLI_NAME}. No release selected.`);
+      }
+
+      // download, install system wide and update cli version
+      await installer.install(releaseToInstall);
+      const cliPath = installer.getKindCliStoragePath();
+      await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      kindCli?.updateVersion({
+        version: releaseVersionToInstall,
+        installationSource: 'extension',
+      });
+      binaryVersion = releaseVersionToInstall;
+      binaryPath = cliPath;
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!binaryVersion) {
+        throw new Error(`Cannot uninstall ${KIND_CLI_NAME}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = installer.getKindCliStoragePath();
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(KIND_CLI_NAME);
+      await deleteFile(systemPath);
+
+      // update the version and path to undefined
+      binaryVersion = undefined;
+      binaryPath = undefined;
+    },
+  });
+
+  extensionContext.subscriptions.push(kindCli);
+
+  // if the tool has been installed by the user we do not register the updater/installer
+  if (installationSource === 'external') {
+    return;
+  }
+  // register the updater to allow users to upgrade/downgrade their cli
+  let releaseToUpdateTo: KindGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToUpdateTo: string | undefined;
+
+  kindCli.registerUpdate({
+    selectVersion: async () => {
+      const selected = await installer.promptUserForVersion(binaryVersion);
+      releaseToUpdateTo = selected;
+      releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
+      return releaseVersionToUpdateTo;
+    },
+    doUpdate: async _logger => {
+      if (!binaryVersion || !binaryPath) {
+        throw new Error(`Cannot update ${KIND_CLI_NAME}. No cli tool installed.`);
+      }
+      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
+        throw new Error(`Cannot update ${binaryPath} version ${binaryVersion}. No release selected.`);
+      }
+
+      // download, install system wide and update cli version
+      await installer.install(releaseToUpdateTo);
+      const cliPath = installer.getKindCliStoragePath();
+      await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      kindCli?.updateVersion({
+        version: releaseVersionToUpdateTo,
+        installationSource: 'extension',
+      });
+      binaryVersion = releaseVersionToUpdateTo;
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+  });
+}
+
+async function deleteFile(filePath: string): Promise<void> {
+  if (filePath && fs.existsSync(filePath)) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'EACCES' || error.code === 'EPERM')
+      ) {
+        await deleteFileAsAdmin(filePath);
+      } else {
+        throw error;
+      }
+    }
   }
 }
 
-/**
- * Install the kind binary in the extension storage, and optionally system-wide
- * @param installer
- * @param statusBarItem
- * @param extensionContext
- * @param telemetryLogger
- */
-async function kindInstall(installer: KindInstaller, statusBarItem: StatusBarItem): Promise<void> {
-  if (kindPath) throw new Error('kind cli is already registered');
+async function deleteFileAsAdmin(filePath: string): Promise<void> {
+  const system = process.platform;
 
-  let path: string;
+  const args: string[] = [filePath];
+  const command = system === 'win32' ? 'del' : 'rm';
+
   try {
-    path = await installer.performInstall();
-  } catch (err: unknown) {
-    window.showErrorMessage('Kind installation failed ' + err).catch((error: unknown) => {
-      console.error('show error went wrong', error);
-    });
-    return;
+    // Use admin prileges
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+  } catch (error) {
+    console.error(`Failed to uninstall '${filePath}': ${error}`);
+    throw error;
   }
-
-  statusBarItem.dispose();
-  const binaryInfo = await getKindBinaryInfo(path);
-
-  kindPath = path;
-  kindCli?.updateVersion({
-    version: binaryInfo.version,
-    path: binaryInfo.path,
-  });
 }
 
 export function deactivate(): void {
   console.log('stopping kind extension');
-  kindCli?.dispose();
 }
