@@ -36,8 +36,8 @@ test.afterAll(async () => {
   await pdRunner.close();
 });
 
-test.describe.serial('Basic e2e verification of podman desktop start', () => {
-  test.describe.serial('Welcome page handling', () => {
+test.describe('Basic e2e verification of podman desktop start', () => {
+  test.describe('Welcome page handling', () => {
     test('Check the Welcome page is displayed', async () => {
       const welcomePage = new WelcomePage(page);
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
@@ -57,7 +57,7 @@ test.describe.serial('Basic e2e verification of podman desktop start', () => {
     });
   });
 
-  test.describe.serial('Navigation Bar test', () => {
+  test.describe('Navigation Bar test', () => {
     test('Verify navigation items are visible', async () => {
       const navigationBar = new NavigationBar(page);
       await playExpect(navigationBar.navigationLocator).toBeVisible();
