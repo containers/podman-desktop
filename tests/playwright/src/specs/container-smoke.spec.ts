@@ -17,8 +17,7 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
@@ -28,7 +27,6 @@ import type { ImagesPage } from '../model/pages/images-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteContainer, deleteImage } from '../utility/operations';
 import { waitForPodmanMachineStartup, waitWhile } from '../utility/wait';
 
@@ -40,7 +38,7 @@ const containerToRun = 'alpine-container';
 const containerList = ['first', 'second', 'third'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('containers-e2e');
@@ -67,11 +65,9 @@ beforeAll(async () => {
   }
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
+test.afterAll(async () => {
+  test.setTimeout(90000);
 
-afterAll(async () => {
   try {
     await deleteContainer(page, containerToRun);
     for (const container of containerList) {
@@ -82,10 +78,14 @@ afterAll(async () => {
   } finally {
     await pdRunner.close();
   }
-}, 90000);
+});
 
-describe('Verification of container creation workflow', async () => {
-  test(`Pulling of '${imageToPull}:${imageTag}' image`, { retry: 2, timeout: 90000 }, async () => {
+test.describe.serial('Verification of container creation workflow', () => {
+  test.describe.configure({ retries: 2 });
+
+  test(`Pulling of '${imageToPull}:${imageTag}' image`, async () => {
+    test.setTimeout(90000);
+
     const navigationBar = new NavigationBar(page);
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
@@ -114,6 +114,7 @@ describe('Verification of container creation workflow', async () => {
     images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
+
   test('Test navigation between pages', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
@@ -253,6 +254,8 @@ describe('Verification of container creation workflow', async () => {
   });
 
   test('Prune containers', async () => {
+    test.setTimeout(120000);
+
     const navigationBar = new NavigationBar(page);
     //Start 3 containers
     for (const container of containerList) {
@@ -300,5 +303,5 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 30000 })
         .toBeFalsy();
     }
-  }, 120000);
+  });
 });
