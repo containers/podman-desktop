@@ -114,10 +114,10 @@ export default [
       },
       'file-progress/activate': {
         progress: {
-        hide: false,
-        successMessage: "Lint done...",
-        }
-      }
+          hide: false,
+          successMessage: 'Lint done...',
+        },
+      },
     },
   },
   {
