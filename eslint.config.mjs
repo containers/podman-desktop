@@ -33,6 +33,7 @@ import etc from 'eslint-plugin-etc';
 import svelte from 'eslint-plugin-svelte';
 import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import fileProgress from 'eslint-plugin-file-progress';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,6 +89,7 @@ export default [
     plugins: {
       // compliant v9 plug-ins
       unicorn,
+      'file-progress': fileProgress,
       // non-compliant v9 plug-ins
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
@@ -110,6 +112,12 @@ export default [
           packages: ['packages/*', 'extensions/*'],
         },
       },
+      'file-progress/activate': {
+        progress: {
+        hide: false,
+        successMessage: "Lint done...",
+        }
+      }
     },
   },
   {
@@ -161,6 +169,8 @@ export default [
         },
       ],
       '@typescript-eslint/no-require-imports': 'off',
+
+      'file-progress/activate': 'warn',
 
       // disabled import/namespace rule as the plug-in is not fully compatible using the compat mode
       'import/namespace': 'off',
