@@ -2,14 +2,10 @@ import { writable } from 'svelte/store';
 
 export const tooltipHidden = writable(false);
 
-window.addEventListener('menu-closed', () => {
+window.addEventListener('tooltip-show', () => {
   tooltipHidden.update(() => false);
 });
 
-window.addEventListener('menu-open', () => {
-  tooltipHidden.update(() => true);
-});
-
-window.addEventListener('contextmenu', () => {
+window.addEventListener('tooltip-hide', () => {
   tooltipHidden.update(() => true);
 });

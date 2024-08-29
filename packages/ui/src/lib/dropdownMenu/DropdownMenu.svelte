@@ -15,9 +15,9 @@ export let title = '';
 let showMenu = false;
 $: {
   if (showMenu) {
-    window.dispatchEvent(new Event('menu-open'));
+    window.dispatchEvent(new Event('tooltip-hide'));
   } else if (!showMenu) {
-    window.dispatchEvent(new Event('menu-closed'));
+    window.dispatchEvent(new Event('tooltip-show'));
   }
 }
 
