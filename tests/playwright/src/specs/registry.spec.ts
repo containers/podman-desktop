@@ -16,16 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import { expect as playExpect, test } from '@playwright/test';
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { RegistriesPage } from '../model/pages/registries-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -35,7 +33,7 @@ let registryUsername: string;
 let registryPswdSecret: string;
 let registryName: string;
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('registry-e2e');
@@ -48,15 +46,11 @@ beforeAll(async () => {
   navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   await pdRunner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe('Registries handling verification', async () => {
+test.describe.serial('Registries handling verification', () => {
   test('Check Registries page components and presence of default registries', async () => {
     const settingsBar = await navBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
@@ -69,7 +63,8 @@ describe('Registries handling verification', async () => {
       await playExpect(registryBox).toBeVisible();
     }
   });
-  describe('Registry addition workflow verification', async () => {
+
+  test.describe.serial('Registry addition workflow verification', () => {
     test('Cannot add invalid registry', async () => {
       await navBar.openDashboard();
       const settingsBar = await navBar.openSettings();
@@ -89,7 +84,10 @@ describe('Registries handling verification', async () => {
       await playExpect(registryPage.cancelAddRegistryButton).toBeEnabled();
       await registryPage.cancelAddRegistryButton.click();
     });
-    test.runIf(canTestRegistry())('Valid registry addition verification', async () => {
+
+    test('Valid registry addition verification', async () => {
+      test.skip(!canTestRegistry(), 'Registry tests are disabled');
+
       const registryPage = new RegistriesPage(page);
 
       await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
@@ -100,7 +98,10 @@ describe('Registries handling verification', async () => {
       await playExpect(username).toBeVisible({ timeout: 50000 });
     });
   });
-  test.runIf(canTestRegistry())('Registry editing availability and invalid credentials verification', async () => {
+
+  test('Registry editing availability and invalid credentials verification', async () => {
+    test.skip(!canTestRegistry(), 'Registry tests are disabled');
+
     const registryPage = new RegistriesPage(page);
 
     await registryPage.editRegistry(registryName, 'invalidName', 'invalidPswd');
@@ -110,7 +111,10 @@ describe('Registries handling verification', async () => {
     const cancelButton = page.getByRole('button', { name: 'Cancel' });
     await cancelButton.click();
   });
-  test.runIf(canTestRegistry())('Registry removal verification', async () => {
+
+  test('Registry removal verification', async () => {
+    test.skip(!canTestRegistry(), 'Registry tests are disabled');
+
     const registryPage = new RegistriesPage(page);
 
     await registryPage.removeRegistry(registryName);
