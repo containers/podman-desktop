@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import { expect as playExpect, test } from '@playwright/test';
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import type { DashboardPage } from '../model/pages/dashboard-page';
 import type { ExtensionDetailsPage } from '../model/pages/extension-details-page';
@@ -26,7 +25,6 @@ import type { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 const extensionLabel = 'podman-desktop.podman';
 const extensionLabelName = 'podman';
@@ -41,7 +39,7 @@ let dashboardPage: DashboardPage;
 let settingsBar: SettingsBar;
 let navigationBar: NavigationBar;
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('podman-extensions-e2e');
@@ -51,15 +49,12 @@ beforeAll(async () => {
   navigationBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
+  test.setTimeout(120000);
   await pdRunner.close();
-}, 120000);
-
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
 });
 
-describe('Verification of Podman extension', async () => {
+test.describe.serial('Verification of Podman extension', () => {
   test('Podman is enabled and present', async () => {
     await verifyPodmanExtensionStatus(true);
   });
