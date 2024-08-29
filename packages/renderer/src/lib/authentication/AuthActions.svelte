@@ -9,6 +9,13 @@ import { authenticationProviders } from '../../stores/authenticationProviders';
 
 export let onBeforeToggle = (): void => {};
 let showMenu = false;
+$: {
+  if (showMenu) {
+    window.dispatchEvent(new Event('menu-open'));
+  } else if (!showMenu) {
+    window.dispatchEvent(new Event('menu-closed'));
+  }
+}
 
 let clientY: number;
 let clientX: number;

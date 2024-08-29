@@ -79,7 +79,7 @@ router.subscribe(function (navigation) {
 });
 
 window.events?.receive('context-menu:close', () => {
-  window.dispatchEvent(new Event('context-menu-closed'));
+  window.dispatchEvent(new Event('menu-closed'));
 });
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
