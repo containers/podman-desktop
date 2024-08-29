@@ -17,15 +17,13 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { ContainerState, VolumeState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
@@ -37,7 +35,7 @@ const imageTag = 'latest';
 const containerToRun = 'bootc-image-builder';
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('volume-e2e');
@@ -48,17 +46,13 @@ beforeAll(async () => {
   navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   await pdRunner.close();
-});
-
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
 });
 
 const volumeName = 'e2eVolume';
 
-describe('Volume workflow verification', async () => {
+test.describe.serial('Volume workflow verification', () => {
   test('Create new Volume', async () => {
     let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
@@ -116,6 +110,8 @@ describe('Volume workflow verification', async () => {
   });
 
   test('Create volumes from bootc-image-builder', async () => {
+    test.setTimeout(150000);
+
     //count the number of existing volumes
     const navigationBar = new NavigationBar(page);
     let volumesPage = await navigationBar.openVolumes();
@@ -175,5 +171,5 @@ describe('Volume workflow verification', async () => {
       .toBe(0);
     const finalVolumes = await volumesPage.countVolumesFromTable();
     playExpect(finalVolumes - previousVolumes).toBe(0);
-  }, 150000);
+  });
 });
