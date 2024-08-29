@@ -21,9 +21,9 @@ import { writable } from 'svelte/store';
 export const tooltipHidden = writable(false);
 
 window.addEventListener('tooltip-show', () => {
-  tooltipHidden.update(() => false);
+  tooltipHidden.set(false);
 });
 
 window.addEventListener('tooltip-hide', () => {
-  tooltipHidden.update(() => true);
+  tooltipHidden.set(true);
 });
