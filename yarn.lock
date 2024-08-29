@@ -11165,6 +11165,14 @@ eslint-plugin-etc@^2.0.3:
     tslib "^2.0.0"
     tsutils "^3.0.0"
 
+eslint-plugin-file-progress@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-file-progress/-/eslint-plugin-file-progress-1.5.0.tgz#beceb622875d3cad8f2c05afe23d2426ffa80be8"
+  integrity sha512-get8oNfacIagP+igSzrEZhepPgodtdwACVeKQsE1fVvTL15tZvgCv8K4B2lKT4FZOZOyhxSkQGnWyjEOx1uoIw==
+  dependencies:
+    nanospinner "^1.1.0"
+    picocolors "^1.0.1"
+
 eslint-plugin-import@^2.29.1:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.29.1.tgz#d45b37b5ef5901d639c15270d74d46d161150643"
@@ -15955,6 +15963,13 @@ nanoid@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
   integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
+
+nanospinner@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/nanospinner/-/nanospinner-1.1.0.tgz#d17ff621cb1784b0a206b400da88a0ef6db39b97"
+  integrity sha512-yFvNYMig4AthKYfHFl1sLj7B2nkHL4lzdig4osvl9/LdGbXwrdFRoqBS98gsEsOakr0yH+r5NZ/1Y9gdVB8trA==
+  dependencies:
+    picocolors "^1.0.0"
 
 natural-compare@^1.4.0:
   version "1.4.0"
