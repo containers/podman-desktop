@@ -55,7 +55,7 @@ async function update(cliTool: CliToolInfo) {
     cliToolUpdateStatus.inProgress = true;
     cliToolUpdateStatus = cliToolUpdateStatus;
     const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(cliTool.id));
-    await window.updateCliTool(cliTool.id, loggerHandlerKey, eventCollect);
+    await window.updateCliTool(cliTool.id, loggerHandlerKey, newVersion, eventCollect);
     showError = false;
   } catch (e) {
     errorMessage = `Unable to update ${cliTool.displayName} to version ${newVersion}.`;

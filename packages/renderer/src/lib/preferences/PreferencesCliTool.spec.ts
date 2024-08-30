@@ -24,7 +24,7 @@ import { beforeEach } from 'node:test';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { afterEach, expect, suite, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import type { CliToolInfo } from '/@api/cli-tool-info';
 
@@ -147,7 +147,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-suite('CLI Tool item', () => {
+describe('CLI Tool item', () => {
   test('check tool infos are displayed as expected if version is not specified', () => {
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem1,
@@ -229,6 +229,23 @@ suite('CLI Tool item', () => {
 
     const failedErrorButton2 = screen.getByRole('button', { name: `${cliToolInfoItem3.displayName} failed` });
     expect(failedErrorButton2).toBeInTheDocument();
+  });
+
+  test('check version is sent to updateCliTool', async () => {
+    const selectCliToolVersionToUpdateMock = vi.fn().mockImplementation(() => Promise.resolve('1.1.1'));
+    (window as any).selectCliToolVersionToUpdate = selectCliToolVersionToUpdateMock;
+    (window as any).updateCliTool = updateCliToolMock;
+    render(PreferencesCliTool, {
+      cliTool: cliToolInfoItem4,
+    });
+    const updateAvailableElement = screen.getByRole('button', { name: 'Update available' });
+    expect(updateAvailableElement).toBeDefined();
+    expect(updateAvailableElement.textContent).toBe('Upgrade/Downgrade');
+
+    await userEvent.click(updateAvailableElement);
+
+    expect(selectCliToolVersionToUpdateMock).toBeCalledWith(cliToolInfoItem4.id);
+    expect(updateCliToolMock).toBeCalledWith(cliToolInfoItem4.id, expect.any(Symbol), '1.1.1', expect.any(Function));
   });
 
   test('check tool infos are displayed as expected and without a new version', async () => {
