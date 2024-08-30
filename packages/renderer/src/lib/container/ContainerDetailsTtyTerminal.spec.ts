@@ -76,6 +76,9 @@ test('expect being able to attach terminal ', async () => {
   // search a div having aria-live="assertive" attribute
   await waitFor(() => expect(renderObject.container.querySelector('div[aria-live="assertive"]')));
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
+
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   // check the content
   expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
 
