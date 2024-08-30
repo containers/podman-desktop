@@ -1860,6 +1860,8 @@ export async function createMachine(
     provider = getProviderByLabel(params['podman.factory.machine.provider']);
   }
 
+  telemetryRecords.provider = provider;
+
   // cpus
   if (params['podman.factory.machine.cpus']) {
     let cpusValue = params['podman.factory.machine.cpus'];
