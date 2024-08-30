@@ -42,8 +42,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       electron-context-menu:
-        specifier: 4.0.3
-        version: 4.0.3
+        specifier: 4.0.4
+        version: 4.0.4
       electron-updater:
         specifier: 6.3.4
         version: 6.3.4
@@ -533,8 +533,8 @@ importers:
         specifier: ^0.9.5
         version: 0.9.5(svelte@5.0.0-next.225)
       electron-context-menu:
-        specifier: 4.0.3
-        version: 4.0.3
+        specifier: 4.0.4
+        version: 4.0.4
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -5547,8 +5547,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  electron-context-menu@4.0.3:
-    resolution: {integrity: sha512-TJhk750ZFC+qvlMBw5eXANbTzh0CJQuP+gCGtzVJKLb65n7WvxbufFcfXra2sIUviUhZo3mGkMzfSXWNwd2eyQ==}
+  electron-context-menu@4.0.4:
+    resolution: {integrity: sha512-XPGj35npL8+MG9Lx5ukmK/h8KLmjYJ3e1GvwWKrNZvf2ocv746WXIyltoV1yWtkEPT7g2kQ8hFmu0ZupK5KieA==}
     engines: {node: '>=18'}
 
   electron-devtools-installer@3.2.0:
@@ -17423,7 +17423,7 @@ snapshots:
       - electron-builder-squirrel-windows
       - supports-color
 
-  electron-context-menu@4.0.3:
+  electron-context-menu@4.0.4:
     dependencies:
       cli-truncate: 4.0.0
       electron-dl: 4.0.0
@@ -19884,7 +19884,7 @@ snapshots:
       jsonc-parser: 3.2.1
       markdownlint: 0.34.0
       markdownlint-cli2-formatter-default: 0.0.4(markdownlint-cli2@0.13.0)
-      micromatch: 4.0.8
+      micromatch: 4.0.5
 
   markdownlint-micromark@0.1.10: {}
 
