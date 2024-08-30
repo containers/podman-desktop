@@ -52,7 +52,7 @@ test.afterAll(async () => {
 
 const volumeName = 'e2eVolume';
 
-test.describe.serial('Volume workflow verification', () => {
+test.describe.serial('Volume workflow verification @smoke', () => {
   test('Create new Volume', async () => {
     let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();

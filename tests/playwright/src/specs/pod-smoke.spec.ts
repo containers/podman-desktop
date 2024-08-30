@@ -90,7 +90,7 @@ test.afterAll(async () => {
   }
 });
 
-test.describe.serial('Verification of pod creation workflow', () => {
+test.describe.serial('Verification of pod creation workflow @smoke', () => {
   test('Pulling images', async () => {
     test.setTimeout(60000);
 

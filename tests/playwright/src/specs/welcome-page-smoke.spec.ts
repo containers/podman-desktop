@@ -36,7 +36,7 @@ test.afterAll(async () => {
   await pdRunner.close();
 });
 
-test.describe('Basic e2e verification of podman desktop start', () => {
+test.describe('Basic e2e verification of podman desktop start @smoke', () => {
   test.describe('Welcome page handling', () => {
     test('Check the Welcome page is displayed', async () => {
       const welcomePage = new WelcomePage(page);

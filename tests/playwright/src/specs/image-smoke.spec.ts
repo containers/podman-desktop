@@ -50,7 +50,7 @@ test.afterAll(async () => {
   await pdRunner.close();
 });
 
-test.describe.serial('Image workflow verification', () => {
+test.describe.serial('Image workflow verification @smoke', () => {
   async function pullImageByName(imageName: string): Promise<ImagesPage> {
     let imagesPage = await navBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();

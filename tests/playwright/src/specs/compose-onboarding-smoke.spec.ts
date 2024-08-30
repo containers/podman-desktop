@@ -57,7 +57,7 @@ test.afterAll(async () => {
   await pdRunner.close();
 });
 
-test.describe.serial('Compose onboarding workflow verification', () => {
+test.describe.serial('Compose onboarding workflow verification @smoke', () => {
   test.afterEach(async () => {
     await navBar.openDashboard();
   });

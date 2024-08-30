@@ -80,7 +80,7 @@ test.afterAll(async () => {
   }
 });
 
-test.describe.serial('Verification of container creation workflow', () => {
+test.describe.serial('Verification of container creation workflow @smoke', () => {
   test.describe.configure({ retries: 2 });
 
   test(`Pulling of '${imageToPull}:${imageTag}' image`, async () => {

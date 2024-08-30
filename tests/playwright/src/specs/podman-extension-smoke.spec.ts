@@ -54,7 +54,7 @@ test.afterAll(async () => {
   await pdRunner.close();
 });
 
-test.describe.serial('Verification of Podman extension', () => {
+test.describe.serial('Verification of Podman extension @smoke', () => {
   test('Podman is enabled and present', async () => {
     await verifyPodmanExtensionStatus(true);
   });

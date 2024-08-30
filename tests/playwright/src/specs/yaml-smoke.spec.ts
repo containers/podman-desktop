@@ -58,7 +58,7 @@ test.afterAll(async () => {
   }
 });
 
-test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName}`, () => {
+test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName} @smoke`, () => {
   test.describe.configure({ timeout: 150000 });
 
   test('Playing yaml', async () => {
