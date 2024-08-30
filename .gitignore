@@ -13,4 +13,4 @@ dist
 /storybook/.storybook/themes.css
 /storybook/storybook-static/
 yarn.lock
-/tests/playwright/playwright-report/
+/playwright-report/
