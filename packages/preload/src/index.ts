@@ -1173,12 +1173,13 @@ export function initExposure(): void {
     async (
       id: string,
       key: symbol,
+      version: string,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
       onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
-      return ipcInvoke('cli-tool-registry:updateCliTool', id, onDataCallbacksTaskConnectionId);
+      return ipcInvoke('cli-tool-registry:updateCliTool', id, version, onDataCallbacksTaskConnectionId);
     },
   );
 

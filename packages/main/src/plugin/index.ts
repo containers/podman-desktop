@@ -1362,14 +1362,14 @@ export class PluginSystem {
 
     this.ipcHandle(
       'cli-tool-registry:updateCliTool',
-      async (_listener, id: string, loggerId: string): Promise<void> => {
+      async (_listener, id: string, version: string, loggerId: string): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:updateCliTool-onData', loggerId);
         const tool = cliToolRegistry.getCliToolInfos().find(tool => tool.id === id);
         if (!tool) throw new Error(`cannot find cli tool with id ${id}`);
 
         // create task
         const task = taskManager.createTask({
-          title: `Update ${tool.name} to v${tool.newVersion}`,
+          title: `Update ${tool.name} to v${version}`,
           action: {
             name: 'goto task >',
             execute: (): void => {
