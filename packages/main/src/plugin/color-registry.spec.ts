@@ -30,7 +30,6 @@ import type { ColorDefinition } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
-import * as util from '../util.js';
 import { ColorRegistry } from './color-registry.js';
 
 class TestColorRegistry extends ColorRegistry {
@@ -183,48 +182,22 @@ test('initColors', async () => {
   expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThan(20);
 });
 
-describe('initTitlebar', () => {
-  test('Check on Windows', async () => {
-    // mock the registerColor
-    const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
-    spyOnRegisterColor.mockReturnValue(undefined);
+test('initTitlebar', async () => {
+  // mock the registerColor
+  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
+  spyOnRegisterColor.mockReturnValue(undefined);
 
-    //mock the isWindows to force using Windows colors
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+  colorRegistry.initTitlebar();
 
-    colorRegistry.initTitlebar();
+  expect(spyOnRegisterColor).toHaveBeenCalled();
 
-    expect(spyOnRegisterColor).toHaveBeenCalled();
+  // at least 3 times
+  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
 
-    // at least 3 times
-    expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
-
-    // check the first call
-    expect(spyOnRegisterColor.mock.calls[0]?.[0]).toStrictEqual('titlebar-bg');
-    expect(spyOnRegisterColor.mock.calls[0]?.[1].light).toBe('#f9fafb');
-    expect(spyOnRegisterColor.mock.calls[0]?.[1].dark).toBe('#202020');
-  });
-
-  test('Check on macOS/Linux', async () => {
-    // mock the registerColor
-    const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
-    spyOnRegisterColor.mockReturnValue(undefined);
-
-    //mock the isWindows to force using macOS/Linux colors
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
-
-    colorRegistry.initTitlebar();
-
-    expect(spyOnRegisterColor).toHaveBeenCalled();
-
-    // at least 3 times
-    expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
-
-    // check the first call
-    expect(spyOnRegisterColor.mock.calls[0]?.[0]).toStrictEqual('titlebar-bg');
-    expect(spyOnRegisterColor.mock.calls[0]?.[1].light).toBe('#f9fafb');
-    expect(spyOnRegisterColor.mock.calls[0]?.[1].dark).toBe('#0f0f11');
-  });
+  // check the first call
+  expect(spyOnRegisterColor.mock.calls[0]?.[0]).toStrictEqual('titlebar-bg');
+  expect(spyOnRegisterColor.mock.calls[0]?.[1].light).toBe('#f9fafb');
+  expect(spyOnRegisterColor.mock.calls[0]?.[1].dark).toBe('#0f0f11');
 });
 
 test('initCardContent', async () => {
@@ -428,48 +401,7 @@ describe('registerExtensionThemes', () => {
     expect(titlebarTextColorLight?.value).toBe('#37255d');
   });
 
-  test('check dispose on Windows', async () => {
-    //mock the isWindows to force using Windows colors
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
-
-    // first, init default colors
-    colorRegistry.initColors();
-
-    // register two themes with only one color
-    const disposable = colorRegistry.registerExtensionThemes(fakeExtension, [
-      {
-        id: 'dark-theme1',
-        name: 'Dark Theme 1',
-        parent: 'dark',
-        colors: {
-          titlebarBg: 'myCustomValueDark',
-        },
-      },
-    ]);
-
-    // now ask for the a color defined in 'dark-theme1'
-    let colors = colorRegistry.listColors('dark-theme1');
-    expect(colors).toBeDefined();
-    let titlebarBg = colors.find(c => c.id === 'titlebar-bg');
-    expect(titlebarBg).toBeDefined();
-    expect(titlebarBg?.value).toBe('myCustomValueDark');
-
-    // dispose the extension registration
-    disposable.dispose();
-
-    // now ask for the a color defined in 'dark-theme1', it will return the default value
-    colors = colorRegistry.listColors('dark-theme1');
-
-    expect(colors).toBeDefined();
-    titlebarBg = colors.find(c => c.id === 'titlebar-bg');
-    expect(titlebarBg).toBeDefined();
-    expect(titlebarBg?.value).toBe('#202020');
-  });
-
-  test('check dispose on macOS/Linux', async () => {
-    //mock the isWindows to force using Windows colors
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
-
+  test('check dispose', async () => {
     // first, init default colors
     colorRegistry.initColors();
 
