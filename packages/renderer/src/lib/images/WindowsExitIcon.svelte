@@ -1,6 +1,5 @@
 <script lang="ts">
 export let size = 16;
-export let color = 'var(--pd-titlebar-icon)';
 </script>
 
 <svg
@@ -15,14 +14,14 @@ export let color = 'var(--pd-titlebar-icon)';
   <g id="layer1">
     <g
       id="g18715"
-      style="fill:#000000;fill-opacity:0;stroke:{color};stroke-width:1.05105;stroke-opacity:1"
+      style="fill:#000000;fill-opacity:0;stroke:currentColor;stroke-width:1.05105;stroke-opacity:1"
       transform="matrix(2.9969164,0,0,2.9968662,-462.37487,-519.36282)">
       <path
-        style="fill:#000000;fill-opacity:0;stroke:{color};stroke-width:0.333679;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+        style="fill:#000000;fill-opacity:0;stroke:currentColor;stroke-width:0.333679;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
         d="m 155.45141,177.473 3.00313,-3.00314"
         id="path18711"></path>
       <path
-        style="fill:#000000;fill-opacity:0;stroke:{color};stroke-width:0.333679;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+        style="fill:#000000;fill-opacity:0;stroke:currentColor;stroke-width:0.333679;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
         d="m 158.45454,177.473 -3.00313,-3.00314"
         id="path18713"></path>
     </g>
