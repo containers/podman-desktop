@@ -182,22 +182,22 @@ jobs:
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
-          cd packages/extension-api && pnpm publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/extension-api && pnpm publish --tag next --no-git-checks --access public
 
       - name: Publish Webview API to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/webview-api/package.json
-          cd packages/webview-api && pnpm publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/webview-api && pnpm publish --tag next --no-git-checks --access public
 
       - name: Publish ui/svelte to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/ui/package.json
-          cd packages/ui && pnpm build && pnpm publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/ui && pnpm build && pnpm publish --tag next --no-git-checks --access public
 
       - name: Publish tests-playwright to npmjs
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" tests/playwright/package.json
-          cd tests/playwright && pnpm build && pnpm publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd tests/playwright && pnpm build && pnpm publish --tag next --no-git-checks --access public
