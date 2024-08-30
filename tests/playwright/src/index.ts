@@ -19,7 +19,6 @@
 // export core modules
 export * from './globalSetup/global-setup';
 export * from './runner/podman-desktop-runner';
-export * from './setupFiles/extended-hooks-utils';
 export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';

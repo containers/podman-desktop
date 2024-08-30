@@ -17,8 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { DashboardPage } from '../model/pages/dashboard-page';
 import { ExtensionCatalogCardPage } from '../model/pages/extension-catalog-card-page';
@@ -28,7 +27,6 @@ import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
@@ -45,14 +43,13 @@ let page: Page;
 let extensionDashboardStatus: Locator | undefined;
 let extensionDashboardProvider: Locator | undefined;
 let installButtonLabel: string;
-let extensionName: string;
 let extensionLabel: string;
 let resourceLabel: string | undefined;
 let ociImageUrl: string;
 
 let navBar: NavigationBar;
 
-const _startup = async function (): Promise<void> {
+async function _startup(extensionName: string): Promise<void> {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
@@ -61,38 +58,41 @@ const _startup = async function (): Promise<void> {
   await welcomePage.handleWelcomePage(true);
 
   navBar = new NavigationBar(page);
-};
+}
 
-const _shutdown = async function (): Promise<void> {
-  await pdRunner.close();
-};
-
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe.each([
+const extentionTypes = [
   {
+    extensionName: 'redhat-sandbox',
     extensionType: OPENSHIFT_SANDBOX,
   },
   {
+    extensionName: 'openshift-local',
     extensionType: OPENSHIFT_LOCAL,
   },
   {
+    extensionName: 'openshift-checker',
     extensionType: OPENSHIFT_CHECKER,
   },
-])('$extensionType installation verification', async ({ extensionType }) => {
-  beforeAll(_startup);
-  afterAll(_shutdown);
+];
 
-  test('Initialize extension type', async () => {
-    initializeLocators(extensionType);
-    await navBar.openExtensions();
-  });
+for (const { extensionName, extensionType } of extentionTypes) {
+  test.describe.serial(`Extension installation for ${extensionType}`, () => {
+    test.beforeAll(async () => {
+      await _startup(extensionName);
+    });
+    test.afterAll(async () => {
+      await pdRunner.close();
+    });
 
-  test.runIf(extensionType === OPENSHIFT_LOCAL || extensionType === OPENSHIFT_SANDBOX)(
-    'Install extension through Extensions Catalog',
-    async () => {
+    test('Initialize extension type', async () => {
+      initializeLocators(extensionType);
+      await navBar.openExtensions();
+    });
+
+    test('Install extension through Extensions Catalog', async () => {
+      test.skip(extensionType === OPENSHIFT_CHECKER);
+      test.setTimeout(200000);
+
       const extensionsPage = new ExtensionsPage(page);
 
       await extensionsPage.openCatalogTab();
@@ -104,13 +104,12 @@ describe.each([
 
       await extensionsPage.openInstalledTab();
       await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-    },
-    200000,
-  );
+    });
 
-  test.runIf(extensionType === OPENSHIFT_CHECKER)(
-    'Install extension from OCI Image',
-    async () => {
+    test('Install extension from OCI Image', async () => {
+      test.skip(extensionType !== OPENSHIFT_CHECKER);
+      test.setTimeout(200000);
+
       const extensionsPage = new ExtensionsPage(page);
 
       await extensionsPage.installExtensionFromOCIImage(ociImageUrl);
@@ -121,104 +120,107 @@ describe.each([
 
       await extensionsPage.openInstalledTab();
       await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-    },
-    200000,
-  );
-
-  describe('Extension verification after installation', async () => {
-    test('Extension details can be opened', async () => {
-      const extensionsPage = await navBar.openExtensions();
-
-      const extensionDetailsPage = await extensionsPage.openExtensionDetails(
-        extensionName,
-        extensionLabel,
-        extensionType,
-      );
-      await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
     });
 
-    test('Extension is active', async () => {
-      const extensionsPage = await navBar.openExtensions();
-      const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
-      await playExpect(extensionPage.status).toHaveText(ACTIVE);
-    });
-
-    describe('Extension can be disabled and reenabled', async () => {
-      test('Disable extension and verify Dashboard and Resources components if present', async () => {
+    test.describe.serial('Extension verification after installation', () => {
+      test('Extension details can be opened', async () => {
         const extensionsPage = await navBar.openExtensions();
-        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
 
-        await extensionPage.disableExtension();
-        await playExpect(extensionPage.status).toHaveText(DISABLED);
-
-        // check that dashboard card provider is hidden/shown
-        if (extensionDashboardProvider && extensionDashboardStatus) {
-          await goToDashboard();
-          await playExpect(extensionDashboardProvider).toBeHidden();
-        }
-
-        // check that thr provider card is on Resources Page
-        if (resourceLabel) {
-          const settingsBar = await goToSettings();
-          const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-          const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-            name: resourceLabel,
-          });
-          await playExpect(extensionResourceBox).toBeHidden();
-        }
+        const extensionDetailsPage = await extensionsPage.openExtensionDetails(
+          extensionName,
+          extensionLabel,
+          extensionType,
+        );
+        await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
       });
 
-      test('Enable extension and verify Dashboard and Resources components', async () => {
+      test('Extension is active', async () => {
         const extensionsPage = await navBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+        await playExpect(extensionPage.status).toHaveText(ACTIVE);
+      });
 
-        await extensionPage.enableExtension();
-        await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
+      test.describe.serial('Extension can be disabled and reenabled', () => {
+        test('Disable extension and verify Dashboard and Resources components if present', async () => {
+          const extensionsPage = await navBar.openExtensions();
+          const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
 
-        // check that dashboard card provider is hidden/shown
-        if (extensionDashboardProvider && extensionDashboardStatus) {
-          await goToDashboard();
-          await playExpect(extensionDashboardProvider).toBeVisible();
-          await playExpect(extensionDashboardStatus).toBeVisible();
-          if (extensionType === 'Red Hat OpenShift Sandbox') {
-            await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
-          } else {
-            await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+          await extensionPage.disableExtension();
+          await playExpect(extensionPage.status).toHaveText(DISABLED);
+
+          // check that dashboard card provider is hidden/shown
+          if (extensionDashboardProvider && extensionDashboardStatus) {
+            await goToDashboard();
+            await playExpect(extensionDashboardProvider).toBeHidden();
           }
-        }
 
-        // check that thr provider card is on Resources Page
-        if (resourceLabel) {
-          const settingsBar = await goToSettings();
-          const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-          const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-            name: resourceLabel,
-          });
-          await playExpect(extensionResourceBox).toBeVisible();
-        }
+          // check that thr provider card is on Resources Page
+          if (resourceLabel) {
+            const settingsBar = await goToSettings();
+            const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+            const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+              name: resourceLabel,
+            });
+            await playExpect(extensionResourceBox).toBeHidden();
+          }
+        });
+
+        test('Enable extension and verify Dashboard and Resources components', async () => {
+          const extensionsPage = await navBar.openExtensions();
+          const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+
+          await extensionPage.enableExtension();
+          await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
+
+          // check that dashboard card provider is hidden/shown
+          if (extensionDashboardProvider && extensionDashboardStatus) {
+            await goToDashboard();
+            await playExpect(extensionDashboardProvider).toBeVisible();
+            await playExpect(extensionDashboardStatus).toBeVisible();
+            if (extensionType === 'Red Hat OpenShift Sandbox') {
+              await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
+            } else {
+              await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+            }
+          }
+
+          // check that thr provider card is on Resources Page
+          if (resourceLabel) {
+            const settingsBar = await goToSettings();
+            const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+            const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+              name: resourceLabel,
+            });
+            await playExpect(extensionResourceBox).toBeVisible();
+          }
+        });
+      });
+    });
+
+    test.describe.serial('Remove extension and verify UI', () => {
+      test('Remove extension and verify components', async () => {
+        let extensionsPage = await navBar.openExtensions();
+
+        const extensionDetails = await extensionsPage.openExtensionDetails(
+          extensionName,
+          extensionLabel,
+          extensionType,
+        );
+
+        await extensionDetails.disableExtension();
+        await extensionDetails.removeExtension();
+
+        // now if deleted from extension details, the page details still there, just different
+        await playExpect(extensionDetails.status).toHaveText(DOWNLOADABLE);
+        await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
+
+        await goToDashboard();
+        extensionsPage = await navBar.openExtensions();
+        playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
       });
     });
   });
-
-  describe('Remove extension and verify UI', async () => {
-    test('Remove extension and verify components', async () => {
-      let extensionsPage = await navBar.openExtensions();
-
-      const extensionDetails = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
-
-      await extensionDetails.disableExtension();
-      await extensionDetails.removeExtension();
-
-      // now if deleted from extension details, the page details still there, just different
-      await playExpect(extensionDetails.status).toHaveText(DOWNLOADABLE);
-      await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
-
-      await goToDashboard();
-      extensionsPage = await navBar.openExtensions();
-      playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
-    });
-  });
-});
+}
 
 function initializeLocators(extensionType: string): void {
   const dashboardPage = new DashboardPage(page);
@@ -227,7 +229,6 @@ function initializeLocators(extensionType: string): void {
       extensionDashboardStatus = dashboardPage.devSandboxStatusLabel;
       extensionDashboardProvider = dashboardPage.devSandboxProvider;
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
-      extensionName = 'redhat-sandbox';
       extensionLabel = 'redhat.redhat-sandbox';
       resourceLabel = 'redhat.sandbox';
       ociImageUrl = '';
@@ -237,7 +238,6 @@ function initializeLocators(extensionType: string): void {
       extensionDashboardStatus = dashboardPage.openshiftLocalStatusLabel;
       extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
       installButtonLabel = 'Install redhat.openshift-local Extension';
-      extensionName = 'openshift-local';
       extensionLabel = 'redhat.openshift-local';
       resourceLabel = 'crc';
       ociImageUrl = '';
@@ -247,7 +247,6 @@ function initializeLocators(extensionType: string): void {
       extensionDashboardStatus = undefined;
       extensionDashboardProvider = undefined;
       installButtonLabel = 'Install redhat.openshift-checker Extension';
-      extensionName = 'openshift-checker';
       extensionLabel = 'redhat.openshift-checker';
       resourceLabel = undefined;
       ociImageUrl = 'ghcr.io/redhat-developer/podman-desktop-image-checker-openshift-ext:0.1.5';

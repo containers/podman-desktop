@@ -17,33 +17,27 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner({ customFolder: 'welcome-podman-desktop' });
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('welcome-page-e2e');
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   await pdRunner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe('Basic e2e verification of podman desktop start', async () => {
-  describe('Welcome page handling', async () => {
+test.describe('Basic e2e verification of podman desktop start @smoke', () => {
+  test.describe('Welcome page handling', () => {
     test('Check the Welcome page is displayed', async () => {
       const welcomePage = new WelcomePage(page);
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
@@ -63,7 +57,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
     });
   });
 
-  describe('Navigation Bar test', async () => {
+  test.describe('Navigation Bar test', () => {
     test('Verify navigation items are visible', async () => {
       const navigationBar = new NavigationBar(page);
       await playExpect(navigationBar.navigationLocator).toBeVisible();
