@@ -391,7 +391,7 @@
   "devDependencies": {
     "@types/ssh2": "^1.15.1",
     "@types/sshpk": "^1.17.4",
-    "adm-zip": "^0.5.15",
+    "adm-zip": "^0.5.16",
     "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
     "nock": "14.0.0-beta.7",

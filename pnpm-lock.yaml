@@ -24,8 +24,8 @@ importers:
         specifier: ^1.7.7
         version: 1.7.7
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       check-disk-space:
         specifier: ^3.4.0
         version: 3.4.0
@@ -290,8 +290,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -309,8 +309,8 @@ importers:
         version: link:../../packages/extension-api
     devDependencies:
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -337,8 +337,8 @@ importers:
         version: 2.5.0
     devDependencies:
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -368,8 +368,8 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -399,8 +399,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       byline:
         specifier: ^5.0.0
         version: 5.0.0
@@ -424,8 +424,8 @@ importers:
         version: link:../../packages/extension-api
     devDependencies:
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -464,8 +464,8 @@ importers:
         specifier: ^1.17.4
         version: 1.17.4
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       hasha:
         specifier: ^6.0.0
         version: 6.0.0
@@ -498,8 +498,8 @@ importers:
         version: link:../../packages/extension-api
     devDependencies:
       adm-zip:
-        specifier: ^0.5.15
-        version: 0.5.15
+        specifier: ^0.5.16
+        version: 0.5.16
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -4015,8 +4015,8 @@ packages:
     resolution: {integrity: sha512-4B/qKCfeE/ODUaAUpSwfzazo5x29WD4r3vXiWsB7I2mSDAihwEqKO+g8GELZUQSSAo5e1XTYh3ZVfLyxBc12nA==}
     engines: {node: '>= 10.0.0'}
 
-  adm-zip@0.5.15:
-    resolution: {integrity: sha512-jYPWSeOA8EFoZnucrKCNihqBjoEGQSU4HKgHYQgKNEQ0pQF9a/DYuo/+fAxY76k4qe75LUlLWpAM1QWcBMTOKw==}
+  adm-zip@0.5.16:
+    resolution: {integrity: sha512-TGw5yVi4saajsSEgz25grObGHEUaDrniwvA2qwSC060KfqGPdglhvPMA2lPIoxs3PQIItj2iag35fONcQqgUaQ==}
     engines: {node: '>=12.0'}
 
   agent-base@6.0.2:
@@ -15604,7 +15604,7 @@ snapshots:
 
   address@1.2.2: {}
 
-  adm-zip@0.5.15: {}
+  adm-zip@0.5.16: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -19884,7 +19884,7 @@ snapshots:
       jsonc-parser: 3.2.1
       markdownlint: 0.34.0
       markdownlint-cli2-formatter-default: 0.0.4(markdownlint-cli2@0.13.0)
-      micromatch: 4.0.8
+      micromatch: 4.0.5
 
   markdownlint-micromark@0.1.10: {}
 
