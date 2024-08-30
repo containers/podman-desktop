@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 
-import { BrowserWindow } from 'electron';
-
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
   return windows;
@@ -33,9 +31,6 @@ export function isMac(): boolean {
 const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
   return linux;
-}
-export function findWindow(): Electron.BrowserWindow | undefined {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 }
 
 export const stoppedExtensions = { val: false };
