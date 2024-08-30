@@ -222,7 +222,7 @@ const setupExtensionApiWatcher = name => {
   const folderName = resolve(name);
 
   console.log('dirname is', folderName);
-  spawnProcess = spawn('yarn', ['--cwd', folderName, 'watch'], { shell: process.platform === 'win32' });
+  spawnProcess = spawn('pnpm', ['watch'], { cwd: folderName, shell: process.platform === 'win32' });
 
   spawnProcess.stdout.on('data', d => d.toString().trim() && console.warn(d.toString(), { timestamp: true }));
   spawnProcess.stderr.on('data', d => {

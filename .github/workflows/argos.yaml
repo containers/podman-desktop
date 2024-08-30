@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023 Red Hat, Inc.
+# Copyright (C) 2023-2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ on:
       - main
     paths:
       - 'package.json'
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - 'storybook/**'
       - 'website/**'
       - 'website-argos/**'
@@ -34,7 +34,7 @@ on:
     paths:
       - '.github/workflows/argos.yaml'
       - 'package.json'
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - 'storybook/**'
       - 'website/**'
       - 'website-argos/**'
@@ -45,38 +45,32 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run website
-        run: yarn website:build
+        run: pnpm website:build
 
       - name: Install Playwright browsers
         working-directory: website-argos
-        run: yarn playwright install --with-deps chromium
+        run: pnpm playwright install --with-deps chromium
 
       - name: Take screenshots with Playwright
-        run: yarn website:screenshots
+        run: pnpm website:screenshots
 
       - name: Upload screenshots to Argos
         continue-on-error: true
         working-directory: website-argos
-        run: yarn upload
+        run: pnpm upload
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}

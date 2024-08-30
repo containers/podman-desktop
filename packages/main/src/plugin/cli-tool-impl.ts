@@ -79,9 +79,9 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this._options.images);
   }
 
-  // it returns the installation source of the cli tool. If not specified, we default to user which is the most restrictive way (prevent to update it)
-  get installationSource(): CliToolInstallationSource {
-    return this._options.installationSource ?? 'external';
+  // it returns the installation source of the cli tool. If not specified, there is no tool installed
+  get installationSource(): CliToolInstallationSource | undefined {
+    return this._options.installationSource;
   }
 
   dispose(): void {

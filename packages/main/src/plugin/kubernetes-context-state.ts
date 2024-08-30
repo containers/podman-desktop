@@ -436,7 +436,7 @@ export class ContextsManager {
     }
 
     const ns = kubeconfig.getContexts()?.find(c => c.name === kubeconfig.currentContext)?.namespace;
-    if (ns !== this.currentContext.namespace) {
+    if (ns !== this.currentContext?.namespace) {
       return true;
     }
 

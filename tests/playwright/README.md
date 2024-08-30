@@ -7,13 +7,13 @@ Testing Framework dedicated to a Podman Desktop and its extensions.
 0. git clone podman-desktop
 1. Install Node.js 20 (ideal is to use `nvm`)
 2. checkout to `tests/playwright`
-3. Install local dependencies: `yarn install`
+3. Install local dependencies: `pnpm install`
 4. Implement changes to the e2e tests library
-5. Build: `yarn build`
+5. Build: `pnpm build`
 6. Create local package `npm run package`, this will produce an archive
 7. In YOUR repository, update `package.json` file
 8. Use dependecy on `@podman-desktop/tests-playwright`, using `file:../podman-desktop/tests/playwright/podman-desktop-tests-playwright-1.9.0.tgz`
-9. `yarn install` -> this should extract the content of locally built archive into `node_modules` in your repo
+9. `pnpm install` -> this should extract the content of locally built archive into `node_modules` in your repo
 10. Write your E2E tests with use of your changes to `@podman-desktop/tests-playwright`
 
 ## Usage of @podman-desktop/tests-playwright in your repository
@@ -127,8 +127,8 @@ You will have to checkout podman-desktop repository and build it first.
 
 1. `git clone https://github.com/containers/podman-desktop`
 2. `cd podman-desktop`
-3. `yarn install`
-4. `yarn test:e2e:build` -> this step is essential
+3. `pnpm install`
+4. `pnpm test:e2e:build` -> this step is essential
 
 Then you need to prepare your tests to be run from your repository
 

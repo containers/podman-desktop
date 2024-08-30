@@ -314,6 +314,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
+      binaryPath = storagePath;
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
     },
@@ -332,6 +333,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
 
       // update the version to undefined
       binaryVersion = undefined;
+      binaryPath = undefined;
     },
   });
 

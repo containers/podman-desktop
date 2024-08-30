@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*'
+  - 'extensions/*'
+  - 'storybook'
+  - 'website'
+  - 'website-argos'
+  - 'tools'
+  - 'tests/*'
+  - 'scripts'

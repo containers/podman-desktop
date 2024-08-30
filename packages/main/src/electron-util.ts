@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PlaywrightTestConfig } from '@playwright/test';
-import { devices } from '@playwright/test';
+import { BrowserWindow } from 'electron';
 
-const config: PlaywrightTestConfig = {
-  webServer: {
-    cwd: '../website',
-    port: 3000,
-    command: 'pnpm serve',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
-  ],
-};
-
-export default config;
+export function findWindow(): Electron.BrowserWindow | undefined {
+  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+}

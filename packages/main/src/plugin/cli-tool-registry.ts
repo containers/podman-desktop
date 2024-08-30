@@ -126,8 +126,8 @@ export class CliToolRegistry {
   getCliToolInfos(): CliToolInfo[] {
     return Array.from(this.cliTools.values()).map(cliTool => {
       const installer = this.cliToolsInstaller.get(cliTool.id);
-      // if the installer has been registered, enable install
-      const canInstall = !!installer;
+      // if the installer has been registered and the source is different from external enable install/uninstall
+      const canInstall = !!installer && cliTool.installationSource !== 'external';
 
       const updater = this.cliToolsUpdater.get(cliTool.id);
       // if updater is the one with a default version that the tool will use to get updated we use it

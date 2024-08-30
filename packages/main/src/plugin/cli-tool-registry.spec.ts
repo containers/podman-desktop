@@ -117,8 +117,14 @@ suite('cli module', () => {
         doUpdate: vi.fn(),
         selectVersion: vi.fn(),
       };
+      const installer: CliToolInstaller = {
+        doInstall: vi.fn(),
+        selectVersion: vi.fn(),
+        doUninstall: vi.fn(),
+      };
       const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
       cliToolRegistry.registerUpdate(newCliTool as CliToolImpl, updater);
+      cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
       const infoList = cliToolRegistry.getCliToolInfos();
       expect(infoList.length).equals(1);
       expect(infoList[0]).toMatchObject({
@@ -130,6 +136,7 @@ suite('cli module', () => {
         images: newCliTool.images,
         extensionInfo: newCliTool.extensionInfo,
         canUpdate: true,
+        canInstall: true,
       });
     });
 
@@ -147,8 +154,14 @@ suite('cli module', () => {
         doUpdate: vi.fn(),
         selectVersion: vi.fn(),
       };
+      const installer: CliToolInstaller = {
+        doInstall: vi.fn(),
+        selectVersion: vi.fn(),
+        doUninstall: vi.fn(),
+      };
       const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
       cliToolRegistry.registerUpdate(newCliTool as CliToolImpl, updater);
+      cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
       const infoList = cliToolRegistry.getCliToolInfos();
       expect(infoList.length).equals(1);
       expect(infoList[0]).toMatchObject({
@@ -160,6 +173,7 @@ suite('cli module', () => {
         images: newCliTool.images,
         extensionInfo: newCliTool.extensionInfo,
         canUpdate: false,
+        canInstall: false,
         version: newCliTool.version,
       });
     });

@@ -20,7 +20,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
-import { _electron as electron } from '@playwright/test';
+import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
 import { waitWhile } from '../utility/wait';
@@ -42,8 +42,6 @@ export class PodmanDesktopRunner {
   private _videoAndTraceName: string | undefined;
   private _autoUpdate: boolean;
   private _autoCheckUpdate: boolean;
-  private _testPassed: boolean;
-  private _suitePassed: boolean;
 
   constructor({
     profile = '',
@@ -53,13 +51,11 @@ export class PodmanDesktopRunner {
   }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
     this._running = false;
     this._profile = profile;
-    this._testOutput = join('tests', 'output', this._profile);
+    this._testOutput = join('tests', 'playwright', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdate = autoCheckUpdate;
-    this._testPassed = false;
-    this._suitePassed = true;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -138,7 +134,7 @@ export class PodmanDesktopRunner {
   }
 
   public async startTracing(): Promise<void> {
-    await this.getPage().context().tracing.start({ screenshots: true, snapshots: true });
+    await this.getPage().context().tracing.start({ screenshots: true, snapshots: true, sources: true });
   }
 
   public async stopTracing(): Promise<void> {
@@ -237,7 +233,7 @@ export class PodmanDesktopRunner {
       rmSync(rawTracesPath, { recursive: true, force: true, maxRetries: 5 });
     }
 
-    if (!this._testPassed || !this._suitePassed || !this._videoAndTraceName) return;
+    if (test.info().status === 'failed') return;
 
     if (!process.env.KEEP_TRACES_ON_PASS) {
       const tracesPath = join(this._testOutput, 'traces', `${this._videoAndTraceName}_trace.zip`);
@@ -340,18 +336,6 @@ export class PodmanDesktopRunner {
 
   public getTestOutput(): string {
     return this._testOutput;
-  }
-
-  public getTestPassed(): boolean {
-    return this._testPassed;
-  }
-
-  public setTestPassed(value: boolean): void {
-    this._testPassed = value;
-  }
-
-  public setSuitePassed(value: boolean): void {
-    this._suitePassed = value;
   }
 
   public get options(): object {

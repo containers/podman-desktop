@@ -16,7 +16,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@podman-desktop/ui-svelte": "^0.0.1",
+    "@podman-desktop/ui-svelte": "workspace:*",
     "eslint": "^9.9.1",
     "svelte-fa": "^4.0.2"
   },

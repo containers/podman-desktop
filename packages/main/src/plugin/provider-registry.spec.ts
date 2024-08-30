@@ -25,6 +25,7 @@ import type {
   KubernetesProviderConnection,
   ProviderCleanup,
   ProviderInstallation,
+  ProviderLifecycle,
   ProviderUpdate,
 } from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -998,5 +999,101 @@ describe('runPreflightChecks', () => {
       description: 'error',
     });
     expect(run).toBeFalsy();
+  });
+});
+
+describe('startProvider', () => {
+  test('if providerLifecycles is registered for the provider call startProviderLifecycle', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const disposable = providerRegistry.registerLifecycle(provider as ProviderImpl, {} as ProviderLifecycle);
+    const startProviderLifecycleMock = vi
+      .spyOn(providerRegistry, 'startProviderLifecycle')
+      .mockImplementation(_id => Promise.resolve());
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startProviderLifecycleMock).toBeCalledWith((provider as ProviderImpl).internalId);
+    disposable.dispose();
+  });
+
+  test('if the provider has no lifecycle and no connection, throw', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    await expect(() => providerRegistry.startProvider((provider as ProviderImpl).internalId)).rejects.toThrowError(
+      'The provider does not have any connection to start',
+    );
+  });
+
+  test('if the provider has one connection without the start lifecycle, throw', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    provider.registerContainerProviderConnection({
+      name: 'connection',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await expect(() => providerRegistry.startProvider((provider as ProviderImpl).internalId)).rejects.toThrowError(
+      'The connection connection does not support start lifecycle',
+    );
+  });
+
+  test('if the provider has one container connection with the start lifecycle, execute the start action', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const startMock = vi.fn();
+    provider.registerContainerProviderConnection({
+      name: 'connection',
+      type: 'podman',
+      lifecycle: {
+        start: startMock,
+      },
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startMock).toBeCalled();
+  });
+
+  test('if the provider has one kubernetes connection with the start lifecycle, execute the start action', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const startMock = vi.fn();
+    provider.registerKubernetesProviderConnection({
+      name: 'connection',
+      lifecycle: {
+        start: startMock,
+      },
+      endpoint: {
+        apiURL: 'url',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startMock).toBeCalled();
   });
 });

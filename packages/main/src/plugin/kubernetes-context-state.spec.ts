@@ -2354,7 +2354,7 @@ describe('isContextInKubeconfig', () => {
     expect(exists).toBeTruthy();
   });
 });
-describe('isContextChanged', () => {
+describe('isContextChanged with currentContext', () => {
   let client: ContextsManager;
   beforeAll(async () => {
     vi.mocked(makeInformer).mockImplementation(
@@ -2602,6 +2602,38 @@ describe('isContextChanged', () => {
       getContexts: () => context.contexts,
     } as KubeConfig;
     const changed = client.isContextChanged(context);
+    expect(changed).toBeFalsy();
+  });
+});
+
+describe('isContextChanged with no context', () => {
+  let client: ContextsManager;
+  let kubeConfig: KubeConfig;
+  beforeAll(async () => {
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = new Error('err');
+        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+      },
+    );
+    kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [],
+      users: [],
+      contexts: [],
+      currentContext: undefined,
+    };
+    kubeConfig.loadFromOptions(config);
+    client = new ContextsManager(apiSender);
+    await client.update(kubeConfig);
+  });
+
+  test('isContextChanged should return false', () => {
+    const changed = client.isContextChanged(kubeConfig);
     expect(changed).toBeFalsy();
   });
 });

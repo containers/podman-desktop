@@ -383,7 +383,7 @@ export default config;
 To start Podman Desktop with your extension loaded, run the following from your clone of the Podman Desktop repo:
 
 ```shell
-yarn watch --extension-folder /path/to/your/extension
+pnpm watch --extension-folder /path/to/your/extension
 ```
 
 If you have a webview created, debugging / accessing the the console of the extension can be done by:

@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import { expect as playExpect, test } from '@playwright/test';
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { RegistriesPage } from '../model/pages/registries-page';
 import { SettingsBar } from '../model/pages/settings-bar';
@@ -26,7 +25,6 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteImage, deleteRegistry } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -40,7 +38,7 @@ let imageName: string;
 let imageTag: string;
 let imageUrl: string;
 
-beforeAll(async () => {
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('registry-image-e2e');
@@ -56,7 +54,7 @@ beforeAll(async () => {
   navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   try {
     await deleteImage(page, imageUrl);
     await deleteRegistry(page, 'GitHub');
@@ -65,11 +63,7 @@ afterAll(async () => {
   }
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe('Pulling image from authenticated registry workflow verification', async () => {
+test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
   test('Cannot pull image from unauthenticated registry', async () => {
     const imagesPage = await navBar.openImages();
 
@@ -88,25 +82,31 @@ describe('Pulling image from authenticated registry workflow verification', asyn
     await playExpect(errorAlert).toContainText(fullImageTitle);
     await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
   });
-  test.runIf(canTestRegistry())('Add registry', async () => {
-    await navBar.openSettings();
-    const settingsBar = new SettingsBar(page);
-    const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
-    await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
+  test.describe.serial(() => {
+    test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
-    const registryBox = registryPage.registriesTable.getByLabel('GitHub');
-    const username = registryBox.getByText(registryUsername);
-    await playExpect(username).toBeVisible();
-  });
-  test.runIf(canTestRegistry())('Image pulling from authenticated registry verification', async () => {
-    const imagesPage = await navBar.openImages();
+    test('Add registry', async () => {
+      await navBar.openSettings();
+      const settingsBar = new SettingsBar(page);
+      const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
-    const fullImageTitle = imageUrl.concat(':' + imageTag);
-    const pullImagePage = await imagesPage.openPullImage();
-    const updatedImages = await pullImagePage.pullImage(fullImageTitle);
+      await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
 
-    const exists = await updatedImages.waitForImageExists(imageUrl);
-    playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
+      const registryBox = registryPage.registriesTable.getByLabel('GitHub');
+      const username = registryBox.getByText(registryUsername);
+      await playExpect(username).toBeVisible();
+    });
+
+    test('Image pulling from authenticated registry verification', async () => {
+      const imagesPage = await navBar.openImages();
+
+      const fullImageTitle = imageUrl.concat(':' + imageTag);
+      const pullImagePage = await imagesPage.openPullImage();
+      const updatedImages = await pullImagePage.pullImage(fullImageTitle);
+
+      const exists = await updatedImages.waitForImageExists(imageUrl);
+      playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
+    });
   });
 });

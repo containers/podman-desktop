@@ -16,11 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach } from 'node:test';
-
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { CLIToolsPage } from '../model/pages/cli-tools-page';
 import { ComposeLocalInstallPage } from '../model/pages/compose-onboarding/compose-local-install-page';
@@ -33,7 +30,6 @@ import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { isCI, isLinux } from '../utility/platform';
 
 const RESOURCE_NAME: string = 'Compose';
@@ -45,7 +41,9 @@ let composeVersion: string;
 // property that will make sure that on linux we can run only partial tests, by default this is turned off
 const composePartialInstallation = process.env.COMPOSE_PARTIAL_INSTALL ? process.env.COMPOSE_PARTIAL_INSTALL : false;
 
-beforeAll(async () => {
+test.skip(!!isCI && isLinux, 'Tests suite should not run on Linux platform');
+
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('compose-onboarding-e2e');
@@ -55,16 +53,12 @@ beforeAll(async () => {
   navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   await pdRunner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', async () => {
-  afterEach(async () => {
+test.describe.serial('Compose onboarding workflow verification @smoke', () => {
+  test.afterEach(async () => {
     await navBar.openDashboard();
   });
 
@@ -125,7 +119,9 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await skipOkButton.click();
   });
 
-  test.skipIf(composePartialInstallation)('Can install Compose system-wide', async () => {
+  test('Can install Compose system-wide', async () => {
+    test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
+
     const onboardingPage = await openComposeOnboarding(page);
     await onboardingPage.nextStepButton.click();
 
@@ -140,7 +136,9 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await playExpect(resourcesPage.heading).toBeVisible();
   });
 
-  test.skipIf(composePartialInstallation)('Verify Compose was installed', async () => {
+  test('Verify Compose was installed', async () => {
+    test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
+
     await navBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);

@@ -103,12 +103,12 @@
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",
-    "@podman-desktop/api": "^0.0.1",
+    "@podman-desktop/api": "workspace:*",
     "mustache": "^4.2.0",
     "yaml": "^2.5.0"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.15",
+    "adm-zip": "^0.5.16",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
     "tsx": "^4.19.0",

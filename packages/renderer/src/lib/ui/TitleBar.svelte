@@ -15,11 +15,9 @@ onMount(async () => {
 
 <header
   id="navbar"
-  class="{platform === 'win32' ? 'bg-[#202020]' : 'bg-[var(--pd-titlebar-bg)]'} body-font z-[999] relative {platform ===
-  'win32'
+  class="bg-[var(--pd-titlebar-bg)] body-font z-[999] relative {platform === 'win32'
     ? 'min-h-[32px]'
-    : 'min-h-[38px]'}
-    border-[var(--pd-global-nav-bg-border)] border-b-[1px]"
+    : 'min-h-[38px]'} border-[var(--pd-global-nav-bg-border)] border-b-[1px]"
   style="-webkit-app-region: drag;">
   <div class="flex select-none">
     <!-- On Linux, title is centered and we have control buttons in the title bar-->
