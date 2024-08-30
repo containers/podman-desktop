@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, onTestFailed } from 'vitest';
+import { defineConfig, devices } from '@playwright/test';
 
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { takeScreenshotHook } from './extended-hooks-utils';
+export default defineConfig({
+  outputDir: 'tests/output/',
+  workers: 1,
 
-afterEach(async (context: RunnerTestContext) => {
-  onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
-});
+  reporter: [
+    ['list'],
+    ['junit', { outputFile: 'tests/output/results.xml' }],
+    ['json', { outputFile: 'tests/output/results.json' }],
+    ['html', { open: 'never' }],
+  ],
 
-beforeEach(async (context: RunnerTestContext) => {
-  context?.pdRunner?.setTestPassed(true);
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+  ],
 });
