@@ -60,7 +60,7 @@ function executeAction() {
   title={titleName}
   class="h-[32px] w-[45px] cursor-pointer {name === 'Close'
     ? 'hover:bg-[var(--pd-titlebar-windows-hover-exit-bg)]'
-    : 'hover:bg-[var(--pd-titlebar-windows-hover-bg)]'} flex place-items-center justify-center">
+    : 'hover:bg-[var(--pd-titlebar-windows-hover-bg)]'} text-[var(--pd-titlebar-icon)] flex place-items-center justify-center">
   {#if icon}
     <svelte:component this={icon} size={iconSize} />
   {/if}
