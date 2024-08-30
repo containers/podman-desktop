@@ -26,7 +26,7 @@ export default defineConfig({
     ['list'],
     ['junit', { outputFile: 'tests/playwright/output/junit-results.xml' }],
     ['json', { outputFile: 'tests/playwright/output/json-results.json' }],
-    ['html', { open: 'never' }],
+    ['html', { open: 'never', outputFolder: 'tests/playwright/output/html-results' }],
   ],
 
   projects: [

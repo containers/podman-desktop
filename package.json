@@ -44,7 +44,7 @@
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/playwright/src/specs/extension-installation.spec.ts --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
     "test:e2e:pw": "npm run test:e2e:build && npm run test:e2e:pw:run",
-    "test:e2e:pw:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/image-smoke.spec.ts",
+    "test:e2e:pw:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/container-smoke.spec.ts",
     "test:e2e:copy": "cp ../podman-desktop-extension-bootc/tests/src/bootc-extension.spec.ts tests/src/",
     "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
     "test:preload": "vitest run -r packages/preload --passWithNoTests --coverage",
