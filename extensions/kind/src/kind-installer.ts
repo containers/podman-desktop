@@ -114,15 +114,6 @@ export class KindInstaller {
     }
   }
 
-  protected async withConfirmation(text: string): Promise<boolean> {
-    const result = await extensionApi.window.showInformationMessage(text, 'Yes', 'Cancel');
-    return result === 'Yes';
-  }
-
-  getInternalDestinationPath(): string {
-    return path.resolve(this.storagePath, extensionApi.env.isWindows ? 'kind.exe' : 'kind');
-  }
-
   // Get the asset id of a given release number for a given operating system and architecture
   // operatingSystem: win32, darwin, linux (see os.platform())
   // arch: x64, arm64 (see os.arch())
@@ -160,7 +151,7 @@ export class KindInstaller {
     return path.resolve(storageBinFolder, `kind${fileExtension}`);
   }
 
-  async install(release: KindGithubReleaseArtifactMetadata): Promise<void> {
+  async download(release: KindGithubReleaseArtifactMetadata): Promise<void> {
     // Get asset id
     const assetId = await this.getReleaseAssetId(release.id, os.platform(), os.arch());
 

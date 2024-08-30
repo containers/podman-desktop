@@ -351,7 +351,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // if not installed system-wide: let's try to check in the extension storage if kind is not available system-wide
   if (!binary) {
     try {
-      binary = await getKindBinaryInfo(installer.getInternalDestinationPath());
+      binary = await getKindBinaryInfo(installer.getKindCliStoragePath());
       installationSource = 'extension';
     } catch (err: unknown) {
       console.error(err);
@@ -403,7 +403,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // download, install system wide and update cli version
-      await installer.install(releaseToInstall);
+      await installer.download(releaseToInstall);
       const cliPath = installer.getKindCliStoragePath();
       await installBinaryToSystem(cliPath, KIND_CLI_NAME);
       kindCli?.updateVersion({
@@ -460,7 +460,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // download, install system wide and update cli version
-      await installer.install(releaseToUpdateTo);
+      await installer.download(releaseToUpdateTo);
       const cliPath = installer.getKindCliStoragePath();
       await installBinaryToSystem(cliPath, KIND_CLI_NAME);
       kindCli?.updateVersion({
