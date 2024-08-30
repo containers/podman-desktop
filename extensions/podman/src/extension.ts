@@ -28,6 +28,7 @@ import { compareVersions } from 'compare-versions';
 
 import { getSocketCompatibility } from './compatibility-mode';
 import { getDetectionChecks } from './detection-checks';
+import { KrunkitHelper } from './krunkit-helper';
 import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
 import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
@@ -37,7 +38,6 @@ import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { PodmanInstall } from './podman-install';
 import { PodmanRemoteConnections } from './podman-remote-connections';
-import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import {
   appConfigDir,
@@ -89,7 +89,7 @@ const configurationCompatibilityMode = 'setting.dockerCompatibility';
 let telemetryLogger: extensionApi.TelemetryLogger | undefined;
 
 const wslHelper = new WslHelper();
-const qemuHelper = new QemuHelper();
+const krunkitHelper = new KrunkitHelper();
 const podmanBinaryHelper = new PodmanBinaryLocationHelper();
 const podmanInfoHelper = new PodmanInfoHelper();
 
@@ -1784,16 +1784,16 @@ function sendTelemetryRecords(
     telemetryRecords.hostCpuModel = hostCpus[0].model;
 
     // on macOS, try to see if podman is coming from brew or from the installer
-    // and display version of qemu
+    // and display version of krunkit
     if (extensionApi.env.isMac) {
-      let qemuPath: string | undefined;
+      let krunkitPath: string | undefined;
 
       try {
         const podmanBinaryResult = await podmanBinaryHelper.getPodmanLocationMac();
 
         telemetryRecords.podmanCliSource = podmanBinaryResult.source;
         if (podmanBinaryResult.source === 'installer') {
-          qemuPath = '/opt/podman/qemu/bin';
+          krunkitPath = '/opt/podman/bin';
         }
         telemetryRecords.podmanCliFoundPath = podmanBinaryResult.foundPath;
         if (podmanBinaryResult.error) {
@@ -1804,16 +1804,16 @@ function sendTelemetryRecords(
         console.trace('unable to check from which path podman is coming', error);
       }
 
-      // add qemu version
+      // add krunkit version
       try {
-        const qemuVersion = await qemuHelper.getQemuVersion(qemuPath);
-        if (qemuPath) {
-          telemetryRecords.qemuPath = qemuPath;
+        const krunkitVersion = await krunkitHelper.getKrunkitVersion(krunkitPath);
+        if (krunkitPath) {
+          telemetryRecords.krunkitPath = krunkitPath;
         }
-        telemetryRecords.qemuVersion = qemuVersion;
+        telemetryRecords.krunkitVersion = krunkitVersion;
       } catch (error) {
-        console.trace('unable to check qemu version', error);
-        telemetryRecords.errorQemuVersion = error;
+        console.trace('unable to check krunkit version', error);
+        telemetryRecords.errorKrunkitVersion = error;
       }
     } else if (extensionApi.env.isWindows) {
       // try to get wsl version
@@ -1856,6 +1856,7 @@ export async function createMachine(
   let provider: string | undefined;
   if (params['podman.factory.machine.provider']) {
     provider = getProviderByLabel(params['podman.factory.machine.provider']);
+    telemetryRecords.provider = provider;
   }
 
   // cpus

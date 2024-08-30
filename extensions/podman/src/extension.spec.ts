@@ -218,12 +218,12 @@ vi.mock('node:os', async () => {
   };
 });
 
-vi.mock('./qemu-helper', async () => {
+vi.mock('./krunkit-helper', async () => {
   return {
-    QemuHelper: vi.fn().mockImplementation(() => {
+    KrunkitHelper: vi.fn().mockImplementation(() => {
       return {
-        getQemuVersion: vi.fn().mockImplementation(() => {
-          return Promise.resolve('1.2.3');
+        getKrunkitVersion: vi.fn().mockImplementation(() => {
+          return Promise.resolve('0.1.2');
         }),
       };
     }),
