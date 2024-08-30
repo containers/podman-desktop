@@ -17,7 +17,8 @@
  ***********************************************************************/
 import type * as extensionApi from '@podman-desktop/api';
 
-import { findWindow } from '../../util.js';
+import { findWindow } from '/@/electron-util.js';
+
 import { CancellationTokenImpl } from '../cancellation-token.js';
 import type { TaskManager } from './task-manager.js';
 

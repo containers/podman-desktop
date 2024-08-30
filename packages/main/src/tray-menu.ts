@@ -26,8 +26,9 @@ import statusBusy from './assets/status-busy.png';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
+import { findWindow } from './electron-util.js';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon.js';
-import { findWindow, isMac, isWindows } from './util.js';
+import { isMac, isWindows } from './util.js';
 
 // extends type from the plugin
 interface ProviderMenuItem extends ProviderInfo {
