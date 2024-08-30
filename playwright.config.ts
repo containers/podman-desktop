@@ -19,13 +19,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  outputDir: 'tests/output/',
+  outputDir: 'tests/playwright/output/',
   workers: 1,
 
   reporter: [
     ['list'],
-    ['junit', { outputFile: 'tests/output/results.xml' }],
-    ['json', { outputFile: 'tests/output/results.json' }],
+    ['junit', { outputFile: 'tests/playwright/output/junit-results.xml' }],
+    ['json', { outputFile: 'tests/playwright/output/json-results.json' }],
     ['html', { open: 'never' }],
   ],
 
