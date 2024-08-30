@@ -51,7 +51,7 @@ export class PodmanDesktopRunner {
   }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
     this._running = false;
     this._profile = profile;
-    this._testOutput = join('tests', 'output', this._profile);
+    this._testOutput = join('tests', 'playwright', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
