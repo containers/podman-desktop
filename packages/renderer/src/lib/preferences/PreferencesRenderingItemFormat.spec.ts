@@ -273,3 +273,20 @@ test('Expect tooltip text shows info when input is higher than maximum', async (
   expect(tooltip).toBeInTheDocument();
   expect(tooltip.textContent).toBe('The value cannot be greater than 34');
 });
+
+test('Expect a text input when record is type integer', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'Hello',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'integer',
+    minimum: 1,
+    maximum: 15,
+  };
+  await awaitRender(record, {});
+  const inputField = screen.getByRole('textbox', { name: 'record-description' }) as HTMLInputElement;
+  expect(inputField).toBeInTheDocument();
+  expect(inputField.type).toBe('text');
+  expect(inputField.name).toBe('record');
+});

@@ -9,6 +9,7 @@ export let minimum: number | undefined = undefined;
 export let maximum: number | undefined = undefined;
 export let error: string | undefined = undefined;
 export let showError: boolean = true;
+export let type: 'number' | 'integer';
 
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
@@ -30,7 +31,20 @@ function validateNumber() {
 }
 
 function onKeyPress(event: any) {
-  if (isNaN(Number(event.key))) {
+  // if type is integer it means we can only accept nu
+  // see https://json-schema.org/understanding-json-schema/reference/numeric
+  // Numbers with a zero fractional part are considered integers
+
+  // first, add the new character to the extisting value
+  const wantedValue = `${value}${event.key}`;
+
+  // now, check if type is integer if the value is value without digits or with zero fractional part
+  if (type === 'integer' && Number.isInteger(Number(wantedValue))) {
+    return;
+  } else if (type === 'number' && !isNaN(Number(wantedValue))) {
+    return;
+  } else {
+    // else prevent to use that key
     event.preventDefault();
   }
 }

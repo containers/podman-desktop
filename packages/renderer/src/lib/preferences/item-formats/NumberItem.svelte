@@ -45,6 +45,7 @@ $: if (error) {
     bind:error={error}
     aria-label={record.description}
     minimum={record.minimum}
+    type={record.type === 'integer' ? 'integer' : 'number'}
     maximum={record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}
     showError={false}>
   </NumberInput>
