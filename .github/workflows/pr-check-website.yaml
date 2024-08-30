@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 Red Hat, Inc.
+# Copyright (C) 2022-2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,7 @@
 
 name: Build website on pull request
 
-on:
-  pull_request:
-    paths:
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'website/**'
-      - 'storybook/**'
-      - 'packages/extension-api/src/**'
+on: [pull_request]
 
 jobs:
   website-build:
