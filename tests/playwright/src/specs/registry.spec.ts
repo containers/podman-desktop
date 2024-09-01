@@ -75,14 +75,14 @@ test.describe.serial('Registries handling verification', () => {
         /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
       );
       await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
-      await playExpect(registryPage.cancelAddRegistryButton).toBeEnabled();
-      await registryPage.cancelAddRegistryButton.click();
+      await playExpect(registryPage.cancelDialogButton).toBeEnabled();
+      await registryPage.cancelDialogButton.click();
 
       await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
       const credsErrorMsg = page.getByText('Wrong Username or Password.');
       await playExpect(credsErrorMsg).toBeVisible();
-      await playExpect(registryPage.cancelAddRegistryButton).toBeEnabled();
-      await registryPage.cancelAddRegistryButton.click();
+      await playExpect(registryPage.cancelDialogButton).toBeEnabled();
+      await registryPage.cancelDialogButton.click();
     });
 
     test('Valid registry addition verification', async () => {
