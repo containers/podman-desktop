@@ -975,8 +975,8 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       '@argos-ci/playwright':
-        specifier: ^3.5.0
-        version: 3.5.1
+        specifier: ^3.5.3
+        version: 3.5.3
       '@playwright/test':
         specifier: 1.46.1
         version: 1.46.1
@@ -1068,10 +1068,6 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@argos-ci/api-client@0.2.0':
-    resolution: {integrity: sha512-stqugeAtbHjD2MwezvgJ4hU0HvlEGwGDVsJvUUD4YoRS0putS8yFjXuempkc90XGeHDEfYZgvG372rcK7/FClA==}
-    engines: {node: '>=18.0.0'}
-
   '@argos-ci/api-client@0.4.0':
     resolution: {integrity: sha512-csJMhcuvPS1vAO6NtfEJX8rZX7+hnm7GYQy24t9rhB9DESyegSS/KGCWoMtYGOmL+OSk9FJl0UkHdAD3tXmYdw==}
     engines: {node: '>=18.0.0'}
@@ -1085,16 +1081,12 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@argos-ci/core@2.5.1':
-    resolution: {integrity: sha512-tgao3GqREG6A6E6LwEVbSTyVrChtb21nbcNGg69BS7DmqPY8pff/UV61QDoX+3Z9Kw8Cn4cI6YpLvhL77xRmCg==}
-    engines: {node: '>=18.0.0'}
-
   '@argos-ci/core@2.7.0':
     resolution: {integrity: sha512-k7S5aIhE3o9S27qJ+imn+5P9J1PIPM5ltKw67Tvt+xxgCLLQUlt8YbVz1YMppWY795l1MUg/4SpybySFjXorGQ==}
     engines: {node: '>=18.0.0'}
 
-  '@argos-ci/playwright@3.5.1':
-    resolution: {integrity: sha512-P2xzfX+GFffSrfOQhdE4meS8pKw6EVqIKcb+t+8OKhHMotg+smFFJHxy/NYXaw6ys3enepZz+Ym6VtyHK/YqHA==}
+  '@argos-ci/playwright@3.5.3':
+    resolution: {integrity: sha512-BwtbBqzsSrwVWsUT2qKSYr6fG4VcC9QlAiBSEVDscO55r7PGr7AwMmPaj58Zi4fQk1ruMC8cjOWrFzj/HAuBIA==}
     engines: {node: '>=18.0.0'}
 
   '@argos-ci/util@2.1.1':
@@ -10910,10 +10902,6 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@argos-ci/api-client@0.2.0':
-    dependencies:
-      openapi-fetch: 0.11.2
-
   '@argos-ci/api-client@0.4.0':
     dependencies:
       openapi-fetch: 0.11.2
@@ -10926,19 +10914,6 @@ snapshots:
       commander: 12.1.0
       ora: 8.1.0
       update-notifier: 7.3.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@argos-ci/core@2.5.1':
-    dependencies:
-      '@argos-ci/api-client': 0.2.0
-      '@argos-ci/util': 2.1.1
-      axios: 1.7.5(debug@4.3.6)
-      convict: 6.2.4
-      debug: 4.3.6
-      fast-glob: 3.3.2
-      sharp: 0.33.5
-      tmp: 0.2.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10955,10 +10930,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@argos-ci/playwright@3.5.1':
+  '@argos-ci/playwright@3.5.3':
     dependencies:
       '@argos-ci/browser': 2.1.3
-      '@argos-ci/core': 2.5.1
+      '@argos-ci/core': 2.7.0
       '@argos-ci/util': 2.1.1
       chalk: 5.3.0
       debug: 4.3.6
