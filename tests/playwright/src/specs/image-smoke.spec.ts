@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect, test } from '@playwright/test';
@@ -34,6 +35,9 @@ let page: Page;
 let navBar: NavigationBar;
 const helloContainer = 'quay.io/podman/hello';
 const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
