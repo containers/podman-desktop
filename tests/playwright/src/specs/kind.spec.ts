@@ -31,7 +31,7 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { getVolumeNameForContainer } from '../utility/operations';
+import { deleteContainer, deleteImage, getVolumeNameForContainer } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const RESOURCE_NAME: string = 'kind';
@@ -70,7 +70,13 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await pdRunner.close();
+  test.setTimeout(90000);
+  try {
+    await deleteContainer(page, CONTAINER_NAME);
+    await deleteImage(page, IMAGE_TO_PULL);
+  } finally {
+    await pdRunner.close();
+  }
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
@@ -128,14 +134,14 @@ test.describe.serial('Kind End-to-End Tests', () => {
 
     test('Check resources added with the Kind cluster', async () => {
       const containersPage = await navigationBar.openContainers();
-      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
-      const containerDetailsPage = await containersPage.openContainersDetails(CONTAINER_NAME);
+      await playExpect.poll(async () => containersPage.containerExists(KIND_CONTAINER_NAME)).toBeTruthy();
+      const containerDetailsPage = await containersPage.openContainersDetails(KIND_CONTAINER_NAME);
       await playExpect.poll(async () => await containerDetailsPage.getState()).toEqual(ContainerState.Running);
 
       const volumesPage = new VolumesPage(page);
-      const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
+      const volumeName = await getVolumeNameForContainer(page, KIND_CONTAINER_NAME);
       if (!volumeName) {
-        throw new Error(`Volume name for container "${CONTAINER_NAME}" is not defined.`);
+        throw new Error(`Volume name for container "${KIND_CONTAINER_NAME}" is not defined.`);
       }
       const volumeDetailsPage = await volumesPage.openVolumeDetails(volumeName);
       await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
@@ -143,6 +149,34 @@ test.describe.serial('Kind End-to-End Tests', () => {
 
     test('Validate correct Kubernetes context is selected', async () => {
       await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
+    });
+
+    test.describe('Deploy a container to the Kind cluster', () => {
+      test('Pull an image and start a container', async () => {
+        const imagesPage = await navigationBar.openImages();
+        const pullImagePage = await imagesPage.openPullImage();
+        await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
+        await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
+        const containersPage = await imagesPage.startContainerWithImage(
+          IMAGE_TO_PULL,
+          CONTAINER_NAME,
+          CONTAINER_START_PARAMS,
+        );
+        await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
+        const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
+        await playExpect(containerDetails.heading).toBeVisible();
+        await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
+      });
+
+      test('Deploy the container ', async () => {
+        const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
+        await playExpect(containerDetailsPage.heading).toBeVisible();
+        const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
+        await deployToKubernetesPage.deployPod(CONTAINER_NAME, KUBERNETES_CONTEXT);
+
+        const podsPage = await navigationBar.openPods();
+        await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
+      });
     });
 
     test('Kind cluster operations - STOP', async () => {
@@ -176,10 +210,12 @@ test.describe.serial('Kind End-to-End Tests', () => {
       await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
       await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
       const containersPage = await navigationBar.openContainers();
-      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
+      await playExpect
+        .poll(async () => containersPage.containerExists(KIND_CONTAINER_NAME), { timeout: 10000 })
+        .toBeFalsy();
 
       await page.waitForTimeout(2000);
-      const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
+      const volumeName = await getVolumeNameForContainer(page, KIND_CONTAINER_NAME);
       await playExpect.poll(async () => volumeName).toBeFalsy();
     });
   });
