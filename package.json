@@ -154,7 +154,7 @@
     "globals": "^15.9.0",
     "husky": "^9.1.5",
     "js-yaml": "^4.1.0",
-    "lint-staged": "^15.2.9",
+    "lint-staged": "^15.2.10",
     "minimist": "^1.2.8",
     "nock": "14.0.0-beta.7",
     "postcss-import": "^16.1.0",
