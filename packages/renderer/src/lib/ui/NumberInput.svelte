@@ -37,12 +37,8 @@ function onKeyPress(event: any) {
   // get cursor position
   const cursorPosition = event.target.selectionStart;
 
-  console.log('cursorPosition', cursorPosition);
-
   // add the new character to the cursor position
   const wantedValue = `${event.target.value.slice(0, cursorPosition)}${event.key}${event.target.value.slice(cursorPosition)}`;
-
-  console.log('wantedValue', wantedValue);
 
   // now, check if type is integer if the value is value without digits or with zero fractional part
   if (type === 'integer' && Number.isInteger(Number(wantedValue))) {
