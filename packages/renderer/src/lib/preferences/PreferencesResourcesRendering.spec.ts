@@ -59,6 +59,7 @@ const providerInfo: ProviderInfo = {
     },
     {
       name: secondaryContainerConnectionName,
+      displayName: 'Dummy Podman Machine Display Name',
       status: 'stopped',
       endpoint: {
         socketPath: 'socket',
