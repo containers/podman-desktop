@@ -1764,7 +1764,7 @@ export function isLibkrunSupported(podmanVersion: string): boolean {
   return isMac() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT) >= 0;
 }
 
-function sendTelemetryRecords(
+export function sendTelemetryRecords(
   eventName: string,
   telemetryRecords: Record<string, unknown>,
   includeMachineStats: boolean,
