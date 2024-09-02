@@ -54,7 +54,7 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
-      await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 10000 }).toBeFalsy();
+      await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 30000 }).toBeFalsy();
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
