@@ -11,6 +11,9 @@ export let error: string | undefined = undefined;
 export let showError: boolean = true;
 export let type: 'number' | 'integer';
 
+// callback after validation occurs
+export let onValidation = (_value: number, _error?: string) => {};
+
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
 
@@ -19,15 +22,19 @@ $: if (value !== undefined || disabled) {
 }
 
 function validateNumber() {
-  if (maximum !== undefined && value > maximum) {
+  const numberToValidate = Number(value);
+  if (maximum !== undefined && numberToValidate > maximum) {
     error = `The value cannot be greater than ${maximum}`;
-  } else if (minimum !== undefined && value < minimum) {
+  } else if (minimum !== undefined && numberToValidate < minimum) {
     error = `The value cannot be less than ${minimum}`;
   } else {
     error = undefined;
   }
-  minimumEnabled = !disabled && (minimum === undefined || minimum < value);
-  maximumEnabled = !disabled && (maximum === undefined || maximum > value);
+  minimumEnabled = !disabled && (minimum === undefined || minimum < numberToValidate);
+  maximumEnabled = !disabled && (maximum === undefined || maximum > numberToValidate);
+
+  // send the callback
+  onValidation(numberToValidate, error);
 }
 
 function onKeyPress(event: any) {
