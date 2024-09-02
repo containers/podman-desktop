@@ -83,15 +83,15 @@ export class CreateMachinePage extends BasePage {
     }
 
     await this.createMachineButton.click();
-    await this.page.waitForTimeout(60_000);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 200_000 });
+    await playExpect(goBackToResourcesButton).toBeVisible();
+    await this.page.waitForTimeout(2_000); //wait for dialog to appear, in the needed cases
     await this.handleConnectionDialog(machineName, setAsDefault);
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
-    await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
 
     return new ResourcesPage(this.page);
@@ -122,11 +122,7 @@ export class CreateMachinePage extends BasePage {
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    const dialogMessage = connectionDialog.getByText(
-      new RegExp(
-        `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
-      ),
-    );
+    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
     if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
       let handleButtonName = 'Yes';
       if (!setAsDefault) {

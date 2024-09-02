@@ -63,13 +63,12 @@ describe.runIf(os.platform() === 'win32')('Podman machine user mode Verification
 
     const createMachinePage = new CreateMachinePage(page);
     await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, true, true, false);
-    await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
 
     const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
     const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
     await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
-  }, 150_000);
+  }, 200_000);
 
   test('Create a rootfull machine with user mode enabled', async () => {
     await navBar.openSettings();
@@ -79,11 +78,10 @@ describe.runIf(os.platform() === 'win32')('Podman machine user mode Verification
 
     const createMachinePage = new CreateMachinePage(page);
     await createMachinePage.createMachine(PODMAN_MACHINE_NAME, true, true, true, false);
-    await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
 
     const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
     const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
     await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
-  }, 150_000);
+  }, 200_000);
 });

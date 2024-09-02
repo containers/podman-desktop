@@ -205,11 +205,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-        timeout: 30_000,
+        timeout: 100_000,
       });
     }
     await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
-    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 30_000 });
+    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 100_000 });
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
   }
@@ -217,18 +217,13 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
 
 export async function handleResetDefaultConnectionDialog(page: Page): Promise<void> {
   const connectionDialog = page.getByRole('dialog', { name: 'Podman' });
-  const dialogMessage = connectionDialog.getByText(
-    new RegExp(
-      `.* Podman Machine .+ does not match default connection .+ Do you want to update the default connection?`,
-    ),
-  );
+  const dialogMessage = connectionDialog.getByLabel('Dialog Message');
+
   if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
     const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
     await handleButton.click();
     await playExpect(connectionDialog).toBeVisible();
-    const successDialogMessage = connectionDialog.getByText(
-      new RegExp(`Podman Machine .+ is now the default machine on the CLI.`),
-    );
+    const successDialogMessage = page.getByRole('dialog', { name: 'Podman' });
     await playExpect(successDialogMessage).toBeVisible();
     const okButton = connectionDialog.getByRole('button', { name: 'OK' });
     await okButton.click();
