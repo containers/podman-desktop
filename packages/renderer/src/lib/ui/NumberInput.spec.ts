@@ -204,3 +204,20 @@ test('Expect invalid data support works', async () => {
   // the value should be 99.0
   expect(input).toHaveValue('99.0');
 });
+
+test('Expect limiting numbers for integers', async () => {
+  renderInput('test', 3, false, 10, 100, 'integer');
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('3');
+
+  // focus the input
+  await userEvent.click(input);
+
+  // now enter on the keyboard .1234567890
+  await userEvent.type(input, '.1234567890');
+
+  // the value should be 3.0 (as only the dot and 0 are allowed)
+  expect(input).toHaveValue('3.0');
+});
