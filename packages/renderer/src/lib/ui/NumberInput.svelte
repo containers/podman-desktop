@@ -62,13 +62,13 @@ function onKeyPress(event: any) {
 function onDecrement(e: MouseEvent) {
   const dec = step ? step : 1;
   e.preventDefault();
-  value = Number(value) - dec;
+  value = (100 * Number(value) - 100 * dec) / 100;
 }
 
 function onIncrement(e: MouseEvent) {
   const inc = step ? step : 1;
   e.preventDefault();
-  value = Number(value) + inc;
+  value = (100 * Number(value) + 100 * inc) / 100;
 }
 </script>
 
