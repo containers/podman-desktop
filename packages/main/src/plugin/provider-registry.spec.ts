@@ -237,6 +237,7 @@ test('should reset state if initialization fails', async () => {
 test('expect isContainerConnection returns true with a ContainerConnection', async () => {
   const connection: ContainerProviderConnection = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -264,6 +265,7 @@ test('expect isContainerConnection returns false with a KubernetesConnection', a
 test('expect isProviderContainerConnection returns true with a ProviderContainerConnection', async () => {
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -319,6 +321,7 @@ test('should send events when starting a container connection', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -331,6 +334,7 @@ test('should send events when starting a container connection', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -384,6 +388,7 @@ test('should send events when stopping a container connection', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -396,6 +401,7 @@ test('should send events when stopping a container connection', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -496,6 +502,7 @@ test('should retrieve context of container provider', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -507,6 +514,7 @@ test('should retrieve context of container provider', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -590,6 +598,7 @@ test('should retrieve provider internal id from id', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -1063,6 +1072,7 @@ describe('startProvider', () => {
     });
     provider.registerContainerProviderConnection({
       name: 'connection',
+      displayName: 'connection',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1085,6 +1095,7 @@ describe('startProvider', () => {
     const startMock = vi.fn();
     provider.registerContainerProviderConnection({
       name: 'connection',
+      displayName: 'connection',
       type: 'podman',
       lifecycle: {
         start: startMock,

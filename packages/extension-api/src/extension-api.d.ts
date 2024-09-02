@@ -483,7 +483,6 @@ declare module '@podman-desktop/api' {
   }
   export interface KubernetesProviderConnection {
     name: string;
-    displayName?: string;
     endpoint: KubernetesProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;

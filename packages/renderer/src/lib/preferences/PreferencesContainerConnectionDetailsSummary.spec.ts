@@ -31,6 +31,7 @@ import PreferencesContainerConnectionDetailsSummary from './PreferencesContainer
 
 const podmanContainerConnection: ProviderContainerConnectionInfo = {
   name: 'connection',
+  displayName: 'connection',
   endpoint: {
     socketPath: 'socket',
   },
@@ -40,6 +41,7 @@ const podmanContainerConnection: ProviderContainerConnectionInfo = {
 
 const dockerContainerConnection: ProviderContainerConnectionInfo = {
   name: 'connection',
+  displayName: 'connection',
   endpoint: {
     socketPath: 'socket',
   },

@@ -52,6 +52,7 @@ test('Expect that the right machine is displayed', async () => {
     containerConnections: [
       {
         name: podmanMachineName1,
+        displayName: podmanMachineName1,
         status: 'started',
         endpoint: {
           socketPath,
@@ -60,6 +61,7 @@ test('Expect that the right machine is displayed', async () => {
       },
       {
         name: podmanMachineName2,
+        displayName: podmanMachineName2,
         status: 'started',
         endpoint: {
           socketPath,
@@ -68,6 +70,7 @@ test('Expect that the right machine is displayed', async () => {
       },
       {
         name: podmanMachineName3,
+        displayName: podmanMachineName3,
         status: 'started',
         endpoint: {
           socketPath,
@@ -130,6 +133,7 @@ test('Expect that removing the connection is going back to the previous page', a
     containerConnections: [
       {
         name: podmanMachineName1,
+        displayName: podmanMachineName1,
         status: 'started',
         endpoint: {
           socketPath,
@@ -138,6 +142,7 @@ test('Expect that removing the connection is going back to the previous page', a
       },
       {
         name: podmanMachineName2,
+        displayName: podmanMachineName2,
         status: 'stopped',
         endpoint: {
           socketPath,
@@ -147,6 +152,7 @@ test('Expect that removing the connection is going back to the previous page', a
       },
       {
         name: podmanMachineName3,
+        displayName: podmanMachineName3,
         status: 'started',
         endpoint: {
           socketPath,
@@ -238,6 +244,7 @@ test('Expect to see error message if action fails', async () => {
     containerConnections: [
       {
         name: podmanMachineName,
+        displayName: podmanMachineName,
         status: 'stopped',
         endpoint: {
           socketPath,
@@ -317,6 +324,7 @@ test('Expect startContainerProvider to only be called once when restarting', asy
     containerConnections: [
       {
         name: podmanMachineName,
+        displayName: podmanMachineName,
         status: 'started',
         endpoint: {
           socketPath,

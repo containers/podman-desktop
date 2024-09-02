@@ -49,6 +49,7 @@ const providerInfo: ProviderInfo = {
   containerConnections: [
     {
       name: defaultContainerConnectionName,
+      displayName: defaultContainerConnectionName,
       status: 'started',
       endpoint: {
         socketPath: 'socket',

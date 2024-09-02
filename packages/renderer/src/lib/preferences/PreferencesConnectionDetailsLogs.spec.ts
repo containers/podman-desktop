@@ -37,6 +37,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 
 const containerConnection: ProviderContainerConnectionInfo = {
   name: 'connection',
+  displayName: 'connection',
   endpoint: {
     socketPath: 'socket',
   },

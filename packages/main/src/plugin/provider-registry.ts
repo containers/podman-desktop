@@ -640,7 +640,7 @@ export class ProviderRegistry {
     if (this.isContainerConnection(connection)) {
       providerConnection = {
         name: connection.name,
-        displayName: connection.displayName,
+        displayName: connection.displayName ?? connection.name,
         status: connection.status(),
         type: connection.type,
         endpoint: {
