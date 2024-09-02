@@ -33,6 +33,7 @@ function renderInput(
   minimum?: number,
   maximum?: number,
   type: 'integer' | 'number' = 'number',
+  step?: number,
 ): void {
   render(NumberInput, {
     name: name,
@@ -41,6 +42,7 @@ function renderInput(
     minimum: minimum,
     maximum: maximum,
     type: type,
+    step: step,
   });
 }
 
@@ -220,4 +222,34 @@ test('Expect limiting numbers for integers', async () => {
 
   // the value should be 3.0 (as only the dot and 0 are allowed)
   expect(input).toHaveValue('3.0');
+});
+
+test('Expect increment works with custom step', async () => {
+  renderInput('test', 5, false, 0, 10, 'number', 0.5);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('5');
+
+  const increment = screen.getByLabelText('increment');
+  expect(increment).toBeInTheDocument();
+
+  await userEvent.click(increment);
+
+  expect(input).toHaveValue('5.5');
+});
+
+test('Expect decrement works with custom step', async () => {
+  renderInput('test', 5, false, 0, 10, 'number', 0.8);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('5');
+
+  const increment = screen.getByLabelText('decrement');
+  expect(increment).toBeInTheDocument();
+
+  await userEvent.click(increment);
+
+  expect(input).toHaveValue('4.2');
 });

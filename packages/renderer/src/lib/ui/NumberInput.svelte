@@ -10,6 +10,7 @@ export let maximum: number | undefined = undefined;
 export let error: string | undefined = undefined;
 export let showError: boolean = true;
 export let type: 'number' | 'integer';
+export let step: number | undefined = undefined;
 
 // callback after validation occurs
 export let onValidation = (_value: number, _error?: string) => {};
@@ -59,13 +60,15 @@ function onKeyPress(event: any) {
 }
 
 function onDecrement(e: MouseEvent) {
+  const dec = step ? step : 1;
   e.preventDefault();
-  value = Number(value) - 1;
+  value = Number(value) - dec;
 }
 
 function onIncrement(e: MouseEvent) {
+  const inc = step ? step : 1;
   e.preventDefault();
-  value = Number(value) + 1;
+  value = Number(value) + inc;
 }
 </script>
 
