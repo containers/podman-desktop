@@ -26,13 +26,21 @@ import { expect, test } from 'vitest';
 
 import NumberInput from './NumberInput.svelte';
 
-function renderInput(name: string, value: number, disabled?: boolean, minimum?: number, maximum?: number): void {
+function renderInput(
+  name: string,
+  value: number,
+  disabled?: boolean,
+  minimum?: number,
+  maximum?: number,
+  type: 'integer' | 'number' = 'number',
+): void {
   render(NumberInput, {
     name: name,
     value: value,
     disabled: disabled,
     minimum: minimum,
     maximum: maximum,
+    type: type,
   });
 }
 
@@ -132,4 +140,84 @@ test('Expect maximum value works', async () => {
   await userEvent.click(increment);
 
   expect(increment).toBeDisabled();
+});
+
+test('Expect integer support works', async () => {
+  renderInput('test', 99, false, 10, 100, 'integer');
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('99');
+
+  // focus the input
+  await userEvent.click(input);
+
+  // now enter on the keyboard .0
+  await userEvent.type(input, '.0');
+
+  // the value should be 99.0
+  expect(input).toHaveValue('99.0');
+
+  // now try to enter 1
+  await userEvent.type(input, '1');
+
+  // the value should be 99.0 as we only support integers
+  expect(input).toHaveValue('99.0');
+});
+
+test('Expect number support works', async () => {
+  renderInput('test', 99, false, 10, 100, 'number');
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('99');
+
+  // focus the input
+  await userEvent.click(input);
+
+  // now enter on the keyboard .0
+  await userEvent.type(input, '.0');
+
+  // the value should be 99.0
+  expect(input).toHaveValue('99.0');
+
+  // now try to enter 1
+  await userEvent.type(input, '1');
+
+  // the value should be 99.01 as here we support numbers (and not integers)
+  expect(input).toHaveValue('99.01');
+});
+
+test('Expect invalid data support works', async () => {
+  renderInput('test', 99, false, 10, 100, 'number');
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('99');
+
+  // focus the input
+  await userEvent.click(input);
+
+  // now enter on the keyboard abcd-)à&@*.0
+  await userEvent.type(input, 'abcd-)à&@*.0');
+
+  // the value should be 99.0
+  expect(input).toHaveValue('99.0');
+});
+
+test('Expect limiting numbers for integers', async () => {
+  renderInput('test', 3, false, 10, 100, 'integer');
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('3');
+
+  // focus the input
+  await userEvent.click(input);
+
+  // now enter on the keyboard .1234567890
+  await userEvent.type(input, '.1234567890');
+
+  // the value should be 3.0 (as only the dot and 0 are allowed)
+  expect(input).toHaveValue('3.0');
 });
