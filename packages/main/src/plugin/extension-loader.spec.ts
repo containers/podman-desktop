@@ -26,6 +26,7 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import { app } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { Certificates } from '/@/plugin/certificates.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kubernetes/kube-generator-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
@@ -241,6 +242,8 @@ const dialogRegistry: DialogRegistry = {
   saveDialog: saveDialogMock,
 } as unknown as DialogRegistry;
 
+const certificates: Certificates = {} as unknown as Certificates;
+
 vi.mock('electron', () => {
   return {
     app: {
@@ -292,6 +295,7 @@ beforeAll(() => {
     colorRegistry,
     dialogRegistry,
     safeStorageRegistry,
+    certificates,
   );
 });
 
