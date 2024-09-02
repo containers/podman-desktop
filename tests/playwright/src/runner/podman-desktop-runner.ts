@@ -233,7 +233,12 @@ export class PodmanDesktopRunner {
       rmSync(rawTracesPath, { recursive: true, force: true, maxRetries: 5 });
     }
 
-    if (test.info().status === 'failed') return;
+    try {
+      if (test.info().status === 'failed') return;
+    } catch (err) {
+      console.log(`Caught exception in removing traces: ${err}`);
+      return;
+    }
 
     if (!process.env.KEEP_TRACES_ON_PASS) {
       const tracesPath = join(this._testOutput, 'traces', `${this._videoAndTraceName}_trace.zip`);
