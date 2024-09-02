@@ -16,15 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import clsx from 'clsx';
 import type { JSX } from 'react';
 import React from 'react';
 
-import styles from './styles.module.css';
-
 export default function EmptyPage(): JSX.Element {
   return (
-    <div className={clsx(styles.storybookRoot, styles.storybookEmptyPage)}>
+    <div className="justify-center items-center grow flex w-full">
       <span>No component selected</span>
     </div>
   );

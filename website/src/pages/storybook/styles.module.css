@@ -31,8 +31,3 @@
   width: 100%;
   flex-grow: 1;
 }
-
-.storybookEmptyPage {
-  justify-content: center;
-  align-items: center;
-}
