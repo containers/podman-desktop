@@ -31,6 +31,7 @@ export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
 
 export interface ProviderContainerConnectionInfo {
   name: string;
+  displayName?: string;
   status: ProviderConnectionStatus;
   endpoint: {
     socketPath: string;

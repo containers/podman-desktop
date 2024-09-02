@@ -640,6 +640,7 @@ export class ProviderRegistry {
     if (this.isContainerConnection(connection)) {
       providerConnection = {
         name: connection.name,
+        displayName: connection.displayName,
         status: connection.status(),
         type: connection.type,
         endpoint: {
@@ -1000,6 +1001,7 @@ export class ProviderRegistry {
         const event = {
           providerId: provider.id,
           connection: {
+            displayName: providerConnectionInfo.displayName,
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,
@@ -1090,6 +1092,7 @@ export class ProviderRegistry {
         const event = {
           providerId: provider.id,
           connection: {
+            displayName: providerConnectionInfo.displayName,
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,

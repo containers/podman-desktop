@@ -471,7 +471,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 </Tooltip>
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} font-semibold">
-                {container.name}
+                {container.displayName ?? container.name}
               </div>
               <div class="flex" aria-label="Connection Status">
                 <ConnectionStatus status={container.status} />

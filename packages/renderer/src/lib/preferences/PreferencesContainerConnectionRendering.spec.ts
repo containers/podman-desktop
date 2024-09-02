@@ -372,3 +372,66 @@ test('Expect startContainerProvider to only be called once when restarting', asy
 
   expect(startConnectionMock).toBeCalledTimes(1);
 });
+
+test('Expect display name to be used in favor of name for page title', async () => {
+  const socketPath = '/my/common-socket-path';
+  const podmanMachineName = 'podman-machine-default';
+  const podmanMachineDisplayName = 'Dummy Podman Display Name';
+
+  const stopConnectionMock = vi.fn();
+  const startConnectionMock = vi.fn();
+  (window as any).stopProviderConnectionLifecycle = stopConnectionMock;
+  (window as any).startProviderConnectionLifecycle = startConnectionMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'podman',
+    name: 'podman',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: [],
+    containerProviderConnectionCreation: true,
+    detectionChecks: [],
+    containerConnections: [
+      {
+        name: podmanMachineName,
+        displayName: podmanMachineDisplayName,
+        status: 'started',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+        lifecycleMethods: ['start', 'stop'],
+      },
+    ],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: [],
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
+    cleanupSupport: false,
+  };
+
+  providerInfos.set([providerInfo]);
+
+  // encode name with base64 of the second machine
+  const name = Buffer.from(podmanMachineName).toString('base64');
+
+  const connection = Buffer.from(socketPath).toString('base64');
+
+  const { getByLabelText } = render(PreferencesContainerConnectionRendering, {
+    name,
+    connection,
+    providerInternalId: '0',
+  });
+
+  const header = getByLabelText(podmanMachineDisplayName);
+  expect(header).toBeDefined();
+  expect(header instanceof HTMLHeadingElement).toBeTruthy();
+  expect(header.textContent).toBe(podmanMachineDisplayName);
+});

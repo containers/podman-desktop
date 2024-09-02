@@ -177,6 +177,32 @@ test('should initialize provider if there is container connection provider', asy
   expect(apiSenderSendMock).toBeCalled();
 });
 
+test('connections should contain the display name provided when registering', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  expect(providerRegistry.getContainerConnections().length).toBe(0);
+
+  const displayName = 'Podman Display Name';
+  provider.registerContainerProviderConnection({
+    name: 'podman-machine-default',
+    displayName: displayName,
+    type: 'podman',
+    lifecycle: {},
+    status: () => 'stopped',
+    endpoint: {
+      socketPath: 'dummy',
+    },
+  });
+
+  const connections = providerRegistry.getContainerConnections();
+  expect(connections.length).toBe(1);
+  expect(connections[0]?.connection.displayName).toBe(displayName);
+});
+
 test('should reset state if initialization fails', async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let providerInternalId: any;
