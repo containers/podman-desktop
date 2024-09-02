@@ -18,7 +18,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import ArchitectureType from '../core/platforms';
+import { ArchitectureType } from '../core/platforms';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
 
