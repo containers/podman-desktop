@@ -746,10 +746,7 @@ export async function registerProviderFor(
       await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, false);
     },
     stop: async (context, logger): Promise<void> => {
-      await execPodman(['machine', 'stop', machineInfo.name], machineInfo.vmType, {
-        logger: new LoggerDelegator(context, logger),
-      });
-      provider.updateStatus('stopped');
+      await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
       await execPodman(['machine', 'rm', '-f', machineInfo.name], machineInfo.vmType, {
@@ -871,6 +868,7 @@ export async function startMachine(
   autoStart?: boolean,
 ): Promise<void> {
   const telemetryRecords: Record<string, unknown> = {};
+  telemetryRecords.provider = getProviderLabel(machineInfo.vmType);
   const startTime = performance.now();
 
   await checkRosettaMacArm(podmanConfiguration);
@@ -895,6 +893,31 @@ export async function startMachine(
     telemetryRecords.duration = endTime - startTime;
     telemetryRecords.autoStart = autoStart === true;
     sendTelemetryRecords('podman.machine.start', telemetryRecords, true);
+  }
+}
+
+export async function stopMachine(
+  provider: extensionApi.Provider,
+  machineInfo: MachineInfo,
+  context?: extensionApi.LifecycleContext,
+  logger?: extensionApi.Logger,
+): Promise<void> {
+  const startTime = performance.now();
+  const telemetryRecords: Record<string, unknown> = {};
+  telemetryRecords.provider = getProviderLabel(machineInfo.vmType);
+  try {
+    await execPodman(['machine', 'stop', machineInfo.name], machineInfo.vmType, {
+      logger: new LoggerDelegator(context, logger),
+    });
+    provider.updateStatus('stopped');
+  } catch (err: unknown) {
+    telemetryRecords.error = err;
+    throw err;
+  } finally {
+    // send telemetry event
+    const endTime = performance.now();
+    telemetryRecords.duration = endTime - startTime;
+    sendTelemetryRecords('podman.machine.stop', telemetryRecords, false);
   }
 }
 
@@ -1804,16 +1827,18 @@ export function sendTelemetryRecords(
         console.trace('unable to check from which path podman is coming', error);
       }
 
-      // add krunkit version
-      try {
-        const krunkitVersion = await krunkitHelper.getKrunkitVersion(krunkitPath);
-        if (krunkitPath) {
-          telemetryRecords.krunkitPath = krunkitPath;
+      if (telemetryRecords.provider === getProviderLabel('libkrun')) {
+        // add krunkit version
+        try {
+          const krunkitVersion = await krunkitHelper.getKrunkitVersion(krunkitPath);
+          if (krunkitPath) {
+            telemetryRecords.krunkitPath = krunkitPath;
+          }
+          telemetryRecords.krunkitVersion = krunkitVersion;
+        } catch (error) {
+          console.trace('unable to check krunkit version', error);
+          telemetryRecords.errorKrunkitVersion = error;
         }
-        telemetryRecords.krunkitVersion = krunkitVersion;
-      } catch (error) {
-        console.trace('unable to check krunkit version', error);
-        telemetryRecords.errorKrunkitVersion = error;
       }
     } else if (extensionApi.env.isWindows) {
       // try to get wsl version
@@ -1856,7 +1881,7 @@ export async function createMachine(
   let provider: string | undefined;
   if (params['podman.factory.machine.provider']) {
     provider = getProviderByLabel(params['podman.factory.machine.provider']);
-    telemetryRecords.provider = provider;
+    telemetryRecords.provider = getProviderLabel(provider);
   }
 
   // cpus
