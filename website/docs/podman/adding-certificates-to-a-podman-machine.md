@@ -41,7 +41,7 @@ $ podman machine ssh
 # cd /usr/local/share/ca-certificates/
 ```
 
-4. Perform one of the following steps to download or create a certificate:
+1. Perform one of the following steps:
 
 - Use the `curl` command to download a certificate:
 
@@ -53,7 +53,7 @@ $ podman machine ssh
   - Replace `my-certificate.pem` with the actual name of the .pem certificate
   - Replace `my-server.com/my-certificate.pem` with a valid server URL and a .pem certificate
 
-- Using the vi editor to create a certificate:
+- Use the vi editor to create a certificate:
 
   ```shell-session
   # vi <my-certificate.pem>
