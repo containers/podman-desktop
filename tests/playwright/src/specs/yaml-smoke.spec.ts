@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect, test } from '@playwright/test';
@@ -33,6 +34,9 @@ const podAppName = 'primary-podify-demo';
 const podName = 'podify-demo-pod';
 const frontendImage = 'quay.io/podman-desktop-demo/podify-demo-frontend';
 const backendImage = 'quay.io/podman-desktop-demo/podify-demo-backend';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test.skip(
   !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',

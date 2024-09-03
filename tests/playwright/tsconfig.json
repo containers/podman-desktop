@@ -6,7 +6,7 @@
     "moduleResolution": "Node",
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDirs": ["src", "../../playwright.config.ts"],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
