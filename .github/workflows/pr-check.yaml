@@ -227,7 +227,7 @@ jobs:
             exit 1
           fi
 
-  tpecheck:
+  typecheck:
     name: typecheck
     runs-on: ubuntu-24.04
     timeout-minutes: 40
