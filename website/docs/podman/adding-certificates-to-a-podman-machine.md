@@ -41,7 +41,7 @@ $ podman machine ssh
 # cd /usr/local/share/ca-certificates/
 ```
 
-1. Perform one of the following steps:
+4. Perform one of the following steps:
 
 - Use the `curl` command to download a certificate:
 
@@ -58,12 +58,6 @@ $ podman machine ssh
   ```shell-session
   # vi <my-certificate.pem>
   ```
-
-:::note
-
-To add another certificate, repeat the above step.
-
-:::
 
 5. Add the certificate to the list of trusted certificates:
 
@@ -98,12 +92,6 @@ $ podman machine ssh
 ```
 
 - Replace `certificate-name.crt` with the actual certificate name, such as _rootCA.crt_.
-
-:::note
-
-To add another certificate, repeat the above step.
-
-:::
 
 4. Exit the Podman machine:
 
