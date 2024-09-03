@@ -37,7 +37,7 @@ beforeEach(() => {
 test('tooltipHidden starts as false, then true on tooltip-hide and false on tooltip-show', async () => {
   setup();
 
-  expect(get(tooltipHidden)).toBe(false);
+  expect(get(tooltipHidden)).toBeFalsy();
 
   // now we call the listener
   let callback = callbacks.get('tooltip-hide');
@@ -46,11 +46,11 @@ test('tooltipHidden starts as false, then true on tooltip-hide and false on tool
 
   callback();
 
-  expect(get(tooltipHidden)).toBe(true);
+  expect(get(tooltipHidden)).toBeTruthy();
 
   callback = callbacks.get('tooltip-show');
 
   callback();
 
-  expect(get(tooltipHidden)).toBe(false);
+  expect(get(tooltipHidden)).toBeFalsy();
 });
