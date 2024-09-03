@@ -78,6 +78,14 @@ router.subscribe(function (navigation) {
   }
 });
 
+window.events?.receive('context-menu:visible', visible => {
+  if (visible) {
+    window.dispatchEvent(new Event('tooltip-hide'));
+  } else {
+    window.dispatchEvent(new Event('tooltip-show'));
+  }
+});
+
 window.events?.receive('navigate', (navigationRequest: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleNavigation(navigationRequest as NavigationRequest<any>);
