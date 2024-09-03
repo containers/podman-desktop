@@ -46,18 +46,20 @@ $ podman machine ssh
 - Use the `curl` command to download a certificate:
 
   ```shell-session
-  # curl -k -o <my-certificate.pem> https://<my-server.com/my-certificate.pem>
+  # curl [-k] -o <my-certificate.pem> https://<my-server.com/my-certificate.pem>
   ```
 
   - Optional: Use the `-k` option only to connect securely to a server for which the certificate is not yet trusted
   - Replace `my-certificate.pem` with the actual name of the .pem certificate
   - Replace `my-server.com/my-certificate.pem` with a valid server URL and a .pem certificate
 
-- Use the vi editor to create a certificate:
+- Use any editor, such as Notepad or Vim to create a certificate file with .crt, .cer, or .pem extension. The following example uses the Vim editor:
 
   ```shell-session
   # vi <my-certificate.pem>
   ```
+
+  - Copy the certificate content to the clipboard, paste the content into the certificate file, and then save and close the file.
 
 5. Add the certificate to the list of trusted certificates:
 
