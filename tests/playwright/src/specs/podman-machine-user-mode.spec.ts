@@ -33,7 +33,7 @@ let navBar: NavigationBar;
 const PODMAN_MACHINE_NAME: string = 'podman-machine-user-mode';
 const MACHINE_VISIBLE_NAME: string = 'Podman Machine user-mode';
 
-test.skip(!!isWindows, 'Test should run only on Windows');
+test.skip(!isWindows, 'Test should run only on Windows');
 
 test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();

@@ -90,7 +90,7 @@ export class CreateMachinePage extends BasePage {
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 200_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await this.page.waitForTimeout(2_000); //wait for dialog to appear, in the needed cases
-    await this.handleConnectionDialog(machineName, setAsDefault);
+    await this.handleConnectionDialog(setAsDefault);
 
     await goBackToResourcesButton.click();
 
@@ -120,10 +120,9 @@ export class CreateMachinePage extends BasePage {
     await clickableCheckbox.click();
   }
 
-  async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
+  async handleConnectionDialog(setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
-    if (dialogMessage) {
+    if (await connectionDialog.isVisible()) {
       let handleButtonName = 'Yes';
       if (!setAsDefault) {
         handleButtonName = 'Ignore';
