@@ -793,7 +793,8 @@ export async function registerProviderFor(
   }
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    name: prettyMachineName(machineInfo.name),
+    name: machineInfo.name,
+    displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
     lifecycle,

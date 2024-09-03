@@ -52,6 +52,7 @@ test('Expect that the right machine is displayed', async () => {
     containerConnections: [
       {
         name: podmanMachineName1,
+        displayName: podmanMachineName1,
         status: 'started',
         endpoint: {
           socketPath,
@@ -60,6 +61,7 @@ test('Expect that the right machine is displayed', async () => {
       },
       {
         name: podmanMachineName2,
+        displayName: podmanMachineName2,
         status: 'started',
         endpoint: {
           socketPath,
@@ -68,6 +70,7 @@ test('Expect that the right machine is displayed', async () => {
       },
       {
         name: podmanMachineName3,
+        displayName: podmanMachineName3,
         status: 'started',
         endpoint: {
           socketPath,
@@ -130,6 +133,7 @@ test('Expect that removing the connection is going back to the previous page', a
     containerConnections: [
       {
         name: podmanMachineName1,
+        displayName: podmanMachineName1,
         status: 'started',
         endpoint: {
           socketPath,
@@ -138,6 +142,7 @@ test('Expect that removing the connection is going back to the previous page', a
       },
       {
         name: podmanMachineName2,
+        displayName: podmanMachineName2,
         status: 'stopped',
         endpoint: {
           socketPath,
@@ -147,6 +152,7 @@ test('Expect that removing the connection is going back to the previous page', a
       },
       {
         name: podmanMachineName3,
+        displayName: podmanMachineName3,
         status: 'started',
         endpoint: {
           socketPath,
@@ -238,6 +244,7 @@ test('Expect to see error message if action fails', async () => {
     containerConnections: [
       {
         name: podmanMachineName,
+        displayName: podmanMachineName,
         status: 'stopped',
         endpoint: {
           socketPath,
@@ -317,6 +324,7 @@ test('Expect startContainerProvider to only be called once when restarting', asy
     containerConnections: [
       {
         name: podmanMachineName,
+        displayName: podmanMachineName,
         status: 'started',
         endpoint: {
           socketPath,
@@ -371,4 +379,67 @@ test('Expect startContainerProvider to only be called once when restarting', asy
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   expect(startConnectionMock).toBeCalledTimes(1);
+});
+
+test('Expect display name to be used in favor of name for page title', async () => {
+  const socketPath = '/my/common-socket-path';
+  const podmanMachineName = 'podman-machine-default';
+  const podmanMachineDisplayName = 'Dummy Podman Display Name';
+
+  const stopConnectionMock = vi.fn();
+  const startConnectionMock = vi.fn();
+  (window as any).stopProviderConnectionLifecycle = stopConnectionMock;
+  (window as any).startProviderConnectionLifecycle = startConnectionMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'podman',
+    name: 'podman',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: [],
+    containerProviderConnectionCreation: true,
+    detectionChecks: [],
+    containerConnections: [
+      {
+        name: podmanMachineName,
+        displayName: podmanMachineDisplayName,
+        status: 'started',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+        lifecycleMethods: ['start', 'stop'],
+      },
+    ],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: [],
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
+    cleanupSupport: false,
+  };
+
+  providerInfos.set([providerInfo]);
+
+  // encode name with base64 of the second machine
+  const name = Buffer.from(podmanMachineName).toString('base64');
+
+  const connection = Buffer.from(socketPath).toString('base64');
+
+  const { getByLabelText } = render(PreferencesContainerConnectionRendering, {
+    name,
+    connection,
+    providerInternalId: '0',
+  });
+
+  const header = getByLabelText(podmanMachineDisplayName);
+  expect(header).toBeDefined();
+  expect(header instanceof HTMLHeadingElement).toBeTruthy();
+  expect(header.textContent).toBe(podmanMachineDisplayName);
 });

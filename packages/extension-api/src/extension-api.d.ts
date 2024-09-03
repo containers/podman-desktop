@@ -358,6 +358,7 @@ declare module '@podman-desktop/api' {
 
   export interface ContainerProviderConnection {
     name: string;
+    displayName?: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;

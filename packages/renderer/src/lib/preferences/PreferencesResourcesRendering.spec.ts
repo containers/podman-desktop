@@ -49,6 +49,7 @@ const providerInfo: ProviderInfo = {
   containerConnections: [
     {
       name: defaultContainerConnectionName,
+      displayName: defaultContainerConnectionName,
       status: 'started',
       endpoint: {
         socketPath: 'socket',
@@ -59,6 +60,7 @@ const providerInfo: ProviderInfo = {
     },
     {
       name: secondaryContainerConnectionName,
+      displayName: 'Dummy Secondary Connection',
       status: 'stopped',
       endpoint: {
         socketPath: 'socket',
@@ -219,6 +221,18 @@ describe('provider connections', () => {
     expect(typeDiv.textContent).toBe('Docker endpoint');
     const endpointSpan = await vi.waitFor(() => within(region).getByTitle('unix://socket'));
     expect(endpointSpan.textContent).toBe('unix://socket');
+  });
+
+  test('Expect display name to be used in favor of name when available', async () => {
+    providerInfos.set([providerInfo]);
+
+    const { getByRole } = render(PreferencesResourcesRendering, {});
+
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: secondaryContainerConnectionName });
+
+    const text = within(region).getByText('Dummy Secondary Connection');
+    expect(text).toBeDefined();
   });
 });
 
