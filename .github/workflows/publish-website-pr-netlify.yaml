@@ -22,7 +22,7 @@ name: Publish pull request content on netlify
 on:
   workflow_run:
     workflows:
-      - 'Build website on pull request'
+      - 'pr-check'
     types:
       - completed
 
