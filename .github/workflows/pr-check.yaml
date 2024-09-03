@@ -159,6 +159,40 @@ jobs:
           name: macos-universal-dmg
           path: ./dist/podman-desktop-*universal.dmg
 
+  website-build:
+    name: build website
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run website
+        run: pnpm website:build
+
+      - name: Store pull request details for publish-netlify
+        run: |
+          echo "${{ github.event.number }}" > PR_NUMBER
+          echo "${{ github.event.pull_request.head.sha }}" > PR_SHA
+
+      - name: Upload artifact website-content
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-content
+          path: |
+            website/build
+            PR_NUMBER
+            PR_SHA
 
   lint-format-unit:
     name: linter, formatters and unit tests / ${{ matrix.os }}
