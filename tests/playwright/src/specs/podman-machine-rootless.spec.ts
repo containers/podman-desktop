@@ -15,19 +15,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as os from 'node:os';
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { expect as playExpect, test } from '@playwright/test';
 
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deletePodmanMachine } from '../utility/operations';
+import { isLinux } from '../utility/platform';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -35,7 +33,9 @@ let navBar: NavigationBar;
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 const MACHINE_VISIBLE_NAME: string = 'Podman Machine rootless';
 
-beforeAll(async () => {
+test.skip(isLinux, 'Test should not run on Linux');
+
+test.beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
@@ -46,17 +46,14 @@ beforeAll(async () => {
   navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
+test.afterAll(async () => {
   await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
   await pdRunner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification', async () => {
+test.describe.serial('Rootless Podman machine Verification', () => {
   test('Create a rootless machine', async () => {
+    test.setTimeout(150_000);
     await navBar.openSettings();
     const podmanResources = new ResourceConnectionCardPage(page, 'podman');
 
@@ -69,5 +66,5 @@ describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification
     const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
     const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
-  }, 150_000);
+  });
 });
