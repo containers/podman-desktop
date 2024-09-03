@@ -364,6 +364,10 @@ declare module '@podman-desktop/api' {
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     vmType?: string;
+    /**
+     * the vmTypeDisplayName property cannot be set if vmType is undefined
+     */
+    vmTypeDisplayName?: string;
   }
 
   export interface PodCreatePortOptions {
