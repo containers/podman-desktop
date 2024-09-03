@@ -77,10 +77,8 @@ test('expect being able to attach terminal ', async () => {
   await waitFor(() => expect(renderObject.container.querySelector('div[aria-live="assertive"]')));
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
   // check the content
-  expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
+  await vi.waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'), { timeout: 2500 });
 
   // check we have called attachContainer
   expect(attachContainerMock).toHaveBeenCalledTimes(1);
