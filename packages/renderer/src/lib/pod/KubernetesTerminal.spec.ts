@@ -79,5 +79,8 @@ test('Test should render the terminal and being able to reconnect', async () => 
   render(KubernetesTerminal, { podName: 'podName', containerName: 'containerName' });
 
   await new Promise(resolve => setTimeout(resolve, 1000));
-  expect(kubernetesExecMock).toHaveBeenCalledTimes(1);
+
+  // Called twice because we now create the terminal each session when we reconnect in order
+  // to ensure that we have a fresh terminal with the previous history shown.
+  expect(kubernetesExecMock).toHaveBeenCalledTimes(2);
 });
