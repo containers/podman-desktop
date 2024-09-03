@@ -16,20 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Writable, writable } from 'svelte/store';
+import '@testing-library/jest-dom/vitest';
 
-export const tooltipHidden = setup();
+import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
+import { expect, test } from 'vitest';
 
-export function setup(): Writable<boolean> {
-  const store = writable(false);
+import Tooltip from './Tooltip.svelte';
+import { tooltipHidden } from './tooltip-store';
 
-  window.addEventListener('tooltip-show', () => {
-    tooltipHidden.set(false);
-  });
+test('tooltip is not empty string when tooltipHidden value false', async () => {
+  tooltipHidden.set(false);
 
-  window.addEventListener('tooltip-hide', () => {
-    tooltipHidden.set(true);
-  });
+  render(Tooltip, { tip: 'test 1' });
+  expect(screen.queryByText('test 1')).toBeInTheDocument();
 
-  return store;
-}
+  tooltipHidden.set(true);
+  await tick();
+  expect(screen.queryByText('test 1')).not.toBeInTheDocument();
+
+  tooltipHidden.set(false);
+  await tick();
+  expect(screen.queryByText('test 1')).toBeInTheDocument();
+});
