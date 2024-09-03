@@ -536,7 +536,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   {provider.name}
                   {provider.version ? `v${provider.version}` : ''}
                 </div>
-                <div aria-label="Connection Type">{container.vmType ? capitalize(container.vmType) : ''}</div>
+                <div aria-label="Connection Type">{container.vmType ? capitalize(container.vmType.name) : ''}</div>
               </div>
             </div>
           {/each}

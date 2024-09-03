@@ -646,7 +646,12 @@ export class ProviderRegistry {
         endpoint: {
           socketPath: connection.endpoint.socketPath,
         },
-        vmType: connection.vmType,
+        vmType: connection.vmType
+          ? {
+              id: connection.vmType,
+              name: connection.vmTypeDisplayName ?? connection.vmType,
+            }
+          : undefined,
       };
     } else {
       providerConnection = {
