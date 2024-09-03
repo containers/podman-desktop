@@ -215,21 +215,6 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   }
 }
 
-export async function handleResetDefaultConnectionDialog(page: Page): Promise<void> {
-  const connectionDialog = page.getByRole('dialog', { name: 'Podman' });
-  const dialogMessage = connectionDialog.getByLabel('Dialog Message');
-
-  if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
-    const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
-    await handleButton.click();
-    await playExpect(connectionDialog).toBeVisible();
-    const successDialogMessage = page.getByRole('dialog', { name: 'Podman' });
-    await playExpect(successDialogMessage).toBeVisible();
-    const okButton = connectionDialog.getByRole('button', { name: 'OK' });
-    await okButton.click();
-  }
-}
-
 export function checkForFailedTest(result: TaskResult, runner: PodmanDesktopRunner): void {
   if (result.errors && result.errors.length > 0) runner.setTestPassed(false);
 }

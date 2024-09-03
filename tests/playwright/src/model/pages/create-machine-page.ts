@@ -123,7 +123,7 @@ export class CreateMachinePage extends BasePage {
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
     const dialogMessage = connectionDialog.getByLabel('Dialog Message');
-    if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
+    if (dialogMessage) {
       let handleButtonName = 'Yes';
       if (!setAsDefault) {
         handleButtonName = 'Ignore';
