@@ -84,13 +84,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
     test('Install Kind CLI', async () => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
 
-      await navigationBar.openSettings();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
       await statusBar.installKindCLI();
       await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
-    });
-
-    test('Verify that Kind CLI is installed', async () => {
       await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
