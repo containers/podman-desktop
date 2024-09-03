@@ -79,7 +79,7 @@
     "typecheck:preload-dd-extension": "tsc --noEmit -p packages/preload-docker-extension/tsconfig.json",
     "typecheck:preload-webview": "tsc --noEmit -p packages/preload-webview/tsconfig.json",
     "typecheck:renderer": "npm run build:preload:types && tsc --noEmit -p packages/renderer/tsconfig.json",
-    "typecheck:ui": "npm run build:preload:types && tsc --noEmit -p packages/ui/tsconfig.json",
+    "typecheck:ui": "npm run build:ui && npm run build:preload:types && tsc --noEmit -p packages/ui/tsconfig.json",
     "typecheck:extensions": "npm run typecheck:extensions:compose && npm run typecheck:extensions:kind && npm run typecheck:extensions:docker && npm run typecheck:extensions:lima && npm run typecheck:extensions:kube-context && npm run typecheck:extensions:podman && npm run typecheck:extensions:registries && npm run typecheck:extensions:kubectl-cli",
     "typecheck:extensions:kind": "tsc --noEmit --project extensions/kind",
     "typecheck:extensions:compose": "tsc --noEmit --project extensions/compose",
