@@ -30,14 +30,14 @@ export type TestFixtures = {
   page: Page;
 };
 
-export type PodmanDesktopRunnerOptions = {
+export type RunnerOptions = {
   profile: string;
   customFolder: string;
   autoUpdate: boolean;
   autoCheckUpdate: boolean;
 };
 
-export const test = base.extend<TestFixtures & PodmanDesktopRunnerOptions>({
+export const test = base.extend<TestFixtures & RunnerOptions>({
   profile: ['', { option: true }],
   customFolder: ['podman-desktop', { option: true }],
   autoUpdate: [true, { option: true }],
@@ -50,8 +50,8 @@ export const test = base.extend<TestFixtures & PodmanDesktopRunnerOptions>({
     await use(pdRunner.getPage());
   },
   navigationBar: async ({ page }, use) => {
-    const navBar = new NavigationBar(page);
-    await use(navBar);
+    const navigationBar = new NavigationBar(page);
+    await use(navigationBar);
   },
   welcomePage: async ({ page }, use) => {
     const welcomePage = new WelcomePage(page);
