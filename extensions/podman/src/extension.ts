@@ -868,7 +868,7 @@ export async function startMachine(
   autoStart?: boolean,
 ): Promise<void> {
   const telemetryRecords: Record<string, unknown> = {};
-  telemetryRecords.provider = getProviderLabel(machineInfo.vmType);
+  telemetryRecords.provider = machineInfo.vmType;
   const startTime = performance.now();
 
   await checkRosettaMacArm(podmanConfiguration);
@@ -904,7 +904,7 @@ export async function stopMachine(
 ): Promise<void> {
   const startTime = performance.now();
   const telemetryRecords: Record<string, unknown> = {};
-  telemetryRecords.provider = getProviderLabel(machineInfo.vmType);
+  telemetryRecords.provider = machineInfo.vmType;
   try {
     await execPodman(['machine', 'stop', machineInfo.name], machineInfo.vmType, {
       logger: new LoggerDelegator(context, logger),
@@ -1827,7 +1827,7 @@ export function sendTelemetryRecords(
         console.trace('unable to check from which path podman is coming', error);
       }
 
-      if (telemetryRecords.provider === getProviderLabel('libkrun')) {
+      if (telemetryRecords.provider === 'libkrun') {
         // add krunkit version
         try {
           const krunkitVersion = await krunkitHelper.getKrunkitVersion(krunkitPath);
@@ -1881,7 +1881,7 @@ export async function createMachine(
   let provider: string | undefined;
   if (params['podman.factory.machine.provider']) {
     provider = getProviderByLabel(params['podman.factory.machine.provider']);
-    telemetryRecords.provider = getProviderLabel(provider);
+    telemetryRecords.provider = provider;
   }
 
   // cpus

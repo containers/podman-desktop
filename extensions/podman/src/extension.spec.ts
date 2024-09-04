@@ -38,16 +38,7 @@ import type { InstalledPodman } from './podman-cli';
 import * as podmanCli from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInstall } from './podman-install';
-import {
-  getAssetsFolder,
-  getProviderLabel,
-  isLinux,
-  isMac,
-  isWindows,
-  LIBKRUN_LABEL,
-  LoggerDelegator,
-  VMTYPE,
-} from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -2117,7 +2108,7 @@ test('sendTelemetryRecords with krunkit found', async () => {
   extension.sendTelemetryRecords(
     'evt',
     {
-      provider: getProviderLabel('libkrun'),
+      provider: 'libkrun',
     } as Record<string, unknown>,
     false,
   );
@@ -2130,7 +2121,7 @@ test('sendTelemetryRecords with krunkit found', async () => {
       podmanCliFoundPath: '/opt/podman/bin/podman',
       podmanCliSource: 'installer',
       podmanCliVersion: '5.1.2',
-      provider: 'GPU enabled (LibKrun)',
+      provider: 'libkrun',
     }),
   );
 });
@@ -2145,7 +2136,7 @@ test('sendTelemetryRecords with krunkit not found', async () => {
   extension.sendTelemetryRecords(
     'evt',
     {
-      provider: getProviderLabel('libkrun'),
+      provider: 'libkrun',
     } as Record<string, unknown>,
     false,
   );
@@ -2157,7 +2148,7 @@ test('sendTelemetryRecords with krunkit not found', async () => {
       podmanCliFoundPath: '/opt/podman/bin/podman',
       podmanCliSource: 'installer',
       podmanCliVersion: '5.1.2',
-      provider: 'GPU enabled (LibKrun)',
+      provider: 'libkrun',
     }),
   );
 });
@@ -2186,7 +2177,7 @@ test('if a machine stopped is successfully reporting telemetry', async () => {
       podmanCliFoundPath: '/opt/podman/bin/podman',
       podmanCliSource: 'installer',
       podmanCliVersion: '5.1.2',
-      provider: 'GPU enabled (LibKrun)',
+      provider: 'libkrun',
     }),
   );
   expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'stop', 'name'], expect.anything());
@@ -2219,7 +2210,7 @@ test('if a machine stopped is successfully reporting an error in telemetry', asy
       podmanCliSource: 'installer',
       podmanCliVersion: '5.1.2',
       error: customError,
-      provider: 'GPU enabled (LibKrun)',
+      provider: 'libkrun',
     }),
   );
 
