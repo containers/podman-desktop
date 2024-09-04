@@ -67,7 +67,7 @@ jobs:
           git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
-          # push tag to the preleases repository
+          # push tag to the prereleases repository
           git remote add prereleases https://github.com/containers/podman-desktop-prereleases
           git push prereleases ${{ steps.TAG_UTIL.outputs.githubTag }}
 
