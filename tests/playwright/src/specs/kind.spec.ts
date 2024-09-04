@@ -55,33 +55,33 @@ test.afterAll(async ({ pdRunner }) => {
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async ({ navBar }) => {
+    test('Install Kind CLI', async ({ navigationBar }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
 
-      await navBar.openSettings();
+      await navigationBar.openSettings();
       await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
       await statusBar.installKindCLI();
       await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
     });
 
-    test('Verify that Kind CLI is installed', async ({ navBar }) => {
-      await navBar.openSettings();
+    test('Verify that Kind CLI is installed', async ({ navigationBar }) => {
+      await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
 
-    test('Kind extension lifecycle', async ({ navBar }) => {
-      const extensionsPage = await navBar.openExtensions();
+    test('Kind extension lifecycle', async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
       const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', EXTENSION_LABEL);
       await playExpect
         .poll(async () => await extensionsPage.extensionIsInstalled(EXTENSION_LABEL), { timeout: 10000 })
         .toBeTruthy();
       await playExpect(kindExtension.status).toHaveText('ACTIVE');
       await kindExtension.disableExtension();
-      await navBar.openSettings();
+      await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
-      await navBar.openExtensions();
+      await navigationBar.openExtensions();
       await kindExtension.enableExtension();
-      await navBar.openSettings();
+      await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
   });
@@ -90,10 +90,10 @@ test.describe.serial('Kind End-to-End Tests', () => {
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
       'Tests suite should not run on Linux platform',
     );
-    test('Create a Kind cluster', async ({ page, navBar }) => {
+    test('Create a Kind cluster', async ({ page, navigationBar }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
 
-      await navBar.openSettings();
+      await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
       await playExpect(kindResourceCard.markdownContent).toBeVisible();
       await playExpect(kindResourceCard.createButton).toBeVisible();
@@ -106,8 +106,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Check resources added with the Kind cluster', async ({ page, navBar }) => {
-      const containersPage = await navBar.openContainers();
+    test('Check resources added with the Kind cluster', async ({ page, navigationBar }) => {
+      const containersPage = await navigationBar.openContainers();
       await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
       const containerDetailsPage = await containersPage.openContainersDetails(CONTAINER_NAME);
       await playExpect.poll(async () => await containerDetailsPage.getState()).toEqual(ContainerState.Running);
@@ -125,8 +125,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
     });
 
-    test('Kind cluster operations - STOP', async ({ navBar }) => {
-      await navBar.openSettings();
+    test('Kind cluster operations - STOP', async ({ navigationBar }) => {
+      await navigationBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
@@ -148,14 +148,14 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Kind cluster operations - DELETE', async ({ page, navBar }) => {
+    test('Kind cluster operations - DELETE', async ({ page, navigationBar }) => {
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 50000,
       });
       await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
       await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
-      const containersPage = await navBar.openContainers();
+      const containersPage = await navigationBar.openContainers();
       await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
 
       await page.waitForTimeout(2000);

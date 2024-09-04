@@ -63,8 +63,8 @@ test.afterAll(async ({ pdRunner }) => {
 
 test.describe.serial('Podman Machine verification', () => {
   test.describe.serial('Podman Machine onboarding workflow', () => {
-    test('Setup Podman push notification is present', async ({ navBar }) => {
-      dashboardPage = await navBar.openDashboard();
+    test('Setup Podman push notification is present', async ({ navigationBar }) => {
+      dashboardPage = await navigationBar.openDashboard();
       await playExpect(dashboardPage.mainPage).toBeVisible();
       await playExpect(dashboardPage.notificationsBox).toBeVisible();
       notificationPodmanSetup = dashboardPage.notificationsBox
@@ -79,13 +79,13 @@ test.describe.serial('Podman Machine verification', () => {
         podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });
 
-      test('Return to Dashboard', async ({ navBar }) => {
-        dashboardPage = await navBar.openDashboard();
+      test('Return to Dashboard', async ({ navigationBar }) => {
+        dashboardPage = await navigationBar.openDashboard();
         await playExpect(dashboardPage.mainPage).toBeVisible();
       });
 
-      test('Re-Open Podman Machine Onboarding through Settings Resources page', async ({ page, navBar }) => {
-        settingsBar = await navBar.openSettings();
+      test('Re-Open Podman Machine Onboarding through Settings Resources page', async ({ page, navigationBar }) => {
+        settingsBar = await navigationBar.openSettings();
         await settingsBar.resourcesTab.click();
         resourcesPage = new ResourcesPage(page);
         await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
@@ -141,10 +141,10 @@ test.describe.serial('Podman Machine verification', () => {
     test.describe.serial('Podman machine operations', () => {
       test.describe.configure({ timeout: 120000 });
 
-      test('Open podman machine details', async ({ page, navBar }) => {
-        dashboardPage = await navBar.openDashboard();
+      test('Open podman machine details', async ({ page, navigationBar }) => {
+        dashboardPage = await navigationBar.openDashboard();
         await playExpect(dashboardPage.mainPage).toBeVisible();
-        settingsBar = await navBar.openSettings();
+        settingsBar = await navigationBar.openSettings();
         await settingsBar.resourcesTab.click();
         resourcesPage = new ResourcesPage(page);
         await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();

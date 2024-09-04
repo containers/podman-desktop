@@ -45,11 +45,11 @@ test.afterAll(async ({ pdRunner }) => {
 });
 
 test.describe.serial(`Podman machine onboarding from Dashboard`, () => {
-  test('Create Podman machine from Dashboard', async ({ navBar }) => {
+  test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
     test.setTimeout(320000);
 
     console.log('Starting PD dashboard test');
-    const dashboardPage = await navBar.openDashboard();
+    const dashboardPage = await navigationBar.openDashboard();
     await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
     await dashboardPage.podmanInitilizeAndStartButton.click();
     await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });

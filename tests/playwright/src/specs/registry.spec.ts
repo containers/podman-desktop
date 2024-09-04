@@ -39,8 +39,8 @@ test.afterAll(async ({ pdRunner }) => {
 });
 
 test.describe.serial('Registries handling verification', () => {
-  test('Check Registries page components and presence of default registries', async ({ navBar }) => {
-    const settingsBar = await navBar.openSettings();
+  test('Check Registries page components and presence of default registries', async ({ navigationBar }) => {
+    const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
     await playExpect(registryPage.addRegistryButton).toBeEnabled();
@@ -53,9 +53,9 @@ test.describe.serial('Registries handling verification', () => {
   });
 
   test.describe.serial('Registry addition workflow verification', () => {
-    test('Cannot add invalid registry', async ({ page, navBar }) => {
-      await navBar.openDashboard();
-      const settingsBar = await navBar.openSettings();
+    test('Cannot add invalid registry', async ({ page, navigationBar }) => {
+      await navigationBar.openDashboard();
+      const settingsBar = await navigationBar.openSettings();
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
       await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');

@@ -40,16 +40,16 @@ test.afterAll(async ({ pdRunner }) => {
 const volumeName = 'e2eVolume';
 
 test.describe.serial('Volume workflow verification @smoke', () => {
-  test('Create new Volume', async ({ navBar }) => {
-    let volumesPage = await navBar.openVolumes();
+  test('Create new Volume', async ({ navigationBar }) => {
+    let volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
     volumesPage = await createVolumePage.createVolume(volumeName);
     await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
   });
 
-  test('Test navigation between pages', async ({ navBar }) => {
-    const volumesPage = await navBar.openVolumes();
+  test('Test navigation between pages', async ({ navigationBar }) => {
+    const volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
     const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
@@ -65,8 +65,8 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await playExpect(volumesPage.heading).toBeVisible();
   });
 
-  test('Delete volume from Volumes page', async ({ navBar }) => {
-    let volumesPage = await navBar.openVolumes();
+  test('Delete volume from Volumes page', async ({ navigationBar }) => {
+    let volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
     const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
@@ -74,9 +74,9 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
   });
 
-  test('Delete volume through details page', async ({ navBar }) => {
+  test('Delete volume through details page', async ({ navigationBar }) => {
     //re-create a new volume
-    let volumesPage = await navBar.openVolumes();
+    let volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
 
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
@@ -85,7 +85,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
 
     //delete it from the details page
-    volumesPage = await navBar.openVolumes();
+    volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
     const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
@@ -96,11 +96,11 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
   });
 
-  test('Create volumes from bootc-image-builder', async ({ navBar }) => {
+  test('Create volumes from bootc-image-builder', async ({ navigationBar }) => {
     test.setTimeout(150000);
 
     //count the number of existing volumes
-    let volumesPage = await navBar.openVolumes();
+    let volumesPage = await navigationBar.openVolumes();
     let previousVolumes = await volumesPage.countVolumesFromTable();
 
     //if there are volumes, check how many are used
@@ -117,7 +117,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     }
 
     //pull image from quay.io/centos-bootc/bootc-image-builder
-    let images = await navBar.openImages();
+    let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(imageToPull, imageTag);
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
@@ -133,16 +133,16 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await containers.startContainer(containerToRun);
 
     //check that four volumes are created (in addition to the existing ones)
-    volumesPage = await navBar.openVolumes();
+    volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
     const newVolumes = await volumesPage.countVolumesFromTable();
     playExpect(newVolumes - previousVolumes).toBe(4);
 
     //check the container is stopped and delete it
-    containers = await navBar.openContainers();
+    containers = await navigationBar.openContainers();
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect.poll(async () => containerDetails.getState(), { timeout: 20000 }).toContain(ContainerState.Exited);
-    containers = await navBar.openContainers();
+    containers = await navigationBar.openContainers();
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
@@ -150,7 +150,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
       .toBeFalsy();
 
     //prune unused volumes
-    volumesPage = await navBar.openVolumes();
+    volumesPage = await navigationBar.openVolumes();
     volumesPage = await volumesPage.pruneVolumes();
     await playExpect
       .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10000 })

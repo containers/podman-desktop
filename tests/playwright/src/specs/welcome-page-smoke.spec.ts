@@ -46,14 +46,14 @@ test.describe('Basic e2e verification of podman desktop start @smoke', () => {
   });
 
   test.describe('Navigation Bar test', () => {
-    test('Verify navigation items are visible', async ({ navBar }) => {
-      await playExpect(navBar.navigationLocator).toBeVisible();
-      await playExpect(navBar.dashboardLink).toBeVisible();
-      await playExpect(navBar.imagesLink).toBeVisible();
-      await playExpect(navBar.podsLink).toBeVisible();
-      await playExpect(navBar.containersLink).toBeVisible();
-      await playExpect(navBar.volumesLink).toBeVisible();
-      await playExpect(navBar.settingsLink).toBeVisible();
+    test('Verify navigation items are visible', async ({ navigationBar }) => {
+      await playExpect(navigationBar.navigationLocator).toBeVisible();
+      await playExpect(navigationBar.dashboardLink).toBeVisible();
+      await playExpect(navigationBar.imagesLink).toBeVisible();
+      await playExpect(navigationBar.podsLink).toBeVisible();
+      await playExpect(navigationBar.containersLink).toBeVisible();
+      await playExpect(navigationBar.volumesLink).toBeVisible();
+      await playExpect(navigationBar.settingsLink).toBeVisible();
     });
   });
 });

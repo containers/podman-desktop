@@ -48,12 +48,12 @@ test.afterAll(async ({ pdRunner }) => {
 });
 
 test.describe.serial('Compose onboarding workflow verification @smoke', () => {
-  test.afterEach(async ({ navBar }) => {
-    await navBar.openDashboard();
+  test.afterEach(async ({ navigationBar }) => {
+    await navigationBar.openDashboard();
   });
 
-  test('Compose onboarding button Setup is available', async ({ page, navBar }) => {
-    await navBar.openSettings();
+  test('Compose onboarding button Setup is available', async ({ page, navigationBar }) => {
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
 
@@ -67,8 +67,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     ).toBeVisible({ timeout: 10000 });
   });
 
-  test('Can enter Compose onboarding', async ({ page, navBar }) => {
-    const onboardingPage = await openComposeOnboarding(page, navBar);
+  test('Can enter Compose onboarding', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
 
     await playExpect(onboardingPage.heading).toBeVisible();
 
@@ -79,8 +79,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     composeVersion = await onboardingVersionPage.getVersion();
   });
 
-  test('Can install Compose locally', async ({ page, navBar }) => {
-    const onboardingPage = await openComposeOnboarding(page, navBar);
+  test('Can install Compose locally', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardigLocalPage = new ComposeLocalInstallPage(page);
@@ -95,8 +95,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await skipOkButton.click();
   });
 
-  test('Can resume Compose onboarding and it can be canceled', async ({ page, navBar }) => {
-    await openComposeOnboarding(page, navBar);
+  test('Can resume Compose onboarding and it can be canceled', async ({ page, navigationBar }) => {
+    await openComposeOnboarding(page, navigationBar);
     const onboardingLocalPage = new ComposeLocalInstallPage(page);
 
     await playExpect(onboardingLocalPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
@@ -109,10 +109,10 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await skipOkButton.click();
   });
 
-  test('Can install Compose system-wide', async ({ page, navBar }) => {
+  test('Can install Compose system-wide', async ({ page, navigationBar }) => {
     test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
 
-    const onboardingPage = await openComposeOnboarding(page, navBar);
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardingWidePage = new ComposeWideInstallPage(page);
@@ -126,10 +126,10 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await playExpect(resourcesPage.heading).toBeVisible();
   });
 
-  test('Verify Compose was installed', async ({ page, navBar }) => {
+  test('Verify Compose was installed', async ({ page, navigationBar }) => {
     test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
 
-    await navBar.openSettings();
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
     await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
@@ -144,8 +144,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
   });
 });
 
-async function openComposeOnboarding(page: Page, navBar: NavigationBar): Promise<ComposeOnboardingPage> {
-  await navBar.openSettings();
+async function openComposeOnboarding(page: Page, navigationBar: NavigationBar): Promise<ComposeOnboardingPage> {
+  await navigationBar.openSettings();
   const settingsBar = new SettingsBar(page);
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible();

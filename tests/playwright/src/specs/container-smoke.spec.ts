@@ -74,18 +74,18 @@ test.afterAll(async ({ pdRunner, page }) => {
 test.describe.serial('Verification of container creation workflow @smoke', () => {
   test.describe.configure({ retries: 2 });
 
-  test(`Pulling of '${imageToPull}:${imageTag}' image`, async ({ navBar }) => {
+  test(`Pulling of '${imageToPull}:${imageTag}' image`, async ({ navigationBar }) => {
     test.setTimeout(90000);
 
-    let images = await navBar.openImages();
+    let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(imageToPull, imageTag);
 
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
   });
 
-  test(`Start a container '${containerToRun}' from image`, async ({ navBar }) => {
-    let images = await navBar.openImages();
+  test(`Start a container '${containerToRun}' from image`, async ({ navigationBar }) => {
+    let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
     const containers = await runImage.startContainer(containerToRun, containerStartParams);
@@ -98,12 +98,12 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
       .toContain(ContainerState.Running);
 
-    images = await navBar.openImages();
+    images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
 
-  test('Test navigation between pages', async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test('Test navigation between pages', async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
 
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
@@ -115,8 +115,8 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await containersDetails.closeButton.click();
     await playExpect(containers.heading).toBeVisible();
   });
-  test('Open a container details', async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test('Open a container details', async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
@@ -133,8 +133,8 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await containersDetails.activateTab('Terminal');
     // TODO: After updating of accessibility of various element in containers pages, we can extend test
   });
-  test('Redirecting to image details from a container details', async ({ page, navBar }) => {
-    const containers = await navBar.openContainers();
+  test('Redirecting to image details from a container details', async ({ page, navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
@@ -144,8 +144,8 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await playExpect(imageDetails.heading).toBeVisible();
     await playExpect(imageDetails.heading).toContainText(imageToPull);
   });
-  test('Stopping a container from Container details', async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test('Stopping a container from Container details', async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
@@ -160,13 +160,13 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await playExpect(startButton).toBeVisible();
   });
 
-  test(`Start a container from the Containers page`, async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test(`Start a container from the Containers page`, async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    await navBar.openContainers();
+    await navigationBar.openContainers();
     await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
 
     await containers.startContainer(containerToRun);
@@ -177,13 +177,13 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       .toContain(ContainerState.Running);
   });
 
-  test(`Stop a container from the Containers page`, async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test(`Stop a container from the Containers page`, async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    await navBar.openContainers();
+    await navigationBar.openContainers();
     await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
 
     await containers.stopContainer(containerToRun);
@@ -194,8 +194,8 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       .toContain(ContainerState.Exited);
   });
 
-  test('Deleting a container from Container details', async ({ navBar }) => {
-    const containers = await navBar.openContainers();
+  test('Deleting a container from Container details', async ({ navigationBar }) => {
+    const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     const containersPage = await containersDetails.deleteContainer();
@@ -203,9 +203,9 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
   });
 
-  test(`Deleting a container from the Containers page`, async ({ navBar }) => {
+  test(`Deleting a container from the Containers page`, async ({ navigationBar }) => {
     //re-start the container from an image
-    let images = await navBar.openImages();
+    let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
     const containers = await runImage.startContainer(containerToRun, containerStartParams);
@@ -218,11 +218,11 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
       .toContain(ContainerState.Running);
 
-    images = await navBar.openImages();
+    images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
 
     //delete it from containers page
-    await navBar.openContainers();
+    await navigationBar.openContainers();
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
@@ -230,12 +230,12 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       .toBeFalsy();
   });
 
-  test('Prune containers', async ({ page, navBar }) => {
+  test('Prune containers', async ({ page, navigationBar }) => {
     test.setTimeout(120000);
 
     //Start 3 containers
     for (const container of containerList) {
-      const images = await navBar.openImages();
+      const images = await navigationBar.openImages();
       const containersPage = await images.startContainerWithImage(imageToPull, container, containerStartParams);
       await playExpect(containersPage.heading).toBeVisible();
       await playExpect
@@ -249,7 +249,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
       await playExpect
         .poll(async () => await containersDetails.getState(), { timeout: 20000 })
         .toBe(ContainerState.Exited);
-      containersPage = await navBar.openContainers();
+      containersPage = await navigationBar.openContainers();
       await playExpect(containersPage.heading).toBeVisible();
       await containersPage.pruneContainers();
       await playExpect
@@ -259,7 +259,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
 
     //Start and stop 3 containers
     for (const container of containerList) {
-      const images = await navBar.openImages();
+      const images = await navigationBar.openImages();
       const containersPage = await images.startContainerWithImage(imageToPull, container, containerStartParams);
       await playExpect(containersPage.heading).toBeVisible();
       await playExpect
@@ -271,7 +271,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
         .toBe(ContainerState.Exited);
     }
     //Prune the 3 stopped containers at the same time
-    const containersPage = await navBar.openContainers();
+    const containersPage = await navigationBar.openContainers();
     await playExpect(containersPage.heading).toBeVisible();
     await containersPage.pruneContainers();
     for (const container of containerList) {

@@ -52,8 +52,8 @@ test.afterAll(async ({ pdRunner, page }) => {
 });
 
 test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
-  test('Cannot pull image from unauthenticated registry', async ({ page, navBar }) => {
-    const imagesPage = await navBar.openImages();
+  test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);
     const errorAlert = page.getByLabel('Error Message Content');
@@ -74,8 +74,8 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
   test.describe.serial(() => {
     test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
-    test('Add registry', async ({ page, navBar }) => {
-      await navBar.openSettings();
+    test('Add registry', async ({ page, navigationBar }) => {
+      await navigationBar.openSettings();
       const settingsBar = new SettingsBar(page);
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
@@ -86,8 +86,8 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
       await playExpect(username).toBeVisible();
     });
 
-    test('Image pulling from authenticated registry verification', async ({ navBar }) => {
-      const imagesPage = await navBar.openImages();
+    test('Image pulling from authenticated registry verification', async ({ navigationBar }) => {
+      const imagesPage = await navigationBar.openImages();
 
       const fullImageTitle = imageUrl.concat(':' + imageTag);
       const pullImagePage = await imagesPage.openPullImage();

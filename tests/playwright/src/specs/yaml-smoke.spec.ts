@@ -56,8 +56,8 @@ test.afterAll(async ({ pdRunner, page }) => {
 test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName} @smoke`, () => {
   test.describe.configure({ timeout: 150000 });
 
-  test('Playing yaml', async ({ navBar }) => {
-    let podsPage = await navBar.openPods();
+  test('Playing yaml', async ({ navigationBar }) => {
+    let podsPage = await navigationBar.openPods();
     await playExpect(podsPage.heading).toBeVisible();
 
     const playYamlPage = await podsPage.openPlayKubeYaml();
@@ -68,8 +68,8 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
     await playExpect(podsPage.heading).toBeVisible();
   });
 
-  test('Checking that created pod from yaml is correct', async ({ page, navBar }) => {
-    const podsPage = await navBar.openPods();
+  test('Checking that created pod from yaml is correct', async ({ page, navigationBar }) => {
+    const podsPage = await navigationBar.openPods();
     await playExpect(podsPage.heading).toBeVisible();
 
     await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeTruthy();
@@ -77,8 +77,8 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
     await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
   });
 
-  test('Checking that pulled images from yaml are correct', async ({ navBar }) => {
-    let imagesPage = await navBar.openImages();
+  test('Checking that pulled images from yaml are correct', async ({ navigationBar }) => {
+    let imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
     await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
