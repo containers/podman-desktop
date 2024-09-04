@@ -22,10 +22,16 @@ export interface ContainerInteractiveParams {
 }
 
 export interface KindClusterOptions {
-  clusterName?: string;
   providerType?: string;
   httpPort?: string;
   httpsPort?: string;
   useIngressController?: boolean;
   containerImage?: string;
+}
+
+export interface DeployPodOptions {
+  useKubernetesServices?: boolean;
+  useRestrictedSecurityContext?: boolean;
+  useKubernetesIngress?: boolean;
+  containerExposedPort?: string;
 }
