@@ -98,8 +98,8 @@ import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorSelector,
-} from '../../main/src/plugin/kube-generator-registry';
-import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
+} from '../../main/src/plugin/kubernetes/kube-generator-registry';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes/kubernetes-context-state';
 import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
