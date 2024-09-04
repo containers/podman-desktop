@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import {
   autoUpdater,
   type ProgressInfo,
@@ -99,10 +99,7 @@ export class Updater {
     );
   }
 
-  /**
-   * Registers commands related to version and update.
-   */
-  private registerCommands(): void {
+  private registerDefaultCommands(): void {
     // Show a "No update available" only for macOS and Windows users and on production builds
     let detailMessage: string;
     if (!isLinux() && import.meta.env.PROD) {
@@ -112,14 +109,24 @@ export class Updater {
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
     this.commandRegistry.registerCommand('version', async () => {
-      await this.messageBox.showMessageBox({
+      console.log('in version command');
+      const result = await this.messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
+        buttons: ['View release notes'],
       });
+      if (result.response === 0) {
+        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${this.#currentVersion}`);
+      }
     });
+  }
 
+  /**
+   * Registers commands related to version and update.
+   */
+  private registerCommands(): void {
     // Update will create a standard "autoUpdater" dialog / update process
     this.commandRegistry.registerCommand('update', async (context?: 'startup' | 'status-bar-entry') => {
       if (this.#updateAlreadyDownloaded) {
@@ -151,9 +158,9 @@ export class Updater {
 
       let buttons: string[];
       if (context === 'startup') {
-        buttons = ['Update now', 'Remind me later', 'Do not show again'];
+        buttons = ['Update now', 'View release notes', 'Remind me later', 'Do not show again'];
       } else {
-        buttons = ['Update now', 'Cancel'];
+        buttons = ['Update now', 'View release notes', 'Cancel'];
       }
 
       const result = await this.messageBox.showMessageBox({
@@ -163,8 +170,10 @@ export class Updater {
         buttons: buttons,
         cancelId: 1,
       });
-      if (result.response === 2) {
+      if (result.response === 3) {
         this.updateConfigurationValue('never');
+      } else if (result.response === 1) {
+        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${updateVersion}`);
       } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
@@ -347,6 +356,7 @@ export class Updater {
 
     // Only check on production builds for Windows and macOS users
     if (!import.meta.env.PROD || isLinux()) {
+      this.registerDefaultCommands();
       this.defaultVersionEntry();
       return Disposable.noop();
     }
