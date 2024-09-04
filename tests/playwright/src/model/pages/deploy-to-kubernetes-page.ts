@@ -56,6 +56,7 @@ export class DeployToKubernetesPage extends BasePage {
     }: DeployPodOptions = {},
     context: string,
     namespace: string = 'default',
+    timeout: number = 80000,
   ): Promise<void> {
     await playExpect(this.podName).toBeVisible();
     await this.podName.fill(name);
@@ -104,7 +105,7 @@ export class DeployToKubernetesPage extends BasePage {
 
     await playExpect(this.deployButton).toBeEnabled();
     await this.deployButton.click();
-    await playExpect(this.doneButton).toBeVisible({ timeout: 30000 });
+    await playExpect(this.doneButton).toBeVisible({ timeout: timeout });
   }
 
   private async selectExposedPort(containerExposedPort: string): Promise<void> {
