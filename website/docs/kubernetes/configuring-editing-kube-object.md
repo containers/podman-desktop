@@ -26,7 +26,7 @@ With Podman Desktop, you can easily transition from containers to Kubernetes and
 
 #### Prerequisites
 
-- A valid [Kubernetes context and connection](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
+- A valid [Kubernetes context and connection](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context).
 - A pod creation example for reference:
 
 ```yaml
