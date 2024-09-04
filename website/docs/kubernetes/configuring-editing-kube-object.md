@@ -8,26 +8,39 @@ tags: [managing-kubernetes, objects]
 
 # Managing Kubernetes objects
 
-With Podman Desktop, you can enhance your Kubernetes management experience by using the features that are part of the Kubernetes explorer. As a developer, you can easily transition from containers to Kubernetes and deploy a complete Kubernetes environment with necessary objects. You have the ability:
+With Podman Desktop, you can easily transition from containers to Kubernetes and deploy a local Kubernetes environment with necessary objects. As a developer, you have the ability to:
 
-- To control and manage your application resources visually
-- To configure the following Kubernetes objects:
+- Manage your application resources visually.
+- Configure the following Kubernetes objects:
   - `Node`: Use this object to set up a node on which the necessary pods can run within a kubernetes cluster.
-  - `Deplyoment`: Use this object to create necessary pods for execution and scale the number of pods.
+  - `Deployment`: Use this object to create necessary pods for execution and scale the number of pods.
   - `Service`: Use this object to expose your application to users and define policies for application access.
   - `Ingress`: Use this object to define routing rules and manage user access to the services running in a Kubernetes cluster.
   - `PersistentVolumeClaim`: Use this object to request `PersistentVolume` resources for storage and define volume access modes within your Kubernetes cluster.
   - `ConfigMap`: Use this object to to define non-sensitive configuration data for initializing or executing your application.
   - `Secret`: Use this object to store and manage sensitive data, such as passwords, OAuth tokens, and SSH keys for your application.
-- To view and analyze real-time information about the connection status of the resources configured within the cluster
-- To get resource details using the _Summary_ and _Inspect_ tabs
-- To edit and apply configuration changes directly using the _Kube_ tab
-- To select multiple configuration files and apply them to your cluster in a single step
+- View and analyze real-time information about the connection status of the resources configured within the cluster.
+- Get resource details using the _Summary_ and _Inspect_ tabs.
+- Edit and apply configuration changes directly using the _Kube_ tab.
+- Select multiple configuration files and apply them to your cluster in a single step.
 
 #### Prerequisites
 
-- You have set your Kubernetes context in which you want to configure a Kubernetes object. See [Viewing and selecting the current Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
-- Your have created an object configuration file.
+- A valid [Kubernetes context and connection](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
+- A pod creation example for reference:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: my-container
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+```
 
 #### Procedure: Creating an object
 

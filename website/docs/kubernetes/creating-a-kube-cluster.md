@@ -8,7 +8,7 @@ tags: [creating-kubernetes-cluster, extentions]
 
 # Creating a Kubernetes cluster using extensions
 
-Podman Desktop provides you the ability to set up a local Kubernetes cluster using different extensions. By installing these extensions, you can quickly configure a Kubernetes cluster with default or customized values. The following table covers the procedural sections for setting up a Kubernetes cluster:
+Podman Desktop provides extensions, such as Kind, MiniKube, and others to start a local Kubernetes development cluster. The following table covers the procedural sections for setting up a Kubernetes cluster:
 
 | Extension |                                                                                                                            Procedural sections to follow                                                                                                                            |
 | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
