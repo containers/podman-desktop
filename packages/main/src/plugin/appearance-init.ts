@@ -21,6 +21,8 @@ import { nativeTheme } from 'electron';
 import { AppearanceSettings } from './appearance-settings.js';
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
+const APPEARANCE_FULL_KEY = `${AppearanceSettings.SectionName}.${AppearanceSettings.Appearance}`;
+
 export class AppearanceInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
@@ -30,7 +32,7 @@ export class AppearanceInit {
       title: 'Appearance',
       type: 'object',
       properties: {
-        [AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance]: {
+        [APPEARANCE_FULL_KEY]: {
           description: 'Select between light or dark mode, or use your system setting.',
           type: 'string',
           enum: ['system', 'dark', 'light'],
@@ -42,7 +44,7 @@ export class AppearanceInit {
     this.configurationRegistry.registerConfigurations([appearanceConfiguration]);
 
     this.configurationRegistry.onDidChangeConfiguration(async e => {
-      if (e.key === AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance) {
+      if (e.key === APPEARANCE_FULL_KEY) {
         this.updateNativeTheme(e.value);
       }
     });

@@ -53,7 +53,7 @@ test('Expect appearance configuration change to update native theme', async () =
 
   expect(spyOnDidChange).toHaveBeenCalled();
   // grab the anonymous function that is the first argument of the first call
-  const callback = spyOnDidChange.mock.calls[0][0];
+  const callback = spyOnDidChange.mock.calls[0]?.[0];
   expect(callback).toBeDefined();
 
   // call the callback
@@ -75,7 +75,7 @@ test('Expect unrelated configuration change not to update native theme', async (
 
   expect(spyOnDidChange).toHaveBeenCalled();
   // grab the anonymous function that is the first argument of the first call
-  const callback = spyOnDidChange.mock.calls[0][0];
+  const callback = spyOnDidChange.mock.calls[0]?.[0];
   expect(callback).toBeDefined();
 
   // call the callback
