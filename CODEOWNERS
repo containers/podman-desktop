@@ -3,6 +3,7 @@
 
 # website
 website/** @containers/podman-desktop-reviewers @slemeur @cdrage @benoitf
+website/docs/** @containers/podman-desktop-reviewers @shipsing @slemeur @cdrage @benoitf
 
 # playwright tests
 tests/playwright/** @containers/podman-desktop-reviewers @containers/podman-desktop-qe-reviewers @benoitf
