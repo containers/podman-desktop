@@ -18,7 +18,8 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
 
 /**

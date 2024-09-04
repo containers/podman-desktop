@@ -21,9 +21,9 @@ import { afterEach } from 'node:test';
 import type { CancellationToken, ImageChecks, ImageInfo, ProviderResult } from '@podman-desktop/api';
 import { beforeEach, expect, suite, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ImageCheckerExtensionInfo } from '/@api/image-checker-info.js';
 
-import type { ApiSenderType } from './api.js';
 import { ImageCheckerImpl } from './image-checker.js';
 
 const apiSender: ApiSenderType = {

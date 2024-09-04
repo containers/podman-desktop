@@ -21,9 +21,9 @@ import { afterEach } from 'node:test';
 import type { CliToolInstaller, CliToolOptions, CliToolSelectUpdate, CliToolUpdate, Logger } from '@podman-desktop/api';
 import { beforeEach, expect, suite, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 
-import type { ApiSenderType } from './api.js';
 import type { CliToolImpl } from './cli-tool-impl.js';
 import { CliToolRegistry } from './cli-tool-registry.js';
 

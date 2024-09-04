@@ -68,10 +68,10 @@ import * as jsYaml from 'js-yaml';
 import { parseAllDocuments } from 'yaml';
 
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
-import type { ApiSenderType } from './api.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';

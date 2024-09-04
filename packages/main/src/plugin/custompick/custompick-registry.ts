@@ -17,8 +17,9 @@
  ***********************************************************************/
 import type { CustomPick, CustomPickItem } from '@podman-desktop/api';
 
-import type { ApiSenderType } from '../api.js';
-import type { IDisposable } from '../types/disposable.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+import type { IDisposable } from '/@api/disposable.js';
+
 import { CustomPickImpl } from './custompick-impl.js';
 
 export class CustomPickRegistry implements IDisposable {

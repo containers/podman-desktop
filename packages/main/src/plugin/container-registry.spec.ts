@@ -29,13 +29,13 @@ import moment from 'moment';
 import nock from 'nock';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ContainerCreateOptions } from '/@api/container-info.js';
 import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ImageInfo } from '/@api/image-info.js';

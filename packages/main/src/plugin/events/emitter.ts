@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
-import type { IDisposable } from '../types/disposable.js';
+import type { IDisposable } from '/@api/disposable.js';
 
 export type DisposableGroup = { push(disposable: IDisposable): void } | { add(disposable: IDisposable): void };
 

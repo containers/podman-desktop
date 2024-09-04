@@ -25,7 +25,8 @@ import type {
 } from '@podman-desktop/api';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
 import type { MessageBox } from './message-box.js';

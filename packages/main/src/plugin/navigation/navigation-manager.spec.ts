@@ -19,10 +19,10 @@
 import type { ProviderContainerConnection } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import { NavigationPage } from '/@api/navigation-page.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { ProviderRegistry } from '../provider-registry.js';

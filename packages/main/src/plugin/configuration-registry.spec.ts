@@ -20,7 +20,7 @@ import * as fs from 'node:fs';
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';

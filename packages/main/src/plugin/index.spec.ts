@@ -24,11 +24,11 @@ import type { BrowserWindow, WebContents } from 'electron';
 import { clipboard, shell } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { NotificationCardOptions } from '/@api/notification.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
-import type { ApiSenderType } from './api.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';

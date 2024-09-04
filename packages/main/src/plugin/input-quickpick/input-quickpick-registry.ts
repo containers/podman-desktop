@@ -23,7 +23,8 @@ import type {
   QuickPickOptions,
 } from '@podman-desktop/api';
 
-import type { ApiSenderType } from '../api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { Deferred } from '../util/deferred.js';
 
 export class InputQuickPickRegistry {

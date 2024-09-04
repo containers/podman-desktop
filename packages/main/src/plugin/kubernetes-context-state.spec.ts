@@ -21,9 +21,9 @@ import * as kubeclient from '@kubernetes/client-node';
 import { KubeConfig, makeInformer } from '@kubernetes/client-node';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 
-import type { ApiSenderType } from './api.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager, ContextsStates } from './kubernetes-context-state.js';
 

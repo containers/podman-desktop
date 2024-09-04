@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2024 Red Hat, Inc.
+ * Copyright (C) 2022 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from './types/disposable.js';
-
-export type ApiSenderType = {
-  send: (channel: string, data?: unknown) => void;
-  receive: (channel: string, func: (...args: unknown[]) => void) => IDisposable;
-};
+export interface IDisposable {
+  dispose(): void;
+}

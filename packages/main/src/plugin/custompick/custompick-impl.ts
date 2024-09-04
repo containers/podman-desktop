@@ -17,9 +17,10 @@
  ***********************************************************************/
 import type { CustomPick, CustomPickItem, Event } from '@podman-desktop/api';
 
-import type { ApiSenderType } from '../api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+import type { IDisposable } from '/@api/disposable.js';
+
 import { Emitter } from '../events/emitter.js';
-import type { IDisposable } from '../types/disposable.js';
 import type { CustomPickRegistry } from './custompick-registry.js';
 
 type IconClassType = string | { light: string; dark: string } | undefined;

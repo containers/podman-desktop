@@ -20,9 +20,9 @@ import * as fs from 'node:fs';
 
 import { afterEach, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { OnboardingState } from '/@api/onboarding.js';
 
-import type { ApiSenderType } from './api.js';
 import { Context } from './context/context.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import { OnboardingRegistry } from './onboarding-registry.js';

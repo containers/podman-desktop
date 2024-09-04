@@ -19,7 +19,7 @@
 import type { Configuration } from '@podman-desktop/api';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
 import { AutostartEngine } from './autostart-engine.js';
 import type { IConfigurationNode } from './configuration-registry.js';

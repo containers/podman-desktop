@@ -16,9 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface IDisposable {
-  dispose(): void;
-}
+import type { IDisposable } from '/@api/disposable.js';
 
 export class Disposable implements IDisposable {
   private disposable: undefined | (() => void);

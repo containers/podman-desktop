@@ -18,7 +18,8 @@
 
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { CommandRegistry } from './command-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 

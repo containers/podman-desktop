@@ -29,12 +29,13 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+import type { IDisposable } from '/@api/disposable.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from '/@api/extension-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
-import type { ApiSenderType } from './api.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';
@@ -76,7 +77,6 @@ import type { ProgressImpl } from './tasks/progress-impl.js';
 import { ProgressLocation } from './tasks/progress-impl.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
-import type { IDisposable } from './types/disposable.js';
 import { Disposable } from './types/disposable.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
 import { Uri } from './types/uri.js';

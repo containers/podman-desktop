@@ -25,9 +25,9 @@ import type {
   ImageInfo,
 } from '@podman-desktop/api';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ImageFilesExtensionInfo, ImageFilesInfo } from '/@api/image-files-info.js';
 
-import type { ApiSenderType } from './api.js';
 import { ImageFilesImpl } from './image-files-impl.js';
 
 export interface ImageFilesProviderWithMetadata {

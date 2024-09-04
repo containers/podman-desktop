@@ -21,8 +21,8 @@ import nock from 'nock';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { Certificates } from '../certificates.js';
 import { Emitter } from '../events/emitter.js';
 import type { Proxy } from '../proxy.js';

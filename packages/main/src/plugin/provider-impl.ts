@@ -38,10 +38,11 @@ import type {
   ProviderUpdate,
 } from '@podman-desktop/api';
 
+import type { IDisposable } from '/@api/disposable.js';
+
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { Emitter } from './events/emitter.js';
 import type { ProviderRegistry } from './provider-registry.js';
-import type { IDisposable } from './types/disposable.js';
 import { Disposable } from './types/disposable.js';
 
 export class ProviderImpl implements Provider, IDisposable {

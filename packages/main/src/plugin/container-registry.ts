@@ -32,6 +32,7 @@ import moment from 'moment';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,
@@ -58,7 +59,6 @@ import type { PullEvent } from '/@api/pull-event.js';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
 
 import { isWindows } from '../util.js';
-import type { ApiSenderType } from './api.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type {

@@ -28,9 +28,9 @@ import type {
 } from '@podman-desktop/api';
 import { beforeEach, expect, suite, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ImageFilesExtensionInfo } from '/@api/image-files-info.js';
 
-import type { ApiSenderType } from './api.js';
 import { ImageFilesRegistry } from './image-files-registry.js';
 
 const apiSender: ApiSenderType = {

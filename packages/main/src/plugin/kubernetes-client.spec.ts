@@ -45,9 +45,9 @@ import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vi
 
 import { ResizableTerminalWriter } from '/@/plugin/kubernetes-exec-transmitter.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
-import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { PodCreationSource, ScalableControllerType } from './kubernetes-client.js';

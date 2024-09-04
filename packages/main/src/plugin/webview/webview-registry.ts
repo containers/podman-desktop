@@ -24,8 +24,8 @@ import type * as podmanDesktopAPI from '@podman-desktop/api';
 import type { Application } from 'express';
 import express from 'express';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
 import { Uri } from '/@/plugin/types/uri.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { WebviewInfo, WebviewSimpleInfo } from '/@api/webview-info.js';
 
 import { getFreePort } from '../util/port.js';

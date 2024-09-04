@@ -18,12 +18,12 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ColorDefinition, ColorInfo } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
 import { isWindows } from '../util.js';
-import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { AnalyzedExtension } from './extension-loader.js';

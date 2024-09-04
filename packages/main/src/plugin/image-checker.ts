@@ -25,9 +25,8 @@ import type {
   ImageInfo,
 } from '@podman-desktop/api';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ImageCheckerExtensionInfo, ImageCheckerInfo } from '/@api/image-checker-info.js';
-
-import type { ApiSenderType } from './api.js';
 
 export interface ImageCheckerProviderWithMetadata {
   id: string;

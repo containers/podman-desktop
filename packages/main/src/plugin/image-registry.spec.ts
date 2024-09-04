@@ -29,11 +29,12 @@ import nock from 'nock';
 import * as nodeTar from 'tar';
 import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
 import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
 import * as imageRegistryManifestZstdJson from '../../tests/resources/data/plugin/image-registry-manifest-index.zstd.json';
 import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
-import type { ApiSenderType } from './api.js';
 import type { Certificates } from './certificates.js';
 import { ImageRegistry } from './image-registry.js';
 import type { Proxy } from './proxy.js';

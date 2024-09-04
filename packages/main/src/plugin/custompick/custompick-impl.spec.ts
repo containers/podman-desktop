@@ -17,7 +17,8 @@
  ***********************************************************************/
 import { expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '../api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { CustomPickImpl } from './custompick-impl.js';
 import { CustomPickRegistry } from './custompick-registry.js';
 

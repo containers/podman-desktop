@@ -26,7 +26,7 @@ import type express from 'express';
 import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
 import type { WebviewPanelImpl } from './webview-panel-impl.js';
 import { WebviewRegistry } from './webview-registry.js';

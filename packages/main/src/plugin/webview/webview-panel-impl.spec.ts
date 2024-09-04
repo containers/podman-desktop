@@ -20,7 +20,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
 import { Uri } from '../types/uri.js';
 import type { WebviewImpl } from './webview-impl.js';

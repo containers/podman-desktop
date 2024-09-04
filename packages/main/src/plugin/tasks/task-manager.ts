@@ -22,9 +22,9 @@ import { NotificationImpl } from '/@/plugin/tasks/notification-impl.js';
 import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
 import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
 import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { CommandRegistry } from '../command-registry.js';
 import type { StatusBarRegistry } from '../statusbar/statusbar-registry.js';
 

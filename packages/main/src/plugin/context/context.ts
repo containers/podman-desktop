@@ -22,7 +22,8 @@
 // based on https://github.com/microsoft/vscode/blob/3eed9319874b7ca037128962593b6a8630869253/src/vs/platform/contextkey/browser/contextKeyService.ts
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ApiSenderType } from '../api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import type { IContext } from '../api/context-info.js';
 
 export class Context implements IContext {

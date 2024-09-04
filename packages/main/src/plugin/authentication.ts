@@ -28,7 +28,8 @@ import type {
   ProviderImages,
 } from '@podman-desktop/api';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { Emitter } from './events/emitter.js';
 import type { MessageBox } from './message-box.js';
 

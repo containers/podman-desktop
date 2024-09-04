@@ -19,8 +19,8 @@
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
-import type { ApiSenderType } from './api.js';
 import { CommandRegistry } from './command-registry.js';
 import { MenuRegistry } from './menu-registry.js';
 import type { Disposable } from './types/disposable.js';

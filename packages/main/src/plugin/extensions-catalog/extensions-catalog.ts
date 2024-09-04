@@ -26,8 +26,8 @@ import type {
   CatalogFetchableExtension,
 } from '/@/plugin/extensions-catalog/extensions-catalog-api.js';
 import type { Proxy } from '/@/plugin/proxy.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import { ExtensionsCatalogSettings } from './extensions-catalog-settings.js';
 

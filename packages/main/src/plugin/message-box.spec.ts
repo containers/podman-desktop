@@ -18,7 +18,8 @@
 
 import { expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import { MessageBox } from './message-box.js';
 
 test('Should return first item if button clicked is the first', async () => {

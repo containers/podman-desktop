@@ -20,7 +20,8 @@ import path from 'node:path';
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
+
 import type { AnalyzedExtension } from './extension-loader.js';
 import { IconRegistry } from './icon-registry.js';
 

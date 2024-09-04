@@ -24,8 +24,8 @@ import type {
   WebviewPanelOnDidChangeViewStateEvent,
 } from '@podman-desktop/api';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 import { NavigationPage } from '/@api/navigation-page.js';
 import type { NavigationRequest } from '/@api/navigation-request.js';
 

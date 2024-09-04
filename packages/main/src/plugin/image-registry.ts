@@ -32,10 +32,10 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import * as nodeTar from 'tar';
 import validator from 'validator';
 
+import type { ApiSenderType } from '/@api/api-sender.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 
 import { isMac, isWindows } from '../util.js';
-import type { ApiSenderType } from './api.js';
 import type { Certificates } from './certificates.js';
 import { Emitter } from './events/emitter.js';
 import type { Proxy } from './proxy.js';

@@ -26,8 +26,8 @@ import { ipcMain } from 'electron';
 import * as tarFs from 'tar-fs';
 
 import type { Directories } from '/@/plugin/directories.js';
+import type { ApiSenderType } from '/@api/api-sender.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import { DockerDesktopContribution, DockerDesktopInstaller } from '../docker-extension/docker-desktop-installer.js';
 import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
