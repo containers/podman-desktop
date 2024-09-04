@@ -384,3 +384,20 @@ jobs:
             ./tests/output/
             ./tests/**/output/junit*.xml
             !./tests/**/traces/raw
+
+  update-e2e-test:
+    name: evaluate win update e2e test
+    runs-on: ubuntu-22.04
+    needs: win-update-e2e-test
+    if: |
+      always()
+    steps:
+      - name: Evaluate the Windows Update test results
+        run: | 
+          echo "Windows updater result: ${{ needs.win-update-e2e-test.result }}"
+          if [ "${{ needs.win-update-e2e-test.result }}" = "failure" ]; then
+            echo "Windows udpater test failed..."
+            exit 1
+          else
+            echo "Windows updater test succeeded or was skipped..."
+          fi
