@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from './disposable';
+import type { IDisposable } from './disposable.js';
 
 export type ApiSenderType = {
   send: (channel: string, data?: unknown) => void;
