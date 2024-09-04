@@ -79,7 +79,7 @@ export function warnings(this: CompileContext, d: any) {
   const items = JSON.parse(decode(d.label) ?? '');
   for (const item of items) {
     // start the div representing one row
-    this.tag('<div class="flex flex-row space-x-3 bg-charcoal-600 p-4 rounded-md items-start">');
+    this.tag('<div class="flex flex-row space-x-3 bg-[var(--pd-invert-content-card-bg)] p-4 rounded-md items-start">');
     // add icon representing the warning status
     this.tag('<div class="mr-2 flex justify-center">');
     this.tag(item.state === 'successful' ? '✅' : '❌');
