@@ -23,6 +23,7 @@ import { expect as playExpect } from '@playwright/test';
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ResourceElementState } from '../model/core/states';
+import type { KindClusterOptions } from '../model/core/types';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
@@ -255,8 +256,10 @@ export async function ensureKindCliInstalled(page: Page): Promise<void> {
 
 export async function createKindCluster(
   page: Page,
-  clusterName: string = 'kind-cluster',
+  clusterName: string,
+  usedefaultOptions: boolean,
   timeout: number = 200000,
+  { providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
 ): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const statusBar = new StatusBar(page);
@@ -269,7 +272,25 @@ export async function createKindCluster(
   await playExpect(kindResourceCard.markdownContent).toBeVisible();
   await playExpect(kindResourceCard.createButton).toBeVisible();
   await kindResourceCard.createButton.click();
-  await createKindClusterPage.createClusterDefault(clusterName, timeout);
+  if (usedefaultOptions) {
+    await createKindClusterPage.createClusterDefault(clusterName, timeout);
+  } else {
+    await createKindClusterPage.createClusterParametrized(
+      clusterName,
+      {
+        providerType: providerType,
+        httpPort: httpPort,
+        httpsPort: httpsPort,
+        useIngressController: useIngressController,
+        containerImage: containerImage,
+      },
+      timeout,
+    );
+  }
+  await playExpect(kindResourceCard.resourceElement).toBeVisible();
+  await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
+    timeout: 15000,
+  });
   await statusBar.validateKubernetesContext(`kind-${clusterName}`);
 }
 

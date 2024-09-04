@@ -35,6 +35,7 @@ import {
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
+const CLUSTER_CREATION_TIMEOUT: number = 200000;
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
 const IMAGE_TO_PULL: string = 'ghcr.io/linuxcontainers/alpine';
@@ -51,6 +52,8 @@ let navigationBar: NavigationBar;
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
 test.beforeAll(async () => {
+  test.setTimeout(250000);
+
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('kind-e2e');
@@ -61,7 +64,7 @@ test.beforeAll(async () => {
   if (!skipKindInstallation) {
     await ensureKindCliInstalled(page);
   }
-  await createKindCluster(page);
+  await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
 
 test.afterAll(async () => {

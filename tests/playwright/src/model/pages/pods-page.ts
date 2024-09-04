@@ -81,7 +81,7 @@ export class PodsPage extends MainPage {
     return row.getByRole('button', { name: 'kebab menu', exact: true });
   }
 
-  public async deployedPodExists(podName: string, environment: string): Promise<boolean> {
+  public async deployedPodExists(podName: string, environment: string = 'Podman'): Promise<boolean> {
     const deployedContainerRow = await this.getPodRowByName(podName);
     if (deployedContainerRow) {
       const env = await deployedContainerRow.getByRole('cell').nth(4).textContent();

@@ -22,7 +22,6 @@ export interface ContainerInteractiveParams {
 }
 
 export interface KindClusterOptions {
-  clusterName?: string;
   providerType?: string;
   httpPort?: string;
   httpsPort?: string;
