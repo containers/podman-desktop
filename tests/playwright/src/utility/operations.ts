@@ -23,11 +23,13 @@ import { expect as playExpect } from '@playwright/test';
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ResourceElementState } from '../model/core/states';
+import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumeDetailsPage } from '../model/pages/volume-details-page';
 import { NavigationBar } from '../model/workbench/navigation';
+import { StatusBar } from '../model/workbench/status-bar';
 import { waitUntil, waitWhile } from './wait';
 
 /**
@@ -240,4 +242,55 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
       throw error;
     }
   }
+}
+
+export async function ensureKindCliInstalled(page: Page): Promise<void> {
+  const statusBar = new StatusBar(page);
+
+  if (await statusBar.kindInstallationButtonIsVisible()) {
+    await statusBar.installKindCLI();
+  }
+  await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
+}
+
+export async function createKindCluster(
+  page: Page,
+  clusterName: string = 'kind-cluster',
+  timeout: number = 200000,
+): Promise<void> {
+  const navigationBar = new NavigationBar(page);
+  const statusBar = new StatusBar(page);
+  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind');
+  const createKindClusterPage = new CreateKindClusterPage(page);
+
+  const settingsPage = await navigationBar.openSettings();
+  const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
+  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('kind')).toBeTruthy();
+  await playExpect(kindResourceCard.markdownContent).toBeVisible();
+  await playExpect(kindResourceCard.createButton).toBeVisible();
+  await kindResourceCard.createButton.click();
+  await createKindClusterPage.createClusterDefault(clusterName, timeout);
+  await statusBar.validateKubernetesContext(`kind-${clusterName}`);
+}
+
+export async function deleteKindCluster(
+  page: Page,
+  containerName: string = 'kind-cluster-control-plane',
+): Promise<void> {
+  const navigationBar = new NavigationBar(page);
+  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind');
+
+  await navigationBar.openSettings();
+  await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
+  await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
+    timeout: 50000,
+  });
+  await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
+  await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
+  const containersPage = await navigationBar.openContainers();
+  await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
+
+  await page.waitForTimeout(2000);
+  const volumeName = await getVolumeNameForContainer(page, containerName);
+  await playExpect.poll(async () => volumeName).toBeFalsy();
 }

@@ -45,4 +45,8 @@ export class StatusBar extends BasePage {
     await playExpect(this.kubernetesContext).toBeVisible();
     await playExpect(this.kubernetesContext).toHaveText(context);
   }
+
+  public async kindInstallationButtonIsVisible(): Promise<boolean> {
+    return (await this.kindInstallationButton.count()) > 0;
+  }
 }

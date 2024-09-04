@@ -21,8 +21,6 @@ import { expect as playExpect, test } from '@playwright/test';
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
-import type { ContainerInteractiveParams } from '../model/core/types';
-import { ContainerDetailsPage } from '../model/pages/container-details-page';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
@@ -31,7 +29,7 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { deleteContainer, deleteImage, getVolumeNameForContainer } from '../utility/operations';
+import { deleteKindCluster, ensureKindCliInstalled, getVolumeNameForContainer } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const RESOURCE_NAME: string = 'kind';
@@ -40,12 +38,6 @@ const CLUSTER_NAME: string = 'kind-cluster';
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
 const CLUSTER_CREATION_TIMEOUT: number = 200000;
-const IMAGE_TO_PULL: string = 'ghcr.io/linuxcontainers/alpine';
-const IMAGE_TAG: string = 'latest';
-const CONTAINER_NAME: string = 'alphine-container';
-const NAMESPACE: string = 'default';
-const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_CONTAINER_NAME} ${NAMESPACE}`;
-const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: false };
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -70,13 +62,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  test.setTimeout(90000);
-  try {
-    await deleteContainer(page, CONTAINER_NAME);
-    await deleteImage(page, IMAGE_TO_PULL);
-  } finally {
-    await pdRunner.close();
-  }
+  await pdRunner.close();
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
@@ -84,10 +70,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
     test('Install Kind CLI', async () => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
 
-      await statusBar.installKindCLI();
-      await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
-      await navigationBar.openSettings();
-      await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+      await ensureKindCliInstalled(page);
     });
 
     test('Kind extension lifecycle', async () => {
@@ -146,34 +129,6 @@ test.describe.serial('Kind End-to-End Tests', () => {
       await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
     });
 
-    test.describe('Deploy a container to the Kind cluster', () => {
-      test('Pull an image and start a container', async () => {
-        const imagesPage = await navigationBar.openImages();
-        const pullImagePage = await imagesPage.openPullImage();
-        await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
-        await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
-        const containersPage = await imagesPage.startContainerWithImage(
-          IMAGE_TO_PULL,
-          CONTAINER_NAME,
-          CONTAINER_START_PARAMS,
-        );
-        await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
-        const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
-        await playExpect(containerDetails.heading).toBeVisible();
-        await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
-      });
-
-      test('Deploy the container ', async () => {
-        const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
-        await playExpect(containerDetailsPage.heading).toBeVisible();
-        const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
-        await deployToKubernetesPage.deployPod(CONTAINER_NAME, KUBERNETES_CONTEXT);
-
-        const podsPage = await navigationBar.openPods();
-        await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
-      });
-    });
-
     test('Kind cluster operations - STOP', async () => {
       await navigationBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
@@ -198,20 +153,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
     });
 
     test('Kind cluster operations - DELETE', async () => {
-      await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
-      await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-        timeout: 50000,
-      });
-      await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-      await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
-      const containersPage = await navigationBar.openContainers();
-      await playExpect
-        .poll(async () => containersPage.containerExists(KIND_CONTAINER_NAME), { timeout: 10000 })
-        .toBeFalsy();
-
-      await page.waitForTimeout(2000);
-      const volumeName = await getVolumeNameForContainer(page, KIND_CONTAINER_NAME);
-      await playExpect.poll(async () => volumeName).toBeFalsy();
+      await deleteKindCluster(page, KIND_CONTAINER_NAME);
     });
   });
 });

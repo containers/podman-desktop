@@ -29,3 +29,10 @@ export interface KindClusterOptions {
   useIngressController?: boolean;
   containerImage?: string;
 }
+
+export interface DeployPodOptions {
+  useKubernetesServices?: boolean;
+  useRestrictedSecurityContext?: boolean;
+  useKubernetesIngress?: boolean;
+  containerExposedPort?: string;
+}

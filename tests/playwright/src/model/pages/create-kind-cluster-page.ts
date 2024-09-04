@@ -22,6 +22,8 @@ import type { KindClusterOptions } from '../core/types';
 import { BasePage } from './base-page';
 
 export class CreateKindClusterPage extends BasePage {
+  readonly header: Locator;
+  readonly content: Locator;
   readonly clusterPropertiesInformation: Locator;
   readonly clusterNameField: Locator;
   readonly controllerCheckbox: Locator;
@@ -32,10 +34,13 @@ export class CreateKindClusterPage extends BasePage {
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
+  readonly errorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.clusterPropertiesInformation = this.page.getByRole('form', { name: 'Properties Information' });
+    this.header = this.page.getByRole('region', { name: 'Header' });
+    this.content = this.page.getByRole('region', { name: 'Tab Content' });
+    this.clusterPropertiesInformation = this.content.getByRole('form', { name: 'Properties Information' });
     this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
     // Locator for the parent element of the ingress controller checkbox, used to change its value
     this.controllerCheckbox = this.clusterPropertiesInformation
@@ -44,12 +49,13 @@ export class CreateKindClusterPage extends BasePage {
       })
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
-    this.logsButton = this.page.getByRole('button', { name: 'Show Logs' });
+    this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
     this.providerTypeCombobox = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
     this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
+    this.errorMessage = this.content.getByRole('alert', { name: 'Error Message Content' });
   }
 
   public async createClusterDefault(clusterName: string, timeout?: number): Promise<void> {

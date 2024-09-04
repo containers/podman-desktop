@@ -17,6 +17,7 @@
  ***********************************************************************/
 import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
+import type { DeployPodOptions } from '../core/types';
 import { BasePage } from './base-page';
 
 export class DeployToKubernetesPage extends BasePage {
@@ -45,25 +46,74 @@ export class DeployToKubernetesPage extends BasePage {
     this.selectPortCombobox = this.content.getByRole('combobox', { name: 'Select a Port' });
   }
 
-  public async deployPod(name: string, context: string, namespace: string = 'default'): Promise<void> {
+  public async deployPod(
+    name: string,
+    {
+      useKubernetesServices,
+      useRestrictedSecurityContext,
+      useKubernetesIngress,
+      containerExposedPort,
+    }: DeployPodOptions = {},
+    context: string,
+    namespace: string = 'default',
+  ): Promise<void> {
     await playExpect(this.podName).toBeVisible();
     await this.podName.fill(name);
-    await playExpect(this.kubernetesContext).toHaveValue(context);
 
+    await playExpect(this.servicesCheckbox).toBeEnabled();
+    if (useKubernetesServices) {
+      await this.servicesCheckbox.check();
+      await playExpect(this.servicesCheckbox).toBeChecked();
+    } else {
+      await this.servicesCheckbox.uncheck();
+      await playExpect(this.servicesCheckbox).not.toBeChecked();
+    }
+
+    await playExpect(this.restrictedContextCheckbox).toBeEnabled();
+    if (useRestrictedSecurityContext) {
+      await this.restrictedContextCheckbox.check();
+      await playExpect(this.restrictedContextCheckbox).toBeChecked();
+    } else {
+      await this.restrictedContextCheckbox.uncheck();
+      await playExpect(this.restrictedContextCheckbox).not.toBeChecked();
+    }
+
+    await playExpect(this.createIngressCheckbox).toBeEnabled();
+    if (useKubernetesIngress) {
+      await this.createIngressCheckbox.check();
+      await playExpect(this.createIngressCheckbox).toBeChecked();
+      if (containerExposedPort) {
+        await this.selectExposedPort(containerExposedPort);
+      }
+    } else {
+      await this.createIngressCheckbox.uncheck();
+      await playExpect(this.createIngressCheckbox).not.toBeChecked();
+    }
+
+    await playExpect(this.kubernetesContext).toHaveValue(context);
     await playExpect(this.namespaceCombobox).toBeVisible();
     const currentNamespace = await this.namespaceCombobox.inputValue();
     if (currentNamespace !== namespace) {
       const namespaceOptions = await this.namespaceCombobox.locator('option').allInnerTexts();
-      if (namespaceOptions.includes(namespace)) {
-        await this.namespaceCombobox.selectOption({ value: namespace });
-        await playExpect(this.namespaceCombobox).toHaveValue(namespace);
-      } else {
+      if (!namespaceOptions.includes(namespace)) {
         throw new Error(`${namespace} doesn't exist`);
       }
+      await this.namespaceCombobox.selectOption({ value: namespace });
+      await playExpect(this.namespaceCombobox).toHaveValue(namespace);
     }
 
     await playExpect(this.deployButton).toBeEnabled();
     await this.deployButton.click();
     await playExpect(this.doneButton).toBeVisible({ timeout: 30000 });
+  }
+
+  private async selectExposedPort(containerExposedPort: string): Promise<void> {
+    await playExpect(this.selectPortCombobox).toBeVisible();
+    const exposedPorts = await this.selectPortCombobox.locator('option').allInnerTexts();
+    if (!exposedPorts.includes(containerExposedPort)) {
+      throw new Error(`Port: ${containerExposedPort} doesn't exist`);
+    }
+    await this.selectPortCombobox.selectOption({ value: containerExposedPort });
+    await playExpect(this.selectPortCombobox).toHaveValue(containerExposedPort);
   }
 }
