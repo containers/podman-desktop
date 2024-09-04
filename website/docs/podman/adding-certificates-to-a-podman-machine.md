@@ -6,38 +6,41 @@ keywords: [podman desktop, podman, certificates]
 tags: [adding-certificates]
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Adding certificates to a Podman machine
 
-You can add certificates from your local certificate authority (CA) or from a third-party vendor into a Podman machine. After adding these certificates, you can use them in your images:
+You can add certificates from your local certificate authority (CA) or from a third-party vendor into a Podman machine. After adding these certificates, you can use them in your images to:
 
-- To secure the communication channel between the running applications in your container and the external host system
-- To validate the SSL or TLS certificates provided by external services for authentication
-
-You can also use the added certificates to fix any secure connection issue. For example, you might add some certificates into your Podman machine running on Windows Subsystem for Linux (WSL) to fix an SSL issue.
+- Secure the communication channel between the running applications in your container and the external host system
+- Validate the SSL or TLS certificates provided by external services for authentication
 
 #### Prerequisites
 
-- You have created a [Podman machine](/docs/podman/creating-a-podman-machine).
-- On Windows: The certificates to be installed are available on an accessible server using the `curl` command.
-- On macOS: You have downloaded or created a certificate.
+- A running [Podman machine](/docs/podman/creating-a-podman-machine).
+- Obtained required certificates for installation, such as _certificate.pem_ or _certificate.crt_.
 
-#### Procedure: On Windows
+<Tabs>
+   <TabItem value="win" label="Windows" className="markdown">
+
+#### Procedure
 
 1. Start an interactive session with the default Podman machine:
 
-```shell-session
+```sh
 $ podman machine ssh
 ```
 
 2. Switch to a root shell:
 
-```shell-session
+```sh
  $ sudo su -
 ```
 
 3. Change to the directory where the certificates must be placed:
 
-```shell-session
+```sh
 # cd /usr/local/share/ca-certificates/
 ```
 
@@ -45,58 +48,56 @@ $ podman machine ssh
 
 - Use the `curl` command to download a certificate:
 
-  ```shell-session
-  # curl [-k] -o <my-certificate.pem> https://<my-server.com/my-certificate.pem>
+  ```sh
+  # curl [-k] -o <my-certificate> https://<my-server.com/my-certificate>
   ```
 
-  - Optional: Use the `-k` option only to connect securely to a server for which the certificate is not yet trusted
-  - Replace `my-certificate.pem` with the actual name of the .pem certificate
-  - Replace `my-server.com/my-certificate.pem` with a valid server URL and a .pem certificate
-
-- Use any editor, such as Notepad or Vim to create a certificate file with .crt, .cer, or .pem extension. The following example uses the Vim editor:
-
-  ```shell-session
-  # vi <my-certificate.pem>
-  ```
-
-  - Copy the certificate content to the clipboard, paste the content into the certificate file, and then save and close the file.
+- Use any editor, such as Notepad or Vim to create a certificate file with .crt, .cer, or .pem extension.
 
 5. Add the certificate to the list of trusted certificates:
 
-```shell-session
+```sh
 # update-ca-certificates
 ```
 
 6. Exit the Podman machine:
 
-```shell-session
+```sh
 # exit
 ```
 
-#### Procedure: On macOS
+</TabItem>
+   <TabItem value="macOS" label="macOS" className="markdown">
+
+#### Procedure
 
 1. Start an interactive session with the default Podman machine:
 
-```shell-session
+```sh
 $ podman machine ssh
 ```
 
 2. Change to the directory, such as _/Downloads_ where the certificate is placed:
 
-```shell-session
-# cd /Downloads
+```sh
+$ cd Downloads
 ```
 
 3. Add the certificate to the list of trusted certificates:
 
-```shell-session
-# security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain <certificate-name.crt>
+```sh
+$ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain <certificate-name>
 ```
 
-- Replace `certificate-name.crt` with the actual certificate name, such as _rootCA.crt_.
+- Replace `certificate-name` with the actual certificate name, such as _rootCA.crt_.
 
-4. Exit the Podman machine:
+4. Type your password when prompted and press **Return**.
 
-```shell-session
-# exit
+5. Exit the Podman machine:
+
+```sh
+$ exit
 ```
+
+</TabItem>
+</Tabs>
