@@ -136,7 +136,7 @@ function setNoLogs() {
 </script>
 
 {#if connectionInfo}
-  <DetailsPage title={connectionInfo.name} bind:this={detailsPage}>
+  <DetailsPage title={connectionInfo.displayName} bind:this={detailsPage}>
     <svelte:fragment slot="subtitle">
       <div class="flex flex-row">
         <ConnectionStatus status={connectionInfo.status} />

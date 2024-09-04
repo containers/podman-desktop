@@ -159,15 +159,45 @@ jobs:
           name: macos-universal-dmg
           path: ./dist/podman-desktop-*universal.dmg
 
+  website-build:
+    name: build website
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
 
-  lint-format-unit:
-    name: linter, formatters and unit tests / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run website
+        run: pnpm website:build
+
+      - name: Store pull request details for publish-netlify
+        run: |
+          echo "${{ github.event.number }}" > PR_NUMBER
+          echo "${{ github.event.pull_request.head.sha }}" > PR_SHA
+
+      - name: Upload artifact website-content
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-content
+          path: |
+            website/build
+            PR_NUMBER
+            PR_SHA
+
+  lint-format:
+    name: linter, formatters
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022, ubuntu-24.04]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -189,8 +219,32 @@ jobs:
       - name: Run formatter
         run: pnpm format:check
 
-      - name: Run unit tests
-        run: pnpm test:unit
+      # Check we don't have changes in git
+      - name: Check no changes in git
+        run: |
+          if ! git diff --exit-code; then
+            echo "Found changes in git"
+            exit 1
+          fi
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run typecheck
         run: pnpm typecheck
@@ -198,14 +252,31 @@ jobs:
       - name: Run svelte check
         run: pnpm svelte:check
 
-      # Check we don't have changes in git
-      - name: Check no changes in git
-        if: ${{ matrix.os=='ubuntu-24.04'}}
-        run: |
-          if ! git diff --exit-code; then
-            echo "Found changes in git"
-            exit 1
-          fi
+  unit-tests:
+    name: unit tests / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run unit tests
+        run: pnpm test:unit
 
   smoke-e2e-tests:
     name: smoke e2e tests

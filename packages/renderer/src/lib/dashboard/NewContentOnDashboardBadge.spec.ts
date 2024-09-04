@@ -47,6 +47,7 @@ const notification1: NotificationCard = {
 const pStatus: ProviderStatus = 'started';
 const pInfo: ProviderContainerConnectionInfo = {
   name: 'test',
+  displayName: 'test',
   status: 'started',
   endpoint: {
     socketPath: '',

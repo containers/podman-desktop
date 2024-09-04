@@ -16,22 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ContainerInteractiveParams {
-  interactive?: boolean;
-  attachTerminal?: boolean;
-}
+import type { JSX } from 'react';
+import React from 'react';
 
-export interface KindClusterOptions {
-  providerType?: string;
-  httpPort?: string;
-  httpsPort?: string;
-  useIngressController?: boolean;
-  containerImage?: string;
-}
-
-export interface DeployPodOptions {
-  useKubernetesServices?: boolean;
-  useRestrictedSecurityContext?: boolean;
-  useKubernetesIngress?: boolean;
-  containerExposedPort?: string;
+export default function EmptyPage(): JSX.Element {
+  return (
+    <div className="justify-center items-center grow flex w-full">
+      <span>No component selected</span>
+    </div>
+  );
 }

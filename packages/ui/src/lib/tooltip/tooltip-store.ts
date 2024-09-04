@@ -16,22 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ContainerInteractiveParams {
-  interactive?: boolean;
-  attachTerminal?: boolean;
-}
+import { type Writable, writable } from 'svelte/store';
 
-export interface KindClusterOptions {
-  providerType?: string;
-  httpPort?: string;
-  httpsPort?: string;
-  useIngressController?: boolean;
-  containerImage?: string;
-}
+export const tooltipHidden = setup();
 
-export interface DeployPodOptions {
-  useKubernetesServices?: boolean;
-  useRestrictedSecurityContext?: boolean;
-  useKubernetesIngress?: boolean;
-  containerExposedPort?: string;
+export function setup(): Writable<boolean> {
+  const store = writable(false);
+
+  window.addEventListener('tooltip-show', () => {
+    tooltipHidden.set(false);
+  });
+
+  window.addEventListener('tooltip-hide', () => {
+    tooltipHidden.set(true);
+  });
+
+  return store;
 }

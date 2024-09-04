@@ -34,6 +34,7 @@ export class StatusBar extends BasePage {
   }
 
   public async installKindCLI(): Promise<void> {
+    await playExpect(this.kindInstallationButton).toBeVisible();
     await this.kindInstallationButton.click();
     await handleConfirmationDialog(this.page, 'Kind');
     await handleConfirmationDialog(this.page, 'Kind');
@@ -43,5 +44,9 @@ export class StatusBar extends BasePage {
   public async validateKubernetesContext(context: string): Promise<void> {
     await playExpect(this.kubernetesContext).toBeVisible();
     await playExpect(this.kubernetesContext).toHaveText(context);
+  }
+
+  public async kindInstallationButtonIsVisible(): Promise<boolean> {
+    return (await this.kindInstallationButton.count()) > 0;
   }
 }

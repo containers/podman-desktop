@@ -53,7 +53,7 @@ test('Expect basic styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
-  expect(element).toHaveClass('grow');
+  expect(element).toHaveClass('w-full');
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
@@ -78,7 +78,7 @@ test('Expect basic readonly styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
-  expect(element).toHaveClass('grow');
+  expect(element).toHaveClass('w-full');
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
@@ -105,7 +105,7 @@ test('Expect basic disabled styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
-  expect(element).toHaveClass('grow');
+  expect(element).toHaveClass('w-full');
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');

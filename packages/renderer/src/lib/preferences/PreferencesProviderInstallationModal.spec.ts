@@ -39,6 +39,7 @@ const providerInfo: ProviderInfo = {
   containerConnections: [
     {
       name: 'machine',
+      displayName: 'podman',
       status: 'started',
       endpoint: {
         socketPath: 'socket',

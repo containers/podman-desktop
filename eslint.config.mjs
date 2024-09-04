@@ -152,7 +152,6 @@ export default [
         },
       ],
 
-      '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/consistent-type-imports': 'error',
@@ -195,7 +194,6 @@ export default [
       'sonarjs/no-ignored-exceptions': 'off',
       'sonarjs/no-nested-functions': 'off',
       'sonarjs/todo-tag': 'off',
-      'sonarjs/no-nested-functions': 'off',
       'sonarjs/sonar-max-params': 'off',
       'sonarjs/no-nested-conditional': 'off',
       'sonarjs/no-empty-function': 'off',

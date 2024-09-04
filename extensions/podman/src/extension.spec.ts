@@ -1227,6 +1227,31 @@ test('provider is registered with edit capabilities on MacOS', async () => {
   expect(registeredConnection?.lifecycle?.edit).toBeDefined();
 });
 
+test('display name is beautified version of the name', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  let registeredConnection: ContainerProviderConnection | undefined;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  await extension.registerProviderFor(
+    provider,
+    podmanConfiguration,
+    {
+      ...machineInfo,
+      name: machineDefaultName,
+    },
+    'socket',
+  );
+  expect(registeredConnection).toBeDefined();
+  expect(registeredConnection?.displayName).toBe('Podman Machine');
+  expect(registeredConnection?.name).toBe(machineDefaultName);
+});
+
 test('provider is registered without edit capabilities on Windows', async () => {
   vi.mocked(isMac).mockReturnValue(false);
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);

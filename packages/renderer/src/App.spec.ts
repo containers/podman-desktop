@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { render } from '@testing-library/svelte';
+import { render, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -54,9 +54,18 @@ vi.mock('./lib/appearance/Appearance.svelte', () => ({
   default: vi.fn(),
 }));
 
+const dispatchEventMock = vi.fn();
+const messages = new Map<string, (args: any) => void>();
+
 beforeEach(() => {
   vi.resetAllMocks();
   router.goto('/');
+  (window.events as unknown) = {
+    receive: vi.fn().mockImplementation((channel, func) => {
+      messages.set(channel, func);
+    }),
+  };
+  (window as any).dispatchEvent = dispatchEventMock;
 });
 
 test('test /image/run/* route', async () => {
@@ -75,4 +84,28 @@ test('test /images/:id/:engineId route', async () => {
   router.goto('/images/an-image/an-engine');
   await tick();
   expect(mocks.ImagesList).toHaveBeenCalled();
+});
+
+test('receive context menu visible event from main', async () => {
+  render(App);
+  // send 'context-menu:visible' event
+  messages.get('context-menu:visible')?.(true);
+
+  // wait for dispatch method to be called
+  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+
+  const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
+  expect((eventSent as Event).type).toBe('tooltip-hide');
+});
+
+test('receive context menu not visible event from main', async () => {
+  render(App);
+
+  messages.get('context-menu:visible')?.(false);
+
+  //  wait for dispatch method to be called
+  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+
+  const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
+  expect((eventSent as Event).type).toBe('tooltip-show');
 });

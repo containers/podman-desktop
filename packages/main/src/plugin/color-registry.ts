@@ -334,12 +334,12 @@ export class ColorRegistry {
     });
 
     this.registerColor('titlebar-windows-hover-exit-bg', {
-      dark: '#be4425',
-      light: '#be4425',
+      dark: '#c42b1c',
+      light: '#c42b1c',
     });
     this.registerColor('titlebar-windows-hover-bg', {
       dark: '#2d2d2d',
-      light: '#2d2d2d',
+      light: '#dfdfdf',
     });
   }
 

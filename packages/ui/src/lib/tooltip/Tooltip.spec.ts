@@ -16,22 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ContainerInteractiveParams {
-  interactive?: boolean;
-  attachTerminal?: boolean;
-}
+import '@testing-library/jest-dom/vitest';
 
-export interface KindClusterOptions {
-  providerType?: string;
-  httpPort?: string;
-  httpsPort?: string;
-  useIngressController?: boolean;
-  containerImage?: string;
-}
+import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
+import { expect, test } from 'vitest';
 
-export interface DeployPodOptions {
-  useKubernetesServices?: boolean;
-  useRestrictedSecurityContext?: boolean;
-  useKubernetesIngress?: boolean;
-  containerExposedPort?: string;
-}
+import Tooltip from './Tooltip.svelte';
+import { tooltipHidden } from './tooltip-store';
+
+test('tooltip is not empty string when tooltipHidden value false', async () => {
+  tooltipHidden.set(false);
+
+  render(Tooltip, { tip: 'test 1' });
+  expect(screen.queryByText('test 1')).toBeInTheDocument();
+
+  tooltipHidden.set(true);
+  await tick();
+  expect(screen.queryByText('test 1')).not.toBeInTheDocument();
+
+  tooltipHidden.set(false);
+  await tick();
+  expect(screen.queryByText('test 1')).toBeInTheDocument();
+});

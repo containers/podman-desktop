@@ -54,7 +54,7 @@ async function onClear(): Promise<void> {
       bind:this={element}
       on:input
       on:keypress
-      class="grow px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden {inputClass ??
+      class="w-full px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden {inputClass ??
         ''}"
       class:text-[color:var(--pd-input-field-focused-text)]={!disabled}
       class:text-[color:var(--pd-input-field-disabled-text)]={disabled}

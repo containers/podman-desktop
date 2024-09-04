@@ -1280,6 +1280,7 @@ describe('buildImage', () => {
 
     const connection: ProviderContainerConnectionInfo = {
       name: 'connection',
+      displayName: 'podman',
       type: 'docker',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1325,6 +1326,7 @@ describe('buildImage', () => {
 
     const connection: podmanDesktopAPI.ContainerProviderConnection = {
       name: 'connection',
+      displayName: 'podman',
       type: 'docker',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1361,6 +1363,7 @@ describe('buildImage', () => {
 
     const connection: ProviderContainerConnectionInfo = {
       name: 'podman',
+      displayName: 'podman',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1403,6 +1406,7 @@ describe('buildImage', () => {
 
     const connection: podmanDesktopAPI.ContainerProviderConnection = {
       name: 'podman',
+      displayName: 'podman',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1444,6 +1448,7 @@ describe('buildImage', () => {
 
     const connection: ProviderContainerConnectionInfo = {
       name: 'podman',
+      displayName: 'podman',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1480,6 +1485,7 @@ describe('buildImage', () => {
     // set providers with docker being first
     containerRegistry.addInternalProvider('podman1', {
       name: 'podman',
+      displayName: 'podman',
       id: 'podman1',
       api: dockerAPI,
       libpodApi: dockerAPI,
@@ -1494,6 +1500,7 @@ describe('buildImage', () => {
 
     const connection: podmanDesktopAPI.ContainerProviderConnection = {
       name: 'podman',
+      displayName: 'podman',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -1543,6 +1550,7 @@ describe('buildImage', () => {
 
     const connection: ProviderContainerConnectionInfo = {
       name: 'podman',
+      displayName: 'podman',
       type: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -2174,6 +2182,7 @@ describe('listNetworks', () => {
     containerRegistry.addInternalProvider('podman', {
       name: 'podman',
       id: 'podman1',
+      displayName: 'podman',
       api,
       connection: {
         type: 'podman',
@@ -2207,6 +2216,7 @@ describe('createVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -2242,6 +2252,7 @@ describe('createVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -2277,6 +2288,7 @@ describe('createVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -2312,6 +2324,7 @@ describe('createVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -2324,6 +2337,7 @@ describe('createVolume', () => {
     const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
       name: 'podman',
       type: 'podman',
+      displayName: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
       },
@@ -2360,6 +2374,7 @@ describe('deleteVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -2406,6 +2421,7 @@ describe('deleteVolume', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -3054,6 +3070,7 @@ test('createNetwork', async () => {
     api,
     connection: {
       type: 'podman',
+      displayName: 'podman',
       name: 'podman',
       endpoint: {
         socketPath: '/endpoint1.sock',
@@ -3089,6 +3106,7 @@ test('setupConnectionAPI with errors', async () => {
     id: 'podman1',
     connection: {
       type: 'podman',
+      displayName: 'podman',
       name: 'podman',
       endpoint: {
         socketPath: 'http://localhost',
@@ -3099,6 +3117,7 @@ test('setupConnectionAPI with errors', async () => {
 
   const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
     name: 'podman',
+    displayName: 'podman',
     type: 'podman',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -3172,6 +3191,7 @@ test('setupConnectionAPI with errors after machine being removed', async () => {
     connection: {
       type: 'podman',
       name: 'podman',
+      displayName: 'podman',
       endpoint: {
         socketPath: 'http://localhost',
       },
@@ -3184,6 +3204,7 @@ test('setupConnectionAPI with errors after machine being removed', async () => {
 
   const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
     name: 'podman',
+    displayName: 'podman',
     type: 'podman',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -3422,6 +3443,7 @@ test('check that createManifest errors with The matching provider does not suppo
 
   const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
     name: 'podman1',
+    displayName: 'podman',
     endpoint: {
       socketPath: 'podman.sock',
     },
@@ -3490,6 +3512,7 @@ test('check createPod uses running podman connection if ContainerProviderConnect
 
   const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
     name: 'podman1',
+    displayName: 'podman',
     endpoint: {
       socketPath: 'podman.sock',
     },
@@ -3531,6 +3554,7 @@ test('check createPod uses running podman connection if ProviderContainerConnect
 
   const containerProviderConnection: ProviderContainerConnectionInfo = {
     name: 'podman1',
+    displayName: 'podman1',
     endpoint: {
       socketPath: 'podman.sock',
     },
@@ -5127,6 +5151,7 @@ describe('provider update', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },
@@ -5199,6 +5224,7 @@ describe('provider update', () => {
       connection: {
         type: 'podman',
         name: 'podman',
+        displayName: 'podman',
         endpoint: {
           socketPath: '/endpoint1.sock',
         },

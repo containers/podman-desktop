@@ -640,12 +640,18 @@ export class ProviderRegistry {
     if (this.isContainerConnection(connection)) {
       providerConnection = {
         name: connection.name,
+        displayName: connection.displayName ?? connection.name,
         status: connection.status(),
         type: connection.type,
         endpoint: {
           socketPath: connection.endpoint.socketPath,
         },
-        vmType: connection.vmType,
+        vmType: connection.vmType
+          ? {
+              id: connection.vmType,
+              name: connection.vmTypeDisplayName ?? connection.vmType,
+            }
+          : undefined,
       };
     } else {
       providerConnection = {
@@ -1000,6 +1006,7 @@ export class ProviderRegistry {
         const event = {
           providerId: provider.id,
           connection: {
+            displayName: providerConnectionInfo.displayName,
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,
@@ -1090,6 +1097,7 @@ export class ProviderRegistry {
         const event = {
           providerId: provider.id,
           connection: {
+            displayName: providerConnectionInfo.displayName,
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,

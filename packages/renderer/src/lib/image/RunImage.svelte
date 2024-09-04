@@ -846,6 +846,7 @@ const envDialogOptions: OpenDialogOptions = {
                 <NumberInput
                   minimum={0}
                   bind:value={restartPolicyMaxRetryCount}
+                  type="integer"
                   class="w-24 p-2"
                   disabled={restartPolicyName !== 'on-failure'} />
               </div>

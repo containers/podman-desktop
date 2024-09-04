@@ -152,3 +152,41 @@ test('Expect zero value set correctly', async () => {
   vi.advanceTimersByTime(510);
   expect(onChange).toHaveBeenCalledWith('record', 0);
 });
+
+test('Expect onChange is not triggered in case of error on validation', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 20,
+  };
+  const onChange = vi.fn();
+  const value = 1;
+  render(NumberItem, { record, value, onChange });
+
+  const input = screen.getByRole('textbox', { name: 'record-description' });
+  expect(input).toBeInTheDocument();
+
+  // enter the text 0
+  await userEvent.type(input, '0');
+
+  // 10 is a valid value, so the onChange should be called
+  await vi.waitFor(() => expect(onChange).toHaveBeenCalledWith('record', 10));
+
+  // reset the number of calls
+  onChange.mockClear();
+
+  // enter again 0, it will be 100 and outside of the scope
+  await userEvent.type(input, '0');
+  // then we should not have any onChange call
+  await vi.waitFor(() => expect(onChange).not.toHaveBeenCalled());
+
+  // remove the 00 by sending delete 2 times backspace key
+  await userEvent.keyboard('{backspace}{backspace}');
+
+  // then we should have the onChange call to be 1
+  await vi.waitFor(() => expect(onChange).toHaveBeenCalledWith('record', 1));
+});

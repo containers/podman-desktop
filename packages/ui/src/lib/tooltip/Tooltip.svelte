@@ -50,6 +50,8 @@
 </style>
 
 <script lang="ts">
+import { tooltipHidden } from './tooltip-store';
+
 export let tip: string | undefined = undefined;
 export let top = false;
 export let topLeft = false;
@@ -75,14 +77,14 @@ export let left = false;
     class:top-right={topRight}
     class:bottom-left={bottomLeft}
     class:bottom-right={bottomRight}>
-    {#if tip}
+    {#if tip && !$tooltipHidden}
       <div
         class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)] {$$props.class}"
         aria-label="tooltip">
         {tip}
       </div>
     {/if}
-    {#if $$slots.tip && !tip}
+    {#if $$slots.tip && !tip && !$tooltipHidden}
       <div
         class="inline-block rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
         aria-label="tooltip">

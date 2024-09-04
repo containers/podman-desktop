@@ -275,7 +275,7 @@ export async function updateMachines(
         machineInfo?.memory !== undefined && machineInfo?.memoryUsed !== undefined && machineInfo?.memoryUsed > 0
           ? (machineInfo?.memoryUsed * 100) / machineInfo?.memory
           : 0,
-      vmType: getProviderLabel(machine.VMType),
+      vmType: machine.VMType,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -793,14 +793,16 @@ export async function registerProviderFor(
   }
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    name: prettyMachineName(machineInfo.name),
+    name: machineInfo.name,
+    displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
     lifecycle,
     endpoint: {
       socketPath,
     },
-    vmType: getProviderLabel(machineInfo.vmType),
+    vmType: machineInfo.vmType,
+    vmTypeDisplayName: getProviderLabel(machineInfo.vmType),
   };
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines

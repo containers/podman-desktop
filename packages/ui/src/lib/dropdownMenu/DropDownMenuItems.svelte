@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 
 let dropDownHeight: number;
 let dropDownWidth: number;
@@ -28,6 +28,11 @@ onMount(() => {
   } else {
     sideAlign = 'left-0 origin-top-left';
   }
+  window.dispatchEvent(new Event('tooltip-hide'));
+});
+
+onDestroy(() => {
+  window.dispatchEvent(new Event('tooltip-show'));
 });
 </script>
 

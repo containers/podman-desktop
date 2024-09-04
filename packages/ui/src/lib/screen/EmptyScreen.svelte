@@ -55,6 +55,7 @@ let copyTextDivElement: HTMLDivElement;
       {/if}
     </div>
     <h1 class="text-xl text-[var(--pd-details-empty-header)]">{title}</h1>
+    <slot name="upperContent" slot="upperContent" />
     <span class="text-[var(--pd-details-empty-sub-header)] max-w-[800px] text-pretty mx-2">{message}</span>
     {#if detail}
       <span class="text-[var(--pd-details-empty-sub-header)]">{detail}</span>

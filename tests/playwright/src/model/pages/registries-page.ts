@@ -26,36 +26,39 @@ export class RegistriesPage extends SettingsPage {
   readonly heading: Locator;
   readonly addRegistryButton: Locator;
   readonly registriesTable: Locator;
-  readonly cancelAddRegistryButton: Locator;
-  readonly addRegistryUrl: Locator;
-  readonly addRegistryUsername: Locator;
-  readonly addRegistryPswd: Locator;
-  readonly loginButton: Locator;
+  readonly addRegistryDialog: Locator;
+  readonly cancelDialogButton: Locator;
+  readonly confirmDialogButton: Locator;
+  readonly registryUrlField: Locator;
+  readonly registryUsernameField: Locator;
+  readonly registryPswdField: Locator;
 
   constructor(page: Page) {
     super(page, 'Registries');
     this.heading = page.getByText('Registries');
     this.addRegistryButton = page.getByRole('button', { name: 'Add registry' });
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
-    this.cancelAddRegistryButton = page.getByRole('button', { name: 'Cancel' });
-    this.addRegistryUrl = page.getByLabel('Register URL');
-    this.addRegistryUsername = page.getByLabel('Username');
-    this.addRegistryPswd = page.getByRole('textbox', { name: 'Password' });
-    this.loginButton = page.getByRole('button', { name: 'Login' });
+    this.addRegistryDialog = page.getByRole('dialog', { name: 'Add Registry' });
+    this.cancelDialogButton = this.addRegistryDialog.getByRole('button', { name: 'Cancel' });
+    this.confirmDialogButton = this.addRegistryDialog.getByRole('button', { name: 'Add' });
+    this.registryUrlField = this.addRegistryDialog.getByPlaceholder('https://registry.io');
+    this.registryUsernameField = this.addRegistryDialog.getByPlaceholder('username');
+    this.registryPswdField = this.addRegistryDialog.getByPlaceholder('password');
   }
 
   async createRegistry(url: string, username: string, pswd: string): Promise<void> {
     await this.page.waitForTimeout(4000);
     await playExpect(this.addRegistryButton).toBeEnabled();
     await this.addRegistryButton.click();
-    await playExpect(this.cancelAddRegistryButton).toBeEnabled();
+    await playExpect(this.addRegistryDialog).toBeVisible();
+    await playExpect(this.cancelDialogButton).toBeEnabled();
 
-    await this.addRegistryUrl.fill(url);
-    await this.addRegistryUsername.fill(username);
-    await this.addRegistryPswd.fill(pswd);
+    await this.registryUrlField.fill(url);
+    await this.registryUsernameField.fill(username);
+    await this.registryPswdField.fill(pswd);
 
-    await playExpect(this.loginButton).toBeEnabled();
-    await this.loginButton.click();
+    await playExpect(this.confirmDialogButton).toBeEnabled();
+    await this.confirmDialogButton.click();
   }
 
   async editRegistry(title: string, newUsername: string, newPswd: string): Promise<void> {

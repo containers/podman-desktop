@@ -22,6 +22,8 @@ import type { KindClusterOptions } from '../core/types';
 import { BasePage } from './base-page';
 
 export class CreateKindClusterPage extends BasePage {
+  readonly header: Locator;
+  readonly content: Locator;
   readonly clusterPropertiesInformation: Locator;
   readonly clusterNameField: Locator;
   readonly controllerCheckbox: Locator;
@@ -32,10 +34,13 @@ export class CreateKindClusterPage extends BasePage {
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
+  readonly errorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.clusterPropertiesInformation = this.page.getByRole('form', { name: 'Properties Information' });
+    this.header = this.page.getByRole('region', { name: 'Header' });
+    this.content = this.page.getByRole('region', { name: 'Tab Content' });
+    this.clusterPropertiesInformation = this.content.getByRole('form', { name: 'Properties Information' });
     this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
     // Locator for the parent element of the ingress controller checkbox, used to change its value
     this.controllerCheckbox = this.clusterPropertiesInformation
@@ -44,15 +49,16 @@ export class CreateKindClusterPage extends BasePage {
       })
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
-    this.logsButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Show Logs' });
+    this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
     this.providerTypeCombobox = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
     this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
+    this.errorMessage = this.content.getByRole('alert', { name: 'Error Message Content' });
   }
 
-  public async createClusterDefault(clusterName: string, timeout?: number): Promise<void> {
+  public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
     await playExpect(this.providerTypeCombobox).toHaveValue('podman');
     await playExpect(this.httpPort).toHaveValue('9090');
@@ -63,12 +69,11 @@ export class CreateKindClusterPage extends BasePage {
   }
 
   public async createClusterParametrized(
-    { clusterName, providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
+    clusterName: string = 'kind-cluster',
+    { providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
     timeout?: number,
   ): Promise<void> {
-    if (clusterName) {
-      await this.fillTextbox(this.clusterNameField, clusterName);
-    }
+    await this.fillTextbox(this.clusterNameField, clusterName);
 
     if (providerType) {
       await playExpect(this.providerTypeCombobox).toBeVisible();
@@ -103,9 +108,11 @@ export class CreateKindClusterPage extends BasePage {
     await this.createCluster(timeout);
   }
 
-  private async createCluster(timeout: number = 120000): Promise<void> {
+  private async createCluster(timeout: number = 200000): Promise<void> {
     await playExpect(this.clusterCreationButton).toBeVisible();
     await this.clusterCreationButton.click();
+    await this.logsButton.scrollIntoViewIfNeeded();
+    await this.logsButton.click();
     await playExpect(this.goBackButton).toBeVisible({ timeout: timeout });
     await this.goBackButton.click();
   }

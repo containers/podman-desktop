@@ -56,7 +56,7 @@ export class BuildImagePage extends BasePage {
     imageName: string,
     containerFilePath: string,
     contextDirectory: string,
-    archType = ArchitectureType.Default,
+    archType: string = ArchitectureType.Default,
     timeout = 120000,
   ): Promise<ImagesPage> {
     console.log(
