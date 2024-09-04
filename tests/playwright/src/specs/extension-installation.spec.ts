@@ -50,7 +50,7 @@ let ociImageUrl: string;
 let navBar: NavigationBar;
 
 async function _startup(extensionName: string): Promise<void> {
-  pdRunner = new PodmanDesktopRunner();
+  pdRunner = await PodmanDesktopRunner.getInstance();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
 

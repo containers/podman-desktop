@@ -16,42 +16,30 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, test } from '@playwright/test';
-import type { Page } from 'playwright';
-
 import { RegistriesPage } from '../model/pages/registries-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
+import { expect as playExpect, test } from '../utility/fixtures';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;
 let registryName: string;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, welcomePage }) => {
   pdRunner.setVideoAndTraceName('registry-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
   registryName = 'GitHub';
 
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
-  navBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe.serial('Registries handling verification', () => {
-  test('Check Registries page components and presence of default registries', async () => {
+  test('Check Registries page components and presence of default registries', async ({ navBar }) => {
     const settingsBar = await navBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
@@ -65,7 +53,7 @@ test.describe.serial('Registries handling verification', () => {
   });
 
   test.describe.serial('Registry addition workflow verification', () => {
-    test('Cannot add invalid registry', async () => {
+    test('Cannot add invalid registry', async ({ page, navBar }) => {
       await navBar.openDashboard();
       const settingsBar = await navBar.openSettings();
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
@@ -85,41 +73,38 @@ test.describe.serial('Registries handling verification', () => {
       await registryPage.cancelDialogButton.click();
     });
 
-    test('Valid registry addition verification', async () => {
+    test.describe.serial(() => {
       test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
+      test('Valid registry addition verification', async ({ page }) => {
+        const registryPage = new RegistriesPage(page);
+
+        await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
+
+        const registryBox = registryPage.registriesTable.getByLabel(registryName);
+        const username = registryBox.getByText(registryUsername);
+        await playExpect(username).toBeVisible({ timeout: 50000 });
+      });
+    });
+
+    test('Registry editing availability and invalid credentials verification', async ({ page }) => {
       const registryPage = new RegistriesPage(page);
 
-      await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
-      await pdRunner.screenshot('registry-addition.png');
+      await registryPage.editRegistry(registryName, 'invalidName', 'invalidPswd');
+      const errorMsg = page.getByText('Wrong Username or Password.');
+      await playExpect(errorMsg).toBeVisible();
 
+      const cancelButton = page.getByRole('button', { name: 'Cancel' });
+      await cancelButton.click();
+    });
+
+    test('Registry removal verification', async ({ page }) => {
+      const registryPage = new RegistriesPage(page);
+
+      await registryPage.removeRegistry(registryName);
       const registryBox = registryPage.registriesTable.getByLabel(registryName);
       const username = registryBox.getByText(registryUsername);
-      await playExpect(username).toBeVisible({ timeout: 50000 });
+      await playExpect(username).toBeHidden();
     });
-  });
-
-  test('Registry editing availability and invalid credentials verification', async () => {
-    test.skip(!canTestRegistry(), 'Registry tests are disabled');
-
-    const registryPage = new RegistriesPage(page);
-
-    await registryPage.editRegistry(registryName, 'invalidName', 'invalidPswd');
-    const errorMsg = page.getByText('Wrong Username or Password.');
-    await playExpect(errorMsg).toBeVisible();
-
-    const cancelButton = page.getByRole('button', { name: 'Cancel' });
-    await cancelButton.click();
-  });
-
-  test('Registry removal verification', async () => {
-    test.skip(!canTestRegistry(), 'Registry tests are disabled');
-
-    const registryPage = new RegistriesPage(page);
-
-    await registryPage.removeRegistry(registryName);
-    const registryBox = registryPage.registriesTable.getByLabel(registryName);
-    const username = registryBox.getByText(registryUsername);
-    await playExpect(username).toBeHidden();
   });
 });

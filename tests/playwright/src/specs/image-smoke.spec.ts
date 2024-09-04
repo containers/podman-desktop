@@ -19,43 +19,32 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ImageDetailsPage } from '../model/pages/image-details-page';
 import type { ImagesPage } from '../model/pages/images-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { NavigationBar } from '../model/workbench/navigation';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { handleConfirmationDialog } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 const helloContainer = 'quay.io/podman/hello';
 const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   pdRunner.setVideoAndTraceName('pull-image-e2e');
 
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe.serial('Image workflow verification @smoke', () => {
-  async function pullImageByName(imageName: string): Promise<ImagesPage> {
+  async function pullImageByName(imageName: string, navBar: NavigationBar): Promise<ImagesPage> {
     let imagesPage = await navBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
     imagesPage = await pullImagePage.pullImage(imageName);
@@ -63,7 +52,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
     return imagesPage;
   }
 
-  test('Pull image', async () => {
+  test('Pull image', async ({ navBar }) => {
     const imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
@@ -75,7 +64,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
     playExpect(await updatedImages.getCurrentStatusOfImage(helloContainer)).toBe('UNUSED');
   });
 
-  test('Test navigation between pages', async () => {
+  test('Test navigation between pages', async ({ navBar }) => {
     const imagesPage = await navBar.openImages();
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
     await playExpect(imageDetailPage.heading).toBeVisible();
@@ -88,7 +77,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
     await playExpect(imagesPage.heading).toBeVisible();
   });
 
-  test('Check image details', async () => {
+  test('Check image details', async ({ navBar }) => {
     const imagesPage = await navBar.openImages();
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
 
@@ -97,15 +86,15 @@ test.describe.serial('Image workflow verification @smoke', () => {
     await playExpect(imageDetailPage.inspectTab).toBeVisible();
   });
 
-  test('Rename image', async () => {
+  test('Rename image', async ({ page }) => {
     const imageDetailsPage = new ImageDetailsPage(page, helloContainer);
     const editPage = await imageDetailsPage.openEditImage();
     const imagesPage = await editPage.renameImage('quay.io/podman/hi');
     playExpect(await imagesPage.waitForImageExists('quay.io/podman/hi')).toBe(true);
   });
 
-  test('Delete image', async () => {
-    const imagesPage = await pullImageByName(helloContainer);
+  test('Delete image', async ({ page, navBar }) => {
+    const imagesPage = await pullImageByName(helloContainer, navBar);
     playExpect(await imagesPage.waitForImageExists(helloContainer)).toBe(true);
 
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
@@ -118,7 +107,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
     playExpect(await imagesPage.waitForImageExists('quay.io/podman/hi')).toBe(true);
   });
 
-  test('Build image', async () => {
+  test('Build image', async ({ navBar }) => {
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
@@ -136,7 +125,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
     playExpect(await imagesPage.waitForImageDelete('docker.io/library/build-image-test')).toBeTruthy();
   });
 
-  test('Prune images', async () => {
+  test('Prune images', async ({ navBar }) => {
     test.setTimeout(150000);
 
     const imagesPage = await navBar.openImages();

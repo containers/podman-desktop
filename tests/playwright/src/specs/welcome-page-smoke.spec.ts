@@ -16,57 +16,44 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
+import { expect as playExpect, test } from '../utility/fixtures';
 
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner({ customFolder: 'welcome-podman-desktop' });
-  page = await pdRunner.start();
+test.use({ customFolder: 'welcome-podman-desktop' });
+test.beforeAll(async ({ pdRunner }) => {
   pdRunner.setVideoAndTraceName('welcome-page-e2e');
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe('Basic e2e verification of podman desktop start @smoke', () => {
   test.describe('Welcome page handling', () => {
-    test('Check the Welcome page is displayed', async () => {
-      const welcomePage = new WelcomePage(page);
+    test('Check the Welcome page is displayed', async ({ welcomePage }) => {
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
     });
 
-    test('Telemetry checkbox is present, set to true, consent can be changed', async () => {
-      const welcomePage = new WelcomePage(page);
+    test('Telemetry checkbox is present, set to true, consent can be changed', async ({ welcomePage }) => {
       await playExpect(welcomePage.telemetryConsent).toBeVisible();
       await playExpect(welcomePage.telemetryConsent).toBeChecked();
       await welcomePage.turnOffTelemetry();
     });
 
-    test('Redirection from Welcome page to Dashboard works', async () => {
-      const welcomePage = new WelcomePage(page);
+    test('Redirection from Welcome page to Dashboard works', async ({ welcomePage }) => {
       const dashboardPage = await welcomePage.closeWelcomePage();
       await playExpect(dashboardPage.heading).toBeVisible();
     });
   });
 
   test.describe('Navigation Bar test', () => {
-    test('Verify navigation items are visible', async () => {
-      const navigationBar = new NavigationBar(page);
-      await playExpect(navigationBar.navigationLocator).toBeVisible();
-      await playExpect(navigationBar.dashboardLink).toBeVisible();
-      await playExpect(navigationBar.imagesLink).toBeVisible();
-      await playExpect(navigationBar.podsLink).toBeVisible();
-      await playExpect(navigationBar.containersLink).toBeVisible();
-      await playExpect(navigationBar.volumesLink).toBeVisible();
-      await playExpect(navigationBar.settingsLink).toBeVisible();
+    test('Verify navigation items are visible', async ({ navBar }) => {
+      await playExpect(navBar.navigationLocator).toBeVisible();
+      await playExpect(navBar.dashboardLink).toBeVisible();
+      await playExpect(navBar.imagesLink).toBeVisible();
+      await playExpect(navBar.podsLink).toBeVisible();
+      await playExpect(navBar.containersLink).toBeVisible();
+      await playExpect(navBar.volumesLink).toBeVisible();
+      await playExpect(navBar.settingsLink).toBeVisible();
     });
   });
 });

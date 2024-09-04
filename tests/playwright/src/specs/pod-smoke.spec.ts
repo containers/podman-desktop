@@ -18,20 +18,13 @@
 
 import * as os from 'node:os';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ContainerState, PodState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { PodsPage } from '../model/pages/pods-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteContainer, deleteImage, deletePod } from '../utility/operations';
 import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
 let backendPort: string;
 let frontendPort: string;
 
@@ -51,15 +44,12 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, welcomePage, page, navBar }) => {
   pdRunner.setVideoAndTraceName('pods-e2e');
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
-  const images = await new NavigationBar(page).openImages();
+  const images = await navBar.openImages();
   await waitWhile(async () => await images.pageIsEmpty(), {
     sendError: false,
     message: 'Images page is empty, there are no images present',
@@ -69,7 +59,7 @@ test.beforeAll(async () => {
   await deleteContainer(page, frontendContainer);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ page, pdRunner }) => {
   test.setTimeout(120000);
 
   try {
@@ -91,26 +81,24 @@ test.afterAll(async () => {
 });
 
 test.describe.serial('Verification of pod creation workflow @smoke', () => {
-  test('Pulling images', async () => {
+  test('Pulling images', async ({ navBar }) => {
     test.setTimeout(60000);
 
-    const navigationBar = new NavigationBar(page);
-    let images = await navigationBar.openImages();
+    let images = await navBar.openImages();
     let pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(backendImage, imagesTag, 60000);
     const backendExists = await images.waitForImageExists(backendImage);
     playExpect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
 
-    await navigationBar.openImages();
+    await navBar.openImages();
     pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(frontendImage, imagesTag, 60000);
     const frontendExists = await images.waitForImageExists(frontendImage);
     playExpect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
   });
 
-  test('Starting containers', async () => {
-    const navigationBar = new NavigationBar(page);
-    let images = await navigationBar.openImages();
+  test('Starting containers', async ({ navBar }) => {
+    let images = await navBar.openImages();
     let imageDetails = await images.openImageDetails(backendImage);
     let runImage = await imageDetails.openRunImage();
     await runImage.setCustomPortMapping('6379:6379');
@@ -127,7 +115,7 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
       backendPort = await containerDetails.getContainerPort();
       return backendPort.includes('6379');
     });
-    images = await navigationBar.openImages();
+    images = await navBar.openImages();
     imageDetails = await images.openImageDetails(frontendImage);
     runImage = await imageDetails.openRunImage();
     if (isMac) {
@@ -147,11 +135,10 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
       .toBe(ContainerState.Running);
   });
 
-  test('Podify containers', async () => {
+  test('Podify containers', async ({ navBar }) => {
     test.setTimeout(90000);
 
-    const navigationBar = new NavigationBar(page);
-    const containers = await navigationBar.openContainers();
+    const containers = await navBar.openContainers();
     const createPodPage = await containers.openCreatePodPage(Array.of(backendContainer, frontendContainer));
     const pods = await createPodPage.createPod(podToRun);
     await playExpect(pods.heading).toBeVisible({ timeout: 60000 });
@@ -160,9 +147,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Running);
   });
 
-  test('Test navigation between pages', async () => {
-    const navigationBar = new NavigationBar(page);
-    const pods = await navigationBar.openPods();
+  test('Test navigation between pages', async ({ navBar }) => {
+    const pods = await navBar.openPods();
     await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
 
     const podDetails = await pods.openPodDetails(podToRun);
@@ -176,9 +162,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await playExpect(pods.heading).toBeVisible();
   });
 
-  test('Checking pod details', async () => {
-    const navigationBar = new NavigationBar(page);
-    const pods = await navigationBar.openPods();
+  test('Checking pod details', async ({ navBar }) => {
+    const pods = await navBar.openPods();
     await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
     const podDetails = await pods.openPodDetails(podToRun);
     await playExpect(podDetails.heading).toBeVisible();
@@ -192,23 +177,21 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await podDetails.activateTab('Kube');
   });
 
-  test('Checking original containers stopped', async () => {
-    const navigationBar = new NavigationBar(page);
-    const containers = await navigationBar.openContainers();
+  test('Checking original containers stopped', async ({ navBar }) => {
+    const containers = await navBar.openContainers();
     const backendContainerDetails = await containers.openContainersDetails(backendContainer);
     await playExpect
       .poll(async () => await backendContainerDetails.getState(), { timeout: 15000 })
       .toBe(ContainerState.Exited);
-    await navigationBar.openContainers();
+    await navBar.openContainers();
     const frontendContainerDetails = await containers.openContainersDetails(frontendContainer);
     await playExpect
       .poll(async () => await frontendContainerDetails.getState(), { timeout: 15000 })
       .toBe(ContainerState.Exited);
   });
 
-  test('Checking pods page options buttons', async () => {
-    const navigationBar = new NavigationBar(page);
-    const pods = await navigationBar.openPods();
+  test('Checking pods page options buttons', async ({ navBar }) => {
+    const pods = await navBar.openPods();
     await pods.selectPod([podToRun]);
     const deleteButton = pods.getPage().getByRole('button', { name: 'Delete 1 selected items', exact: true });
     await playExpect(deleteButton).toBeVisible();
@@ -224,9 +207,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await playExpect(restartButton).toBeVisible();
   });
 
-  test(`Checking pods under containers`, async () => {
-    const navigationBar = new NavigationBar(page);
-    const containers = await navigationBar.openContainers();
+  test(`Checking pods under containers`, async ({ navBar }) => {
+    const containers = await navBar.openContainers();
     await playExpect.poll(async () => containers.containerExists(`${podToRun} (pod)`), { timeout: 10000 }).toBeTruthy();
     await playExpect
       .poll(async () => containers.containerExists(`${backendContainer}-podified`), { timeout: 10000 })
@@ -260,9 +242,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
 
   test.describe(() => {
     test.describe.configure({ retries: 2 });
-    test('Restarting pod', async () => {
-      const navigationBar = new NavigationBar(page);
-      const pods = await navigationBar.openPods();
+    test('Restarting pod', async ({ navBar }) => {
+      const pods = await navBar.openPods();
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
@@ -273,9 +254,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     });
   });
 
-  test('Stopping and starting pod', async () => {
-    const navigationBar = new NavigationBar(page);
-    const pods = await navigationBar.openPods();
+  test('Stopping and starting pod', async ({ navBar }) => {
+    const pods = await navBar.openPods();
     const podDetailsPage = await pods.openPodDetails(podToRun);
     await podDetailsPage.stopPod(podToRun, true);
     await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
@@ -285,9 +265,8 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await playExpect(podDetailsPage.stopButton).toBeVisible();
   });
 
-  test('Stopping and deleting pod', async () => {
-    const navigationBar = new NavigationBar(page);
-    const pods = await navigationBar.openPods();
+  test('Stopping and deleting pod', async ({ navBar }) => {
+    const pods = await navBar.openPods();
     const podDetailsPage = await pods.openPodDetails(podToRun);
     await podDetailsPage.stopPod(podToRun, true);
     await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
@@ -298,14 +277,13 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     await playExpect.poll(async () => await podsPage.podExists(podToRun), { timeout: 20000 }).toBeFalsy();
   });
 
-  test('Pruning pods', async () => {
+  test('Pruning pods', async ({ page, navBar }) => {
     test.setTimeout(90000);
 
-    const navigationBar = new NavigationBar(page);
     const portsList = [5001, 5002, 5003];
 
     for (let i = 0; i < 3; i++) {
-      const imagesPage = await navigationBar.openImages();
+      const imagesPage = await navBar.openImages();
       await playExpect(imagesPage.heading).toBeVisible();
       const imageDetailsPage = await imagesPage.openImageDetails(backendImage);
       await playExpect(imageDetailsPage.heading).toContainText(backendImage);
@@ -329,7 +307,7 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
       await podDetailsPage.stopPod(pod, true);
       await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
 
-      const podsPage = await navigationBar.openPods();
+      const podsPage = await navBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
       await podsPage.prunePods();
       await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15000 }).toBeFalsy();

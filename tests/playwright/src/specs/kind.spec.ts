@@ -16,19 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { getVolumeNameForContainer } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -39,61 +34,54 @@ const CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
 const CLUSTER_CREATION_TIMEOUT: number = 150000;
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navigationBar: NavigationBar;
 let resourcesPage: ResourcesPage;
 let kindResourceCard: ResourceConnectionCardPage;
 let statusBar: StatusBar;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, page, welcomePage }) => {
   pdRunner.setVideoAndTraceName('kind-e2e');
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navigationBar = new NavigationBar(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
   statusBar = new StatusBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async () => {
+    test('Install Kind CLI', async ({ navBar }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
 
-      await navigationBar.openSettings();
+      await navBar.openSettings();
       await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
       await statusBar.installKindCLI();
       await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
     });
 
-    test('Verify that Kind CLI is installed', async () => {
-      await navigationBar.openSettings();
+    test('Verify that Kind CLI is installed', async ({ navBar }) => {
+      await navBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
 
-    test('Kind extension lifecycle', async () => {
-      const extensionsPage = await navigationBar.openExtensions();
+    test('Kind extension lifecycle', async ({ navBar }) => {
+      const extensionsPage = await navBar.openExtensions();
       const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', EXTENSION_LABEL);
       await playExpect
         .poll(async () => await extensionsPage.extensionIsInstalled(EXTENSION_LABEL), { timeout: 10000 })
         .toBeTruthy();
       await playExpect(kindExtension.status).toHaveText('ACTIVE');
       await kindExtension.disableExtension();
-      await navigationBar.openSettings();
+      await navBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
-      await navigationBar.openExtensions();
+      await navBar.openExtensions();
       await kindExtension.enableExtension();
-      await navigationBar.openSettings();
+      await navBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
   });
@@ -102,10 +90,10 @@ test.describe.serial('Kind End-to-End Tests', () => {
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
       'Tests suite should not run on Linux platform',
     );
-    test('Create a Kind cluster', async () => {
+    test('Create a Kind cluster', async ({ page, navBar }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
 
-      await navigationBar.openSettings();
+      await navBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
       await playExpect(kindResourceCard.markdownContent).toBeVisible();
       await playExpect(kindResourceCard.createButton).toBeVisible();
@@ -118,8 +106,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Check resources added with the Kind cluster', async () => {
-      const containersPage = await navigationBar.openContainers();
+    test('Check resources added with the Kind cluster', async ({ page, navBar }) => {
+      const containersPage = await navBar.openContainers();
       await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
       const containerDetailsPage = await containersPage.openContainersDetails(CONTAINER_NAME);
       await playExpect.poll(async () => await containerDetailsPage.getState()).toEqual(ContainerState.Running);
@@ -137,8 +125,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
     });
 
-    test('Kind cluster operations - STOP', async () => {
-      await navigationBar.openSettings();
+    test('Kind cluster operations - STOP', async ({ navBar }) => {
+      await navBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
@@ -160,14 +148,14 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Kind cluster operations - DELETE', async () => {
+    test('Kind cluster operations - DELETE', async ({ page, navBar }) => {
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 50000,
       });
       await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
       await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
-      const containersPage = await navigationBar.openContainers();
+      const containersPage = await navBar.openContainers();
       await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
 
       await page.waitForTimeout(2000);

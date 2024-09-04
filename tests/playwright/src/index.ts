@@ -22,6 +22,7 @@ export * from './runner/podman-desktop-runner';
 export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';
+export * from './utility/fixtures';
 export * from './utility/operations';
 export * from './utility/platform';
 export * from './utility/wait';

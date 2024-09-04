@@ -16,21 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, test } from '@playwright/test';
-import type { Page } from 'playwright';
-
 import { RegistriesPage } from '../model/pages/registries-page';
 import { SettingsBar } from '../model/pages/settings-bar';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteImage, deleteRegistry } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;
@@ -38,9 +30,7 @@ let imageName: string;
 let imageTag: string;
 let imageUrl: string;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   pdRunner.setVideoAndTraceName('registry-image-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
@@ -48,13 +38,11 @@ test.beforeAll(async () => {
   imageTag = process.env.REGISTRY_IMAGE_TAG ? process.env.REGISTRY_IMAGE_TAG : 'latest';
   imageUrl = registryUrl + '/' + registryUsername + '/' + imageName;
 
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner, page }) => {
   try {
     await deleteImage(page, imageUrl);
     await deleteRegistry(page, 'GitHub');
@@ -64,7 +52,7 @@ test.afterAll(async () => {
 });
 
 test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
-  test('Cannot pull image from unauthenticated registry', async () => {
+  test('Cannot pull image from unauthenticated registry', async ({ page, navBar }) => {
     const imagesPage = await navBar.openImages();
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);
@@ -86,7 +74,7 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
   test.describe.serial(() => {
     test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
-    test('Add registry', async () => {
+    test('Add registry', async ({ page, navBar }) => {
       await navBar.openSettings();
       const settingsBar = new SettingsBar(page);
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
@@ -98,7 +86,7 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
       await playExpect(username).toBeVisible();
     });
 
-    test('Image pulling from authenticated registry verification', async () => {
+    test('Image pulling from authenticated registry verification', async ({ navBar }) => {
       const imagesPage = await navBar.openImages();
 
       const fullImageTitle = imageUrl.concat(':' + imageTag);
