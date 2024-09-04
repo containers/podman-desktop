@@ -81,9 +81,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
       'Tests suite should not run on Linux platform',
     );
-    test('Create a Kind cluster', async ({ page, navigationBar }) => {
+    test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
-
       await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
     });
 
@@ -101,7 +100,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
       const volumeDetailsPage = await volumesPage.openVolumeDetails(volumeName);
       await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
     });
-    
+
     test('Kind cluster operations - STOP', async ({ navigationBar }) => {
       await navigationBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
