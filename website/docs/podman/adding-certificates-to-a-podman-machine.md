@@ -91,7 +91,7 @@ $ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.ke
 
 - Replace `certificate-name` with the actual certificate name, such as _rootCA.crt_.
 
-4. Type your password when prompted and press **Return**.
+4. Type your password when prompted and press **return**.
 
 5. Exit the Podman machine:
 
