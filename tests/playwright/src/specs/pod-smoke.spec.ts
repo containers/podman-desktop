@@ -105,7 +105,7 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
 
     await navigationBar.openImages();
     pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(backendImageSearchTerm, frontendImage, imagesTag, 60000);
+    images = await pullImagePage.pullImage(frontendImageSearchTerm, frontendImage, imagesTag, 60000);
     const frontendExists = await images.waitForImageExists(frontendImage);
     playExpect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
   });
