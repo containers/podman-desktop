@@ -231,6 +231,12 @@ async function createWindow(): Promise<BrowserWindow> {
     append: (_defaultActions, parameters) => {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
     },
+    onClose: () => {
+      browserWindow.webContents.send('context-menu:visible', false);
+    },
+    onShow: () => {
+      browserWindow.webContents.send('context-menu:visible', true);
+    },
   });
 
   // Add help/about menu entry

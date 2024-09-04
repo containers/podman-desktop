@@ -79,7 +79,7 @@
     "typecheck:preload-dd-extension": "tsc --noEmit -p packages/preload-docker-extension/tsconfig.json",
     "typecheck:preload-webview": "tsc --noEmit -p packages/preload-webview/tsconfig.json",
     "typecheck:renderer": "npm run build:preload:types && tsc --noEmit -p packages/renderer/tsconfig.json",
-    "typecheck:ui": "npm run build:preload:types && tsc --noEmit -p packages/ui/tsconfig.json",
+    "typecheck:ui": "npm run build:ui && npm run build:preload:types && tsc --noEmit -p packages/ui/tsconfig.json",
     "typecheck:extensions": "npm run typecheck:extensions:compose && npm run typecheck:extensions:kind && npm run typecheck:extensions:docker && npm run typecheck:extensions:lima && npm run typecheck:extensions:kube-context && npm run typecheck:extensions:podman && npm run typecheck:extensions:registries && npm run typecheck:extensions:kubectl-cli",
     "typecheck:extensions:kind": "tsc --noEmit --project extensions/kind",
     "typecheck:extensions:compose": "tsc --noEmit --project extensions/compose",
@@ -136,7 +136,7 @@
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
     "electron": "32.0.1",
-    "electron-builder": "24.13.3",
+    "electron-builder": "25.0.5",
     "electron-builder-notarize": "^1.5.2",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^9.9.1",
@@ -164,7 +164,7 @@
     "typescript": "5.5.4",
     "typescript-eslint": "^8.4.0",
     "validator": "^13.12.0",
-    "vite": "^5.4.2",
+    "vite": "^5.4.3",
     "vitest": "^2.0.5",
     "xvfb-maybe": "^0.2.1"
   },
@@ -197,7 +197,7 @@
     "tar-fs": "^3.0.6",
     "undici": "^6.19.8",
     "win-ca": "^3.5.1",
-    "yaml": "^2.5.0"
+    "yaml": "^2.5.1"
   },
   "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
 }

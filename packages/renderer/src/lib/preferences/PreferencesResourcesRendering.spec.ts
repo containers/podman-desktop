@@ -56,7 +56,10 @@ const providerInfo: ProviderInfo = {
       },
       lifecycleMethods: ['start', 'stop', 'delete'],
       type: 'podman',
-      vmType: 'libkrun',
+      vmType: {
+        id: 'libkrun',
+        name: 'libkrun',
+      },
     },
     {
       name: secondaryContainerConnectionName,
@@ -67,7 +70,10 @@ const providerInfo: ProviderInfo = {
       },
       lifecycleMethods: ['start', 'stop', 'delete'],
       type: 'podman',
-      vmType: 'wsl',
+      vmType: {
+        id: 'wsl',
+        name: 'wsl',
+      },
     },
   ],
   installationSupport: false,

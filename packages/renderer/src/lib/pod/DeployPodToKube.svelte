@@ -511,7 +511,7 @@ function updateKubeResult() {
           >Kubernetes Namespace:</label>
         <select
           class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-          aria-label="Select a Kubernetes Context "
+          aria-label="Select a Kubernetes Namespace"
           name="namespaceChoice"
           bind:value={currentNamespace}>
           {#each allNamespaces.items as namespace}

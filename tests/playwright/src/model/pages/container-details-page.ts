@@ -22,12 +22,14 @@ import { expect as playExpect } from '@playwright/test';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { ContainerState } from '../core/states';
 import { ContainersPage } from './containers-page';
+import { DeployToKubernetesPage } from './deploy-to-kubernetes-page';
 import { DetailsPage } from './details-page';
 
 export class ContainerDetailsPage extends DetailsPage {
   readonly stopButton: Locator;
   readonly deleteButton: Locator;
   readonly imageLink: Locator;
+  readonly deployButton: Locator;
 
   static readonly SUMMARY_TAB = 'Summary';
   static readonly LOGS_TAB = 'Logs';
@@ -40,6 +42,7 @@ export class ContainerDetailsPage extends DetailsPage {
     this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
     this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
+    this.deployButton = this.controlActions.getByRole('button', { name: 'Deploy to Kubernetes' });
   }
 
   async getState(): Promise<string> {
@@ -79,5 +82,11 @@ export class ContainerDetailsPage extends DetailsPage {
     const portsCell = portsRow.getByRole('cell').nth(1);
     await playExpect(portsCell).toBeVisible();
     return await portsCell.innerText();
+  }
+
+  async openDeployToKubernetesPage(): Promise<DeployToKubernetesPage> {
+    await playExpect(this.deployButton).toBeVisible();
+    await this.deployButton.click();
+    return new DeployToKubernetesPage(this.page);
   }
 }
