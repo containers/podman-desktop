@@ -353,9 +353,10 @@ export class Updater {
     // disable auto download
     autoUpdater.autoDownload = false;
 
+    this.registerDefaultCommands();
+
     // Only check on production builds for Windows and macOS users
     if (!import.meta.env.PROD || isLinux()) {
-      this.registerDefaultCommands();
       this.defaultVersionEntry();
       return Disposable.noop();
     }
