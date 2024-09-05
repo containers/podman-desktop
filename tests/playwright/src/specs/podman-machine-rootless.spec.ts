@@ -22,6 +22,7 @@ import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
+import { delay } from '../utility/wait';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 
