@@ -17,9 +17,7 @@
 
 name: pr-check
 
-on: 
-  pull_request:
-    types: [labeled, synchronize, opened, reopened]
+on: [pull_request]
 
 jobs:
   windows:
