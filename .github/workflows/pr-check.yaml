@@ -17,7 +17,9 @@
 
 name: pr-check
 
-on: [pull_request]
+on: 
+  pull_request:
+    types: [labeled, synchronize, opened, reopened]
 
 jobs:
   windows:
@@ -325,9 +327,32 @@ jobs:
             ./tests/**/output/junit*.xml
             !./tests/**/traces/raw
 
+  detect_pnpm_changes:
+    name: Detect pnpm lock file changes
+    runs-on: ubuntu-latest
+    outputs:
+      pnpm_lock_changed: ${{ steps.pnpm_changed.outputs.PNPM_LOCK_CHANGED }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Evaluate changes in files
+        id: pnpm_changed
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }} HEAD > changes.txt
+          if grep -q 'pnpm-lock.yaml' changes.txt; then
+            echo "PNPM_LOCK_CHANGED=true" >> $GITHUB_OUTPUT
+          else
+            echo "PNPM_LOCK_CHANGED=false" >> $GITHUB_OUTPUT
+          fi
+
   win-update-e2e-test:
     name: win update e2e tests
-    if: github.actor == 'dependabot[bot]'
+    needs: detect_pnpm_changes
+    if: contains(github.event.pull_request.labels.*.name, 'area/update') || needs.detect_pnpm_changes.outputs.pnpm_lock_changed == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:
@@ -386,7 +411,7 @@ jobs:
             !./tests/**/traces/raw
 
   update-e2e-test:
-    name: evaluate win update e2e test
+    name: update E2E test ${{ needs.win-update-e2e-test.result == 'skipped' && '(skipped)' || '(executed)' }}
     runs-on: ubuntu-22.04
     needs: win-update-e2e-test
     if: |
