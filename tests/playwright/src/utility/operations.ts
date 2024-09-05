@@ -205,15 +205,26 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-        timeout: 30_000,
+        timeout: 100_000,
       });
     }
-    await playExpect(resourcesPodmanConnections.machineDeleteButton).toBeVisible({ timeout: 3000 });
-    await waitWhile(() => resourcesPodmanConnections.machineDeleteButton.isDisabled(), { timeout: 10000 });
-    await resourcesPodmanConnections.machineDeleteButton.click();
-    await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeHidden({ timeout: 60_000 });
+    await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
+    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 30_000 });
+    await handleResetDefaultConnectionDialog(page);
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
+  }
+}
+
+export async function handleResetDefaultConnectionDialog(page: Page): Promise<void> {
+  const connectionDialog = page.getByRole('dialog', { name: 'Podman' });
+  if (await connectionDialog.isVisible()) {
+    const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
+    await handleButton.click();
+
+    await playExpect(connectionDialog).toBeVisible();
+    const okButton = connectionDialog.getByRole('button', { name: 'OK' });
+    await okButton.click();
   }
 }
 

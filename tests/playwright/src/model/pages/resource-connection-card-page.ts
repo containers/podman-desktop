@@ -30,7 +30,10 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
 
   constructor(page: Page, resourceName: string, resourceElementVisibleName?: string) {
     super(page, resourceName);
-    this.resourceElement = this.providerConnections.getByRole('region', { name: resourceElementVisibleName });
+    this.resourceElement = this.providerConnections.getByRole('region', {
+      name: resourceElementVisibleName,
+      exact: true,
+    });
     this.resourceElementDetailsButton = this.resourceElement.getByRole('button', { name: 'details' });
     this.resourceElementConnectionStatus = this.resourceElement.getByLabel('Connection Status Label');
     this.resourceElementConnectionActions = this.resourceElement.getByRole('group', { name: 'Connection Actions' });

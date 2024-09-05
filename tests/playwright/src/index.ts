@@ -43,6 +43,7 @@ export * from './model/pages/compose-onboarding/compose-wide-install-page';
 export * from './model/pages/container-details-page';
 export * from './model/pages/containers-page';
 export * from './model/pages/create-kind-cluster-page';
+export * from './model/pages/create-machine-page';
 export * from './model/pages/create-pod-page';
 export * from './model/pages/dashboard-page';
 export * from './model/pages/deploy-to-kubernetes-page';

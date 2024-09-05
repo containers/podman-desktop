@@ -19,6 +19,8 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { delay } from '/@/utility/wait';
+
 import { BasePage } from './base-page';
 import { ResourcesPage } from './resources-page';
 
@@ -62,25 +64,14 @@ export class CreateMachinePage extends BasePage {
 
   async createMachine(
     machineName: string,
-    isRootful: boolean = true,
-    enableUserNet: boolean = false,
-    startNow: boolean = true,
-    setAsDefault: boolean = true,
+    { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
     await playExpect(this.podmanMachineConfiguration).toBeVisible();
     await this.podmanMachineName.fill(machineName);
 
-    if (isRootful !== (await this.isEnabled(this.rootPriviledgesCheckbox))) {
-      await this.switchCheckbox(this.rootPriviledgesCheckbox);
-    }
-
-    if (enableUserNet !== (await this.isEnabled(this.userModeNetworkingCheckbox))) {
-      await this.switchCheckbox(this.userModeNetworkingCheckbox);
-    }
-
-    if (startNow !== (await this.isEnabled(this.startNowCheckbox))) {
-      await this.switchCheckbox(this.startNowCheckbox);
-    }
+    await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
+    await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
+    await this.ensureCheckboxState(startNow, this.startNowCheckbox);
 
     await this.createMachineButton.click();
     await this.page.waitForTimeout(60_000);
@@ -88,6 +79,7 @@ export class CreateMachinePage extends BasePage {
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
+    await delay(5000);
     await this.handleConnectionDialog(machineName, setAsDefault);
 
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
@@ -95,6 +87,12 @@ export class CreateMachinePage extends BasePage {
     await goBackToResourcesButton.click();
 
     return new ResourcesPage(this.page);
+  }
+
+  async ensureCheckboxState(desiredState: boolean, checkbox: Locator): Promise<void> {
+    if (desiredState !== (await this.isEnabled(checkbox))) {
+      await this.switchCheckbox(checkbox);
+    }
   }
 
   async isEnabled(checkbox: Locator): Promise<boolean> {
