@@ -109,7 +109,6 @@ export class Updater {
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
     this.commandRegistry.registerCommand('version', async () => {
-      console.log('in version command');
       const result = await this.messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
@@ -118,7 +117,7 @@ export class Updater {
         buttons: ['View release notes'],
       });
       if (result.response === 0) {
-        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${this.#currentVersion}`);
+        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${app.getVersion()}`);
       }
     });
   }

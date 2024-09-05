@@ -1157,6 +1157,22 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'updatePodmanDesktop',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (): Promise<void> => {
+      return ipcInvoke('podman-desktop:update');
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'PodmanDesktopUpdateAvailable',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (): Promise<boolean> => {
+      return ipcInvoke('podman-desktop:update-available');
+    },
+  );
+
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');
   });

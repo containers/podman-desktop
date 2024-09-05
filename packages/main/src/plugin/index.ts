@@ -565,7 +565,14 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry, taskManager).init();
+    const podmanDesktopUpdater = new Updater(
+      messageBox,
+      configurationRegistry,
+      statusBarRegistry,
+      commandRegistry,
+      taskManager,
+    );
+    podmanDesktopUpdater.init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -1320,6 +1327,14 @@ export class PluginSystem {
         await commandRegistry.executeCommand(command, args);
       },
     );
+
+    this.ipcHandle('podman-desktop:update', async (): Promise<void> => {
+      await commandRegistry.executeCommand('update');
+    });
+
+    this.ipcHandle('podman-desktop:update-available', async (): Promise<boolean> => {
+      return podmanDesktopUpdater.updateAvailable();
+    });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
