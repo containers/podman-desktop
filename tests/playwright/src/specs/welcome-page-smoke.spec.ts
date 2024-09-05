@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { RunnerOptions } from '../runner/runner-options';
 import { expect as playExpect, test } from '../utility/fixtures';
 
-test.use({ customFolder: 'welcome-podman-desktop' });
+test.use({ runnerOptions: new RunnerOptions({ customFolder: 'welcome-podman-desktop' }) });
 test.beforeAll(async ({ runner }) => {
   runner.setVideoAndTraceName('welcome-page-e2e');
 });

@@ -24,6 +24,7 @@ import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
 import { waitWhile } from '../utility/wait';
+import { RunnerOptions } from './runner-options';
 
 type WindowState = {
   isVisible: boolean;
@@ -40,49 +41,33 @@ export class Runner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _customSettingsObject: { [key: string]: unknown } = {};
+  private _runnerOptions: RunnerOptions;
 
   private static _instance: Runner | undefined;
 
   static async getInstance({
-    profile = '',
-    customFolder = 'podman-desktop',
-    customSettingsObject = {
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoUpdate': true,
-      'extensions.autoCheckUpdates': true,
-    },
+    runnerOptions = new RunnerOptions(),
   }: {
-    profile?: string;
-    customFolder?: string;
-    customSettingsObject?: { [key: string]: unknown };
+    runnerOptions?: RunnerOptions;
   } = {}): Promise<Runner> {
     if (!Runner._instance) {
-      Runner._instance = new Runner({ profile, customFolder, customSettingsObject });
+      Runner._instance = new Runner({ runnerOptions });
       await Runner._instance.start();
     }
     return Runner._instance;
   }
 
   private constructor({
-    profile = '',
-    customFolder = 'podman-desktop',
-    customSettingsObject = {
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoUpdate': true,
-      'extensions.autoCheckUpdates': true,
-    },
+    runnerOptions = new RunnerOptions(),
   }: {
-    profile?: string;
-    customFolder?: string;
-    customSettingsObject?: { [key: string]: unknown };
+    runnerOptions?: RunnerOptions;
   } = {}) {
     this._running = false;
-    this._profile = profile;
+    this._runnerOptions = runnerOptions;
+    this._profile = this._runnerOptions._profile;
     this._testOutput = join('tests', 'playwright', 'output', this._profile);
-    this._customFolder = join(this._testOutput, customFolder);
+    this._customFolder = join(this._testOutput, this._runnerOptions._customFolder);
     this._videoAndTraceName = undefined;
-    this._customSettingsObject = customSettingsObject;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -345,7 +330,7 @@ export class Runner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = JSON.stringify(this._customSettingsObject);
+    const settingsContent = this._runnerOptions.createSettingsJson();
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
