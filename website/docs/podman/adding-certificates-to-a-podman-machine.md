@@ -48,12 +48,6 @@ $ podman machine ssh
 
 - Use any editor, such as Notepad or Vim to create a certificate file with .crt, .cer, or .pem extension.
 
-:::note
-
-You can convert a certificate file to a text file and copy its content.
-
-:::
-
 5. Add the certificate to the list of trusted certificates:
 
 ```sh
