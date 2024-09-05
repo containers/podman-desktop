@@ -40,8 +40,6 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _autoUpdate: boolean;
-  private _autoCheckUpdate: boolean;
   private _customSettingsObject: { [key: string]: unknown } = {};
 
   private static _instance: PodmanDesktopRunner | undefined;
@@ -49,16 +47,18 @@ export class PodmanDesktopRunner {
   static async getInstance({
     profile = '',
     customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
+    customSettingsObject = {
+      'preferences.OpenDevTools': 'none',
+      'extensions.autoUpdate': true,
+      'extensions.autoCheckUpdates': true,
+    },
   }: {
     profile?: string;
     customFolder?: string;
-    autoUpdate?: boolean;
-    autoCheckUpdate?: boolean;
+    customSettingsObject?: { [key: string]: unknown };
   } = {}): Promise<PodmanDesktopRunner> {
     if (!PodmanDesktopRunner._instance) {
-      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, autoUpdate, autoCheckUpdate });
+      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, customSettingsObject });
       await PodmanDesktopRunner._instance.start();
     }
     return PodmanDesktopRunner._instance;
@@ -67,16 +67,14 @@ export class PodmanDesktopRunner {
   private constructor({
     profile = '',
     customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
     customSettingsObject = {
       'preferences.OpenDevTools': 'none',
+      'extensions.autoUpdate': true,
+      'extensions.autoCheckUpdates': true,
     },
   }: {
     profile?: string;
     customFolder?: string;
-    autoUpdate?: boolean;
-    autoCheckUpdate?: boolean;
     customSettingsObject?: { [key: string]: unknown };
   } = {}) {
     this._running = false;
@@ -84,11 +82,7 @@ export class PodmanDesktopRunner {
     this._testOutput = join('tests', 'playwright', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
-    this._autoUpdate = autoUpdate;
-    this._customSettingsObject['extensions.autoUpdate'] = this._autoUpdate;
-    this._autoCheckUpdate = autoCheckUpdate;
-    this._customSettingsObject['extensions.autoCheckUpdates'] = this._autoCheckUpdate;
-    if (customSettingsObject) this._customSettingsObject = customSettingsObject;
+    this._customSettingsObject = customSettingsObject;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
