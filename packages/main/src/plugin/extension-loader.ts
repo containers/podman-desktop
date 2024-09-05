@@ -25,7 +25,10 @@ import AdmZip from 'adm-zip';
 import { app, clipboard as electronClipboard } from 'electron';
 
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
-import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type {
+  KubeGeneratorRegistry,
+  KubernetesGeneratorProvider,
+} from '/@/plugin/kubernetes/kube-generator-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
@@ -56,7 +59,7 @@ import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
-import type { KubernetesClient } from './kubernetes-client.js';
+import type { KubernetesClient } from './kubernetes/kubernetes-client.js';
 import type { MessageBox } from './message-box.js';
 import { ModuleLoader } from './module-loader.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';

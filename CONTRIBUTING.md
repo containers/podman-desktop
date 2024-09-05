@@ -150,15 +150,43 @@ Check the npm script tasks in our `package.json` for more options.
 
 ### Step 5. Run E2E tests
 
-In case of adding new feature, it is always suitable to make sure we do not bring any new regression. For this purpose we are using the E2E tests. They can be run using `pnpm`:
+In case of adding new feature, it is always suitable to make sure we do not bring any new regression. For this purpose we are using the E2E tests. They can be built and run using `pnpm` with a variety of options:
+
+- For all the tests:
+
+```sh
+pnpm test:e2e
+```
+
+- For the smoke tests:
 
 ```sh
 pnpm test:e2e:smoke
 ```
 
-Although, there are requirements that need to be fulfilled before running the tests in order to make them pass:
+- For the extension tests:
 
-- remove `settings.json` from `~/.local/share/containers/podman-desktop/configuration/` or if you do not want to lose your settings, remove the objects from the file with keys `"welcome.version"` and `"telemetry.*"`
+```sh
+pnpm test:e2e:extension
+```
+
+You can find more specific options on the [package.json](https://github.com/containers/podman-desktop/blob/main/package.json) file, under 'scripts'.
+
+However, there are some things that you have to take into account:
+
+- In order to make the tests pass you have to either:
+  - Remove `settings.json` from `~/.local/share/containers/podman-desktop/configuration/` or,
+  - Remove the objects with keys `"welcome.version"` and `"telemetry.*"` from the file, if you do not want to lose your settings
+- Some of the tests can only be executed in certain operating systems. If your execution is skipping a test, this is very likely the reason why.
+- If you want to execute the tests outside of the repository, you can find a setup guide in this [README](https://github.com/containers/podman-desktop/tree/main/tests/playwright#podman-desktop-playwright-tests).
+
+Finally, after executing the E2E tests, you can check the results in your browser with:
+
+```sh
+pnpm exec playwright show-report tests/playwright/output/html-results
+```
+
+In case of an error, you can find more information that can help you debug in the `podman-desktop/tests/playwright/output` folder. You have the video repetitions on `videos`, captures of the application failing the test on `screenshots`, and the traces of the execution on `traces`. The latter ones can be opened with `npx playwright show-trace <path/to/trace/zip`.
 
 ### Step 6. Code coverage
 

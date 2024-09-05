@@ -23,7 +23,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vi
 
 import type { KubeContext } from '/@api/kubernetes-context.js';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '../api.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager, ContextsStates } from './kubernetes-context-state.js';
 

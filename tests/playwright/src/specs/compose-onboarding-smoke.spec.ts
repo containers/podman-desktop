@@ -17,7 +17,6 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
 
 import { CLIToolsPage } from '../model/pages/cli-tools-page';
 import { ComposeLocalInstallPage } from '../model/pages/compose-onboarding/compose-local-install-page';
@@ -27,43 +26,34 @@ import { ComposeWideInstallPage } from '../model/pages/compose-onboarding/compos
 import { ResourceCliCardPage } from '../model/pages/resource-cli-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { NavigationBar } from '../model/workbench/navigation';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { isCI, isLinux } from '../utility/platform';
 
 const RESOURCE_NAME: string = 'Compose';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 let composeVersion: string;
 // property that will make sure that on linux we can run only partial tests, by default this is turned off
 const composePartialInstallation = process.env.COMPOSE_PARTIAL_INSTALL ? process.env.COMPOSE_PARTIAL_INSTALL : false;
 
 test.skip(!!isCI && isLinux, 'Tests suite should not run on Linux platform');
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('compose-onboarding-e2e');
-
-  const welcomePage = new WelcomePage(page);
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('compose-onboarding-e2e');
   await welcomePage.handleWelcomePage(true);
-  navBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Compose onboarding workflow verification @smoke', () => {
-  test.afterEach(async () => {
-    await navBar.openDashboard();
+  test.afterEach(async ({ navigationBar }) => {
+    await navigationBar.openDashboard();
   });
 
-  test('Compose onboarding button Setup is available', async () => {
-    await navBar.openSettings();
+  test('Compose onboarding button Setup is available', async ({ page, navigationBar }) => {
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
 
@@ -77,8 +67,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     ).toBeVisible({ timeout: 10000 });
   });
 
-  test('Can enter Compose onboarding', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+  test('Can enter Compose onboarding', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
 
     await playExpect(onboardingPage.heading).toBeVisible();
 
@@ -89,8 +79,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     composeVersion = await onboardingVersionPage.getVersion();
   });
 
-  test('Can install Compose locally', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+  test('Can install Compose locally', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardigLocalPage = new ComposeLocalInstallPage(page);
@@ -105,8 +95,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await skipOkButton.click();
   });
 
-  test('Can resume Compose onboarding and it can be canceled', async () => {
-    await openComposeOnboarding(page);
+  test('Can resume Compose onboarding and it can be canceled', async ({ page, navigationBar }) => {
+    await openComposeOnboarding(page, navigationBar);
     const onboardingLocalPage = new ComposeLocalInstallPage(page);
 
     await playExpect(onboardingLocalPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
@@ -119,10 +109,10 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await skipOkButton.click();
   });
 
-  test('Can install Compose system-wide', async () => {
+  test('Can install Compose system-wide', async ({ page, navigationBar }) => {
     test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
 
-    const onboardingPage = await openComposeOnboarding(page);
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardingWidePage = new ComposeWideInstallPage(page);
@@ -136,10 +126,10 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
     await playExpect(resourcesPage.heading).toBeVisible();
   });
 
-  test('Verify Compose was installed', async () => {
+  test('Verify Compose was installed', async ({ page, navigationBar }) => {
     test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
 
-    await navBar.openSettings();
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
     await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
@@ -154,8 +144,8 @@ test.describe.serial('Compose onboarding workflow verification @smoke', () => {
   });
 });
 
-async function openComposeOnboarding(page: Page): Promise<ComposeOnboardingPage> {
-  await navBar.openSettings();
+async function openComposeOnboarding(page: Page, navigationBar: NavigationBar): Promise<ComposeOnboardingPage> {
+  await navigationBar.openSettings();
   const settingsBar = new SettingsBar(page);
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible();

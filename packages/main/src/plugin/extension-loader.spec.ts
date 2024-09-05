@@ -27,7 +27,7 @@ import { app } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
-import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { KubeGeneratorRegistry } from '/@/plugin/kubernetes/kube-generator-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
@@ -54,7 +54,7 @@ import type { ImageCheckerImpl } from './image-checker.js';
 import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import type { KubernetesClient } from './kubernetes-client.js';
+import type { KubernetesClient } from './kubernetes/kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
 import type { MessageBox } from './message-box.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';

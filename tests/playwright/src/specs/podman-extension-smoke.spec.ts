@@ -16,15 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, test } from '@playwright/test';
-import type { Page } from 'playwright';
-
 import type { DashboardPage } from '../model/pages/dashboard-page';
 import type { ExtensionDetailsPage } from '../model/pages/extension-details-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
-import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 
 const extensionLabel = 'podman-desktop.podman';
 const extensionLabelName = 'podman';
@@ -33,25 +29,19 @@ const PODMAN_EXTENSION_STATUS_ACTIVE: string = 'ACTIVE';
 const PODMAN_EXTENSION_STATUS_DISABLED: string = 'DISABLED';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
 let dashboardPage: DashboardPage;
 let settingsBar: SettingsBar;
 let navigationBar: NavigationBar;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('podman-extensions-e2e');
-
-  const welcomePage = new WelcomePage(page);
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('podman-extensions-e2e');
   await welcomePage.handleWelcomePage(true);
   navigationBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ runner }) => {
   test.setTimeout(120000);
-  await pdRunner.close();
+  await runner.close();
 });
 
 test.describe.serial('Verification of Podman extension @smoke', () => {

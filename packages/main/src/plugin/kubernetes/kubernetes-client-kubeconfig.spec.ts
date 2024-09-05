@@ -19,11 +19,11 @@
 import type { Cluster, Context, KubeConfig, User } from '@kubernetes/client-node';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from './api.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
-import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { ApiSenderType } from '../api.js';
+import type { ConfigurationRegistry } from '../configuration-registry.js';
+import { FilesystemMonitoring } from '../filesystem-monitoring.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
 import { KubernetesClient } from './kubernetes-client.js';
-import type { Telemetry } from './telemetry/telemetry.js';
 
 // WARNING: Do not import anything from kubernetes-client.spec.ts
 // or it will execute the modules mocks from there, incompatibles with tests in this file

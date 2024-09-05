@@ -43,15 +43,15 @@ import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
 import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
-import { ResizableTerminalWriter } from '/@/plugin/kubernetes-exec-transmitter.js';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
-import type { ApiSenderType } from './api.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
-import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { ApiSenderType } from '../api.js';
+import type { ConfigurationRegistry } from '../configuration-registry.js';
+import { FilesystemMonitoring } from '../filesystem-monitoring.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
 import type { PodCreationSource, ScalableControllerType } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
+import { ResizableTerminalWriter } from './kubernetes-exec-transmitter.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
