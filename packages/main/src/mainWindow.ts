@@ -19,7 +19,7 @@
 import { join } from 'node:path';
 import { URL } from 'node:url';
 
-import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
+import type { BrowserWindowConstructorOptions, MenuItemConstructorOptions, Rectangle } from 'electron';
 import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util/main';
@@ -255,6 +255,82 @@ async function createWindow(): Promise<BrowserWindow> {
           const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
           return { ...i, submenu: newSubMenu };
         }
+
+        if (i.role?.toLocaleLowerCase() === 'viewmenu' && i.submenu) {
+          // replace the Zoom In item by a new custom item
+          const newZoomInMenuItem: MenuItemConstructorOptions = {
+            label: 'Zoom In',
+            accelerator: 'CommandOrControl+Plus',
+            click: () => {
+              console.log('Pressing CommandOrControl+Plus zoom in');
+              browserWindow.webContents.zoomLevel += 0.5;
+            },
+          };
+          // hidden entry to register a shortcut
+          const newZoomInMenuItemAlt: MenuItemConstructorOptions = {
+            label: 'Zoom In alt',
+            visible: false,
+            accelerator: 'CommandOrControl+numadd',
+            click: () => {
+              console.log('Pressing CommandOrControl+numadd zoom in');
+              browserWindow.webContents.zoomLevel += 0.5;
+            },
+          };
+
+          // replace the Zoom Out item by a new custom item
+          const newZoomOutMenuItem: MenuItemConstructorOptions = {
+            label: 'Zoom Out',
+            accelerator: 'CommandOrControl+-',
+            click: () => {
+              console.log('Pressing CommandOrControl+- zoom out');
+              browserWindow.webContents.zoomLevel -= 0.5;
+            },
+          };
+          // hidden entry to register a shortcut
+          const newZoomOutMenuItemAlt: MenuItemConstructorOptions = {
+            label: 'Zoom Out alt',
+            visible: false,
+            accelerator: 'CommandOrControl+numsub',
+            click: () => {
+              console.log('Pressing CommandOrControl+numsub zoom out');
+
+              browserWindow.webContents.zoomLevel -= 0.5;
+            },
+          };
+
+          // replace the Actual item by a new custom item
+          const newZoomResetMenuItem: MenuItemConstructorOptions = {
+            label: 'Actual Sizezz',
+            accelerator: 'CommandOrControl+0',
+            click: () => {
+              console.log('Reset zoom size using CommandOrControl+0');
+              browserWindow.webContents.zoomLevel = 0;
+            },
+          };
+
+          const items = Menu.buildFromTemplate([newZoomInMenuItemAlt, newZoomOutMenuItemAlt]);
+          for (const item of items.items) {
+            i.submenu.items.push(item);
+          }
+
+          // replace the "Zoom In" item stored inside the submenu by this one
+          const newSubMenu = Menu.buildFromTemplate(
+            i.submenu.items.map(item => {
+              if (item.label === 'Zoom In') {
+                return newZoomInMenuItem;
+              } else if (item.label === 'Zoom Out') {
+                return newZoomOutMenuItem;
+              } else if (item.label === 'Actual Size') {
+                return newZoomResetMenuItem;
+              } else {
+                return item;
+              }
+            }),
+          );
+
+          return { ...i, submenu: newSubMenu };
+        }
+
         return i;
       }),
     );
