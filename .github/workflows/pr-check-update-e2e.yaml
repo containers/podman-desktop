@@ -20,6 +20,7 @@ name: pr-check-update-e2e
 on: 
   pull_request:
     paths:
+      - '**'
       - 'pnpm-lock.yaml'
     types: [labeled, synchronize, opened, reopened]
 

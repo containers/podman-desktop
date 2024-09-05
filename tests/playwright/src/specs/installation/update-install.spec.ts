@@ -28,8 +28,8 @@ let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
 const performUpdate = process.env.UPDATE_PODMAN_DESKTOP ? process.env.UPDATE_PODMAN_DESKTOP : false;
 
-test.beforeAll(async ({ pdRunner, page, statusBar }) => {
-  pdRunner.setVideoAndTraceName('update-e2e');
+test.beforeAll(async ({ runner, page, statusBar }) => {
+  runner.setVideoAndTraceName('update-e2e');
 
   sBar = statusBar;
   updateAvailableDialog = page.getByRole('dialog', { name: 'Update Available now' });
@@ -37,8 +37,8 @@ test.beforeAll(async ({ pdRunner, page, statusBar }) => {
   updateDownloadedDialog = page.getByRole('dialog', { name: 'Update Downloaded', exact: true });
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Podman Desktop Update Update installation offering', () => {
