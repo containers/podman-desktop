@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { KubernetesResource } from '../model/core/states';
+import { KubernetesResourceState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { createKindCluster, deleteKindCluster, ensureKindCliInstalled } from '../utility/operations';
@@ -56,6 +56,8 @@ test.describe('Kubernetes resources End-to-End test', () => {
     await playExpect.poll(async () => node).toBeTruthy();
 
     const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE);
-    await playExpect.poll(async () => nodeDetails.getState(), { timeout: 25000 }).toEqual(KubernetesResource.Running);
+    await playExpect
+      .poll(async () => nodeDetails.getState(), { timeout: 25000 })
+      .toEqual(KubernetesResourceState.Running);
   });
 });

@@ -18,7 +18,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 
-import { KubernetesResource } from '../core/states';
+import { KubernetesResourceState } from '../core/states';
 import { DetailsPage } from './details-page';
 
 export class KubernetesResourceDetailsPage extends DetailsPage {
@@ -37,10 +37,10 @@ export class KubernetesResourceDetailsPage extends DetailsPage {
 
   async getState(): Promise<string> {
     const currentState = await this.header.getByRole('status').getAttribute('title');
-    for (const state of Object.values(KubernetesResource)) {
+    for (const state of Object.values(KubernetesResourceState)) {
       if (currentState === state) return state;
     }
 
-    return KubernetesResource.Unknown;
+    return KubernetesResourceState.Unknown;
   }
 }
