@@ -42,8 +42,8 @@ let notificationPodmanSetup: Locator;
 
 test.skip(os.platform() === 'linux', 'Tests suite should not run on Linux platform');
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('podman-machine-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('podman-machine-e2e');
 
   await welcomePage.handleWelcomePage(true);
 
@@ -56,9 +56,9 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   }
 });
 
-test.afterAll(async ({ pdRunner }) => {
+test.afterAll(async ({ runner }) => {
   test.setTimeout(120000);
-  await pdRunner.close();
+  await runner.close();
 });
 
 test.describe.serial('Podman Machine verification', () => {

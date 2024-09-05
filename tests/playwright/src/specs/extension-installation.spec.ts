@@ -26,7 +26,7 @@ import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { Runner } from '../runner/podman-desktop-runner';
 
 const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
@@ -37,7 +37,7 @@ const OPENSHIFT_LOCAL = 'Red Hat Openshift Local';
 const OPENSHIFT_SANDBOX = 'Red Hat OpenShift Sandbox';
 const OPENSHIFT_CHECKER = 'Red Hat Openshift Checker';
 
-let pdRunner: PodmanDesktopRunner;
+let pdRunner: Runner;
 let page: Page;
 
 let extensionDashboardStatus: Locator | undefined;
@@ -50,8 +50,8 @@ let ociImageUrl: string;
 let navigationBar: NavigationBar;
 
 async function _startup(extensionName: string): Promise<void> {
-  pdRunner = await PodmanDesktopRunner.getInstance();
-  page = await pdRunner.start();
+  pdRunner = await Runner.getInstance();
+  page = pdRunner.getPage();
   pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
 
   const welcomePage = new WelcomePage(page);

@@ -33,15 +33,15 @@ let dashboardPage: DashboardPage;
 let settingsBar: SettingsBar;
 let navigationBar: NavigationBar;
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('podman-extensions-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('podman-extensions-e2e');
   await welcomePage.handleWelcomePage(true);
   navigationBar = new NavigationBar(page);
 });
 
-test.afterAll(async ({ pdRunner }) => {
+test.afterAll(async ({ runner }) => {
   test.setTimeout(120000);
-  await pdRunner.close();
+  await runner.close();
 });
 
 test.describe.serial('Verification of Podman extension @smoke', () => {

@@ -21,38 +21,28 @@ import { test as base } from '@playwright/test';
 
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { Runner } from '../runner/podman-desktop-runner';
+import { RunnerOptions } from '../runner/runner-options';
 
 export type TestFixtures = {
-  pdRunner: PodmanDesktopRunner;
+  runner: Runner;
   navigationBar: NavigationBar;
   welcomePage: WelcomePage;
   page: Page;
 };
 
-export type RunnerOptions = {
-  profile: string;
-  customFolder: string;
-  customSettingsObject: { [key: string]: unknown };
+export type FixtureOptions = {
+  runnerOptions: RunnerOptions;
 };
 
-export const test = base.extend<TestFixtures & RunnerOptions>({
-  profile: ['', { option: true }],
-  customFolder: ['podman-desktop', { option: true }],
-  customSettingsObject: [
-    {
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoUpdate': true,
-      'extensions.autoCheckUpdates': true,
-    },
-    { option: true },
-  ],
-  pdRunner: async ({ profile, customFolder, customSettingsObject }, use) => {
-    const pdRunner = await PodmanDesktopRunner.getInstance({ profile, customFolder, customSettingsObject });
-    await use(pdRunner);
+export const test = base.extend<TestFixtures & FixtureOptions>({
+  runnerOptions: [new RunnerOptions(), { option: true }],
+  runner: async ({ runnerOptions }, use) => {
+    const runner = await Runner.getInstance({ runnerOptions });
+    await use(runner);
   },
-  page: async ({ pdRunner }, use) => {
-    await use(pdRunner.getPage());
+  page: async ({ runner }, use) => {
+    await use(runner.getPage());
   },
   navigationBar: async ({ page }, use) => {
     const navigationBar = new NavigationBar(page);
