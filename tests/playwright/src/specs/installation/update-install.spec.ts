@@ -16,39 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 
-import { WelcomePage } from '../../model/pages/welcome-page';
-import { StatusBar } from '../../model/workbench/status-bar';
-import { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
+import type { StatusBar } from '../../model/workbench/status-bar';
+import { expect as playExpect, test } from '../../utility/fixtures';
 import { handleConfirmationDialog } from '../../utility/operations';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let statusBar: StatusBar;
+let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
 const performUpdate = process.env.UPDATE_PODMAN_DESKTOP ? process.env.UPDATE_PODMAN_DESKTOP : false;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, page, statusBar }) => {
   pdRunner.setVideoAndTraceName('update-e2e');
 
-  statusBar = new StatusBar(page);
+  sBar = statusBar;
   updateAvailableDialog = page.getByRole('dialog', { name: 'Update Available now' });
   updateDialog = page.getByRole('dialog', { name: 'Update', exact: true });
   updateDownloadedDialog = page.getByRole('dialog', { name: 'Update Downloaded', exact: true });
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe.serial('Podman Desktop Update Update installation offering', () => {
-  test('Update is offered automatically on startup', async () => {
+  test('Update is offered automatically on startup', async ({ welcomePage }) => {
     await playExpect(updateAvailableDialog).toBeVisible();
     const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
     await playExpect(updateNowButton).toBeVisible();
@@ -59,25 +53,24 @@ test.describe.serial('Podman Desktop Update Update installation offering', () =>
     await cancelButton.click();
     await playExpect(updateAvailableDialog).not.toBeVisible();
     // handle welcome page now
-    const welcomePage = new WelcomePage(page);
     await welcomePage.handleWelcomePage(true);
   });
 
   test('Version button is visible', async () => {
-    await playExpect(statusBar.content).toBeVisible();
-    await playExpect(statusBar.versionButton).toBeVisible();
+    await playExpect(sBar.content).toBeVisible();
+    await playExpect(sBar.versionButton).toBeVisible();
   });
 
-  test('User initiated update option is available', async () => {
-    await playExpect(statusBar.updateButtonTitle).toHaveText(await statusBar.versionButton.innerText());
-    await statusBar.updateButtonTitle.click();
+  test('User initiated update option is available', async ({ page }) => {
+    await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
+    await sBar.updateButtonTitle.click();
     await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
   });
 });
 test.describe.serial('Podman Desktop Update installation can be performed', () => {
   test.skip(!performUpdate, 'Update test does not run as UPDATE_PODMAN_DESKTOP env. var. is not set');
   test('Update can be initiated', async () => {
-    await statusBar.updateButtonTitle.click();
+    await sBar.updateButtonTitle.click();
     await playExpect(updateAvailableDialog).toBeVisible();
     const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update now' });
     await playExpect(updateNowButton).toBeVisible();
@@ -85,13 +78,13 @@ test.describe.serial('Podman Desktop Update installation can be performed', () =
     await playExpect(updateAvailableDialog).not.toBeVisible();
   });
 
-  test('Update is in progress', async () => {
-    await statusBar.updateButtonTitle.click();
+  test('Update is in progress', async ({ page }) => {
+    await sBar.updateButtonTitle.click();
     await playExpect(updateDialog).toBeVisible();
     await handleConfirmationDialog(page, 'Update', true, 'OK', 'Cancel');
   });
 
-  test('Update is performed and restart offered', async () => {
+  test('Update is performed and restart offered', async ({ page }) => {
     test.setTimeout(150000);
     // now it takes some time to perform, in case of failure, PD gets closed
     await playExpect(updateDownloadedDialog).toBeVisible({ timeout: 120000 });
