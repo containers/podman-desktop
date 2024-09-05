@@ -31,7 +31,7 @@ type WindowState = {
   isCrashed: boolean;
 };
 
-export class PodmanDesktopRunner {
+export class Runner {
   private _options: object;
   private _running: boolean;
   private _app: ElectronApplication | undefined;
@@ -42,7 +42,7 @@ export class PodmanDesktopRunner {
   private _videoAndTraceName: string | undefined;
   private _customSettingsObject: { [key: string]: unknown } = {};
 
-  private static _instance: PodmanDesktopRunner | undefined;
+  private static _instance: Runner | undefined;
 
   static async getInstance({
     profile = '',
@@ -56,12 +56,12 @@ export class PodmanDesktopRunner {
     profile?: string;
     customFolder?: string;
     customSettingsObject?: { [key: string]: unknown };
-  } = {}): Promise<PodmanDesktopRunner> {
-    if (!PodmanDesktopRunner._instance) {
-      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, customSettingsObject });
-      await PodmanDesktopRunner._instance.start();
+  } = {}): Promise<Runner> {
+    if (!Runner._instance) {
+      Runner._instance = new Runner({ profile, customFolder, customSettingsObject });
+      await Runner._instance.start();
     }
-    return PodmanDesktopRunner._instance;
+    return Runner._instance;
   }
 
   private constructor({
@@ -243,7 +243,7 @@ export class PodmanDesktopRunner {
       }
     }
     this._running = false;
-    PodmanDesktopRunner._instance = undefined;
+    Runner._instance = undefined;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);

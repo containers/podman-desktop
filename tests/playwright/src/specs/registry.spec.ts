@@ -25,8 +25,8 @@ let registryUsername: string;
 let registryPswdSecret: string;
 let registryName: string;
 
-test.beforeAll(async ({ pdRunner, welcomePage }) => {
-  pdRunner.setVideoAndTraceName('registry-e2e');
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('registry-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
   registryName = 'GitHub';
@@ -34,8 +34,8 @@ test.beforeAll(async ({ pdRunner, welcomePage }) => {
   await welcomePage.handleWelcomePage(true);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Registries handling verification', () => {

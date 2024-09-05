@@ -44,8 +44,8 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.beforeAll(async ({ pdRunner, welcomePage, page, navigationBar }) => {
-  pdRunner.setVideoAndTraceName('pods-e2e');
+test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
+  runner.setVideoAndTraceName('pods-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
@@ -59,7 +59,7 @@ test.beforeAll(async ({ pdRunner, welcomePage, page, navigationBar }) => {
   await deleteContainer(page, frontendContainer);
 });
 
-test.afterAll(async ({ page, pdRunner }) => {
+test.afterAll(async ({ page, runner }) => {
   test.setTimeout(120000);
 
   try {
@@ -76,7 +76,7 @@ test.afterAll(async ({ page, pdRunner }) => {
     await deleteImage(page, backendImage);
     await deleteImage(page, frontendImage);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 

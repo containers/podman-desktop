@@ -28,8 +28,8 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('podman-machine-dashboard');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('podman-machine-dashboard');
   await welcomePage.handleWelcomePage(true);
 
   if (
@@ -40,8 +40,8 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   }
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial(`Podman machine onboarding from Dashboard`, () => {

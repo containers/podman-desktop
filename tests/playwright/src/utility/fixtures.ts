@@ -21,10 +21,10 @@ import { test as base } from '@playwright/test';
 
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { Runner } from '../runner/podman-desktop-runner';
 
 export type TestFixtures = {
-  pdRunner: PodmanDesktopRunner;
+  runner: Runner;
   navigationBar: NavigationBar;
   welcomePage: WelcomePage;
   page: Page;
@@ -47,12 +47,12 @@ export const test = base.extend<TestFixtures & RunnerOptions>({
     },
     { option: true },
   ],
-  pdRunner: async ({ profile, customFolder, customSettingsObject }, use) => {
-    const pdRunner = await PodmanDesktopRunner.getInstance({ profile, customFolder, customSettingsObject });
+  runner: async ({ profile, customFolder, customSettingsObject }, use) => {
+    const pdRunner = await Runner.getInstance({ profile, customFolder, customSettingsObject });
     await use(pdRunner);
   },
-  page: async ({ pdRunner }, use) => {
-    await use(pdRunner.getPage());
+  page: async ({ runner }, use) => {
+    await use(runner.getPage());
   },
   navigationBar: async ({ page }, use) => {
     const navigationBar = new NavigationBar(page);

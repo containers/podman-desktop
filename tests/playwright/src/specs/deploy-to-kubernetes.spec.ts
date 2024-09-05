@@ -42,9 +42,9 @@ const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: fal
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
+test.beforeAll(async ({ runner, welcomePage, page }) => {
   test.setTimeout(250000);
-  pdRunner.setVideoAndTraceName('kind-e2e');
+  runner.setVideoAndTraceName('kind-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
@@ -54,14 +54,14 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
 
-test.afterAll(async ({ pdRunner, page }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
     await deleteKindCluster(page, KIND_CONTAINER_NAME);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 

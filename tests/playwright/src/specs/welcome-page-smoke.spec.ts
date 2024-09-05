@@ -19,12 +19,12 @@
 import { expect as playExpect, test } from '../utility/fixtures';
 
 test.use({ customFolder: 'welcome-podman-desktop' });
-test.beforeAll(async ({ pdRunner }) => {
-  pdRunner.setVideoAndTraceName('welcome-page-e2e');
+test.beforeAll(async ({ runner }) => {
+  runner.setVideoAndTraceName('welcome-page-e2e');
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe('Basic e2e verification of podman desktop start @smoke', () => {

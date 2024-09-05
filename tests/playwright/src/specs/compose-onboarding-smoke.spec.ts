@@ -38,13 +38,13 @@ const composePartialInstallation = process.env.COMPOSE_PARTIAL_INSTALL ? process
 
 test.skip(!!isCI && isLinux, 'Tests suite should not run on Linux platform');
 
-test.beforeAll(async ({ pdRunner, welcomePage }) => {
-  pdRunner.setVideoAndTraceName('compose-onboarding-e2e');
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('compose-onboarding-e2e');
   await welcomePage.handleWelcomePage(true);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Compose onboarding workflow verification @smoke', () => {

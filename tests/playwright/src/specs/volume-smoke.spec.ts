@@ -26,15 +26,15 @@ const imageTag = 'latest';
 const containerToRun = 'bootc-image-builder';
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('volume-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('volume-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 const volumeName = 'e2eVolume';
