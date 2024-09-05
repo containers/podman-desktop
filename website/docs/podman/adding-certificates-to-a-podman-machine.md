@@ -54,7 +54,7 @@ $ podman machine ssh
 
   :::
 
-1. Add the certificate to the list of trusted certificates:
+5. Add the certificate to the list of trusted certificates:
 
 ```sh
 # update-ca-trust
