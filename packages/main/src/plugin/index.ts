@@ -50,8 +50,8 @@ import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorSelector,
-} from '/@/plugin/kube-generator-registry.js';
-import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+} from '/@/plugin/kubernetes/kube-generator-registry.js';
+import { KubeGeneratorRegistry } from '/@/plugin/kubernetes/kube-generator-registry.js';
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
@@ -147,8 +147,8 @@ import { ImageFilesRegistry } from './image-files-registry.js';
 import { ImageRegistry } from './image-registry.js';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { ExtensionInstaller } from './install/extension-installer.js';
-import { KubernetesClient } from './kubernetes-client.js';
-import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { KubernetesClient } from './kubernetes/kubernetes-client.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes/kubernetes-context-state.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';

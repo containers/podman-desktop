@@ -54,7 +54,7 @@ import {
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
-import type { ApiSenderType } from './api.js';
+import type { ApiSenderType } from '../api.js';
 import {
   backoffInitialValue,
   backoffJitter,
