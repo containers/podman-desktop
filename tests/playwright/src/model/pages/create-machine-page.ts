@@ -19,6 +19,8 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { delay } from '/@/utility/wait';
+
 import { BasePage } from './base-page';
 import { MachineCreationForm } from './forms/machine-creation-form';
 import { ResourcesPage } from './resources-page';
@@ -51,6 +53,7 @@ export class CreateMachinePage extends BasePage {
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
+    await delay(5000);
     await this.handleConnectionDialog(machineName, setAsDefault);
 
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
