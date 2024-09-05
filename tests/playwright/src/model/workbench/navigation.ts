@@ -51,7 +51,7 @@ export class NavigationBar {
     this.dashboardLink = this.page.getByRole('link', { name: 'Dashboard' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
     this.extensionsLink = this.navigationLocator.getByRole('link', { name: 'Extensions', exact: true });
-    this.kubernetesButton = this.page.getByRole('button', { name: 'Kubernetes' });
+    this.kubernetesButton = this.page.getByRole('button', { name: 'Open Kubernetes Resources Block' });
     this.kubernetesResources = this.page.getByRole('region', { name: 'Kubernetes Resources' });
   }
 
