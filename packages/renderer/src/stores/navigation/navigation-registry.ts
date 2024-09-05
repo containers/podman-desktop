@@ -23,6 +23,12 @@ import type { IconSize } from 'svelte-fa';
 import { EventStore } from '/@/stores/event-store';
 
 import { configurationProperties } from '../configurationProperties';
+import { createNavigationKubernetesConfigMapSecretsEntry } from './kubernetes/navigation-registry-k8s-configmap-secrets.svelte';
+import { createNavigationKubernetesDeploymentsEntry } from './kubernetes/navigation-registry-k8s-deployments.svelte';
+import { createNavigationKubernetesIngressesRoutesEntry } from './kubernetes/navigation-registry-k8s-ingresses-routes.svelte';
+import { createNavigationKubernetesNodesEntry } from './kubernetes/navigation-registry-k8s-nodes.svelte';
+import { createNavigationKubernetesPersistentVolumeEntry } from './kubernetes/navigation-registry-k8s-persistent-volume.svelte';
+import { createNavigationKubernetesServicesEntry } from './kubernetes/navigation-registry-k8s-services.svelte';
 import { createNavigationContainerEntry } from './navigation-registry-container.svelte';
 import { createNavigationExtensionEntry, createNavigationExtensionGroup } from './navigation-registry-extension.svelte';
 import { createNavigationImageEntry } from './navigation-registry-image.svelte';
@@ -40,7 +46,7 @@ export interface NavigationRegistryEntry {
   tooltip: string;
   link: string;
   counter: number;
-  type: 'section' | 'entry' | 'group';
+  type: 'section' | 'entry' | 'group' | 'submenu';
   enabled?: boolean;
   items?: NavigationRegistryEntry[];
   hidden?: boolean;
@@ -66,6 +72,12 @@ const init = () => {
   values.push(createNavigationImageEntry());
   values.push(createNavigationVolumeEntry());
   values.push(createNavigationKubernetesGroup());
+  values.push(createNavigationKubernetesNodesEntry());
+  values.push(createNavigationKubernetesDeploymentsEntry());
+  values.push(createNavigationKubernetesServicesEntry());
+  values.push(createNavigationKubernetesIngressesRoutesEntry());
+  values.push(createNavigationKubernetesPersistentVolumeEntry());
+  values.push(createNavigationKubernetesConfigMapSecretsEntry());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationExtensionGroup());
   hideItems();

@@ -83,10 +83,12 @@ test('Test rendering of the navigation bar with empty items', async () => {
   const settings = screen.getByRole('link', { name: 'Settings' });
   expect(settings).toBeInTheDocument();
 
+  const kubernetes = screen.queryByRole('link', { name: 'Kubernetes' });
+  expect(kubernetes).toBeInTheDocument();
   const deployments = screen.queryByRole('link', { name: 'Deployments' });
-  expect(deployments).not.toBeInTheDocument();
+  expect(deployments).toBeInTheDocument();
   const services = screen.queryByRole('link', { name: 'Services' });
-  expect(services).not.toBeInTheDocument();
+  expect(services).toBeInTheDocument();
 });
 
 test('Test contributions', () => {

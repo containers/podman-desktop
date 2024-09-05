@@ -54,5 +54,5 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/nodes/my-node/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/nodes/my-node/summary');
 });
