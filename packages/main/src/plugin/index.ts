@@ -1328,12 +1328,16 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('podman-desktop:update', async (): Promise<void> => {
+    this.ipcHandle('app:update', async (): Promise<void> => {
       await commandRegistry.executeCommand('update');
     });
 
-    this.ipcHandle('podman-desktop:update-available', async (): Promise<boolean> => {
+    this.ipcHandle('app:update-available', async (): Promise<boolean> => {
       return podmanDesktopUpdater.updateAvailable();
+    });
+
+    this.ipcHandle('app:open-release-notes', async (_, version: string): Promise<void> => {
+      await podmanDesktopUpdater.openReleaseNotes(version);
     });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {

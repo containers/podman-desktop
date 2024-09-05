@@ -62,6 +62,21 @@ export class Updater {
     this.#updateCheckResult = undefined;
   }
 
+  public async openReleaseNotes(version: string): Promise<void> {
+    if (version === 'current') {
+      version = app.getVersion();
+    } else if (version === 'latest') {
+      version = this.#nextVersion ?? '';
+    }
+    const urlVersionFormat = version.split('.', 2).join('.');
+    let notesURL = `https://podman-desktop.io/blog/podman-desktop-release-${urlVersionFormat}`;
+    const response = await fetch(notesURL);
+    if (!response.ok) {
+      notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${version}`;
+    }
+    await shell.openExternal(notesURL);
+  }
+
   /**
    * Sets the default version entry in the status bar.
    */
@@ -117,7 +132,7 @@ export class Updater {
         buttons: ['View release notes'],
       });
       if (result.response === 0) {
-        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${app.getVersion()}`);
+        await this.openReleaseNotes(app.getVersion());
       }
     });
   }
@@ -172,7 +187,7 @@ export class Updater {
       if (result.response === 3) {
         this.updateConfigurationValue('never');
       } else if (result.response === 1) {
-        await shell.openExternal(`https://podman-desktop.io/blog/podman-desktop-release-${updateVersion}`);
+        await this.openReleaseNotes(updateVersion);
       } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;

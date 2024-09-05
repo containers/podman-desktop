@@ -1161,15 +1161,23 @@ export function initExposure(): void {
     'updatePodmanDesktop',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (): Promise<void> => {
-      return ipcInvoke('podman-desktop:update');
+      return ipcInvoke('app:update');
     },
   );
 
   contextBridge.exposeInMainWorld(
-    'PodmanDesktopUpdateAvailable',
+    'podmanDesktopUpdateAvailable',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (): Promise<boolean> => {
-      return ipcInvoke('podman-desktop:update-available');
+      return ipcInvoke('app:update-available');
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'podmanDesktopOpenReleaseNotes',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (version: string): Promise<boolean> => {
+      return ipcInvoke('app:open-release-notes', version);
     },
   );
 
