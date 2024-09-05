@@ -16,57 +16,46 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
-import { ResourcesPage } from '../model/pages/resources-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { KubernetesResource } from '../model/core/states';
+import { KubernetesResources } from '../model/core/types';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { createKindCluster, deleteKindCluster, ensureKindCliInstalled } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
 const CLUSTER_CREATION_TIMEOUT: number = 200000;
-const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
-
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
+const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async () => {
+test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   test.setTimeout(250000);
-
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('kind-e2e');
-  const welcomePage = new WelcomePage(page);
+
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   if (!skipKindInstallation) {
     await ensureKindCliInstalled(page);
   }
-
-  //to-do ensure kubectl is installed
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner, page }) => {
   test.setTimeout(90000);
   try {
-    await deleteKindCluster(page, KIND_CONTAINER_NAME);
+    await deleteKindCluster(page, KIND_NODE);
   } finally {
     await pdRunner.close();
   }
 });
 
-test.describe('QE coverage for Kubernetes resources', () => {
-  test('Ensure kubectl is installed', async () => {
-    const navigationBar = new NavigationBar(page);
+test.describe('Kubernetes resources End-to-End test', () => {
+  test('Kubernetes Nodes test', async ({ navigationBar }) => {
+    const nodesPage = await navigationBar.openKubernetesResources(KubernetesResources.Nodes);
+    const node = await nodesPage.getRowFromTableByName(KIND_NODE);
+    await playExpect.poll(async () => node).toBeTruthy();
 
-    const settingsPage = await navigationBar.openSettings();
-    const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
-    await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('kubectl')).toBeTruthy();
+    const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE);
+    await playExpect.poll(async () => nodeDetails.getState(), { timeout: 25000 }).toEqual(KubernetesResource.Running);
   });
 });
