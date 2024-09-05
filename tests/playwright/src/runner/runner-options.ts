@@ -54,13 +54,21 @@ export class RunnerOptions {
   public createSettingsJson(): string {
     console.log(`Binary path: ${this._binaryPath}`);
 
-    return (
-      JSON.stringify({
+    if (this._binaryPath) {
+      return JSON.stringify({
         'preferences.OpenDevTools': this._openDevTools,
         'extensions.autoUpdate': this._autoUpdate,
         'extensions.autoCheckUpdates': this._autoCheckUpdates,
         'extensions.disabled': this._extesionsDisabled,
-      }) + (this._binaryPath ? `,'podman.binary.path': ${this._binaryPath}` : '')
-    );
+        'podman.binary.path': this._binaryPath,
+      });
+    }
+
+    return JSON.stringify({
+      'preferences.OpenDevTools': this._openDevTools,
+      'extensions.autoUpdate': this._autoUpdate,
+      'extensions.autoCheckUpdates': this._autoCheckUpdates,
+      'extensions.disabled': this._extesionsDisabled,
+    });
   }
 }
