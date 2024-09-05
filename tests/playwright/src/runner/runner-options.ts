@@ -23,6 +23,7 @@ export class RunnerOptions {
   public readonly _autoUpdate: boolean;
   public readonly _autoCheckUpdates: boolean;
   public readonly _extesionsDisabled: string[];
+  public readonly _binaryPath: string | undefined;
 
   constructor({
     profile = '',
@@ -31,6 +32,7 @@ export class RunnerOptions {
     autoUpdate = true,
     autoCheckUpdates = true,
     extesionsDisabled = [],
+    binaryPath = undefined,
   }: {
     profile?: string;
     customFolder?: string;
@@ -38,6 +40,7 @@ export class RunnerOptions {
     autoUpdate?: boolean;
     autoCheckUpdates?: boolean;
     extesionsDisabled?: string[];
+    binaryPath?: string;
   } = {}) {
     this._profile = profile;
     this._customFolder = customFolder;
@@ -45,14 +48,19 @@ export class RunnerOptions {
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdates = autoCheckUpdates;
     this._extesionsDisabled = extesionsDisabled;
+    this._binaryPath = binaryPath;
   }
 
   public createSettingsJson(): string {
-    return JSON.stringify({
-      'preferences.OpenDevTools': this._openDevTools,
-      'extensions.autoUpdate': this._autoUpdate,
-      'extensions.autoCheckUpdates': this._autoCheckUpdates,
-      'extensions.disabled': this._extesionsDisabled,
-    });
+    console.log(`Binary path: ${this._binaryPath}`);
+
+    return (
+      JSON.stringify({
+        'preferences.OpenDevTools': this._openDevTools,
+        'extensions.autoUpdate': this._autoUpdate,
+        'extensions.autoCheckUpdates': this._autoCheckUpdates,
+        'extensions.disabled': this._extesionsDisabled,
+      }) + (this._binaryPath ? `,'podman.binary.path': ${this._binaryPath}` : '')
+    );
   }
 }
