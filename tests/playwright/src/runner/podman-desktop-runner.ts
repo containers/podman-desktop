@@ -43,7 +43,27 @@ export class PodmanDesktopRunner {
   private _autoUpdate: boolean;
   private _autoCheckUpdate: boolean;
 
-  constructor({
+  private static _instance: PodmanDesktopRunner | undefined;
+
+  static async getInstance({
+    profile = '',
+    customFolder = 'podman-desktop',
+    autoUpdate = true,
+    autoCheckUpdate = true,
+  }: {
+    profile?: string;
+    customFolder?: string;
+    autoUpdate?: boolean;
+    autoCheckUpdate?: boolean;
+  } = {}): Promise<PodmanDesktopRunner> {
+    if (!PodmanDesktopRunner._instance) {
+      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, autoUpdate, autoCheckUpdate });
+      await PodmanDesktopRunner._instance.start();
+    }
+    return PodmanDesktopRunner._instance;
+  }
+
+  private constructor({
     profile = '',
     customFolder = 'podman-desktop',
     autoUpdate = true,
@@ -63,7 +83,8 @@ export class PodmanDesktopRunner {
 
   public async start(): Promise<Page> {
     if (this.isRunning()) {
-      throw Error('Podman Desktop is already running');
+      console.log('Podman Desktop is already running');
+      return this.getPage();
     }
 
     try {
@@ -215,6 +236,7 @@ export class PodmanDesktopRunner {
       }
     }
     this._running = false;
+    PodmanDesktopRunner._instance = undefined;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);

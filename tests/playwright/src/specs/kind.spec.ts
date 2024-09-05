@@ -16,17 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 import {
   createKindCluster,
   deleteKindCluster,
@@ -41,39 +36,31 @@ const CLUSTER_NAME: string = 'kind-cluster';
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const CLUSTER_CREATION_TIMEOUT: number = 200000;
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navigationBar: NavigationBar;
 let resourcesPage: ResourcesPage;
 let kindResourceCard: ResourceConnectionCardPage;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
+test.beforeAll(async ({ pdRunner, page, welcomePage }) => {
   pdRunner.setVideoAndTraceName('kind-e2e');
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navigationBar = new NavigationBar(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ pdRunner }) => {
   await pdRunner.close();
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async () => {
+    test('Install Kind CLI', async ({ page }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
-
       await ensureKindCliInstalled(page);
     });
 
-    test('Kind extension lifecycle', async () => {
+    test('Kind extension lifecycle', async ({ navigationBar }) => {
       const extensionsPage = await navigationBar.openExtensions();
       const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', EXTENSION_LABEL);
       await playExpect
@@ -94,13 +81,12 @@ test.describe.serial('Kind End-to-End Tests', () => {
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
       'Tests suite should not run on Linux platform',
     );
-    test('Create a Kind cluster', async () => {
+    test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
-
       await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
     });
 
-    test('Check resources added with the Kind cluster', async () => {
+    test('Check resources added with the Kind cluster', async ({ page, navigationBar }) => {
       const containersPage = await navigationBar.openContainers();
       await playExpect.poll(async () => containersPage.containerExists(KIND_CONTAINER_NAME)).toBeTruthy();
       const containerDetailsPage = await containersPage.openContainersDetails(KIND_CONTAINER_NAME);
@@ -115,7 +101,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
       await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
     });
 
-    test('Kind cluster operations - STOP', async () => {
+    test('Kind cluster operations - STOP', async ({ navigationBar }) => {
       await navigationBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
@@ -138,7 +124,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Kind cluster operations - DELETE', async () => {
+    test('Kind cluster operations - DELETE', async ({ page }) => {
       await deleteKindCluster(page, KIND_CONTAINER_NAME);
     });
   });

@@ -47,17 +47,17 @@ let extensionLabel: string;
 let resourceLabel: string | undefined;
 let ociImageUrl: string;
 
-let navBar: NavigationBar;
+let navigationBar: NavigationBar;
 
 async function _startup(extensionName: string): Promise<void> {
-  pdRunner = new PodmanDesktopRunner();
+  pdRunner = await PodmanDesktopRunner.getInstance();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
 
-  navBar = new NavigationBar(page);
+  navigationBar = new NavigationBar(page);
 }
 
 const extentionTypes = [
@@ -86,7 +86,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
 
     test('Initialize extension type', async () => {
       initializeLocators(extensionType);
-      await navBar.openExtensions();
+      await navigationBar.openExtensions();
     });
 
     test('Install extension through Extensions Catalog', async () => {
@@ -124,7 +124,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
 
     test.describe.serial('Extension verification after installation', () => {
       test('Extension details can be opened', async () => {
-        const extensionsPage = await navBar.openExtensions();
+        const extensionsPage = await navigationBar.openExtensions();
 
         const extensionDetailsPage = await extensionsPage.openExtensionDetails(
           extensionName,
@@ -135,14 +135,14 @@ for (const { extensionName, extensionType } of extentionTypes) {
       });
 
       test('Extension is active', async () => {
-        const extensionsPage = await navBar.openExtensions();
+        const extensionsPage = await navigationBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
         await playExpect(extensionPage.status).toHaveText(ACTIVE);
       });
 
       test.describe.serial('Extension can be disabled and reenabled', () => {
         test('Disable extension and verify Dashboard and Resources components if present', async () => {
-          const extensionsPage = await navBar.openExtensions();
+          const extensionsPage = await navigationBar.openExtensions();
           const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
 
           await extensionPage.disableExtension();
@@ -166,7 +166,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
         });
 
         test('Enable extension and verify Dashboard and Resources components', async () => {
-          const extensionsPage = await navBar.openExtensions();
+          const extensionsPage = await navigationBar.openExtensions();
           const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
 
           await extensionPage.enableExtension();
@@ -199,7 +199,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
 
     test.describe.serial('Remove extension and verify UI', () => {
       test('Remove extension and verify components', async () => {
-        let extensionsPage = await navBar.openExtensions();
+        let extensionsPage = await navigationBar.openExtensions();
 
         const extensionDetails = await extensionsPage.openExtensionDetails(
           extensionName,
@@ -215,7 +215,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
         await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
 
         await goToDashboard();
-        extensionsPage = await navBar.openExtensions();
+        extensionsPage = await navigationBar.openExtensions();
         playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
       });
     });
@@ -256,15 +256,15 @@ function initializeLocators(extensionType: string): void {
 }
 
 async function goToDashboard(): Promise<void> {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
+  const navigationBar = page.getByRole('navigation', { name: 'AppNavigation' });
+  const dashboardLink = navigationBar.getByRole('link', { name: 'Dashboard' });
   await playExpect(dashboardLink).toBeVisible();
   await dashboardLink.click();
 }
 
 async function goToSettings(): Promise<SettingsBar> {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const settingsLink = navBar.getByRole('link', { name: 'Settings' });
+  const navigationBar = page.getByRole('navigation', { name: 'AppNavigation' });
+  const settingsLink = navigationBar.getByRole('link', { name: 'Settings' });
   await playExpect(settingsLink).toBeVisible();
   await settingsLink.click();
   return new SettingsBar(page);
