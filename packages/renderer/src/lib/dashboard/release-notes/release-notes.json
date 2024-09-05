@@ -2,7 +2,6 @@
   "notes": [
     {
       "version": "1.12",
-      "image": "banner.png",
       "alt": "podman-desktop-hero-1.12",
       "title": "Podman Desktop 1.12 Release! 🎉",
       "summary": "This release includes:\nPodman remote: We now support remote Podman setups! Manage your remote Podman machines all within the UI.\nmacOS GPU support: Container GPU access on macOS is now available. libkrun is now a selectable provider type to allow GPU passthrough enablement.\nWindows GPU support: Want to try out Windows GPU support too? Podman already supports it, but we are now showcasing it in our AI Lab extension\nPodman 5.2.0: This new version of Podman provides GPU access for macOS, as well as a host of new features.\nLight mode out of experimental: Our light mode has been well-received, and we have now marked it as non-experimental! Enjoy the new theme.\nKubernetes features: ConfigMaps, Secrets and multi-file Kubernetes YAML applying have now been added to our Kubernetes dashboard.\nImproved font consistency: You'll notice a big difference in consistency this release, as we updated all font sizes throughout Podman Desktop.",
