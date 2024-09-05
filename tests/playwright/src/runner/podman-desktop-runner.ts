@@ -349,6 +349,10 @@ export class Runner {
 
   public setVideoAndTraceName(name: string): void {
     this._videoAndTraceName = name;
+
+    if (test.info().retry > 0) {
+      this._videoAndTraceName += `_retry${test.info().retry}`;
+    }
   }
 
   public getTestOutput(): string {
