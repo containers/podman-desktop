@@ -1,18 +1,20 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
 
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import { isDark } from '../../stores/appearance';
 import { onDidChangeConfiguration } from '../../stores/configurationProperties';
-import { AppearanceUtil } from './appearance-util';
+
+let isDarkUnsubscribe: Unsubscriber;
+let isDarkTheme = false;
 
 const APPEARANCE_CONFIGURATION_KEY = AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance;
 async function updateAppearance(): Promise<void> {
   const html = document.documentElement;
 
   // toggle the dark class on the html element
-  const appearanceUtil = new AppearanceUtil();
-  let isDark = await appearanceUtil.isDarkMode();
-  if (isDark) {
+  if (isDarkTheme) {
     html.classList.add('dark');
     html.setAttribute('style', 'color-scheme: dark;');
   } else {
@@ -35,6 +37,11 @@ onMount(async () => {
     // notify changes
     window.dispatchEvent(new Event('appearance-changed'));
   });
+
+  isDarkUnsubscribe = isDark.subscribe(value => {
+    isDarkTheme = value;
+    updateAppearance();
+  });
 });
 
 // now, need to do the same for the appearance setting
@@ -43,5 +50,9 @@ onDidChangeConfiguration.addEventListener(APPEARANCE_CONFIGURATION_KEY, onDidCha
 // remove callback when the component is destroyed
 onDestroy(() => {
   onDidChangeConfiguration.removeEventListener(APPEARANCE_CONFIGURATION_KEY, onDidChangeConfigurationCallback);
+
+  if (isDarkUnsubscribe) {
+    isDarkUnsubscribe();
+  }
 });
 </script>
