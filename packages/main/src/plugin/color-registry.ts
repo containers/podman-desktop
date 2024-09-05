@@ -1090,6 +1090,8 @@ export class ColorRegistry {
   protected initDropdown(): void {
     const dropdown = 'dropdown-';
     const select = 'select-';
+    const modal = 'modal-';
+    const input = 'input-';
 
     this.registerColor(`${dropdown}bg`, {
       dark: colorPalette.charcoal[600],
@@ -1132,6 +1134,19 @@ export class ColorRegistry {
     this.registerColor(`${dropdown}disabled-item-bg`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${modal}${dropdown}highlight`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[300],
+    });
+    this.registerColor(`${modal}${dropdown}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${input}${select}hover-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
   }
 
