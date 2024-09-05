@@ -40,24 +40,25 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _autoUpdate: boolean;
-  private _autoCheckUpdate: boolean;
+  private _customSettingsObject: { [key: string]: unknown } = {};
 
   private static _instance: PodmanDesktopRunner | undefined;
 
   static async getInstance({
     profile = '',
     customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
+    customSettingsObject = {
+      'preferences.OpenDevTools': 'none',
+      'extensions.autoUpdate': true,
+      'extensions.autoCheckUpdates': true,
+    },
   }: {
     profile?: string;
     customFolder?: string;
-    autoUpdate?: boolean;
-    autoCheckUpdate?: boolean;
+    customSettingsObject?: { [key: string]: unknown };
   } = {}): Promise<PodmanDesktopRunner> {
     if (!PodmanDesktopRunner._instance) {
-      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, autoUpdate, autoCheckUpdate });
+      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, customSettingsObject });
       await PodmanDesktopRunner._instance.start();
     }
     return PodmanDesktopRunner._instance;
@@ -66,16 +67,22 @@ export class PodmanDesktopRunner {
   private constructor({
     profile = '',
     customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
-  }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
+    customSettingsObject = {
+      'preferences.OpenDevTools': 'none',
+      'extensions.autoUpdate': true,
+      'extensions.autoCheckUpdates': true,
+    },
+  }: {
+    profile?: string;
+    customFolder?: string;
+    customSettingsObject?: { [key: string]: unknown };
+  } = {}) {
     this._running = false;
     this._profile = profile;
     this._testOutput = join('tests', 'playwright', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
-    this._autoUpdate = autoUpdate;
-    this._autoCheckUpdate = autoCheckUpdate;
+    this._customSettingsObject = customSettingsObject;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -256,7 +263,9 @@ export class PodmanDesktopRunner {
     }
 
     try {
-      if (test.info().status === 'failed') return;
+      const testStatus = test.info().status;
+      console.log(`Test finished with status:${testStatus}`);
+      if (testStatus !== 'passed' && testStatus !== 'skipped') return;
     } catch (err) {
       console.log(`Caught exception in removing traces: ${err}`);
       return;
@@ -336,11 +345,7 @@ export class PodmanDesktopRunner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = JSON.stringify({
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoCheckUpdates': this._autoCheckUpdate,
-      'extensions.autoUpdate': this._autoUpdate,
-    });
+    const settingsContent = JSON.stringify(this._customSettingsObject);
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);

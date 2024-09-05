@@ -33,17 +33,22 @@ export type TestFixtures = {
 export type RunnerOptions = {
   profile: string;
   customFolder: string;
-  autoUpdate: boolean;
-  autoCheckUpdate: boolean;
+  customSettingsObject: { [key: string]: unknown };
 };
 
 export const test = base.extend<TestFixtures & RunnerOptions>({
   profile: ['', { option: true }],
   customFolder: ['podman-desktop', { option: true }],
-  autoUpdate: [true, { option: true }],
-  autoCheckUpdate: [true, { option: true }],
-  pdRunner: async ({ profile, customFolder, autoUpdate, autoCheckUpdate }, use) => {
-    const pdRunner = await PodmanDesktopRunner.getInstance({ profile, customFolder, autoUpdate, autoCheckUpdate });
+  customSettingsObject: [
+    {
+      'preferences.OpenDevTools': 'none',
+      'extensions.autoUpdate': true,
+      'extensions.autoCheckUpdates': true,
+    },
+    { option: true },
+  ],
+  pdRunner: async ({ profile, customFolder, customSettingsObject }, use) => {
+    const pdRunner = await PodmanDesktopRunner.getInstance({ profile, customFolder, customSettingsObject });
     await use(pdRunner);
   },
   page: async ({ pdRunner }, use) => {
