@@ -57,7 +57,7 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
-      await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 10_000 }).toBeFalsy();
+      await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 30_000 }).toBeFalsy();
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
@@ -210,7 +210,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     }
     await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
     await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 30_000 });
-    await handleResetDefaultConnectionDialog(page);
+
+    const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, 'podman-machine-default');
+    if (await defaultMachineCard.resourceElement.isVisible()) {
+      await handleResetDefaultConnectionDialog(page);
+    }
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
   }
@@ -218,14 +222,14 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
 
 export async function handleResetDefaultConnectionDialog(page: Page): Promise<void> {
   const connectionDialog = page.getByRole('dialog', { name: 'Podman' });
-  if (await connectionDialog.isVisible()) {
-    const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
-    await handleButton.click();
+  await playExpect(connectionDialog).toBeVisible({ timeout: 20_000 });
 
-    await playExpect(connectionDialog).toBeVisible();
-    const okButton = connectionDialog.getByRole('button', { name: 'OK' });
-    await okButton.click();
-  }
+  const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
+  await handleButton.click();
+
+  await playExpect(connectionDialog).toBeVisible();
+  const okButton = connectionDialog.getByRole('button', { name: 'OK' });
+  await okButton.click();
 }
 
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string | undefined> {
@@ -271,7 +275,7 @@ export async function createKindCluster(
   page: Page,
   clusterName: string,
   usedefaultOptions: boolean,
-  timeout: number = 200000,
+  timeout: number = 200_000,
   { providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
 ): Promise<void> {
   const navigationBar = new NavigationBar(page);
@@ -302,7 +306,7 @@ export async function createKindCluster(
   }
   await playExpect(kindResourceCard.resourceElement).toBeVisible();
   await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-    timeout: 15000,
+    timeout: 15_000,
   });
   await statusBar.validateKubernetesContext(`kind-${clusterName}`);
 }
@@ -317,12 +321,12 @@ export async function deleteKindCluster(
   await navigationBar.openSettings();
   await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
   await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-    timeout: 50000,
+    timeout: 50_000,
   });
   await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-  await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
+  await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50_000 });
   const containersPage = await navigationBar.openContainers();
-  await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
+  await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10_000 }).toBeFalsy();
 
   const volumeName = await getVolumeNameForContainer(page, containerName);
   await playExpect.poll(async () => volumeName).toBeFalsy();

@@ -19,8 +19,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import { delay } from '/@/utility/wait';
-
 import { BasePage } from './base-page';
 import { ResourcesPage } from './resources-page';
 
@@ -66,22 +64,22 @@ export class CreateMachinePage extends BasePage {
     machineName: string,
     { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
-    await playExpect(this.podmanMachineConfiguration).toBeVisible();
+    await playExpect(this.podmanMachineConfiguration).toBeVisible({ timeout: 10_000 });
+    await this.podmanMachineName.clear();
     await this.podmanMachineName.fill(machineName);
 
     await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
     await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
     await this.ensureCheckboxState(startNow, this.startNowCheckbox);
 
+    await playExpect(this.createMachineButton).toBeEnabled();
     await this.createMachineButton.click();
-    await this.page.waitForTimeout(60_000);
+
+    // wait for machine creation and handle connections
+    await this.handleConnectionDialog(machineName, setAsDefault);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
-
-    await delay(5000);
-    await this.handleConnectionDialog(machineName, setAsDefault);
-
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
@@ -107,31 +105,28 @@ export class CreateMachinePage extends BasePage {
     const upperElement = checkbox.locator('..').locator('..');
 
     const wasEnabled = await this.isEnabled(checkbox);
-    let checkText;
-    if (wasEnabled) {
-      checkText = 'Enabled';
-    } else {
-      checkText = 'Disabled';
-    }
+    const checkText = wasEnabled ? 'Enabled' : 'Disabled';
+    const switchedStatus = wasEnabled ? 'Disabled' : 'Enabled';
 
     const clickableCheckbox = upperElement.getByText(checkText);
     await clickableCheckbox.click();
+
+    await playExpect(upperElement).toHaveText(switchedStatus);
   }
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    const dialogMessage = connectionDialog.getByText(
+    await playExpect(connectionDialog).toBeVisible({ timeout: 60_000 });
+
+    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
+    await playExpect(dialogMessage).toHaveText(
       new RegExp(
         `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
       ),
     );
-    if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
-      let handleButtonName = 'Yes';
-      if (!setAsDefault) {
-        handleButtonName = 'Ignore';
-      }
-      const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
-      await handleButton.click();
-    }
+
+    const handleButtonName = setAsDefault ? 'Yes' : 'Ignore';
+    const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
+    await handleButton.click();
   }
 }
