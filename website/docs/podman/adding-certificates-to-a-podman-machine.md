@@ -26,7 +26,7 @@ You can add certificates from your local certificate authority (CA) or from a th
 $ podman machine ssh
 ```
 
-2. Switch to a root shell:
+2. Optional: Switch to a root shell only if Podman runs in the default rootless mode:
 
 ```sh
  $ sudo su -
@@ -60,4 +60,4 @@ $ podman machine ssh
 # exit
 ```
 
-7. Rerun the `exit` command to return to regular user permissions.
+7. Optional: Rerun the `exit` command only if you used the `sudo su -` command.
