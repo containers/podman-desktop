@@ -22,6 +22,14 @@ import { expect as playExpect } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ResourcesPage } from './resources-page';
 
+export interface CreateMachineOptions {
+  machineName: string;
+  isRootful?: boolean;
+  enableUserNet?: boolean;
+  startNow?: boolean;
+  setAsDefault?: boolean;
+}
+
 export class CreateMachinePage extends BasePage {
   readonly heading: Locator;
   readonly podmanMachineName: Locator;
@@ -60,13 +68,13 @@ export class CreateMachinePage extends BasePage {
     this.createMachineButton = this.page.getByRole('button', { name: 'Create' });
   }
 
-  async createMachine(
-    machineName: string,
-    isRootful: boolean = true,
-    enableUserNet: boolean = false,
-    startNow: boolean = true,
-    setAsDefault: boolean = true,
-  ): Promise<ResourcesPage> {
+  async createMachine({
+    machineName,
+    isRootful = true,
+    enableUserNet = false,
+    startNow = true,
+    setAsDefault = true,
+  }: CreateMachineOptions): Promise<ResourcesPage> {
     await playExpect(this.podmanMachineConfiguration).toBeVisible();
     await this.podmanMachineName.fill(machineName);
 
@@ -99,9 +107,7 @@ export class CreateMachinePage extends BasePage {
 
   async isEnabled(checkbox: Locator): Promise<boolean> {
     await playExpect(checkbox).toBeVisible();
-    const upperElement = checkbox.locator('..').locator('..');
-    const clickableCheckbox = upperElement.getByText('Enabled');
-    return await clickableCheckbox.isVisible();
+    return await checkbox.isChecked();
   }
 
   async switchCheckbox(checkbox: Locator): Promise<void> {
