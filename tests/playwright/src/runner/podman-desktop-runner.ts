@@ -42,7 +42,7 @@ export class PodmanDesktopRunner {
   private _videoAndTraceName: string | undefined;
   private _autoUpdate: boolean;
   private _autoCheckUpdate: boolean;
-  private _customSettingsObject: object | undefined;
+  private _customSettingsObject: { [key: string]: unknown } = {};
 
   private static _instance: PodmanDesktopRunner | undefined;
 
@@ -69,13 +69,15 @@ export class PodmanDesktopRunner {
     customFolder = 'podman-desktop',
     autoUpdate = true,
     autoCheckUpdate = true,
-    customSettingsObject = undefined,
+    customSettingsObject = {
+      'preferences.OpenDevTools': 'none',
+    },
   }: {
     profile?: string;
     customFolder?: string;
     autoUpdate?: boolean;
     autoCheckUpdate?: boolean;
-    customSettingsObject?: object;
+    customSettingsObject?: { [key: string]: unknown };
   } = {}) {
     this._running = false;
     this._profile = profile;
@@ -83,8 +85,10 @@ export class PodmanDesktopRunner {
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
+    this._customSettingsObject['extensions.autoUpdate'] = this._autoUpdate;
     this._autoCheckUpdate = autoCheckUpdate;
-    this._customSettingsObject = customSettingsObject;
+    this._customSettingsObject['extensions.autoCheckUpdates'] = this._autoCheckUpdate;
+    if (customSettingsObject) this._customSettingsObject = customSettingsObject;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -267,7 +271,7 @@ export class PodmanDesktopRunner {
     try {
       const testStatus = test.info().status;
       console.log(`Test finished with status:${testStatus}`);
-      if (testStatus === 'passed' || testStatus === 'skipped') return;
+      if (testStatus !== 'passed' && testStatus !== 'skipped') return;
     } catch (err) {
       console.log(`Caught exception in removing traces: ${err}`);
       return;
@@ -347,13 +351,7 @@ export class PodmanDesktopRunner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = this._customSettingsObject
-      ? JSON.stringify(this._customSettingsObject)
-      : JSON.stringify({
-          'preferences.OpenDevTools': 'none',
-          'extensions.autoCheckUpdates': this._autoCheckUpdate,
-          'extensions.autoUpdate': this._autoUpdate,
-        });
+    const settingsContent = JSON.stringify(this._customSettingsObject);
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
