@@ -6,7 +6,7 @@ import FeaturedExtension from '/@/lib/featured/FeaturedExtension.svelte';
 import type { ExtensionBanner } from '../../../../main/src/plugin/recommendations/recommendations-api';
 
 export let banner: ExtensionBanner;
-// Pass in the theme appearance colour of PD to the banner, we do it here so we don't have to do multiple isDarkMode() checks when rendering multiple banners.
+// Pass in the theme appearance colour of PD to the banner, we do it here so we don't have to do multiple isDark checks when rendering multiple banners.
 export let isDark: boolean;
 
 let style: string | undefined = undefined;
