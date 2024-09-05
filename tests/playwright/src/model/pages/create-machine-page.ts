@@ -19,8 +19,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import { delay } from '/@/utility/wait';
-
 import { BasePage } from './base-page';
 import { MachineCreationForm } from './forms/machine-creation-form';
 import { ResourcesPage } from './resources-page';
@@ -47,15 +45,14 @@ export class CreateMachinePage extends BasePage {
     const machineCreationForm = new MachineCreationForm(this.page);
     await machineCreationForm.configureMachine(machineName, isRootful, enableUserNet, startNow);
 
+    await playExpect(this.createMachineButton).toBeEnabled();
     await this.createMachineButton.click();
-    await this.page.waitForTimeout(60_000);
+
+    // wait for machine creation and handle connections
+    await this.handleConnectionDialog(machineName, setAsDefault);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
-
-    await delay(5000);
-    await this.handleConnectionDialog(machineName, setAsDefault);
-
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
@@ -65,18 +62,17 @@ export class CreateMachinePage extends BasePage {
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    const dialogMessage = connectionDialog.getByText(
+    await playExpect(connectionDialog).toBeVisible({ timeout: 60_000 });
+
+    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
+    await playExpect(dialogMessage).toHaveText(
       new RegExp(
         `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
       ),
     );
-    if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
-      let handleButtonName = 'Yes';
-      if (!setAsDefault) {
-        handleButtonName = 'Ignore';
-      }
-      const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
-      await handleButton.click();
-    }
+
+    const handleButtonName = setAsDefault ? 'Yes' : 'Ignore';
+    const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
+    await handleButton.click();
   }
 }

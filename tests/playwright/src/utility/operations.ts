@@ -316,7 +316,7 @@ export async function createKindCluster(
   page: Page,
   clusterName: string,
   usedefaultOptions: boolean,
-  timeout: number = 200000,
+  timeout: number = 200_000,
   { providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
 ): Promise<void> {
   await test.step('Create Kind cluster', async () => {
