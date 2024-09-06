@@ -66,6 +66,7 @@ Apply style on documentation
   --ifm-navbar-background-color: #fff;
   --ifm-navbar-height: 85px;
   --ifm-navbar-shadow: none;
+  --ifm-divider: #e2e2e3;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -78,6 +79,7 @@ Apply style on documentation
   --ifm-color-primary-lighter: #8349df;
   --ifm-color-primary-lightest: #996ae5;
   --ifm-navbar-background-color: #1b1b1d;
+  --ifm-divider: #2e2e32;
 }
 
 .docusaurus-highlight-code-line {
@@ -149,17 +151,44 @@ li.footer__item a svg {
   display: none;
 }
 
-/* main nav items bold */
-.theme-doc-sidebar-item-link-level-1 {
-  font-weight: bold;
-}
-li.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible {
-  font-weight: bold;
+/**
+  Using base font color for all links
+ */
+.menu__link {
+  color: var(--ifm-font-color-base) !important;
 }
 
-/* child nav slightly smaller */
-li.theme-doc-sidebar-item-category-level-1 > .menu__list {
-  font-size: 0.85em;
+/**
+  The first level of collapsable should have a left bar
+ */
+.theme-doc-sidebar-item-category-level-1 > .menu__list {
+  border-left: 1px solid var(--ifm-divider);
+  margin-left: var(--ifm-menu-link-padding-horizontal);
+  padding-left: 0px;
+}
+
+/**
+  Decrease the size of the chevron icon from 2rem to 1.5
+ */
+.menu__caret:before {
+  background: var(--ifm-menu-link-sublist-icon) 50% / 1.5rem 1.5rem;
+}
+
+/**
+  Hovering an item should change its color and not create a gray bg
+ */
+.menu__link:hover,
+.menu__list-item-collapsible {
+  color: var(--ifm-color-primary) !important;
+  background-color: transparent !important;
+}
+
+/**
+  We should highlight the active item (only last child)
+ */
+.menu__link--active:not(.menu__link--sublist) {
+  color: var(--ifm-color-primary) !important;
+  background-color: transparent !important;
 }
 
 @media (min-width: 1200px) {

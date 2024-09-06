@@ -22,7 +22,7 @@ export class RunnerOptions {
   public readonly _openDevTools: string;
   public readonly _autoUpdate: boolean;
   public readonly _autoCheckUpdates: boolean;
-  public readonly _extesionsDisabled: string[];
+  public readonly _extensionsDisabled: string[];
   public readonly _binaryPath: string | undefined;
 
   constructor({
@@ -31,7 +31,7 @@ export class RunnerOptions {
     openDevTools = 'none',
     autoUpdate = true,
     autoCheckUpdates = true,
-    extesionsDisabled = [],
+    extensionsDisabled = [],
     binaryPath = undefined,
   }: {
     profile?: string;
@@ -39,7 +39,7 @@ export class RunnerOptions {
     openDevTools?: string;
     autoUpdate?: boolean;
     autoCheckUpdates?: boolean;
-    extesionsDisabled?: string[];
+    extensionsDisabled?: string[];
     binaryPath?: string;
   } = {}) {
     this._profile = profile;
@@ -47,7 +47,7 @@ export class RunnerOptions {
     this._openDevTools = openDevTools;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdates = autoCheckUpdates;
-    this._extesionsDisabled = extesionsDisabled;
+    this._extensionsDisabled = extensionsDisabled;
     this._binaryPath = binaryPath;
   }
 
@@ -59,7 +59,7 @@ export class RunnerOptions {
         'preferences.OpenDevTools': this._openDevTools,
         'extensions.autoUpdate': this._autoUpdate,
         'extensions.autoCheckUpdates': this._autoCheckUpdates,
-        'extensions.disabled': this._extesionsDisabled,
+        'extensions.disabled': this._extensionsDisabled,
         'podman.binary.path': this._binaryPath,
       });
     }
@@ -68,7 +68,7 @@ export class RunnerOptions {
       'preferences.OpenDevTools': this._openDevTools,
       'extensions.autoUpdate': this._autoUpdate,
       'extensions.autoCheckUpdates': this._autoCheckUpdates,
-      'extensions.disabled': this._extesionsDisabled,
+      'extensions.disabled': this._extensionsDisabled,
     });
   }
 }

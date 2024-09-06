@@ -21,10 +21,11 @@ import './security-restrictions';
 import dns from 'node:dns';
 
 import type { BrowserWindow } from 'electron';
-import { app, ipcMain, Tray } from 'electron';
+import { app, ipcMain, Menu, Tray } from 'electron';
 
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 
+import { ApplicationMenuBuilder } from './application-menu-builder.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import type { Event } from './plugin/events/emitter.js';
 import { Emitter } from './plugin/events/emitter.js';
@@ -249,6 +250,14 @@ app.whenReady().then(
         .then(browserWindow => {
           const windowHandler = new WindowHandler(configurationRegistry, browserWindow);
           windowHandler.init();
+          // sets the menu
+          const applicationMenuBuilder = new ApplicationMenuBuilder();
+          const menu = applicationMenuBuilder.build();
+
+          if (menu) {
+            Menu.setApplicationMenu(menu);
+          }
+
           // send window Handler
           ipcMain.emit('window-handler', '', windowHandler);
         })
