@@ -26,7 +26,7 @@ on:
 jobs:
   detect_pnpm_changes:
     name: Detect pnpm lock file changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       pnpm_lock_changed: ${{ steps.pnpm_changed.outputs.PNPM_LOCK_CHANGED }}
     steps:
@@ -50,12 +50,8 @@ jobs:
     name: win update e2e tests
     needs: detect_pnpm_changes
     if: contains(github.event.pull_request.labels.*.name, 'area/update') || needs.detect_pnpm_changes.outputs.pnpm_lock_changed == 'true'
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022]
+    runs-on: windows-2022
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +72,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Adjust/Downgrade local podman desktop version Windows
-        if: ${{ matrix.os=='windows-2022'}}
         run: |
           $version="1.0.0"
           jq --arg version "$version" '.version = $version' package.json | Out-File -FilePath package.json_tmp
@@ -101,7 +96,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ matrix.os }}-update-e2e-test
+          name: win-update-e2e-test
           path: |
             ./tests/**/output/
             ./tests/**/output/junit*.xml
