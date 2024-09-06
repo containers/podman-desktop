@@ -38,6 +38,15 @@ export class AppearanceInit {
           enum: ['system', 'dark', 'light'],
           default: 'system',
         },
+        [`${AppearanceSettings.SectionName}.${AppearanceSettings.ZoomLevel}`]: {
+          markdownDescription:
+            'Select the zoom level. To **Zoom In**, set a positive value like `1` for a 20% zoom. To **Zoom Out**, use a negative value, like `-1`. Use decimals for more fine-grained zoom control.',
+          type: 'number',
+          minimum: -3,
+          maximum: 3,
+          default: 0,
+          step: 0.1,
+        },
       },
     };
 

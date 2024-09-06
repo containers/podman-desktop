@@ -23,6 +23,7 @@ import { aboutMenuItem } from 'electron-util/main';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ApplicationMenuBuilder } from './application-menu-builder.js';
+import type { ZoomLevelHandler } from './plugin/zoom-level-handler.js';
 
 vi.mock('electron', async () => {
   class MyCustomWindow {
@@ -63,18 +64,16 @@ vi.mock('electron-util/main', async () => {
   };
 });
 
+const zoomLevelHandlerMock = {} as unknown as ZoomLevelHandler;
+
 let applicationMenuBuilder: ApplicationMenuBuilder;
 
 beforeEach(() => {
   vi.resetAllMocks();
-  applicationMenuBuilder = new ApplicationMenuBuilder();
+  applicationMenuBuilder = new ApplicationMenuBuilder(zoomLevelHandlerMock);
 });
 
 test('check about menu is added', () => {
-  vi.mocked(Menu.buildFromTemplate).mockImplementation(a => {
-    return a as unknown as Menu;
-  });
-
   // set a menu
   vi.mocked(Menu.getApplicationMenu).mockReturnValue({
     items: [
@@ -91,13 +90,68 @@ test('check about menu is added', () => {
   vi.mocked(aboutMenuItem).mockReturnValue({
     label: 'About',
   });
+  vi.mocked(Menu.buildFromTemplate).mockReturnValue({} as unknown as Menu);
+  const menu = applicationMenuBuilder.build();
+  expect(menu).toBeDefined();
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(expect.arrayContaining([{ label: 'About' }]));
+});
 
+test('check zoom menu are added', () => {
+  // set a menu
+  vi.mocked(Menu.getApplicationMenu).mockReturnValue({
+    items: [
+      {
+        role: 'viewmenu',
+        submenu: {
+          items: [
+            {
+              label: 'Zoom In',
+            },
+            {
+              label: 'Zoom Out',
+            },
+            {
+              label: 'Actual Size',
+            },
+          ],
+        },
+      },
+    ],
+  } as unknown as Menu);
+
+  // mock aboutMenuItem
+  vi.mocked(aboutMenuItem).mockReturnValue({
+    label: 'About',
+  });
+  vi.mocked(Menu.buildFromTemplate).mockReturnValue({ items: [] } as unknown as Menu);
   const menu = applicationMenuBuilder.build();
   expect(menu).toBeDefined();
 
-  const items = menu?.items[0]?.submenu as unknown as any[];
-  expect(items).toBeDefined();
+  // check alt menus
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([
+      { label: 'Zoom In alt', visible: false, accelerator: 'CommandOrControl+numadd', click: expect.any(Function) },
+    ]),
+  );
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([
+      { label: 'Zoom Out alt', visible: false, accelerator: 'CommandOrControl+numsub', click: expect.any(Function) },
+    ]),
+  );
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([
+      { label: 'Actual Size alt', visible: false, accelerator: 'CommandOrControl+num0', click: expect.any(Function) },
+    ]),
+  );
 
-  // expect to have the about menu
-  expect(items[1]?.label).toBe('About');
+  // and check the main menus being replaced
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([{ label: 'Zoom In', accelerator: 'CommandOrControl+Plus', click: expect.any(Function) }]),
+  );
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([{ label: 'Zoom Out', accelerator: 'CommandOrControl+-', click: expect.any(Function) }]),
+  );
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalledWith(
+    expect.arrayContaining([{ label: 'Actual Size', accelerator: 'CommandOrControl+0', click: expect.any(Function) }]),
+  );
 });

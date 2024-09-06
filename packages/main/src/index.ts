@@ -32,6 +32,7 @@ import { Emitter } from './plugin/events/emitter.js';
 import type { ExtensionLoader } from './plugin/extension-loader.js';
 import { PluginSystem } from './plugin/index.js';
 import { Deferred } from './plugin/util/deferred.js';
+import { ZoomLevelHandler } from './plugin/zoom-level-handler.js';
 import { StartupInstall } from './system/startup-install.js';
 import { WindowHandler } from './system/window/window-handler.js';
 import { AnimatedTray } from './tray-animate-icon.js';
@@ -250,8 +251,14 @@ app.whenReady().then(
         .then(browserWindow => {
           const windowHandler = new WindowHandler(configurationRegistry, browserWindow);
           windowHandler.init();
+
+          // Configure the zoom level handler
+          // handle zoom level
+          const zoomLevelHandler = new ZoomLevelHandler(browserWindow, configurationRegistry);
+          zoomLevelHandler.init();
+
           // sets the menu
-          const applicationMenuBuilder = new ApplicationMenuBuilder();
+          const applicationMenuBuilder = new ApplicationMenuBuilder(zoomLevelHandler);
           const menu = applicationMenuBuilder.build();
 
           if (menu) {

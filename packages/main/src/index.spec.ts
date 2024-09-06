@@ -18,6 +18,7 @@
 
 import type { App } from 'electron';
 import { app, BrowserWindow, Menu, Tray } from 'electron';
+import { aboutMenuItem } from 'electron-util/main';
 import { afterEach, assert, beforeEach, expect, test, vi } from 'vitest';
 
 import {
@@ -26,8 +27,8 @@ import {
   mainWindowDeferred,
   sanitizeProtocolForExtension,
 } from './index.js';
-import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
-import type { Emitter } from './plugin/events/emitter.js';
+import type { ConfigurationRegistry, IConfigurationChangeEvent } from './plugin/configuration-registry.js';
+import { Emitter } from './plugin/events/emitter.js';
 import { PluginSystem } from './plugin/index.js';
 import { Deferred } from './plugin/util/deferred.js';
 import * as util from './util.js';
@@ -56,12 +57,18 @@ vi.mock('electron-context-menu', async () => {
 });
 vi.mock('electron-util/main', async () => {
   return {
-    aboutMenuItem: vi.fn(),
+    aboutMenuItem: vi.fn().mockReturnValue({ label: 'foo' }),
   };
 });
 
+const _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
 const configurationRegistryMock = {
+  onDidChangeConfiguration: _onDidChangeConfiguration.event,
   registerConfigurations: vi.fn(),
+  getConfigurationProperties: vi.fn().mockReturnValue({}),
+  getConfiguration: vi.fn().mockReturnValue({
+    get: vi.fn(),
+  }),
 } as unknown as ConfigurationRegistry;
 
 const fakeWindow = {
@@ -243,11 +250,20 @@ test('app-ready event with activate event', async () => {
   const onDidConfigurationRegistry = _onDidConfigurationRegistry as Emitter<ConfigurationRegistry>;
 
   // create a Menu
-  const menu = {
-    items: [],
-  } as unknown as Menu;
-
-  vi.mocked(Menu.getApplicationMenu).mockReturnValue(menu);
+  vi.mocked(Menu.getApplicationMenu).mockReturnValue({
+    items: [
+      {
+        role: 'help',
+        submenu: {
+          items: [],
+        },
+      },
+    ],
+  } as unknown as Menu);
+  vi.mocked(aboutMenuItem).mockReturnValue({
+    label: 'About',
+  });
+  vi.mocked(Menu.buildFromTemplate).mockReturnValue({} as unknown as Menu);
 
   onDidConfigurationRegistry.fire(configurationRegistryMock);
 
