@@ -149,7 +149,7 @@ test('terminal active/ restarts connection after stopping and starting a contain
   onDataCallback(Buffer.from('hello\nworld'));
 
   // wait 1s
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
@@ -158,34 +158,24 @@ test('terminal active/ restarts connection after stopping and starting a contain
   expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
 
   container.state = 'EXITED';
-  console.log(container);
 
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
   await tick();
 
-  await new Promise(resolve => setTimeout(resolve, 100));
-
-  expect(screen.queryByText('Container is not running')).toBeInTheDocument();
+  waitFor(() => expect(screen.queryByText('Container is not running')).toBeInTheDocument());
 
   container.state = 'STARTING';
-  console.log(container);
 
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
   await tick();
-
-  await new Promise(resolve => setTimeout(resolve, 100));
 
   container.state = 'RUNNING';
 
-  console.log(container);
-
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
   await tick();
-
-  await new Promise(resolve => setTimeout(resolve, 100));
 
   await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledTimes(2), { timeout: 2000 });
 });
