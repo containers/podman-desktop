@@ -1,5 +1,5 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
 import { LinearProgress } from '..';
 import CloseButton from '../button/CloseButton.svelte';
@@ -15,6 +15,25 @@ export let hasClose: boolean = true;
 export let inProgress: boolean = false;
 
 let showBreadcrumb = breadcrumbLeftPart ?? breadcrumbRightPart;
+let detailSlot: HTMLDivElement;
+let observer: MutationObserver;
+$: heightOfDetail = 0;
+
+onMount(() => {
+  observer = new MutationObserver(() => updateHeight());
+  observer.observe(detailSlot, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+  updateHeight();
+});
+
+onDestroy(() => observer?.disconnect());
+
+function updateHeight(): void {
+  heightOfDetail = detailSlot ? detailSlot.getBoundingClientRect().height : 0;
+}
 
 const dispatchClose = createEventDispatcher<{ close: undefined }>();
 export let onclose: () => void = () => {
@@ -83,7 +102,7 @@ function handleKeydown(e: KeyboardEvent): void {
             <slot name="actions" />
           </div>
           <div class="relative">
-            <div class="absolute top-0 right-0">
+            <div bind:this={detailSlot} class="absolute top-0 right-0">
               <slot name="detail" />
             </div>
           </div>
@@ -97,7 +116,11 @@ function handleKeydown(e: KeyboardEvent): void {
   {#if inProgress}
     <LinearProgress />
   {/if}
-  <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]" aria-label="Tabs" role="region">
+  <div
+    class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]"
+    style="padding-top: {heightOfDetail > 50 ? '1rem' : '0px'}"
+    aria-label="Tabs"
+    role="region">
     <slot name="tabs" />
   </div>
   <div class="h-full min-h-0" aria-label="Tab Content" role="region">
