@@ -17,7 +17,7 @@ import type { ContainerInfoUI } from './ContainerInfoUI';
 
 interface ContainerDetailsTerminalProps {
   container: ContainerInfoUI;
-  screenReaderMode: boolean;
+  screenReaderMode?: boolean;
 }
 
 let { container, screenReaderMode = false }: ContainerDetailsTerminalProps = $props();
