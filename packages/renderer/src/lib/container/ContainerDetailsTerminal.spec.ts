@@ -155,7 +155,7 @@ test('terminal active/ restarts connection after stopping and starting a contain
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
+  waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   container.state = 'EXITED';
 
