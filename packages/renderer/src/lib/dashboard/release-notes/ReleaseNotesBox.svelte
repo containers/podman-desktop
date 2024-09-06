@@ -1,7 +1,9 @@
 <script lang="ts">
 import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { Button, Link } from '@podman-desktop/ui-svelte';
+import { Button, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+
+import { showReleaseNotesBanner } from './release-notes-store';
 
 let updateAvilable = false;
 let currentVersion: string;
@@ -13,7 +15,7 @@ let imageUrl: string = '';
 let imageAlt: string = '';
 
 async function getImageFromNotes() {
-  currentVersion = '1.12.0';
+  currentVersion = '1.11.0';
   let curVersionSplit = currentVersion.split('.', 2);
   const urlVersionFormat = curVersionSplit.join('.');
   let notesURL = `https://podman-desktop.io/blog/podman-desktop-release-${urlVersionFormat}`;
@@ -45,6 +47,10 @@ async function getImageFromNotes() {
   }
 }
 
+function onclose() {
+  $showReleaseNotesBanner = false;
+}
+
 onMount(async () => {
   window
     .podmanDesktopUpdateAvailable()
@@ -57,23 +63,29 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-fit max-h-[245px]">
-  <img src={imageUrl} class="w-[30%] object-contain" alt={imageAlt} />
-  <div class="flex flex-col w-[70%]">
-    <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl m-2">
-      {title}
-    </p>
-    <div
-      class="text-[var(--pd-content-card-text)] m-2 trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
-      <div id="summary"></div>
-    </div>
-    <div class="flex flex-row justify-end items-center gap-3">
-      <Link on:click={() => window.podmanDesktopOpenReleaseNotes('current')}>Learn more</Link>
-      <Button on:click={() => window.updatePodmanDesktop()} hidden={updateAvilable} icon={faCircleArrowUp}
-        >Update</Button>
-    </div>
-    <div class="flex justify-end items-center text-[var(--pd-content-card-light-title)] mt-2">
-      v{currentVersion}
+{#if $showReleaseNotesBanner}
+  <div
+    class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-fit max-h-[260px] items-center">
+    <img src={imageUrl} class="w-[30%] h-fit object-contain rounded-md" alt={imageAlt} />
+    <div class="flex flex-col w-[70%]">
+      <div class="flex flex-row items-center justify-between">
+        <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl m-2">
+          {title}
+        </p>
+        <CloseButton on:click={() => onclose()} />
+      </div>
+      <div
+        class="text-[var(--pd-content-card-text)] m-2 trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-4">
+        <div id="summary"></div>
+      </div>
+      <div class="flex flex-row justify-end items-center gap-3">
+        <Link on:click={() => window.podmanDesktopOpenReleaseNotes('current')}>Learn more</Link>
+        <Button on:click={() => window.updatePodmanDesktop()} hidden={updateAvilable} icon={faCircleArrowUp}
+          >Update</Button>
+      </div>
+      <div class="flex justify-end items-center text-[var(--pd-content-card-light-title)] mt-2">
+        v{currentVersion}
+      </div>
     </div>
   </div>
-</div>
+{/if}
