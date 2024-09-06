@@ -21,7 +21,6 @@ on:
   pull_request:
     paths:
       - '**'
-      - 'pnpm-lock.yaml'
     types: [labeled, synchronize, opened, reopened]
 
 jobs:
