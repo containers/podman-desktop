@@ -153,7 +153,7 @@ test.describe.serial('Podman Machine verification', () => {
         await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible({ timeout: 20_000 });
         await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
         await resourcesPodmanConnections.resourceElementDetailsButton.click();
-        const podmanMachineDetails = new PodmanMachineDetails(page);
+        const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
         await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
         await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
         await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeVisible();
@@ -163,7 +163,7 @@ test.describe.serial('Podman Machine verification', () => {
       });
 
       test('Podman machine operations - STOP', async ({ page }) => {
-        const podmanMachineDetails = new PodmanMachineDetails(page);
+        const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
         await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
         await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
         await podmanMachineDetails.podmanMachineStopButton.click();
@@ -171,14 +171,14 @@ test.describe.serial('Podman Machine verification', () => {
       });
 
       test('Podman machine operations - START', async ({ page }) => {
-        const podmanMachineDetails = new PodmanMachineDetails(page);
+        const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
         await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
         await podmanMachineDetails.podmanMachineStartButton.click();
         await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
       });
 
       test('Podman machine operations - RESTART', async ({ page }) => {
-        const podmanMachineDetails = new PodmanMachineDetails(page);
+        const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
         await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
         await podmanMachineDetails.podmanMachineRestartButton.click();
         await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
