@@ -114,3 +114,20 @@ test('Expect native theme to be set to system', async () => {
 
   expect(nativeTheme.themeSource).toEqual('system');
 });
+
+test('should register a configuration', async () => {
+  const appearanceInit = new AppearanceInit(configurationRegistry);
+  appearanceInit.init();
+
+  expect(configurationRegistry.registerConfigurations).toBeCalled();
+  const configurationNode = vi.mocked(configurationRegistry.registerConfigurations).mock.calls[0]?.[0][0];
+  expect(configurationNode?.id).toBe('preferences.appearance');
+  expect(configurationNode?.title).toBe('Appearance');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(2);
+  expect(configurationNode?.properties?.['preferences.zoomLevel']).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.zoomLevel']?.markdownDescription).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.zoomLevel']?.type).toBe('number');
+  expect(configurationNode?.properties?.['preferences.zoomLevel']?.default).toBe(0);
+  expect(configurationNode?.properties?.['preferences.zoomLevel']?.step).toBe(0.1);
+});
