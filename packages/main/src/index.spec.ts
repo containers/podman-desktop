@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { App } from 'electron';
-import { app, BrowserWindow, Tray } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { afterEach, assert, beforeEach, expect, test, vi } from 'vitest';
 
 import {
@@ -26,6 +26,8 @@ import {
   mainWindowDeferred,
   sanitizeProtocolForExtension,
 } from './index.js';
+import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
+import type { Emitter } from './plugin/events/emitter.js';
 import { PluginSystem } from './plugin/index.js';
 import { Deferred } from './plugin/util/deferred.js';
 import * as util from './util.js';
@@ -57,6 +59,10 @@ vi.mock('electron-util/main', async () => {
     aboutMenuItem: vi.fn(),
   };
 });
+
+const configurationRegistryMock = {
+  registerConfigurations: vi.fn(),
+} as unknown as ConfigurationRegistry;
 
 const fakeWindow = {
   isDestroyed: vi.fn(),
@@ -223,6 +229,36 @@ test('app-ready event with activate event', async () => {
   // expect show and focus have been called
   expect(spyShow).toHaveBeenCalled();
   expect(spyFocus).toHaveBeenCalled();
+
+  // capture the pluginSystem.initExtensions call
+  const initExtensionsCalls = vi.mocked(initMock).mock.calls;
+  expect(initExtensionsCalls).toHaveLength(1);
+
+  // grab onDidConfigurationRegistry parameter
+  const _onDidConfigurationRegistry = initExtensionsCalls?.[0]?.[0];
+  // call the onDidConfigurationRegistry
+  expect(_onDidConfigurationRegistry).toBeDefined();
+
+  // cast as Emitter
+  const onDidConfigurationRegistry = _onDidConfigurationRegistry as Emitter<ConfigurationRegistry>;
+
+  // create a Menu
+  const menu = {
+    items: [],
+  } as unknown as Menu;
+
+  vi.mocked(Menu.getApplicationMenu).mockReturnValue(menu);
+
+  onDidConfigurationRegistry.fire(configurationRegistryMock);
+
+  // check we've called Menu.getApplicationMenu
+  await vi.waitFor(() => expect(vi.mocked(Menu.getApplicationMenu)).toHaveBeenCalled());
+
+  // and Menu.buildFromTemplate
+  expect(vi.mocked(Menu.buildFromTemplate)).toHaveBeenCalled();
+
+  // and Menu.setApplicationMenu
+  expect(vi.mocked(Menu.setApplicationMenu)).toHaveBeenCalled();
 });
 
 test('should send the URL to open when mainWindow is created', async () => {

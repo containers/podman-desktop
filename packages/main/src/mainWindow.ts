@@ -20,9 +20,8 @@ import { join } from 'node:path';
 import { URL } from 'node:url';
 
 import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
-import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } from 'electron';
+import { app, autoUpdater, BrowserWindow, ipcMain, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
-import { aboutMenuItem } from 'electron-util/main';
 
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
@@ -238,29 +237,6 @@ async function createWindow(): Promise<BrowserWindow> {
       browserWindow.webContents.send('context-menu:visible', true);
     },
   });
-
-  // Add help/about menu entry
-  const menu = Menu.getApplicationMenu(); // get default menu
-  if (menu) {
-    // build a new menu based on default one but adding about entry in the help menu
-    const newmenu = Menu.buildFromTemplate(
-      menu.items.map(i => {
-        // add the About entry only in the help menu
-        if (i.role === 'help' && i.submenu) {
-          const aboutMenuSubItem = aboutMenuItem({});
-          aboutMenuSubItem.label = 'About';
-
-          // create new submenu
-          // also add a separator before the About entry
-          const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
-          return { ...i, submenu: newSubMenu };
-        }
-        return i;
-      }),
-    );
-
-    Menu.setApplicationMenu(newmenu);
-  }
 
   /**
    * URL for main window.
