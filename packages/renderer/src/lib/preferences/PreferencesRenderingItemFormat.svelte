@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ErrorMessage } from '@podman-desktop/ui-svelte';
+import { onDestroy, onMount } from 'svelte';
 
 import BooleanItem from '/@/lib/preferences/item-formats/BooleanItem.svelte';
 import EnumItem from '/@/lib/preferences/item-formats/EnumItem.svelte';
@@ -7,10 +8,11 @@ import FileItem from '/@/lib/preferences/item-formats/FileItem.svelte';
 import NumberItem from '/@/lib/preferences/item-formats/NumberItem.svelte';
 import SliderItem from '/@/lib/preferences/item-formats/SliderItem.svelte';
 import StringItem from '/@/lib/preferences/item-formats/StringItem.svelte';
+import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
-import { getNormalizedDefaultNumberValue } from './Util';
+import { getInitialValue, getNormalizedDefaultNumberValue } from './Util';
 
 let invalidText: string | undefined = undefined;
 export let invalidRecord = (_error: string) => {};
@@ -31,6 +33,28 @@ let recordUpdateTimeout: NodeJS.Timeout;
 let recordValue: string | boolean | number | undefined;
 $: recordValue;
 $: updateResetButtonVisibility?.(recordValue);
+
+let callBack: EventListenerOrEventListenerObject | undefined = undefined;
+let callbackId: string | undefined = undefined;
+onMount(() => {
+  if (record.id && record.scope === 'DEFAULT') {
+    callbackId = record.id;
+    callBack = () => {
+      getInitialValue(record).then(v => {
+        if (v) {
+          recordValue = v;
+        }
+      });
+    };
+    onDidChangeConfiguration.addEventListener(record.id, callBack);
+  }
+});
+
+onDestroy(() => {
+  if (callBack && callbackId) {
+    onDidChangeConfiguration.removeEventListener(callbackId, callBack);
+  }
+});
 
 $: if (resetToDefault) {
   recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
