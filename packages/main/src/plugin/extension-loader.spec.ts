@@ -2328,7 +2328,7 @@ describe('loading extension folders', () => {
       const folders = await extensionLoader.readDevelopmentFolders('path');
 
       expect(folders).length(1);
-      expect(folders[0]).toBe('path/extension1');
+      expect(folders[0]).toBe(path.join('path', 'extension1'));
     });
 
     test('recognizes as an api extension when only ext/packages/extension/package.json is present', async () => {
@@ -2337,7 +2337,7 @@ describe('loading extension folders', () => {
       const folders = await extensionLoader.readDevelopmentFolders('path');
 
       expect(folders).length(1);
-      expect(folders[0]).toBe('path/extension1/packages/extension');
+      expect(folders[0]).toBe(path.join('path', 'extension1', 'packages', 'extension'));
     });
 
     test('recognizes as an api extension when ext/package.json and ext/packages/extension/package.json are present', async () => {
@@ -2346,7 +2346,7 @@ describe('loading extension folders', () => {
       const folders = await extensionLoader.readDevelopmentFolders('path');
 
       expect(folders).length(1);
-      expect(folders[0]).toBe('path/extension1/packages/extension');
+      expect(folders[0]).toBe(path.join('path', 'extension1', 'packages', 'extension'));
     });
 
     test('works correctly for multiple different extensions, files and empty folders', async () => {
@@ -2365,9 +2365,9 @@ describe('loading extension folders', () => {
       const folders = await extensionLoader.readDevelopmentFolders('path');
 
       expect(folders).length(3);
-      expect(folders[0]).toBe('path/extension1/packages/extension');
-      expect(folders[1]).toBe('path/extension2');
-      expect(folders[2]).toBe('path/extension3/packages/extension');
+      expect(folders[0]).toBe(path.join('path', 'extension1', 'packages', 'extension'));
+      expect(folders[1]).toBe(path.join('path', 'extension2'));
+      expect(folders[2]).toBe(path.join('path', 'extension3', 'packages', 'extension'));
     });
   });
 
