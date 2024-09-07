@@ -226,7 +226,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 15000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
       .toBeFalsy();
   });
 

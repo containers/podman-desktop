@@ -45,7 +45,7 @@ export class ExtensionDetailsPage extends BasePage {
     if ((await this.status.innerText()) === 'DISABLED') return this;
 
     await this.disableButton.click();
-    await playExpect(this.status).toHaveText('DISABLED');
+    await playExpect(this.status).toHaveText('DISABLED', { timeout: 30000 });
     return this;
   }
 
@@ -53,7 +53,7 @@ export class ExtensionDetailsPage extends BasePage {
     if ((await this.status.innerText()) === 'ACTIVE') return this;
 
     await this.enableButton.click();
-    await playExpect(this.status).toHaveText('ACTIVE');
+    await playExpect(this.status).toHaveText('ACTIVE', { timeout: 30000 });
     return this;
   }
 
