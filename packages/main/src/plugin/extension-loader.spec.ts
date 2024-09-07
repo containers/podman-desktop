@@ -2273,3 +2273,134 @@ test('when loading registry registerRegistry, do not push to disposables', async
 
   expect(disposables.length).toBe(0);
 });
+
+describe('loading extension folders', () => {
+  const fileEntry = {
+    isDirectory: () => false,
+  } as fs.Dirent;
+  const nodeModulesEntry = {
+    isDirectory: () => true,
+    name: 'node_modules',
+  } as fs.Dirent;
+  const dirEntry = {
+    isDirectory: () => true,
+    name: 'extension1',
+  } as fs.Dirent;
+  const dirEntry2 = {
+    isDirectory: () => true,
+    name: 'extension2',
+  } as fs.Dirent;
+  const dirEntry3 = {
+    isDirectory: () => true,
+    name: 'extension3',
+  } as fs.Dirent;
+  const dirEntry4 = {
+    isDirectory: () => true,
+    name: 'extension4',
+  } as fs.Dirent;
+
+  describe('in dev mode', () => {
+    test('ignores files', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([fileEntry]);
+
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(0);
+    });
+    test('ignores node_modules folders', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([nodeModulesEntry]);
+
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(0);
+    });
+    test('ignores folders without package.json', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(0);
+    });
+
+    test('recognizes a plain extension when only ext/package.json is present', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(false).mockReturnValueOnce(true);
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(1);
+      expect(folders[0]).toBe('path/extension1');
+    });
+
+    test('recognizes as an api extension when only ext/packages/extension/package.json is present', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(true).mockReturnValueOnce(true);
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(1);
+      expect(folders[0]).toBe('path/extension1/packages/extension');
+    });
+
+    test('recognizes as an api extension when ext/package.json and ext/packages/extension/package.json are present', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(true).mockReturnValueOnce(false);
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(1);
+      expect(folders[0]).toBe('path/extension1/packages/extension');
+    });
+
+    test('works correctly for multiple different extensions, files and empty folders', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([fileEntry, dirEntry, dirEntry2, dirEntry3, dirEntry4]);
+      vi.spyOn(fs, 'existsSync')
+        // an api extension
+        .mockReturnValueOnce(true)
+        // an plain extension
+        .mockReturnValueOnce(false) // plain extension
+        // priority to an api extension
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true) // priority to api extension
+        // ignore no package.json folders
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false);
+      const folders = await extensionLoader.readDevelopmentFolders('path');
+
+      expect(folders).length(3);
+      expect(folders[0]).toBe('path/extension1/packages/extension');
+      expect(folders[1]).toBe('path/extension2');
+      expect(folders[2]).toBe('path/extension3/packages/extension');
+    });
+  });
+
+  describe('in prod mode', () => {
+    test('ignores files', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([fileEntry]);
+
+      const folders = await extensionLoader.readProductionFolders('path');
+
+      expect(folders).length(0);
+    });
+    test('ignores node_modules folders', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([nodeModulesEntry]);
+
+      const folders = await extensionLoader.readProductionFolders('path');
+
+      expect(folders).length(0);
+    });
+    test('recognizes a plain extension when only ext/package.json is present', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
+      const folders = await extensionLoader.readProductionFolders('path');
+
+      expect(folders).length(1);
+      expect(folders[0]).toBe(path.join('path', 'extension1', 'builtin', 'extension1.cdix'));
+    });
+    test('recognizes an api extension when ext/package.json is not present', async () => {
+      vi.spyOn(fs.promises, 'readdir').mockResolvedValue([dirEntry]);
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
+      const folders = await extensionLoader.readProductionFolders('path');
+
+      expect(folders).length(1);
+      expect(folders[0]).toBe(path.join('path', 'extension1', 'packages', 'extension', 'builtin', `extension1.cdix`));
+    });
+  });
+});
