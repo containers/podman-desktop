@@ -57,6 +57,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
     message: 'Images page is empty, there are no images present',
   });
 
+  console.log(`beforeAll hook with firstTimeSetup === ${firstTimeSetup}`);
   if (firstTimeSetup) {
     await deletePod(page, podToRun);
     await deleteContainer(page, backendContainer);
@@ -69,21 +70,25 @@ test.afterEach(async () => {
   // This should always be compared to the final test in the suite, if any test is added after this one, this also should be updated
   if (test.info().title.includes('Pruning pods')) {
     resetTestData = true;
+    console.log(`afterEAch hook with resetTestData === ${resetTestData}`);
     return;
   }
 
   if (test.info().status !== test.info().expectedStatus) {
     resetTestData = false;
+    console.log(`afterEach hook with resetTestData === ${resetTestData}`);
     return;
   }
 
   resetTestData = true;
+  console.log(`afterEach hook with resetTestData === ${resetTestData}`);
 });
 
 test.afterAll(async ({ page, runner }) => {
   test.setTimeout(120000);
 
   try {
+    console.log(`afterAll hook with resetTestData === ${resetTestData}`);
     if (!resetTestData) return;
 
     for (const pod of podNames) {
