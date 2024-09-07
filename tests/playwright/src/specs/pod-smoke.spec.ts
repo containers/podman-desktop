@@ -39,6 +39,7 @@ const containerNames = ['container1', 'container2', 'container3'];
 const podNames = ['pod1', 'pod2', 'pod3'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 let resetTestData = true;
+let firstTimeSetup = true;
 
 test.skip(
   !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
@@ -56,10 +57,11 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
     message: 'Images page is empty, there are no images present',
   });
 
-  if (resetTestData) {
+  if (firstTimeSetup) {
     await deletePod(page, podToRun);
     await deleteContainer(page, backendContainer);
     await deleteContainer(page, frontendContainer);
+    firstTimeSetup = false;
   }
 });
 
