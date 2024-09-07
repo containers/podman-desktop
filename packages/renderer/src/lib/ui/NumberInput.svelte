@@ -59,16 +59,27 @@ function onKeyPress(event: any) {
   }
 }
 
+// handle float precision when adding floating point numbers
+function precision(value: number, incrementOrDecrement: number): number {
+  const valuePrecisionDigits = value.toString().split('.')[1]?.length ?? 0;
+  const stepPrecisionDigits = incrementOrDecrement.toString().split('.')[1]?.length ?? 0;
+  // use as precision either the value precision or the step precision
+  const precisionDigits = Math.max(valuePrecisionDigits, stepPrecisionDigits);
+
+  // if incrementOrDecrement is negative, it will decrement
+  return Number((Number(value) + incrementOrDecrement).toFixed(precisionDigits));
+}
+
 function onDecrement(e: MouseEvent) {
   const dec = step ? step : 1;
   e.preventDefault();
-  value = (100 * Number(value) - 100 * dec) / 100;
+  value = precision(value, -dec);
 }
 
 function onIncrement(e: MouseEvent) {
   const inc = step ? step : 1;
   e.preventDefault();
-  value = (100 * Number(value) + 100 * inc) / 100;
+  value = precision(value, inc);
 }
 </script>
 
