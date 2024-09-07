@@ -63,6 +63,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
     await deleteContainer(page, backendContainer);
     await deleteContainer(page, frontendContainer);
     firstTimeSetup = false;
+    console.log(`beforeAll hook with firstTimeSetup === ${firstTimeSetup}`);
   }
 });
 
