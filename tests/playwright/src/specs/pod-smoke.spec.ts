@@ -38,6 +38,7 @@ const isMac = os.platform() === 'darwin';
 const containerNames = ['container1', 'container2', 'container3'];
 const podNames = ['pod1', 'pod2', 'pod3'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
+let resetTestData = true;
 
 test.skip(
   !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
@@ -54,15 +55,35 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
     sendError: false,
     message: 'Images page is empty, there are no images present',
   });
-  await deletePod(page, podToRun);
-  await deleteContainer(page, backendContainer);
-  await deleteContainer(page, frontendContainer);
+
+  if (resetTestData) {
+    await deletePod(page, podToRun);
+    await deleteContainer(page, backendContainer);
+    await deleteContainer(page, frontendContainer);
+  }
+});
+
+test.afterEach(async () => {
+  // This should always be compared to the final test in the suite, if any test is added after this one, this also should be updated
+  if (test.info().title.includes('Pruning pods')) {
+    resetTestData = true;
+    return;
+  }
+
+  if (test.info().status !== test.info().expectedStatus) {
+    resetTestData = false;
+    return;
+  }
+
+  resetTestData = true;
 });
 
 test.afterAll(async ({ page, runner }) => {
   test.setTimeout(120000);
 
   try {
+    if (!resetTestData) return;
+
     for (const pod of podNames) {
       await deletePod(page, pod);
     }
