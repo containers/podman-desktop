@@ -21,7 +21,7 @@ import * as os from 'node:os';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
 
-const PODMAN_MACHINE_NAME = 'Podman Machine';
+const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 
 test.skip(
   os.platform() === 'linux' || process.env.TEST_PODMAN_MACHINE !== 'true',
