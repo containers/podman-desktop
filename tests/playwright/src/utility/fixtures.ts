@@ -21,6 +21,7 @@ import { test as base } from '@playwright/test';
 
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
+import { StatusBar } from '../model/workbench/status-bar';
 import { Runner } from '../runner/podman-desktop-runner';
 import { RunnerOptions } from '../runner/runner-options';
 
@@ -29,6 +30,7 @@ export type TestFixtures = {
   navigationBar: NavigationBar;
   welcomePage: WelcomePage;
   page: Page;
+  statusBar: StatusBar;
 };
 
 export type FixtureOptions = {
@@ -51,6 +53,10 @@ export const test = base.extend<TestFixtures & FixtureOptions>({
   welcomePage: async ({ page }, use) => {
     const welcomePage = new WelcomePage(page);
     await use(welcomePage);
+  },
+  statusBar: async ({ page }, use) => {
+    const statusBar = new StatusBar(page);
+    await use(statusBar);
   },
 });
 export { expect } from '@playwright/test';

@@ -22,15 +22,29 @@ import { handleConfirmationDialog } from '../../utility/operations';
 import { BasePage } from '../pages/base-page';
 
 export class StatusBar extends BasePage {
+  readonly content: Locator;
   readonly kindInstallationButton: Locator;
   readonly kubernetesContext: Locator;
+  readonly versionButton: Locator;
+  readonly updateButtonTitle: Locator;
+  readonly shareYourFeedbackButton: Locator;
+  readonly troubleshootingButton: Locator;
+  readonly tasksButton: Locator;
+  readonly helpButton: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.kindInstallationButton = this.page.getByTitle(
+    this.content = page.getByRole('contentinfo', { name: 'Status Bar' });
+    this.kindInstallationButton = this.content.getByTitle(
       'Kind not found on your system, click to download and install it',
     );
-    this.kubernetesContext = this.page.getByTitle('Current Kubernetes Context');
+    this.kubernetesContext = this.content.getByTitle('Current Kubernetes Context');
+    this.versionButton = this.content.getByRole('button', { name: /^v\d+\.\d+\.\d+(-\w+)?$/ });
+    this.updateButtonTitle = this.content.getByRole('button').and(this.content.getByTitle('Update available'));
+    this.shareYourFeedbackButton = this.content.getByRole('button').and(this.content.getByTitle('Share your feedback'));
+    this.troubleshootingButton = this.content.getByRole('button').and(this.content.getByTitle('Troubleshooting'));
+    this.tasksButton = this.content.getByRole('button').and(this.content.getByTitle('Tasks'));
+    this.helpButton = this.content.getByRole('button').and(this.content.getByTitle('Help'));
   }
 
   public async installKindCLI(): Promise<void> {
