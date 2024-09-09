@@ -28,9 +28,9 @@ const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
+test.beforeAll(async ({ runner, welcomePage, page }) => {
   test.setTimeout(250000);
-  pdRunner.setVideoAndTraceName('kind-e2e');
+  runner.setVideoAndTraceName('kubernetes-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
@@ -40,12 +40,12 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
 
-test.afterAll(async ({ pdRunner, page }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
     await deleteKindCluster(page, KIND_NODE);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
