@@ -14,6 +14,7 @@ export let disabled: boolean = false;
 export let error: string | undefined = undefined;
 export let inputClass: string | undefined = undefined;
 export let showError: boolean = true;
+export let initialFocus: boolean = false;
 
 export let element: HTMLInputElement | undefined = undefined;
 
@@ -31,6 +32,12 @@ async function onClear(): Promise<void> {
       element.value = value;
       element.dispatchEvent(new InputEvent('input'));
     }
+  }
+}
+
+function requestFocus(element: HTMLInputElement): void {
+  if (initialFocus) {
+    element.focus();
   }
 }
 </script>
@@ -70,7 +77,8 @@ async function onClear(): Promise<void> {
       id={id}
       aria-label={$$props['aria-label']}
       aria-invalid={$$props['aria-invalid']}
-      bind:value={value} />
+      bind:value={value}
+      use:requestFocus />
     {#if error && showError}
       <span class="px-0.5 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
         <Fa icon={faCircleExclamation} />

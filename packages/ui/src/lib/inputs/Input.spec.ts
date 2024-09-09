@@ -163,3 +163,21 @@ test('Expect inputClass styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass(thisClass);
 });
+
+test('Expect not have focus', async () => {
+  render(Input, {
+    initialFocus: false,
+  });
+  const element = screen.getByRole('textbox');
+  expect(element).toBeInTheDocument();
+  expect(element).not.toHaveFocus();
+});
+
+test('Expect to have focus', async () => {
+  render(Input, {
+    initialFocus: true,
+  });
+  const element = screen.getByRole('textbox');
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveFocus();
+});
