@@ -136,8 +136,9 @@ test('terminal active/ restarts connection after stopping and starting a contain
       onEnd: () => void,
     ) => {
       onDataCallback = onData;
-      await new Promise(resolve => setTimeout(resolve, 500));
-      onEnd();
+      setTimeout(() => {
+        onEnd();
+      }, 500);
       // return a callback id
       return sendCallbackId;
     },
