@@ -22,7 +22,7 @@ import type { KubernetesResources } from '../core/types';
 import { KubernetesResourceDetailsPage } from './kubernetes-resource-details-page';
 import { MainPage } from './main-page';
 
-export class KubernetesResourcesPage extends MainPage {
+export class KubernetesResourcePage extends MainPage {
   readonly applyYamlButton: Locator;
 
   constructor(page: Page, name: KubernetesResources) {
@@ -41,11 +41,6 @@ export class KubernetesResourcesPage extends MainPage {
         const nameCell = await rows[i].getByRole('cell').nth(2).getByText(name, { exact: true }).count();
         if (nameCell) {
           return rows[i];
-        } else if (this.title === 'containers') {
-          const subRow = await rows[i].getByLabel(name, { exact: true }).count();
-          if (subRow) {
-            return rows[i];
-          }
         }
       }
     } catch (err) {

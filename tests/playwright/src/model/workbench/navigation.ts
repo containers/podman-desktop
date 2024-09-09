@@ -23,7 +23,7 @@ import { ContainersPage } from '../pages/containers-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { ExtensionsPage } from '../pages/extensions-page';
 import { ImagesPage } from '../pages/images-page';
-import { KubernetesResourcesPage } from '../pages/kubernetes-resources-page';
+import { KubernetesResourcePage } from '../pages/kubernetes-resources-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
 import { VolumesPage } from '../pages/volumes-page';
@@ -94,15 +94,15 @@ export class NavigationBar {
     return new VolumesPage(this.page);
   }
 
-  async openKubernetesResources(name: KubernetesResources): Promise<KubernetesResourcesPage> {
+  async openKubernetesResources(name: KubernetesResources): Promise<KubernetesResourcePage> {
     if (!(await this.kubernetesResources.isVisible())) {
       await expect(this.kubernetesButton).toBeEnabled();
       await this.kubernetesButton.click();
     }
     await expect(this.kubernetesResources).toBeVisible();
-    const resources = this.page.getByRole('link', { name: name });
-    await resources.click();
-    return new KubernetesResourcesPage(this.page, name);
+    const resource = this.page.getByRole('link', { name: name });
+    await resource.click();
+    return new KubernetesResourcePage(this.page, name);
   }
 
   async openExtensions(): Promise<ExtensionsPage> {
