@@ -26,6 +26,15 @@ import { AppearanceSettings } from '../../../../main/src/plugin/appearance-setti
 import IconImage from './IconImage.svelte';
 
 const getConfigurationValueMock = vi.fn();
+const getImageMock = vi.fn();
+
+vi.mock('./appearance-util', () => {
+  return {
+    AppearanceUtil: class {
+      getImage = getImageMock;
+    },
+  };
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -38,7 +47,7 @@ beforeEach(() => {
 });
 
 test('Expect valid source and alt text with dark mode', async () => {
-  getConfigurationValueMock.mockResolvedValue(AppearanceSettings.DarkEnumValue);
+  getImageMock.mockReturnValue('dark.png');
 
   const image = render(IconImage, { image: { light: 'light.png', dark: 'dark.png' }, alt: 'this is alt text' });
 
@@ -49,12 +58,12 @@ test('Expect valid source and alt text with dark mode', async () => {
   const imageElement = image.getByRole('img');
 
   // expect to have valid source
-  expect(imageElement).toHaveAttribute('src', 'dark.png');
+  await vi.waitFor(async () => expect(imageElement).toHaveAttribute('src', 'dark.png'));
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 });
 
 test('Expect valid source and alt text with light mode', async () => {
-  getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
+  getImageMock.mockReturnValue('light.png');
 
   const image = render(IconImage, { image: { light: 'light.png', dark: 'dark.png' }, alt: 'this is alt text' });
 
@@ -65,12 +74,13 @@ test('Expect valid source and alt text with light mode', async () => {
   const imageElement = image.getByRole('img');
 
   // expect to have valid source
-  expect(imageElement).toHaveAttribute('src', 'light.png');
+  await vi.waitFor(async () => expect(imageElement).toHaveAttribute('src', 'light.png'));
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 });
 
 test('Expect no alt attribute if missing and default image', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
+  getImageMock.mockReturnValue('image.png');
 
   const image = render(IconImage, { image: 'image.png' });
 
