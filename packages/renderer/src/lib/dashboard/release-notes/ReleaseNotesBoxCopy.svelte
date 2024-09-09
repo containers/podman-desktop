@@ -61,17 +61,18 @@ onMount(async () => {
 
 {#if $showReleaseNotesBanner}
   <div
-    class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-fit max-h-[760px] items-center">
+    class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-fit max-h-[260px] items-center">
     <img src={imageUrl} class="w-[30%] h-fit object-contain rounded-md" alt={imageAlt} />
     <div class="flex flex-col w-[70%]">
       <div class="flex flex-row items-center justify-between">
-        <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl m-2">
+        <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl ml-2 mt-2">
           <Markdown markdown={title.split('\n')[1]}></Markdown>
         </p>
         <CloseButton on:click={() => onclose()} class="self-start" />
       </div>
       {#if summary}
-        <div class="text-[var(--pd-content-card-text)] m-2 trunace text-ellipsis overflow-hidden whitespace-pre-line">
+        <div
+          class="text-[var(--pd-content-card-text)] trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6 leading-tight">
           <Markdown markdown={summary.toString().replace(/\n\,/g, '\n')}></Markdown>
         </div>
       {/if}
