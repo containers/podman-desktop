@@ -323,8 +323,7 @@ jobs:
         with:
           name: smoke-e2e-tests
           path: |
-            ./tests/output/
-            ./tests/**/output/junit*.xml
+            ./tests/**/output/
             !./tests/**/traces/raw
 
   detect_pnpm_changes:
@@ -402,7 +401,6 @@ jobs:
           name: win-update-e2e-test
           path: |
             ./tests/**/output/
-            ./tests/**/output/junit*.xml
             !./tests/**/traces/raw
 
   update-e2e-test:
