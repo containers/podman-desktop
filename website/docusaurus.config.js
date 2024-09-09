@@ -1,6 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
+import * as fs from 'node:fs';
 import Storybook from './storybook';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
@@ -24,6 +25,30 @@ const config = {
   trailingSlash: false,
   markdown: {
     mermaid: true,
+    parseFrontMatter: async params => {
+      // Reuse the default parser
+      const result = await params.defaultParseFrontMatter(params);
+      const jsonFilePath = './blog/release-notes-files-version-mapping.json';
+      let currentFileName = params.filePath.split('/').at(-1);
+      let version;
+
+      if (
+        result.frontMatter.title &&
+        String(result.frontMatter.title).match(/Release/) &&
+        String(result.frontMatter.title).match(/\d+\.\d+/)
+      ) {
+        let versionMatch = String(result.frontMatter.title).match(/(\d+\.\d+)/) ?? [];
+        version = versionMatch[1] ? versionMatch[1] : '';
+        if (version) {
+          const fileContent = fs.readFileSync(jsonFilePath, { encoding: 'utf-8' });
+          const jsonObject = JSON.parse(fileContent);
+          jsonObject[version] = currentFileName;
+          fs.writeFileSync(jsonFilePath, JSON.stringify(jsonObject));
+        }
+      }
+
+      return result;
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
   plugins: [
