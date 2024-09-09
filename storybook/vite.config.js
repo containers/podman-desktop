@@ -21,9 +21,6 @@ import { join } from 'path';
 import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
-import postcssImport from 'postcss-import';
 
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
@@ -40,12 +37,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
-    },
-  },
-  css: {
-    transformer: 'postcss',
-    postcss: {
-      plugins: [tailwindcss, autoprefixer, postcssImport],
     },
   },
   plugins: [svelte(), svelteTesting()],

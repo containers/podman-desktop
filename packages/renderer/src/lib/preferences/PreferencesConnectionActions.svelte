@@ -10,7 +10,11 @@ import type {
 } from '/@api/provider-info';
 
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import {
+  type ConnectionCallback,
+  eventCollect,
+  registerConnectionCallback,
+} from './preferences-connection-rendering-task';
 import { type IConnectionRestart, type IConnectionStatus } from './Util';
 
 export let connectionStatus: IConnectionStatus | undefined;
@@ -34,11 +38,7 @@ async function startConnectionProvider(
     if (providerConnectionInfo.status === 'stopped') {
       if (!loggerHandlerKey) {
         updateConnectionStatus(provider, providerConnectionInfo, 'start');
-        loggerHandlerKey = startTask(
-          `Start ${providerConnectionInfo.name}`,
-          '/preferences/resources',
-          getLoggerHandler(provider, providerConnectionInfo),
-        );
+        loggerHandlerKey = registerConnectionCallback(getLoggerHandler(provider, providerConnectionInfo));
       }
       await window.startProviderConnectionLifecycle(
         provider.internalId,
@@ -58,11 +58,7 @@ async function restartConnectionProvider(
 ): Promise<void> {
   if (providerConnectionInfo.status === 'started') {
     updateConnectionStatus(provider, providerConnectionInfo, 'restart');
-    const loggerHandlerKey = startTask(
-      `Restart ${providerConnectionInfo.name}`,
-      '/preferences/resources',
-      getLoggerHandler(provider, providerConnectionInfo),
-    );
+    const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(provider, providerConnectionInfo));
     await window.stopProviderConnectionLifecycle(
       provider.internalId,
       providerConnectionInfo,
@@ -84,11 +80,7 @@ async function stopConnectionProvider(
   try {
     if (providerConnectionInfo.status === 'started') {
       updateConnectionStatus(provider, providerConnectionInfo, 'stop');
-      const loggerHandlerKey = startTask(
-        `Stop ${providerConnectionInfo.name}`,
-        '/preferences/resources',
-        getLoggerHandler(provider, providerConnectionInfo),
-      );
+      const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(provider, providerConnectionInfo));
       await window.stopProviderConnectionLifecycle(
         provider.internalId,
         providerConnectionInfo,
@@ -119,11 +111,7 @@ async function deleteConnectionProvider(
   try {
     if (providerConnectionInfo.status === 'stopped' || providerConnectionInfo.status === 'unknown') {
       updateConnectionStatus(provider, providerConnectionInfo, 'delete');
-      const loggerHandlerKey = startTask(
-        `Delete ${providerConnectionInfo.name}`,
-        '/preferences/resources',
-        getLoggerHandler(provider, providerConnectionInfo),
-      );
+      const loggerHandlerKey = registerConnectionCallback(getLoggerHandler(provider, providerConnectionInfo));
       await window.deleteProviderConnectionLifecycle(
         provider.internalId,
         providerConnectionInfo,

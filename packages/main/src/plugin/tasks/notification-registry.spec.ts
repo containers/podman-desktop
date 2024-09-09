@@ -43,8 +43,6 @@ beforeEach(() => {
 
 vi.mock('electron', async () => {
   class Notification {
-    constructor() {}
-
     show(): void {}
   }
 
@@ -66,9 +64,9 @@ test('expect notification added to the queue', async () => {
 
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(1);
-  expect(queue[0].extensionId).toEqual(extensionId);
-  expect(queue[0].title).toEqual('title');
-  expect(queue[0].type).toEqual('info');
+  expect(queue[0]?.extensionId).toEqual(extensionId);
+  expect(queue[0]?.title).toEqual('title');
+  expect(queue[0]?.type).toEqual('info');
   expect(createNotificationtaskMock).toBeCalledWith({
     title: 'title',
     body: 'description',
@@ -79,11 +77,13 @@ test('expect notification is disposed correctly', async () => {
   vi.spyOn(notificationRegistry, 'showNotification').mockImplementation(() => {
     return Disposable.create(() => {});
   });
+  const notificationDisposeMock = vi.fn();
   const notificationTask = {
     id: `main-1`,
     name: 'title',
     started: 1721656320682,
     description: 'description',
+    dispose: notificationDisposeMock,
   };
   createNotificationtaskMock.mockImplementation(() => notificationTask);
   let queue = notificationRegistry.getNotifications();
@@ -98,14 +98,14 @@ test('expect notification is disposed correctly', async () => {
 
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(1);
-  expect(queue[0].extensionId).toEqual(extensionId);
-  expect(queue[0].title).toEqual('title');
-  expect(queue[0].type).toEqual('info');
+  expect(queue[0]?.extensionId).toEqual(extensionId);
+  expect(queue[0]?.title).toEqual('title');
+  expect(queue[0]?.type).toEqual('info');
   disposable.dispose();
 
-  expect(deleteTaskMock).toBeCalledWith(notificationTask);
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(0);
+  expect(notificationDisposeMock).toHaveBeenCalledOnce();
 });
 
 test('expect latest added notification is in top of the queue', async () => {
@@ -130,17 +130,17 @@ test('expect latest added notification is in top of the queue', async () => {
 
   const queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(3);
-  expect(queue[0].extensionId).toEqual(extensionId);
-  expect(queue[0].title).toEqual('3');
-  expect(queue[0].type).toEqual('info');
+  expect(queue[0]?.extensionId).toEqual(extensionId);
+  expect(queue[0]?.title).toEqual('3');
+  expect(queue[0]?.type).toEqual('info');
 
-  expect(queue[1].extensionId).toEqual(extensionId);
-  expect(queue[1].title).toEqual('2');
-  expect(queue[1].type).toEqual('info');
+  expect(queue[1]?.extensionId).toEqual(extensionId);
+  expect(queue[1]?.title).toEqual('2');
+  expect(queue[1]?.type).toEqual('info');
 
-  expect(queue[2].extensionId).toEqual(extensionId);
-  expect(queue[2].title).toEqual('1');
-  expect(queue[2].type).toEqual('info');
+  expect(queue[2]?.extensionId).toEqual(extensionId);
+  expect(queue[2]?.title).toEqual('1');
+  expect(queue[2]?.type).toEqual('info');
 });
 
 test('expect the queue to not have the notification after it is removed by id', async () => {
@@ -157,7 +157,9 @@ test('expect the queue to not have the notification after it is removed by id', 
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(1);
 
-  notificationRegistry.removeNotificationById(queue[0].id);
+  const queueId = queue[0]?.id;
+  expect(queueId).toBeDefined();
+  notificationRegistry.removeNotificationById(queueId as number);
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(0);
 });
@@ -185,7 +187,7 @@ test('expect the queue to not have the notifications after they are removed by e
   notificationRegistry.removeNotificationsByExtensionAndTitle(extensionId, 'title');
   queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(1);
-  expect(queue[0].title).equal('title1');
+  expect(queue[0]?.title).equal('title1');
 });
 
 test('expect all notifications to be removed', async () => {
@@ -259,8 +261,8 @@ test('expect same notification to only appear once if added multiple times', asy
   });
   let queue = notificationRegistry.getNotifications();
   expect(queue.length).toEqual(2);
-  expect(queue[0].title).equal('1');
-  expect(queue[1].title).equal('2');
+  expect(queue[0]?.title).equal('1');
+  expect(queue[1]?.title).equal('2');
 
   registerNotificationDisposable.dispose();
   queue = notificationRegistry.getNotifications();

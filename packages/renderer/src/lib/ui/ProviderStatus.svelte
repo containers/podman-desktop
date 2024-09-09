@@ -1,19 +1,15 @@
 <script lang="ts">
 export let status: string;
 
-interface connectionStatusStyle {
+interface ConnectionStatusStyle {
   bgColor: string;
   txtColor: string;
   label: string;
 }
 
-/* 'not-installed'
-  | 'installed'
-  | 'configured'
-  | 'unknown';*/
 const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
 const labelStyle = 'my-auto ml-1 text-xs';
-const statusesStyle = new Map<string, connectionStatusStyle>([
+const statusesStyle = new Map<string, ConnectionStatusStyle>([
   [
     'ready',
     {

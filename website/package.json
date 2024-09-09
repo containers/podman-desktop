@@ -45,12 +45,12 @@
     "@docusaurus/module-type-aliases": "^3.5.2",
     "@docusaurus/tsconfig": "^3.5.2",
     "autoprefixer": "^10.4.20",
-    "markdownlint": "^0.34.0",
-    "markdownlint-cli2": "^0.13.0",
-    "postcss": "^8.4.41",
+    "markdownlint": "^0.35.0",
+    "markdownlint-cli2": "^0.14.0",
+    "postcss": "^8.4.45",
     "tailwindcss": "^3.4.10",
     "typedoc": "^0.26.6",
-    "typedoc-plugin-markdown": "^4.2.5",
+    "typedoc-plugin-markdown": "^4.2.7",
     "typescript": "^5.5.4"
   },
   "browserslist": {

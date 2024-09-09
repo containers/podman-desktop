@@ -471,7 +471,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 </Tooltip>
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} font-semibold">
-                {container.name}
+                {container.displayName}
               </div>
               <div class="flex" aria-label="Connection Status">
                 <ConnectionStatus status={container.status} />
@@ -536,7 +536,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   {provider.name}
                   {provider.version ? `v${provider.version}` : ''}
                 </div>
-                <div aria-label="Connection Type">{container.vmType ? capitalize(container.vmType) : ''}</div>
+                <div aria-label="Connection Type">{container.vmType ? capitalize(container.vmType.name) : ''}</div>
               </div>
             </div>
           {/each}

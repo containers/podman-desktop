@@ -18,10 +18,10 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { onboardingList } from '/@/stores/onboarding';
@@ -31,6 +31,9 @@ import type { ProviderInfo } from '/@api/provider-info';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { providerInfos } from '../../stores/providers';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
+
+const defaultContainerConnectionName = 'machine-default';
+const secondaryContainerConnectionName = 'podman-machine-secondary';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
@@ -45,14 +48,32 @@ const providerInfo: ProviderInfo = {
   detectionChecks: [],
   containerConnections: [
     {
-      name: 'machine',
+      name: defaultContainerConnectionName,
+      displayName: defaultContainerConnectionName,
       status: 'started',
       endpoint: {
         socketPath: 'socket',
       },
       lifecycleMethods: ['start', 'stop', 'delete'],
       type: 'podman',
-      vmType: 'libkrun',
+      vmType: {
+        id: 'libkrun',
+        name: 'libkrun',
+      },
+    },
+    {
+      name: secondaryContainerConnectionName,
+      displayName: 'Dummy Secondary Connection',
+      status: 'stopped',
+      endpoint: {
+        socketPath: 'socket',
+      },
+      lifecycleMethods: ['start', 'stop', 'delete'],
+      type: 'podman',
+      vmType: {
+        id: 'wsl',
+        name: 'wsl',
+      },
     },
   ],
   installationSupport: false,
@@ -124,62 +145,101 @@ test('Expect to see elements regarding podman provider', async () => {
   expect(button).toBeInTheDocument();
 });
 
-test('Expect to be start, delete actions enabled and stop, restart disabled when container stopped', async () => {
-  providerInfo.containerConnections[0].status = 'stopped';
-  providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});
-  const startButton = screen.getByRole('button', { name: 'Start' });
-  expect(startButton).toBeInTheDocument();
-  expect(!startButton.classList.contains('cursor-not-allowed'));
-  const stopButton = screen.getByRole('button', { name: 'Stop' });
-  expect(stopButton).toBeInTheDocument();
-  expect(stopButton.classList.contains('cursor-not-allowed'));
-  const restartButton = screen.getByRole('button', { name: 'Restart' });
-  expect(restartButton).toBeInTheDocument();
-  expect(restartButton.classList.contains('cursor-not-allowed'));
-  const deleteButton = screen.getByRole('button', { name: 'Delete' });
-  expect(deleteButton).toBeInTheDocument();
-  expect(!deleteButton.classList.contains('cursor-not-allowed'));
-});
+describe('provider connections', () => {
+  test('Expect to have two container connection region', () => {
+    providerInfos.set([providerInfo]);
+    const { getAllByLabelText } = render(PreferencesResourcesRendering, {});
 
-test('Expect to be start, delete actions disabled and stop, restart enabled when container running', async () => {
-  providerInfo.containerConnections[0].status = 'started';
-  providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});
-  const startButton = screen.getByRole('button', { name: 'Start' });
-  expect(startButton).toBeInTheDocument();
-  expect(startButton.classList.contains('cursor-not-allowed'));
-  const stopButton = screen.getByRole('button', { name: 'Stop' });
-  expect(stopButton).toBeInTheDocument();
-  expect(!stopButton.classList.contains('cursor-not-allowed'));
-  const restartButton = screen.getByRole('button', { name: 'Restart' });
-  expect(restartButton).toBeInTheDocument();
-  expect(!restartButton.classList.contains('cursor-not-allowed'));
-  const deleteButton = screen.getByRole('button', { name: 'Delete' });
-  expect(deleteButton).toBeInTheDocument();
-  expect(deleteButton.classList.contains('cursor-not-allowed'));
-});
+    const statuses = getAllByLabelText('Connection Status');
+    expect(statuses.length).toBe(2);
+  });
 
-test('Expect type to be reported for Podman engines', async () => {
-  providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});
+  test('Expect to be start, delete actions enabled and stop, restart disabled when container stopped', async () => {
+    providerInfo.containerConnections[0].status = 'stopped';
+    providerInfos.set([providerInfo]);
+    const { getByRole } = render(PreferencesResourcesRendering, {});
 
-  const typeDiv = screen.getByLabelText('machine type');
-  expect(typeDiv.textContent).toBe('Podman endpoint');
-  const endpointSpan = await vi.waitFor(() => screen.getByTitle('unix://socket'));
-  expect(endpointSpan.textContent).toBe('unix://socket');
-  const connectionType = screen.getByLabelText('Connection Type');
-  expect(connectionType.textContent).equal('Libkrun');
-});
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: defaultContainerConnectionName });
 
-test('Expect type to be reported for Docker engines', async () => {
-  providerInfo.containerConnections[0].type = 'docker';
-  providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});
-  const typeDiv = screen.getByLabelText('machine type');
-  expect(typeDiv.textContent).toBe('Docker endpoint');
-  const endpointSpan = await vi.waitFor(() => screen.getByTitle('unix://socket'));
-  expect(endpointSpan.textContent).toBe('unix://socket');
+    const startButton = within(region).getByRole('button', { name: 'Start' });
+    expect(startButton).toBeInTheDocument();
+    expect(!startButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const stopButton = within(region).getByRole('button', { name: 'Stop' });
+    expect(stopButton).toBeInTheDocument();
+    expect(stopButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const restartButton = within(region).getByRole('button', { name: 'Restart' });
+    expect(restartButton).toBeInTheDocument();
+    expect(restartButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const deleteButton = within(region).getByRole('button', { name: 'Delete' });
+    expect(deleteButton).toBeInTheDocument();
+    expect(!deleteButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+  });
+
+  test('Expect to be start, delete actions disabled and stop, restart enabled when container running', async () => {
+    providerInfo.containerConnections[0].status = 'started';
+    providerInfos.set([providerInfo]);
+    const { getByRole } = render(PreferencesResourcesRendering, {});
+
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: defaultContainerConnectionName });
+
+    const startButton = within(region).getByRole('button', { name: 'Start' });
+    expect(startButton).toBeInTheDocument();
+    expect(startButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const stopButton = within(region).getByRole('button', { name: 'Stop' });
+    expect(stopButton).toBeInTheDocument();
+    expect(!stopButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const restartButton = within(region).getByRole('button', { name: 'Restart' });
+    expect(restartButton).toBeInTheDocument();
+    expect(!restartButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+    const deleteButton = within(region).getByRole('button', { name: 'Delete' });
+    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton.classList.contains('cursor-not-allowed')).toBeTruthy();
+  });
+
+  test('Expect type to be reported for Podman engines', async () => {
+    providerInfos.set([providerInfo]);
+
+    const { getByRole } = render(PreferencesResourcesRendering, {});
+
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: defaultContainerConnectionName });
+
+    const typeDiv = within(region).getByLabelText(`${defaultContainerConnectionName} type`);
+    expect(typeDiv.textContent).toBe('Podman endpoint');
+    const endpointSpan = await vi.waitFor(() => within(region).getByTitle('unix://socket'));
+    expect(endpointSpan.textContent).toBe('unix://socket');
+    const connectionType = within(region).getByLabelText('Connection Type');
+    expect(connectionType.textContent).equal('Libkrun');
+  });
+
+  test('Expect type to be reported for Docker engines', async () => {
+    providerInfo.containerConnections[0].type = 'docker';
+    providerInfos.set([providerInfo]);
+
+    const { getByRole } = render(PreferencesResourcesRendering, {});
+
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: defaultContainerConnectionName });
+
+    const typeDiv = within(region).getByLabelText(`${defaultContainerConnectionName} type`);
+    expect(typeDiv.textContent).toBe('Docker endpoint');
+    const endpointSpan = await vi.waitFor(() => within(region).getByTitle('unix://socket'));
+    expect(endpointSpan.textContent).toBe('unix://socket');
+  });
+
+  test('Expect display name to be used in favor of name when available', async () => {
+    providerInfos.set([providerInfo]);
+
+    const { getByRole } = render(PreferencesResourcesRendering, {});
+
+    // get the region containing the content for the default connection
+    const region = getByRole('region', { name: secondaryContainerConnectionName });
+
+    const text = within(region).getByText('Dummy Secondary Connection');
+    expect(text).toBeDefined();
+  });
 });
 
 test('Expect to see the no resource message when there is no providers', async () => {

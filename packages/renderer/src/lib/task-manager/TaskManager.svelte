@@ -3,7 +3,7 @@ import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-ic
 import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import { clearNotifications, isStatefulTask, tasksInfo } from '/@/stores/tasks';
+import { clearNotifications, tasksInfo } from '/@/stores/tasks';
 
 import TaskIcon from '../images/TaskIcon.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
@@ -12,18 +12,8 @@ import TaskManagerGroup from './TaskManagerGroup.svelte';
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;
 
-$: runningTasks = $tasksInfo.filter(task => {
-  if (isStatefulTask(task)) {
-    return task.state === 'running';
-  }
-  return false;
-});
-$: notificationsTasks = $tasksInfo.filter(task => {
-  if (isStatefulTask(task)) {
-    return task.state === 'completed';
-  }
-  return true;
-});
+$: runningTasks = $tasksInfo.filter(task => task.state === 'running');
+$: completedTasks = $tasksInfo.filter(task => task.state !== 'running');
 
 // hide the task manager
 function hide() {
@@ -96,13 +86,13 @@ window.events?.receive('toggle-task-manager', () => {
           {/if}
 
           <!-- completed tasks-->
-          {#if notificationsTasks.length > 0}
+          {#if completedTasks.length > 0}
             <div class="flex bg-[var(--pd-invert-content-card-bg)] pt-1 px-4">
               <TaskManagerGroup
                 lineColor="bg-[var(--pd-invert-content-bg)]"
                 icon={faCheck}
-                tasks={notificationsTasks}
-                title="notifications" />
+                tasks={completedTasks}
+                title="completed" />
             </div>
           {/if}
         </div>
@@ -110,7 +100,7 @@ window.events?.receive('toggle-task-manager', () => {
 
       <!-- footer of the task manager -->
       <!-- only if there are tasks-->
-      {#if notificationsTasks.length > 0}
+      {#if completedTasks.length > 0}
         <div class="flex flex-row w-full">
           <div class="p-2 flex flex-row space-x-2 w-full">
             <Button on:click={() => clearNotifications()}>Clear</Button>

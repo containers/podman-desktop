@@ -16,15 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type Color = string;
-
 export interface ColorDefinition {
-  dark: Color;
-  light: Color;
+  dark: string;
+  light: string;
 }
 
 export interface ColorInfo {
   id: string;
-  value: Color;
+  value: string;
   cssVar: string;
 }

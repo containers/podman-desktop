@@ -16,4 +16,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-yarn lint-staged
+pnpm lint-staged

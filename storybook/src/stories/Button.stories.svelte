@@ -12,7 +12,7 @@ const onclickFn = fn().mockName('onclick');
  */
 const { Story } = defineMeta({
   component: Button,
-  title: 'Example/Button',
+  title: 'Button',
   tags: ['autodocs'],
   args: {
     onclick: onclickFn,
@@ -30,46 +30,46 @@ setTemplate(template);
 
 <Story
   name="Primary"
-  args="{{
+  args={{
     type: 'primary',
     content: 'primary',
-  }}" />
+  }} />
 
 <Story
   name="Secondary"
-  args="{{
+  args={{
     type: 'secondary',
     content: 'secondary',
-  }}" />
+  }} />
 
 <Story
   name="Danger"
-  args="{{
+  args={{
     type: 'danger',
     content: 'danger',
-  }}" />
+  }} />
 
 <Story
   name="With icon"
-  args="{{
+  args={{
     type: 'primary',
     content: 'with icon',
     icon: faBell,
-  }}" />
+  }} />
 
 <Story
   name="Disabled"
-  args="{{
+  args={{
     type: 'primary',
     content: 'disabled',
     disabled: true,
-  }}" />
+  }} />
 
 <Story
   name="Loading"
-  args="{{
+  args={{
     type: 'primary',
     content: 'loading',
     inProgress: true,
     icon: faBell,
-  }}" />
+  }} />

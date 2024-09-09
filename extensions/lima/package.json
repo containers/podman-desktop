@@ -64,12 +64,12 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1"
+    "@podman-desktop/api": "workspace:*"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.15",
+    "adm-zip": "^0.5.16",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.2",
+    "vite": "^5.4.3",
     "vitest": "^2.0.5",
     "tmp-promise": "^3.0.3"
   }

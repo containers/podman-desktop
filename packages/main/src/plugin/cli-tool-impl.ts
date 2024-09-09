@@ -19,6 +19,7 @@
 import type {
   CliTool,
   CliToolInstallationSource,
+  CliToolInstaller,
   CliToolOptions,
   CliToolSelectUpdate,
   CliToolState,
@@ -31,20 +32,18 @@ import type {
 
 import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
 
-import type { ApiSenderType } from './api.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import { Emitter } from './events/emitter.js';
-import type { Exec } from './util/exec.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
   private _state: CliToolState = 'registered';
   private readonly _onDidUpdateVersion = new Emitter<string>();
   readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
+  private readonly _onDidUninstall = new Emitter<void>();
+  readonly onDidUninstall: Event<void> = this._onDidUninstall.event;
 
   constructor(
-    private _apiSender: ApiSenderType,
-    private _exec: Exec,
     readonly extensionInfo: CliToolExtensionInfo,
     readonly registry: CliToolRegistry,
     private _options: CliToolOptions,
@@ -68,11 +67,11 @@ export class CliToolImpl implements CliTool, Disposable {
     return this._options.markdownDescription;
   }
 
-  get version(): string {
+  get version(): string | undefined {
     return this._options.version;
   }
 
-  get path(): string {
+  get path(): string | undefined {
     return this._options.path;
   }
 
@@ -80,9 +79,9 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this._options.images);
   }
 
-  // it returns the installation source of the cli tool. If not specified, we default to user which is the most restrictive way (prevent to update it)
-  get installationSource(): CliToolInstallationSource {
-    return this._options.installationSource ?? 'external';
+  // it returns the installation source of the cli tool. If not specified, there is no tool installed
+  get installationSource(): CliToolInstallationSource | undefined {
+    return this._options.installationSource;
   }
 
   dispose(): void {
@@ -102,7 +101,20 @@ export class CliToolImpl implements CliTool, Disposable {
     this._onDidUpdateVersion.fire(options.version);
   }
 
+  uninstall(): void {
+    this._options = {
+      ...this._options,
+      path: undefined,
+      version: undefined,
+    };
+    this._onDidUninstall.fire();
+  }
+
   registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable {
     return this.registry.registerUpdate(this, update);
+  }
+
+  registerInstaller(installer: CliToolInstaller): Disposable {
+    return this.registry.registerInstaller(this, installer);
   }
 }

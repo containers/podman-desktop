@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { Octokit } from '@octokit/rest';
@@ -233,8 +234,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 }
 
 interface CliFinder {
-  version: string;
-  path: string;
+  version?: string;
+  path?: string;
 }
 
 export function getStorageKubectlPath(extensionContext: extensionApi.ExtensionContext): string {
@@ -243,8 +244,8 @@ export function getStorageKubectlPath(extensionContext: extensionApi.ExtensionCo
 }
 
 export async function findKubeCtl(extensionContext: extensionApi.ExtensionContext): Promise<CliFinder> {
-  let binaryVersion = '';
-  let binaryPath = '';
+  let binaryVersion: string | undefined;
+  let binaryPath: string | undefined;
 
   // Retrieve the version of the binary by running exec with --client
   try {
@@ -305,13 +306,17 @@ async function postActivate(
 ): Promise<void> {
   const kubectl = await findKubeCtl(extensionContext);
 
-  const systemPath = getSystemBinaryPath(kubectlCliName);
-  const localStorage = getStorageKubectlPath(extensionContext);
-  const installationSource =
-    path.normalize(kubectl.path) === path.normalize(systemPath) ||
-    path.normalize(kubectl.path) === path.normalize(localStorage)
-      ? 'extension'
-      : 'external';
+  let installationSource: extensionApi.CliToolInstallationSource | undefined;
+  if (kubectl.path) {
+    const systemPath = getSystemBinaryPath(kubectlCliName);
+    const localStorage = getStorageKubectlPath(extensionContext);
+    installationSource =
+      path.normalize(kubectl.path) === path.normalize(systemPath) ||
+      path.normalize(kubectl.path) === path.normalize(localStorage)
+        ? 'extension'
+        : 'external';
+  }
+
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
   // checking the binary. If it exists, we will run `--version` and parse the information.
   kubectlCliTool = extensionApi.cli.createCliTool({
@@ -328,6 +333,56 @@ async function postActivate(
 
   extensionContext.subscriptions.push(kubectlCliTool);
 
+  // create and register the installer
+  let releaseToInstall: KubectlGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToInstall: string | undefined;
+  let currentVersion = kubectl.version;
+
+  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerInstaller({
+    selectVersion: async () => {
+      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
+      releaseToInstall = selected;
+      releaseVersionToInstall = selected.tag.slice(1);
+      return releaseVersionToInstall;
+    },
+    doInstall: async _logger => {
+      if (currentVersion) {
+        throw new Error(`Cannot install ${kubectlCliName}. Version ${currentVersion} is already installed.`);
+      }
+      if (!releaseToInstall || !releaseVersionToInstall) {
+        throw new Error(`Cannot update ${kubectl.path}. No release selected.`);
+      }
+      // download, install system wide and update cli version
+      const binaryPath = await kubectlDownload.download(releaseToInstall);
+      await installBinaryToSystem(binaryPath, 'kubectl');
+      kubectlCliTool?.updateVersion({
+        version: releaseVersionToInstall,
+        installationSource: 'extension',
+      });
+      currentVersion = releaseVersionToInstall;
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!currentVersion) {
+        throw new Error(`Cannot uninstall ${kubectlCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = getStorageKubectlPath(extensionContext);
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(kubectlCliName);
+      await deleteFile(systemPath);
+
+      // update the version to undefined
+      currentVersion = undefined;
+    },
+  });
+
+  extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
+
   // if the tool has been installed by the user externally desktop, it cannot be updated
   if (installationSource === 'external') {
     return;
@@ -336,7 +391,6 @@ async function postActivate(
   // check if there is a new version to be installed and register the updater
   let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToUpdateTo: string | undefined;
-  let currentVersion = kubectl.version;
 
   kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
     selectVersion: async () => {
@@ -372,4 +426,38 @@ function extractVersion(stdout: string): string {
     return version;
   }
   throw new Error('Cannot extract version from stdout');
+}
+
+async function deleteFile(filePath: string): Promise<void> {
+  if (filePath && fs.existsSync(filePath)) {
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'EACCES' || error.code === 'EPERM')
+      ) {
+        await deleteFileAsAdmin(filePath);
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+async function deleteFileAsAdmin(filePath: string): Promise<void> {
+  const system = process.platform;
+
+  const args: string[] = [filePath];
+  const command = system === 'win32' ? 'del' : 'rm';
+
+  try {
+    // Use admin prileges
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+  } catch (error) {
+    console.error(`Failed to uninstall '${filePath}': ${error}`);
+    throw error;
+  }
 }

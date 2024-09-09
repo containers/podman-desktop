@@ -86,7 +86,7 @@ function ensureType(value: any): boolean {
     case 'boolean':
       return record.type === 'boolean';
     case 'number':
-      return record.type === 'number';
+      return record.type === 'number' || record.type === 'integer';
     case 'string':
       return record.type === 'string';
     default:
@@ -127,7 +127,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
   {/if}
   {#if record.type === 'boolean'}
     <BooleanItem record={record} checked={!!recordValue} onChange={onChange} />
-  {:else if record.type === 'number'}
+  {:else if record.type === 'number' || record.type === 'integer'}
     {#if enableSlider && typeof record.maximum === 'number'}
       <SliderItem
         record={record}

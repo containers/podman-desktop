@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,7 +204,7 @@ export class DockerDesktopInstallation {
 
     this.ipcHandle(
       'docker-desktop-plugin:delete',
-      async (event: IpcMainInvokeEvent, extensionId: string): Promise<void> => {
+      async (_event: IpcMainInvokeEvent, extensionId: string): Promise<void> => {
         return this.contributionManager.deleteExtension(extensionId);
       },
     );
@@ -316,7 +316,7 @@ export class DockerDesktopInstallation {
 
     try {
       await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
-        if (pullEvent.progress || pullEvent.progressDetail) {
+        if (pullEvent.progress ?? pullEvent.progressDetail) {
           console.log(pullEvent.progress);
         } else if (pullEvent.status) {
           reportLog(pullEvent.status);
@@ -329,7 +329,7 @@ export class DockerDesktopInstallation {
 
     // ok search the image
     const images = await providerConnection.listImages();
-    // const foundMatchingImage = images.find(image => image.RepoTags?.find(tag => tag.includes('aquasec/trivy-docker-extension:0.4.3')));
+
     const foundMatchingImage = images.find(image =>
       image.RepoTags?.find(tag => tag.includes(imageName) || imageName.includes(tag)),
     );
@@ -373,7 +373,16 @@ export class DockerDesktopInstallation {
     // strip the tag (ending with :something) from the image name if any
     let imageNameWithoutTag: string;
     if (imageName.includes(':')) {
-      imageNameWithoutTag = imageName.split(':')[0];
+      const splitVal = imageName.split(':')[0];
+      if (!splitVal) {
+        event.reply(
+          'docker-desktop-plugin:install-error',
+          logCallbackId,
+          `Invalid image name ${imageName}. Please provide a valid image name.`,
+        );
+        return;
+      }
+      imageNameWithoutTag = splitVal;
     } else {
       imageNameWithoutTag = imageName;
     }

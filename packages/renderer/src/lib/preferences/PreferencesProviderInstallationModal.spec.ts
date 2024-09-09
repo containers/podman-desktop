@@ -39,6 +39,7 @@ const providerInfo: ProviderInfo = {
   containerConnections: [
     {
       name: 'machine',
+      displayName: 'podman',
       status: 'started',
       endpoint: {
         socketPath: 'socket',
@@ -77,7 +78,7 @@ test('Expect to call closeCallback if clicking on Close', async () => {
   expect(button).toBeInTheDocument();
 
   await userEvent.click(button);
-  expect(closeCallback).toBeCalled;
+  expect(closeCallback).toBeCalled();
 });
 
 test('Expect to call closeCallback if clicking on Cancel', async () => {
@@ -95,7 +96,7 @@ test('Expect to call closeCallback if clicking on Cancel', async () => {
   expect(button).toBeInTheDocument();
 
   await userEvent.click(button);
-  expect(closeCallback).toBeCalled;
+  expect(closeCallback).toBeCalled();
 });
 
 test('Expect to call doCreateNew if clicking on Next', async () => {
@@ -113,7 +114,7 @@ test('Expect to call doCreateNew if clicking on Next', async () => {
   expect(button).toBeInTheDocument();
 
   await userEvent.click(button);
-  expect(doCreateNew).toBeCalled;
+  expect(doCreateNew).toBeCalled();
 });
 
 test('Expect no modal if providerToBeInstalled is undefined', async () => {

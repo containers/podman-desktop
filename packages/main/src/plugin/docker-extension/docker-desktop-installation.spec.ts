@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,19 +69,19 @@ const apiSender: ApiSenderType = {
 
 class TestDockerDesktopInstallation extends DockerDesktopInstallation {
   // transform the method name to a got method
-  isGotMethod(methodName: string): methodName is Method {
+  override isGotMethod(methodName: string): methodName is Method {
     return super.isGotMethod(methodName);
   }
 
-  asGotMethod(methodName: string): Method {
+  override asGotMethod(methodName: string): Method {
     return super.asGotMethod(methodName);
   }
 
-  async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
+  override async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
     return super.handleExtensionVMServiceRequest(port, config);
   }
 
-  async handlePluginInstall(event: IpcMainEvent, imageName: string, logCallbackId: number): Promise<void> {
+  override async handlePluginInstall(event: IpcMainEvent, imageName: string, logCallbackId: number): Promise<void> {
     return super.handlePluginInstall(event, imageName, logCallbackId);
   }
 }
@@ -250,8 +250,8 @@ describe('handleExtensionVMServiceRequest', () => {
   });
 
   test('Check unknown error ', async () => {
-    vi.spyOn(dockerDesktopInstallation, 'asGotMethod').mockImplementationOnce(() => {
-      throw 'foo error';
+    vi.spyOn(dockerDesktopInstallation, 'asGotMethod').mockImplementation(() => {
+      throw new Error('foo error');
     });
 
     await expect(
@@ -261,7 +261,7 @@ describe('handleExtensionVMServiceRequest', () => {
         url: '/foo/bar',
         data: undefined,
       }),
-    ).rejects.toThrowError('Unknown error: foo error');
+    ).rejects.toThrowError('foo error');
   });
 });
 

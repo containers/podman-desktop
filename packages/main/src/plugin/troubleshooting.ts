@@ -22,8 +22,6 @@ import * as os from 'node:os';
 import AdmZip from 'adm-zip';
 import moment from 'moment';
 
-import type { ApiSenderType } from './api.js';
-
 const SYSTEM_FILENAME = 'system';
 
 export interface TroubleshootingFileMap {
@@ -34,8 +32,6 @@ export interface TroubleshootingFileMap {
 export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
 export class Troubleshooting {
-  constructor(private apiSender: ApiSenderType) {}
-
   // The "main" function that is exposes that is used to gather
   // all the logs and save them to a zip file.
   // this also takes in the console logs and adds them to the zip file (see preload/src/index.ts) regarding memoryLogs

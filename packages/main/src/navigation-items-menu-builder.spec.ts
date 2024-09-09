@@ -35,10 +35,10 @@ const browserWindowMock = {
 } as unknown as BrowserWindow;
 
 class TestNavigationItemsMenuBuilder extends NavigationItemsMenuBuilder {
-  buildHideMenuItem(linkText: string): MenuItemConstructorOptions | undefined {
+  override buildHideMenuItem(linkText: string): MenuItemConstructorOptions | undefined {
     return super.buildHideMenuItem(linkText);
   }
-  buildNavigationToggleMenuItems(): MenuItemConstructorOptions[] {
+  override buildNavigationToggleMenuItems(): MenuItemConstructorOptions[] {
     return super.buildNavigationToggleMenuItems();
   }
 }
@@ -94,18 +94,18 @@ describe('buildNavigationToggleMenuItems', async () => {
     expect(menu.length).toBe(4);
 
     // check the first item is a separator
-    expect(menu[0].type).toBe('separator');
+    expect(menu[0]?.type).toBe('separator');
 
     // label should be escaped as we have an &
-    expect(menu[1].label).toBe('A && A');
-    expect(menu[1].checked).toBe(true);
-    expect(menu[2].label).toBe('B');
-    expect(menu[2].checked).toBe(false);
-    expect(menu[3].label).toBe('C');
-    expect(menu[3].checked).toBe(true);
+    expect(menu[1]?.label).toBe('A && A');
+    expect(menu[1]?.checked).toBe(true);
+    expect(menu[2]?.label).toBe('B');
+    expect(menu[2]?.checked).toBe(false);
+    expect(menu[3]?.label).toBe('C');
+    expect(menu[3]?.checked).toBe(true);
 
     // click on the A item
-    menu[1].click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
+    menu[1]?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
 
     expect(getConfigurationMock).toBeCalled();
     // if clicking it should send the item to the configuration as being disabled
@@ -120,7 +120,7 @@ describe('buildNavigationToggleMenuItems', async () => {
     vi.mocked(configurationRegistryMock.updateConfigurationValue).mockClear();
 
     // click on the B item should unhide it so disabled items should be empty
-    menu[2].click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
+    menu[2]?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
     expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
       'navbar.disabledItems',
       ['existing'],

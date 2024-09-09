@@ -19,7 +19,7 @@ The website is built using [docusaurus](https://docusaurus.io/) and published to
 The website can be previewed by running the following command:
 
 ```sh
-yarn website:dev
+pnpm website:dev
 ```
 
 Which will automatically open your browser to `localhost:3000`.
@@ -27,7 +27,7 @@ Which will automatically open your browser to `localhost:3000`.
 You may also build a "production-like" environment by using:
 
 ```sh
-yarn website:prod
+pnpm website:prod
 ```
 
 ## Pull request previews
@@ -42,12 +42,12 @@ Formatting and lint checking can be examined by running the following commands:
 
 ```sh
 # Markdown formatting
-yarn format:check
-yarn format:fix
+pnpm format:check
+pnpm format:fix
 
 # Markdown lint checking
-yarn markdownlint:check
-yarn markdownlint:fix
+pnpm markdownlint:check
+pnpm markdownlint:fix
 ```
 
 ## Screenshot and video standards

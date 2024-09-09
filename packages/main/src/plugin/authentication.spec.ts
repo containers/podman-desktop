@@ -31,6 +31,7 @@ import { Emitter as EventEmitter } from './events/emitter.js';
 import type { MessageBox } from './message-box.js';
 
 function randomNumber(n = 5): number {
+  // eslint-disable-next-line sonarjs/pseudo-random
   return Math.round(Math.random() * 10 * n);
 }
 
@@ -52,7 +53,6 @@ export class AuthenticationProviderSingleAccount implements AuthenticationProvid
   private _onDidChangeSession = new EventEmitter<AuthenticationProviderAuthenticationSessionsChangeEvent>();
   private session: AuthenticationSession | undefined;
   onDidChangeSessions: Event<AuthenticationProviderAuthenticationSessionsChangeEvent> = this._onDidChangeSession.event;
-  constructor() {}
   async getSessions(scopes?: string[]): Promise<readonly AuthenticationSession[]> {
     if (scopes) {
       return this.session ? [this.session] : [];
@@ -226,6 +226,9 @@ test('Authentication provider creates session when session request is executed',
   expect(authModule.getSessionRequests()).length(1);
 
   const [signInRequest] = authModule.getSessionRequests();
+  if (!signInRequest) {
+    throw new Error('Sign in request is not defined');
+  }
   await authModule.executeSessionRequest(signInRequest.id);
   expect(createSessionSpy).toBeCalledTimes(1);
 });

@@ -13,7 +13,7 @@ export let size = 16;
   xmlns="http://www.w3.org/2000/svg">
   <g id="layer1">
     <path
-      style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      style="fill:none;stroke:currentColor;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
       d="M 3,7.5 H 13"
       id="path21672"></path>
     <g

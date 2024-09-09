@@ -237,16 +237,16 @@ export class AuthenticationImpl {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  readAllowedExtensions(providerId: string, accountName: string): AllowedExtension[] {
+  readAllowedExtensions(_providerId: string, _accountName: string): AllowedExtension[] {
     throw new Error('The method is not implemented!');
   }
 
   updateAllowedExtension(
-    providerId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
-    accountName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
-    extensionId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
-    extensionName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
-    isAllowed: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _providerId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _accountName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _extensionId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _extensionName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _isAllowed: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
   ): void {
     throw new Error('The method is not implemented!');
   }
@@ -260,7 +260,7 @@ export class AuthenticationImpl {
    * if they haven't made a choice yet
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isAccessAllowed(providerId: string, accountName: string, extensionId: string): boolean | undefined {
+  isAccessAllowed(_providerId: string, _accountName: string, _extensionId: string): boolean | undefined {
     return true; // To be implemented later
   }
 
@@ -294,11 +294,15 @@ export class AuthenticationImpl {
     }
 
     const providerData = this._authenticationProviders.get(providerId);
-    const sortedScopes = [...scopes].sort();
+    const sortedScopes = [...scopes].sort((a, b) => a.localeCompare(b));
 
     const sessions = providerData ? await providerData.provider.getSessions(sortedScopes) : [];
 
-    if (sessions.length && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
+    if (
+      sessions.length &&
+      sessions[0]?.account.label &&
+      this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)
+    ) {
       // add account usage to show confirmation on sign out request
       this.addAccountUsage(providerId, sessions[0].id, requestingExtension.id, requestingExtension.label);
       return sessions[0];
@@ -348,13 +352,14 @@ export class AuthenticationImpl {
       });
 
       if (providerRequests) {
-        const existingRequests = providerRequests[scopesList] || [];
+        const existingRequests = providerRequests[scopesList] ?? [];
         providerRequests[scopesList] = [...existingRequests, requestingExtension.id];
       } else {
         this._signInRequests.set(providerId, { [scopesList]: [requestingExtension.id] });
       }
       this.apiSender.send('authentication-provider-update', { id: providerId });
     }
+    return undefined;
   }
 
   getSessionRequests(): SessionRequestInfo[] {

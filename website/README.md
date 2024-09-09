@@ -3,13 +3,13 @@
 ### Install the project dependencies
 
 ```shell-session
-$ yarn install
+$ pnpm install
 ```
 
 ### Local Development of the website / documentation
 
 ```shell-session
-$ yarn start
+$ pnpm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
@@ -17,7 +17,7 @@ This command starts a local development server and opens up a browser window. Mo
 ### Build
 
 ```shell-session
-$ yarn build
+$ pnpm build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
@@ -27,13 +27,13 @@ This command generates static content into the `build` directory and can be serv
 Using SSH:
 
 ```shell-session
-$ USE_SSH=true yarn deploy
+$ USE_SSH=true pnpm deploy
 ```
 
 Not using SSH:
 
 ```shell-session
-$ GIT_USER=<Your GitHub username> yarn deploy
+$ GIT_USER=<Your GitHub username> pnpm deploy
 ```
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
@@ -44,13 +44,13 @@ If you are using GitHub pages for hosting, this command is a convenient way to b
 
    ```shell-session
    $ cd website
-   $ yarn add <module>
+   $ pnpm add <module>
    ```
 
-2. Update the `yarn.lock` file in the repository root context:
+2. Update the `pnpm-lock.yaml` file in the repository root context:
 
    ```shell-session
    $ cd ..
-   $ git checkout HEAD -- yarn.lock
-   $ yarn
+   $ git checkout HEAD -- pnpm-lock.yaml
+   $ pnpm install
    ```

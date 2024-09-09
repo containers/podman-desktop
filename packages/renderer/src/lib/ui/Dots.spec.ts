@@ -101,6 +101,7 @@ test('test organizeContainers returns a record of containers organized by status
 
 test('randomly re-order the containers and ensure they are still organized correctly after in the correct order', () => {
   // Copy mockContainers array and shuffle it
+  // eslint-disable-next-line sonarjs/pseudo-random
   const shuffledContainers = [...mockContainers].sort(() => Math.random() - 0.5);
 
   // Organize the shuffled containers

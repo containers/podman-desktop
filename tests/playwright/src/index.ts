@@ -19,10 +19,11 @@
 // export core modules
 export * from './globalSetup/global-setup';
 export * from './runner/podman-desktop-runner';
-export * from './setupFiles/extended-hooks-utils';
+export * from './runner/runner-options';
 export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';
+export * from './utility/fixtures';
 export * from './utility/operations';
 export * from './utility/platform';
 export * from './utility/wait';
@@ -42,8 +43,10 @@ export * from './model/pages/compose-onboarding/compose-version-page';
 export * from './model/pages/compose-onboarding/compose-wide-install-page';
 export * from './model/pages/container-details-page';
 export * from './model/pages/containers-page';
+export * from './model/pages/create-kind-cluster-page';
 export * from './model/pages/create-pod-page';
 export * from './model/pages/dashboard-page';
+export * from './model/pages/deploy-to-kubernetes-page';
 export * from './model/pages/details-page';
 export * from './model/pages/extension-card-page';
 export * from './model/pages/extension-catalog-card-page';

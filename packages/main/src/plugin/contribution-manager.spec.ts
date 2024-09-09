@@ -145,13 +145,13 @@ test('Should interpret ${DESKTOP_PLUGIN_IMAGE}', async () => {
   };
   const result = await contributionManager.doEnhanceCompose(ociImage, extensionName, portNumber, composeFile);
 
-  expect(result.services['devenv-volumes'].image).toBe(ociImage);
+  expect(result.services['devenv-volumes']?.image).toBe(ociImage);
 });
 
 test('Should add custom labels', async () => {
   const result = await contributionManager.doEnhanceCompose(ociImage, extensionName, portNumber, composeFileExample);
 
-  expect(result.services['devenv-volumes'].labels).toStrictEqual({
+  expect(result.services['devenv-volumes']?.labels).toStrictEqual({
     'com.docker.desktop.extension': 'true',
     'com.docker.desktop.extension.name': 'my-extension',
     'io.podman_desktop.PodmanDesktop.extension': 'true',
@@ -162,16 +162,16 @@ test('Should add custom labels', async () => {
 test('Should add restart policy', async () => {
   const result = await contributionManager.doEnhanceCompose(ociImage, extensionName, portNumber, composeFileExample);
 
-  expect(result.services['devenv-volumes'].deploy?.restart_policy?.condition).toBe('always');
+  expect(result.services['devenv-volumes']?.deploy?.restart_policy?.condition).toBe('always');
 });
 
 test('Should add volumes from', async () => {
   const result = await contributionManager.doEnhanceCompose(ociImage, extensionName, portNumber, composeFileExample);
 
-  expect(result.services['devenv-volumes'].volumes_from).toStrictEqual(['podman-desktop-socket']);
+  expect(result.services['devenv-volumes']?.volumes_from).toStrictEqual(['podman-desktop-socket']);
 
   // check the volume is not added on the podman-desktop-socket service
-  expect(result.services['podman-desktop-socket'].volumes_from).toBeUndefined();
+  expect(result.services['podman-desktop-socket']?.volumes_from).toBeUndefined();
 });
 
 test('Should not add a service to expose port if no socket', async () => {
@@ -182,13 +182,13 @@ test('Should not add a service to expose port if no socket', async () => {
   expect(podmanDesktopService).toBeDefined();
 
   // check new service is exposing the port
-  expect(podmanDesktopService.ports).toBeUndefined();
+  expect(podmanDesktopService?.ports).toBeUndefined();
 
   // check the volumes is mounted
-  expect(podmanDesktopService.volumes).toStrictEqual(['/run/guest-services']);
+  expect(podmanDesktopService?.volumes).toStrictEqual(['/run/guest-services']);
 
   // no socket exposure
-  expect(podmanDesktopService.command).not.toContain('socat');
+  expect(podmanDesktopService?.command).not.toContain('socat');
 });
 
 test('Should add a service to expose port if socket', async () => {
@@ -206,15 +206,15 @@ test('Should add a service to expose port if socket', async () => {
   expect(podmanDesktopService).toBeDefined();
 
   // check new service is exposing the port
-  expect(podmanDesktopService.ports).toStrictEqual(['10000:10000']);
+  expect(podmanDesktopService?.ports).toStrictEqual(['10000:10000']);
 
   // check the volumes is mounted
-  expect(podmanDesktopService.volumes).toStrictEqual(['/run/guest-services']);
+  expect(podmanDesktopService?.volumes).toStrictEqual(['/run/guest-services']);
 
   // socket exposure
-  expect(podmanDesktopService.command).toContain('socat');
+  expect(podmanDesktopService?.command).toContain('socat');
   // socket exposure
-  expect(podmanDesktopService.command).toContain(`/run/guest-services/${socketPath}`);
+  expect(podmanDesktopService?.command).toContain(`/run/guest-services/${socketPath}`);
 });
 
 test('Check invalid port file', async () => {

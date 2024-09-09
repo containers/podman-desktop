@@ -72,11 +72,11 @@ suite('image files module', () => {
       const providers = imageFiles.getImageFilesProviders();
       expect(providers.length).toBe(2);
 
-      expect(providers[0].id).equals(`${extensionInfo.id}-0`);
-      expect(providers[0].label).equals('Provider label');
+      expect(providers[0]?.id).equals(`${extensionInfo.id}-0`);
+      expect(providers[0]?.label).equals('Provider label');
 
-      expect(providers[1].id).equals(`${extensionInfo.id}-1`);
-      expect(providers[1].label).equals(extensionInfo.label);
+      expect(providers[1]?.id).equals(`${extensionInfo.id}-1`);
+      expect(providers[1]?.label).equals(extensionInfo.label);
     });
 
     test('Image files sends "image-files-provider-update" event when new provider is added', () => {
@@ -169,16 +169,19 @@ suite('image files module', () => {
         Containers: 1,
         Digest: 'sha256:id',
       };
+      if (!providers[0]) {
+        throw new Error('Provider not found');
+      }
       const result = await imageFiles.getFilesystemLayers(providers[0].id, imageInfo);
       console.log('result', result);
       expect(result).toBeDefined();
       expect(result!.layers.length).toBe(1);
-      expect(result!.layers[0].files!.length).toBe(1);
-      expect(result!.layers[0].files![0]).toEqual(file);
-      expect(result!.layers[0].whiteouts!.length).toBe(1);
-      expect(result!.layers[0].whiteouts![0]).toBe('to-be-deleted');
-      expect(result!.layers[0].opaqueWhiteouts!.length).toBe(1);
-      expect(result!.layers[0].opaqueWhiteouts![0]).toBe('dir-to-be-deleted');
+      expect(result!.layers[0]?.files!.length).toBe(1);
+      expect(result!.layers[0]?.files![0]).toEqual(file);
+      expect(result!.layers[0]?.whiteouts!.length).toBe(1);
+      expect(result!.layers[0]?.whiteouts![0]).toBe('to-be-deleted');
+      expect(result!.layers[0]?.opaqueWhiteouts!.length).toBe(1);
+      expect(result!.layers[0]?.opaqueWhiteouts![0]).toBe('dir-to-be-deleted');
     });
 
     test('check method throws an error if provider is unknown', async () => {

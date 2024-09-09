@@ -16,25 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { BasePage } from '../pages/base-page';
 
 export class StatusBar extends BasePage {
   readonly kindInstallationButton: Locator;
+  readonly kubernetesContext: Locator;
 
   constructor(page: Page) {
     super(page);
     this.kindInstallationButton = this.page.getByTitle(
       'Kind not found on your system, click to download and install it',
     );
+    this.kubernetesContext = this.page.getByTitle('Current Kubernetes Context');
   }
 
   public async installKindCLI(): Promise<void> {
+    await playExpect(this.kindInstallationButton).toBeVisible();
     await this.kindInstallationButton.click();
     await handleConfirmationDialog(this.page, 'Kind');
     await handleConfirmationDialog(this.page, 'Kind');
     await handleConfirmationDialog(this.page, 'Kind', true, 'OK');
+  }
+
+  public async validateKubernetesContext(context: string): Promise<void> {
+    await playExpect(this.kubernetesContext).toBeVisible();
+    await playExpect(this.kubernetesContext).toHaveText(context);
+  }
+
+  public async kindInstallationButtonIsVisible(): Promise<boolean> {
+    return (await this.kindInstallationButton.count()) > 0;
   }
 }

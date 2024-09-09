@@ -48,7 +48,7 @@ export class ModuleLoader {
 
   addOverride(lookup: Record<string, object | OverrideFunction>): void {
     Object.keys(lookup).forEach(entry => {
-      this._overrides.set(entry, lookup[entry]);
+      this._overrides.set(entry, lookup[entry] ?? {});
     });
   }
 
@@ -76,7 +76,8 @@ export class ModuleLoader {
           }
           let cache = extModuleCache.get(parent.path);
           if (!cache) {
-            extModuleCache.set(parent.path, (cache = {}));
+            cache = {};
+            extModuleCache.set(parent.path, cache);
           }
           if (!cache[request]) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -29,8 +29,8 @@ export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/
 
 class RunErrorImpl extends Error implements RunError {
   constructor(
-    readonly name: string,
-    readonly message: string,
+    override readonly name: string,
+    override readonly message: string,
     readonly exitCode: number,
     readonly command: string,
     readonly stdout: string,
@@ -47,7 +47,7 @@ export class Exec {
   constructor(private proxy: Proxy) {}
 
   exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
-    let env = Object.assign({}, process.env);
+    let env = { ...process.env };
 
     if (options?.env) {
       env = Object.assign(env, options.env);
@@ -55,18 +55,18 @@ export class Exec {
 
     if (this.proxy.isEnabled()) {
       if (this.proxy.proxy?.httpsProxy) {
-        env.HTTPS_PROXY = `${this.proxy.proxy.httpsProxy}`;
+        env['HTTPS_PROXY'] = `${this.proxy.proxy.httpsProxy}`;
       }
       if (this.proxy.proxy?.httpProxy) {
-        env.HTTP_PROXY = `${this.proxy.proxy.httpProxy}`;
+        env['HTTP_PROXY'] = `${this.proxy.proxy.httpProxy}`;
       }
       if (this.proxy.proxy?.noProxy) {
-        env.NO_PROXY = this.proxy.proxy.noProxy;
+        env['NO_PROXY'] = this.proxy.proxy.noProxy;
       }
     }
 
     if (isMac() || isWindows()) {
-      env.PATH = getInstallationPath(env.PATH);
+      env['PATH'] = getInstallationPath(env['PATH']);
     }
 
     // do we have an admin task ?
@@ -85,7 +85,7 @@ export class Exec {
            * See https://github.com/jorangreef/sudo-prompt/blob/c3cc31a51bc50fe21fadcbf76a88609c0c77026f/index.js#L96
            */
           for (const key of Object.keys(sudoEnv)) {
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+            if (!/^[a-zA-Z_]\w*$/.test(key)) {
               delete sudoEnv[key];
             }
           }
@@ -136,7 +136,7 @@ export class Exec {
       }
     }
 
-    if (env.FLATPAK_ID) {
+    if (env['FLATPAK_ID']) {
       args = ['--host', command, ...(args ?? [])];
       command = 'flatpak-spawn';
     }
@@ -239,7 +239,7 @@ export class Exec {
 
 export function getInstallationPath(envPATH?: string): string {
   if (!envPATH) {
-    envPATH = process.env.PATH;
+    envPATH = process.env['PATH'];
   }
 
   if (isWindows()) {

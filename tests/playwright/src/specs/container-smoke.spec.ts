@@ -16,35 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
-
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainersPage } from '../model/pages/containers-page';
 import { ImageDetailsPage } from '../model/pages/image-details-page';
 import type { ImagesPage } from '../model/pages/images-page';
-import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteContainer, deleteImage } from '../utility/operations';
 import { waitForPodmanMachineStartup, waitWhile } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
 const imageToPull = 'ghcr.io/linuxcontainers/alpine';
 const imageTag = 'latest';
 const containerToRun = 'alpine-container';
 const containerList = ['first', 'second', 'third'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('containers-e2e');
-  const welcomePage = new WelcomePage(page);
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('containers-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
@@ -52,7 +41,7 @@ beforeAll(async () => {
   try {
     images = await new NavigationBar(page).openImages();
   } catch (error) {
-    await pdRunner.screenshot('error-on-open-images.png');
+    await runner.screenshot('error-on-open-images.png');
     throw error;
   }
   await waitWhile(async () => await images.pageIsEmpty(), {
@@ -62,16 +51,14 @@ beforeAll(async () => {
   try {
     await deleteContainer(page, containerToRun);
   } catch (error) {
-    await pdRunner.screenshot('error-on-open-containers.png');
+    await runner.screenshot('error-on-open-containers.png');
     throw error;
   }
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
+test.afterAll(async ({ runner, page }) => {
+  test.setTimeout(90000);
 
-afterAll(async () => {
   try {
     await deleteContainer(page, containerToRun);
     for (const container of containerList) {
@@ -80,13 +67,16 @@ afterAll(async () => {
 
     await deleteImage(page, imageToPull);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
-}, 90000);
+});
 
-describe('Verification of container creation workflow', async () => {
-  test(`Pulling of '${imageToPull}:${imageTag}' image`, { retry: 2, timeout: 90000 }, async () => {
-    const navigationBar = new NavigationBar(page);
+test.describe.serial('Verification of container creation workflow @smoke', () => {
+  test.describe.configure({ retries: 2 });
+
+  test(`Pulling of '${imageToPull}:${imageTag}' image`, async ({ navigationBar }) => {
+    test.setTimeout(90000);
+
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(imageToPull, imageTag);
@@ -94,18 +84,15 @@ describe('Verification of container creation workflow', async () => {
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
   });
 
-  test(`Start a container '${containerToRun}' from image`, async () => {
-    const navigationBar = new NavigationBar(page);
+  test(`Start a container '${containerToRun}' from image`, async ({ navigationBar }) => {
     let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
-    await pdRunner.screenshot('containers-run-image.png');
     const containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
       .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
       .toBeTruthy();
-    await pdRunner.screenshot('containers-container-exists.png');
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
@@ -114,8 +101,8 @@ describe('Verification of container creation workflow', async () => {
     images = await navigationBar.openImages();
     playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
-  test('Test navigation between pages', async () => {
-    const navigationBar = new NavigationBar(page);
+
+  test('Test navigation between pages', async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
 
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -128,14 +115,12 @@ describe('Verification of container creation workflow', async () => {
     await containersDetails.closeButton.click();
     await playExpect(containers.heading).toBeVisible();
   });
-  test('Open a container details', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Open a container details', async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    await pdRunner.screenshot('containers-container-details.png');
     const containerState = await containersDetails.getState();
     playExpect(containerState).toContain(ContainerState.Running);
     // check Logs output
@@ -148,8 +133,7 @@ describe('Verification of container creation workflow', async () => {
     await containersDetails.activateTab('Terminal');
     // TODO: After updating of accessibility of various element in containers pages, we can extend test
   });
-  test('Redirecting to image details from a container details', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Redirecting to image details from a container details', async ({ page, navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
@@ -160,8 +144,7 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(imageDetails.heading).toBeVisible();
     await playExpect(imageDetails.heading).toContainText(imageToPull);
   });
-  test('Stopping a container from Container details', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Stopping a container from Container details', async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
@@ -177,8 +160,7 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(startButton).toBeVisible();
   });
 
-  test(`Start a container from the Containers page`, async () => {
-    const navigationBar = new NavigationBar(page);
+  test(`Start a container from the Containers page`, async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
@@ -195,8 +177,7 @@ describe('Verification of container creation workflow', async () => {
       .toContain(ContainerState.Running);
   });
 
-  test(`Stop a container from the Containers page`, async () => {
-    const navigationBar = new NavigationBar(page);
+  test(`Stop a container from the Containers page`, async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toBeVisible();
@@ -213,8 +194,7 @@ describe('Verification of container creation workflow', async () => {
       .toContain(ContainerState.Exited);
   });
 
-  test('Deleting a container from Container details', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Deleting a container from Container details', async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toContainText(containerToRun);
@@ -223,9 +203,8 @@ describe('Verification of container creation workflow', async () => {
     await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
   });
 
-  test(`Deleting a container from the Containers page`, async () => {
+  test(`Deleting a container from the Containers page`, async ({ navigationBar }) => {
     //re-start the container from an image
-    const navigationBar = new NavigationBar(page);
     let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
@@ -234,7 +213,6 @@ describe('Verification of container creation workflow', async () => {
     await playExpect
       .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
       .toBeTruthy();
-    await pdRunner.screenshot('containers-container-exists.png');
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
       .poll(async () => await containerDetails.getState(), { timeout: 10000 })
@@ -248,12 +226,13 @@ describe('Verification of container creation workflow', async () => {
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 15000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
       .toBeFalsy();
   });
 
-  test('Prune containers', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Prune containers', async ({ page, navigationBar }) => {
+    test.setTimeout(120000);
+
     //Start 3 containers
     for (const container of containerList) {
       const images = await navigationBar.openImages();
@@ -300,5 +279,5 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 30000 })
         .toBeFalsy();
     }
-  }, 120000);
+  });
 });

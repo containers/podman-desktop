@@ -29,7 +29,6 @@ const config = {
     globals: true,
     environment: 'jsdom',
     globalSetup: './tests/playwright/src/globalSetup/global-setup.ts',
-    setupFiles: './tests/playwright/src/setupFiles/extended-hooks.ts',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder

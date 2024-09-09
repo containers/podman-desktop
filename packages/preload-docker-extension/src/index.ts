@@ -384,19 +384,6 @@ export class DockerExtensionPreload {
 
 // initialize extension loader mechanism
 function initExposure(): void {
-  /*
-ipcRenderer.on(
-  'docker-plugin-adapter:exec-onClose',
-  (_, onDockerPluginExecOnCloseCallbackId: number) => {
-    // grab callback from the map
-    const callback = this.onDockerPluginExecOnCloseCallback.get(onDockerPluginExecOnCloseCallbackId);
-    if (callback) {
-      callback();
-    }
-  },
-);
-*/
-
   const dockerExtensionPreload = new DockerExtensionPreload();
   const ddClient = dockerExtensionPreload.initializeDesktopClientAPI();
   contextBridge.exposeInMainWorld('ddClient', ddClient);

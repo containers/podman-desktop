@@ -18,15 +18,7 @@
 
 import * as path from 'node:path';
 
-import type {
-  AuditRequestItems,
-  CancellationToken,
-  CliTool,
-  ExtensionContext,
-  Logger,
-  StatusBarItem,
-  TelemetryLogger,
-} from '@podman-desktop/api';
+import type { AuditRequestItems, CancellationToken, CliTool, Logger, StatusBarItem } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { ProgressLocation, window } from '@podman-desktop/api';
 
@@ -177,7 +169,7 @@ async function updateClusters(
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
-          const env = Object.assign({}, process.env) as { [key: string]: string };
+          const env = { ...process.env } as { [key: string]: string };
           if (cluster.engineType === 'podman') {
             env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
           }
@@ -357,40 +349,39 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
   }
 
-  // if the binary exists (either system-wide or in extension storage)
+  // if the binary exists (either system-wide or in extension storage), we get its version/path
+  let binaryVersion: string | undefined;
+  let binaryPath: string | undefined;
+  if (binary) {
+    binaryVersion = binary.version;
+    binaryPath = binary.path;
+    kindPath = binaryPath;
+  }
   // we register it
-  if (binary && installationSource) {
-    kindPath = binary.path;
-    kindCli = extensionApi.cli.createCliTool({
-      name: 'kind',
-      images: {
-        icon: './icon.png',
-      },
-      version: binary.version,
-      path: binary.path,
-      displayName: 'kind',
-      markdownDescription: KIND_MARKDOWN,
-      installationSource,
-    });
-  }
+  kindCli = extensionApi.cli.createCliTool({
+    name: 'kind',
+    images: {
+      icon: './icon.png',
+    },
+    version: binaryVersion,
+    path: binaryPath,
+    displayName: 'kind',
+    markdownDescription: KIND_MARKDOWN,
+    installationSource,
+  });
 
-  // if the CLI tool exists, let's create a provider
-  if (kindCli) {
-    await createProvider(extensionContext, telemetryLogger);
-    return;
-  }
+  // let's create a provider
+  await createProvider(extensionContext, telemetryLogger);
 
   // if we do not have anything installed, let's add it to the status bar
-  if (await installer.isAvailable()) {
+  if (!binaryVersion && (await installer.isAvailable())) {
     const statusBarItem = extensionApi.window.createStatusBarItem();
     statusBarItem.text = 'Kind';
     statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
     statusBarItem.command = KIND_INSTALL_COMMAND;
     statusBarItem.iconClass = 'fa fa-exclamation-triangle';
     extensionContext.subscriptions.push(
-      extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
-        kindInstall(installer, statusBarItem, extensionContext, telemetryLogger),
-      ),
+      extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () => kindInstall(installer, statusBarItem)),
       statusBarItem,
     );
     statusBarItem.show();
@@ -404,13 +395,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
  * @param extensionContext
  * @param telemetryLogger
  */
-async function kindInstall(
-  installer: KindInstaller,
-  statusBarItem: StatusBarItem,
-  extensionContext: ExtensionContext,
-  telemetryLogger: TelemetryLogger,
-): Promise<void> {
-  if (kindCli || kindPath) throw new Error('kind cli is already registered');
+async function kindInstall(installer: KindInstaller, statusBarItem: StatusBarItem): Promise<void> {
+  if (kindPath) throw new Error('kind cli is already registered');
 
   let path: string;
   try {
@@ -426,19 +412,10 @@ async function kindInstall(
   const binaryInfo = await getKindBinaryInfo(path);
 
   kindPath = path;
-  kindCli = extensionApi.cli.createCliTool({
-    name: 'kind',
-    images: {
-      icon: './icon.png',
-    },
+  kindCli?.updateVersion({
     version: binaryInfo.version,
     path: binaryInfo.path,
-    displayName: 'kind',
-    markdownDescription: KIND_MARKDOWN,
-    installationSource: 'extension',
   });
-
-  await createProvider(extensionContext, telemetryLogger);
 }
 
 export function deactivate(): void {

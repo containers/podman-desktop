@@ -392,10 +392,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listSimpleContainers',
-      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
-    );
+    this.telemetryService.track('listSimpleContainers', { total: flattenedContainers.length, ...telemetryOptions });
 
     return flattenedContainers;
   }
@@ -453,7 +450,9 @@ export class ContainerProviderRegistry {
               if (podmanContainer.Labels) {
                 // copy all labels
                 for (const label of Object.keys(podmanContainer.Labels)) {
-                  Labels[label] = podmanContainer.Labels[label];
+                  if (podmanContainer.Labels[label]) {
+                    Labels[label] = podmanContainer.Labels[label];
+                  }
                 }
               }
 
@@ -552,10 +551,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listContainers',
-      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
-    );
+    this.telemetryService.track('listContainers', { total: flattenedContainers.length, ...telemetryOptions });
 
     return flattenedContainers;
   }
@@ -594,7 +590,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedImages = images.flat();
-    this.telemetryService.track('listImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+    this.telemetryService.track('listImages', { total: flattenedImages.length, ...telemetryOptions });
 
     return flattenedImages;
   }
@@ -669,7 +665,7 @@ export class ContainerProviderRegistry {
     );
 
     const flattenedImages = images.flat();
-    this.telemetryService.track('podmanListImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+    this.telemetryService.track('podmanListImages', { total: flattenedImages.length, ...telemetryOptions });
 
     return flattenedImages;
   }
@@ -722,7 +718,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedPods = pods.flat();
-    this.telemetryService.track('listPods', Object.assign({ total: flattenedPods.length }, telemetryOptions));
+    this.telemetryService.track('listPods', { total: flattenedPods.length, ...telemetryOptions });
 
     return flattenedPods;
   }
@@ -753,7 +749,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', Object.assign({ total: flattenedNetworks.length }, telemetryOptions));
+    this.telemetryService.track('listNetworks', { total: flattenedNetworks.length, ...telemetryOptions });
 
     return flattenedNetworks;
   }
@@ -845,7 +841,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flattenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', Object.assign({ total: flattenedVolumes.length }, telemetryOptions));
+    this.telemetryService.track('listVolumes', { total: flattenedVolumes.length, ...telemetryOptions });
 
     return flattenedVolumes;
   }
@@ -970,7 +966,7 @@ export class ContainerProviderRegistry {
     });
 
     const matchingConnection = matchingContainerProviders[0];
-    if (!matchingConnection[1].api) {
+    if (!matchingConnection?.[1].api) {
       throw new Error('No provider with a running engine');
     }
 
@@ -1070,7 +1066,7 @@ export class ContainerProviderRegistry {
 
   getImageName(inspectInfo: Dockerode.ImageInspectInfo): string {
     const tags = inspectInfo.RepoTags;
-    if (!tags) {
+    if (!tags?.[0]) {
       throw new Error('Cannot push an image without a tag');
     }
     // take the first tag
@@ -1087,10 +1083,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'tagImage',
-        Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions),
-      );
+      this.telemetryService.track('tagImage', { imageName: this.getImageHash(imageTag), ...telemetryOptions });
     }
   }
 
@@ -1126,10 +1119,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pushImage',
-        Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions),
-      );
+      this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag), ...telemetryOptions });
     }
   }
 
@@ -1147,7 +1137,6 @@ export class ContainerProviderRegistry {
         authconfig,
         abortSignal: abortController?.signal,
       });
-      // eslint-disable-next-line @typescript-eslint/ban-types
       let resolve: () => void;
       let reject: (err: Error) => void;
       const promise = new Promise<void>((res, rej) => {
@@ -1155,7 +1144,6 @@ export class ContainerProviderRegistry {
         reject = rej;
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-types
       const onFinished = (err: Error | null): void => {
         if (err) {
           return reject(err);
@@ -1183,10 +1171,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pullImage',
-        Object.assign({ imageName: this.getImageHash(imageName) }, telemetryOptions),
-      );
+      this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName), ...telemetryOptions });
     }
   }
 
@@ -1407,7 +1392,9 @@ export class ContainerProviderRegistry {
     return container.Config.Env.reduce((acc: { [key: string]: string }, env) => {
       // should handle multiple values after the = sign
       const [key, ...values] = env.split('=');
-      acc[key] = values.join('=');
+      if (key) {
+        acc[key] = values.join('=');
+      }
       return acc;
     }, {});
   }
@@ -2009,7 +1996,9 @@ export class ContainerProviderRegistry {
     // convert env from array of string to an object with key being the env name
     const updatedEnv = options.Env?.reduce((acc: { [key: string]: string }, env) => {
       const [key, value] = env.split('=');
-      acc[key] = value;
+      if (key && value) {
+        acc[key] = value;
+      }
       return acc;
     }, {});
 
@@ -2076,7 +2065,7 @@ export class ContainerProviderRegistry {
         if (hostItems.length !== 2) {
           continue;
         }
-        dns_server.push(hostItems[1].split('.').map(v => parseInt(v)));
+        dns_server.push((hostItems[1]?.split('.') ?? []).map(v => parseInt(v)));
       }
     }
 
@@ -2122,7 +2111,7 @@ export class ContainerProviderRegistry {
     const options = ['rbind'];
     let propagation = 'rprivate';
     if (bindItems.length === 3) {
-      const flags = bindItems[2].split(',');
+      const flags = bindItems[2]?.split(',') ?? [];
       for (const flag of flags) {
         switch (flag) {
           case 'Z':
@@ -2139,6 +2128,10 @@ export class ContainerProviderRegistry {
             break;
         }
       }
+    }
+
+    if (bindItems[0] === undefined || bindItems[1] === undefined) {
+      return undefined;
     }
 
     return {
@@ -2491,7 +2484,7 @@ export class ContainerProviderRegistry {
         throw error;
       }
       eventCollect('stream', `Building ${options?.tag}...\r\n`);
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       let resolve: (output: {}) => void;
       let reject: (err: Error) => void;
       const promise = new Promise((res, rej) => {
@@ -2499,7 +2492,7 @@ export class ContainerProviderRegistry {
         reject = rej;
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       const onFinished = (err: Error | null, output: {}): void => {
         if (err) {
           eventCollect('finish', err.message);

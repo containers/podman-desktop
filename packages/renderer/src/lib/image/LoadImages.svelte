@@ -8,7 +8,6 @@ import { get } from 'svelte/store';
 import { router } from 'tinro';
 
 import { providerInfos } from '/@/stores/providers';
-import { createTask } from '/@/stores/tasks';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import EngineFormPage from '../ui/EngineFormPage.svelte';
@@ -60,8 +59,6 @@ async function loadImages() {
 
   inProgress = true;
 
-  const task = createTask('Load images');
-
   for (const archive of archivesToLoad) {
     try {
       await window.loadImages({
@@ -75,13 +72,7 @@ async function loadImages() {
 
   inProgress = false;
   if (loadError === '') {
-    task.status = 'success';
-    task.state = 'completed';
     router.goto('/images');
-  } else {
-    task.status = 'failure';
-    task.error = loadError;
-    task.state = 'completed';
   }
 }
 </script>

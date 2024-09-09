@@ -88,7 +88,7 @@ declare module '@podman-desktop/api' {
      * on dispose.
      * @param callOnDispose Function that disposes something.
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     constructor(callOnDispose: Function);
 
     /**
@@ -121,7 +121,7 @@ declare module '@podman-desktop/api' {
      * @param disposables An array to which a {@link Disposable} will be added.
      * @return A disposable which unsubscribes the event listener.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any,  sonarjs/prefer-function-type
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
   }
 
@@ -358,11 +358,16 @@ declare module '@podman-desktop/api' {
 
   export interface ContainerProviderConnection {
     name: string;
+    displayName?: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     vmType?: string;
+    /**
+     * the vmTypeDisplayName property cannot be set if vmType is undefined
+     */
+    vmTypeDisplayName?: string;
   }
 
   export interface PodCreatePortOptions {
@@ -2913,7 +2918,7 @@ declare module '@podman-desktop/api' {
     /**
      * An object mapping ports to an empty object in the form: `{"<port>/<tcp|udp|sctp>": {}}`
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     ExposedPorts?: { [port: string]: {} };
 
     /**
@@ -4318,9 +4323,10 @@ declare module '@podman-desktop/api' {
      * Passing in path will also help to show where the CLI tool is expected to be installed.
      * This is usually the ~/.local/share/containers/podman-desktop/extensions-storage directory.
      * Note: The expected value should not include 'v'.
+     * Note: If the version and path are not defined (= the tool is not installed), the install logic should be implemented
      */
-    version: string;
-    path: string;
+    version?: string;
+    path?: string;
 
     /**
      * How the cli tool has been installed
@@ -4352,25 +4358,39 @@ declare module '@podman-desktop/api' {
     doUpdate: (logger: Logger) => Promise<void>;
   }
 
+  export interface CliToolInstaller {
+    selectVersion: () => Promise<string>;
+    doInstall: (logger: Logger) => Promise<void>;
+    doUninstall: (logger: Logger) => Promise<void>;
+  }
+
   export type CliToolState = 'registered';
 
-  export interface CliTool extends Disposable {
+  export interface CliTool extends CliToolInfo, Disposable {
+    state: CliToolState;
+    updateVersion(version: CliToolUpdateOptions): void;
+    onDidUpdateVersion: Event<string>;
+
+    onDidUninstall: Event<void>;
+
+    // register cli update flow
+    registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
+
+    // register cli installer
+    registerInstaller(installer: CliToolInstaller): Disposable;
+  }
+
+  export interface CliToolInfo {
     id: string;
     name: string;
     displayName: string;
     markdownDescription: string;
-    state: CliToolState;
     images: ProviderImages;
+    version?: string;
     extensionInfo: {
       id: string;
       label: string;
     };
-
-    updateVersion(version: CliToolUpdateOptions): void;
-    onDidUpdateVersion: Event<string>;
-
-    // register cli update flow
-    registerUpdate(update: CliToolUpdate | CliToolSelectUpdate): Disposable;
   }
 
   /**
@@ -4386,6 +4406,23 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
+
+    /**
+     * given an id, return the corresponding CLI Tool
+     * @param id cli tool
+     */
+    export function getCliTool(id: string): CliToolInfo | undefined;
+
+    /**
+     * All cli tools currently known to the system.
+     */
+    export const all: readonly CliToolInfo[];
+
+    /**
+     * An event which fires when `cli.all` changes. This can happen when cli are
+     * installed, uninstalled, enabled or disabled.
+     */
+    export const onDidChange: Event<void>;
   }
 
   /**

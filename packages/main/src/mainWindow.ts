@@ -20,9 +20,8 @@ import { join } from 'node:path';
 import { URL } from 'node:url';
 
 import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
-import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } from 'electron';
+import { app, autoUpdater, BrowserWindow, ipcMain, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
-import { aboutMenuItem } from 'electron-util/main';
 
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
@@ -192,18 +191,23 @@ async function createWindow(): Promise<BrowserWindow> {
       if (import.meta.env.DEV) {
         let extensionId = '';
         if (parameters?.linkURL?.includes('/contribs')) {
-          extensionId = parameters.linkURL.split('/contribs/')[1];
-          return [
-            {
-              label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
-              // make it visible when link contains contribs and we're inside the extension
-              visible:
-                parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
-              click: (): void => {
-                browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
+          const extensionIdVal = parameters.linkURL.split('/contribs/')[1];
+          if (extensionIdVal) {
+            extensionId = extensionIdVal;
+            return [
+              {
+                label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
+                // make it visible when link contains contribs and we're inside the extension
+                visible:
+                  parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
+                click: (): void => {
+                  browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
+                },
               },
-            },
-          ];
+            ];
+          } else {
+            return [];
+          }
         } else if (parameters?.linkURL?.includes('/webviews/')) {
           const webviewId = parameters.linkURL.split('/webviews/')[1];
           return [
@@ -226,30 +230,13 @@ async function createWindow(): Promise<BrowserWindow> {
     append: (_defaultActions, parameters) => {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
     },
+    onClose: () => {
+      browserWindow.webContents.send('context-menu:visible', false);
+    },
+    onShow: () => {
+      browserWindow.webContents.send('context-menu:visible', true);
+    },
   });
-
-  // Add help/about menu entry
-  const menu = Menu.getApplicationMenu(); // get default menu
-  if (menu) {
-    // build a new menu based on default one but adding about entry in the help menu
-    const newmenu = Menu.buildFromTemplate(
-      menu.items.map(i => {
-        // add the About entry only in the help menu
-        if (i.role === 'help' && i.submenu) {
-          const aboutMenuSubItem = aboutMenuItem({});
-          aboutMenuSubItem.label = 'About';
-
-          // create new submenu
-          // also add a separator before the About entry
-          const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
-          return Object.assign({}, i, { submenu: newSubMenu });
-        }
-        return i;
-      }),
-    );
-
-    Menu.setApplicationMenu(newmenu);
-  }
 
   /**
    * URL for main window.

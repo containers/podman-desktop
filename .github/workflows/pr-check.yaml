@@ -29,21 +29,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: yarn
-        run: |
-          yarn --frozen-lockfile --network-timeout 180000
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run Build
         timeout-minutes: 20
-        run: yarn compile:pull-request
+        run: pnpm compile:pull-request
 
       - name: List Build
         run: ls ./dist/
@@ -77,25 +78,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile --network-timeout 180000
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Install flatpak
         run: |
@@ -108,7 +102,7 @@ jobs:
 
       - name: Run Build
         timeout-minutes: 20
-        run: yarn compile:pull-request
+        run: pnpm compile:pull-request
 
       - name: List Build
         run: ls -la ./dist/
@@ -132,29 +126,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
-        run: yarn --frozen-lockfile --network-timeout 180000
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run Build
         timeout-minutes: 40
-        run: yarn compile:pull-request
+        run: pnpm compile:pull-request
 
       - name: List Build
         run: ls -la ./dist/
@@ -172,9 +159,101 @@ jobs:
           name: macos-universal-dmg
           path: ./dist/podman-desktop-*universal.dmg
 
+  website-build:
+    name: build website
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
 
-  lint-format-unit:
-    name: linter, formatters and unit tests / ${{ matrix.os }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run website
+        run: pnpm website:build
+
+      - name: Store pull request details for publish-netlify
+        run: |
+          echo "${{ github.event.number }}" > PR_NUMBER
+          echo "${{ github.event.pull_request.head.sha }}" > PR_SHA
+
+      - name: Upload artifact website-content
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-content
+          path: |
+            website/build
+            PR_NUMBER
+            PR_SHA
+
+  lint-format:
+    name: linter, formatters
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run linter
+        run: pnpm lint:check
+
+      - name: Run formatter
+        run: pnpm format:check
+
+      # Check we don't have changes in git
+      - name: Check no changes in git
+        run: |
+          if ! git diff --exit-code; then
+            echo "Found changes in git"
+            exit 1
+          fi
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Run typecheck
+        run: pnpm typecheck
+
+      - name: Run svelte check
+        run: pnpm svelte:check
+
+  unit-tests:
+    name: unit tests / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:
@@ -183,60 +262,27 @@ jobs:
         os: [windows-2022, ubuntu-24.04]
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-
-      - name: Get yarn cache directory path (mac/Linux)
-        if: ${{ matrix.os=='ubuntu-24.04'}}
-        id: yarn-cache-dir-path-unix
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        if: ${{ matrix.os=='ubuntu-24.04'}}
-        id: yarn-cache-unix
-        with:
-          path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile --network-timeout 180000
-
-      - name: Run linter
-        run: yarn lint:check
-
-      - name: Run formatter
-        run: yarn format:check
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run unit tests
-        run: yarn test:unit
-
-      - name: Run typecheck
-        run: yarn typecheck
-
-      - name: Run svelte check
-        run: yarn svelte:check
-
-      # Check we don't have changes in git
-      - name: Check no changes in git
-        if: ${{ matrix.os=='ubuntu-24.04'}}
-        run: |
-          if ! git diff --exit-code; then
-            echo "Found changes in git"
-            exit 1
-          fi
+        run: pnpm test:unit
 
   smoke-e2e-tests:
     name: smoke e2e tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: Update podman
         run: |
@@ -254,23 +300,21 @@ jobs:
           wget https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb -O /tmp/conmon_2.1.2.deb
           sudo apt install /tmp/conmon_2.1.2.deb
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: yarn-cache
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          run_install: false
 
-      - name: Execute yarn
-        run: yarn --frozen-lockfile
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
 
       - name: Run E2E smoke tests
-        run: yarn test:e2e:smoke
+        run: pnpm test:e2e:smoke
 
       - uses: actions/upload-artifact@v4
         if: always()

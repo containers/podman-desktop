@@ -50,7 +50,7 @@ export class QemuHelper {
       // stdout is like QEMU emulator version 8.1.1
 
       // extract 8.1.1 from the string QEMU emulator version 8.1.1
-      return stdout.match(/QEMU emulator version ([0-9.]+)/)?.[1];
+      return RegExp(/QEMU emulator version ([0-9.]+)/).exec(stdout)?.[1];
     }
   }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,8 +89,8 @@ test('Image context should have a single entry', async () => {
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(1);
-  expect(menus[0].command).toBe('image.command1');
-  expect(menus[0].title).toBe('Image 1');
+  expect(menus[0]?.command).toBe('image.command1');
+  expect(menus[0]?.title).toBe('Image 1');
 });
 
 test('Container context should have two entries', async () => {
@@ -98,10 +98,10 @@ test('Container context should have two entries', async () => {
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(2);
-  expect(menus[0].command).toBe('container.command1');
-  expect(menus[0].title).toBe('Container 1');
-  expect(menus[1].command).toBe('container.command2');
-  expect(menus[1].title).toBe('Container 2');
+  expect(menus[0]?.command).toBe('container.command1');
+  expect(menus[0]?.title).toBe('Container 1');
+  expect(menus[1]?.command).toBe('container.command2');
+  expect(menus[1]?.title).toBe('Container 2');
 });
 
 test('Menus with unregistered commands should not be returned', async () => {
@@ -158,13 +158,13 @@ test('Should find icon', async () => {
   const menus = menuRegistry.getContributedMenus('dashboard/image');
 
   // icon should be set for the command
-  expect(menus[0].icon).toBe('${myIcon1}');
+  expect(menus[0]?.icon).toBe('${myIcon1}');
 
   const menus2 = menuRegistry.getContributedMenus('dashboard/container');
   // check icons
-  expect(menus2[0].icon).toBe('${myIcon2}');
+  expect(menus2[0]?.icon).toBe('${myIcon2}');
   // other one should be undefined
-  expect(menus2[1].icon).toBe(undefined);
+  expect(menus2[1]?.icon).toBe(undefined);
 
   // and now last item should be undefined as commands is not registered
   const menus3 = menuRegistry.getContributedMenus('dashboard/unregistered');

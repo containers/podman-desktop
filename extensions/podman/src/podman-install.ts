@@ -340,6 +340,7 @@ export class PodmanInstall {
         'Yes',
         'No',
         'Ignore',
+        'Open release notes',
       );
       if (answer === 'Yes') {
         await this.getInstaller()?.update();
@@ -367,6 +368,8 @@ export class PodmanInstall {
         }
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
+      } else if (answer === 'Open release notes') {
+        await extensionApi.env.openExternal(extensionApi.Uri.parse(podman5JSON.releaseNotes.href));
       }
     }
   }

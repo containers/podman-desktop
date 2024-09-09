@@ -84,6 +84,9 @@ export class Context implements IContext {
       return undefined;
     }
     const bits = key.split('.');
+    if (!bits[0]) {
+      return undefined;
+    }
     let contextValue = this.getValue<T>(bits[0]);
     if (contextValue === undefined) {
       return undefined;

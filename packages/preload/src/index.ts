@@ -98,8 +98,8 @@ import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorSelector,
-} from '../../main/src/plugin/kube-generator-registry';
-import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
+} from '../../main/src/plugin/kubernetes/kube-generator-registry';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes/kubernetes-context-state';
 import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
@@ -210,6 +210,18 @@ export function initExposure(): void {
   // Handle protocol to install extensions by delegating to the renderer process
   ipcRenderer.on('podman-desktop-protocol:install-extension', (_, extensionId: string) => {
     apiSender.send('install-extension:from-id', extensionId);
+  });
+
+  contextBridge.exposeInMainWorld('clearTasks', async (): Promise<void> => {
+    return ipcInvoke('tasks:clear-all');
+  });
+
+  contextBridge.exposeInMainWorld('clearTask', async (taskId: string): Promise<void> => {
+    return ipcInvoke('tasks:clear', taskId);
+  });
+
+  contextBridge.exposeInMainWorld('executeTask', async (taskId: string): Promise<void> => {
+    return ipcInvoke('tasks:execute', taskId);
   });
 
   contextBridge.exposeInMainWorld('extensionSystemIsReady', async (): Promise<boolean> => {
@@ -842,7 +854,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -853,6 +866,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );
@@ -875,7 +889,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -886,6 +901,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );
@@ -973,6 +989,26 @@ export function initExposure(): void {
     },
   );
 
+  ipcRenderer.on(
+    'provider-registry:installCliTool-onData',
+    (_, onDataCallbacksTaskConnectionId: number, channel: string, data: string[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksTaskConnectionLogs.get(onDataCallbacksTaskConnectionId);
+      const key = onDataCallbacksTaskConnectionKeys.get(onDataCallbacksTaskConnectionId);
+      if (callback && key) {
+        if (channel === 'log') {
+          callback(key, 'log', data);
+        } else if (channel === 'warn') {
+          callback(key, 'warn', data);
+        } else if (channel === 'error') {
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
+        }
+      }
+    },
+  );
+
   contextBridge.exposeInMainWorld(
     'startProviderConnectionLifecycle',
     async (
@@ -1022,7 +1058,8 @@ export function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-      tokenId?: number,
+      tokenId: number | undefined,
+      taskId: number | undefined,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -1034,6 +1071,7 @@ export function initExposure(): void {
         params,
         onDataCallbacksTaskConnectionId,
         tokenId,
+        taskId,
       );
     },
   );
@@ -1135,12 +1173,46 @@ export function initExposure(): void {
     async (
       id: string,
       key: symbol,
+      version: string,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
       onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
-      return ipcInvoke('cli-tool-registry:updateCliTool', id, onDataCallbacksTaskConnectionId);
+      return ipcInvoke('cli-tool-registry:updateCliTool', id, version, onDataCallbacksTaskConnectionId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('selectCliToolVersionToInstall', async (id: string): Promise<string> => {
+    return ipcInvoke('cli-tool-registry:selectCliToolVersionToInstall', id);
+  });
+
+  contextBridge.exposeInMainWorld(
+    'installCliTool',
+    async (
+      id: string,
+      versionToInstall: string,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+    ): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
+      return ipcInvoke('cli-tool-registry:installCliTool', id, versionToInstall, onDataCallbacksTaskConnectionId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'uninstallCliTool',
+    async (
+      id: string,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+    ): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
+      return ipcInvoke('cli-tool-registry:uninstallCliTool', id, onDataCallbacksTaskConnectionId);
     },
   );
 
@@ -1382,6 +1454,10 @@ export function initExposure(): void {
   // by delegating to the renderer process
   ipcRenderer.on('dev-tools:open-webview', (_, webviewId: string) => {
     apiSender.send('dev-tools:open-webview', webviewId);
+  });
+
+  ipcRenderer.on('context-menu:visible', (_, visible: boolean) => {
+    apiSender.send('context-menu:visible', visible);
   });
 
   // Handle callback on dialogs by calling the callback once we get the answer
@@ -1981,10 +2057,6 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getOsCpu', async (): Promise<string> => {
     return ipcInvoke('os:getHostCpu');
-  });
-
-  contextBridge.exposeInMainWorld('setNativeTheme', async (themeSource: 'system' | 'light' | 'dark'): Promise<void> => {
-    return ipcInvoke('native:theme', themeSource);
   });
 
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {

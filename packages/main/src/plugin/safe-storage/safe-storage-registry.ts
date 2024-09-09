@@ -128,6 +128,7 @@ export class SafeStorage {
     if (value) {
       return this.decrypt(value);
     }
+    return undefined;
   }
 
   set(key: string, value: string): void {

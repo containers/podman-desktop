@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
+
 import type { IDisposable } from '../types/disposable.js';
 
 export type DisposableGroup = { push(disposable: IDisposable): void } | { add(disposable: IDisposable): void };
@@ -25,16 +26,14 @@ export type DisposableGroup = { push(disposable: IDisposable): void } | { add(di
 /**
  * Represents a typed event.
  */
-export interface Event<T> {
-  /**
-   *
-   * @param listener The listener function will be call when the event happens.
-   * @param thisArgs The 'this' which will be used when calling the event listener.
-   * @param disposables An array to which a {{IDisposable}} will be added.
-   * @return a disposable to remove the listener again.
-   */
-  (listener: (e: T) => any, thisArgs?: any, disposables?: DisposableGroup): IDisposable;
-}
+/**
+ *
+ * @param listener The listener function will be call when the event happens.
+ * @param thisArgs The 'this' which will be used when calling the event listener.
+ * @param disposables An array to which a {{IDisposable}} will be added.
+ * @return a disposable to remove the listener again.
+ */
+export type Event<T> = (listener: (e: T) => any, thisArgs?: any, disposables?: DisposableGroup) => IDisposable;
 
 type Callback = (...args: any[]) => any;
 class CallbackList implements Iterable<Callback> {

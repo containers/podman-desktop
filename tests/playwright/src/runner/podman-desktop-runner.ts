@@ -20,10 +20,11 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
-import { _electron as electron } from '@playwright/test';
+import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
 import { waitWhile } from '../utility/wait';
+import { RunnerOptions } from './runner-options';
 
 type WindowState = {
   isVisible: boolean;
@@ -31,7 +32,7 @@ type WindowState = {
   isCrashed: boolean;
 };
 
-export class PodmanDesktopRunner {
+export class Runner {
   private _options: object;
   private _running: boolean;
   private _app: ElectronApplication | undefined;
@@ -40,24 +41,33 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _autoUpdate: boolean;
-  private _autoCheckUpdate: boolean;
-  private _testPassed: boolean;
+  private _runnerOptions: RunnerOptions;
 
-  constructor({
-    profile = '',
-    customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
-  }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
+  private static _instance: Runner | undefined;
+
+  static async getInstance({
+    runnerOptions = new RunnerOptions(),
+  }: {
+    runnerOptions?: RunnerOptions;
+  } = {}): Promise<Runner> {
+    if (!Runner._instance) {
+      Runner._instance = new Runner({ runnerOptions });
+      await Runner._instance.start();
+    }
+    return Runner._instance;
+  }
+
+  private constructor({
+    runnerOptions = new RunnerOptions(),
+  }: {
+    runnerOptions?: RunnerOptions;
+  } = {}) {
     this._running = false;
-    this._profile = profile;
-    this._testOutput = join('tests', 'output', this._profile);
-    this._customFolder = join(this._testOutput, customFolder);
+    this._runnerOptions = runnerOptions;
+    this._profile = this._runnerOptions._profile;
+    this._testOutput = join('tests', 'playwright', 'output', this._profile);
+    this._customFolder = join(this._testOutput, this._runnerOptions._customFolder);
     this._videoAndTraceName = undefined;
-    this._autoUpdate = autoUpdate;
-    this._autoCheckUpdate = autoCheckUpdate;
-    this._testPassed = true;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -65,7 +75,8 @@ export class PodmanDesktopRunner {
 
   public async start(): Promise<Page> {
     if (this.isRunning()) {
-      throw Error('Podman Desktop is already running');
+      console.log('Podman Desktop is already running');
+      return this.getPage();
     }
 
     try {
@@ -84,7 +95,8 @@ export class PodmanDesktopRunner {
       const exe = this.getElectronApp().evaluate(async ({ app }) => {
         return app.getPath('exe');
       });
-      console.log(`The Executable Electron app. file: ${exe}`);
+      const filePath = await exe;
+      console.log(`The Executable Electron app. file: ${filePath}`);
 
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
@@ -135,7 +147,7 @@ export class PodmanDesktopRunner {
   }
 
   public async startTracing(): Promise<void> {
-    await this.getPage().context().tracing.start({ screenshots: true, snapshots: true });
+    await this.getPage().context().tracing.start({ screenshots: true, snapshots: true, sources: true });
   }
 
   public async stopTracing(): Promise<void> {
@@ -216,6 +228,7 @@ export class PodmanDesktopRunner {
       }
     }
     this._running = false;
+    Runner._instance = undefined;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
@@ -234,7 +247,14 @@ export class PodmanDesktopRunner {
       rmSync(rawTracesPath, { recursive: true, force: true, maxRetries: 5 });
     }
 
-    if (!this._testPassed || !this._videoAndTraceName) return;
+    try {
+      const testStatus = test.info().status;
+      console.log(`Test finished with status:${testStatus}`);
+      if (testStatus !== 'passed' && testStatus !== 'skipped') return;
+    } catch (err) {
+      console.log(`Caught exception in removing traces: ${err}`);
+      return;
+    }
 
     if (!process.env.KEEP_TRACES_ON_PASS) {
       const tracesPath = join(this._testOutput, 'traces', `${this._videoAndTraceName}_trace.zip`);
@@ -310,11 +330,7 @@ export class PodmanDesktopRunner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = JSON.stringify({
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoCheckUpdates': this._autoCheckUpdate,
-      'extensions.autoUpdate': this._autoUpdate,
-    });
+    const settingsContent = this._runnerOptions.createSettingsJson();
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
@@ -333,18 +349,14 @@ export class PodmanDesktopRunner {
 
   public setVideoAndTraceName(name: string): void {
     this._videoAndTraceName = name;
+
+    if (test.info().retry > 0) {
+      this._videoAndTraceName += `_retry${test.info().retry}`;
+    }
   }
 
   public getTestOutput(): string {
     return this._testOutput;
-  }
-
-  public getTestPassed(): boolean {
-    return this._testPassed;
-  }
-
-  public setTestPassed(value: boolean): void {
-    this._testPassed = value;
   }
 
   public get options(): object {

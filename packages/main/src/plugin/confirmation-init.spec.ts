@@ -36,15 +36,15 @@ test('should register a configuration', async () => {
 
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
-  const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0][0][0];
-  expect(configurationNode.id).toBe('preferences.userConfirmation');
-  expect(configurationNode.title).toBe('User Confirmation');
-  expect(configurationNode.properties).toBeDefined();
-  expect(Object.keys(configurationNode.properties ?? {}).length).toBe(1);
-  expect(configurationNode.properties?.['userConfirmation.bulk']).toBeDefined();
-  expect(configurationNode.properties?.['userConfirmation.bulk'].description).toBe(
+  const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0]?.[0][0];
+  expect(configurationNode?.id).toBe('preferences.userConfirmation');
+  expect(configurationNode?.title).toBe('User Confirmation');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(1);
+  expect(configurationNode?.properties?.['userConfirmation.bulk']).toBeDefined();
+  expect(configurationNode?.properties?.['userConfirmation.bulk']?.description).toBe(
     'Require user confirmation for bulk actions',
   );
-  expect(configurationNode.properties?.['userConfirmation.bulk'].type).toBe('boolean');
-  expect(configurationNode.properties?.['userConfirmation.bulk'].default).toBe(true);
+  expect(configurationNode?.properties?.['userConfirmation.bulk']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['userConfirmation.bulk']?.default).toBe(true);
 });

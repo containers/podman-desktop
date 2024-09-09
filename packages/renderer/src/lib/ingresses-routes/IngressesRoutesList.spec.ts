@@ -31,7 +31,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import type { V1Route } from '/@api/openshift-types';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
 import IngressesRoutesList from './IngressesRoutesList.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {

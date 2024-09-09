@@ -101,7 +101,7 @@ vi.mock('./../docker-extension/docker-desktop-installer', async () => {
         setupContribution: vi.fn(),
       };
     }),
-    DockerDesktopContribution: ddInstallerReal.DockerDesktopContribution,
+    DockerDesktopContribution: ddInstallerReal['DockerDesktopContribution'],
   };
 });
 

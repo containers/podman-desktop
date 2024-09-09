@@ -2,6 +2,7 @@
   "name": "@podman-desktop/tests-playwright",
   "version": "1.9.0-next",
   "description": "Playwright-based testing libraries for Podman Desktop and its extensions",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -16,16 +17,16 @@
     "build": "vite build",
     "package": "npm run build && npm link && npm pack",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish:next": "yarn publish --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    "publish:next": "pnpm publish --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "peerDependencies": {
     "@playwright/test": "1.42.1",
     "electron": "29.1.4"
   },
   "devDependencies": {
-    "@playwright/test": "1.46.1",
+    "@playwright/test": "1.47.0",
     "@types/node": "^20",
-    "electron": "32.0.1",
+    "electron": "32.0.2",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   }

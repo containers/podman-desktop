@@ -145,18 +145,18 @@
     "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1",
     "@octokit/rest": "^21.0.2",
+    "@podman-desktop/api": "workspace:*",
     "semver": "^7.6.3",
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
     "@types/semver": "^7.5.8",
-    "adm-zip": "^0.5.15",
+    "adm-zip": "^0.5.16",
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.2",
+    "vite": "^5.4.3",
     "vitest": "^2.0.5"
   }
 }

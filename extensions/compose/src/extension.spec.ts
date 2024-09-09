@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import * as fs from 'node:fs';
 
 import type { CliTool, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
@@ -62,6 +63,9 @@ vi.mock('@podman-desktop/api', async () => {
 });
 
 vi.mock('node:fs', () => ({
+  promises: {
+    unlink: vi.fn(),
+  },
   existsSync: vi.fn(),
 }));
 
@@ -80,6 +84,7 @@ const composeDownloadMock = {
 
 const cliToolMock = {
   registerUpdate: vi.fn(),
+  registerInstaller: vi.fn(),
   updateVersion: vi.fn(),
   dispose: vi.fn(),
 } as unknown as CliTool;
@@ -231,6 +236,7 @@ describe('registerCLITool', () => {
       });
     });
 
+    expect(cliToolMock.registerInstaller).toHaveBeenCalled();
     expect(cliToolMock.registerUpdate).toHaveBeenCalled();
   });
 
@@ -258,6 +264,7 @@ describe('registerCLITool', () => {
       });
     });
 
+    expect(cliToolMock.registerInstaller).toHaveBeenCalled();
     expect(cliToolMock.registerUpdate).not.toHaveBeenCalled();
   });
 
@@ -273,6 +280,11 @@ describe('registerCLITool', () => {
 
     await vi.waitFor(() => {
       expect(extensionApi.cli.createCliTool).toHaveBeenCalled();
+      expect(cliToolMock.registerInstaller).toHaveBeenCalledWith({
+        selectVersion: expect.any(Function),
+        doInstall: expect.any(Function),
+        doUninstall: expect.any(Function),
+      });
       expect(cliToolMock.registerUpdate).toHaveBeenCalledWith({
         selectVersion: expect.any(Function),
         doUpdate: expect.any(Function),
@@ -313,6 +325,190 @@ describe('registerCLITool', () => {
     });
     expect(detectMock.getStoragePath).toHaveBeenCalled();
     expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('extension-storage-path', 'docker-compose');
+    expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
+      installationSource: 'extension',
+      version: '1.0.0',
+    });
+  });
+
+  test('try to install when there is already an existing version should throw an error', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
+    vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+      version: 'v0.0.0',
+      path: 'system-wide-path',
+      updatable: true,
+    });
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await expect(() => installer?.doInstall({} as unknown as Logger)).rejects.toThrowError(
+      `Cannot install docker-compose. Version 0.0.0 in system-wide-path is already installed.`,
+    );
+  });
+
+  test('try to install before selecting cli tool version should throw an error', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(false);
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('');
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await expect(() => installer?.doInstall({} as unknown as Logger)).rejects.toThrowError(
+      `Cannot install docker-compose. No release selected.`,
+    );
+  });
+
+  test('after selecting the version to be installed it should download compose', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(false);
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('');
+    vi.mocked(composeDownloadMock.promptUserForVersion).mockResolvedValue({
+      tag: 'v1.0.0',
+    } as unknown as ComposeGithubReleaseArtifactMetadata);
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await installer?.selectVersion();
+
+    await installer?.doInstall({} as unknown as Logger);
+    expect(composeDownloadMock.download).toHaveBeenCalledWith({
+      tag: 'v1.0.0',
+    });
+    expect(detectMock.getStoragePath).toHaveBeenCalled();
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('', 'docker-compose');
+    expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
+      installationSource: 'extension',
+      version: '1.0.0',
+    });
+  });
+
+  test('by uninstalling it should delete all executables', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
+    vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+      version: 'v0.0.0',
+      path: 'system-wide-path',
+      updatable: false, // not updatable as unknown location
+    });
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('storage-path');
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await installer?.doUninstall({} as unknown as Logger);
+    expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, 'storage-path');
+    expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-wide-path');
+  });
+
+  test('if unlink fails because of a permission issue, it should delete all binaries as admin', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
+    vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+      version: 'v0.0.0',
+      path: 'system-wide-path',
+      updatable: false, // not updatable as unknown location
+    });
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('storage-path');
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.promises.unlink).mockRejectedValue({
+      code: 'EACCES',
+    } as unknown as Error);
+    const command = process.platform === 'win32' ? 'del' : 'rm';
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await installer?.doUninstall({} as unknown as Logger);
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(1, command, ['storage-path'], { isAdmin: true });
+    expect(extensionApi.process.exec).toHaveBeenNthCalledWith(2, command, ['system-wide-path'], { isAdmin: true });
+  });
+
+  test('verify that can install after uninstalling', async () => {
+    vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
+    vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+      version: 'v0.0.0',
+      path: 'system-wide-path',
+      updatable: false, // not updatable as unknown location
+    });
+    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(detectMock.getStoragePath).mockResolvedValue('storage-path');
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(composeDownloadMock.promptUserForVersion).mockResolvedValue({
+      tag: 'v1.0.0',
+    } as unknown as ComposeGithubReleaseArtifactMetadata);
+
+    let installer: extensionApi.CliToolInstaller | undefined;
+    vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+      installer = mInstaller;
+      return { dispose: vi.fn() };
+    });
+
+    await activate(extensionContextMock);
+
+    await vi.waitFor(() => {
+      expect(installer).toBeDefined();
+    });
+
+    await installer?.doUninstall({} as unknown as Logger);
+    expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, 'storage-path');
+    expect(fs.promises.unlink).toHaveBeenNthCalledWith(2, 'system-wide-path');
+
+    await installer?.selectVersion();
+
+    await installer?.doInstall({} as unknown as Logger);
+    expect(composeDownloadMock.download).toHaveBeenCalledWith({
+      tag: 'v1.0.0',
+    });
+    expect(detectMock.getStoragePath).toHaveBeenCalled();
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'docker-compose');
     expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
       installationSource: 'extension',
       version: '1.0.0',

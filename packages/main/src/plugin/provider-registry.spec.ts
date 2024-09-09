@@ -25,6 +25,7 @@ import type {
   KubernetesProviderConnection,
   ProviderCleanup,
   ProviderInstallation,
+  ProviderLifecycle,
   ProviderUpdate,
 } from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -176,6 +177,32 @@ test('should initialize provider if there is container connection provider', asy
   expect(apiSenderSendMock).toBeCalled();
 });
 
+test('connections should contain the display name provided when registering', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  expect(providerRegistry.getContainerConnections().length).toBe(0);
+
+  const displayName = 'Podman Display Name';
+  provider.registerContainerProviderConnection({
+    name: 'podman-machine-default',
+    displayName: displayName,
+    type: 'podman',
+    lifecycle: {},
+    status: () => 'stopped',
+    endpoint: {
+      socketPath: 'dummy',
+    },
+  });
+
+  const connections = providerRegistry.getContainerConnections();
+  expect(connections.length).toBe(1);
+  expect(connections[0]?.connection.displayName).toBe(displayName);
+});
+
 test('should reset state if initialization fails', async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let providerInternalId: any;
@@ -210,6 +237,7 @@ test('should reset state if initialization fails', async () => {
 test('expect isContainerConnection returns true with a ContainerConnection', async () => {
   const connection: ContainerProviderConnection = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -237,6 +265,7 @@ test('expect isContainerConnection returns false with a KubernetesConnection', a
 test('expect isProviderContainerConnection returns true with a ProviderContainerConnection', async () => {
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -292,18 +321,23 @@ test('should send events when starting a container connection', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
     },
     status: 'started',
-    vmType: 'libkrun',
+    vmType: {
+      id: 'libkrun',
+      name: 'libkrun',
+    },
   };
 
   const startMock = vi.fn();
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -357,18 +391,23 @@ test('should send events when stopping a container connection', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
     },
     status: 'stopped',
-    vmType: 'libkrun',
+    vmType: {
+      id: 'libkrun',
+      name: 'libkrun',
+    },
   };
 
   const startMock = vi.fn();
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -469,6 +508,7 @@ test('should retrieve context of container provider', async () => {
   });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     endpoint: {
       socketPath: '/endpoint1.sock',
@@ -480,6 +520,7 @@ test('should retrieve context of container provider', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -563,6 +604,7 @@ test('should retrieve provider internal id from id', async () => {
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
     name: 'connection',
+    displayName: 'connection',
     type: 'docker',
     lifecycle: {
       start: startMock,
@@ -640,8 +682,8 @@ test('should retrieve cleanup actions without provider Id', async () => {
 
   expect(allActions).toBeDefined();
   expect(allActions).lengthOf(2);
-  expect(allActions[0].providerName).toBe('internal1');
-  expect(allActions[1].providerName).toBe('internal2');
+  expect(allActions[0]?.providerName).toBe('internal1');
+  expect(allActions[1]?.providerName).toBe('internal2');
 });
 
 test('should retrieve cleanup actions with a given provider Id', async () => {
@@ -672,7 +714,7 @@ test('should retrieve cleanup actions with a given provider Id', async () => {
 
   expect(allActions).toBeDefined();
   expect(allActions).lengthOf(1);
-  expect(allActions[0].providerName).toBe('internal1');
+  expect(allActions[0]?.providerName).toBe('internal1');
 });
 
 test('should execute actions', async () => {
@@ -998,5 +1040,103 @@ describe('runPreflightChecks', () => {
       description: 'error',
     });
     expect(run).toBeFalsy();
+  });
+});
+
+describe('startProvider', () => {
+  test('if providerLifecycles is registered for the provider call startProviderLifecycle', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const disposable = providerRegistry.registerLifecycle(provider as ProviderImpl, {} as ProviderLifecycle);
+    const startProviderLifecycleMock = vi
+      .spyOn(providerRegistry, 'startProviderLifecycle')
+      .mockImplementation(_id => Promise.resolve());
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startProviderLifecycleMock).toBeCalledWith((provider as ProviderImpl).internalId);
+    disposable.dispose();
+  });
+
+  test('if the provider has no lifecycle and no connection, throw', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    await expect(() => providerRegistry.startProvider((provider as ProviderImpl).internalId)).rejects.toThrowError(
+      'The provider does not have any connection to start',
+    );
+  });
+
+  test('if the provider has one connection without the start lifecycle, throw', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    provider.registerContainerProviderConnection({
+      name: 'connection',
+      displayName: 'connection',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await expect(() => providerRegistry.startProvider((provider as ProviderImpl).internalId)).rejects.toThrowError(
+      'The connection connection does not support start lifecycle',
+    );
+  });
+
+  test('if the provider has one container connection with the start lifecycle, execute the start action', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const startMock = vi.fn();
+    provider.registerContainerProviderConnection({
+      name: 'connection',
+      displayName: 'connection',
+      type: 'podman',
+      lifecycle: {
+        start: startMock,
+      },
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startMock).toBeCalled();
+  });
+
+  test('if the provider has one kubernetes connection with the start lifecycle, execute the start action', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const startMock = vi.fn();
+    provider.registerKubernetesProviderConnection({
+      name: 'connection',
+      lifecycle: {
+        start: startMock,
+      },
+      endpoint: {
+        apiURL: 'url',
+      },
+      status() {
+        return 'stopped';
+      },
+    });
+    await providerRegistry.startProvider((provider as ProviderImpl).internalId);
+    expect(startMock).toBeCalled();
   });
 });

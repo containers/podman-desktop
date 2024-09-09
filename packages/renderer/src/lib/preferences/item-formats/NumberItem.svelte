@@ -17,8 +17,10 @@ let error: string | undefined = undefined;
 
 $: recordValue = value ?? 0;
 
-$: {
-  const newValue = Number(recordValue);
+function onValidation(newValue: number, validationError?: string) {
+  if (validationError) {
+    invalidRecord(validationError);
+  }
   // if the value is different from the original update
   if (record.id && newValue !== lastValue && !error) {
     // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
@@ -31,20 +33,19 @@ $: {
     }, 500);
   }
 }
-
-$: if (error) {
-  invalidRecord(error);
-}
 </script>
 
 <Tooltip topLeft tip={error}>
   <NumberInput
     class="w-24"
     name={record.id}
+    onValidation={onValidation}
     bind:value={recordValue}
     bind:error={error}
     aria-label={record.description}
     minimum={record.minimum}
+    step={record.step}
+    type={record.type === 'integer' ? 'integer' : 'number'}
     maximum={record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}
     showError={false}>
   </NumberInput>

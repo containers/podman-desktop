@@ -20,3 +20,18 @@ export interface ContainerInteractiveParams {
   interactive?: boolean;
   attachTerminal?: boolean;
 }
+
+export interface KindClusterOptions {
+  providerType?: string;
+  httpPort?: string;
+  httpsPort?: string;
+  useIngressController?: boolean;
+  containerImage?: string;
+}
+
+export interface DeployPodOptions {
+  useKubernetesServices?: boolean;
+  useRestrictedSecurityContext?: boolean;
+  useKubernetesIngress?: boolean;
+  containerExposedPort?: string;
+}

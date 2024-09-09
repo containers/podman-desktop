@@ -129,11 +129,7 @@ describe.each([
   test('Expect Close button redirects to Resources page', async () => {
     const gotoSpy = vi.spyOn(router, 'goto');
 
-    let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
-
-    const callback = mockCallback(async keyLogger => {
-      providedKeyLogger = keyLogger;
-    });
+    const callback = mockCallback(async () => {});
 
     // eslint-disable-next-line @typescript-eslint/await-thenable
     render(PreferencesConnectionCreationOrEditRendering, {
@@ -206,6 +202,7 @@ describe.each([
         expect.anything(),
         eventCollect,
         undefined,
+        taskId,
       );
       expect(providedKeyLogger).toBeDefined();
 
@@ -286,15 +283,11 @@ describe.each([
       name: providerInfo.name,
     });
     // expect it is sucessful
-    expect(cancelTokenMock).toBeCalled;
+    vi.waitFor(() => expect(cancelTokenMock).toBeCalled(), { timeout: 3000 });
   });
 
   test('Expect Close button and main image to not be visible if hidden using properties', async () => {
-    let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
-
-    const callback = mockCallback(async keyLogger => {
-      providedKeyLogger = keyLogger;
-    });
+    const callback = mockCallback(async () => {});
 
     // eslint-disable-next-line @typescript-eslint/await-thenable
     render(PreferencesConnectionCreationOrEditRendering, {
@@ -319,7 +312,7 @@ describe.each([
     callback.mockRejectedValue(new Error('error'));
 
     // eslint-disable-next-line @typescript-eslint/await-thenable
-    const result = render(PreferencesConnectionCreationOrEditRendering, {
+    render(PreferencesConnectionCreationOrEditRendering, {
       properties,
       providerInfo,
       connectionInfo,
@@ -338,11 +331,8 @@ describe.each([
 });
 
 test(`Expect create with unchecked and checked checkboxes`, async () => {
-  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
   const taskId = 4;
-  const callback = mockCallback(async keyLogger => {
-    providedKeyLogger = keyLogger;
-  });
+  const callback = mockCallback(async () => {});
 
   const booleanProperties: IConfigurationPropertyRecordedSchema[] = [
     {
@@ -397,15 +387,13 @@ test(`Expect create with unchecked and checked checkboxes`, async () => {
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });
 
 test(`Expect create with unchecked and checked checkboxes having multiple scopes`, async () => {
-  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
   const taskId = 4;
-  const callback = mockCallback(async keyLogger => {
-    providedKeyLogger = keyLogger;
-  });
+  const callback = mockCallback(async () => {});
 
   const booleanProperties: IConfigurationPropertyRecordedSchema[] = [
     {
@@ -460,5 +448,6 @@ test(`Expect create with unchecked and checked checkboxes having multiple scopes
     expect.anything(),
     eventCollect,
     undefined,
+    taskId,
   );
 });

@@ -25,14 +25,27 @@ import * as port from './port.js';
 
 const hosts = ['127.0.0.1', '0.0.0.0'];
 
+function getInt(val: string | undefined): number {
+  if (!val) {
+    throw new Error('Value is empty');
+  }
+  return parseInt(val);
+}
+
+async function closeServer(server: net.Server): Promise<void> {
+  const promise = once(server, 'close');
+  server.close();
+  await promise;
+}
+
 test('return valid port range', async () => {
   const range = await port.getFreePortRange(3);
 
   const rangeValues = range.split('-');
   expect(rangeValues.length).toBe(2);
 
-  const startRange = parseInt(rangeValues[0]);
-  const endRange = parseInt(rangeValues[1]);
+  const startRange = getInt(rangeValues[0]);
+  const endRange = getInt(rangeValues[1]);
 
   expect(isNaN(startRange)).toBe(false);
   expect(isNaN(endRange)).toBe(false);
@@ -50,8 +63,8 @@ test.each(hosts)(
     const rangeValues = range.split('-');
     expect(rangeValues.length).toBe(2);
 
-    const startRange = parseInt(rangeValues[0]);
-    const endRange = parseInt(rangeValues[1]);
+    const startRange = getInt(rangeValues[0]);
+    const endRange = getInt(rangeValues[1]);
 
     expect(isNaN(startRange)).toBe(false);
     expect(isNaN(endRange)).toBe(false);
@@ -64,13 +77,13 @@ test.each(hosts)(
 
     const newRange = await port.getFreePortRange(3);
 
-    server.close();
+    await closeServer(server);
 
     const newRangeValues = newRange.split('-');
     expect(newRangeValues.length).toBe(2);
 
-    const startNewRange = parseInt(newRangeValues[0]);
-    const endNewRange = parseInt(newRangeValues[1]);
+    const startNewRange = getInt(newRangeValues[0]);
+    const endNewRange = getInt(newRangeValues[1]);
 
     expect(isNaN(startNewRange)).toBe(false);
     expect(isNaN(endNewRange)).toBe(false);
@@ -83,6 +96,7 @@ test.each(hosts)(
 );
 
 test('return first empty port, no port is used', async () => {
+  // eslint-disable-next-line sonarjs/pseudo-random
   const start = 21000 + Math.floor(Math.random() * 100);
   const freePort = await port.getFreePort(start);
 
@@ -104,7 +118,7 @@ test.each(hosts)(
     // as 20000 is busy it should increment it and return 20001
     const freePort = await port.getFreePort(port20000);
 
-    server.close();
+    await closeServer(server);
 
     expect(freePort).toBe(port20001);
     expect(await port.isFreePort(freePort)).toBe(true);
@@ -132,6 +146,8 @@ test.each(hosts)(
 
     server.close();
     server2.close();
+    await closeServer(server);
+    await closeServer(server2);
 
     expect(freePort).toBe(port20002);
     expect(await port.isFreePort(freePort)).toBe(true);

@@ -35,6 +35,7 @@ export function ensureURL(urlstring: string | undefined): string | undefined {
     }
     return `http://${urlstring}`;
   }
+  return undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,7 +171,7 @@ export class Proxy {
     globalThis.fetch = function (url: any, opts?: any): Promise<Response> {
       const proxyurl = getProxyUrl(_me, asURL(url).protocol === 'https');
       if (proxyurl) {
-        opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });
+        opts = { ...opts, dispatcher: new ProxyAgent(proxyurl) };
       }
 
       return original(url, opts);

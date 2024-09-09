@@ -16,11 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach } from 'node:test';
-
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { CLIToolsPage } from '../model/pages/cli-tools-page';
 import { ComposeLocalInstallPage } from '../model/pages/compose-onboarding/compose-local-install-page';
@@ -30,46 +26,34 @@ import { ComposeWideInstallPage } from '../model/pages/compose-onboarding/compos
 import { ResourceCliCardPage } from '../model/pages/resource-cli-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+import type { NavigationBar } from '../model/workbench/navigation';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { isCI, isLinux } from '../utility/platform';
 
 const RESOURCE_NAME: string = 'Compose';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 let composeVersion: string;
 // property that will make sure that on linux we can run only partial tests, by default this is turned off
 const composePartialInstallation = process.env.COMPOSE_PARTIAL_INSTALL ? process.env.COMPOSE_PARTIAL_INSTALL : false;
 
-beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('compose-onboarding-e2e');
+test.skip(!!isCI && isLinux, 'Tests suite should not run on Linux platform');
 
-  const welcomePage = new WelcomePage(page);
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('compose-onboarding-e2e');
   await welcomePage.handleWelcomePage(true);
-  navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', async () => {
-  afterEach(async () => {
-    await navBar.openDashboard();
+test.describe.serial('Compose onboarding workflow verification @smoke', () => {
+  test.afterEach(async ({ navigationBar }) => {
+    await navigationBar.openDashboard();
   });
 
-  test('Compose onboarding button Setup is available', async () => {
-    await navBar.openSettings();
+  test('Compose onboarding button Setup is available', async ({ page, navigationBar }) => {
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
 
@@ -83,8 +67,8 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     ).toBeVisible({ timeout: 10000 });
   });
 
-  test('Can enter Compose onboarding', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+  test('Can enter Compose onboarding', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
 
     await playExpect(onboardingPage.heading).toBeVisible();
 
@@ -95,8 +79,8 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     composeVersion = await onboardingVersionPage.getVersion();
   });
 
-  test('Can install Compose locally', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+  test('Can install Compose locally', async ({ page, navigationBar }) => {
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardigLocalPage = new ComposeLocalInstallPage(page);
@@ -111,8 +95,8 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await skipOkButton.click();
   });
 
-  test('Can resume Compose onboarding and it can be canceled', async () => {
-    await openComposeOnboarding(page);
+  test('Can resume Compose onboarding and it can be canceled', async ({ page, navigationBar }) => {
+    await openComposeOnboarding(page, navigationBar);
     const onboardingLocalPage = new ComposeLocalInstallPage(page);
 
     await playExpect(onboardingLocalPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
@@ -125,8 +109,10 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await skipOkButton.click();
   });
 
-  test.skipIf(composePartialInstallation)('Can install Compose system-wide', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+  test('Can install Compose system-wide', async ({ page, navigationBar }) => {
+    test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
+
+    const onboardingPage = await openComposeOnboarding(page, navigationBar);
     await onboardingPage.nextStepButton.click();
 
     const onboardingWidePage = new ComposeWideInstallPage(page);
@@ -140,8 +126,10 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     await playExpect(resourcesPage.heading).toBeVisible();
   });
 
-  test.skipIf(composePartialInstallation)('Verify Compose was installed', async () => {
-    await navBar.openSettings();
+  test('Verify Compose was installed', async ({ page, navigationBar }) => {
+    test.skip(!!composePartialInstallation, 'Partial installation of Compose is enabled');
+
+    await navigationBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
     await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
@@ -156,8 +144,8 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
   });
 });
 
-async function openComposeOnboarding(page: Page): Promise<ComposeOnboardingPage> {
-  await navBar.openSettings();
+async function openComposeOnboarding(page: Page, navigationBar: NavigationBar): Promise<ComposeOnboardingPage> {
+  await navigationBar.openSettings();
   const settingsBar = new SettingsBar(page);
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible();

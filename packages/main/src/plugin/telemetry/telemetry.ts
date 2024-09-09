@@ -36,7 +36,6 @@ import { stoppedExtensions } from '../../util.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
-import type { Proxy } from '../proxy.js';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { Identity } from './identity.js';
 import type { TelemetryRule } from './telemetry-api.js';
@@ -84,10 +83,7 @@ export class Telemetry {
   private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
   readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
 
-  constructor(
-    private configurationRegistry: ConfigurationRegistry,
-    private proxy: Proxy,
-  ) {
+  constructor(private configurationRegistry: ConfigurationRegistry) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
   }
@@ -171,13 +167,13 @@ export class Telemetry {
     return {
       // prefix with extension id the event
       sendEventData(eventName: string, data?: Record<string, unknown>): void {
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]);
+        thisArg.track(`${extensionInfo.id}.${eventName}`, data);
       },
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
         data = data ?? {};
-        data.sourceError = error.message;
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
+        data['sourceError'] = error.message;
+        thisArg.track(`${extensionInfo.id}.error`, data);
       },
       async flush(): Promise<void> {
         await instanceFlush?.();
@@ -308,6 +304,7 @@ export class Telemetry {
           // telemetry is entirely disabled for this event
           dropIt = true;
         }
+        // eslint-disable-next-line sonarjs/pseudo-random
         if (entry.ratio && entry.ratio < 1 && Math.random() > entry.ratio) {
           // if a ratio is specified, we randomly drop
           dropIt = true;
@@ -318,7 +315,7 @@ export class Telemetry {
           // it was not there, so we can send it
           if (!previousTime) {
             this.lastTimeEvents.set(eventName, Date.now());
-            return false;
+            return;
           } else {
             // it was there, so we check if it was more than 24h ago
             const now = Date.now();
@@ -387,7 +384,7 @@ export class Telemetry {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   protected async getContext(): Promise<Object> {
     const locale = await this.getLocale();
 
@@ -489,7 +486,7 @@ export class TelemetryLoggerImpl implements TelemetryLogger {
   logError(eventName: string | Error, data?: RecordInfo): void {
     data = this.setupData(data);
 
-    let error = eventName;
+    let error;
     if (eventName instanceof Error) {
       error = eventName;
     } else {

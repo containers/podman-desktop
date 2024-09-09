@@ -26,7 +26,10 @@ import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
 import type { KubeContext } from '/@api/kubernetes-context';
 
-import type { CheckingState, ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
+import type {
+  CheckingState,
+  ContextGeneralState,
+} from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
@@ -185,7 +188,7 @@ test('state and resources counts are displayed in contexts', () => {
   const checkCount = (el: HTMLElement, label: string, count: number) => {
     const countEl = within(el).getByLabelText(label);
     expect(countEl).toBeInTheDocument();
-    expect(within(countEl).queryByText(count));
+    expect(within(countEl).queryByText(count)).toBeTruthy();
   };
   checkCount(context1, 'Context Pods Count', 1);
   checkCount(context1, 'Context Deployments Count', 2);

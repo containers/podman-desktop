@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ test('expect error is cli returns non zero exit code', async () => {
   const error = { exitCode: -1, message: 'error' } as extensionApi.RunError;
   try {
     (extensionApi.process.exec as Mock).mockRejectedValue(error);
-    await createCluster({}, '', telemetryLoggerMock, undefined, undefined);
+    await createCluster({}, '', telemetryLoggerMock);
   } catch (err) {
     expect(err).to.be.a('Error');
     expect((err as Error).message).equal('Failed to create kind cluster. error');
@@ -74,7 +74,7 @@ test('expect error is cli returns non zero exit code', async () => {
 
 test('expect cluster to be created', async () => {
   (extensionApi.process.exec as Mock).mockReturnValue({} as extensionApi.RunResult);
-  await createCluster({}, '', telemetryLoggerMock, undefined, undefined);
+  await createCluster({}, '', telemetryLoggerMock);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
@@ -91,7 +91,7 @@ test('expect cluster to be created with ingress', async () => {
     error: vi.fn(),
     warn: vi.fn(),
   };
-  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger, undefined);
+  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
@@ -110,7 +110,7 @@ test('expect error if Kubernetes reports error', async () => {
       warn: vi.fn(),
     };
     (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(error);
-    await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger, undefined);
+    await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger);
   } catch (err) {
     expect(extensionApi.kubernetes.createResources).toBeCalled();
     expect(err).to.be.a('Error');
@@ -134,7 +134,7 @@ test('check cluster configuration empty string image', async () => {
 });
 
 test('check cluster configuration null string image', async () => {
-  const conf = getKindClusterConfig('cluster', 80, 80, undefined);
+  const conf = getKindClusterConfig('cluster', 80, 80);
   expect(conf).to.not.contains('image:');
 });
 

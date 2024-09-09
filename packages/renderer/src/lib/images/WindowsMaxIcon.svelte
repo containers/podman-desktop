@@ -13,7 +13,7 @@ export let size = 16;
   xmlns="http://www.w3.org/2000/svg">
   <g id="layer1">
     <rect
-      style="fill:none;stroke:#ffffff;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4.4;stroke-dasharray:none;stroke-opacity:1"
+      style="fill:none;stroke:currentColor;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4.4;stroke-dasharray:none;stroke-opacity:1"
       id="rect19383"
       width="9.000001"
       height="9.000001"

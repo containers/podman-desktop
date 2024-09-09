@@ -68,13 +68,21 @@ import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
 
-router.mode.hash();
+router.mode.memory();
 
 //remember from where we come to preference pages
 let nonSettingsPage = '/';
 router.subscribe(function (navigation) {
   if (navigation.url !== undefined && !navigation.url.startsWith('/preferences')) {
     nonSettingsPage = navigation.url;
+  }
+});
+
+window.events?.receive('context-menu:visible', visible => {
+  if (visible) {
+    window.dispatchEvent(new Event('tooltip-hide'));
+  } else {
+    window.dispatchEvent(new Event('tooltip-show'));
   }
 });
 

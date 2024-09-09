@@ -69,8 +69,8 @@ export class FilesystemTree<T> {
     this.size += size - (currentSize ?? 0);
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }
@@ -95,8 +95,8 @@ export class FilesystemTree<T> {
     this.size -= currentSize;
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }
@@ -130,8 +130,8 @@ export class FilesystemTree<T> {
     this.size -= currentSize;
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }
@@ -152,8 +152,8 @@ export class FilesystemTree<T> {
     this.size -= currentSize ?? 0;
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }
@@ -173,8 +173,8 @@ export class FilesystemTree<T> {
   currentSize(path: string): number | undefined {
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }
@@ -191,8 +191,8 @@ export class FilesystemTree<T> {
   isDirectory(path: string): boolean {
     const parts = path.split('/');
     let node = this.root;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (const element of parts) {
+      const part = element;
       if (part === '') {
         continue;
       }

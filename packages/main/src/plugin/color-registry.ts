@@ -18,10 +18,11 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 
-import type { Color, ColorDefinition, ColorInfo } from '/@api/color-info.js';
+import type { ColorDefinition, ColorInfo } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
+import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
@@ -33,7 +34,7 @@ export class ColorRegistry {
   #configurationRegistry: ConfigurationRegistry | undefined;
   #definitions: Map<string, ColorDefinition>;
   #initDone = false;
-  #themes: Map<string, Map<string, Color>>;
+  #themes: Map<string, Map<string, string>>;
   #parentThemes: Map<string, string>;
 
   constructor(apiSender?: ApiSenderType, configurationRegistry?: ConfigurationRegistry) {
@@ -89,14 +90,14 @@ export class ColorRegistry {
       const parentTheme = this.#themes.get(parent);
 
       // register theme
-      const colorMap = new Map<string, Color>();
+      const colorMap = new Map<string, string>();
       this.#themes.set(theme.id, colorMap);
 
       // iterate over all color definitions and register either default or provided color
       for (const colorDefinitionId of this.#definitions.keys()) {
         // get the color from the theme
         // need to convert kebab-case to camelCase as in json it's contributed with camelCase
-        const camelCaseColorDefinitionId = colorDefinitionId.replace(/-([a-z])/g, g => g[1].toUpperCase());
+        const camelCaseColorDefinitionId = colorDefinitionId.replace(/-([a-z])/g, g => (g[1] ?? '').toUpperCase());
         let color: string | undefined = theme.colors[camelCaseColorDefinitionId];
         if (!color) {
           color = parentTheme?.get(colorDefinitionId);
@@ -318,7 +319,7 @@ export class ColorRegistry {
 
   protected initTitlebar(): void {
     this.registerColor('titlebar-bg', {
-      dark: colorPalette.charcoal[900],
+      dark: isWindows() ? '#202020' : colorPalette.charcoal[900],
       light: colorPalette.gray[50],
     });
 
@@ -330,6 +331,15 @@ export class ColorRegistry {
     this.registerColor('titlebar-icon', {
       dark: colorPalette.white,
       light: colorPalette.purple[900],
+    });
+
+    this.registerColor('titlebar-windows-hover-exit-bg', {
+      dark: '#c42b1c',
+      light: '#c42b1c',
+    });
+    this.registerColor('titlebar-windows-hover-bg', {
+      dark: '#2d2d2d',
+      light: '#dfdfdf',
     });
   }
 
@@ -1080,6 +1090,8 @@ export class ColorRegistry {
   protected initDropdown(): void {
     const dropdown = 'dropdown-';
     const select = 'select-';
+    const modal = 'modal-';
+    const input = 'input-';
 
     this.registerColor(`${dropdown}bg`, {
       dark: colorPalette.charcoal[600],
@@ -1122,6 +1134,19 @@ export class ColorRegistry {
     this.registerColor(`${dropdown}disabled-item-bg`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${modal}${dropdown}highlight`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[300],
+    });
+    this.registerColor(`${modal}${dropdown}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${input}${select}hover-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
   }
 

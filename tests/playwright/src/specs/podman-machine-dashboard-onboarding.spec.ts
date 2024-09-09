@@ -18,26 +18,19 @@
 
 import * as os from 'node:os';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
-
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-const PODMAN_MACHINE_NAME = 'Podman Machine';
+const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 
-beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('podman-machine-dashboard');
+test.skip(
+  os.platform() === 'linux' || process.env.TEST_PODMAN_MACHINE !== 'true',
+  'Tests suite should not run on Linux platform',
+);
 
-  await new WelcomePage(page).handleWelcomePage(true);
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('podman-machine-dashboard');
+  await welcomePage.handleWelcomePage(true);
 
   if (
     (process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true') ||
@@ -47,32 +40,23 @@ beforeAll(async () => {
   }
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
-afterAll(async () => {
-  await pdRunner.close();
-});
+test.describe.serial(`Podman machine onboarding from Dashboard`, () => {
+  test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
+    test.setTimeout(320000);
 
-describe.runIf(
-  os.platform() !== 'linux' &&
-    process.env.TEST_PODMAN_MACHINE !== undefined &&
-    process.env.TEST_PODMAN_MACHINE === 'true',
-)(`Podman machine onboarding from Dashboard`, async () => {
-  test('Create Podman machine from Dashboard', async () => {
     console.log('Starting PD dashboard test');
-    const navigationBar = new NavigationBar(page);
     const dashboardPage = await navigationBar.openDashboard();
     await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
     await dashboardPage.podmanInitilizeAndStartButton.click();
     await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
-  }, 320000);
+  });
 
-  test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
-    'Clean Up Podman Machine',
-    async () => {
-      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-    },
-  );
+  test('Clean Up Podman Machine', async ({ page }) => {
+    test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  });
 });

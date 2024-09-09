@@ -25,7 +25,10 @@ import AdmZip from 'adm-zip';
 import { app, clipboard as electronClipboard } from 'electron';
 
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
-import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type {
+  KubeGeneratorRegistry,
+  KubernetesGeneratorProvider,
+} from '/@/plugin/kubernetes/kube-generator-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
@@ -56,7 +59,7 @@ import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
-import type { KubernetesClient } from './kubernetes-client.js';
+import type { KubernetesClient } from './kubernetes/kubernetes-client.js';
 import type { MessageBox } from './message-box.js';
 import { ModuleLoader } from './module-loader.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
@@ -133,8 +136,6 @@ export interface RequireCacheDict {
 }
 
 export class ExtensionLoader {
-  private overrideRequireDone = false;
-
   private moduleLoader: ModuleLoader;
 
   protected activatedExtensions = new Map<string, ActivatedExtension>();
@@ -248,6 +249,7 @@ export class ExtensionLoader {
     if (activatedExtension) {
       return this.transformActivatedExtensionToExposedExtension(activatedExtension);
     }
+    return undefined;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -266,6 +268,7 @@ export class ExtensionLoader {
     fs.mkdirSync(unpackedDirectory, { recursive: true });
     // extract to an existing directory
     const admZip = new AdmZip(filePath);
+    // eslint-disable-next-line sonarjs/no-unsafe-unzip
     admZip.extractAllTo(unpackedDirectory, true);
 
     const extension = await this.analyzeExtension(unpackedDirectory, true);
@@ -590,7 +593,8 @@ export class ExtensionLoader {
         pathes.push(process.argv[++index]);
       }
     }
-    return pathes;
+    // filter all undefined values
+    return pathes.filter(path => path !== undefined);
   }
 
   async readProductionFolders(folderPath: string): Promise<string[]> {
@@ -798,8 +802,6 @@ export class ExtensionLoader {
         return commandRegistry.executeCommand(commandId, ...args);
       },
     };
-
-    //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
     const providerRegistry = this.providerRegistry;
     const imageFilesRegistry = this.imageFilesRegistry;
@@ -1026,6 +1028,7 @@ export class ExtensionLoader {
         if (result) {
           return result.map(uri => Uri.file(uri));
         }
+        return undefined;
       },
       showSaveDialog: async (
         options?: containerDesktopAPI.SaveDialogOptions,
@@ -1320,9 +1323,18 @@ export class ExtensionLoader {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        const cliTool = this.cliToolRegistry.createCliTool(extensionInfo, options);
+        const cliTool = instance.cliToolRegistry.createCliTool(extensionInfo, options);
         disposables.push(cliTool);
         return cliTool;
+      },
+      getCliTool: (id: string): containerDesktopAPI.CliToolInfo | undefined => {
+        return instance.cliToolRegistry.getCliTool(id);
+      },
+      get all() {
+        return instance.cliToolRegistry.getCliTools();
+      },
+      onDidChange: (listener, thisArg, disposables) => {
+        return instance.cliToolRegistry.onDidCliToolsChange(listener, thisArg, disposables);
       },
     };
 
@@ -1463,6 +1475,7 @@ export class ExtensionLoader {
           delete childMod.exports;
           mod?.children.splice(i, 1);
           for (let j = 0; j < childMod.children.length; j++) {
+            // eslint-disable-next-line sonarjs/no-array-delete
             delete childMod.children[j];
           }
         }
@@ -1471,8 +1484,10 @@ export class ExtensionLoader {
       if (key.startsWith(extension.path)) {
         // delete the entry
         delete require.cache[key];
+        // eslint-disable-next-line sonarjs/deprecation
         const ix = mod?.parent?.children.indexOf(mod) ?? 0;
         if (ix >= 0) {
+          // eslint-disable-next-line sonarjs/deprecation
           mod?.parent?.children.splice(ix, 1);
         }
       }
@@ -1480,6 +1495,8 @@ export class ExtensionLoader {
     if (extension.mainPath) {
       return this.doRequire(extension.mainPath);
     }
+
+    return undefined;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

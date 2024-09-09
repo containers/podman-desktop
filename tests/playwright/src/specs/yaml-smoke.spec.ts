@@ -17,99 +17,89 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
-
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteImage, deletePod } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
 const podAppName = 'primary-podify-demo';
 const podName = 'podify-demo-pod';
 const frontendImage = 'quay.io/podman-desktop-demo/podify-demo-frontend';
 const backendImage = 'quay.io/podman-desktop-demo/podify-demo-backend';
 
-beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('play-yaml-e2e');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  await new WelcomePage(page).handleWelcomePage(true);
+test.skip(
+  !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
+  'Tests suite should not run on Linux platform',
+);
+
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('play-yaml-e2e');
+
+  await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
-
-afterAll(async () => {
+test.afterAll(async ({ runner, page }) => {
   try {
     await deletePod(page, podName);
     await deleteImage(page, backendImage);
     await deleteImage(page, frontendImage);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
-describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
-  `Play yaml file to pull images and create pod for app ${podAppName}`,
-  async () => {
-    test('Playing yaml', async () => {
-      const navigationBar = new NavigationBar(page);
-      let podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
+test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName} @smoke`, () => {
+  test.describe.configure({ timeout: 150000 });
 
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
+  test('Playing yaml', async ({ navigationBar }) => {
+    let podsPage = await navigationBar.openPods();
+    await playExpect(podsPage.heading).toBeVisible();
 
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
-      podsPage = await playYamlPage.playYaml(yamlFilePath);
-      await playExpect(podsPage.heading).toBeVisible();
-    }, 150000);
+    const playYamlPage = await podsPage.openPlayKubeYaml();
+    await playExpect(playYamlPage.heading).toBeVisible();
 
-    test('Checking that created pod from yaml is correct', async () => {
-      const navigationBar = new NavigationBar(page);
-      const podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
+    const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
+    podsPage = await playYamlPage.playYaml(yamlFilePath);
+    await playExpect(podsPage.heading).toBeVisible();
+  });
 
-      await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeTruthy();
-      await deletePod(page, podName);
-      await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
-    }, 120000);
+  test('Checking that created pod from yaml is correct', async ({ page, navigationBar }) => {
+    const podsPage = await navigationBar.openPods();
+    await playExpect(podsPage.heading).toBeVisible();
 
-    test('Checking that pulled images from yaml are correct', async () => {
-      const navigationBar = new NavigationBar(page);
-      let imagesPage = await navigationBar.openImages();
-      await playExpect(imagesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeTruthy();
+    await deletePod(page, podName);
+    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
+  });
 
-      await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
-      await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
-      await playExpect
-        .poll(async () => await imagesPage.getCurrentStatusOfImage(backendImage), { timeout: 15000 })
-        .toBe('UNUSED');
-      await playExpect
-        .poll(async () => await imagesPage.getCurrentStatusOfImage(frontendImage), { timeout: 15000 })
-        .toBe('UNUSED');
+  test('Checking that pulled images from yaml are correct', async ({ navigationBar }) => {
+    let imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
 
-      let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
-      await playExpect(imageDetailsPage.heading).toContainText(backendImage);
-      imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
-      await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
+    await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
+    await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
+    await playExpect
+      .poll(async () => await imagesPage.getCurrentStatusOfImage(backendImage), { timeout: 15000 })
+      .toBe('UNUSED');
+    await playExpect
+      .poll(async () => await imagesPage.getCurrentStatusOfImage(frontendImage), { timeout: 15000 })
+      .toBe('UNUSED');
 
-      imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
-      await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
-      imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
-      await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
-    }, 120000);
-  },
-);
+    let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
+    await playExpect(imageDetailsPage.heading).toContainText(backendImage);
+    imagesPage = await imageDetailsPage.deleteImage();
+    await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
+    await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
+
+    imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
+    await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
+    imagesPage = await imageDetailsPage.deleteImage();
+    await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
+    await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
+  });
+});

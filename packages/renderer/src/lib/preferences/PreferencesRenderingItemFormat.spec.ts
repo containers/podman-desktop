@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ beforeAll(() => {
 });
 
 async function awaitRender(record: IConfigurationPropertyRecordedSchema, customProperties: any) {
-  const result = render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
     initialValue: getInitialValue(record),
     ...customProperties,
@@ -272,4 +272,21 @@ test('Expect tooltip text shows info when input is higher than maximum', async (
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
   expect(tooltip.textContent).toBe('The value cannot be greater than 34');
+});
+
+test('Expect a text input when record is type integer', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'Hello',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'integer',
+    minimum: 1,
+    maximum: 15,
+  };
+  await awaitRender(record, {});
+  const inputField = screen.getByRole('textbox', { name: 'record-description' }) as HTMLInputElement;
+  expect(inputField).toBeInTheDocument();
+  expect(inputField.type).toBe('text');
+  expect(inputField.name).toBe('record');
 });
