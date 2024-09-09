@@ -43,11 +43,17 @@ Run the following commands **on the Podman Machine, not the host system**:
 
 ```sh
 $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | \
- sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo && \
- sudo yum install -y nvidia-container-toolkit && \
- sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml && \
+ tee /etc/yum.repos.d/nvidia-container-toolkit.repo && \
+ yum install -y nvidia-container-toolkit && \
+ nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml && \
  nvidia-ctk cdi list
 ```
+
+:::info
+
+If you change the device or CUDA driver configuration, you must generate a new CDI specification. A configuration change can occur when MIG devices are created or removed, or when the driver is upgraded.
+
+:::
 
 #### Verification
 
@@ -84,6 +90,31 @@ Fri Aug 16 18:58:14 2024
 |    0   N/A  N/A        33      G   /Xwayland                                 N/A      |
 +---------------------------------------------------------------------------------------+
 ```
+
+#### Troubleshooting
+
+#### Version mismatch
+
+You may encounter the following error inside the containers
+
+```
+# nvidia-smi
+Failed to initialize NVML: N/A
+```
+
+This problem is related to a mismatched between the CDI (Container Device Interface) and the installed version.
+
+To fix this problem you need to generate a new CDI specification by running the following **inside the podman machine**
+
+```
+nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+```
+
+:::info
+
+You may need to restart your podman machine.
+
+:::
 
 #### Additional resources
 
