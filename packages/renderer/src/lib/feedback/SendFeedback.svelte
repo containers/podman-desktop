@@ -1,6 +1,6 @@
 <script lang="ts">
-import { faFrown, faGrinStars, faMeh, faSmile } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { faFrown, faGrinStars, faMeh, faSmile, faStar } from '@fortawesome/free-solid-svg-icons';
+import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import type { FeedbackProperties } from '../../../../preload/src/index';
@@ -53,6 +53,11 @@ async function sendFeedback(): Promise<void> {
   // close the modal
   hideModal();
 }
+
+function openGithub(): void {
+  hideModal();
+  window.openExternal('https://github.com/containers/podman-desktop');
+}
 </script>
 
 {#if displayModal}
@@ -94,8 +99,14 @@ async function sendFeedback(): Promise<void> {
             icon={faGrinStars} />
         </button>
       </div>
-
-      <label for="tellUsWhyFeedback" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+      {#if smileyRating === 4}
+        <span aria-label="Like Podman-Desktop? Give us a star on GitHub" class="flex items-center"
+          >Like Podman-Desktop ? Give us a<Fa class="px-1 text-github-star-icon" icon={faStar} /> on <Link
+            aria-label="GitHub"
+            onclick={openGithub}>GitHub</Link
+          ></span>
+      {/if}
+      <label for="tellUsWhyFeedback" class="block mt-2 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
         >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
         left)</label>
       <textarea

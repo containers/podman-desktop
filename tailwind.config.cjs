@@ -56,7 +56,7 @@ module.exports = {
     colors: {
       // import colors from the color palette
       ...colorPalette,
-      
+
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
       'zinc': {
@@ -74,6 +74,7 @@ module.exports = {
         600: tailwindColors.violet[600],
         700: tailwindColors.violet[700],
       },
+      'github-star-icon': '#e3b341'
     },
   },
   plugins: [],

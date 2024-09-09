@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import SendFeedback from './SendFeedback.svelte';
 
@@ -32,6 +32,9 @@ beforeAll(() => {
       func();
     },
   };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).openExternal = vi.fn();
 });
 
 test('Expect that the button is disabled when loading the page', async () => {
@@ -112,4 +115,25 @@ test('Expect sad smiley warns without feedback', async () => {
 
   // and the indication is gone
   expect(warn).not.toBeInTheDocument();
+});
+
+test('Expect GitHub dialog visible when very-happy-smiley selected', async () => {
+  render(SendFeedback, {});
+
+  // expect to have indication why the button is disabled
+  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
+
+  // click on a smiley
+  const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
+  await fireEvent.click(smiley);
+
+  // and the GitHub star text is visible
+  expect(screen.getByLabelText('Like Podman-Desktop? Give us a star on GitHub')).toBeInTheDocument();
+
+  const link = screen.getByRole('link', { name: 'GitHub' });
+  await fireEvent.click(link);
+
+  await vi.waitFor(() => {
+    expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
+  });
 });
