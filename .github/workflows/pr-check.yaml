@@ -407,7 +407,7 @@ jobs:
 
   update-e2e-test:
     name: update E2E test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: run-update-e2e-test
     if: |
       always()
