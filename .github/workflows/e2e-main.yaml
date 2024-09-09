@@ -97,8 +97,7 @@ jobs:
         with:
           name: e2e-tests
           path: |
-            ./tests/output/
-            ./tests/**/output/junit*.xml
+            ./tests/**/output/
             !./tests/**/traces/raw
 
   win-update-e2e-test:
@@ -163,6 +162,5 @@ jobs:
         with:
           name: update-e2e-test
           path: |
-            ./tests/output/
-            ./tests/**/output/junit*.xml
+            ./tests/**/output/
             !./tests/**/traces/raw
