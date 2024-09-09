@@ -328,7 +328,7 @@ jobs:
             !./tests/**/traces/raw
 
   detect_pnpm_changes:
-    name: Detect pnpm lock file changes
+    name: Detect pnpm lock or pr-check files changes
     runs-on: ubuntu-24.04
     outputs:
       pnpm_lock_changed: ${{ steps.pnpm_changed.outputs.PNPM_LOCK_CHANGED }}
@@ -338,12 +338,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Evaluate changes in files
+      - name: Evaluate changes in files   
         id: pnpm_changed
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }}
           git diff --name-only origin/${{ github.event.pull_request.base.ref }} HEAD > changes.txt
-          if grep -q 'pnpm-lock.yaml' changes.txt; then
+          if grep -q  -e 'pnpm-lock.yaml' -e 'pr-check.yaml' changes.txt; then
             echo "PNPM_LOCK_CHANGED=true" >> $GITHUB_OUTPUT
           else
             echo "PNPM_LOCK_CHANGED=false" >> $GITHUB_OUTPUT
