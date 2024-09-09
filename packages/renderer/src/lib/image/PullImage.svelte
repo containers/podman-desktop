@@ -195,6 +195,8 @@ async function searchImages(value: string): Promise<string[]> {
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
       <Typeahead
+        id="imageName"
+        name="imageName"
         placeholder="Image name"
         searchFunction={searchImages}
         onChange={(s: string) => {

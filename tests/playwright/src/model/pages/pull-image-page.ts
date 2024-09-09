@@ -27,7 +27,6 @@ export class PullImagePage extends BasePage {
   readonly closeLink: Locator;
   readonly backToImagesLink: Locator;
   readonly manageRegistriesButton: Locator;
-  readonly imageToPullLabel: Locator;
   readonly imageNameInput: Locator;
 
   constructor(page: Page) {
@@ -37,8 +36,7 @@ export class PullImagePage extends BasePage {
     this.closeLink = page.getByRole('link', { name: 'Close' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
-    this.imageToPullLabel = page.getByLabel('Image to Pull');
-    this.imageNameInput = page.getByLabel('imageName');
+    this.imageNameInput = page.getByLabel('Image to Pull');
   }
 
   async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {

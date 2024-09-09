@@ -7,6 +7,8 @@ export let required: boolean = false;
 export let delay: number = 200;
 export let disabled: boolean = false;
 export let initialFocus: boolean = false;
+export let id: string | undefined = undefined;
+export let name: string | undefined = undefined;
 
 export let searchFunction: SearchFunction = async (_s: string) => [];
 export let onChange = function (_s: string) {};
@@ -174,6 +176,7 @@ function requestFocus(e: HTMLInputElement): void {
   class:focus-within:border-[var(--pd-input-field-hover-stroke)]={!disabled}
   class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}>
   <input
+    type="text"
     class="w-full px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
     class:text-[color:var(--pd-input-field-focused-text)]={!disabled}
     class:text-[color:var(--pd-input-field-disabled-text)]={disabled}
@@ -185,6 +188,8 @@ function requestFocus(e: HTMLInputElement): void {
     placeholder={placeholder}
     required={required}
     disabled={disabled}
+    id={id}
+    name={name}
     on:input={onInput}
     on:keydown={onKeyDown}
     use:requestFocus />
