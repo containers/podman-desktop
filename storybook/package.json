@@ -17,7 +17,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@podman-desktop/ui-svelte": "workspace:*",
-    "eslint": "^9.9.1",
+    "eslint": "^9.10.0",
     "svelte-fa": "^4.0.2"
   },
   "devDependencies": {
