@@ -18,6 +18,8 @@
 
 import type { Locator } from '@playwright/test';
 
+import { isLinux } from '/@/utility/platform';
+
 import type { StatusBar } from '../../model/workbench/status-bar';
 import { expect as playExpect, test } from '../../utility/fixtures';
 import { handleConfirmationDialog } from '../../utility/operations';
@@ -42,6 +44,7 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('Podman Desktop Update Update installation offering', () => {
+  test.skip(isLinux, 'Update is not supported on Linux');
   test('Update is offered automatically on startup', async ({ welcomePage }) => {
     await playExpect(updateAvailableDialog).toBeVisible();
     const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
