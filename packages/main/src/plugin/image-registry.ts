@@ -924,20 +924,24 @@ export class ImageRegistry {
   }
 
   async searchImages(options: ImageSearchOptions): Promise<ImageSearchResult[]> {
-    if (!options.registry) {
-      options.registry = 'https://index.docker.io';
+    try {
+      if (!options.registry) {
+        options.registry = 'https://index.docker.io';
+      }
+      if (options.registry === 'docker.io') {
+        options.registry = 'index.docker.io';
+      }
+      if (!options.registry.startsWith('http')) {
+        options.registry = 'https://' + options.registry;
+      }
+      const resultJSON = await got.get(
+        `${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`,
+        this.getOptions(),
+      );
+      return JSON.parse(resultJSON.body).results;
+    } catch (e: unknown) {
+      throw new Error(`searching images. ${String(e)}`);
     }
-    if (options.registry === 'docker.io') {
-      options.registry = 'index.docker.io';
-    }
-    if (!options.registry.startsWith('http')) {
-      options.registry = 'https://' + options.registry;
-    }
-    const resultJSON = await got.get(
-      `${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`,
-      this.getOptions(),
-    );
-    return JSON.parse(resultJSON.body).results;
   }
 
   async listImageTags(options: ImageTagsListOptions): Promise<string[]> {
@@ -958,8 +962,7 @@ export class ImageRegistry {
       const catalog = await got.get(`${imageData.registryURL}/${imageData.name}/tags/list`, opts);
       return JSON.parse(catalog.body).tags;
     } catch (e: unknown) {
-      console.error('error getting tags of image', options.image, e);
-      return [];
+      throw new Error(`getting tags of image ${options.image}. ${String(e)}`);
     }
   }
 }

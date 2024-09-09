@@ -166,14 +166,10 @@ async function searchImages(value: string): Promise<string[]> {
     options.query = rest.join('/');
   }
   let result: string[];
-  try {
-    const searchResult = await window.searchImageInRegistry(options);
-    result = searchResult.map(r => {
-      return [options.registry, r.name].join('/');
-    });
-  } catch {
-    result = [];
-  }
+  const searchResult = await window.searchImageInRegistry(options);
+  result = searchResult.map(r => {
+    return [options.registry, r.name].join('/');
+  });
   return result;
 }
 </script>

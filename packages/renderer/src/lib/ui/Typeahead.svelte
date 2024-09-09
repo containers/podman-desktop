@@ -1,4 +1,8 @@
 <script lang="ts">
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { Spinner, Tooltip } from '@podman-desktop/ui-svelte';
+import Fa from 'svelte-fa';
+
 type SearchFunction = (s: string) => Promise<string[]>;
 
 // the text displayed when no option is selected
@@ -23,6 +27,8 @@ let opened: boolean = false;
 let highlightIndex: number = -1;
 let pageStep = 10;
 let userValue: string = '';
+let loading: boolean = false;
+let error: string = '';
 
 function onItemSelected(s: string): void {
   value = s;
@@ -135,8 +141,10 @@ function makeVisible(): void {
 }
 
 function processInput(): void {
+  loading = true;
   searchFunction(value)
     .then(result => {
+      error = '';
       // if the component has been disabled in the meantime
       if (disabled) {
         return;
@@ -146,7 +154,11 @@ function processInput(): void {
       open();
     })
     .catch((err: unknown) => {
-      console.error('error searching images', err);
+      error = String(err);
+      items = [];
+    })
+    .finally(() => {
+      loading = false;
     });
 }
 
@@ -193,6 +205,14 @@ function requestFocus(e: HTMLInputElement): void {
     on:input={onInput}
     on:keydown={onKeyDown}
     use:requestFocus />
+  {#if loading}
+    <Spinner size="1em" />
+  {/if}
+  {#if error}
+    <Tooltip left={true} tip={error}>
+      <Fa size="1.1x" class="text-[var(--pd-state-error)]" icon={faExclamationCircle} />
+    </Tooltip>
+  {/if}
 </div>
 {#if opened && items.length > 0}
   <div
