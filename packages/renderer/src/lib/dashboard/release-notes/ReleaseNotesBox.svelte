@@ -14,7 +14,7 @@ let summary: HTMLUListElement;
 let imageUrl: string = '';
 let imageAlt: string = '';
 
-async function getImageFromNotes() {
+async function getInfoFromNotes() {
   currentVersion = '1.11.0';
   let curVersionSplit = currentVersion.split('.', 2);
   const urlVersionFormat = curVersionSplit.join('.');
@@ -59,7 +59,7 @@ onMount(async () => {
       console.log('Cannot check for update');
     });
   currentVersion = await window.getPodmanDesktopVersion();
-  await getImageFromNotes();
+  await getInfoFromNotes();
 });
 </script>
 
