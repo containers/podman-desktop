@@ -439,14 +439,14 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@20.16.5)(jsdom@25.0.0)(terser@5.31.6)
 
-  extensions/podman:
+  extensions/podman/packages/extension:
     dependencies:
       '@ltd/j-toml':
         specifier: ^1.38.0
         version: 1.38.0
       '@podman-desktop/api':
         specifier: workspace:*
-        version: link:../../packages/extension-api
+        version: link:../../../../packages/extension-api
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -3605,9 +3605,6 @@ packages:
 
   '@types/node@20.16.2':
     resolution: {integrity: sha512-91s/n4qUPV/wg8eE9KHYW1kouTfDk2FPGjXbBMfRWP/2vg1rCXNQL1OCabwGs0XSdukuK+MwCDXE30QpSeMUhQ==}
-
-  '@types/node@20.16.4':
-    resolution: {integrity: sha512-ioyQ1zK9aGEomJ45zz8S8IdzElyxhvP1RVWnPrXDf6wFaUb+kk1tEcVVJkF7RPGM0VWI7cp5U57oCPIn5iN1qg==}
 
   '@types/node@20.16.5':
     resolution: {integrity: sha512-VwYCweNo3ERajwy0IUlqqcyZ8/A7Zwa9ZP3MnENWcB11AejO+tLy3pu850goUW2FC/IJMdZUfKpX/yxL1gymCA==}
@@ -14138,11 +14135,11 @@ snapshots:
 
   '@isaacs/cliui@8.0.2':
     dependencies:
-      string-width: 5.1.2
+      string-width: 4.2.3
       string-width-cjs: string-width@4.2.3
       strip-ansi: 7.1.0
       strip-ansi-cjs: strip-ansi@6.0.1
-      wrap-ansi: 8.1.0
+      wrap-ansi: 7.0.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/fs-minipass@4.0.1':
@@ -15365,10 +15362,6 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
-  '@types/node@20.16.4':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@20.16.5':
     dependencies:
       undici-types: 6.19.8
@@ -15457,7 +15450,7 @@ snapshots:
   '@types/sshpk@1.17.4':
     dependencies:
       '@types/asn1': 0.2.4
-      '@types/node': 20.16.4
+      '@types/node': 20.16.5
 
   '@types/stream-buffers@3.0.7':
     dependencies:
