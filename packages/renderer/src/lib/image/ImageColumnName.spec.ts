@@ -23,7 +23,6 @@ import { render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import ImageIcon from '../images/ImageIcon.svelte';
 import ImageColumnName from './ImageColumnName.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -46,6 +45,15 @@ const image: ImageInfoUI = {
   badges: [],
   digest: 'sha256:1234567890',
 };
+const getImageMock = vi.fn();
+
+vi.mock('/@/lib/appearance/appearance-util', () => {
+  return {
+    AppearanceUtil: class {
+      getImage = getImageMock;
+    },
+  };
+});
 
 test('Expect simple column styling', async () => {
   render(ImageColumnName, { object: image });
@@ -88,6 +96,7 @@ test('Expect badge with simple color', async () => {
       },
     ],
   };
+  getImageMock.mockReturnValue('#ff0000');
   render(ImageColumnName, { object: imageWithBadges });
 
   // wait for image to be rendered using timeout
@@ -101,11 +110,10 @@ test('Expect badge with simple color', async () => {
   expect(badge).toBeInTheDocument();
 
   // check background color
-  expect(badge).toHaveStyle('background-color: #ff0000');
+  await vi.waitFor(async () => expect(badge).toHaveStyle('background-color: #ff0000'));
 });
 
 test('Expect badge with dark color', async () => {
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(AppearanceSettings.DarkEnumValue);
   const imageWithBadges: ImageInfoUI = {
     ...image,
     badges: [
@@ -118,6 +126,7 @@ test('Expect badge with dark color', async () => {
       },
     ],
   };
+  getImageMock.mockReturnValue('#0000ff');
   render(ImageColumnName, { object: imageWithBadges });
 
   // wait for image to be rendered using timeout
@@ -131,11 +140,10 @@ test('Expect badge with dark color', async () => {
   expect(badge).toBeInTheDocument();
 
   // check background color
-  expect(badge).toHaveStyle('background-color: #0000ff');
+  await vi.waitFor(async () => expect(badge).toHaveStyle('background-color: #0000ff'));
 });
 
 test('Expect badge with light color', async () => {
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(AppearanceSettings.LightEnumValue);
   const imageWithBadges: ImageInfoUI = {
     ...image,
     badges: [
@@ -148,6 +156,7 @@ test('Expect badge with light color', async () => {
       },
     ],
   };
+  getImageMock.mockReturnValue('#00ff00');
   render(ImageColumnName, { object: imageWithBadges });
 
   // wait for image to be rendered using timeout
@@ -161,7 +170,7 @@ test('Expect badge with light color', async () => {
   expect(badge).toBeInTheDocument();
 
   // check background color
-  expect(badge).toHaveStyle('background-color: #00ff00');
+  await vi.waitFor(async () => expect(badge).toHaveStyle('background-color: #00ff00'));
 });
 
 test('Expect if image is a manifest, the on:click IS there', async () => {
