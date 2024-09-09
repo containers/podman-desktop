@@ -31,12 +31,14 @@ import type { ContainerInfoUI } from './ContainerInfoUI';
 const getConfigurationValueMock = vi.fn();
 const shellInContainerMock = vi.fn();
 const shellInContainerResizeMock = vi.fn();
+const receiveEndCallbackMock = vi.fn();
 
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).shellInContainer = shellInContainerMock;
   (window as any).shellInContainerResize = shellInContainerResizeMock;
+  (window as any).receiveEndCallback = receiveEndCallbackMock;
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
@@ -126,14 +128,16 @@ test('terminal active/ restarts connection after stopping and starting a contain
 
   const sendCallbackId = 12345;
   shellInContainerMock.mockImplementation(
-    (
+    async (
       _engineId: string,
       _containerId: string,
       onData: (data: Buffer) => void,
       _onError: (error: string) => void,
-      _onEnd: () => void,
+      onEnd: () => void,
     ) => {
       onDataCallback = onData;
+      await new Promise(resolve => setTimeout(resolve, 500));
+      onEnd();
       // return a callback id
       return sendCallbackId;
     },
@@ -158,6 +162,8 @@ test('terminal active/ restarts connection after stopping and starting a contain
   waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   container.state = 'EXITED';
+
+  waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
 
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
