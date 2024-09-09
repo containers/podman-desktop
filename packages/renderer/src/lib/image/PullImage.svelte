@@ -5,13 +5,17 @@ import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 
+import type { ImageSearchOptions } from '/@api/image-registry';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import type { PullEvent } from '/@api/pull-event';
 
 import { providerInfos } from '../../stores/providers';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
+import Typeahead from '../ui/Typeahead.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
+
+const DOCKER_PREFIX = 'docker.io';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -118,19 +122,59 @@ onMount(() => {
 
 let imageNameInvalid: string | undefined = undefined;
 let imageNameIsInvalid = imageToPull === undefined || imageToPull.trim() === '';
-function validateImageName(event: any): void {
-  imageToPull = event.target.value;
-  if (imageToPull === undefined || imageToPull.trim() === '') {
+function validateImageName(image: string): void {
+  if (imageToPull && (image === undefined || image.trim() === '')) {
     imageNameIsInvalid = true;
     imageNameInvalid = 'Please enter a value';
   } else {
     imageNameIsInvalid = false;
     imageNameInvalid = undefined;
   }
+  imageToPull = image;
 }
 
-function requestFocus(element: HTMLInputElement) {
-  element.focus();
+// allTags is defined if last search was a query to search tags of an image
+let allTags: string[] | undefined = undefined;
+async function searchImages(value: string): Promise<string[]> {
+  if (value.includes(':')) {
+    if (allTags !== undefined) {
+      return allTags.filter(i => i.startsWith(value));
+    }
+    const parts = value.split(':');
+    const originalImage = parts[0];
+    let image = parts[0];
+    if (image.startsWith(DOCKER_PREFIX + '/')) {
+      image = image.slice(DOCKER_PREFIX.length + 1);
+    }
+    const tags = await window.listImageTagsInRegistry({ image });
+    allTags = tags.map(t => `${originalImage}:${t}`);
+    return allTags.filter(i => i.startsWith(value));
+  }
+  allTags = undefined;
+  if (value === undefined || value.trim() === '') {
+    return [];
+  }
+  const options: ImageSearchOptions = {
+    query: '',
+  };
+  if (!value.includes('/')) {
+    options.registry = DOCKER_PREFIX;
+    options.query = value;
+  } else {
+    const [registry, ...rest] = value.split('/');
+    options.registry = registry;
+    options.query = rest.join('/');
+  }
+  let result: string[];
+  try {
+    const searchResult = await window.searchImageInRegistry(options);
+    result = searchResult.map(r => {
+      return [options.registry, r.name].join('/');
+    });
+  } catch {
+    result = [];
+  }
+  return result;
 }
 </script>
 
@@ -150,24 +194,16 @@ function requestFocus(element: HTMLInputElement) {
     <div class="w-full">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      <input
-        id="imageName"
-        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
-        type="text"
-        name="imageName"
-        disabled={pullFinished || pullInProgress}
-        on:input={event => validateImageName(event)}
-        on:keypress={event => {
-          if (event.key === 'Enter') {
-            pullImage();
-          }
-        }}
-        bind:value={imageToPull}
-        aria-invalid={imageNameInvalid !== ''}
+      <Typeahead
         placeholder="Image name"
-        aria-label="imageName"
+        searchFunction={searchImages}
+        onChange={(s: string) => {
+          validateImageName(s);
+        }}
+        onEnter={pullImage}
+        disabled={pullFinished || pullInProgress}
         required
-        use:requestFocus />
+        initialFocus />
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}
