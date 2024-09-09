@@ -18,17 +18,18 @@
 
 import type { Locator } from '@playwright/test';
 
-import { isLinux } from '/@/utility/platform';
-
 import type { StatusBar } from '../../model/workbench/status-bar';
 import { expect as playExpect, test } from '../../utility/fixtures';
 import { handleConfirmationDialog } from '../../utility/operations';
+import { isLinux } from '../../utility/platform';
 
 let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
 const performUpdate = process.env.UPDATE_PODMAN_DESKTOP ? process.env.UPDATE_PODMAN_DESKTOP : false;
+
+test.skip(isLinux, 'Update is not supported on Linux');
 
 test.beforeAll(async ({ runner, page, statusBar }) => {
   runner.setVideoAndTraceName('update-e2e');
@@ -43,8 +44,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Podman Desktop Update Update installation offering', () => {
-  test.skip(isLinux, 'Update is not supported on Linux');
+test.describe.serial('Podman Desktop Update Update installation offering @update-install', () => {
   test('Update is offered automatically on startup', async ({ welcomePage }) => {
     await playExpect(updateAvailableDialog).toBeVisible();
     const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
