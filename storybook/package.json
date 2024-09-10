@@ -4,8 +4,8 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "dev": "storybook dev -p 6006",
-    "build": "storybook build"
+    "dev": "cross-env STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
+    "build": "cross-env STORYBOOK_DISABLE_TELEMETRY=1 storybook build"
   },
   "peerDependencies": {
     "svelte": "^5.0.0",
@@ -34,6 +34,7 @@
     "@tsconfig/svelte": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "autoprefixer": "^10.4.20",
+    "cross-env": "7.0.3",
     "eslint-plugin-svelte": "^2.43.0",
     "postcss": "^8.4.45",
     "postcss-load-config": "^6.0.1",

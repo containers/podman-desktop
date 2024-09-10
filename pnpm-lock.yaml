@@ -813,6 +813,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.45)
+      cross-env:
+        specifier: 7.0.3
+        version: 7.0.3
       eslint-plugin-svelte:
         specifier: ^2.43.0
         version: 2.43.0(eslint@9.10.0(jiti@1.21.6))(svelte@5.0.0-next.225)
