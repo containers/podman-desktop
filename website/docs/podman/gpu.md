@@ -51,7 +51,7 @@ $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-cont
 
 :::info
 
-A configuration change might occur when you create or remove Multi-Instance GPU (MIG) devices, or upgrade the Compute Unified Device Architecture (CUDA) driver. In such cases, you must generate a new Container Device Interface (CDI) specification. 
+A configuration change might occur when you create or remove Multi-Instance GPU (MIG) devices, or upgrade the Compute Unified Device Architecture (CUDA) driver. In such cases, you must generate a new Container Device Interface (CDI) specification.
 
 :::
 
