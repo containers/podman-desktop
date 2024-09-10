@@ -29,7 +29,7 @@ const config = {
     parseFrontMatter: async params => {
       // Reuse the default parser
       const result = await params.defaultParseFrontMatter(params);
-      const jsonFilePath = './static/release-notes-files-version-mapping.json';
+      const jsonFilePath = './static/release-notes.json';
       let currentFileName = params.filePath.split('/').at(-1);
       let version;
 

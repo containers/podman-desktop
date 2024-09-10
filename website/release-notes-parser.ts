@@ -22,7 +22,8 @@ export function parseNotes(
   filename: string,
   releaseVersion: string,
 ): {
-  imageUrl: string;
+  image: string;
+  blog: string;
   title: string;
   summary: string;
 } {
@@ -31,10 +32,9 @@ export function parseNotes(
 
   // get release image url
   const imagePath = /image: (.+)\n/.exec(resultText[1]);
-  const imageName = imagePath ? imagePath[1].split('/').at(-1) : '';
-  const imageUrl = imageName
-    ? `https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-${releaseVersion}/${imageName}`
-    : '';
+  const imageName = imagePath ? imagePath[1] : '';
+  const imageUrl = imageName ? `https://podman-desktop.io${imageName}` : '';
+  const blogUrl = `https://podman-desktop.io/blog/podman-desktop-release-${releaseVersion}`;
 
   // get summary part of release notes
   const text = resultText[2]
@@ -49,5 +49,5 @@ export function parseNotes(
   const summaryText = summary.join('\n');
   const titleText = text[1];
 
-  return { imageUrl: imageUrl, title: titleText, summary: summaryText };
+  return { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
 }
