@@ -313,9 +313,12 @@ export async function deleteKindCluster(
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
   await playExpect
-    .poll(async () => {
-      const name = await getVolumeNameForContainer(page, containerName);
-      return name;
-    })
+    .poll(
+      async () => {
+        const name = await getVolumeNameForContainer(page, containerName);
+        return name;
+      },
+      { timeout: 10000 },
+    )
     .toBeFalsy();
 }
