@@ -51,7 +51,7 @@ $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-cont
 
 :::info
 
-If you change the device or CUDA driver configuration, you must generate a new CDI specification. A configuration change can occur when MIG devices are created or removed, or when the driver is upgraded.
+A configuration change might occur when you create or remove Multi-Instance GPU (MIG) devices, or upgrade the Compute Unified Device Architecture (CUDA) driver. In such cases, you must generate a new Container Device Interface (CDI) specification. 
 
 :::
 
@@ -95,16 +95,16 @@ Fri Aug 16 18:58:14 2024
 
 #### Version mismatch
 
-You may encounter the following error inside the containers
+You might encounter the following error inside the containers:
 
 ```
 # nvidia-smi
 Failed to initialize NVML: N/A
 ```
 
-This problem is related to a mismatched between the CDI (Container Device Interface) and the installed version.
+This problem is related to a mismatch between the Container Device Interface (CDI) and the installed version.
 
-To fix this problem you need to generate a new CDI specification by running the following **inside the podman machine**
+To fix this problem, generate a new CDI specification by running the following inside the Podman machine:
 
 ```
 nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
@@ -112,7 +112,7 @@ nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 
 :::info
 
-You may need to restart your podman machine.
+You might need to restart your Podman machine.
 
 :::
 
