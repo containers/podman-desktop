@@ -1,0 +1,97 @@
+{
+  "0.11": {
+    "imageUrl": "",
+    "title": "This release note covers Podman Desktop 0.11 release changes.",
+    "summary": "- **Air-Gapped Installation**: New all-in-one binaries for air-gapped installation.\n- **Feedback**: Submit feedback directly from Podman Desktop.\n- **Docker Compatibility Mode**: Information about the Docker compatibility mode.\n- **Proxy Setting**: Toggle on/off the proxy setting.\n- **Deploy to Kubernetes**: Select the namespace to deploy to Kubernetes.\n- **Registry Configuration**: Simplified registry configuration for well known registries.\n- **UX/UI Improvements**: View pod's container logs, better visual feedback, configurable editor font size, and more."
+  },
+  "0.14": {
+    "imageUrl": "",
+    "title": "Podman Desktop 0.14 - Our Kind-est release yet!",
+    "summary": "- **Kind Installation**: Install Kind from the status bar\n- **Manage Kind Clusters**: Create and manage Kind clusters from **<Icon icon=\"fa-solid fa-cog\" size=\"lg\" /> Settings > Resources**\n- **Using Kind**: Deploying YAML and sharing images to a cluster\n- **Kind Ingress**: Install a Contour ingress controller\n- **UX and UI Improvements**: Updated preferences and telemetry prompt"
+  },
+  "0.10": {
+    "imageUrl": "",
+    "title": "This release note covers Podman Desktop 0.10 release changes.",
+    "summary": "- **Containers Configuration**: Container creation wizzard allowing to define environment variables, networking and more configuration options.\n- **Kubernetes Improvements**: Play Kubernetes YAML, custom Kubeconfig path support, reload of kube context.\n- **Registries Configuration**: Revamped registries configuration UI.\n- **Podman Version**: Podman 4.3.1 now included in Windows and Mac installers.\n- **UX/UI Improvements**: Improved lists, better contrast, and more."
+  },
+  "0.13": {
+    "imageUrl": "",
+    "title": "This release note covers Podman Desktop 0.13 release changes.",
+    "summary": "- **Podman Version**: Podman 4.4.4 now included in Windows and Mac installers.\n- **Compose**: Support for installing Docker Compose.\n- **Extensions**: Improved extension support for Podman Desktop with additional capabilities.\n- **UX and UI Improvements**: Welcome page, task manager, resources, and update alerts."
+  },
+  "0.15": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-0.15/podman-desktop-release-0.15.webp",
+    "title": "Podman Desktop 0.15 - Cleanliness is next to Podliness!",
+    "summary": "- **Podman Version**: Podman 4.5 now included in Windows and Mac installers.\n- **Kind Ingress**: Creating an ingress to expose services outside the Kind cluster.\n- **Podliness**: Ability to choose external ports when podifying containers.\n- **Cleanliness**: New navigation bar, dialog, and palette update.\n- **UX and UI Improvements**: Markdown support for extensions."
+  },
+  "0.12": {
+    "imageUrl": "",
+    "title": "This release note covers Podman Desktop 0.12 release changes.",
+    "summary": "- **Podman Version**: Podman 4.4.1 now included in Windows and Mac installers.\n- **Containers Configuration**: Configure port mappings for an image without exported ports.\n- **Windows Home Support**: Podman Desktop now supports Windows Home Edition.\n- **Start minimized**: Option to start Podman Desktop minimized to system tray.\n- **UX and UI Improvements**: Consistent actions, placeholder for logs, unified icons and others."
+  },
+  "1.0": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.0/podman-desktop-release-1.0.jpg",
+    "title": "Podman Desktop 1.0 Release! 🎉",
+    "summary": "- **Highlighting Featured Extensions**: Easily find and install new extensions.\n- **Featured Extensions**: Two new extensions supporting OpenShift.\n- **Podman Machine as Root**: Ability to run a Podman machine as root.\n- **UX and UI Improvements**: Opening external websites, editing numbers, and tooltips."
+  },
+  "1.1": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.1/podman-desktop-release-1.1.webp",
+    "title": "Podman Desktop 1.1 Release! 🎉",
+    "summary": "- **Podman 4.5.1**: Podman 4.5.1 now included in Windows and Mac installers.\n- **Extensions**: Update extensions from within Podman Desktop.\n- **Lima Support**: Choose engine type and override its name from the settings.\n- **UX and UI Improvements**: New loading screen."
+  },
+  "1.2": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.2/podman-desktop-release-1.2.webp",
+    "title": "Podman Desktop 1.2 Release! 🎉",
+    "summary": "- **Added start/stop/delete/restart buttons for Compose**: You can now make changes to an entire Compose group of containers\n- **Kubernetes context on the status bar**: Choose from multiple Kubernetes contexts more easily all from the status bar\n- **Rename images**: Rename an image with a click of a button\n- **Protocol handler support**: Added support for protocol handlers such as `open podman-desktop:extension/redhat.openshift-local`\n- **Troubleshooting page**: A troubleshooting page for helping diagnose Podman Desktop related development issues"
+  },
+  "1.3": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.3/podman-desktop-release-1.3.webp",
+    "title": "Podman Desktop 1.3 Release! 🎉",
+    "summary": "- **Podman 4.6.1**: Podman 4.6.1 included in Windows and Mac installers\n- **Podman user-mode networking support to Windows/WSL**: A new switch `User mode networking' is available when creating Podman machine on Windows for Podman 4.6.0+ to configure podman to work in certain VPN setups and other specialized networking configurations\n- **Compose group new UI elements**: You can now see summary, inspect, deploy to kubernetes, generate kube yaml and view logs\n- **Extension packs and extension dependencies**: Install group of extensions in one click\n- **Resource details page update**: See summary and log for resource\n- **Create Kind cluster form update**: A new `Node's container image` field can be used to specify the Kubernetes version used for the control-planed\n- **Support Docker Desktop extensions using a backend**: When loading Docker Desktop extension the containers are created in the backend as described in the vm section of extension's descriptor\n- **Podman Initial Onboarding (preview)**: Install and configure podman using included installer"
+  },
+  "1.4": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.4/juggling.png",
+    "title": "Podman Desktop 1.4 Release! 🎉",
+    "summary": "- **Podman 4.6.2**: Podman 4.6.2 included with Podman Desktop 1.4\n- **Windows Arm64**: Native Windows on Arm64 installers and binaries\n- **Port range mapping**: Start containers and map a range of ports\n- **Terminal UX Improvement**: Persistent terminal sessions when SSH'ing in a container\n- **Volume Creation**: Create volume from the `Volumes` page\n- **Bash support**: Terminals are now using `bash` if available."
+  },
+  "1.5": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.5/onboarding-selkies.png",
+    "title": "Podman Desktop 1.5 Release! 🎉",
+    "summary": "- **Onboarding**: Guided setup and configuration of **Podman** and **Compose**\n- **Podman 4.7.2**: [Podman 4.7.2](https://github.com/containers/podman/releases) is now included in Windows and Mac installers\n- **Command Palette**: Gain easy access to various commands via a new keyboard-driven command palette\n- **Expanded \"Summary\" tab for Kubernetes pods**: Go deep with extended details on Kubernetes pods in the pod \"Summary\" tab\n- **Environment file support**: Chart out environment variables for new containers to access on creation\n- **Enhancements to the Settings area**: Get your bearings with improved Docker compatibility mode controls\n- **Improved user experience for state changes**: No more dead reckoning on container state with improved visual indication of status\n- **Extension API improvements**: A boatload of improvements to the extension API enabling more goodness from 🦭 Podman Desktop's extensions"
+  },
+  "1.6": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.6/santaseal.png",
+    "title": "Podman Desktop 1.6 Release! 🎉",
+    "summary": "- **Minikube Featured Extension**: Minikube extension to create local Kubernetes clusters in containers.\n- **Podman 4.8.2**: [Podman 4.8.2](https://github.com/containers/podman/releases) is now included in Windows and Mac installers.\n- **Setting Page for Command-Line Tools**: Manage and update your CLI tools.\n- **Kubernetes Contexts Manager**: Browse all your kubernetes contexts, set default and remove unused ones.\n- **Editable Podman Machine for MacOS**: Easy resize and reconfiguration of the Podman runtime environment.\n- **Filters for Containers and Pods Lists**: Focus on the containers and Pods you are working with.\n- **Sorting on Volumes and Images List**: Sort volumes or images with your prefered criterias.\n- **Environment Colums on Containers and Pods lists**: Easy catch of the environment on which a container or a pod is running on.\n- **Extension API Improvements**: Another set of improvements to the extension API enabling more goodness for 🦭 Podman Desktop's extensions."
+  },
+  "1.7": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.7/renovations.png",
+    "title": "Podman Desktop 1.7 Release! 🎉",
+    "summary": "- **Podman 4.9.0**: [Podman 4.9.0](https://github.com/containers/podman/releases) is now included in both Windows and Mac installers.\n- **Extension API Improvements**: A big update to the extension API enabling more goodness for 🦭 Podman Desktop's extensions.\n- **Experimental Kubernetes UI**: Get a sneak peek at the more advanced UI for working with Kubernetes clusters.\n- **Enhanced Builds, Pods List, and Troubleshooting Pages**: Build for different platforms, an upgraded pods view, and more."
+  },
+  "1.9": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.9/juggling.png",
+    "title": "Podman Desktop 1.9 Release! 🎉",
+    "summary": "- **Podman 5!** [Podman 5.0.1](https://github.com/containers/podman/releases/tag/v5.0.1) for new users (and as an experimental upgrade for 4.x users).\n- **Podman 4.9.4**: [Podman 4.9.4](https://github.com/containers/podman/releases/tag/v4.9.4) is now included in both Windows and macOS installers.\n- **Backup/Restore Images**: Save images or containers to tar archives and restore them.\n- **Kubernetes Pods Terminal**: Connect to a terminal within Kubernetes pods.\n- **Extension API Improvements**: Additional updates to the extension API used by 🦭 Podman Desktop's extensions."
+  },
+  "1.8": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.8/selkie-family.png",
+    "title": "Podman Desktop 1.8 Release! 🎉",
+    "summary": "- **Podman 4.9.3**: [Podman 4.9.3](https://github.com/containers/podman/releases/tag/v4.9.3) is now included in both Windows and Mac installers.\n- **Kubernetes Explorer**: Advanced UI and new tools for working with Kubernetes clusters.\n- **Global Onboarding**: Configure and set up your environment without any hassle, with a set of guided workflows.\n- **Learning Center**: Discover new use cases and capabilities for developers.\n- **Extension API Improvements**: Another big update to the extension API enabling more goodness for 🦭 Podman Desktop's extensions.\n- **Enhanced Builds, Pods List, and Troubleshooting Pages**: Build for different platforms, an upgraded pods view, and more."
+  },
+  "1.10": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.10/1000000-downloads.png",
+    "title": "Podman Desktop 1.10 Release! 🎉",
+    "summary": "- **1 Million Downloads!**: Wow, we made it!\n- **Extension Catalog**: Redesigned extensions page and catalog to get the most out of Podman Desktop.\n- **Podman 5**: [Podman 5.0.2](https://github.com/containers/podman/releases/tag/v5.0.2) now recommended for all users.\n- **Multi-platform Builds**: Build for multiple platforms at once.\n- **Extension API Improvements**: Additional updates to the extension API used by 🦭 Podman Desktop's extensions."
+  },
+  "1.11": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.11/banner.png",
+    "title": "Podman Desktop 1.11 Release! 🎉",
+    "summary": "- **Experimental light mode!**: Our most-requested feature is here! Try out our new experimental light mode in the settings.\n- **Rosetta support for Apple Silicon**: Build AMD64 binaries near the same speed as ARM64 binaries.\n- **Kubernetes improvements**: Check out our new Node and Volume pages for Kubernetes.\n- **Improved UI**: In addition to our light mode, you'll notice updates to our container listing page.\n- **Increased manifest support**: Images built as a manifest are now grouped together."
+  },
+  "1.12": {
+    "imageUrl": "https://raw.githubusercontent.com/containers/podman-desktop/main/website/blog/img/podman-desktop-release-1.12/banner.png",
+    "title": "Podman Desktop 1.12 Release! 🎉",
+    "summary": "- **Podman remote**: We now support remote Podman setups! Manage your remote Podman machines all within the UI.\n- **macOS GPU support**: Container GPU access on macOS is now available. [`libkrun`](https://github.com/containers/libkrun) is now a selectable provider type to allow GPU passthrough enablement.\n- **Windows GPU support**: Want to try out Windows GPU support too? Podman already supports it, but we are now showcasing it in our [AI Lab extension](https://podman-desktop.io/extensions/ai-lab)\n- **Podman 5.2.0**: This new version of Podman provides GPU access for macOS, as well as a host of [new features](https://github.com/containers/podman/releases/tag/v5.2.0).\n- **Light mode out of experimental**: Our light mode has been well-received, and we have now marked it as non-experimental! Enjoy the new theme.\n- **Kubernetes features**: ConfigMaps, Secrets and multi-file Kubernetes YAML applying have now been added to our Kubernetes dashboard.\n- **Improved font consistency**: You'll notice a big difference in consistency this release, as we updated all font sizes throughout Podman Desktop."
+  }
+}

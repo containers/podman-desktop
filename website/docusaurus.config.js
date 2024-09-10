@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
 import * as fs from 'node:fs';
+import { parseNotes } from './release-notes-parser';
 import Storybook from './storybook';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
@@ -28,7 +29,7 @@ const config = {
     parseFrontMatter: async params => {
       // Reuse the default parser
       const result = await params.defaultParseFrontMatter(params);
-      const jsonFilePath = './blog/release-notes-files-version-mapping.json';
+      const jsonFilePath = './static/release-notes-files-version-mapping.json';
       let currentFileName = params.filePath.split('/').at(-1);
       let version;
 
@@ -40,9 +41,10 @@ const config = {
         let versionMatch = String(result.frontMatter.title).match(/(\d+\.\d+)/) ?? [];
         version = versionMatch[1] ? versionMatch[1] : '';
         if (version) {
+          let parsedNotes = parseNotes(params.filePath, version);
           const fileContent = fs.readFileSync(jsonFilePath, { encoding: 'utf-8' });
           const jsonObject = JSON.parse(fileContent);
-          jsonObject[version] = currentFileName;
+          jsonObject[version] = parsedNotes;
           fs.writeFileSync(jsonFilePath, JSON.stringify(jsonObject));
         }
       }
