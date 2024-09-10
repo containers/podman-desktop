@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import type { KubernetesResources } from '../core/types';
 import { KubernetesResourceDetailsPage } from './kubernetes-resource-details-page';
@@ -30,17 +30,18 @@ export class KubernetesResourcePage extends MainPage {
     this.applyYamlButton = this.additionalActions.getByRole('button', { name: 'Apply YAML' });
   }
 
-  async getResourceRowByName(resourceName: string): Promise<Locator> {
+  getResourceRowByName(resourceName: string): Locator {
     const resourceRow = this.content.getByRole('row', { name: resourceName });
     return resourceRow;
   }
 
   async openResourceDetails(resourceName: string): Promise<KubernetesResourceDetailsPage> {
-    const resourceRow = await this.getResourceRowByName(resourceName);
+    const resourceRow = this.getResourceRowByName(resourceName);
     if (resourceRow === undefined) {
       throw Error(`Resource: ${resourceName} does not exist`);
     }
     const resourceRowName = resourceRow.getByRole('cell').nth(2);
+    await playExpect(resourceRowName).toBeEnabled();
     await resourceRowName.click();
 
     return new KubernetesResourceDetailsPage(this.page, resourceName);

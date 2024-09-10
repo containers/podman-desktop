@@ -52,9 +52,11 @@ test.afterAll(async ({ runner, page }) => {
 test.describe('Kubernetes resources End-to-End test', () => {
   test('Kubernetes Nodes test', async ({ navigationBar }) => {
     const nodesPage = await navigationBar.openKubernetesResources(KubernetesResources.Nodes);
+    await playExpect(nodesPage.heading).toBeVisible();
     await playExpect(nodesPage.getResourceRowByName(KIND_NODE)).toBeVisible();
 
     const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE);
+    await playExpect(nodeDetails.heading).toBeVisible();
     await playExpect
       .poll(async () => nodeDetails.getState(), { timeout: 25000 })
       .toEqual(KubernetesResourceState.Running);
