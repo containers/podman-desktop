@@ -23,7 +23,7 @@ import { promisify } from 'node:util';
 import * as extensionApi from '@podman-desktop/api';
 import { compare } from 'compare-versions';
 
-import { BaseCheck } from './base-check';
+import { BaseCheck, OrCheck, SequenceCheck } from './base-check';
 import { getDetectionChecks } from './detection-checks';
 import type { MachineJSON } from './extension';
 import {
@@ -457,8 +457,11 @@ export class WinInstaller extends BaseInstaller {
       new WinVersionCheck(),
       new WinMemoryCheck(),
       new VirtualMachinePlatformCheck(),
-      new WSLVersionCheck(),
-      new WSL2Check(this.extensionContext),
+      new OrCheck(
+        'Windows virtualization',
+        new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check(this.extensionContext)]),
+        new HyperVCheck(),
+      ),
     ];
   }
 
@@ -648,7 +651,18 @@ class VirtualMachinePlatformCheck extends BaseCheck {
   }
 }
 
-class WSL2Check extends BaseCheck {
+async function isUserAdmin(): Promise<boolean> {
+  try {
+    const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
+      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
+    ]);
+    return res.trim() === 'True';
+  } catch (err: unknown) {
+    return false;
+  }
+}
+
+export class WSL2Check extends BaseCheck {
   title = 'WSL2 Installed';
   installWSLCommandId = 'podman.onboarding.installWSL';
 
@@ -669,7 +683,7 @@ class WSL2Check extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      const isAdmin = await this.isUserAdmin();
+      const isAdmin = await isUserAdmin();
       const isWSL = await this.isWSLPresent();
       const isRebootNeeded = await this.isRebootNeeded();
 
@@ -719,13 +733,6 @@ class WSL2Check extends BaseCheck {
     }
 
     return this.createSuccessfulResult();
-  }
-
-  private async isUserAdmin(): Promise<boolean> {
-    const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
-    ]);
-    return res.trim() === 'True';
   }
 
   private async isWSLPresent(): Promise<boolean> {
@@ -779,7 +786,7 @@ class WSL2Check extends BaseCheck {
   }
 }
 
-class WSLVersionCheck extends BaseCheck {
+export class WSLVersionCheck extends BaseCheck {
   title = 'WSL Version';
 
   minVersion = '1.2.5';
@@ -805,5 +812,63 @@ class WSLVersionCheck extends BaseCheck {
       description: `WSL version should be >= ${this.minVersion}.`,
       docLinksDescription: `Call 'wsl --version' in a terminal to check your wsl version.`,
     });
+  }
+}
+
+export class HyperVCheck extends BaseCheck {
+  title = 'Hyper-V installed';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    if (!(await isUserAdmin())) {
+      return this.createFailureResult({
+        description: 'You must have administrative rights to run Hyper-V Podman machines',
+        docLinksDescription: 'Contact your Administrator to setup Hyper-V.',
+        docLinks: {
+          url: 'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+          title: 'Hyper-V Manual Installation Steps',
+        },
+      });
+    }
+    if (!(await this.isHyperVinstalled())) {
+      return this.createFailureResult({
+        description: 'Hyper-V is not installed on your system.',
+        docLinksDescription: 'call DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V in a terminal',
+        docLinks: {
+          url: 'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+          title: 'Hyper-V Manual Installation Steps',
+        },
+      });
+    }
+    if (!(await this.isHyperVRunning())) {
+      return this.createFailureResult({
+        description: 'Hyper-V is not running on your system.',
+        docLinksDescription: 'call sc start vmms in a terminal',
+        docLinks: {
+          url: 'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+          title: 'Hyper-V Manual Installation Steps',
+        },
+      });
+    }
+    return this.createSuccessfulResult();
+  }
+
+  private async isHyperVinstalled(): Promise<boolean> {
+    try {
+      const result = await extensionApi.process.exec('powershell.exe', [
+        '@(Get-Wmiobject Win32_ComputerSystem).HypervisorPresent',
+      ]);
+      return result.stdout === 'True';
+    } catch (err: unknown) {
+      return false;
+    }
+  }
+
+  private async isHyperVRunning(): Promise<boolean> {
+    try {
+      const result = await extensionApi.process.exec('powershell.exe', ['@(Get-Service vmms).Status']);
+      return result.stdout === 'True';
+    } catch (err: unknown) {
+      return false;
+    }
   }
 }
