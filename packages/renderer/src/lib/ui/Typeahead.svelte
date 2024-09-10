@@ -19,6 +19,7 @@ export let onChange = function (_s: string) {};
 export let onEnter = function () {};
 
 let input: HTMLInputElement;
+let list: HTMLDivElement;
 let scrollElements: HTMLElement[] = [];
 let value: string;
 let items: string[] = [];
@@ -175,7 +176,15 @@ function requestFocus(e: HTMLInputElement): void {
     e.focus();
   }
 }
+
+function onWindowClick(e: Event): void {
+  if (list && e.target instanceof Node && !list.contains(e.target)) {
+    close();
+  }
+}
 </script>
+
+<svelte:window on:click={onWindowClick} />
 
 <div
   class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
@@ -216,6 +225,7 @@ function requestFocus(e: HTMLInputElement): void {
 </div>
 {#if opened && items.length > 0}
   <div
+    bind:this={list}
     class="max-h-80 overflow-auto bg-[var(--pd-content-card-bg)] border-[var(--pd-input-field-hover-stroke)] border-[1px]">
     {#each items as item, i}
       <button
