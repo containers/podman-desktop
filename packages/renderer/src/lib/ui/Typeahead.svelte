@@ -219,18 +219,19 @@ function onWindowClick(e: Event): void {
   {/if}
   {#if error}
     <Tooltip left={true} tip={error}>
-      <Fa size="1.1x" class="text-[var(--pd-state-error)]" icon={faExclamationCircle} />
+      <span role="alert"><Fa size="1.1x" class="text-[var(--pd-state-error)]" icon={faExclamationCircle} /></span>
     </Tooltip>
   {/if}
 </div>
 {#if opened && items.length > 0}
   <div
+    role="row"
     bind:this={list}
     class="max-h-80 overflow-auto bg-[var(--pd-content-card-bg)] border-[var(--pd-input-field-hover-stroke)] border-[1px]">
     {#each items as item, i}
       <button
         bind:this={scrollElements[i]}
-        class:bg-[var(--pd-content-card-hover-bg)]={i !== highlightIndex}
+        class:bg-[var(--pd-content-card-hover-bg)]={i === highlightIndex}
         class="p-1 text-start w-full cursor-pointer"
         on:click={() => onItemSelected(item)}
         on:pointerenter={() => {
