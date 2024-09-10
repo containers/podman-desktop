@@ -113,7 +113,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <PreferencesNavigation meta={meta} />
       {/if}
       {#each $navigationRegistry.filter(item => item.type === 'submenu') as navigationRegistryItem}
-        {#if meta.url.startsWith(navigationRegistryItem.link)}
+        {#if meta.url.startsWith(navigationRegistryItem.link) && !meta.query['fullscreen']}
           <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} items={navigationRegistryItem.items} />
         {/if}
       {/each}
@@ -224,6 +224,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName={decodeURI(meta.params.name)} engineId={decodeURI(meta.params.engineId)} />
         </Route>
+        <Route path="/kubernetes">TODO: Kubernetes Welcome</Route>
         <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
           <NodesList />
         </Route>

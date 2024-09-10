@@ -17,20 +17,24 @@
  ***********************************************************************/
 
 import DeploymentIcon from '/@/lib/images/DeploymentIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import { kubernetesCurrentContextDeployments } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let count = $state(0);
 
-export function createNavigationKubernetesDeploymentsEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesDeploymentsEntry(
+  options?: CreateNavigationEntryOptions,
+): NavigationRegistryEntry {
   kubernetesCurrentContextDeployments.subscribe(nodes => {
     count = nodes.length;
   });
   const registry: NavigationRegistryEntry = {
     name: 'Deployments',
     icon: { iconComponent: DeploymentIcon },
-    link: '/kubernetes/deployments',
+    link: withFullscreenParam('/kubernetes/deployments', !!options?.fullscreen),
     tooltip: 'Deployments',
     type: 'entry',
     get counter() {

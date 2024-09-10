@@ -1,12 +1,21 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
+
+import { withFullscreenParam } from '/@/navigation';
 
 import type { DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;
 
+const query = meta().query;
+
 function openDetails() {
-  router.goto(`/kubernetes/deployments/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(
+    withFullscreenParam(
+      `/kubernetes/deployments/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+      !!query['fullscreen'],
+    ),
+  );
 }
 </script>
 

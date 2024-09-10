@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import IngressRouteIcon from '/@/lib/images/IngressRouteIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import {
   kubernetesCurrentContextIngresses,
@@ -24,12 +25,15 @@ import {
   kubernetesCurrentContextRoutes,
 } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let ingressesCount = 0;
 let routesCount = 0;
 let count = $state(0);
 
-export function createNavigationKubernetesIngressesRoutesEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesIngressesRoutesEntry(
+  options?: CreateNavigationEntryOptions,
+): NavigationRegistryEntry {
   kubernetesCurrentContextIngresses.subscribe(value => {
     ingressesCount = value.length;
     count = ingressesCount + routesCount;
@@ -45,7 +49,7 @@ export function createNavigationKubernetesIngressesRoutesEntry(): NavigationRegi
   const registry: NavigationRegistryEntry = {
     name: 'Ingresses & Routes',
     icon: { iconComponent: IngressRouteIcon },
-    link: '/kubernetes/ingressesRoutes',
+    link: withFullscreenParam('/kubernetes/ingressesRoutes', !!options?.fullscreen),
     tooltip: 'Ingresses & Routes',
     type: 'entry',
     get counter() {

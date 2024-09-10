@@ -6,6 +6,8 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import type { MouseEventHandler } from 'svelte/elements';
 import type { Writable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
+
+import { getFullscreenParam, getPath } from '/@/navigation';
 /* eslint-disable import/no-duplicates */
 
 export let href: string;
@@ -19,7 +21,11 @@ let inSection: boolean = false;
 let uri: string;
 $: uri = encodeURI(href);
 let selected: boolean;
-$: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
+$: selected =
+  meta.url === uri ||
+  (uri !== '/' &&
+    getPath(meta.url).startsWith(getPath(uri)) &&
+    getFullscreenParam(meta.url) === getFullscreenParam(uri));
 
 const navItems: Writable<number> = getContext('nav-items');
 

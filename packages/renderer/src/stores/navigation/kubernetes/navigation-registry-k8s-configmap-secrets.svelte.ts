@@ -17,15 +17,19 @@
  ***********************************************************************/
 
 import ConfigMapSecretIcon from '/@/lib/images/ConfigMapSecretIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import { kubernetesCurrentContextConfigMaps, kubernetesCurrentContextSecrets } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let configmapsCount = 0;
 let secretsCount = 0;
 let count = $state(0);
 
-export function createNavigationKubernetesConfigMapSecretsEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesConfigMapSecretsEntry(
+  options?: CreateNavigationEntryOptions,
+): NavigationRegistryEntry {
   kubernetesCurrentContextConfigMaps.subscribe(value => {
     configmapsCount = value.length;
     count = configmapsCount + secretsCount;
@@ -38,7 +42,7 @@ export function createNavigationKubernetesConfigMapSecretsEntry(): NavigationReg
   const registry: NavigationRegistryEntry = {
     name: 'ConfigMaps & Secrets',
     icon: { iconComponent: ConfigMapSecretIcon },
-    link: '/kubernetes/configmapsSecrets',
+    link: withFullscreenParam('/kubernetes/configmapsSecrets', !!options?.fullscreen),
     tooltip: 'ConfigMaps & Secrets',
     type: 'entry',
     get counter() {

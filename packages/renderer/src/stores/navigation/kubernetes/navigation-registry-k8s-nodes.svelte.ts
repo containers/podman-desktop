@@ -17,20 +17,22 @@
  ***********************************************************************/
 
 import NodeIcon from '/@/lib/images/NodeIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import { kubernetesCurrentContextNodes } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let count = $state(0);
 
-export function createNavigationKubernetesNodesEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesNodesEntry(options?: CreateNavigationEntryOptions): NavigationRegistryEntry {
   kubernetesCurrentContextNodes.subscribe(nodes => {
     count = nodes.length;
   });
   const registry: NavigationRegistryEntry = {
     name: 'Nodes',
     icon: { iconComponent: NodeIcon },
-    link: '/kubernetes/nodes',
+    link: withFullscreenParam('/kubernetes/nodes', !!options?.fullscreen),
     tooltip: 'Nodes',
     type: 'entry',
     get counter() {

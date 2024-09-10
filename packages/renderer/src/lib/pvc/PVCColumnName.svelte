@@ -1,12 +1,21 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
+
+import { withFullscreenParam } from '/@/navigation';
 
 import type { PVCUI } from './PVCUI';
 
 export let object: PVCUI;
 
+const query = meta().query;
+
 function openDetails() {
-  router.goto(`/kubernetes/persistentvolumeclaims/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(
+    withFullscreenParam(
+      `/kubernetes/persistentvolumeclaims/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+      !!query['fullscreen'],
+    ),
+  );
 }
 </script>
 

@@ -21,7 +21,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { NavigationPage } from '/@api/navigation-page';
 
-import { handleNavigation } from './navigation';
+import { getFullscreenParam, handleNavigation, withFullscreenParam } from './navigation';
 
 // mock the router
 vi.mock('tinro', () => {
@@ -217,4 +217,28 @@ test(`Test navigationHandle for ${NavigationPage.EDIT_CONTAINER_CONNECTION}`, ()
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith(
     '/preferences/container-connection/edit/dummyProviderId/dummyProviderName',
   );
+});
+
+test('withFullscreenParam', () => {
+  let result = withFullscreenParam('/path/to/page', false);
+  expect(result).toEqual('/path/to/page');
+
+  result = withFullscreenParam('/path/to/page?fullscreen=true', false);
+  expect(result).toEqual('/path/to/page');
+
+  result = withFullscreenParam('/path/to/page?other=value&fullscreen=true', false);
+  expect(result).toEqual('/path/to/page?other=value');
+
+  result = withFullscreenParam('/path/to/page', true);
+  expect(result).toEqual('/path/to/page?fullscreen=true');
+
+  result = withFullscreenParam('/path/to/page?other=value', true);
+  expect(result).toEqual('/path/to/page?other=value&fullscreen=true');
+});
+
+test('getFullscreenParam', () => {
+  expect(getFullscreenParam('/path/to/page')).toBeFalsy();
+  expect(getFullscreenParam('/path/to/page?other=value')).toBeFalsy();
+  expect(getFullscreenParam('/path/to/page?fullscreen=true')).toBeTruthy();
+  expect(getFullscreenParam('/path/to/page?other=value&fullscreen=true')).toBeTruthy();
 });

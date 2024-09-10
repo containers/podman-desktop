@@ -112,3 +112,23 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
       break;
   }
 };
+
+// getPath returns the path of a route (without the part after '?')
+export function getPath(route: string): string {
+  return new URL('http://localhost' + route).pathname;
+}
+
+export function withFullscreenParam(route: string, fullscreen: boolean): string {
+  const url = new URL('http://localhost' + route);
+  if (fullscreen) {
+    url.searchParams.set('fullscreen', 'true');
+  } else {
+    url.searchParams.delete('fullscreen');
+  }
+  return url.pathname + url.search;
+}
+
+export function getFullscreenParam(route: string): boolean {
+  const url = new URL('http://localhost' + route);
+  return url.searchParams.get('fullscreen') === 'true';
+}

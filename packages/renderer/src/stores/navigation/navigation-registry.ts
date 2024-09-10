@@ -72,12 +72,12 @@ const init = () => {
   values.push(createNavigationImageEntry());
   values.push(createNavigationVolumeEntry());
   values.push(createNavigationKubernetesGroup());
-  values.push(createNavigationKubernetesNodesEntry());
-  values.push(createNavigationKubernetesDeploymentsEntry());
-  values.push(createNavigationKubernetesServicesEntry());
-  values.push(createNavigationKubernetesIngressesRoutesEntry());
-  values.push(createNavigationKubernetesPersistentVolumeEntry());
-  values.push(createNavigationKubernetesConfigMapSecretsEntry());
+  values.push(createNavigationKubernetesNodesEntry({ fullscreen: true }));
+  values.push(createNavigationKubernetesDeploymentsEntry({ fullscreen: true }));
+  values.push(createNavigationKubernetesServicesEntry({ fullscreen: true }));
+  values.push(createNavigationKubernetesIngressesRoutesEntry({ fullscreen: true }));
+  values.push(createNavigationKubernetesPersistentVolumeEntry({ fullscreen: true }));
+  values.push(createNavigationKubernetesConfigMapSecretsEntry({ fullscreen: true }));
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationExtensionGroup());
   hideItems();

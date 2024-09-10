@@ -1,22 +1,32 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
+
+import { withFullscreenParam } from '/@/navigation';
 
 import { ConfigMapSecretUtils } from './configmap-secret-utils';
 import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
 
 export let object: ConfigMapSecretUI;
 
+const query = meta().query;
+
 function openDetails() {
   const configmapSecretUtils = new ConfigMapSecretUtils();
   if (configmapSecretUtils.isSecret(object)) {
     router.goto(
-      `/kubernetes/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+      withFullscreenParam(
+        `/kubernetes/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+        !!query['fullscreen'],
+      ),
     );
   }
 
   if (configmapSecretUtils.isConfigMap(object)) {
     router.goto(
-      `/kubernetes/configmapsSecrets/configmap/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+      withFullscreenParam(
+        `/kubernetes/configmapsSecrets/configmap/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+        !!query['fullscreen'],
+      ),
     );
   }
 }

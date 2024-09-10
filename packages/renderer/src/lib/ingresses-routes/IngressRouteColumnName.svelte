@@ -1,5 +1,7 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
+
+import { withFullscreenParam } from '/@/navigation';
 
 import { IngressRouteUtils } from './ingress-route-utils';
 import type { IngressUI } from './IngressUI';
@@ -7,12 +9,24 @@ import type { RouteUI } from './RouteUI';
 
 export let object: IngressUI | RouteUI;
 
+const query = meta().query;
+
 function openDetails() {
   const ingressRouteUtils = new IngressRouteUtils();
   if (ingressRouteUtils.isIngress(object)) {
-    router.goto(`/kubernetes/ingressesRoutes/ingress/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(
+      withFullscreenParam(
+        `/kubernetes/ingressesRoutes/ingress/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+        !!query['fullscreen'],
+      ),
+    );
   } else {
-    router.goto(`/kubernetes/ingressesRoutes/route/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(
+      withFullscreenParam(
+        `/kubernetes/ingressesRoutes/route/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+        !!query['fullscreen'],
+      ),
+    );
   }
 }
 </script>

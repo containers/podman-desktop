@@ -1,12 +1,21 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
+
+import { withFullscreenParam } from '/@/navigation';
 
 import type { ServiceUI } from './ServiceUI';
 
 export let object: ServiceUI;
 
+const query = meta().query;
+
 function openDetails() {
-  router.goto(`/kubernetes/services/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(
+    withFullscreenParam(
+      `/kubernetes/services/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+      !!query['fullscreen'],
+    ),
+  );
 }
 </script>
 

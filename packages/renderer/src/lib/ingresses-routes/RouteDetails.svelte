@@ -1,9 +1,10 @@
 <script lang="ts">
 import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
-import { router } from 'tinro';
+import { meta, router } from 'tinro';
 import { stringify } from 'yaml';
 
+import { withFullscreenParam } from '/@/navigation';
 import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
 import type { V1Route } from '/@api/openshift-types';
 
@@ -26,6 +27,8 @@ let routeUI: RouteUI;
 let detailsPage: DetailsPage;
 let kubeService: V1Route | undefined;
 let kubeError: string;
+
+let query = meta().query;
 
 onMount(() => {
   const ingressRouteUtils = new IngressRouteUtils();
@@ -66,9 +69,18 @@ async function loadRouteDetails() {
       <StateChange state={routeUI.status} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
-      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
-      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
+      <Tab
+        title="Summary"
+        selected={isTabSelected($router.path, 'summary')}
+        url={withFullscreenParam(getTabUrl($router.path, 'summary'), !!query['fullscreen'])} />
+      <Tab
+        title="Inspect"
+        selected={isTabSelected($router.path, 'inspect')}
+        url={withFullscreenParam(getTabUrl($router.path, 'inspect'), !!query['fullscreen'])} />
+      <Tab
+        title="Kube"
+        selected={isTabSelected($router.path, 'kube')}
+        url={withFullscreenParam(getTabUrl($router.path, 'kube'), !!query['fullscreen'])} />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

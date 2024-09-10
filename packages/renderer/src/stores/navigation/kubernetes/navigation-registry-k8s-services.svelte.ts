@@ -17,20 +17,24 @@
  ***********************************************************************/
 
 import ServiceIcon from '/@/lib/images/ServiceIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import { kubernetesCurrentContextServices } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let count = $state(0);
 
-export function createNavigationKubernetesServicesEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesServicesEntry(
+  options?: CreateNavigationEntryOptions,
+): NavigationRegistryEntry {
   kubernetesCurrentContextServices.subscribe(services => {
     count = services.length;
   });
   const registry: NavigationRegistryEntry = {
     name: 'Services',
     icon: { iconComponent: ServiceIcon },
-    link: '/kubernetes/services',
+    link: withFullscreenParam('/kubernetes/services', !!options?.fullscreen),
     tooltip: 'Services',
     type: 'entry',
     get counter() {

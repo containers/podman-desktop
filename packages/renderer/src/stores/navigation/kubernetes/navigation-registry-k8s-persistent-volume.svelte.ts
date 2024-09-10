@@ -17,13 +17,17 @@
  ***********************************************************************/
 
 import PvcIcon from '/@/lib/images/PVCIcon.svelte';
+import { withFullscreenParam } from '/@/navigation';
 
 import { kubernetesCurrentContextPersistentVolumeClaims } from '../../kubernetes-contexts-state';
 import type { NavigationRegistryEntry } from '../navigation-registry';
+import type { CreateNavigationEntryOptions } from './navigation-registry-k8s';
 
 let count = $state(0);
 
-export function createNavigationKubernetesPersistentVolumeEntry(): NavigationRegistryEntry {
+export function createNavigationKubernetesPersistentVolumeEntry(
+  options?: CreateNavigationEntryOptions,
+): NavigationRegistryEntry {
   kubernetesCurrentContextPersistentVolumeClaims.subscribe(value => {
     count = value.length;
   });
@@ -31,7 +35,7 @@ export function createNavigationKubernetesPersistentVolumeEntry(): NavigationReg
   const registry: NavigationRegistryEntry = {
     name: 'Persistent Volume Claims',
     icon: { iconComponent: PvcIcon },
-    link: '/kubernetes/persistentvolumeclaims',
+    link: withFullscreenParam('/kubernetes/persistentvolumeclaims', !!options?.fullscreen),
     tooltip: 'Persistent Volume Claims',
     type: 'entry',
     get counter() {
