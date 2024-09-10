@@ -1,7 +1,6 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
-import * as fs from 'node:fs';
 import { parseNotes } from './release-notes-parser';
 import Storybook from './storybook';
 
@@ -29,9 +28,6 @@ const config = {
     parseFrontMatter: async params => {
       // Reuse the default parser
       const result = await params.defaultParseFrontMatter(params);
-      const jsonFilePath = './static/release-notes.json';
-      let currentFileName = params.filePath.split('/').at(-1);
-      let version;
 
       if (
         result.frontMatter.title &&
@@ -39,16 +35,11 @@ const config = {
         String(result.frontMatter.title).match(/\d+\.\d+/)
       ) {
         let versionMatch = String(result.frontMatter.title).match(/(\d+\.\d+)/) ?? [];
-        version = versionMatch[1] ? versionMatch[1] : '';
+        let version = versionMatch[1] ? versionMatch[1] : '';
         if (version) {
-          let parsedNotes = parseNotes(params.filePath, version);
-          const fileContent = fs.readFileSync(jsonFilePath, { encoding: 'utf-8' });
-          const jsonObject = JSON.parse(fileContent);
-          jsonObject[version] = parsedNotes;
-          fs.writeFileSync(jsonFilePath, JSON.stringify(jsonObject));
+          parseNotes(params.filePath, version);
         }
       }
-
       return result;
     },
   },

@@ -18,15 +18,7 @@
 
 import fs from 'node:fs';
 
-export function parseNotes(
-  filename: string,
-  releaseVersion: string,
-): {
-  image: string;
-  blog: string;
-  title: string;
-  summary: string;
-} {
+export function parseNotes(filename: string, releaseVersion: string): void {
   const fileContent = fs.readFileSync(filename, { encoding: 'utf-8' });
   const resultText = fileContent.split('---', 3);
 
@@ -39,15 +31,16 @@ export function parseNotes(
   // get summary part of release notes
   const text = resultText[2]
     .split('<!--truncate-->', 1)[0]
-    .replace("import ReactPlayer from 'react-player'\n", '') //remove react import statement
     .replace(/!\[.+\)\n/, '') // remove image link
     .replace(/\[Click here to download it\]\(.+\)!/, '') //remove download new version
     .replace(/\n(\n)+/g, '\n')
     .split('\n'); // change all multi-newlines chars to one newline char
 
   const summary = text.filter(line => line.includes('- **')); // all summary bullet points start with "- **"
-  const summaryText = summary.join('\n');
-  const titleText = text[1];
+  const summaryText = summary.slice(0, 4).join('\n');
+  const titleText = text.filter(line => !line.includes('import'))[1];
 
-  return { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
+  const jsonInput = { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
+
+  fs.writeFileSync(`./static/release-notes/${releaseVersion}.json`, JSON.stringify(jsonInput));
 }
