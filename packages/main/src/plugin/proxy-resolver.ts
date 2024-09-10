@@ -23,6 +23,7 @@ import * as nodeurl from 'node:url';
 import type { HttpProxyAgentOptions, HttpsProxyAgentOptions } from 'hpagent';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
+import type { Certificates } from './certificates.js';
 import type { Proxy } from './proxy.js';
 
 // Agents usage table
@@ -39,7 +40,7 @@ import type { Proxy } from './proxy.js';
 // ------------------------------------
 // Source - https://github.com/delvedor/hpagent/tree/main#usage
 
-function createProxyAgent(secure: boolean, proxyUrl: string): http.Agent | https.Agent {
+function createProxyAgent(secure: boolean, proxyUrl: string, certificates: Certificates): http.Agent | https.Agent {
   const options = {
     keepAlive: true,
     keepAliveMsecs: 1000,
@@ -47,6 +48,7 @@ function createProxyAgent(secure: boolean, proxyUrl: string): http.Agent | https
     maxFreeSockets: 256,
     scheduling: 'lifo',
     proxy: proxyUrl,
+    ca: certificates.getAllCertificates(),
   };
   return secure
     ? new HttpsProxyAgent(options as HttpsProxyAgentOptions)
@@ -62,24 +64,24 @@ export function getProxyUrl(proxy: Proxy, secure: boolean): string | undefined {
 
 type ProxyOptions = { agent?: http.Agent | https.Agent };
 
-export function getOptions(proxy: Proxy, secure: boolean): ProxyOptions {
+export function getOptions(proxy: Proxy, secure: boolean, certificates: Certificates): ProxyOptions {
   const options: ProxyOptions = {};
   const proxyUrl = getProxyUrl(proxy, secure);
   if (proxyUrl) {
-    options.agent = createProxyAgent(secure, proxyUrl);
+    options.agent = createProxyAgent(secure, proxyUrl, certificates);
   }
   return options;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createHttpPatch(originals: typeof http | typeof https, proxy: Proxy): any {
+export function createHttpPatch(originals: typeof http | typeof https, proxy: Proxy, certificates: Certificates): any {
   return {
-    get: patch(originals.get),
-    request: patch(originals.request),
+    get: patch(originals.get, certificates),
+    request: patch(originals.request, certificates),
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function patch(original: typeof http.get): any {
+  function patch(original: typeof http.get, certificates: Certificates): any {
     function patched(
       url?: string | nodeurl.URL | null,
       options?: http.RequestOptions | null,
@@ -127,7 +129,7 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
         const host = options.hostname ?? options.host;
         const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1';
         if (!isLocalhost) {
-          options = { ...options, ...getOptions(proxy, options.protocol === 'https:') };
+          options = { ...options, ...getOptions(proxy, options.protocol === 'https:', certificates) };
         }
 
         return original(options, callback);
@@ -139,10 +141,10 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createHttpPatchedModules(proxy: Proxy): any {
+export function createHttpPatchedModules(proxy: Proxy, certificates: Certificates): any {
   const res = {
-    http: { ...http, ...createHttpPatch(http, proxy) },
-    https: { ...https, ...createHttpPatch(https, proxy) },
+    http: { ...http, ...createHttpPatch(http, proxy, certificates) },
+    https: { ...https, ...createHttpPatch(https, proxy, certificates) },
   };
   return { ...res, 'node:https': res.https, 'node:http': res.http };
 }

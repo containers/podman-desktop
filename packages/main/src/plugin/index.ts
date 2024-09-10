@@ -456,7 +456,9 @@ export class PluginSystem {
     const colorRegistry = new ColorRegistry(apiSender, configurationRegistry);
     colorRegistry.init();
 
-    const proxy = new Proxy(configurationRegistry);
+    const certificates = new Certificates();
+    await certificates.init();
+    const proxy = new Proxy(configurationRegistry, certificates);
     await proxy.init();
 
     const telemetry = new Telemetry(configurationRegistry);
@@ -471,8 +473,6 @@ export class PluginSystem {
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
-    const certificates = new Certificates();
-    await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const viewRegistry = new ViewRegistry();
     const context = new Context(apiSender);
@@ -670,6 +670,7 @@ export class PluginSystem {
       colorRegistry,
       dialogRegistry,
       safeStorageRegistry,
+      certificates,
     );
     await this.extensionLoader.init();
 

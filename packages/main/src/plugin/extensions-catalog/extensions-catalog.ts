@@ -225,6 +225,10 @@ export class ExtensionsCatalog {
             maxFreeSockets: 256,
             scheduling: 'lifo',
             proxy: httpsProxyUrl,
+            ca: this.certificates.getAllCertificates(),
+            proxyRequestOptions: {
+              ca: this.certificates.getAllCertificates(),
+            },
           });
         } catch (error) {
           throw new Error(`Failed to create https proxy agent from ${httpsProxyUrl}: ${error}`);
