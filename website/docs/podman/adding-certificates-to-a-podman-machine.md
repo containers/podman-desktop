@@ -23,7 +23,7 @@ You can add certificates from your local certificate authority (CA) or from a th
 1. Start an interactive session with the default Podman machine:
 
 ```sh
-$ podman machine ssh
+$ podman machine ssh <machine_name>
 ```
 
 2. Optional: Switch to a root shell only if Podman runs in the default rootless mode:
@@ -60,10 +60,10 @@ $ podman machine ssh
 # update-ca-trust
 ```
 
-6. Exit the Podman machine:
+6. Optional: Run the `exit` command to exit the root shell.
 
 ```sh
 # exit
 ```
 
-7. Optional: Rerun the `exit` command only if you used the `sudo su -` command.
+7. Run the `exit` command to exit the Podman machine.
