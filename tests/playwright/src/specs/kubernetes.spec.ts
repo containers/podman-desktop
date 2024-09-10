@@ -52,8 +52,8 @@ test.afterAll(async ({ runner, page }) => {
 test.describe('Kubernetes resources End-to-End test', () => {
   test('Kubernetes Nodes test', async ({ navigationBar }) => {
     const nodesPage = await navigationBar.openKubernetesResources(KubernetesResources.Nodes);
-    const node = await nodesPage.getRowFromTableByName(KIND_NODE);
-    await playExpect.poll(async () => node).toBeTruthy();
+    const nodeRow = await nodesPage.getResourceRowByName(KIND_NODE);
+    await playExpect(nodeRow).toBeVisible();
 
     const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE);
     await playExpect
