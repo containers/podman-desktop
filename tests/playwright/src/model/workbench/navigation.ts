@@ -23,7 +23,7 @@ import { ContainersPage } from '../pages/containers-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { ExtensionsPage } from '../pages/extensions-page';
 import { ImagesPage } from '../pages/images-page';
-import { KubernetesResourcePage } from '../pages/kubernetes-resources-page';
+import { KubernetesResourcePage } from '../pages/kubernetes-resource-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
 import { VolumesPage } from '../pages/volumes-page';
@@ -95,8 +95,8 @@ export class NavigationBar {
   }
 
   async openKubernetesResources(name: KubernetesResources): Promise<KubernetesResourcePage> {
-    if (!(await this.kubernetesResources.isVisible())) {
-      await expect(this.kubernetesButton).toBeEnabled();
+    await expect(this.kubernetesButton).toBeEnabled();
+    if ((await this.kubernetesButton.getAttribute('aria-expanded')) === 'false') {
       await this.kubernetesButton.click();
     }
     await expect(this.kubernetesResources).toBeVisible();

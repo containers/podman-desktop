@@ -27,7 +27,7 @@ export class KubernetesResourcePage extends MainPage {
 
   constructor(page: Page, name: KubernetesResources) {
     super(page, name);
-    this.applyYamlButton = this.additionalAafctions.getByRole('button', { name: 'Apply YAML' });
+    this.applyYamlButton = this.additionalActions.getByRole('button', { name: 'Apply YAML' });
   }
 
   async getResourceRowByName(resourceName: string): Promise<Locator> {

@@ -56,7 +56,7 @@ export * from './model/pages/image-details-page';
 export * from './model/pages/image-edit-page';
 export * from './model/pages/images-page';
 export * from './model/pages/kubernetes-resource-details-page';
-export * from './model/pages/kubernetes-resources-page';
+export * from './model/pages/kubernetes-resource-page';
 export * from './model/pages/main-page';
 export * from './model/pages/onboarding-page';
 export * from './model/pages/play-kube-yaml-page';

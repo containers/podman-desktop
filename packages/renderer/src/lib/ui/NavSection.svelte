@@ -35,6 +35,7 @@ onMount(() => {
   <button
     class="inline-block flex flex-col justify-center items-center text-[var(--pd-global-nav-icon)] hover:text-[var(--pd-global-nav-icon-hover)]"
     aria-label="Open Kubernetes Resources Block"
+    aria-expanded={expanded}
     on:click={() => (expanded = !expanded)}
     disabled={expanded && $count < 2}>
     <Tooltip class="flex flex-col justify-center items-center pb-1" right tip={tooltip}>
