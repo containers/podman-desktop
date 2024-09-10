@@ -102,12 +102,10 @@ jobs:
 
   win-update-e2e-test:
     name: win update e2e tests
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022]
+    runs-on: windows-2022
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -135,7 +133,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Adjust/Downgrade local podman desktop version Windows
-        if: ${{ matrix.os=='windows-2022'}}
         run: |
           $version="1.0.0"
           jq --arg version "$version" '.version = $version' package.json | Out-File -FilePath package.json_tmp
