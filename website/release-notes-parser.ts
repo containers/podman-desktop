@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 
 export function parseNotes(filename: string, releaseVersion: string): void {
+  const folderName = './static/release-notes';
   const fileContent = fs.readFileSync(filename, { encoding: 'utf-8' });
   const resultText = fileContent.split('---', 3);
 
@@ -39,9 +40,13 @@ export function parseNotes(filename: string, releaseVersion: string): void {
 
   const summary = text.filter(line => line.includes('- **')); // all summary bullet points start with "- **"
   const summaryText = summary.slice(0, 4).join('\n'); // limit the number of bullet points to 4
-  const titleText = text.filter(line => !line.includes('import'))[1];
+  const titleText = text.filter(line => !line.includes('import') && line)[0];
 
   const jsonInput = { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
 
-  fs.writeFileSync(`./static/release-notes/${releaseVersion}.json`, JSON.stringify(jsonInput));
+  if (!fs.existsSync(folderName)) {
+    fs.mkdirSync(folderName);
+  }
+
+  fs.writeFileSync(`${folderName}/${releaseVersion}.json`, JSON.stringify(jsonInput));
 }
