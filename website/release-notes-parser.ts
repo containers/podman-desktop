@@ -26,18 +26,19 @@ export function parseNotes(filename: string, releaseVersion: string): void {
   const imagePath = /image: (.+)\n/.exec(resultText[1]);
   const imageName = imagePath ? imagePath[1] : '';
   const imageUrl = imageName ? `https://podman-desktop.io${imageName}` : '';
-  const blogUrl = `https://podman-desktop.io/blog/podman-desktop-release-${releaseVersion}`;
+  const pageName = /slug: (.+)\n/.exec(resultText[1]);
+  const blogName = pageName ? pageName[1] : `podman-desktop-release-${releaseVersion}`;
+  const blogUrl = `https://podman-desktop.io/blog/${blogName}`;
 
   // get summary part of release notes
   const text = resultText[2]
-    .split('<!--truncate-->', 1)[0]
     .replace(/!\[.+\)\n/, '') // remove image link
     .replace(/\[Click here to download it\]\(.+\)!/, '') //remove download new version
-    .replace(/\n(\n)+/g, '\n')
-    .split('\n'); // change all multi-newlines chars to one newline char
+    .replace(/\n(\n)+/g, '\n') // change all multi-newlines chars to one newline char
+    .split('\n');
 
   const summary = text.filter(line => line.includes('- **')); // all summary bullet points start with "- **"
-  const summaryText = summary.slice(0, 4).join('\n');
+  const summaryText = summary.slice(0, 4).join('\n'); // limit the number of bullet points to 4
   const titleText = text.filter(line => !line.includes('import'))[1];
 
   const jsonInput = { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
