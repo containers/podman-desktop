@@ -27,30 +27,16 @@ export class KubernetesResourcePage extends MainPage {
 
   constructor(page: Page, name: KubernetesResources) {
     super(page, name);
-    this.applyYamlButton = this.additionalActions.getByRole('button', { name: 'Apply YAML' });
+    this.applyYamlButton = this.additionalAafctions.getByRole('button', { name: 'Apply YAML' });
   }
 
-  async getRowFromTableByName(name: string): Promise<Locator | undefined> {
-    if (await this.pageIsEmpty()) {
-      return undefined;
-    }
-
-    try {
-      const rows = await this.getAllTableRows();
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const nameCell = await rows[i].getByRole('cell').nth(2).getByText(name, { exact: true }).count();
-        if (nameCell) {
-          return rows[i];
-        }
-      }
-    } catch (err) {
-      console.log(`Exception caught on ${this.title} page with message: ${err}`);
-    }
-    return undefined;
+  async getResourceRowByName(resourceName: string): Promise<Locator> {
+    const resourceRow = this.content.getByRole('row', { name: resourceName });
+    return resourceRow;
   }
 
   async openResourceDetails(resourceName: string): Promise<KubernetesResourceDetailsPage> {
-    const resourceRow = await this.getRowFromTableByName(resourceName);
+    const resourceRow = await this.getResourceRowByName(resourceName);
     if (resourceRow === undefined) {
       throw Error(`Resource: ${resourceName} does not exist`);
     }
