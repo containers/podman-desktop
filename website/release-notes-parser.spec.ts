@@ -20,17 +20,21 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { parseNotes } from './release-notes-parser';
 
-const existsSyncMock = vi.fn();
-const mkdirSyncMock = vi.fn();
-const readFileSyncMock = vi.fn();
-const writeFileSyncMock = vi.fn();
+const mocks = vi.hoisted(() => ({
+  existsSyncMock: vi.fn(),
+  mkdirSyncMock: vi.fn(),
+  readFileSyncMock: vi.fn(),
+  writeFileSyncMock: vi.fn(),
+}));
 
 vi.mock('node:fs', () => {
   return {
-    existsSync: existsSyncMock,
-    mkdirSync: mkdirSyncMock,
-    readFileSync: readFileSyncMock,
-    writeFileSync: writeFileSyncMock,
+    default: {
+      existsSync: mocks.existsSyncMock,
+      mkdirSync: mocks.mkdirSyncMock,
+      readFileSync: mocks.readFileSyncMock,
+      writeFileSync: mocks.writeFileSyncMock,
+    },
   };
 });
 
@@ -43,7 +47,7 @@ const notesPoints =
   '- **line1**:line1 info\n- **line2**:line2 info\n- **line3**:line3 info\n- **line4**:line4 info\n- **line5**:line5 info\n';
 
 const jsonResult = {
-  image: 'https://podman-desktop.io//img/blog/podman-desktop-release-test1/test1.png',
+  image: 'https://podman-desktop.io/img/blog/podman-desktop-release-test1/test1.png',
   blog: 'https://podman-desktop.io/blog/podman-desktop-release-test1',
   title: 'test1 release title!',
   summary: '- **line1**:line1 info\n- **line2**:line2 info\n- **line3**:line3 info\n- **line4**:line4 info',
@@ -51,22 +55,22 @@ const jsonResult = {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  readFileSyncMock.mockReturnValue(notesInfo + notesText + notesPoints);
-  existsSyncMock.mockReturnValue(true);
+  mocks.readFileSyncMock.mockReturnValue(notesInfo + notesText + notesPoints);
+  mocks.existsSyncMock.mockReturnValue(true);
 });
 
 test('create release-nnotes directory when it does not exist', () => {
-  existsSyncMock.mockReturnValue(false);
+  mocks.existsSyncMock.mockReturnValue(false);
   parseNotes('test1File', '1.0');
-  expect(mkdirSyncMock).toHaveBeenCalled();
+  expect(mocks.mkdirSyncMock).toHaveBeenCalled();
 });
 
 test('Do not create release-nnotes directory when it exist', () => {
   parseNotes('test1File', '1.0');
-  expect(mkdirSyncMock).not.toHaveBeenCalled();
+  expect(mocks.mkdirSyncMock).not.toHaveBeenCalled();
 });
 
 test('parse provided release notes as expected', () => {
   parseNotes('test1File', '1.0');
-  expect(writeFileSyncMock).toBeCalledWith('./static/release-notes/1.0.json', JSON.stringify(jsonResult));
+  expect(mocks.writeFileSyncMock).toBeCalledWith('./static/release-notes/1.0.json', JSON.stringify(jsonResult));
 });
