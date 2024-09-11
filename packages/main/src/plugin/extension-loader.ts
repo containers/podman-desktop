@@ -41,6 +41,7 @@ import type { ApiSenderType } from './api.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';
+import type { Certificates } from './certificates.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
@@ -192,6 +193,7 @@ export class ExtensionLoader {
     private colorRegistry: ColorRegistry,
     private dialogRegistry: DialogRegistry,
     private safeStorageRegistry: SafeStorageRegistry,
+    private certificates: Certificates,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -289,7 +291,7 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy, this.certificates)); // add patched http and https
     this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
 
     this.moduleLoader.overrideRequire();

@@ -18,10 +18,12 @@
 
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import type { KubernetesResources } from '../core/types';
 import { ContainersPage } from '../pages/containers-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { ExtensionsPage } from '../pages/extensions-page';
 import { ImagesPage } from '../pages/images-page';
+import { KubernetesResourcePage } from '../pages/kubernetes-resource-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
 import { VolumesPage } from '../pages/volumes-page';
@@ -36,6 +38,8 @@ export class NavigationBar {
   readonly dashboardLink: Locator;
   readonly settingsLink: Locator;
   readonly extensionsLink: Locator;
+  readonly kubernetesButton: Locator;
+  readonly kubernetesResources: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -47,6 +51,8 @@ export class NavigationBar {
     this.dashboardLink = this.page.getByRole('link', { name: 'Dashboard' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
     this.extensionsLink = this.navigationLocator.getByRole('link', { name: 'Extensions', exact: true });
+    this.kubernetesButton = this.page.getByRole('button', { name: 'Open Kubernetes Resources Block' });
+    this.kubernetesResources = this.page.getByRole('region', { name: 'Kubernetes Resources' });
   }
 
   async openDashboard(): Promise<DashboardPage> {
@@ -86,6 +92,17 @@ export class NavigationBar {
     await this.volumesLink.waitFor({ state: 'visible', timeout: 3000 });
     await this.volumesLink.click({ timeout: 5000 });
     return new VolumesPage(this.page);
+  }
+
+  async openKubernetesResources(name: KubernetesResources): Promise<KubernetesResourcePage> {
+    await expect(this.kubernetesButton).toBeEnabled();
+    if ((await this.kubernetesButton.getAttribute('aria-expanded')) === 'false') {
+      await this.kubernetesButton.click();
+    }
+    await expect(this.kubernetesResources).toBeVisible();
+    const resource = this.page.getByRole('link', { name: name });
+    await resource.click();
+    return new KubernetesResourcePage(this.page, name);
   }
 
   async openExtensions(): Promise<ExtensionsPage> {

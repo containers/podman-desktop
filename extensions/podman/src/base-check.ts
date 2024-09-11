@@ -49,3 +49,43 @@ export abstract class BaseCheck implements extensionApi.InstallCheck {
     return { successful: true };
   }
 }
+
+export class SequenceCheck extends BaseCheck {
+  title: string;
+
+  constructor(
+    title: string,
+    private checks: BaseCheck[],
+  ) {
+    super();
+    this.title = title;
+  }
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    for (const check of this.checks) {
+      const result = await check.execute();
+      if (!result.successful) {
+        return result;
+      }
+    }
+    return this.createSuccessfulResult();
+  }
+}
+
+export class OrCheck extends BaseCheck {
+  title: string;
+
+  constructor(
+    title: string,
+    private left: BaseCheck,
+    private right: BaseCheck,
+  ) {
+    super();
+    this.title = title;
+  }
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    const result = await this.left.execute();
+    return result.successful ? result : await this.right.execute();
+  }
+}

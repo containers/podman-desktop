@@ -41,16 +41,16 @@ let kindResourceCard: ResourceConnectionCardPage;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async ({ pdRunner, page, welcomePage }) => {
-  pdRunner.setVideoAndTraceName('kind-e2e');
+test.beforeAll(async ({ runner, page, welcomePage }) => {
+  runner.setVideoAndTraceName('kind-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {

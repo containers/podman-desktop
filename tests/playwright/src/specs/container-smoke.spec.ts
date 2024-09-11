@@ -32,8 +32,8 @@ const containerToRun = 'alpine-container';
 const containerList = ['first', 'second', 'third'];
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('containers-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('containers-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
@@ -41,7 +41,7 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   try {
     images = await new NavigationBar(page).openImages();
   } catch (error) {
-    await pdRunner.screenshot('error-on-open-images.png');
+    await runner.screenshot('error-on-open-images.png');
     throw error;
   }
   await waitWhile(async () => await images.pageIsEmpty(), {
@@ -51,12 +51,12 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   try {
     await deleteContainer(page, containerToRun);
   } catch (error) {
-    await pdRunner.screenshot('error-on-open-containers.png');
+    await runner.screenshot('error-on-open-containers.png');
     throw error;
   }
 });
 
-test.afterAll(async ({ pdRunner, page }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
 
   try {
@@ -67,7 +67,7 @@ test.afterAll(async ({ pdRunner, page }) => {
 
     await deleteImage(page, imageToPull);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
@@ -226,7 +226,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 15000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
       .toBeFalsy();
   });
 

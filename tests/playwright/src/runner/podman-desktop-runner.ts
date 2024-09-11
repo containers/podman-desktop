@@ -24,6 +24,7 @@ import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
 import { waitWhile } from '../utility/wait';
+import { RunnerOptions } from './runner-options';
 
 type WindowState = {
   isVisible: boolean;
@@ -31,7 +32,7 @@ type WindowState = {
   isCrashed: boolean;
 };
 
-export class PodmanDesktopRunner {
+export class Runner {
   private _options: object;
   private _running: boolean;
   private _app: ElectronApplication | undefined;
@@ -40,49 +41,33 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _customSettingsObject: { [key: string]: unknown } = {};
+  private _runnerOptions: RunnerOptions;
 
-  private static _instance: PodmanDesktopRunner | undefined;
+  private static _instance: Runner | undefined;
 
   static async getInstance({
-    profile = '',
-    customFolder = 'podman-desktop',
-    customSettingsObject = {
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoUpdate': true,
-      'extensions.autoCheckUpdates': true,
-    },
+    runnerOptions = new RunnerOptions(),
   }: {
-    profile?: string;
-    customFolder?: string;
-    customSettingsObject?: { [key: string]: unknown };
-  } = {}): Promise<PodmanDesktopRunner> {
-    if (!PodmanDesktopRunner._instance) {
-      PodmanDesktopRunner._instance = new PodmanDesktopRunner({ profile, customFolder, customSettingsObject });
-      await PodmanDesktopRunner._instance.start();
+    runnerOptions?: RunnerOptions;
+  } = {}): Promise<Runner> {
+    if (!Runner._instance) {
+      Runner._instance = new Runner({ runnerOptions });
+      await Runner._instance.start();
     }
-    return PodmanDesktopRunner._instance;
+    return Runner._instance;
   }
 
   private constructor({
-    profile = '',
-    customFolder = 'podman-desktop',
-    customSettingsObject = {
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoUpdate': true,
-      'extensions.autoCheckUpdates': true,
-    },
+    runnerOptions = new RunnerOptions(),
   }: {
-    profile?: string;
-    customFolder?: string;
-    customSettingsObject?: { [key: string]: unknown };
+    runnerOptions?: RunnerOptions;
   } = {}) {
     this._running = false;
-    this._profile = profile;
+    this._runnerOptions = runnerOptions;
+    this._profile = this._runnerOptions._profile;
     this._testOutput = join('tests', 'playwright', 'output', this._profile);
-    this._customFolder = join(this._testOutput, customFolder);
+    this._customFolder = join(this._testOutput, this._runnerOptions._customFolder);
     this._videoAndTraceName = undefined;
-    this._customSettingsObject = customSettingsObject;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -243,7 +228,7 @@ export class PodmanDesktopRunner {
       }
     }
     this._running = false;
-    PodmanDesktopRunner._instance = undefined;
+    Runner._instance = undefined;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
@@ -345,7 +330,7 @@ export class PodmanDesktopRunner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = JSON.stringify(this._customSettingsObject);
+    const settingsContent = this._runnerOptions.createSettingsJson();
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
@@ -364,6 +349,10 @@ export class PodmanDesktopRunner {
 
   public setVideoAndTraceName(name: string): void {
     this._videoAndTraceName = name;
+
+    if (test.info().retry > 0) {
+      this._videoAndTraceName += `_retry${test.info().retry}`;
+    }
   }
 
   public getTestOutput(): string {

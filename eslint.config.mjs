@@ -301,6 +301,15 @@ export default [
   },
 
   {
+    files: ['storybook/**'],
+    languageOptions: {
+      globals: {
+        ...Object.fromEntries(Object.entries(globals.node).map(([key]) => [key, 'off'])),
+        ...globals.browser,
+      },
+    },
+  },
+  {
     files: ['**/*.spec.ts'],
 
     rules: {

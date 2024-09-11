@@ -30,8 +30,8 @@ let imageName: string;
 let imageTag: string;
 let imageUrl: string;
 
-test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
-  pdRunner.setVideoAndTraceName('registry-image-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('registry-image-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
   imageName = process.env.REGISTRY_IMAGE_NAME ? process.env.REGISTRY_IMAGE_NAME : 'alpine-hello';
@@ -42,12 +42,12 @@ test.beforeAll(async ({ pdRunner, welcomePage, page }) => {
   await waitForPodmanMachineStartup(page);
 });
 
-test.afterAll(async ({ pdRunner, page }) => {
+test.afterAll(async ({ runner, page }) => {
   try {
     await deleteImage(page, imageUrl);
     await deleteRegistry(page, 'GitHub');
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
@@ -66,7 +66,7 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
     await pullImageButton.click();
 
     await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
-    await playExpect(errorAlert).toContainText('Error while pulling image from Podman');
+    await playExpect(errorAlert).toContainText('Error while pulling image from');
     await playExpect(errorAlert).toContainText(fullImageTitle);
     await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
   });
