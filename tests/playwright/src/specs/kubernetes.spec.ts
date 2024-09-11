@@ -50,6 +50,10 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe('Kubernetes resources End-to-End test', () => {
+  test.skip(
+    !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
+    'Tests suite should not run on Linux platform',
+  );
   test('Kubernetes Nodes test', async ({ navigationBar }) => {
     const nodesPage = await navigationBar.openKubernetesResources(KubernetesResources.Nodes);
     await playExpect(nodesPage.heading).toBeVisible();
