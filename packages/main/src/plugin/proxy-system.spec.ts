@@ -242,10 +242,14 @@ describe('MacOS platform tests', () => {
   test('State returned with http proxy if network connection', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
-      if (args?.[0] === '-listnetworkservices') {
+      if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;
       } else if (args?.[0] === '-getwebproxy') {
         return { stdout: 'Server: 127.0.0.1\nPort: 8888\nEnabled: Yes' } as RunResult;
+      } else if (args?.[0] === '-getsecurewebproxy') {
+        return { stdout: 'Server:\nPort: 0\nEnabled: No' } as RunResult;
+      } else if (args?.[0] === '-getproxybypassdomains') {
+        return { stdout: '' } as RunResult;
       }
       throw new Error('Unsupported call');
     });
@@ -259,10 +263,14 @@ describe('MacOS platform tests', () => {
   test('State returned with https proxy if network connection', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
-      if (args?.[0] === '-listnetworkservices') {
+      if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;
+      } else if (args?.[0] === '-getwebproxy') {
+        return { stdout: 'Server:\nPort: 0\nEnabled: No' } as RunResult;
       } else if (args?.[0] === '-getsecurewebproxy') {
         return { stdout: 'Server: 127.0.0.1\nPort: 8888\nEnabled: Yes' } as RunResult;
+      } else if (args?.[0] === '-getproxybypassdomains') {
+        return { stdout: '' } as RunResult;
       }
       throw new Error('Unsupported call');
     });
@@ -276,8 +284,12 @@ describe('MacOS platform tests', () => {
   test('State returned with no proxy if network connection', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
-      if (args?.[0] === '-listnetworkservices') {
+      if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;
+      } else if (args?.[0] === '-getwebproxy') {
+        return { stdout: 'Server:\nPort: 0\nEnabled: No' } as RunResult;
+      } else if (args?.[0] === '-getsecurewebproxy') {
+        return { stdout: 'Server:\nPort: 0\nEnabled: No' } as RunResult;
       } else if (args?.[0] === '-getproxybypassdomains') {
         return { stdout: '*.internal' } as RunResult;
       }
