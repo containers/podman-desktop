@@ -312,6 +312,7 @@ export async function deleteKindCluster(
   const containersPage = await navigationBar.openContainers();
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
-  const volumeName = await getVolumeNameForContainer(page, containerName);
-  await playExpect.poll(async () => volumeName).toBeFalsy();
+  await playExpect
+    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 10000 })
+    .toBeFalsy();
 }
