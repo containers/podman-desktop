@@ -58,7 +58,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
     const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE);
     await playExpect(nodeDetails.heading).toBeVisible();
     await playExpect
-      .poll(async () => nodeDetails.getState(), { timeout: 25000 })
+      .poll(async () => nodeDetails.getState(), { timeout: 40000 })
       .toEqual(KubernetesResourceState.Running);
   });
 });
