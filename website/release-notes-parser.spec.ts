@@ -31,11 +31,11 @@ vi.mock('node:fs', () => {
   return {
     default: {
       existsSync: mocks.existsSyncMock,
-    },
-    promises: {
-      mkdir: mocks.mkdirMock,
-      readFile: mocks.readFileMock,
-      writeFile: mocks.writeFileMock,
+      promises: {
+        mkdir: mocks.mkdirMock,
+        readFile: mocks.readFileMock,
+        writeFile: mocks.writeFileMock,
+      },
     },
   };
 });
@@ -55,24 +55,39 @@ const jsonResult = {
   summary: '- **line1**:line1 info\n- **line2**:line2 info\n- **line3**:line3 info\n- **line4**:line4 info',
 };
 
+const defaultParseFrontMatterMock = vi.fn();
+const defaultParseFrontMatterResultMock = {
+  frontMatter: {
+    title: 'Release notes 1.0',
+  },
+  content: '',
+};
+
+const params = {
+  filePath: 'file/test1file',
+  fileContent: notesInfo + notesText + notesPoints,
+  defaultParseFrontMatter: defaultParseFrontMatterMock,
+};
+
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.readFileMock.mockReturnValue(notesInfo + notesText + notesPoints);
   mocks.existsSyncMock.mockReturnValue(true);
+  defaultParseFrontMatterMock.mockResolvedValue(defaultParseFrontMatterResultMock);
 });
 
 test('create release-notes directory when it does not exist', async () => {
   mocks.existsSyncMock.mockReturnValue(false);
-  await createNotesFiles('test1File', '1.0');
+  await createNotesFiles(params);
   expect(mocks.mkdirMock).toHaveBeenCalled();
 });
 
-test('Do not create release-nnotes directory when it exist', async () => {
-  await createNotesFiles('test1File', '1.0');
+test('Do not create release-nnotes directory when it exists', async () => {
+  await createNotesFiles(params);
   expect(mocks.mkdirMock).not.toHaveBeenCalled();
 });
 
 test('parse provided release notes as expected', async () => {
-  await createNotesFiles('test1File', '1.0');
+  await createNotesFiles(params);
   expect(mocks.writeFileMock).toBeCalledWith('./static/release-notes/1.0.json', JSON.stringify(jsonResult));
 });

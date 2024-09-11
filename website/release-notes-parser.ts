@@ -34,7 +34,7 @@ export async function createNotesFiles(
   const versionRegex = /\d+\.\d+/;
   if (
     result.frontMatter.title &&
-    /Release/.exec(String(result.frontMatter.title)) &&
+    /[Rr]elease/.exec(String(result.frontMatter.title)) &&
     versionRegex.exec(String(result.frontMatter.title))
   ) {
     const versionMatch = versionRegex.exec(String(result.frontMatter.title)) ?? [];
