@@ -38,7 +38,7 @@ export function createNavigationKubernetesConfigMapSecretsEntry(): NavigationReg
   const registry: NavigationRegistryEntry = {
     name: 'ConfigMaps & Secrets',
     icon: { iconComponent: ConfigMapSecretIcon },
-    link: '/configmapsSecrets',
+    link: '/kubernetes/configmapsSecrets',
     tooltip: 'ConfigMaps & Secrets',
     type: 'entry',
     get counter() {

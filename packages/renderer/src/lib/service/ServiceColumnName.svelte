@@ -6,7 +6,7 @@ import type { ServiceUI } from './ServiceUI';
 export let object: ServiceUI;
 
 function openDetails() {
-  router.goto(`/services/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(`/kubernetes/services/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
 }
 </script>
 
