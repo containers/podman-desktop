@@ -124,86 +124,86 @@ describe('Windows platform tests', () => {
 
 describe('Linux platform test', () => {
   test('No state returned in case of proxy disabled', async () => {
-    const previousHttpProxy = process.env.HTTP_PROXY;
-    const previousHttpsProxy = process.env.HTTPS_PROXY;
-    const previousNoProxy = process.env.NO_PROXY;
+    const previousHttpProxy = process.env['HTTP_PROXY'];
+    const previousHttpsProxy = process.env['HTTPS_PROXY'];
+    const previousNoProxy = process.env['NO_PROXY'];
     try {
       setupPlatform(false, false, true);
-      delete process.env.HTTP_PROXY;
-      delete process.env.HTTPS_PROXY;
-      delete process.env.NO_PROXY;
+      delete process.env['HTTP_PROXY'];
+      delete process.env['HTTPS_PROXY'];
+      delete process.env['NO_PROXY'];
       const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings.httpProxy).toBeUndefined();
       expect(settings.httpsProxy).toBeUndefined();
       expect(settings.noProxy).toBeUndefined();
     } finally {
-      process.env.HTTP_PROXY = previousHttpProxy;
-      process.env.HTTPS_PROXY = previousHttpsProxy;
-      process.env.NO_PROXY = previousNoProxy;
+      process.env['HTTP_PROXY'] = previousHttpProxy;
+      process.env['HTTPS_PROXY'] = previousHttpsProxy;
+      process.env['NO_PROXY'] = previousNoProxy;
     }
   });
 
   test('State returned in case of http proxy', async () => {
-    const previousHttpProxy = process.env.HTTP_PROXY;
-    const previousHttpsProxy = process.env.HTTPS_PROXY;
-    const previousNoProxy = process.env.NO_PROXY;
+    const previousHttpProxy = process.env['HTTP_PROXY'];
+    const previousHttpsProxy = process.env['HTTPS_PROXY'];
+    const previousNoProxy = process.env['NO_PROXY'];
     try {
       setupPlatform(false, false, true);
-      process.env.HTTP_PROXY = 'http://127.0.0.1:8888';
-      delete process.env.HTTPS_PROXY;
-      delete process.env.NO_PROXY;
+      process.env['HTTP_PROXY'] = 'http://127.0.0.1:8888';
+      delete process.env['HTTPS_PROXY'];
+      delete process.env['NO_PROXY'];
       const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
       expect(settings?.httpsProxy).toBeUndefined();
       expect(settings?.noProxy).toBeUndefined();
     } finally {
-      process.env.HTTP_PROXY = previousHttpProxy;
-      process.env.HTTPS_PROXY = previousHttpsProxy;
-      process.env.NO_PROXY = previousNoProxy;
+      process.env['HTTP_PROXY'] = previousHttpProxy;
+      process.env['HTTPS_PROXY'] = previousHttpsProxy;
+      process.env['NO_PROXY'] = previousNoProxy;
     }
   });
 
   test('State returned in case of https proxy', async () => {
-    const previousHttpProxy = process.env.HTTP_PROXY;
-    const previousHttpsProxy = process.env.HTTPS_PROXY;
-    const previousNoProxy = process.env.NO_PROXY;
+    const previousHttpProxy = process.env['HTTP_PROXY'];
+    const previousHttpsProxy = process.env['HTTPS_PROXY'];
+    const previousNoProxy = process.env['NO_PROXY'];
     try {
       setupPlatform(false, false, true);
-      process.env.HTTPS_PROXY = 'http://127.0.0.1:8888';
-      delete process.env.HTTP_PROXY;
-      delete process.env.NO_PROXY;
+      process.env['HTTPS_PROXY'] = 'http://127.0.0.1:8888';
+      delete process.env['HTTP_PROXY'];
+      delete process.env['NO_PROXY'];
       const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBeUndefined();
       expect(settings?.httpsProxy).toBe('http://127.0.0.1:8888');
       expect(settings?.noProxy).toBeUndefined();
     } finally {
-      process.env.HTTP_PROXY = previousHttpProxy;
-      process.env.HTTPS_PROXY = previousHttpsProxy;
-      process.env.NO_PROXY = previousNoProxy;
+      process.env['HTTP_PROXY'] = previousHttpProxy;
+      process.env['HTTPS_PROXY'] = previousHttpsProxy;
+      process.env['NO_PROXY'] = previousNoProxy;
     }
   });
 
   test('State returned in case of no proxy', async () => {
-    const previousHttpProxy = process.env.HTTP_PROXY;
-    const previousHttpsProxy = process.env.HTTPS_PROXY;
-    const previousNoProxy = process.env.NO_PROXY;
+    const previousHttpProxy = process.env['HTTP_PROXY'];
+    const previousHttpsProxy = process.env['HTTPS_PROXY'];
+    const previousNoProxy = process.env['NO_PROXY'];
     try {
       setupPlatform(false, false, true);
-      delete process.env.HTTP_PROXY;
-      delete process.env.HTTPS_PROXY;
-      process.env.NO_PROXY = '*.internal';
+      delete process.env['HTTP_PROXY'];
+      delete process.env['HTTPS_PROXY'];
+      process.env['NO_PROXY'] = '*.internal';
       const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBeUndefined();
       expect(settings?.httpsProxy).toBeUndefined();
       expect(settings?.noProxy).toBe('*.internal');
     } finally {
-      process.env.HTTP_PROXY = previousHttpProxy;
-      process.env.HTTPS_PROXY = previousHttpsProxy;
-      process.env.NO_PROXY = previousNoProxy;
+      process.env['HTTP_PROXY'] = previousHttpProxy;
+      process.env['HTTPS_PROXY'] = previousHttpsProxy;
+      process.env['NO_PROXY'] = previousNoProxy;
     }
   });
 });

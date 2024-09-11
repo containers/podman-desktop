@@ -30,9 +30,9 @@ export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySet
   } else if (isMac()) {
     return getMacOSProxySettings(new Exec(proxy));
   } else if (isLinux()) {
-    const httpProxy = process.env.HTTP_PROXY;
-    const httpsProxy = process.env.HTTPS_PROXY;
-    const noProxy = process.env.NO_PROXY;
+    const httpProxy = process.env['HTTP_PROXY'];
+    const httpsProxy = process.env['HTTPS_PROXY'];
+    const noProxy = process.env['NO_PROXY'];
     return { httpProxy, httpsProxy, noProxy };
   }
   return {} as ProxySettings;
@@ -100,6 +100,7 @@ async function getMacOSConnectionProxyInfo(
     return enabled && server ? (port ? `http://${server}:${port}` : `http:/${server}`) : undefined;
   } catch (err) {
     console.warn(`Error while getting MacOS proxy settings for connection ${connection}`, err);
+    throw err;
   }
 }
 
@@ -110,6 +111,7 @@ async function getMacOSConnectionProxyByPass(exec: Exec, connection: string): Pr
     return lines.length > 0 ? lines.join(';') : undefined;
   } catch (err) {
     console.warn(`Error while getting MacOS proxy settings for connection ${connection}`, err);
+    throw err;
   }
 }
 
@@ -121,15 +123,15 @@ async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings> {
     let httpsProxy = undefined;
     let noProxy = undefined;
     for (let index = 1; index < lines.length; ++index) {
-      if (!lines[index].startsWith('*')) {
+      if (!lines[index]?.startsWith('*')) {
         if (!httpProxy) {
-          httpProxy = await getMacOSConnectionProxyInfo(exec, lines[index], false);
+          httpProxy = await getMacOSConnectionProxyInfo(exec, lines[index] ?? '', false);
         }
         if (!httpsProxy) {
-          httpsProxy = await getMacOSConnectionProxyInfo(exec, lines[index], true);
+          httpsProxy = await getMacOSConnectionProxyInfo(exec, lines[index] ?? '', true);
         }
         if (!noProxy) {
-          noProxy = await getMacOSConnectionProxyByPass(exec, lines[index]);
+          noProxy = await getMacOSConnectionProxyByPass(exec, lines[index] ?? '');
         }
       }
     }
