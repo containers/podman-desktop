@@ -63,7 +63,7 @@ test('Configmap: Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/configmapsSecrets/configmap/my-configmap/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/configmapsSecrets/configmap/my-configmap/default/summary');
 });
 
 test('Secret: Expect clicking works', async () => {
@@ -77,7 +77,7 @@ test('Secret: Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/configmapsSecrets/secret/my-secret/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/configmapsSecrets/secret/my-secret/default/summary');
 });
 
 test('Expect namespace in column', async () => {

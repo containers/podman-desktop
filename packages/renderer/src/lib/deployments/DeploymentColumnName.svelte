@@ -6,7 +6,7 @@ import type { DeploymentUI } from './DeploymentUI';
 export let object: DeploymentUI;
 
 function openDetails() {
-  router.goto(`/deployments/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(`/kubernetes/deployments/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
 }
 </script>
 

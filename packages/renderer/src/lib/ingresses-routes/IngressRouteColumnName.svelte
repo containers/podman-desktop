@@ -10,9 +10,9 @@ export let object: IngressUI | RouteUI;
 function openDetails() {
   const ingressRouteUtils = new IngressRouteUtils();
   if (ingressRouteUtils.isIngress(object)) {
-    router.goto(`/ingressesRoutes/ingress/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(`/kubernetes/ingressesRoutes/ingress/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
   } else {
-    router.goto(`/ingressesRoutes/route/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(`/kubernetes/ingressesRoutes/route/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
   }
 }
 </script>

@@ -54,7 +54,7 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/persistentvolumeclaims/my-pvc/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/persistentvolumeclaims/my-pvc/default/summary');
 });
 
 test('Expect to show namespace in column', async () => {

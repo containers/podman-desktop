@@ -51,7 +51,7 @@ test('createNavigationKubernetesConfigMapSecretsEntry', async () => {
 
   expect(entry).toBeDefined();
   expect(entry.name).toBe('ConfigMaps & Secrets');
-  expect(entry.link).toBe('/configmapsSecrets');
+  expect(entry.link).toBe('/kubernetes/configmapsSecrets');
   expect(entry.tooltip).toBe('ConfigMaps & Secrets');
   await vi.waitFor(() => {
     // receive 2 and 2
