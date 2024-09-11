@@ -64,7 +64,7 @@
     "test:tools": "vitest run tools --passWithNoTests --coverage",
     "test:scripts:stylesheet": "vitest run ./scripts/generate-stylesheet.spec.ts --passWithNoTests",
     "test:watch": "vitest watch",
-    "test:website": "pnpm vitest run -r website --passWithNoTests --coverage",
+    "test:website": "vitest run -r website --passWithNoTests --coverage",
     "watch": "node scripts/watch.mjs",
     "format:check": "prettier --cache --check \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
