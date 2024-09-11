@@ -651,18 +651,20 @@ class VirtualMachinePlatformCheck extends BaseCheck {
   }
 }
 
-async function isUserAdmin(): Promise<boolean> {
-  try {
-    const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
-    ]);
-    return res.trim() === 'True';
-  } catch (err: unknown) {
-    return false;
+abstract class WindowsCheck extends BaseCheck {
+  async isUserAdmin(): Promise<boolean> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
+        '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
+      ]);
+      return res.trim() === 'True';
+    } catch (err: unknown) {
+      return false;
+    }
   }
 }
 
-export class WSL2Check extends BaseCheck {
+export class WSL2Check extends WindowsCheck {
   title = 'WSL2 Installed';
   installWSLCommandId = 'podman.onboarding.installWSL';
 
@@ -683,7 +685,7 @@ export class WSL2Check extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      const isAdmin = await isUserAdmin();
+      const isAdmin = await this.isUserAdmin();
       const isWSL = await this.isWSLPresent();
       const isRebootNeeded = await this.isRebootNeeded();
 
@@ -815,11 +817,11 @@ export class WSLVersionCheck extends BaseCheck {
   }
 }
 
-export class HyperVCheck extends BaseCheck {
+export class HyperVCheck extends WindowsCheck {
   title = 'Hyper-V installed';
 
   async execute(): Promise<extensionApi.CheckResult> {
-    if (!(await isUserAdmin())) {
+    if (!(await this.isUserAdmin())) {
       return this.createFailureResult({
         description: 'You must have administrative rights to run Hyper-V Podman machines',
         docLinksDescription: 'Contact your Administrator to setup Hyper-V.',
