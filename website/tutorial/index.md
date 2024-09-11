@@ -39,3 +39,7 @@ Before going through each tutorial, get yourself familiarize with the key UI com
    - Share your feedback
    - Troubleshoot your container connections and view logs
    - View notifications and additional help resources
+
+List of tutorials to follow:
+
+- [Running a pod using a container or docker file](/tutorial/running-a-pod-using-a-container-docker-file)
