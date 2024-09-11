@@ -91,6 +91,7 @@ export class DeployToKubernetesPage extends BasePage {
       await playExpect(this.createIngressCheckbox).not.toBeChecked();
     }
 
+    await this.kubernetesContext.scrollIntoViewIfNeeded();
     await playExpect(this.kubernetesContext).toHaveValue(context);
     await playExpect(this.namespaceCombobox).toBeVisible();
     const currentNamespace = await this.namespaceCombobox.inputValue();
