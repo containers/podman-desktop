@@ -18,35 +18,63 @@
 
 import fs from 'node:fs';
 
-export function parseNotes(filename: string, releaseVersion: string): void {
-  const folderName = './static/release-notes';
-  const fileContent = fs.readFileSync(filename, { encoding: 'utf-8' });
-  const resultText = fileContent.split('---', 3);
+import type {
+  DefaultParseFrontMatter,
+  ParseFrontMatterParams,
+  ParseFrontMatterResult,
+} from '@docusaurus/types/src/config';
 
-  // get release image url
-  const imagePath = /image: (.+)\n/.exec(resultText[1]);
-  const imageName = imagePath ? imagePath[1] : '';
-  const imageUrl = imageName ? `https://podman-desktop.io${imageName}` : '';
-  const pageName = /slug: (.+)\n/.exec(resultText[1]);
-  const blogName = pageName ? pageName[1] : `podman-desktop-release-${releaseVersion}`;
-  const blogUrl = `https://podman-desktop.io/blog/${blogName}`;
+export async function createNotesFiles(
+  params: ParseFrontMatterParams & {
+    defaultParseFrontMatter: DefaultParseFrontMatter;
+  },
+): Promise<ParseFrontMatterResult> {
+  const result = await params.defaultParseFrontMatter(params);
+  // eslint-disable-next-line sonarjs/slow-regex
+  const versionRegex = /\d+\.\d+/;
+  if (
+    result.frontMatter.title &&
+    /Release/.exec(String(result.frontMatter.title)) &&
+    versionRegex.exec(String(result.frontMatter.title))
+  ) {
+    const versionMatch = versionRegex.exec(String(result.frontMatter.title)) ?? [];
+    const version = versionMatch ? versionMatch[0] : '';
+    if (version) {
+      const folderName = './static/release-notes';
+      const fileContent = await fs.promises.readFile(params.filePath, { encoding: 'utf-8' });
+      const resultText = fileContent.split('---', 3);
 
-  // get summary part of release notes
-  const text = resultText[2]
-    .replace(/!\[.+\)\n/, '') // remove image link
-    .replace(/\[Click here to download it\]\(.+\)!/, '') //remove download new version
-    .replace(/\n(\n)+/g, '\n') // change all multi-newlines chars to one newline char
-    .split('\n');
+      // get release image url
+      const imagePath = /image: (.+)\n/.exec(resultText[1]);
+      const imageName = imagePath ? imagePath[1] : '';
+      const imageUrl = imageName ? `https://podman-desktop.io${imageName}` : '';
+      const pageName = /slug: (.+)\n/.exec(resultText[1]);
+      const blogName = pageName ? pageName[1] : `podman-desktop-release-${version}`;
+      const blogUrl = `https://podman-desktop.io/blog/${blogName}`;
 
-  const summary = text.filter(line => line.includes('- **')); // all summary bullet points start with "- **"
-  const summaryText = summary.slice(0, 4).join('\n'); // limit the number of bullet points to 4
-  const titleText = text.filter(line => !line.includes('import') && line)[0];
+      // get summary part of release notes
+      const text = resultText[2]
+        .replace(/!\[.+\)\n/, '') // remove image link
+        .replace(/\[Click here to download it\]\(.+\)!/, '') //remove download new version
+        .replace(/\n(\n)+/g, '\n') // change all multi-newlines chars to one newline char
+        .split('\n');
 
-  const jsonInput = { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
+      const summary = text.filter(line => line.includes('- **')); // all summary bullet points start with "- **"
+      const summaryText = summary.slice(0, 4).join('\n'); // limit the number of bullet points to 4
+      const titleText = text.filter(line => !line.includes('import') && line)[0];
 
-  if (!fs.existsSync(folderName)) {
-    fs.mkdirSync(folderName);
+      const jsonInput = { image: imageUrl, blog: blogUrl, title: titleText, summary: summaryText };
+
+      if (!fs.existsSync(folderName)) {
+        try {
+          await fs.promises.mkdir(folderName);
+        } catch (error) {
+          // directory already exists
+        }
+      }
+
+      await fs.promises.writeFile(`${folderName}/${version}.json`, JSON.stringify(jsonInput));
+    }
   }
-
-  fs.writeFileSync(`${folderName}/${releaseVersion}.json`, JSON.stringify(jsonInput));
+  return result;
 }

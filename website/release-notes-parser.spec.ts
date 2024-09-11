@@ -18,22 +18,24 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { parseNotes } from './release-notes-parser';
+import { createNotesFiles } from './release-notes-parser';
 
 const mocks = vi.hoisted(() => ({
   existsSyncMock: vi.fn(),
-  mkdirSyncMock: vi.fn(),
-  readFileSyncMock: vi.fn(),
-  writeFileSyncMock: vi.fn(),
+  mkdirMock: vi.fn(),
+  readFileMock: vi.fn(),
+  writeFileMock: vi.fn(),
 }));
 
 vi.mock('node:fs', () => {
   return {
     default: {
       existsSync: mocks.existsSyncMock,
-      mkdirSync: mocks.mkdirSyncMock,
-      readFileSync: mocks.readFileSyncMock,
-      writeFileSync: mocks.writeFileSyncMock,
+    },
+    promises: {
+      mkdir: mocks.mkdirMock,
+      readFile: mocks.readFileMock,
+      writeFile: mocks.writeFileMock,
     },
   };
 });
@@ -55,22 +57,22 @@ const jsonResult = {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  mocks.readFileSyncMock.mockReturnValue(notesInfo + notesText + notesPoints);
+  mocks.readFileMock.mockReturnValue(notesInfo + notesText + notesPoints);
   mocks.existsSyncMock.mockReturnValue(true);
 });
 
-test('create release-nnotes directory when it does not exist', () => {
+test('create release-notes directory when it does not exist', async () => {
   mocks.existsSyncMock.mockReturnValue(false);
-  parseNotes('test1File', '1.0');
-  expect(mocks.mkdirSyncMock).toHaveBeenCalled();
+  await createNotesFiles('test1File', '1.0');
+  expect(mocks.mkdirMock).toHaveBeenCalled();
 });
 
-test('Do not create release-nnotes directory when it exist', () => {
-  parseNotes('test1File', '1.0');
-  expect(mocks.mkdirSyncMock).not.toHaveBeenCalled();
+test('Do not create release-nnotes directory when it exist', async () => {
+  await createNotesFiles('test1File', '1.0');
+  expect(mocks.mkdirMock).not.toHaveBeenCalled();
 });
 
-test('parse provided release notes as expected', () => {
-  parseNotes('test1File', '1.0');
-  expect(mocks.writeFileSyncMock).toBeCalledWith('./static/release-notes/1.0.json', JSON.stringify(jsonResult));
+test('parse provided release notes as expected', async () => {
+  await createNotesFiles('test1File', '1.0');
+  expect(mocks.writeFileMock).toBeCalledWith('./static/release-notes/1.0.json', JSON.stringify(jsonResult));
 });

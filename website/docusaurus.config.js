@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
-import { parseNotes } from './release-notes-parser';
+import { createNotesFiles } from './release-notes-parser';
 import Storybook from './storybook';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
@@ -26,21 +26,7 @@ const config = {
   markdown: {
     mermaid: true,
     parseFrontMatter: async params => {
-      // Reuse the default parser
-      const result = await params.defaultParseFrontMatter(params);
-
-      if (
-        result.frontMatter.title &&
-        String(result.frontMatter.title).match(/Release/) &&
-        String(result.frontMatter.title).match(/\d+\.\d+/)
-      ) {
-        let versionMatch = String(result.frontMatter.title).match(/(\d+\.\d+)/) ?? [];
-        let version = versionMatch[1] ? versionMatch[1] : '';
-        if (version) {
-          parseNotes(params.filePath, version);
-        }
-      }
-      return result;
+      return createNotesFiles(params);
     },
   },
   themes: ['@docusaurus/theme-mermaid'],
