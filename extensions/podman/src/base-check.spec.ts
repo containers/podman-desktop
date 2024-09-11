@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-
 import type * as extensionApi from '@podman-desktop/api';
 import { describe, expect, test } from 'vitest';
 
