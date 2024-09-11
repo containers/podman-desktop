@@ -633,6 +633,7 @@ export class PluginSystem {
       contributionManager,
       providerRegistry,
       webviewRegistry,
+      commandRegistry,
     );
 
     this.extensionLoader = new ExtensionLoader(

@@ -74,7 +74,7 @@ export class NavigationManager {
       throw new Error(`navigation route ${routeId} registered an unknown command: ${route.commandId}`);
     }
 
-    return this.commandRegistry.executeCommand(route.commandId, args);
+    return this.commandRegistry.executeCommand(route.commandId, ...args);
   }
 
   async navigateToProviderTask(internalProviderId: string, taskId?: number): Promise<void> {

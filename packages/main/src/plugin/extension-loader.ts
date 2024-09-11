@@ -1427,10 +1427,14 @@ export class ExtensionLoader {
         return this.navigationManager.navigateToRoute(`${extensionInfo.id}.${routeId}`, args);
       },
       register: (routeId: string, commandId: string): Disposable => {
-        return this.navigationManager.registerRoute({
+        const disposable = this.navigationManager.registerRoute({
           routeId: `${extensionInfo.id}.${routeId}`,
           commandId: commandId,
         });
+
+        disposables.push(disposable);
+
+        return disposable;
       },
     };
 
