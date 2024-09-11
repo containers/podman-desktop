@@ -73,7 +73,7 @@ function clickSettings(b: boolean) {
       {#each navigationRegistryItem.items as item}
         <NavRegistryEntry entry={item} bind:meta={meta} />
       {/each}
-    {:else if navigationRegistryItem.type === 'entry'}
+    {:else if navigationRegistryItem.type === 'entry' || navigationRegistryItem.type === 'submenu'}
       <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} />
     {/if}
   {/each}

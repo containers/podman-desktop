@@ -54,7 +54,7 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/deployments/my-deployment/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/deployments/my-deployment/default/summary');
 });
 
 test('Expect to show namespace in column', async () => {

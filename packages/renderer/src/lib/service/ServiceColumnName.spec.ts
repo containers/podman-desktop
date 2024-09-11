@@ -55,7 +55,7 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/services/my-service/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/services/my-service/default/summary');
 });
 
 test('If loadBalancerIPs is set, expect it to be displayed', async () => {

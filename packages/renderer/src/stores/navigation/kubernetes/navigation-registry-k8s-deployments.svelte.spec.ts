@@ -51,7 +51,7 @@ test('createNavigationKubernetesDeploymentsEntry', async () => {
 
   expect(entry).toBeDefined();
   expect(entry.name).toBe('Deployments');
-  expect(entry.link).toBe('/deployments');
+  expect(entry.link).toBe('/kubernetes/deployments');
   expect(entry.tooltip).toBe('Deployments');
   await vi.waitFor(() => {
     expect(entry.counter).toBe(2);

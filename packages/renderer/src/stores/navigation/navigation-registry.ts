@@ -40,7 +40,7 @@ export interface NavigationRegistryEntry {
   tooltip: string;
   link: string;
   counter: number;
-  type: 'section' | 'entry' | 'group';
+  type: 'section' | 'entry' | 'group' | 'submenu';
   enabled?: boolean;
   items?: NavigationRegistryEntry[];
   hidden?: boolean;

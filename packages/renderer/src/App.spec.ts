@@ -22,11 +22,13 @@ import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import App from './App.svelte';
+import { navigationRegistry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
   DashboardPage: vi.fn(),
   RunImage: vi.fn(),
   ImagesList: vi.fn(),
+  SubmenuNavigation: vi.fn(),
 }));
 
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
@@ -52,6 +54,10 @@ vi.mock('./lib/context/ContextKey.svelte', () => ({
 
 vi.mock('./lib/appearance/Appearance.svelte', () => ({
   default: vi.fn(),
+}));
+
+vi.mock('./SubmenuNavigation.svelte', () => ({
+  default: mocks.SubmenuNavigation,
 }));
 
 const dispatchEventMock = vi.fn();
@@ -108,4 +114,24 @@ test('receive context menu not visible event from main', async () => {
 
   const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
   expect((eventSent as Event).type).toBe('tooltip-show');
+});
+
+test('opens submenu when a `submenu` menu is opened', async () => {
+  navigationRegistry.set([
+    {
+      name: 'An entry with submenu',
+      icon: {},
+      link: '/tosubmenu',
+      tooltip: 'With submenu',
+      type: 'submenu',
+      get counter() {
+        return 0;
+      },
+    },
+  ]);
+  render(App);
+  expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
+  router.goto('/tosubmenu');
+  await tick();
+  expect(mocks.SubmenuNavigation).toHaveBeenCalled();
 });
