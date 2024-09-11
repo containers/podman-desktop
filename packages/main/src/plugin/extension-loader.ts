@@ -1420,6 +1420,18 @@ export class ExtensionLoader {
       ): Promise<void> => {
         await this.navigationManager.navigateToEditProviderContainerConnection(connection);
       },
+      navigate: async (routeId: string, ...args: unknown[]): Promise<void> => {
+        if (this.navigationManager.hasRoute(routeId)) {
+          return this.navigationManager.navigateToRoute(routeId, args);
+        }
+        return this.navigationManager.navigateToRoute(`${extensionInfo.id}.${routeId}`, args);
+      },
+      register: (routeId: string, commandId: string): Disposable => {
+        return this.navigationManager.registerRoute({
+          routeId: `${extensionInfo.id}.${routeId}`,
+          commandId: commandId,
+        });
+      },
     };
 
     const version = app.getVersion();

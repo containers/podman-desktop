@@ -4685,6 +4685,20 @@ declare module '@podman-desktop/api' {
      * Navigate to the Edit Provider Container Connection page
      */
     export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
+
+    /**
+     * Allow to define custom route
+     * @param routeId
+     * @param commandId
+     */
+    export function register(routeId: string, commandId: string): Disposable;
+
+    /**
+     * Allow extension to navigate to a custom route
+     * @param routeId
+     * @param args
+     */
+    export function navigate(routeId: string, ...args: unknown[]): Promise<void>;
   }
 
   /**

@@ -19,25 +19,62 @@
 import type { ProviderContainerConnection } from '@podman-desktop/api';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import { NavigationPage } from '/@api/navigation-page.js';
 import type { NavigationRequest } from '/@api/navigation-request.js';
 
 import type { ProviderRegistry } from '../provider-registry.js';
+import { Disposable } from '../types/disposable.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';
 
+export interface NavigationRoute {
+  routeId: string;
+  commandId: string;
+}
+
 export class NavigationManager {
+  #registry: Map<string, NavigationRoute>;
+
   constructor(
     private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
     private providerRegistry: ProviderRegistry,
     private webviewRegistry: WebviewRegistry,
-  ) {}
+    private commandRegistry: CommandRegistry,
+  ) {
+    this.#registry = new Map();
+  }
 
   navigateTo<T extends NavigationPage>(navigateRequest: NavigationRequest<T>): void {
     this.apiSender.send('navigate', navigateRequest);
+  }
+
+  registerRoute(route: NavigationRoute): Disposable {
+    this.#registry.set(route.routeId, route);
+
+    return Disposable.create(() => {
+      this.#registry.delete(route.routeId);
+    });
+  }
+
+  hasRoute(routeId: string): boolean {
+    return this.#registry.has(routeId);
+  }
+
+  async navigateToRoute(routeId: string, ...args: unknown[]): Promise<void> {
+    const route = this.#registry.get(routeId);
+    if (!route) {
+      throw new Error(`navigation route ${routeId} does not exists.`);
+    }
+
+    if (!this.commandRegistry.hasCommand(route.commandId)) {
+      throw new Error(`navigation route ${routeId} registered an unknown command: ${route.commandId}`);
+    }
+
+    return this.commandRegistry.executeCommand(route.commandId, args);
   }
 
   async navigateToProviderTask(internalProviderId: string, taskId?: number): Promise<void> {
