@@ -743,7 +743,7 @@ export class ImageRegistry {
     let wanted = wantedOses.get(wantedArch);
     if (!wanted) {
       if (wantedOses.size === 1) {
-        wanted = wantedOses.get(wantedOses.keys().next().value);
+        wanted = wantedOses.get(wantedOses.keys().next()?.value ?? 'amd64');
       } else {
         wanted = wantedOses.get('amd64');
       }

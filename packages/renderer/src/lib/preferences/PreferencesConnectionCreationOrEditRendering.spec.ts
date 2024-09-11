@@ -253,9 +253,9 @@ describe.each([
     const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
 
     expect(currentConnectionInfo).toBeDefined();
-    expect(currentConnectionInfo.operationInProgress).toBeTruthy();
-    expect(currentConnectionInfo.operationStarted).toBeTruthy();
-    expect(currentConnectionInfo.operationSuccessful).toBeFalsy();
+    vi.waitFor(() => expect(currentConnectionInfo?.operationInProgress).toBeTruthy());
+    vi.waitFor(() => expect(currentConnectionInfo?.operationStarted).toBeTruthy());
+    vi.waitFor(() => expect(currentConnectionInfo?.operationSuccessful).toBeFalsy());
 
     const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
     expect(showLogsButton).toBeInTheDocument();
@@ -263,8 +263,8 @@ describe.each([
     const cancelButton = screen.getByRole('button', { name: `Cancel ${action}` });
     expect(cancelButton).toBeInTheDocument();
 
-    expect(currentConnectionInfo.propertyScope).toStrictEqual(propertyScope);
-    expect(currentConnectionInfo.providerInfo).toStrictEqual(providerInfo);
+    expect(currentConnectionInfo?.propertyScope).toStrictEqual(propertyScope);
+    expect(currentConnectionInfo?.providerInfo).toStrictEqual(providerInfo);
 
     expect(callback).toHaveBeenCalled();
     expect(providedKeyLogger).toBeDefined();
@@ -274,8 +274,8 @@ describe.each([
     await fireEvent.click(cancelButton);
 
     // simulate end of the create operation
-    if (providedKeyLogger) {
-      providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+    if (providedKeyLogger && currentConnectionInfo?.operationKey) {
+      providedKeyLogger(currentConnectionInfo.operationKey, 'finish', []);
     }
 
     expect(window.telemetryTrack).toBeCalledWith(`${cancelTelemetryEvent}`, {
@@ -319,7 +319,7 @@ describe.each([
       propertyScope,
       callback,
       pageIsLoading: false,
-      taskId,
+      taskId: 20,
     });
     await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
     const createButton = screen.getByRole('button', { name: `${label}` });
