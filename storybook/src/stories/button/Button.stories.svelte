@@ -12,7 +12,7 @@ const onclickFn = fn().mockName('onclick');
  */
 const { Story } = defineMeta({
   component: Button,
-  title: 'Button',
+  title: 'Button/Button',
   tags: ['autodocs'],
   args: {
     onclick: onclickFn,
