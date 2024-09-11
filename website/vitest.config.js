@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import path from 'node:path';
 import { coverageConfig, testConfig } from '../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
