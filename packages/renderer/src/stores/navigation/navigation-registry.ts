@@ -40,7 +40,7 @@ export interface NavigationRegistryEntry {
   tooltip: string;
   link: string;
   counter: number;
-  type: 'section' | 'entry' | 'group' | 'submenu';
+  type: 'entry' | 'group' | 'submenu';
   enabled?: boolean;
   items?: NavigationRegistryEntry[];
   hidden?: boolean;
@@ -72,10 +72,7 @@ const init = () => {
 };
 
 function collecItem(navigationRegistryEntry: NavigationRegistryEntry, items: DisplayItem[]) {
-  if (
-    navigationRegistryEntry.items &&
-    (navigationRegistryEntry.type === 'group' || navigationRegistryEntry.type === 'section')
-  ) {
+  if (navigationRegistryEntry.items && navigationRegistryEntry.type === 'group') {
     navigationRegistryEntry.items.forEach(item => {
       collecItem(item, items);
     });
@@ -84,13 +81,6 @@ function collecItem(navigationRegistryEntry: NavigationRegistryEntry, items: Dis
   // add only if it does not exist
   if (items.find(i => i.name === navigationRegistryEntry.name)) {
     return;
-  }
-
-  if (navigationRegistryEntry.type !== 'section') {
-    items.push({
-      name: navigationRegistryEntry.name,
-      visible: navigationRegistryEntry.hidden ? false : true,
-    });
   }
 }
 
