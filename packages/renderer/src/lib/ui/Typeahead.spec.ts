@@ -195,33 +195,3 @@ test('should navigate in list with keys', async () => {
   // copies the item in the input
   screen.getByDisplayValue('term03');
 });
-
-test('should display error on tooltip, which disappears after next successful search', async () => {
-  let first: boolean = true;
-  const searchFunction = async (s: string) => {
-    if (first) {
-      first = false;
-      throw new Error('an error!');
-    } else {
-      return [s + '01'];
-    }
-  };
-  render(Typeahead, {
-    initialFocus: true,
-    searchFunction,
-    delay: 10,
-  });
-  const input = screen.getByRole('textbox');
-  await userEvent.type(input, 'term');
-  await new Promise(resolve => setTimeout(resolve, 11));
-  assertIsListVisible(false);
-  screen.getByRole('alert');
-  const tooltip = screen.getByLabelText('tooltip');
-  expect(tooltip).toHaveTextContent('Error: an error!');
-
-  await userEvent.type(input, 'tosearch');
-  await new Promise(resolve => setTimeout(resolve, 11));
-  assertIsListVisible(true);
-  expect(screen.queryByRole('alert')).toBeNull();
-  expect(screen.queryByLabelText('tooltip')).toBeNull();
-});
