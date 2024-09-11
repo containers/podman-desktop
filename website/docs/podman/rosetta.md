@@ -8,8 +8,6 @@ description: Use Apple Rosetta to speed up cross-architecture containers
 
 On macOS, Podman machine creates a virtual machine that uses the native Apple hypervisor `applehv` with Rosetta enabled by default. This increases the speed of any `x86_64` builds or containers to near-native levels by using a translation layer.
 
-For more information, refer to the [official Apple documentation](https://developer.apple.com/documentation/virtualization/running_intel_binaries_in_linux_vms_with_rosetta) regarding the Rosetta technology.
-
 Rosetta support is enabled by default on all new Podman machine installations. If you disable Rosetta, [qemu](https://www.qemu.org/) will instead be used.
 
 #### Prerequisites
