@@ -163,7 +163,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-svelte": "^3.2.6",
     "proxy": "^2.2.0",
-    "typescript": "5.5.4",
+    "typescript": "5.6.2",
     "typescript-eslint": "^8.5.0",
     "validator": "^13.12.0",
     "vite": "^5.4.4",
