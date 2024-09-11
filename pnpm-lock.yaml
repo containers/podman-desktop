@@ -23,6 +23,9 @@ importers:
       '@types/stream-json':
         specifier: ^1.7.7
         version: 1.7.7
+      '@types/winreg':
+        specifier: ^1.2.36
+        version: 1.2.36
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.16
@@ -92,6 +95,9 @@ importers:
       win-ca:
         specifier: ^3.5.1
         version: 3.5.1
+      winreg:
+        specifier: ^1.2.5
+        version: 1.2.5
       yaml:
         specifier: ^2.5.1
         version: 2.5.1
@@ -3731,6 +3737,9 @@ packages:
 
   '@types/verror@1.10.10':
     resolution: {integrity: sha512-l4MM0Jppn18hb9xmM6wwD1uTdShpf9Pn80aXTStnK1C94gtPvJcV2FrDmbOQUAQfJ1cKZHktkQUDwEqaAKXMMg==}
+
+  '@types/winreg@1.2.36':
+    resolution: {integrity: sha512-DtafHy5A8hbaosXrbr7YdjQZaqVewXmiasRS5J4tYMzt3s1gkh40ixpxgVFfKiQ0JIYetTJABat47v9cpr/sQg==}
 
   '@types/ws@8.5.12':
     resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
@@ -10929,6 +10938,9 @@ packages:
   win-ca@3.5.1:
     resolution: {integrity: sha512-RNy9gpBS6cxWHjfbqwBA7odaHyT+YQNhtdpJZwYCFoxB/Dq22oeOZ9YCXMwjhLytKpo7JJMnKdJ/ve7N12zzfQ==}
 
+  winreg@1.2.5:
+    resolution: {integrity: sha512-uf7tHf+tw0B1y+x+mKTLHkykBgK2KMs3g+KlzmyMbLvICSHQyB/xOFjTT8qZ3oeTFyU7Bbj4FzXitGG6jvKhYw==}
+
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
@@ -14119,11 +14131,11 @@ snapshots:
 
   '@isaacs/cliui@8.0.2':
     dependencies:
-      string-width: 5.1.2
+      string-width: 4.2.3
       string-width-cjs: string-width@4.2.3
       strip-ansi: 7.1.0
       strip-ansi-cjs: strip-ansi@6.0.1
-      wrap-ansi: 8.1.0
+      wrap-ansi: 7.0.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/fs-minipass@4.0.1':
@@ -15450,6 +15462,8 @@ snapshots:
 
   '@types/verror@1.10.10':
     optional: true
+
+  '@types/winreg@1.2.36': {}
 
   '@types/ws@8.5.12':
     dependencies:
@@ -24402,6 +24416,8 @@ snapshots:
       make-dir: 1.3.0
       node-forge: 1.3.1
       split: 1.0.1
+
+  winreg@1.2.5: {}
 
   word-wrap@1.2.5: {}
 
