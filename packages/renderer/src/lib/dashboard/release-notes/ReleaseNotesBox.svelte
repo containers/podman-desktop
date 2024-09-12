@@ -63,7 +63,7 @@ onMount(async () => {
       </div>
       <div class="flex flex-row justify-end items-center gap-3 mt-2">
         <Link on:click={() => window.podmanDesktopOpenReleaseNotes('current')}>Learn more</Link>
-        <Button on:click={() => window.updatePodmanDesktop()} hidden={updateAvilable} icon={faCircleArrowUp}
+        <Button on:click={() => window.updatePodmanDesktop()} hidden={!updateAvilable} icon={faCircleArrowUp}
           >Update</Button>
       </div>
       <div class="flex justify-end items-center text-[var(--pd-content-card-light-title)] mt-2">
