@@ -1421,11 +1421,11 @@ export class ExtensionLoader {
         await this.navigationManager.navigateToEditProviderContainerConnection(connection);
       },
       navigate: async (routeId: string, ...args: unknown[]): Promise<void> => {
-        return this.navigationManager.navigateToRoute(routeId, args);
+        return this.navigationManager.navigateToRoute(`${extensionInfo.id}.${routeId}`, args);
       },
       register: (routeId: string, commandId: string): Disposable => {
         const disposable = this.navigationManager.registerRoute({
-          routeId: routeId,
+          routeId: `${extensionInfo.id}.${routeId}`,
           commandId: commandId,
         });
 
