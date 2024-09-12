@@ -75,16 +75,16 @@ CMD ["node", "app.js"]
    ![Create a new container](img/create-a-new-container.png)
 3. On the **Build image from Containerfile** page, provide the following details:
 
-- Containerfile path: Select the path where the container or docker file is placed.
-- Build context directory: The field automatically picks up the context directory based on the file path.
-- Image name: Enter the image name, if required.
-- Build arguments: Pass the required arguments to build the image. This example uses arguments, such as `NODE_VERSION` and `ALPINE_VERSION`
-- Platform: Change the platform on which you want to build the image. The default platform is Intel and AMD x86_64 systems.
-  ![Build an image from a containerfile](img/build-image-from-containerfile.png)
+   - Containerfile path: Select the path where the container or docker file is placed.
+   - Build context directory: The field automatically picks up the context directory based on the file path.
+   - Image name: Enter the image name, if required.
+   - Build arguments: Pass the required arguments to build the image. This example uses arguments, such as `NODE_VERSION` and `ALPINE_VERSION`
+   - Platform: Change the platform on which you want to build the image. The default platform is Intel and AMD x86_64 systems.
+     ![Build an image from a containerfile](img/build-image-from-containerfile.png)
 
-1. Click **Build**. The image starts to build.
-2. Click **Done** once the image is built successfully.
-3. View the newly created image on the **Images** page.
+4. Click **Build**. The image starts to build.
+5. Click **Done** once the image is built successfully.
+6. View the newly created image on the **Images** page.
 
 ## Creating a container
 
