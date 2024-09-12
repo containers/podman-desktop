@@ -13,10 +13,38 @@ This tutorial covers the following end-to-end tasks a user requires to run a pod
 - Creating a container
 - Creating and running a pod
 
+When creating a container, you can set the following configurations:
+
+- With **Basic** configuration, you have the option to:
+
+  - Define volumes to configure a persistent storage location. For this, you must set up a host directory and then mount this directory to a container. You can keep your application data intact in your host directory even after your container is stopped or failed.
+  - Define port mapping to create an externally accessible container. For this, you must map a host port with the container port. After this mapping, any requests to port on the host are forwarded to port in the container.
+
+  - Select a file containing environment variables for your container. This file contains data in the `key=value` format.
+
+- With **Advanced** configuration, you have the option of:
+
+  - Automatic removal of container
+  - Specifying ID of the user who can run a container
+  - Selecting a restart policy that defines whether a container should restart on exit
+
+- With **Networking** configuration, you have the option of defining:
+
+  - A container host name
+  - A custom DNS server
+  - Additional hosts
+  - The networking mode for a container
+
+- With **Security** configuration, you have the option to:
+  - Secure you container resources
+  - Make container root filesystem read-only
+  - Add or drop security capabilities
+  - Specify a namespace to restrict the usage of containers to a group of users with defined privileges and ownership
+
 ## Before you begin
 
-- Installed Podman Desktop application
-- A running Podman machine
+- [Installed Podman Desktop application](/docs/installation)
+- [A Podman machine](/docs/podman/creating-a-podman-machine)
 - A docker or container file to use. Create a docker file using the following code, if you do not have one on your machine:
 
 ```dockerfile
@@ -49,14 +77,14 @@ CMD ["node", "app.js"]
 
 - Containerfile path: Select the path where the container or docker file is placed.
 - Build context directory: The field automatically picks up the context directory based on the file path.
-- Image name: Enter the image name, such as `my-custom-image`
+- Image name: Enter the image name, if required.
 - Build arguments: Pass the required arguments to build the image. This example uses arguments, such as `NODE_VERSION` and `ALPINE_VERSION`
 - Platform: Change the platform on which you want to build the image. The default platform is Intel and AMD x86_64 systems.
   ![Build an image from a containerfile](img/build-image-from-containerfile.png)
 
-4. Click **Build**. The image starts to build.
-5. Click **Done** once the image is built successfully.
-6. View the newly created image on the **Images** page.
+1. Click **Build**. The image starts to build.
+2. Click **Done** once the image is built successfully.
+3. View the newly created image on the **Images** page.
 
 ## Creating a container
 

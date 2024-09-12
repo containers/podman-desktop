@@ -14,7 +14,7 @@ Before going through each tutorial, get yourself familiarize with the key UI com
 
 ![UI components](img/podman-desktop-ui-components.png)
 
-1. Left navigation pane: Helps in accessing the dashboard and managing containers, images, pods, volumes, Kubernetes resources, and extensions. You can apply different actions from each component page.
+1. **Left navigation pane**: Helps in accessing the dashboard and managing containers, images, pods, volumes, Kubernetes resources, and extensions. You can apply different actions from each component page.
 
    :::note
 
@@ -22,8 +22,8 @@ Before going through each tutorial, get yourself familiarize with the key UI com
 
    :::
 
-2. Accounts: Provides easy access to the **Authentication** settings. You can add an authentication provider using the **Red Hat Authentication** extension.
-3. Settings: Helps you to:
+2. **Accounts**: Provides easy access to the **Authentication** settings. You can add an authentication provider using the **Red Hat Authentication** extension.
+3. **Settings**: Helps you to:
 
    - Create resources for your development environment
    - Configure proxy URLs
@@ -33,13 +33,13 @@ Before going through each tutorial, get yourself familiarize with the key UI com
    - Configure a Kubernetes context
    - Configure the application appearance, extensions, the terminal size and line height, and the telemetry feature.
 
-4. Status bar: Provides the following capabilities:
+4. **Status bar**: Provides the following capabilities:
    - Configure a Docker-compatible environment
    - Set your kubernetes context
    - Share your feedback
    - Troubleshoot your container connections and view logs
    - View notifications and additional help resources
 
-List of tutorials to follow:
+## List of tutorials
 
 - [Running a pod using a container or docker file](/tutorial/running-a-pod-using-a-container-docker-file)
