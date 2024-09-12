@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, getByRole, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import Page from './Page.svelte';
 
@@ -146,4 +146,45 @@ test('Expect subtitle is defined and cut', async () => {
 
   // expect class has the clamp
   expect(subtitleElement).toHaveClass('line-clamp-1');
+});
+
+describe('Check for MutationObserver', () => {
+  let mutationObserverObserve: typeof MutationObserver.prototype.observe | undefined;
+  let mutationObserverDisconnect: typeof MutationObserver.prototype.disconnect | undefined;
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mutationObserverObserve = MutationObserver.prototype.observe;
+    mutationObserverDisconnect = MutationObserver.prototype.disconnect;
+
+    MutationObserver.prototype.observe = vi.fn();
+    MutationObserver.prototype.disconnect = vi.fn();
+  });
+
+  afterEach(() => {
+    if (!mutationObserverObserve || !mutationObserverDisconnect) {
+      return;
+    }
+    MutationObserver.prototype.observe = mutationObserverObserve;
+    MutationObserver.prototype.disconnect = mutationObserverDisconnect;
+  });
+
+  test('Expect disconected MutationObserver after onDestroy', async () => {
+    const subtitle = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+    const page = render(Page, {
+      title: '',
+      subtitle,
+    });
+
+    const subtitleElement = screen.getByText(subtitle);
+    expect(subtitleElement).toBeInTheDocument();
+
+    expect(MutationObserver.prototype.observe).toHaveBeenCalledTimes(1);
+    expect(MutationObserver.prototype.disconnect).toHaveBeenCalledTimes(0);
+
+    // run unmount to trigger the onDestroy callback
+    page.unmount();
+
+    expect(MutationObserver.prototype.disconnect).toHaveBeenCalledTimes(1);
+  });
 });
