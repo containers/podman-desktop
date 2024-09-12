@@ -1,5 +1,13 @@
 <script lang="ts">
-import { faFrown, faGrinStars, faMeh, faSmile, faStar } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFrown,
+  faGrinStars,
+  faHeart,
+  faMeh,
+  faQuestionCircle,
+  faSmile,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
@@ -54,9 +62,10 @@ async function sendFeedback(): Promise<void> {
   hideModal();
 }
 
-function openGithub(): void {
+async function openGithub(): Promise<void> {
   hideModal();
-  window.openExternal('https://github.com/containers/podman-desktop');
+  await window.telemetryTrack('feedback.openGithub');
+  await window.openExternal('https://github.com/containers/podman-desktop');
 }
 </script>
 
@@ -99,14 +108,8 @@ function openGithub(): void {
             icon={faGrinStars} />
         </button>
       </div>
-      {#if smileyRating === 4}
-        <span aria-label="Like Podman-Desktop? Give us a star on GitHub" class="flex items-center"
-          >Like Podman-Desktop ? Give us a<Fa class="px-1 text-github-star-icon" icon={faStar} /> on <Link
-            aria-label="GitHub"
-            onclick={openGithub}>GitHub</Link
-          ></span>
-      {/if}
-      <label for="tellUsWhyFeedback" class="block mt-2 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+
+      <label for="tellUsWhyFeedback" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
         >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
         left)</label>
       <textarea
@@ -136,6 +139,15 @@ function openGithub(): void {
         <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
       {:else if smileyRating === 2 && !hasFeedback}
         <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
+      {:else}
+        <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
+          <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
+          <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
+            <Fa class="px-1 text-purple-600" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It ? Give us a <Fa
+              class="px-1 text-github-star-icon"
+              icon={faStar} />on <Link aria-label="GitHub" onclick={openGithub}>GitHub</Link>
+          </span>
+        </div>
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">

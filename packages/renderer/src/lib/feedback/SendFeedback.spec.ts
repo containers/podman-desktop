@@ -35,6 +35,7 @@ beforeAll(() => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).openExternal = vi.fn();
+  (window as any).telemetryTrack = vi.fn();
 });
 
 test('Expect that the button is disabled when loading the page', async () => {
@@ -117,23 +118,45 @@ test('Expect sad smiley warns without feedback', async () => {
   expect(warn).not.toBeInTheDocument();
 });
 
+test('Expect message for very-happy-smiley to use love', async () => {
+  const { getByRole, getByLabelText } = render(SendFeedback, {});
+
+  // click on a smiley
+  const smiley = getByRole('button', { name: 'very-happy-smiley' });
+  await fireEvent.click(smiley);
+
+  // and the GitHub star text is visible
+  const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
+  expect(region.textContent).toBe('Love It ? Give us a on GitHub');
+});
+
+test('Expect message for happy-smiley to use like', async () => {
+  const { getByRole, getByLabelText } = render(SendFeedback, {});
+
+  // click on a smiley
+  const smiley = getByRole('button', { name: 'happy-smiley' });
+  await fireEvent.click(smiley);
+
+  // and the GitHub star text is visible
+  const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
+  expect(region.textContent).toBe('Like It ? Give us a on GitHub');
+});
+
 test('Expect GitHub dialog visible when very-happy-smiley selected', async () => {
   render(SendFeedback, {});
-
-  // expect to have indication why the button is disabled
-  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
 
   // click on a smiley
   const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
   await fireEvent.click(smiley);
 
   // and the GitHub star text is visible
-  expect(screen.getByLabelText('Like Podman-Desktop? Give us a star on GitHub')).toBeInTheDocument();
+  expect(screen.getByLabelText('Like Podman Desktop? Give us a star on GitHub')).toBeInTheDocument();
 
   const link = screen.getByRole('link', { name: 'GitHub' });
   await fireEvent.click(link);
 
   await vi.waitFor(() => {
+    expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGithub');
     expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
   });
 });
