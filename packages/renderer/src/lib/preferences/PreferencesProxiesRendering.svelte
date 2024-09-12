@@ -10,7 +10,7 @@ import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
 let proxySettings: ProxySettings;
-let proxyState: number;
+let proxyState: ProxyState;
 let httpProxyError: string | undefined;
 let httpsProxyError: string | undefined;
 
@@ -67,9 +67,9 @@ function validate(event: any) {
         class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
         id="toggle-proxy"
         bind:value={proxyState}>
-        <option value={0}>System</option>
-        <option value={1}>Manual</option>
-        <option value={2}>Disabled</option>
+        <option value={ProxyState.PROXY_SYSTEM}>System</option>
+        <option value={ProxyState.PROXY_MANUAL}>Manual</option>
+        <option value={ProxyState.PROXY_DISABLED}>Disabled</option>
       </select>
     </label>
 
@@ -95,13 +95,13 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 mb-2 font-medium {proxyState === 1
+          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
             : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
-          disabled={proxyState !== 1}
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
           bind:value={proxySettings.httpsProxy}
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
@@ -113,19 +113,19 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 mb-2 font-medium {proxyState === 1
+          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
             : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"
-          disabled={proxyState !== 1}
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
           bind:value={proxySettings.noProxy}
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click={() => updateProxySettings()} class="w-full" icon={faPen}>Update</Button>
+        <Button on:click={updateProxySettings} class="w-full" icon={faPen}>Update</Button>
       </div>
     {/if}
   </div>
