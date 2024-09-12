@@ -17,15 +17,21 @@
  ***********************************************************************/
 
 /**
- * The Podman Desktop API provides a way to interact with Podman Desktop.
+ * The Podman Desktop API provides a way to build extensions interacting with Podman Desktop.
  *
- * This file `extension-api.d.ts` is automatically generated from typedoc comments
- * in the source code and provided [on our website](https://podman-desktop.io/api).
+ * This documentation is automatically generated from typedoc comments
+ * in the source code `extension-api.d.ts` and provided [on our website](https://podman-desktop.io/api).
+ *
+ * This type declaration file can be installed from [the npm registry](https://www.npmjs.com/package/@podman-desktop/api).
  *
  * For more information, see the main
  * [Podman Desktop developing extensions documentation](https://podman-desktop.io/docs/extensions/developing).
  *
  * @example
+ * ```shell
+ * $ npm install @podman-desktop/api
+ * ```
+ *
  * ```typescript
  * import * as api from '@podman-desktop/api';
  *
@@ -112,13 +118,39 @@ declare module '@podman-desktop/api' {
   }
 
   /**
-   * Event to subscribe
+   * Interface to subscribe specific events.
+   *
+   * @example
+   * This is an example for an hypothetic function `onDidValueChange` implementing
+   * the `Event` interface.
+   *
+   * ```typescript
+   * import * as api from '@podman-desktop/api';
+   *
+   * class MyValueManager {
+   *   private value: boolean | undefined = undefined;
+   *
+   *   private onChange(e: boolean) {
+   *     this.value = e;
+   *     console.log(this.value);
+   *   }
+   *
+   *   public init(subscriptions: api.Disposable[]) {
+   *     onDidValueChange(this.onChange, this, subscriptions);
+   *   }
+   * }
+   *
+   * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+   *   const myValueManager = new MyValueManager();
+   *   myValueManager.init(extensionContext.subscriptions);
+   * }
+   * ```
    */
   export interface Event<T> {
     /**
      * @param listener The listener function will be called when the event happens.
      * @param thisArgs The `this`-argument which will be used when calling the event listener.
-     * @param disposables An array to which a {@link Disposable} will be added.
+     * @param disposables An array to which the resulting {@link Disposable} will be added.
      * @return A disposable which unsubscribes the event listener.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,  sonarjs/prefer-function-type
@@ -666,9 +698,35 @@ declare module '@podman-desktop/api' {
     onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]>;
   }
 
+  /**
+   * The commands module provides functions to register and execute commands
+   *
+   * @example
+   * ```typescript
+   * import * as api from '@podman-desktop/api';
+   *
+   * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+   *
+   *   const myCommand = api.commands.registerCommand(
+   *     'extension-name.my-command',
+   *     (arg1: string, arg2: number) => {
+   *       console.log('my-command executed with', arg1, arg2);
+   *     },
+   *   );
+   *
+   *   extensionContext.subscriptions.push(myCommand);
+   *
+   *   // [...]
+   *
+   *   api.commands.executeCommand('extension-name.my-command', 'a-string', 1001);
+   * }
+   * ```
+   */
   export namespace commands {
     /**
      * Define a command, to be executed later, either by calling {@link commands.executeCommand} or by referencing its name in the `command` field of a {@link StatusBarItem}.
+     *
+     * For examples, see {@link commands} and {@link window.createStatusBarItem}.
      *
      * @param command the name of the command. The name must be unique over all extensions. It is recommended to prefix this name with the name of the extension, to avoid conflicts with commands from other extensions.
      * @param callback the command to execute
@@ -679,7 +737,9 @@ declare module '@podman-desktop/api' {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
     /**
-     * Execute a command, previously registered with {@link commands.registerCommand}
+     * Execute a command, previously registered with {@link commands.registerCommand}.
+     *
+     * For an example, see {@link commands}.
      *
      * @param command the name used for registering the command
      * @param rest the parameters to pass to the command
@@ -875,14 +935,72 @@ declare module '@podman-desktop/api' {
     noProxy: string | undefined;
   }
 
+  /**
+   * The proxy module provides functions to set and get (immediately and reactively) HTTP proxy configuration.
+   * Note that it is not possible to change the state (enabled or disabled) of the proxy settings from the API.
+   *
+   * @example
+   *
+   * ```typescript
+   * import * as api from '@podman-desktop/api';
+   *
+   * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+   *   const handleProxyConfiguration = (e: boolean | undefined, s: api.ProxySettings | undefined) => {
+   *     console.log(e, s);
+   *   }
+   *
+   *   let enabled: boolean | undefined = undefined;
+   *   let settings: api.ProxySettings | undefined = undefined;
+   *
+   *   // Configuration changes
+   *   extensionContext.subscriptions.push(
+   *     api.proxy.onDidStateChange((e: boolean) => {
+   *       enabled = e;
+   *       handleProxyConfiguration(enabled, settings);
+   *     }),
+   *     api.proxy.onDidUpdateProxy((s: api.ProxySettings) => {
+   *       settings = s;
+   *       handleProxyConfiguration(enabled, settings);
+   *     }),
+   *   );
+   *   // Initial configuration
+   *   enabled = api.proxy.isEnabled();
+   *   settings = api.proxy.getProxySettings();
+   *   handleProxyConfiguration(enabled, settings);
+   * }
+   * ```
+   */
   export namespace proxy {
+    /**
+     * Return the current settings of the HTTP proxy.
+     *
+     * For an example, see {@link proxy}.
+     */
     export function getProxySettings(): ProxySettings | undefined;
+    /**
+     * Register new HTTP proxy settings. Note that registering new settings does not change the state (enabled or disabled) of the proxy settings.
+     */
     export function setProxy(proxySettings: ProxySettings): Promise<void>;
-    // Podman Desktop has updated the settings, propagates the changes to the provider.
+    /**
+     * Listen for changes on the proxy settings. The listener will be called with the new settings
+     * every time the settings change.
+     *
+     * For examples, see {@link proxy} and {@link Event}.
+     */
     export const onDidUpdateProxy: Event<ProxySettings>;
 
-    // The state of the proxy
+    /**
+     * Return the current state (enabled or disabled) of the proxy settings.
+     *
+     * For an example, see {@link proxy}.
+     */
     export function isEnabled(): boolean;
+    /**
+     * Listen for changes on the proxy state (enabled or disabled). The listener will be called with the new state
+     * every time the state changes.
+     *
+     * For examples, see {@link proxy} and {@link Event}.
+     */
     export const onDidStateChange: Event<boolean>;
   }
 
@@ -1993,6 +2111,24 @@ declare module '@podman-desktop/api' {
      * @param alignment The alignment of the item.
      * @param priority The priority of the item. Higher values mean more to the left or more to the right.
      * @return A new status bar item.
+     *
+     * @example
+     * ```typescript
+     * import * as api from '@podman-desktop/api';
+     *
+     * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+     *   const statusBarItem = api.window.createStatusBarItem();
+     *   statusBarItem.text = 'Information';
+     *   statusBarItem.tooltip = 'A problem occured';
+     *   statusBarItem.command = 'extension-name.my-command';
+     *   statusBarItem.iconClass = 'fa fa-exclamation-triangle';
+     *   extensionContext.subscriptions.push(
+     *     api.commands.registerCommand('extension-name.my-command', () => { console.log('command executed'); }),
+     *     statusBarItem,
+     *   );
+     *   statusBarItem.show();
+     * }
+     * ```
      */
     export function createStatusBarItem(alignment?: StatusBarAlignment, priority?: number): StatusBarItem;
 
