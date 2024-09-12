@@ -583,9 +583,17 @@ export class ExtensionLoader {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .reduce((directories: string[], directory) => {
+        const apiExtFolder = path.join(folderPath, directory.name, 'packages', 'extension');
+        const plainExtFolder = path.join(folderPath, directory.name);
+        if (fs.existsSync(path.join(apiExtFolder, 'package.json'))) {
+          directories.push(apiExtFolder);
+        } else if (fs.existsSync(path.join(plainExtFolder, 'package.json'))) {
+          directories.push(plainExtFolder);
+        }
+        return directories;
+      }, []);
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -602,9 +610,14 @@ export class ExtensionLoader {
   async readProductionFolders(folderPath: string): Promise<string[]> {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .map(directory => {
+        const rootExtPath = path.join(folderPath, directory.name);
+        const plainExtPath = path.join(rootExtPath, 'builtin', `${directory.name}.cdix`);
+        return fs.existsSync(plainExtPath)
+          ? plainExtPath
+          : path.join(rootExtPath, 'packages', 'extension', 'builtin', `${directory.name}.cdix`);
+      });
   }
 
   /**

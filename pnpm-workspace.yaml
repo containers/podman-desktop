@@ -1,6 +1,7 @@
 packages:
   - 'packages/*'
   - 'extensions/*'
+  - 'extensions/*/packages/*'
   - 'storybook'
   - 'website'
   - 'website-argos'
