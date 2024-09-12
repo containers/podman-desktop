@@ -14,6 +14,14 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
   currentLayerId = layer.id;
   dispatch('selected', layer);
 }
+
+function signedHumanSize(n: number): string {
+  if (n < 0) {
+    return new ImageUtils().getHumanSize(n);
+  } else {
+    return '+' + new ImageUtils().getHumanSize(n);
+  }
+}
 </script>
 
 {#each layers as layer}
@@ -28,11 +36,11 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
       <ImageDetailsFilesExpandableCommand command={layer.createdBy} />
       <div class="text-sm opacity-70">{layer.id}</div>
       <div class="text-sm opacity-70">
-        <span>{new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
+        <span>at rest: {new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
         <span> | </span>
-        <span>{new ImageUtils().getHumanSize(layer.sizeInContainer)}</span>
+        <span>contribute: {signedHumanSize(layer.sizeInContainer)}</span>
         <span> | </span>
-        <span>{new ImageUtils().getHumanSize(layer.stackTree.size)}</span>
+        <span>total: {new ImageUtils().getHumanSize(layer.stackTree.size)}</span>
       </div>
     </div>
   </button>
