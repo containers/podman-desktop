@@ -11,7 +11,7 @@ export let meta: TinroRouteMeta;
 
 <nav
   class="z-1 w-leftsidebar min-w-leftsidebar flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
-  aria-label="PreferencesNavigation">
+  aria-label={title + ' Navigation Bar'}>
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-10">
       <p
