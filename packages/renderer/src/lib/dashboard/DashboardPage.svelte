@@ -16,7 +16,6 @@ import ProviderReady from './ProviderReady.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 import ReleaseNotesBox from './release-notes/ReleaseNotesBox.svelte';
-import ReleaseNotesBoxCopy from './release-notes/ReleaseNotesBoxCopy.svelte';
 
 const providerInitContexts = new Map<string, InitializationContext>();
 
@@ -45,7 +44,6 @@ function getInitializationContext(id: string): InitializationContext {
       <NotificationsBox />
       <div class="px-5 space-y-5 h-full">
         <ReleaseNotesBox />
-        <ReleaseNotesBoxCopy />
         <!-- Provider is ready display a box to indicate some information -->
         {#if providersReady.length > 0}
           {#each providersReady as providerReady (providerReady.internalId)}
