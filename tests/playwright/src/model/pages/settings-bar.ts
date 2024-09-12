@@ -23,6 +23,7 @@ import type { SettingsPage } from './settings-page';
 export class SettingsBar {
   readonly page: Page;
   readonly settingsNavBar: Locator;
+  readonly title: Locator;
   readonly resourcesTab: Locator;
   readonly proxyTab: Locator;
   readonly registriesTab: Locator;
@@ -33,6 +34,7 @@ export class SettingsBar {
   constructor(page: Page) {
     this.page = page;
     this.settingsNavBar = page.getByRole('navigation', { name: 'PreferencesNavigation' });
+    this.title = this.settingsNavBar.getByText('Settings');
     this.resourcesTab = this.settingsNavBar.getByRole('link', { name: 'Resources' });
     this.proxyTab = this.settingsNavBar.getByRole('link', { name: 'Proxy' });
     this.registriesTab = this.settingsNavBar.getByRole('link', { name: 'Registries' });

@@ -55,7 +55,8 @@ test.describe('Kubernetes resources End-to-End test', () => {
     'Tests suite should not run on Linux platform',
   );
   test('Kubernetes Nodes test', async ({ navigationBar }) => {
-    const nodesPage = await navigationBar.openKubernetesResources(KubernetesResources.Nodes);
+    const kubernetesBar = await navigationBar.openKubernetes();
+    const nodesPage = await kubernetesBar.openTabPage(KubernetesResources.Nodes);
     await playExpect(nodesPage.heading).toBeVisible();
     await playExpect(nodesPage.getResourceRowByName(KIND_NODE)).toBeVisible();
 
