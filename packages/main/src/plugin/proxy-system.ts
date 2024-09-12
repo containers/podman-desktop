@@ -70,7 +70,7 @@ async function getWindowsProxySettings(): Promise<ProxySettings> {
     return enabled ? { httpProxy, httpsProxy, noProxy } : ({} as ProxySettings);
   } catch (err) {
     console.warn(`Error while getting Windows internet settings from registry`, err);
-    return {} as ProxySettings;
+    throw err;
   }
 }
 
@@ -136,9 +136,9 @@ async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings> {
         }
       }
     }
-    return (httpProxy ?? httpsProxy ?? noProxy) ? { httpProxy, httpsProxy, noProxy } : ({} as ProxySettings);
+    return { httpProxy, httpsProxy, noProxy };
   } catch (err) {
     console.warn(`Error while getting MacOS network services`, err);
-    return {} as ProxySettings;
+    throw err;
   }
 }
