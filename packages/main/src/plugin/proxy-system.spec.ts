@@ -37,14 +37,20 @@ vi.mock('winreg', () => {
   };
 });
 
-function setupPlatform(windows: boolean, macos: boolean, linux: boolean): void {
-  vi.spyOn(util, 'isWindows').mockReturnValue(windows);
-  vi.spyOn(util, 'isMac').mockReturnValue(macos);
-  vi.spyOn(util, 'isLinux').mockReturnValue(linux);
+enum Platform {
+  WINDOWS,
+  MACOS,
+  LINUX,
+}
+
+function setupPlatform(platform: Platform): void {
+  vi.spyOn(util, 'isWindows').mockReturnValue(platform === Platform.WINDOWS);
+  vi.spyOn(util, 'isMac').mockReturnValue(platform === Platform.MACOS);
+  vi.spyOn(util, 'isLinux').mockReturnValue(platform === Platform.LINUX);
 }
 
 describe('Windows platform tests', () => {
-  setupPlatform(true, false, false);
+  setupPlatform(Platform.WINDOWS);
   test('No state returned in case of execution error', async () => {
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
@@ -59,7 +65,7 @@ describe('Windows platform tests', () => {
   });
 
   test('No state returned in case of proxy disabled', async () => {
-    setupPlatform(true, false, false);
+    setupPlatform(Platform.WINDOWS);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [{ name: 'ProxyEnable', value: '0x0' }]);
@@ -73,7 +79,7 @@ describe('Windows platform tests', () => {
   });
 
   test('Empty state returned in case of proxy enabled only', async () => {
-    setupPlatform(true, false, false);
+    setupPlatform(Platform.WINDOWS);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [{ name: 'ProxyEnable', value: '0x1' }]);
@@ -87,7 +93,7 @@ describe('Windows platform tests', () => {
   });
 
   test('State returned in case of proxy enabled and proxy server', async () => {
-    setupPlatform(true, false, false);
+    setupPlatform(Platform.WINDOWS);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [
@@ -104,7 +110,7 @@ describe('Windows platform tests', () => {
   });
 
   test('State returned in case of proxy enabled and proxy server with exceptions', async () => {
-    setupPlatform(true, false, false);
+    setupPlatform(Platform.WINDOWS);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [
@@ -128,7 +134,7 @@ describe('Linux platform test', () => {
     const previousHttpsProxy = process.env['HTTPS_PROXY'];
     const previousNoProxy = process.env['NO_PROXY'];
     try {
-      setupPlatform(false, false, true);
+      setupPlatform(Platform.LINUX);
       delete process.env['HTTP_PROXY'];
       delete process.env['HTTPS_PROXY'];
       delete process.env['NO_PROXY'];
@@ -149,7 +155,7 @@ describe('Linux platform test', () => {
     const previousHttpsProxy = process.env['HTTPS_PROXY'];
     const previousNoProxy = process.env['NO_PROXY'];
     try {
-      setupPlatform(false, false, true);
+      setupPlatform(Platform.LINUX);
       process.env['HTTP_PROXY'] = 'http://127.0.0.1:8888';
       delete process.env['HTTPS_PROXY'];
       delete process.env['NO_PROXY'];
@@ -170,7 +176,7 @@ describe('Linux platform test', () => {
     const previousHttpsProxy = process.env['HTTPS_PROXY'];
     const previousNoProxy = process.env['NO_PROXY'];
     try {
-      setupPlatform(false, false, true);
+      setupPlatform(Platform.LINUX);
       process.env['HTTPS_PROXY'] = 'http://127.0.0.1:8888';
       delete process.env['HTTP_PROXY'];
       delete process.env['NO_PROXY'];
@@ -191,7 +197,7 @@ describe('Linux platform test', () => {
     const previousHttpsProxy = process.env['HTTPS_PROXY'];
     const previousNoProxy = process.env['NO_PROXY'];
     try {
-      setupPlatform(false, false, true);
+      setupPlatform(Platform.LINUX);
       delete process.env['HTTP_PROXY'];
       delete process.env['HTTPS_PROXY'];
       process.env['NO_PROXY'] = '*.internal';
@@ -210,7 +216,7 @@ describe('Linux platform test', () => {
 
 describe('MacOS platform tests', () => {
   test('No state returned in case of execution error', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockRejectedValue(new Error('execution error'));
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
@@ -220,7 +226,7 @@ describe('MacOS platform tests', () => {
   });
 
   test('No state returned if no network connections', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: '' } as RunResult);
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
@@ -230,7 +236,7 @@ describe('MacOS platform tests', () => {
   });
 
   test('No state returned if network connection is disabled', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: '\n*Connection' } as RunResult);
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
@@ -240,7 +246,7 @@ describe('MacOS platform tests', () => {
   });
 
   test('State returned with http proxy if network connection', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
       if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;
@@ -261,7 +267,7 @@ describe('MacOS platform tests', () => {
   });
 
   test('State returned with https proxy if network connection', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
       if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;
@@ -282,7 +288,7 @@ describe('MacOS platform tests', () => {
   });
 
   test('State returned with no proxy if network connection', async () => {
-    setupPlatform(false, true, false);
+    setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockImplementation(async (_command, args?) => {
       if (args?.[0] === '-listallnetworkservices') {
         return { stdout: '\nConnection' } as RunResult;

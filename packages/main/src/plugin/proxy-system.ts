@@ -35,7 +35,7 @@ export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySet
     const noProxy = process.env['NO_PROXY'];
     return { httpProxy, httpsProxy, noProxy };
   }
-  return {} as ProxySettings;
+  throw new Error('Unsupported environment');
 }
 
 async function getWindowsProxySettings(): Promise<ProxySettings> {
