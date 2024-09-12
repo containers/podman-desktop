@@ -14135,11 +14135,11 @@ snapshots:
 
   '@isaacs/cliui@8.0.2':
     dependencies:
-      string-width: 4.2.3
+      string-width: 5.1.2
       string-width-cjs: string-width@4.2.3
       strip-ansi: 7.1.0
       strip-ansi-cjs: strip-ansi@6.0.1
-      wrap-ansi: 7.0.0
+      wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/fs-minipass@4.0.1':
