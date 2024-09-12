@@ -48,6 +48,7 @@ const TYPESCRIPT_PROJECTS = [
   './website/tsconfig.json',
   './website-argos/tsconfig.json',
   './extensions/*/tsconfig.json',
+  './extensions/*/packages/*/tsconfig.json',
   './tests/playwright/tsconfig.json',
   './tools/tsconfig.json',
   './storybook/tsconfig.json',
@@ -74,6 +75,8 @@ export default [
       'scripts/**',
       'extensions/*/builtin/**/*',
       'extensions/*/scripts/**/*',
+      'extensions/*/packages/*/scripts/**/*',
+      'extensions/*/packages/*/builtin/**/*',
       'website/storybook.ts',
       'website/src/pages/storybook/sidebar.cjs',
     ],
@@ -152,7 +155,6 @@ export default [
         },
       ],
 
-      '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/consistent-type-imports': 'error',
@@ -195,7 +197,6 @@ export default [
       'sonarjs/no-ignored-exceptions': 'off',
       'sonarjs/no-nested-functions': 'off',
       'sonarjs/todo-tag': 'off',
-      'sonarjs/no-nested-functions': 'off',
       'sonarjs/sonar-max-params': 'off',
       'sonarjs/no-nested-conditional': 'off',
       'sonarjs/no-empty-function': 'off',
@@ -302,6 +303,15 @@ export default [
     },
   },
 
+  {
+    files: ['storybook/**'],
+    languageOptions: {
+      globals: {
+        ...Object.fromEntries(Object.entries(globals.node).map(([key]) => [key, 'off'])),
+        ...globals.browser,
+      },
+    },
+  },
   {
     files: ['**/*.spec.ts'],
 

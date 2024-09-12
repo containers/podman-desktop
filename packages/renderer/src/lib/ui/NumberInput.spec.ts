@@ -253,3 +253,58 @@ test('Expect decrement works with custom step', async () => {
 
   expect(input).toHaveValue('4.2');
 });
+
+test('Expect multiple increment with floating values', async () => {
+  renderInput('test', 0, false, 0, 10, 'number', 0.15);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('0');
+
+  const increment = screen.getByLabelText('increment');
+  expect(increment).toBeInTheDocument();
+
+  // click 3 times on increment
+  await userEvent.click(increment);
+  await userEvent.click(increment);
+  await userEvent.click(increment);
+
+  // the value should be 0.45
+  expect(input).toHaveValue('0.45');
+});
+
+test('Expect multiple decrement with floating values', async () => {
+  renderInput('test', 1, false, 0, 10, 'number', 0.15);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('1');
+
+  const decrement = screen.getByLabelText('decrement');
+  expect(decrement).toBeInTheDocument();
+
+  // click 3 times on decrement
+  await userEvent.click(decrement);
+  await userEvent.click(decrement);
+  await userEvent.click(decrement);
+
+  // the value should be 0.55
+  expect(input).toHaveValue('0.55');
+});
+
+test('Expect decrement with floating values', async () => {
+  renderInput('test', 1.1, false, 0, 10, 'number', 0.1);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('1.1');
+
+  const increment = screen.getByLabelText('increment');
+  expect(increment).toBeInTheDocument();
+
+  // click 1 time on increment
+  await userEvent.click(increment);
+
+  // the value should be 1.2
+  expect(input).toHaveValue('1.2');
+});

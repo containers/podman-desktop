@@ -16,8 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { nativeTheme } from 'electron';
+
 import { AppearanceSettings } from './appearance-settings.js';
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+
+const APPEARANCE_FULL_KEY = `${AppearanceSettings.SectionName}.${AppearanceSettings.Appearance}`;
 
 export class AppearanceInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
@@ -28,15 +32,41 @@ export class AppearanceInit {
       title: 'Appearance',
       type: 'object',
       properties: {
-        [AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance]: {
+        [APPEARANCE_FULL_KEY]: {
           description: 'Select between light or dark mode, or use your system setting.',
           type: 'string',
           enum: ['system', 'dark', 'light'],
           default: 'system',
         },
+        [`${AppearanceSettings.SectionName}.${AppearanceSettings.ZoomLevel}`]: {
+          markdownDescription:
+            'Select the zoom level. To **Zoom In**, set a positive value like `1` for a 20% zoom. To **Zoom Out**, use a negative value, like `-1`. Use decimals for more fine-grained zoom control.',
+          type: 'number',
+          minimum: -3,
+          maximum: 3,
+          default: 0,
+          step: 0.1,
+        },
       },
     };
 
     this.configurationRegistry.registerConfigurations([appearanceConfiguration]);
+
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
+      if (e.key === APPEARANCE_FULL_KEY) {
+        this.updateNativeTheme(e.value);
+      }
+    });
+  }
+
+  updateNativeTheme(appearance: string): void {
+    // appearance config values match the enum values for themeSource, but lets be expicit
+    if (appearance === AppearanceSettings.LightEnumValue) {
+      nativeTheme.themeSource = 'light';
+    } else if (appearance === AppearanceSettings.DarkEnumValue) {
+      nativeTheme.themeSource = 'dark';
+    } else {
+      nativeTheme.themeSource = 'system';
+    }
   }
 }

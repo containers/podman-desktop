@@ -22,10 +22,25 @@ export interface ContainerInteractiveParams {
 }
 
 export interface KindClusterOptions {
-  clusterName?: string;
   providerType?: string;
   httpPort?: string;
   httpsPort?: string;
   useIngressController?: boolean;
   containerImage?: string;
+}
+
+export interface DeployPodOptions {
+  useKubernetesServices?: boolean;
+  useRestrictedSecurityContext?: boolean;
+  useKubernetesIngress?: boolean;
+  containerExposedPort?: string;
+}
+
+export enum KubernetesResources {
+  Nodes = 'Nodes',
+  Deployments = 'Deployments',
+  Services = 'Services',
+  IngeressesRoutes = 'Ingresses & Routes',
+  PVCs = 'Persistent Volume Claims',
+  ConfigMapsSecrets = 'Config Maps & Secrets',
 }

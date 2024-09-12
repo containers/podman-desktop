@@ -19,6 +19,8 @@
 import type { Event, ProxySettings } from '@podman-desktop/api';
 import { ProxyAgent } from 'undici';
 
+import type { Certificates } from '/@/plugin/certificates.js';
+
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
@@ -61,7 +63,10 @@ export class Proxy {
   private readonly _onDidStateChange = new Emitter<boolean>();
   public readonly onDidStateChange: Event<boolean> = this._onDidStateChange.event;
 
-  constructor(private configurationRegistry: ConfigurationRegistry) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private certificates: Certificates,
+  ) {}
 
   async init(): Promise<void> {
     const proxyConfigurationNode: IConfigurationNode = {
@@ -171,7 +176,10 @@ export class Proxy {
     globalThis.fetch = function (url: any, opts?: any): Promise<Response> {
       const proxyurl = getProxyUrl(_me, asURL(url).protocol === 'https');
       if (proxyurl) {
-        opts = { ...opts, dispatcher: new ProxyAgent(proxyurl) };
+        opts = {
+          ...opts,
+          dispatcher: new ProxyAgent({ uri: proxyurl, proxyTls: { ca: _me.certificates.getAllCertificates() } }),
+        };
       }
 
       return original(url, opts);

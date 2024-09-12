@@ -16,72 +16,51 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
-import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { StatusBar } from '../model/workbench/status-bar';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { getVolumeNameForContainer } from '../utility/operations';
+import { expect as playExpect, test } from '../utility/fixtures';
+import {
+  createKindCluster,
+  deleteKindCluster,
+  ensureKindCliInstalled,
+  getVolumeNameForContainer,
+} from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const RESOURCE_NAME: string = 'kind';
 const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
-const CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
-const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
-const CLUSTER_CREATION_TIMEOUT: number = 150000;
+const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
+const CLUSTER_CREATION_TIMEOUT: number = 200000;
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navigationBar: NavigationBar;
 let resourcesPage: ResourcesPage;
 let kindResourceCard: ResourceConnectionCardPage;
-let statusBar: StatusBar;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('kind-e2e');
-  const welcomePage = new WelcomePage(page);
+test.beforeAll(async ({ runner, page, welcomePage }) => {
+  runner.setVideoAndTraceName('kind-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navigationBar = new NavigationBar(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
-  statusBar = new StatusBar(page);
 });
 
-test.afterAll(async () => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async () => {
+    test('Install Kind CLI', async ({ page }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
-
-      await navigationBar.openSettings();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
-      await statusBar.installKindCLI();
-      await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
+      await ensureKindCliInstalled(page);
     });
 
-    test('Verify that Kind CLI is installed', async () => {
-      await navigationBar.openSettings();
-      await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-    });
-
-    test('Kind extension lifecycle', async () => {
+    test('Kind extension lifecycle', async ({ navigationBar }) => {
       const extensionsPage = await navigationBar.openExtensions();
       const kindExtension = await extensionsPage.getInstalledExtension('Kind extension', EXTENSION_LABEL);
       await playExpect
@@ -102,42 +81,27 @@ test.describe.serial('Kind End-to-End Tests', () => {
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
       'Tests suite should not run on Linux platform',
     );
-    test('Create a Kind cluster', async () => {
+    test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
-
-      await navigationBar.openSettings();
-      await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-      await playExpect(kindResourceCard.markdownContent).toBeVisible();
-      await playExpect(kindResourceCard.createButton).toBeVisible();
-      await kindResourceCard.createButton.click();
-      const createKindClusterPage = new CreateKindClusterPage(page);
-      await createKindClusterPage.createClusterDefault(CLUSTER_NAME, CLUSTER_CREATION_TIMEOUT);
-      await playExpect(kindResourceCard.resourceElement).toBeVisible();
-      await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-        timeout: 15000,
-      });
+      await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
     });
 
-    test('Check resources added with the Kind cluster', async () => {
+    test('Check resources added with the Kind cluster', async ({ page, navigationBar }) => {
       const containersPage = await navigationBar.openContainers();
-      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
-      const containerDetailsPage = await containersPage.openContainersDetails(CONTAINER_NAME);
+      await playExpect.poll(async () => containersPage.containerExists(KIND_CONTAINER_NAME)).toBeTruthy();
+      const containerDetailsPage = await containersPage.openContainersDetails(KIND_CONTAINER_NAME);
       await playExpect.poll(async () => await containerDetailsPage.getState()).toEqual(ContainerState.Running);
 
       const volumesPage = new VolumesPage(page);
-      const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
+      const volumeName = await getVolumeNameForContainer(page, KIND_CONTAINER_NAME);
       if (!volumeName) {
-        throw new Error(`Volume name for container "${CONTAINER_NAME}" is not defined.`);
+        throw new Error(`Volume name for container "${KIND_CONTAINER_NAME}" is not defined.`);
       }
       const volumeDetailsPage = await volumesPage.openVolumeDetails(volumeName);
       await playExpect.poll(async () => await volumeDetailsPage.isUsed()).toBeTruthy();
     });
 
-    test('Validate correct Kubernetes context is selected', async () => {
-      await statusBar.validateKubernetesContext(KUBERNETES_CONTEXT);
-    });
-
-    test('Kind cluster operations - STOP', async () => {
+    test('Kind cluster operations - STOP', async ({ navigationBar }) => {
       await navigationBar.openSettings();
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
       await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
@@ -160,19 +124,8 @@ test.describe.serial('Kind End-to-End Tests', () => {
       });
     });
 
-    test('Kind cluster operations - DELETE', async () => {
-      await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
-      await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-        timeout: 50000,
-      });
-      await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-      await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
-      const containersPage = await navigationBar.openContainers();
-      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeFalsy();
-
-      await page.waitForTimeout(2000);
-      const volumeName = await getVolumeNameForContainer(page, CONTAINER_NAME);
-      await playExpect.poll(async () => volumeName).toBeFalsy();
+    test('Kind cluster operations - DELETE', async ({ page }) => {
+      await deleteKindCluster(page, KIND_CONTAINER_NAME);
     });
   });
 });

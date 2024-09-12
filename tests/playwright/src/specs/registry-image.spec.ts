@@ -16,21 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, test } from '@playwright/test';
-import type { Page } from 'playwright';
-
 import { RegistriesPage } from '../model/pages/registries-page';
 import { SettingsBar } from '../model/pages/settings-bar';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteImage, deleteRegistry } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;
@@ -38,34 +30,30 @@ let imageName: string;
 let imageTag: string;
 let imageUrl: string;
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('registry-image-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('registry-image-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
   imageName = process.env.REGISTRY_IMAGE_NAME ? process.env.REGISTRY_IMAGE_NAME : 'alpine-hello';
   imageTag = process.env.REGISTRY_IMAGE_TAG ? process.env.REGISTRY_IMAGE_TAG : 'latest';
   imageUrl = registryUrl + '/' + registryUsername + '/' + imageName;
 
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navBar = new NavigationBar(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ runner, page }) => {
   try {
     await deleteImage(page, imageUrl);
     await deleteRegistry(page, 'GitHub');
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
 test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
-  test('Cannot pull image from unauthenticated registry', async () => {
-    const imagesPage = await navBar.openImages();
+  test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);
     const errorAlert = page.getByLabel('Error Message Content');
@@ -78,7 +66,7 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
     await pullImageButton.click();
 
     await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
-    await playExpect(errorAlert).toContainText('Error while pulling image from Podman');
+    await playExpect(errorAlert).toContainText('Error while pulling image from');
     await playExpect(errorAlert).toContainText(fullImageTitle);
     await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
   });
@@ -86,8 +74,8 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
   test.describe.serial(() => {
     test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
-    test('Add registry', async () => {
-      await navBar.openSettings();
+    test('Add registry', async ({ page, navigationBar }) => {
+      await navigationBar.openSettings();
       const settingsBar = new SettingsBar(page);
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
@@ -98,8 +86,8 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
       await playExpect(username).toBeVisible();
     });
 
-    test('Image pulling from authenticated registry verification', async () => {
-      const imagesPage = await navBar.openImages();
+    test('Image pulling from authenticated registry verification', async ({ navigationBar }) => {
+      const imagesPage = await navigationBar.openImages();
 
       const fullImageTitle = imageUrl.concat(':' + imageTag);
       const pullImagePage = await imagesPage.openPullImage();

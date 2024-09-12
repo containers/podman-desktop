@@ -24,6 +24,7 @@ import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
 import { waitWhile } from '../utility/wait';
+import { RunnerOptions } from './runner-options';
 
 type WindowState = {
   isVisible: boolean;
@@ -31,7 +32,7 @@ type WindowState = {
   isCrashed: boolean;
 };
 
-export class PodmanDesktopRunner {
+export class Runner {
   private _options: object;
   private _running: boolean;
   private _app: ElectronApplication | undefined;
@@ -40,22 +41,33 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _autoUpdate: boolean;
-  private _autoCheckUpdate: boolean;
+  private _runnerOptions: RunnerOptions;
 
-  constructor({
-    profile = '',
-    customFolder = 'podman-desktop',
-    autoUpdate = true,
-    autoCheckUpdate = true,
-  }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
+  private static _instance: Runner | undefined;
+
+  static async getInstance({
+    runnerOptions = new RunnerOptions(),
+  }: {
+    runnerOptions?: RunnerOptions;
+  } = {}): Promise<Runner> {
+    if (!Runner._instance) {
+      Runner._instance = new Runner({ runnerOptions });
+      await Runner._instance.start();
+    }
+    return Runner._instance;
+  }
+
+  private constructor({
+    runnerOptions = new RunnerOptions(),
+  }: {
+    runnerOptions?: RunnerOptions;
+  } = {}) {
     this._running = false;
-    this._profile = profile;
+    this._runnerOptions = runnerOptions;
+    this._profile = this._runnerOptions._profile;
     this._testOutput = join('tests', 'playwright', 'output', this._profile);
-    this._customFolder = join(this._testOutput, customFolder);
+    this._customFolder = join(this._testOutput, this._runnerOptions._customFolder);
     this._videoAndTraceName = undefined;
-    this._autoUpdate = autoUpdate;
-    this._autoCheckUpdate = autoCheckUpdate;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -63,7 +75,8 @@ export class PodmanDesktopRunner {
 
   public async start(): Promise<Page> {
     if (this.isRunning()) {
-      throw Error('Podman Desktop is already running');
+      console.log('Podman Desktop is already running');
+      return this.getPage();
     }
 
     try {
@@ -215,6 +228,7 @@ export class PodmanDesktopRunner {
       }
     }
     this._running = false;
+    Runner._instance = undefined;
 
     if (this._videoAndTraceName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
@@ -234,7 +248,9 @@ export class PodmanDesktopRunner {
     }
 
     try {
-      if (test.info().status === 'failed') return;
+      const testStatus = test.info().status;
+      console.log(`Test finished with status:${testStatus}`);
+      if (testStatus !== 'passed' && testStatus !== 'skipped') return;
     } catch (err) {
       console.log(`Caught exception in removing traces: ${err}`);
       return;
@@ -314,11 +330,7 @@ export class PodmanDesktopRunner {
       mkdirSync(parentDir, { recursive: true });
     }
 
-    const settingsContent = JSON.stringify({
-      'preferences.OpenDevTools': 'none',
-      'extensions.autoCheckUpdates': this._autoCheckUpdate,
-      'extensions.autoUpdate': this._autoUpdate,
-    });
+    const settingsContent = this._runnerOptions.createSettingsJson();
 
     // write the file
     console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
@@ -337,6 +349,10 @@ export class PodmanDesktopRunner {
 
   public setVideoAndTraceName(name: string): void {
     this._videoAndTraceName = name;
+
+    if (test.info().retry > 0) {
+      this._videoAndTraceName += `_retry${test.info().retry}`;
+    }
   }
 
   public getTestOutput(): string {
