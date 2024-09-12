@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 /**
- * The Podman Desktop API provides a way to build extensions interacting with Podman Desktop.
+ * The Podman Desktop API is intended to be consumed by extensions interacting with Podman Desktop.
  *
  * This documentation is automatically generated from typedoc comments
  * in the source code `extension-api.d.ts` and provided [on our website](https://podman-desktop.io/api).
