@@ -74,7 +74,6 @@ module.exports = {
         600: tailwindColors.violet[600],
         700: tailwindColors.violet[700],
       },
-      'github-star-icon': '#e3b341'
     },
   },
   plugins: [],

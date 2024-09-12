@@ -156,7 +156,7 @@ test('Expect GitHub dialog visible when very-happy-smiley selected', async () =>
   await fireEvent.click(link);
 
   await vi.waitFor(() => {
-    expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGithub');
+    expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGitHub');
     expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
   });
 });

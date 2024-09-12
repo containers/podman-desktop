@@ -62,9 +62,9 @@ async function sendFeedback(): Promise<void> {
   hideModal();
 }
 
-async function openGithub(): Promise<void> {
+async function openGitHub(): Promise<void> {
   hideModal();
-  await window.telemetryTrack('feedback.openGithub');
+  await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
 </script>
@@ -143,9 +143,9 @@ async function openGithub(): Promise<void> {
         <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
           <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
           <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
-            <Fa class="px-1 text-purple-600" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It ? Give us a <Fa
+            <Fa class="px-1 text-amber-400" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It ? Give us a <Fa
               class="px-1 text-github-star-icon"
-              icon={faStar} />on <Link aria-label="GitHub" onclick={openGithub}>GitHub</Link>
+              icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
           </span>
         </div>
       {/if}
