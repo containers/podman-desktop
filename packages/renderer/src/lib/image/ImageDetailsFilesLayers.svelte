@@ -36,11 +36,11 @@ function signedHumanSize(n: number): string {
       <ImageDetailsFilesExpandableCommand command={layer.createdBy} />
       <div class="text-sm opacity-70">{layer.id}</div>
       <div class="text-sm opacity-70">
-        <span>at rest: {new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
+        <span>on disk: {new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
         <span> | </span>
-        <span>contribute: {signedHumanSize(layer.sizeInContainer)}</span>
+        <span>contribute to FS: {signedHumanSize(layer.sizeInContainer)}</span>
         <span> | </span>
-        <span>total: {new ImageUtils().getHumanSize(layer.stackTree.size)}</span>
+        <span>total FS: {new ImageUtils().getHumanSize(layer.stackTree.size)}</span>
       </div>
     </div>
   </button>
