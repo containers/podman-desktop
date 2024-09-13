@@ -57,11 +57,14 @@ describe('Windows platform tests', () => {
         cb(new Error('execution error'), undefined);
       }),
     });
-    const settings = await getProxySettingsFromSystem({} as Proxy);
-    expect(settings).toBeDefined();
-    expect(settings.httpProxy).toBeUndefined();
-    expect(settings.httpsProxy).toBeUndefined();
-    expect(settings.noProxy).toBeUndefined();
+    let error;
+    try {
+      await getProxySettingsFromSystem({} as Proxy);
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
+    expect(error).toBeInstanceOf(Error);
   });
 
   test('No state returned in case of proxy disabled', async () => {
@@ -218,11 +221,14 @@ describe('MacOS platform tests', () => {
   test('No state returned in case of execution error', async () => {
     setupPlatform(Platform.MACOS);
     vi.spyOn(Exec.prototype, 'exec').mockRejectedValue(new Error('execution error'));
-    const settings = await getProxySettingsFromSystem({} as Proxy);
-    expect(settings).toBeDefined();
-    expect(settings.httpProxy).toBeUndefined();
-    expect(settings.httpsProxy).toBeUndefined();
-    expect(settings.noProxy).toBeUndefined();
+    let error;
+    try {
+      await getProxySettingsFromSystem({} as Proxy);
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
+    expect(error).toBeInstanceOf(Error);
   });
 
   test('No state returned if no network connections', async () => {
