@@ -25,7 +25,10 @@ import AdmZip from 'adm-zip';
 import { app, clipboard as electronClipboard } from 'electron';
 
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
-import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type {
+  KubeGeneratorRegistry,
+  KubernetesGeneratorProvider,
+} from '/@/plugin/kubernetes/kube-generator-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
@@ -38,6 +41,7 @@ import type { ApiSenderType } from './api.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';
+import type { Certificates } from './certificates.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
@@ -56,7 +60,7 @@ import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
-import type { KubernetesClient } from './kubernetes-client.js';
+import type { KubernetesClient } from './kubernetes/kubernetes-client.js';
 import type { MessageBox } from './message-box.js';
 import { ModuleLoader } from './module-loader.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
@@ -189,6 +193,7 @@ export class ExtensionLoader {
     private colorRegistry: ColorRegistry,
     private dialogRegistry: DialogRegistry,
     private safeStorageRegistry: SafeStorageRegistry,
+    private certificates: Certificates,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -286,7 +291,7 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy, this.certificates)); // add patched http and https
     this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
 
     this.moduleLoader.overrideRequire();
@@ -578,9 +583,17 @@ export class ExtensionLoader {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .reduce((directories: string[], directory) => {
+        const apiExtFolder = path.join(folderPath, directory.name, 'packages', 'extension');
+        const plainExtFolder = path.join(folderPath, directory.name);
+        if (fs.existsSync(path.join(apiExtFolder, 'package.json'))) {
+          directories.push(apiExtFolder);
+        } else if (fs.existsSync(path.join(plainExtFolder, 'package.json'))) {
+          directories.push(plainExtFolder);
+        }
+        return directories;
+      }, []);
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -597,9 +610,14 @@ export class ExtensionLoader {
   async readProductionFolders(folderPath: string): Promise<string[]> {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .map(directory => {
+        const rootExtPath = path.join(folderPath, directory.name);
+        const plainExtPath = path.join(rootExtPath, 'builtin', `${directory.name}.cdix`);
+        return fs.existsSync(plainExtPath)
+          ? plainExtPath
+          : path.join(rootExtPath, 'packages', 'extension', 'builtin', `${directory.name}.cdix`);
+      });
   }
 
   /**

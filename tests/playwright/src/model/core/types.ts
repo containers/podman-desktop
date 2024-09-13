@@ -35,3 +35,12 @@ export interface DeployPodOptions {
   useKubernetesIngress?: boolean;
   containerExposedPort?: string;
 }
+
+export enum KubernetesResources {
+  Nodes = 'Nodes',
+  Deployments = 'Deployments',
+  Services = 'Services',
+  IngeressesRoutes = 'Ingresses & Routes',
+  PVCs = 'Persistent Volume Claims',
+  ConfigMapsSecrets = 'Config Maps & Secrets',
+}

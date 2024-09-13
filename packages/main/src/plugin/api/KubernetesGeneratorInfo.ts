@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { KubernetesGeneratorSelector } from '../kube-generator-registry.js';
+import type { KubernetesGeneratorSelector } from '../kubernetes/kube-generator-registry.js';
 
 export interface KubernetesGeneratorInfo {
   id: string;

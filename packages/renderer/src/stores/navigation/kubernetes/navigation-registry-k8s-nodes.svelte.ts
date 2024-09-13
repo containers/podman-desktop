@@ -30,7 +30,7 @@ export function createNavigationKubernetesNodesEntry(): NavigationRegistryEntry 
   const registry: NavigationRegistryEntry = {
     name: 'Nodes',
     icon: { iconComponent: NodeIcon },
-    link: '/nodes',
+    link: '/kubernetes/nodes',
     tooltip: 'Nodes',
     type: 'entry',
     get counter() {

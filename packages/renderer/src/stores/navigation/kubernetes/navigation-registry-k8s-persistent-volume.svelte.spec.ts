@@ -52,7 +52,7 @@ test('createNavigationKubernetesPersistentVolumeEntry', async () => {
 
   expect(entry).toBeDefined();
   expect(entry.name).toBe('Persistent Volume Claims');
-  expect(entry.link).toBe('/persistentvolumeclaims');
+  expect(entry.link).toBe('/kubernetes/persistentvolumeclaims');
   expect(entry.tooltip).toBe('Persistent Volume Claims');
   await vi.waitFor(() => {
     expect(entry.counter).toBe(2);

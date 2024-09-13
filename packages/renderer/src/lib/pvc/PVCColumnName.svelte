@@ -6,7 +6,7 @@ import type { PVCUI } from './PVCUI';
 export let object: PVCUI;
 
 function openDetails() {
-  router.goto(`/persistentvolumeclaims/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+  router.goto(`/kubernetes/persistentvolumeclaims/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
 }
 </script>
 

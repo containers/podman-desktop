@@ -51,7 +51,7 @@ test('createNavigationKubernetesIngressesRoutesEntry', async () => {
 
   expect(entry).toBeDefined();
   expect(entry.name).toBe('Ingresses & Routes');
-  expect(entry.link).toBe('/ingressesRoutes');
+  expect(entry.link).toBe('/kubernetes/ingressesRoutes');
   expect(entry.tooltip).toBe('Ingresses & Routes');
   await vi.waitFor(() => {
     expect(entry.counter).toBe(2);

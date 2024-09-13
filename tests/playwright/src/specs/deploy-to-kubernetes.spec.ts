@@ -16,15 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainerDetailsPage } from '../model/pages/container-details-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 import {
   createKindCluster,
   deleteContainer,
@@ -45,36 +40,28 @@ const NAMESPACE: string = 'default';
 const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_CONTAINER_NAME} ${NAMESPACE}`;
 const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: false };
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navigationBar: NavigationBar;
-
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async () => {
+test.beforeAll(async ({ runner, welcomePage, page }) => {
   test.setTimeout(250000);
+  runner.setVideoAndTraceName('deploy-to-k8s-e2e');
 
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('kind-e2e');
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
-  navigationBar = new NavigationBar(page);
   if (!skipKindInstallation) {
     await ensureKindCliInstalled(page);
   }
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
     await deleteKindCluster(page, KIND_CONTAINER_NAME);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
@@ -83,7 +70,7 @@ test.describe('Deploy a container to the Kind cluster', () => {
     !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
     'Tests suite should not run on Linux platform',
   );
-  test('Pull an image and start a container', async () => {
+  test('Pull an image and start a container', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
     await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
@@ -99,7 +86,7 @@ test.describe('Deploy a container to the Kind cluster', () => {
     await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
   });
 
-  test('Deploy the container ', async () => {
+  test('Deploy the container ', async ({ page, navigationBar }) => {
     const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
     await playExpect(containerDetailsPage.heading).toBeVisible();
     const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();

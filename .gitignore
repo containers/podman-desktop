@@ -13,3 +13,4 @@ dist
 /storybook/.storybook/themes.css
 /storybook/storybook-static/
 yarn.lock
+extensions/podman/assets/

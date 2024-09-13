@@ -19,17 +19,10 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect, test } from '@playwright/test';
-
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deleteImage, deletePod } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
 const podAppName = 'primary-podify-demo';
 const podName = 'podify-demo-pod';
 const frontendImage = 'quay.io/podman-desktop-demo/podify-demo-frontend';
@@ -43,30 +36,27 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('play-yaml-e2e');
+test.beforeAll(async ({ runner, welcomePage, page }) => {
+  runner.setVideoAndTraceName('play-yaml-e2e');
 
-  await new WelcomePage(page).handleWelcomePage(true);
+  await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
-test.afterAll(async () => {
+test.afterAll(async ({ runner, page }) => {
   try {
     await deletePod(page, podName);
     await deleteImage(page, backendImage);
     await deleteImage(page, frontendImage);
   } finally {
-    await pdRunner.close();
+    await runner.close();
   }
 });
 
 test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName} @smoke`, () => {
   test.describe.configure({ timeout: 150000 });
 
-  test('Playing yaml', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Playing yaml', async ({ navigationBar }) => {
     let podsPage = await navigationBar.openPods();
     await playExpect(podsPage.heading).toBeVisible();
 
@@ -78,8 +68,7 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
     await playExpect(podsPage.heading).toBeVisible();
   });
 
-  test('Checking that created pod from yaml is correct', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Checking that created pod from yaml is correct', async ({ page, navigationBar }) => {
     const podsPage = await navigationBar.openPods();
     await playExpect(podsPage.heading).toBeVisible();
 
@@ -88,8 +77,7 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
     await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
   });
 
-  test('Checking that pulled images from yaml are correct', async () => {
-    const navigationBar = new NavigationBar(page);
+  test('Checking that pulled images from yaml are correct', async ({ navigationBar }) => {
     let imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 

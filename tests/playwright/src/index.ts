@@ -19,9 +19,11 @@
 // export core modules
 export * from './globalSetup/global-setup';
 export * from './runner/podman-desktop-runner';
+export * from './runner/runner-options';
 export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';
+export * from './utility/fixtures';
 export * from './utility/operations';
 export * from './utility/platform';
 export * from './utility/wait';
@@ -53,6 +55,9 @@ export * from './model/pages/extensions-page';
 export * from './model/pages/image-details-page';
 export * from './model/pages/image-edit-page';
 export * from './model/pages/images-page';
+export * from './model/pages/kubernetes-bar';
+export * from './model/pages/kubernetes-resource-details-page';
+export * from './model/pages/kubernetes-resource-page';
 export * from './model/pages/main-page';
 export * from './model/pages/onboarding-page';
 export * from './model/pages/play-kube-yaml-page';

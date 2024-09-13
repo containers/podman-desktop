@@ -18,14 +18,14 @@
 
 import { expect, test } from 'vitest';
 
-import type { TerminalSize } from '/@/plugin/kubernetes-exec-transmitter.js';
+import type { TerminalSize } from './kubernetes-exec-transmitter.js';
 import {
   BufferedStreamWriter,
   DEFAULT_COLUMNS,
   DEFAULT_ROWS,
   ResizableTerminalWriter,
   StringLineReader,
-} from '/@/plugin/kubernetes-exec-transmitter.js';
+} from './kubernetes-exec-transmitter.js';
 
 test('Test should verify string line reader', () => {
   const reader = new StringLineReader();

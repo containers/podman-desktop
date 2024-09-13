@@ -54,3 +54,9 @@ export enum ResourceElementState {
   Off = 'OFF',
   Starting = 'STARTING',
 }
+
+export enum KubernetesResourceState {
+  Running = 'RUNNING',
+  Stopped = 'STOPPED',
+  Unknown = 'UNKNOWN',
+}

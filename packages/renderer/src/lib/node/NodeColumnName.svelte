@@ -6,7 +6,7 @@ import type { NodeUI } from './NodeUI';
 export let object: NodeUI;
 
 function openDetails() {
-  router.goto(`/nodes/${encodeURI(object.name)}/summary`);
+  router.goto(`/kubernetes/nodes/${encodeURI(object.name)}/summary`);
 }
 </script>
 

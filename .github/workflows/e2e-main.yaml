@@ -41,7 +41,7 @@ on:
 
 jobs:
   e2e-tests:
-    name: Run E2E tests
+    name: Run All E2E tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +85,7 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
-      - name: Run All E2E tests
+      - name: Run E2E tests
         env:
           PODMANDESKTOP_CI_BOT_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
           TEST_PODMAN_MACHINE: 'true'
@@ -97,6 +97,67 @@ jobs:
         with:
           name: e2e-tests
           path: |
-            ./tests/output/
-            ./tests/**/output/junit*.xml
+            ./tests/**/output/
+            !./tests/**/traces/raw
+
+  win-update-e2e-test:
+    name: win update e2e tests
+    runs-on: windows-2022
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
+          ref: ${{ github.event.inputs.branch }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Execute PNPM
+        run: pnpm install --frozen-lockfile
+
+      - name: Adjust/Downgrade local podman desktop version Windows
+        run: |
+          $version="1.0.0"
+          jq --arg version "$version" '.version = $version' package.json | Out-File -FilePath package.json_tmp
+          Move-Item -Path package.json_tmp -Destination package.json -Force
+
+      - name: Build Podman Desktop locally with electron updater included
+        env:
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          pnpm compile:current --win nsis
+          $path=('./dist/win-unpacked/Podman Desktop.exe' | resolve-path).ProviderPath
+          echo $path
+          echo ("PODMAN_DESKTOP_BINARY=" + $path) >> $env:GITHUB_ENV
+
+      - name: Run E2E Update test
+        env:
+          UPDATE_PODMAN_DESKTOP: true
+        run: |
+          echo "${{ env.PODMAN_DESKTOP_BINARY }}"
+          pnpm test:e2e:update:run
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: update-e2e-test
+          path: |
+            ./tests/**/output/
             !./tests/**/traces/raw

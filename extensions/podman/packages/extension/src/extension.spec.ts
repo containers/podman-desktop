@@ -104,6 +104,11 @@ const telemetryLogger: extensionApi.TelemetryLogger = {
   logError: vi.fn(),
 } as unknown as extensionApi.TelemetryLogger;
 
+const mocks = vi.hoisted(() => ({
+  getPodmanLocationMacMock: vi.fn(),
+  getKrunkitVersionMock: vi.fn(),
+}));
+
 // mock ps-list
 vi.mock('ps-list', async () => {
   return {
@@ -218,13 +223,11 @@ vi.mock('node:os', async () => {
   };
 });
 
-vi.mock('./qemu-helper', async () => {
+vi.mock('./krunkit-helper', async () => {
   return {
-    QemuHelper: vi.fn().mockImplementation(() => {
+    KrunkitHelper: vi.fn().mockImplementation(() => {
       return {
-        getQemuVersion: vi.fn().mockImplementation(() => {
-          return Promise.resolve('1.2.3');
-        }),
+        getKrunkitVersion: mocks.getKrunkitVersionMock,
       };
     }),
   };
@@ -233,9 +236,7 @@ vi.mock('./podman-binary-location-helper', async () => {
   return {
     PodmanBinaryLocationHelper: vi.fn().mockImplementation(() => {
       return {
-        getPodmanLocationMac: vi.fn().mockImplementation(() => {
-          return Promise.resolve({ source: 'unknown' });
-        }),
+        getPodmanLocationMac: mocks.getPodmanLocationMacMock,
       };
     }),
   };
@@ -2095,4 +2096,123 @@ test('isLibkrunSupported should return false with previous 5.1.2 version', async
   vi.mocked(isMac).mockReturnValue(true);
   const enabled = extension.isLibkrunSupported('5.1.2');
   expect(enabled).toBeFalsy();
+});
+
+test('sendTelemetryRecords with krunkit found', async () => {
+  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+    version: '5.1.2',
+  });
+  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+  mocks.getKrunkitVersionMock.mockResolvedValue('1.2.3');
+
+  extension.sendTelemetryRecords(
+    'evt',
+    {
+      provider: 'libkrun',
+    } as Record<string, unknown>,
+    false,
+  );
+  await new Promise(resolve => setTimeout(resolve, 100));
+  expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+    'evt',
+    expect.objectContaining({
+      krunkitPath: '/opt/podman/bin',
+      krunkitVersion: '1.2.3',
+      podmanCliFoundPath: '/opt/podman/bin/podman',
+      podmanCliSource: 'installer',
+      podmanCliVersion: '5.1.2',
+      provider: 'libkrun',
+    }),
+  );
+});
+
+test('sendTelemetryRecords with krunkit not found', async () => {
+  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+    version: '5.1.2',
+  });
+  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+  mocks.getKrunkitVersionMock.mockRejectedValue('command not found');
+
+  extension.sendTelemetryRecords(
+    'evt',
+    {
+      provider: 'libkrun',
+    } as Record<string, unknown>,
+    false,
+  );
+  await new Promise(resolve => setTimeout(resolve, 100));
+  expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+    'evt',
+    expect.objectContaining({
+      errorKrunkitVersion: 'command not found',
+      podmanCliFoundPath: '/opt/podman/bin/podman',
+      podmanCliSource: 'installer',
+      podmanCliVersion: '5.1.2',
+      provider: 'libkrun',
+    }),
+  );
+});
+
+test('if a machine stopped is successfully reporting telemetry', async () => {
+  const spyExecPromise = vi
+    .spyOn(extensionApi.process, 'exec')
+    .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
+  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+    version: '5.1.2',
+  });
+  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+  mocks.getKrunkitVersionMock.mockResolvedValue('1.2.3');
+  await extension.stopMachine(provider, machineInfo);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.stop',
+    expect.objectContaining({
+      krunkitPath: '/opt/podman/bin',
+      krunkitVersion: '1.2.3',
+      podmanCliFoundPath: '/opt/podman/bin/podman',
+      podmanCliSource: 'installer',
+      podmanCliVersion: '5.1.2',
+      provider: 'libkrun',
+    }),
+  );
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'stop', 'name'], expect.anything());
+});
+
+test('if a machine stopped is successfully reporting an error in telemetry', async () => {
+  const customError = new Error('Error while starting podman');
+
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
+  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+    version: '5.1.2',
+  });
+  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+  mocks.getKrunkitVersionMock.mockResolvedValue('1.2.3');
+  await expect(extension.stopMachine(provider, machineInfo)).rejects.toThrow(customError.message);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.stop',
+    expect.objectContaining({
+      krunkitPath: '/opt/podman/bin',
+      krunkitVersion: '1.2.3',
+      podmanCliFoundPath: '/opt/podman/bin/podman',
+      podmanCliSource: 'installer',
+      podmanCliVersion: '5.1.2',
+      error: customError,
+      provider: 'libkrun',
+    }),
+  );
+
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'stop', 'name'], expect.anything());
 });

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 Red Hat, Inc.
+# Copyright (C) 2022-2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 
 name: pr-check
 
-on: [pull_request]
+on: 
+  pull_request:
+    types: [labeled, synchronize, opened, reopened]
 
 jobs:
   windows:
@@ -321,6 +323,99 @@ jobs:
         with:
           name: smoke-e2e-tests
           path: |
-            ./tests/output/
-            ./tests/**/output/junit*.xml
+            ./tests/**/output/
             !./tests/**/traces/raw
+
+  detect_pnpm_changes:
+    name: Detect pnpm lock or pr-check files changes
+    runs-on: ubuntu-24.04
+    outputs:
+      pnpm_lock_changed: ${{ steps.pnpm_changed.outputs.PNPM_LOCK_CHANGED }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Evaluate changes in files   
+        id: pnpm_changed
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }} HEAD > changes.txt
+          if grep -q  -e 'pnpm-lock.yaml' -e 'pr-check.yaml' changes.txt; then
+            echo "PNPM_LOCK_CHANGED=true" >> $GITHUB_OUTPUT
+          else
+            echo "PNPM_LOCK_CHANGED=false" >> $GITHUB_OUTPUT
+          fi
+
+  run-update-e2e-test:
+    name: win update e2e tests
+    needs: detect_pnpm_changes
+    if: contains(github.event.pull_request.labels.*.name, 'area/update') || needs.detect_pnpm_changes.outputs.pnpm_lock_changed == 'true'
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Execute PNPM
+        run: pnpm install --frozen-lockfile
+
+      - name: Adjust/Downgrade local podman desktop version Windows
+        run: |
+          $version="1.0.0"
+          jq --arg version "$version" '.version = $version' package.json | Out-File -FilePath package.json_tmp
+          Move-Item -Path package.json_tmp -Destination package.json -Force
+
+      - name: Build Podman Desktop locally with electron updater included
+        env:
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          pnpm compile:current --win nsis
+          $path=('./dist/win-unpacked/Podman Desktop.exe' | resolve-path).ProviderPath
+          echo $path
+          echo ("PODMAN_DESKTOP_BINARY=" + $path) >> $env:GITHUB_ENV
+
+      - name: Run E2E Update test
+        env:
+          UPDATE_PODMAN_DESKTOP: true
+        run: |
+          echo "${{ env.PODMAN_DESKTOP_BINARY }}"
+          pnpm test:e2e:update:run
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: win-update-e2e-test
+          path: |
+            ./tests/**/output/
+            !./tests/**/traces/raw
+
+  update-e2e-test:
+    name: update E2E test
+    runs-on: ubuntu-24.04
+    needs: run-update-e2e-test
+    if: |
+      always()
+    steps:
+      - name: Evaluate the Windows Update test results
+        run: | 
+          echo "Windows updater result: ${{ needs.run-update-e2e-test.result }}"
+          if [ "${{ needs.run-update-e2e-test.result }}" = "failure" ]; then
+            echo "Windows udpater test failed..."
+            exit 1
+          else
+            echo "Windows updater test succeeded or was skipped..."
+          fi
