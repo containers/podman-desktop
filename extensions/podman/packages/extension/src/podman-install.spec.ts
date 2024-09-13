@@ -612,6 +612,7 @@ describe('HyperV', () => {
 
     const hyperVCheck = new HyperVCheck();
     const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
     expect(result.description).equal('You must have administrative rights to run Hyper-V Podman machines');
     expect(result.docLinks?.[0].url).equal(
       'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
@@ -630,6 +631,7 @@ describe('HyperV', () => {
 
     const hyperVCheck = new HyperVCheck();
     const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
     expect(result.description).equal('You must have administrative rights to run Hyper-V Podman machines');
     expect(result.docLinks?.[0].url).equal(
       'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
@@ -653,6 +655,7 @@ describe('HyperV', () => {
 
     const hyperVCheck = new HyperVCheck();
     const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
     expect(result.description).equal('Hyper-V is not installed on your system.');
     expect(result.docLinks?.[0].url).equal(
       'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
@@ -676,11 +679,34 @@ describe('HyperV', () => {
 
     const hyperVCheck = new HyperVCheck();
     const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
     expect(result.description).equal('Hyper-V is not running on your system.');
     expect(result.docLinks?.[0].url).equal(
       'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
     );
     expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
+  });
+
+  test('expect HyperV preflight check return OK', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 3) {
+        return Promise.resolve({
+          stdout: index === 3 ? 'Running' : 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeTruthy();
+    expect(result.description).toBeUndefined();
+    expect(result.docLinks?.[0].url).toBeUndefined();
+    expect(result.docLinks?.[0].title).toBeUndefined();
   });
 });
 

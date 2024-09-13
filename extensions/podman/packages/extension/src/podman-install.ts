@@ -868,7 +868,7 @@ export class HyperVCheck extends WindowsCheck {
   private async isHyperVRunning(): Promise<boolean> {
     try {
       const result = await extensionApi.process.exec('powershell.exe', ['@(Get-Service vmms).Status']);
-      return result.stdout === 'True';
+      return result.stdout === 'Running';
     } catch (err: unknown) {
       return false;
     }
