@@ -27,6 +27,7 @@ import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { Runner } from '../runner/podman-desktop-runner';
+import { waitUntil } from '../utility/wait';
 
 const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
@@ -76,7 +77,7 @@ const extentionTypes = [
 ];
 
 for (const { extensionName, extensionType } of extentionTypes) {
-  test.describe.serial(`Extension installation for ${extensionType}`, () => {
+  test.describe.serial(`Extension installation for ${extensionType} @smoke`, () => {
     test.beforeAll(async () => {
       await _startup(extensionName);
     });
@@ -138,6 +139,26 @@ for (const { extensionName, extensionType } of extentionTypes) {
         const extensionsPage = await navigationBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
         await playExpect(extensionPage.status).toHaveText(ACTIVE);
+      });
+
+      test('Extension has no errors present', async () => {
+        const extensionsPage = await navigationBar.openExtensions();
+        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+        // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
+        const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
+        // we would like to propagate the error's stack trace into test failure message
+        let stackTrace = '';
+        await waitUntil(
+          async () => {
+            if ((await errorTab.count()) > 0) {
+              stackTrace = await errorTab.innerText();
+              return true;
+            }
+            return false;
+          },
+          { timeout: 3500, sendError: false },
+        );
+        await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
       });
 
       test.describe.serial('Extension can be disabled and reenabled', () => {

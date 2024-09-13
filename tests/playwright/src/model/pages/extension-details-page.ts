@@ -23,22 +23,32 @@ import { BasePage } from './base-page';
 import { ExtensionsPage } from './extensions-page';
 
 export class ExtensionDetailsPage extends BasePage {
+  readonly header: Locator;
+  readonly tabs: Locator;
+  readonly tabContent: Locator;
+  readonly buttonGroup: Locator;
   readonly enableButton: Locator;
   readonly disableButton: Locator;
   readonly removeExtensionButton: Locator;
   readonly status: Locator;
   readonly heading: Locator;
+  readonly errorStackTrace: Locator;
 
   constructor(
     page: Page,
     public readonly extensionName: string,
   ) {
     super(page);
-    this.heading = page.getByRole('heading', { name: extensionName });
-    this.enableButton = page.getByRole('button', { name: 'Start' });
-    this.disableButton = page.getByRole('button', { name: 'Stop' });
-    this.removeExtensionButton = page.getByRole('button', { name: 'Delete' });
-    this.status = page.getByLabel('Extension Status Label');
+    this.header = page.getByRole('region', { name: 'Header' });
+    this.tabs = page.getByRole('region', { name: 'Tabs' });
+    this.tabContent = page.getByRole('region', { name: 'Tab Content' });
+    this.heading = this.header.getByRole('heading', { name: extensionName });
+    this.buttonGroup = this.header.getByRole('group', { name: 'Control Actions' });
+    this.enableButton = this.buttonGroup.getByRole('button', { name: 'Start' });
+    this.disableButton = this.buttonGroup.getByRole('button', { name: 'Stop' });
+    this.removeExtensionButton = this.buttonGroup.getByRole('button', { name: 'Delete' });
+    this.status = this.header.getByLabel('Extension Status Label');
+    this.errorStackTrace = this.tabContent.getByRole('group', { name: 'Stack Trace', exact: true });
   }
 
   async disableExtension(): Promise<this> {
@@ -61,5 +71,12 @@ export class ExtensionDetailsPage extends BasePage {
     await this.disableExtension();
     await this.removeExtensionButton.click();
     return new ExtensionsPage(this.page);
+  }
+
+  async activateTab(tabName: string): Promise<this> {
+    const tabItem = this.tabs.getByRole('button', { name: tabName, exact: true });
+    await playExpect(tabItem).toBeVisible();
+    await tabItem.click();
+    return this;
   }
 }
