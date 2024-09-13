@@ -24,7 +24,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { InstalledPodman } from './podman-cli';
 import type { Installer, PodmanInfo, UpdateCheck } from './podman-install';
-import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
+import {
+  getBundledPodmanVersion,
+  HyperVCheck,
+  PodmanInstall,
+  WinInstaller,
+  WSL2Check,
+  WSLVersionCheck,
+} from './podman-install';
 import * as podmanInstallObj from './podman-install';
 import { releaseNotes } from './podman5.json';
 import * as utils from './util';
@@ -336,9 +343,7 @@ test('expect winVirtualMachine preflight check return successful result if there
 test('expect WSLVersion preflight check return fail result if wsl --version command fails its execution', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockRejectedValue('');
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
@@ -351,9 +356,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
@@ -366,9 +369,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
@@ -381,9 +382,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.description).equal('Your WSL version is 1.1.3 but it should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(
@@ -398,9 +397,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.successful).toBeTruthy();
 });
@@ -412,9 +409,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = new WSLVersionCheck();
   const result = await winWSLCheck.execute();
   expect(result.successful).toBeTruthy();
 });
@@ -436,9 +431,7 @@ test('expect winWSL2 preflight check return successful result if the machine has
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.successful).toBeTruthy();
 });
@@ -473,9 +466,7 @@ test('expect winWSL2 preflight check return failure result if the machine has WS
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.description).equal(
     'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
@@ -516,9 +507,7 @@ test('expect winWSL2 preflight check return successful result if the machine has
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.successful).toBeTruthy();
 });
@@ -540,9 +529,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL2 is not installed.');
   expect(result.docLinksDescription).equal(`Call 'wsl --install --no-distribution' in a terminal.`);
@@ -567,9 +554,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL2 is not installed or you do not have permissions to run WSL2.');
   expect(result.docLinksDescription).equal('Contact your Administrator to setup WSL2.');
@@ -580,19 +565,17 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 test('expect winWSL2 preflight check return failure result if it fails when checking if wsl is installed', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
-      throw new Error();
-    } else {
       return Promise.resolve({
         stdout: '',
         stderr: '',
         command: 'command',
       });
+    } else {
+      throw new Error();
     }
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   const result = await winWSLCheck.execute();
   expect(result.description).equal('Could not detect WSL2');
   expect(result.docLinks?.[0].url).equal('https://learn.microsoft.com/en-us/windows/wsl/install');
@@ -601,9 +584,7 @@ test('expect winWSL2 preflight check return failure result if it fails when chec
 
 test('expect winWSL2 init to register WSLInstall command', async () => {
   const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   await winWSLCheck.init?.();
   expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
 });
@@ -614,15 +595,119 @@ test('expect winWSL2 command to be registered as disposable', async () => {
     dispose: vi.fn(),
   };
   registerCommandMock.mockReturnValue(disposableMock);
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[5];
+  const winWSLCheck = new WSL2Check(extensionContext);
   await winWSLCheck.init?.();
   expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
 
   // should contain a subscription with a disposable function
   expect(extensionContext.subscriptions[0]).toBeDefined();
   expect(extensionContext.subscriptions[0].dispose).toBeDefined();
+});
+
+describe('HyperV', () => {
+  test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw new Error();
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('You must have administrative rights to run Hyper-V Podman machines');
+    expect(result.docLinks?.[0].url).equal(
+      'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
+    expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
+  });
+
+  test('expect HyperV preflight check return failure result if non admin user', async () => {
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      return Promise.resolve({
+        stdout: 'False',
+        stderr: '',
+        command: 'command',
+      });
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('You must have administrative rights to run Hyper-V Podman machines');
+    expect(result.docLinks?.[0].url).equal(
+      'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
+    expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
+  });
+
+  test('expect HyperV preflight check return failure result if HyperV not installed', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ === 0) {
+        return Promise.resolve({
+          stdout: 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('Hyper-V is not installed on your system.');
+    expect(result.docLinks?.[0].url).equal(
+      'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
+    expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
+  });
+
+  test('expect HyperV preflight check return failure result if HyperV not running', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 2) {
+        return Promise.resolve({
+          stdout: 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('Hyper-V is not running on your system.');
+    expect(result.docLinks?.[0].url).equal(
+      'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
+    expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
+  });
+
+  test('expect HyperV preflight check return OK', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 3) {
+        return Promise.resolve({
+          stdout: index === 3 ? 'Running' : 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeTruthy();
+    expect(result.description).toBeUndefined();
+    expect(result.docLinks?.[0].url).toBeUndefined();
+    expect(result.docLinks?.[0].title).toBeUndefined();
+  });
 });
 
 describe('getBundledPodmanVersion', () => {
