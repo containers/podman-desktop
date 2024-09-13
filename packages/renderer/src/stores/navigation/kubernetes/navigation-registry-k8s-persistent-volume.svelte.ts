@@ -31,7 +31,7 @@ export function createNavigationKubernetesPersistentVolumeEntry(): NavigationReg
   const registry: NavigationRegistryEntry = {
     name: 'Persistent Volume Claims',
     icon: { iconComponent: PvcIcon },
-    link: '/persistentvolumeclaims',
+    link: '/kubernetes/persistentvolumeclaims',
     tooltip: 'Persistent Volume Claims',
     type: 'entry',
     get counter() {

@@ -67,6 +67,8 @@ import Webview from './lib/webview/Webview.svelte';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
+import { navigationRegistry } from './stores/navigation/navigation-registry';
+import SubmenuNavigation from './SubmenuNavigation.svelte';
 
 router.mode.memory();
 
@@ -110,6 +112,11 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta={meta} />
       {/if}
+      {#each $navigationRegistry.filter(item => item.type === 'submenu') as navigationRegistryItem}
+        {#if meta.url.startsWith(navigationRegistryItem.link)}
+          <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} items={navigationRegistryItem.items} />
+        {/if}
+      {/each}
 
       <div
         class="flex flex-col w-full h-full overflow-hidden"
@@ -217,63 +224,71 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName={decodeURI(meta.params.name)} engineId={decodeURI(meta.params.engineId)} />
         </Route>
-        <Route path="/nodes" breadcrumb="Nodes" navigationHint="root">
+        <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
           <NodesList />
         </Route>
-        <Route path="/nodes/:name/*" breadcrumb="Node Details" let:meta navigationHint="details">
+        <Route path="/kubernetes/nodes/:name/*" breadcrumb="Node Details" let:meta navigationHint="details">
           <NodeDetails name={decodeURI(meta.params.name)} />
         </Route>
-        <Route path="/persistentvolumeclaims" breadcrumb="Persistent Volume Claims" navigationHint="root">
+        <Route path="/kubernetes/persistentvolumeclaims" breadcrumb="Persistent Volume Claims" navigationHint="root">
           <PVCList />
         </Route>
         <Route
-          path="/persistentvolumeclaims/:name/:namespace/*"
+          path="/kubernetes/persistentvolumeclaims/:name/:namespace/*"
           breadcrumb="Persistent Volume Claim Details"
           let:meta
           navigationHint="details">
           <PVCDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
-        <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
+        <Route path="/kubernetes/deployments" breadcrumb="Deployments" navigationHint="root">
           <DeploymentsList />
         </Route>
-        <Route path="/deployments/:name/:namespace/*" breadcrumb="Deployment Details" let:meta navigationHint="details">
+        <Route
+          path="/kubernetes/deployments/:name/:namespace/*"
+          breadcrumb="Deployment Details"
+          let:meta
+          navigationHint="details">
           <DeploymentDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
-        <Route path="/services" breadcrumb="Services" navigationHint="root">
+        <Route path="/kubernetes/services" breadcrumb="Services" navigationHint="root">
           <ServicesList />
         </Route>
-        <Route path="/services/:name/:namespace/*" breadcrumb="Service Details" let:meta navigationHint="details">
+        <Route
+          path="/kubernetes/services/:name/:namespace/*"
+          breadcrumb="Service Details"
+          let:meta
+          navigationHint="details">
           <ServiceDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
-        <Route path="/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
+        <Route path="/kubernetes/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
           <IngressesRoutesList />
         </Route>
         <Route
-          path="/ingressesRoutes/ingress/:name/:namespace/*"
+          path="/kubernetes/ingressesRoutes/ingress/:name/:namespace/*"
           breadcrumb="Ingress Details"
           let:meta
           navigationHint="details">
           <IngressDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
-        <Route path="/configmapsSecrets" breadcrumb="ConfigMaps & Secrets" navigationHint="root">
+        <Route path="/kubernetes/configmapsSecrets" breadcrumb="ConfigMaps & Secrets" navigationHint="root">
           <ConfigMapSecretList />
         </Route>
         <Route
-          path="/configmapsSecrets/configmap/:name/:namespace/*"
+          path="/kubernetes/configmapsSecrets/configmap/:name/:namespace/*"
           breadcrumb="ConfigMap Details"
           let:meta
           navigationHint="details">
           <ConfigMapDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route
-          path="/configmapsSecrets/secret/:name/:namespace/*"
+          path="/kubernetes/configmapsSecrets/secret/:name/:namespace/*"
           breadcrumb="Secret Details"
           let:meta
           navigationHint="details">
           <SecretDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route
-          path="/ingressesRoutes/route/:name/:namespace/*"
+          path="/kubernetes/ingressesRoutes/route/:name/:namespace/*"
           breadcrumb="Route Details"
           let:meta
           navigationHint="details">

@@ -291,3 +291,20 @@ test('Expect multiple decrement with floating values', async () => {
   // the value should be 0.55
   expect(input).toHaveValue('0.55');
 });
+
+test('Expect decrement with floating values', async () => {
+  renderInput('test', 1.1, false, 0, 10, 'number', 0.1);
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveValue('1.1');
+
+  const increment = screen.getByLabelText('increment');
+  expect(increment).toBeInTheDocument();
+
+  // click 1 time on increment
+  await userEvent.click(increment);
+
+  // the value should be 1.2
+  expect(input).toHaveValue('1.2');
+});

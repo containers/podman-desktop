@@ -41,6 +41,7 @@ import type { ApiSenderType } from './api.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';
+import type { Certificates } from './certificates.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
@@ -192,6 +193,7 @@ export class ExtensionLoader {
     private colorRegistry: ColorRegistry,
     private dialogRegistry: DialogRegistry,
     private safeStorageRegistry: SafeStorageRegistry,
+    private certificates: Certificates,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -289,7 +291,7 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy, this.certificates)); // add patched http and https
     this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
 
     this.moduleLoader.overrideRequire();
@@ -581,9 +583,17 @@ export class ExtensionLoader {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .reduce((directories: string[], directory) => {
+        const apiExtFolder = path.join(folderPath, directory.name, 'packages', 'extension');
+        const plainExtFolder = path.join(folderPath, directory.name);
+        if (fs.existsSync(path.join(apiExtFolder, 'package.json'))) {
+          directories.push(apiExtFolder);
+        } else if (fs.existsSync(path.join(plainExtFolder, 'package.json'))) {
+          directories.push(plainExtFolder);
+        }
+        return directories;
+      }, []);
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -600,9 +610,14 @@ export class ExtensionLoader {
   async readProductionFolders(folderPath: string): Promise<string[]> {
     const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory())
-      .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
+      .filter(entry => entry.isDirectory() && entry.name !== 'node_modules')
+      .map(directory => {
+        const rootExtPath = path.join(folderPath, directory.name);
+        const plainExtPath = path.join(rootExtPath, 'builtin', `${directory.name}.cdix`);
+        return fs.existsSync(plainExtPath)
+          ? plainExtPath
+          : path.join(rootExtPath, 'packages', 'extension', 'builtin', `${directory.name}.cdix`);
+      });
   }
 
   /**

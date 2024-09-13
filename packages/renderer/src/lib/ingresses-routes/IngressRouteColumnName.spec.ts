@@ -66,7 +66,7 @@ test('Expect clicking on Ingress works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/ingressesRoutes/ingress/my-ingress/test-namespace/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/ingressesRoutes/ingress/my-ingress/test-namespace/summary');
 });
 
 test('Expect simple column styling with Route', async () => {
@@ -88,7 +88,7 @@ test('Expect clicking on Route works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/ingressesRoutes/route/my-route/test-namespace/summary');
+  expect(routerGotoSpy).toBeCalledWith('/kubernetes/ingressesRoutes/route/my-route/test-namespace/summary');
 });
 
 test('Expect to show namespace in column', async () => {

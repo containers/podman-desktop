@@ -44,7 +44,7 @@ const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KI
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   test.setTimeout(250000);
-  runner.setVideoAndTraceName('kind-e2e');
+  runner.setVideoAndTraceName('deploy-to-k8s-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);

@@ -1,6 +1,6 @@
 ---
 sidebar_position: 60
-title: Accessing Podman from another WSL distribution
+title: Accessing Podman from another WSL distribution (Windows)
 description: On Windows, access your Podman Desktop containers from another Windows Subsystem for Linux (WSL) distribution.
 ---
 

@@ -28,6 +28,7 @@ import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { getInitialValue } from '/@/lib/preferences/Util';
+import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
@@ -289,4 +290,42 @@ test('Expect a text input when record is type integer', async () => {
   expect(inputField).toBeInTheDocument();
   expect(inputField.type).toBe('text');
   expect(inputField.name).toBe('record');
+});
+
+test('Expect value is updated from an external change', async () => {
+  const recordId = 'record';
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: recordId,
+    title: 'Hello',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'integer',
+    scope: 'DEFAULT',
+    default: 1,
+    minimum: 1,
+    maximum: 15,
+  };
+
+  await awaitRender(record, {});
+  const inputField = screen.getByRole('textbox', { name: 'record-description' }) as HTMLInputElement;
+  expect(inputField).toBeInTheDocument();
+
+  // initial value should be 1
+  expect(inputField.value).toBe('1');
+
+  // change getConfigurationValue to return 5
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(5);
+
+  // now update the configuration value
+  onDidChangeConfiguration.dispatchEvent(
+    new CustomEvent(recordId, {
+      detail: {
+        key: 'record',
+        value: 5,
+      },
+    }),
+  );
+
+  // initial value should be 5
+  await vi.waitFor(() => expect(inputField.value).toBe('5'));
 });

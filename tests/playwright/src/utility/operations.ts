@@ -160,10 +160,11 @@ export async function handleConfirmationDialog(
 ): Promise<void> {
   // wait for dialog to appear using waitFor
   const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
-  await dialog.waitFor({ state: 'visible', timeout: 3000 });
+  await playExpect(dialog).toBeVisible();
   const button = confirm
     ? dialog.getByRole('button', { name: confirmationButton })
     : dialog.getByRole('button', { name: cancelButton });
+  await playExpect(button).toBeEnabled();
   await button.click();
 }
 
@@ -311,6 +312,7 @@ export async function deleteKindCluster(
   const containersPage = await navigationBar.openContainers();
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
-  const volumeName = await getVolumeNameForContainer(page, containerName);
-  await playExpect.poll(async () => volumeName).toBeFalsy();
+  await playExpect
+    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 10000 })
+    .toBeFalsy();
 }

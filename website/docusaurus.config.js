@@ -1,6 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
+import { createNotesFiles } from './release-notes-parser';
 import Storybook from './storybook';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
@@ -24,6 +25,9 @@ const config = {
   trailingSlash: false,
   markdown: {
     mermaid: true,
+    parseFrontMatter: async params => {
+      return createNotesFiles(params);
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
   plugins: [

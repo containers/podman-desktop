@@ -45,7 +45,7 @@ export function createNavigationKubernetesIngressesRoutesEntry(): NavigationRegi
   const registry: NavigationRegistryEntry = {
     name: 'Ingresses & Routes',
     icon: { iconComponent: IngressRouteIcon },
-    link: '/ingressesRoutes',
+    link: '/kubernetes/ingressesRoutes',
     tooltip: 'Ingresses & Routes',
     type: 'entry',
     get counter() {

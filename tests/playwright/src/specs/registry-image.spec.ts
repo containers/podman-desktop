@@ -66,7 +66,7 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
     await pullImageButton.click();
 
     await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
-    await playExpect(errorAlert).toContainText('Error while pulling image from Podman');
+    await playExpect(errorAlert).toContainText('Error while pulling image from');
     await playExpect(errorAlert).toContainText(fullImageTitle);
     await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
   });

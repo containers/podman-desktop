@@ -18,7 +18,6 @@
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
 
-import { kubernetesContexts } from '../kubernetes-contexts';
 import { createNavigationKubernetesConfigMapSecretsEntry } from './kubernetes/navigation-registry-k8s-configmap-secrets.svelte';
 import { createNavigationKubernetesDeploymentsEntry } from './kubernetes/navigation-registry-k8s-deployments.svelte';
 import { createNavigationKubernetesIngressesRoutesEntry } from './kubernetes/navigation-registry-k8s-ingresses-routes.svelte';
@@ -28,13 +27,6 @@ import { createNavigationKubernetesServicesEntry } from './kubernetes/navigation
 import type { NavigationRegistryEntry } from './navigation-registry';
 
 let kubernetesNavigationGroupItems: NavigationRegistryEntry[] = $state([]);
-
-// default is false until we receive the kubernetes contexts
-let enabled = $state(false);
-
-kubernetesContexts.subscribe(value => {
-  enabled = value.length > 0;
-});
 
 export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   const newItems: NavigationRegistryEntry[] = [];
@@ -49,14 +41,11 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   const mainGroupEntry: NavigationRegistryEntry = {
     name: 'Kubernetes',
     icon: { iconComponent: KubeIcon },
-    link: ``,
-    tooltip: '',
-    type: 'section',
+    link: '/kubernetes',
+    tooltip: 'Kubernetes',
+    type: 'submenu',
     get counter() {
       return 0;
-    },
-    get enabled() {
-      return enabled;
     },
     get items() {
       return kubernetesNavigationGroupItems;

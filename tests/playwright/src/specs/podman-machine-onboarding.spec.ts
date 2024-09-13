@@ -30,7 +30,7 @@ import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
-const PODMAN_MACHINE_NAME: string = 'Podman Machine';
+const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 const RESOURCE_NAME: string = 'podman';
 
 let dashboardPage: DashboardPage;

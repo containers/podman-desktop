@@ -48,6 +48,7 @@ const TYPESCRIPT_PROJECTS = [
   './website/tsconfig.json',
   './website-argos/tsconfig.json',
   './extensions/*/tsconfig.json',
+  './extensions/*/packages/*/tsconfig.json',
   './tests/playwright/tsconfig.json',
   './tools/tsconfig.json',
   './storybook/tsconfig.json',
@@ -74,6 +75,8 @@ export default [
       'scripts/**',
       'extensions/*/builtin/**/*',
       'extensions/*/scripts/**/*',
+      'extensions/*/packages/*/scripts/**/*',
+      'extensions/*/packages/*/builtin/**/*',
       'website/storybook.ts',
       'website/src/pages/storybook/sidebar.cjs',
     ],
@@ -300,6 +303,15 @@ export default [
     },
   },
 
+  {
+    files: ['storybook/**'],
+    languageOptions: {
+      globals: {
+        ...Object.fromEntries(Object.entries(globals.node).map(([key]) => [key, 'off'])),
+        ...globals.browser,
+      },
+    },
+  },
   {
     files: ['**/*.spec.ts'],
 

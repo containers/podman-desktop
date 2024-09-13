@@ -9,11 +9,15 @@ export let object: ConfigMapSecretUI;
 function openDetails() {
   const configmapSecretUtils = new ConfigMapSecretUtils();
   if (configmapSecretUtils.isSecret(object)) {
-    router.goto(`/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(
+      `/kubernetes/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+    );
   }
 
   if (configmapSecretUtils.isConfigMap(object)) {
-    router.goto(`/configmapsSecrets/configmap/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
+    router.goto(
+      `/kubernetes/configmapsSecrets/configmap/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`,
+    );
   }
 }
 </script>
