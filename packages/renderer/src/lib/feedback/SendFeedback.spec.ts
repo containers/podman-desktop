@@ -127,7 +127,7 @@ test('Expect message for very-happy-smiley to use love', async () => {
 
   // and the GitHub star text is visible
   const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
-  expect(region.textContent).toBe('Love It ? Give us a on GitHub');
+  expect(region.textContent).toBe('Love It? Give us a on GitHub');
 });
 
 test('Expect message for happy-smiley to use like', async () => {
@@ -139,7 +139,7 @@ test('Expect message for happy-smiley to use like', async () => {
 
   // and the GitHub star text is visible
   const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
-  expect(region.textContent).toBe('Like It ? Give us a on GitHub');
+  expect(region.textContent).toBe('Like It? Give us a on GitHub');
 });
 
 test('Expect GitHub dialog visible when very-happy-smiley selected', async () => {

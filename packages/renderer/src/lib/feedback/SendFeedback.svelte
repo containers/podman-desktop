@@ -139,11 +139,11 @@ async function openGitHub(): Promise<void> {
         <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
       {:else if smileyRating === 2 && !hasFeedback}
         <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
-      {:else}
+      {:else if smileyRating > 2}
         <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
           <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
           <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
-            <Fa class="px-1 text-purple-500" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It ? Give us a <Fa
+            <Fa class="px-1 text-purple-500" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
               class="px-1 text-amber-400"
               icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
           </span>
