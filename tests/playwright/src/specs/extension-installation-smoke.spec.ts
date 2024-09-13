@@ -134,15 +134,11 @@ for (const { extensionName, extensionType } of extentionTypes) {
         await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
       });
 
-      test('Extension is active', async () => {
+      test('Extension is active and there are not errors', async () => {
         const extensionsPage = await navigationBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+        await playExpect(extensionPage.header).toBeVisible();
         await playExpect(extensionPage.status).toHaveText(ACTIVE);
-      });
-
-      test('Extension has no errors present', async () => {
-        const extensionsPage = await navigationBar.openExtensions();
-        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
         // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
         const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
         // we would like to propagate the error's stack trace into test failure message
