@@ -26,7 +26,6 @@ export class ExtensionDetailsPage extends BasePage {
   readonly header: Locator;
   readonly tabs: Locator;
   readonly tabContent: Locator;
-  readonly buttonGroup: Locator;
   readonly enableButton: Locator;
   readonly disableButton: Locator;
   readonly removeExtensionButton: Locator;
@@ -43,10 +42,9 @@ export class ExtensionDetailsPage extends BasePage {
     this.tabs = page.getByRole('region', { name: 'Tabs' });
     this.tabContent = page.getByRole('region', { name: 'Tab Content' });
     this.heading = this.header.getByRole('heading', { name: extensionName });
-    this.buttonGroup = this.header.getByRole('group', { name: 'Control Actions' });
-    this.enableButton = this.buttonGroup.getByRole('button', { name: 'Start' });
-    this.disableButton = this.buttonGroup.getByRole('button', { name: 'Stop' });
-    this.removeExtensionButton = this.buttonGroup.getByRole('button', { name: 'Delete' });
+    this.enableButton = this.header.getByRole('button', { name: 'Start' });
+    this.disableButton = this.header.getByRole('button', { name: 'Stop' });
+    this.removeExtensionButton = this.header.getByRole('button', { name: 'Delete' });
     this.status = this.header.getByLabel('Extension Status Label');
     this.errorStackTrace = this.tabContent.getByRole('group', { name: 'Stack Trace', exact: true });
   }
