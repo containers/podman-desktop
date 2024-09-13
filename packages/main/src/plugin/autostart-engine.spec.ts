@@ -111,6 +111,19 @@ test('Check that default value is true if provider autostart setting is not set'
   expect(mockRegisterConfiguration).toBeCalledWith([autoStartConfigurationNode]);
 });
 
+test('Disposing the provider should not delete the configuration', async () => {
+  vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
+    return {
+      get: (_section: string, defaultValue: boolean) => defaultValue,
+    } as Configuration;
+  });
+
+  const disposable = autostartEngine.registerProvider(extensionId, extensionDisplayName, 'internalId');
+  disposable.dispose();
+
+  expect(configurationRegistry.deregisterConfigurations).not.toHaveBeenCalled();
+});
+
 test('Check that runAutostart is called once if only one provider has registered autostart process', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {

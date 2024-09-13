@@ -31,10 +31,9 @@ export class AutostartEngine {
 
   registerProvider(extensionId: string, extensionDisplayName: string, providerInternalId: string): Disposable {
     this.providerExtension.set(providerInternalId, extensionId);
-    const autostartConfiguration = this.registerProviderConfiguration(extensionId, extensionDisplayName);
+    this.registerProviderConfiguration(extensionId, extensionDisplayName);
     return Disposable.create(() => {
       this.providerExtension.delete(providerInternalId);
-      this.configurationRegistry.deregisterConfigurations([autostartConfiguration]);
     });
   }
 
