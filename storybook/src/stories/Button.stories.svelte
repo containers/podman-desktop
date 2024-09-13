@@ -18,9 +18,7 @@ const { Story } = defineMeta({
     onclick: onclickFn,
   },
 });
-</script>
 
-<script lang="ts">
 setTemplate(template);
 </script>
 
