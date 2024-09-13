@@ -633,8 +633,8 @@ importers:
         specifier: ^3.8.6
         version: 3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.225)
       svelte-eslint-parser:
-        specifier: ^0.41.0
-        version: 0.41.0(svelte@5.0.0-next.225)
+        specifier: ^0.41.1
+        version: 0.41.1(svelte@5.0.0-next.225)
       svelte-fa:
         specifier: ^4.0.2
         version: 4.0.2(svelte@5.0.0-next.225)
@@ -730,8 +730,8 @@ importers:
         specifier: ^3.8.6
         version: 3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.225)
       svelte-eslint-parser:
-        specifier: ^0.41.0
-        version: 0.41.0(svelte@5.0.0-next.225)
+        specifier: ^0.41.1
+        version: 0.41.1(svelte@5.0.0-next.225)
       tailwindcss:
         specifier: ^3.4.11
         version: 3.4.11
@@ -10066,8 +10066,8 @@ packages:
     peerDependencies:
       svelte: ^3.55.0 || ^4.0.0-next.0 || ^4.0.0 || ^5.0.0-next.0
 
-  svelte-eslint-parser@0.41.0:
-    resolution: {integrity: sha512-L6f4hOL+AbgfBIB52Z310pg1d2QjRqm7wy3kI1W6hhdhX5bvu7+f0R6w4ykp5HoDdzq+vGhIJmsisaiJDGmVfA==}
+  svelte-eslint-parser@0.41.1:
+    resolution: {integrity: sha512-08ndI6zTghzI8SuJAFpvMbA/haPSGn3xz19pjre19yYMw8Nw/wQJ2PrZBI/L8ijGTgtkWCQQiLLy+Z1tfaCwNA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.191
@@ -18349,7 +18349,7 @@ snapshots:
       postcss-safe-parser: 6.0.0(postcss@8.4.45)
       postcss-selector-parser: 6.1.2
       semver: 7.6.3
-      svelte-eslint-parser: 0.41.0(svelte@5.0.0-next.225)
+      svelte-eslint-parser: 0.41.1(svelte@5.0.0-next.225)
     optionalDependencies:
       svelte: 5.0.0-next.225
     transitivePeerDependencies:
@@ -23390,7 +23390,7 @@ snapshots:
       - stylus
       - sugarss
 
-  svelte-eslint-parser@0.41.0(svelte@5.0.0-next.225):
+  svelte-eslint-parser@0.41.1(svelte@5.0.0-next.225):
     dependencies:
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
