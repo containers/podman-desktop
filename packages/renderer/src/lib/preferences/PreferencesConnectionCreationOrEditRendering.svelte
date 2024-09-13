@@ -496,11 +496,6 @@ function getConnectionResourceConfigurationValue(
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
                     <Markdown markdown={configurationKey.markdownDescription} />
                   {/if}
-                  {#if configurationKey.format?.includes(',')}
-                    <!-- <div>
-                      very complicated element with radio buttons
-                    </div> -->
-                  {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
                     <div class="text-gray-600">
                       <EditableConnectionResourceItem
