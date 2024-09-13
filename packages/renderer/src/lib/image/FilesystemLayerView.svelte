@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 const expansionState = new Map<string, boolean>();
 </script>
 
