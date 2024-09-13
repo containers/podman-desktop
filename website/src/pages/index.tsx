@@ -106,11 +106,12 @@ function Hero(): JSX.Element {
         <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center">
           <div className="bg-white/30 dark:bg-transparent">
             <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white leading-[1.2]">
-              Containers and Kubernetes for application developers
+              Best Free & Open Source Tool for Containers & Kubernetes - Podman Desktop
             </h1>
             <p className="text-base md:text-lg">
-              Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and
-              Kubernetes from your local environment.
+              Podman Desktop is the best free and open source tool to work with Containers and Kubernetes for developers. 
+              Get an intuitive and user-friendly interface to effortlessly build, manage, and deploy containers and Kubernetes — all from your desktop. 
+              Join the growing community of developers using Podman Desktop!
             </p>
             <div className="flex-none">
               {/* With client mode, provides the link to the client browser */}
