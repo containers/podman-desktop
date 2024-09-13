@@ -12,7 +12,7 @@ import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
-import { getInitialValue, getNormalizedDefaultNumberValue } from './Util';
+import { getInitialValue, getNormalizedDefaultNumberValue, startCase } from './Util';
 
 let invalidText: string | undefined = undefined;
 export let invalidRecord = (_error: string) => {};
@@ -33,7 +33,9 @@ let recordUpdateTimeout: NodeJS.Timeout;
 let recordValue: string | boolean | number | undefined;
 $: recordValue;
 $: updateResetButtonVisibility?.(recordValue);
-
+let selectedFormat = record.format?.includes(',') ? record.format.split(',')[0] : record.format;
+$: selectedFormat;
+let prevSelectedFormat = selectedFormat;
 let callBack: EventListenerOrEventListenerObject | undefined = undefined;
 let callbackId: string | undefined = undefined;
 onMount(() => {
@@ -169,6 +171,37 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
       <FileItem record={record} value={recordValue ?? ''} onChange={onChange} />
     {:else if record.enum && record.enum.length > 0}
       <EnumItem record={record} value={recordValue} onChange={onChange} />
+    {:else if record.format?.includes(',')}
+      <!--when property supports multiple formats -->
+      {@const onFormatChange = (event: { currentTarget: { value: string | undefined } }) => {
+        selectedFormat = event.currentTarget.value;
+      }}
+      <div class="flex-col grow">
+        {#each record.format.split(',') as format}
+          <input
+            id={`${record.id}.${format}`}
+            type="radio"
+            on:change={onFormatChange}
+            checked={selectedFormat === format}
+            name={`${record.id}_format`}
+            value={format}
+            class="align-middle" />
+          <label for={`${record.id}.${format}`} class="align-middle">{startCase(format)}</label>
+        {/each}
+        <div class="flex-row">
+          {#if selectedFormat === 'file' || record.format === 'folder'}
+            <FileItem
+              record={record}
+              value={prevSelectedFormat === selectedFormat ? (recordValue ?? '') : ''}
+              onChange={onChange} />
+          {:else}
+            <StringItem
+              record={record}
+              value={prevSelectedFormat === selectedFormat ? (recordValue ?? '') : ''}
+              onChange={onChange} />
+          {/if}
+        </div>
+      </div>
     {:else}
       <StringItem record={record} value={recordValue} onChange={onChange} />
     {/if}

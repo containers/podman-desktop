@@ -179,3 +179,9 @@ export function calcHalfCpuCores(osCpu: string): number {
   const hCores = Math.floor(cores / 2);
   return hCores === 0 ? 1 : hCores;
 }
+
+export function startCase(str: string): string {
+  return str.replace(/([A-Z])/g, ' $1').replace(/^./, str => {
+    return str.toUpperCase();
+  });
+}

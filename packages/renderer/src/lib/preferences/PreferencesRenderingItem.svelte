@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getInitialValue } from '/@/lib/preferences/Util';
+import { getInitialValue, startCase } from '/@/lib/preferences/Util';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
@@ -15,12 +15,6 @@ let recordUI: {
   original: IConfigurationPropertyRecordedSchema;
 };
 
-// add space from camel case and upper case on the first letter
-function startCase(str: string): string {
-  return str.replace(/([A-Z])/g, ' $1').replace(/^./, str => {
-    return str.toUpperCase();
-  });
-}
 function update(record: IConfigurationPropertyRecordedSchema) {
   const id = record.id;
   // take string after the last dot

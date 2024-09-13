@@ -144,10 +144,10 @@
           "when": "podman.podmanMachineDiskSupported"
         },
         "podman.factory.machine.image-path": {
+          "markdownDescription": "Image path (optional) in a form of fully qualified registry, path, or URL to a VM image. Registry target must be in the form of _docker://registry/repo/image:version_.",
           "type": "string",
-          "format": "file",
-          "scope": "ContainerProviderConnectionFactory",
-          "description": "Image Path (Optional)"
+          "format": "file,url,fullyQualifiedRegistry",
+          "scope": "ContainerProviderConnectionFactory"
         },
         "podman.factory.machine.rootful": {
           "type": "boolean",
