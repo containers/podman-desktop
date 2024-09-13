@@ -186,7 +186,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
             name={`${record.id}_format`}
             value={format}
             class="align-middle" />
-          <label for={`${record.id}.${format}`} class="align-middle">{startCase(format)}</label>
+          <label for={`${record.id}.${format}`} class="align-middle mr-2">{startCase(format)}</label>
         {/each}
         <div class="flex-row">
           {#if selectedFormat === 'file' || record.format === 'folder'}
