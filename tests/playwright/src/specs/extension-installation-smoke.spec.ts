@@ -27,7 +27,6 @@ import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { Runner } from '../runner/podman-desktop-runner';
-import { waitUntil } from '../utility/wait';
 
 const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
@@ -148,16 +147,9 @@ for (const { extensionName, extensionType } of extentionTypes) {
         const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
         // we would like to propagate the error's stack trace into test failure message
         let stackTrace = '';
-        await waitUntil(
-          async () => {
-            if ((await errorTab.count()) > 0) {
-              stackTrace = await errorTab.innerText();
-              return true;
-            }
-            return false;
-          },
-          { timeout: 3500, sendError: false },
-        );
+        if ((await errorTab.count()) > 0) {
+          stackTrace = await errorTab.innerText();
+        }
         await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
       });
 
