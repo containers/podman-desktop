@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getInitialValue, startCase } from '/@/lib/preferences/Util';
+import { getInitialValue } from '/@/lib/preferences/Util';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
