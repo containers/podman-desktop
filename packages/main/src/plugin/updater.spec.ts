@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Configuration } from '@podman-desktop/api';
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -37,6 +37,9 @@ import type { TaskManager } from './tasks/task-manager.js';
 vi.mock('electron', () => ({
   app: {
     getVersion: vi.fn(),
+  },
+  shell: {
+    openExternal: vi.fn(),
   },
 }));
 
@@ -306,7 +309,7 @@ test('expect command update not to be called when configuration value on never',
 
 test('clicking on "Update Never" should set the configuration value to never', async () => {
   vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
-    response: 2, // Update never
+    response: 3, // Update never
   });
 
   let mListener: (() => Promise<void>) | undefined;
@@ -385,7 +388,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'Remind me later', 'Do not show again'],
+      buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -401,7 +404,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'Cancel'],
+      buttons: ['Update now', 'View release notes', 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -538,4 +541,53 @@ describe('download task and progress', async () => {
     // now call the progress with 50%
     downloadProgressCallback?.({ percent: 50 });
   });
+});
+
+test('open release notes from podman-desktop.io', async () => {
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.2.0',
+    },
+  } as unknown as UpdateCheckResult);
+  vi.spyOn(global, 'fetch').mockImplementation(() => Promise.resolve({ ok: true } as Response));
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+  updater.init();
+
+  await updater.openReleaseNotes('current');
+  expect(shell.openExternal).toBeCalledWith('https://podman-desktop.io/blog/podman-desktop-release-1.1');
+  await updater.openReleaseNotes('latest');
+  expect(shell.openExternal).toBeCalledWith('https://podman-desktop.io/blog/podman-desktop-release-1.2');
+});
+
+test('open release notes from GitHub', async () => {
+  vi.mocked(app.getVersion).mockReturnValue('0.20.0');
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '0.21.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(fetch).mockImplementation(() => Promise.resolve({ ok: false } as Response));
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+  updater.init();
+
+  await updater.openReleaseNotes('current');
+  expect(shell.openExternal).toBeCalledWith('https://github.com/containers/podman-desktop/releases/tag/v0.20.0');
+  await updater.openReleaseNotes('latest');
+  expect(shell.openExternal).toBeCalledWith('https://github.com/containers/podman-desktop/releases/tag/v0.21.0');
 });
