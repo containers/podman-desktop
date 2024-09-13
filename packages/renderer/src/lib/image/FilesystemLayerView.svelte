@@ -1,8 +1,5 @@
 <script module lang="ts">
 const expansionState = new Map<string, boolean>();
-</script>
-
-<script lang="ts">
 import type { ImageFile, ImageFileSymlink } from '@podman-desktop/api';
 
 import type { FilesystemNode } from './filesystem-tree';
