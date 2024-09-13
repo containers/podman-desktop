@@ -856,10 +856,8 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isHyperVinstalled(): Promise<boolean> {
     try {
-      const result = await extensionApi.process.exec('powershell.exe', [
-        '@(Get-Wmiobject Win32_ComputerSystem).HypervisorPresent',
-      ]);
-      return result.stdout === 'True';
+      await extensionApi.process.exec('powershell.exe', ['Get-Service vmms']);
+      return true;
     } catch (err: unknown) {
       return false;
     }
