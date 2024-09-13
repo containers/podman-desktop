@@ -1,4 +1,4 @@
-<script module lang="ts">
+<script lang="ts">
 const expansionState = new Map<string, boolean>();
 import type { ImageFile, ImageFileSymlink } from '@podman-desktop/api';
 
