@@ -18,7 +18,10 @@
 
 import * as os from 'node:os';
 
+import type { Page } from '@playwright/test';
+
 import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
+import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
@@ -28,6 +31,7 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
 const DEFAULT_PODMAN_MACHINE_VISIBLE = 'podman-machine-default';
 const ROOTLESS_PODMAN_MACHINE_VISIBLE = 'podman-machine-rootless';
+const ROOTLESS_PODMAN_MACHINE = 'Podman Machine rootless';
 const RESOURCE_NAME = 'podman';
 
 test.skip(os.platform() === 'linux', 'Tests suite should not run on Linux platform');
@@ -71,11 +75,79 @@ test.describe.serial(`Podman machine switching validation `, () => {
     await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
   });
 
-  test('Clean up rootless podman machine', async ({ page }) => {
-    await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
+  test('Create rootless podman machine', async ({ page, navigationBar }) => {
+    test.setTimeout(120000);
+
+    const dashboard = await navigationBar.openDashboard();
+    await playExpect(dashboard.heading).toBeVisible();
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    await resourcesPage.goToCreateNewResourcePage(RESOURCE_NAME);
+
+    const podmanMachineCreatePage = new PodmanOnboardingPage(page);
+    await playExpect(podmanMachineCreatePage.podmanMachineName).toBeVisible();
+    await podmanMachineCreatePage.podmanMachineName.clear();
+    await podmanMachineCreatePage.podmanMachineName.fill(ROOTLESS_PODMAN_MACHINE_VISIBLE);
+
+    await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).toBeChecked();
+    await podmanMachineCreatePage.podmanMachineRootfulCheckbox.locator('..').click();
+    await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).not.toBeChecked();
+
+    await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
+    await podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox.locator('..').click();
+    await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).not.toBeChecked();
+
+    await podmanMachineCreatePage.podmanMachineCreateButton.click();
+    await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 100000 });
+    await podmanMachineCreatePage.goBackButton.click();
+
+    await playExpect(resourcesPage.heading).toBeVisible();
   });
 
-  test('Restart default podman machine', async ({ page }) => {
+  test('Switch to rootless podman machine', async ({ page }) => {
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(
+      page,
+      RESOURCE_NAME,
+      ROOTLESS_PODMAN_MACHINE_VISIBLE,
+    );
+
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
+    await resourcesPodmanConnections.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
+    await playExpect(podmanMachineDetails.podmanMachineName).toBeVisible();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF');
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+
+    await handlePopupDialog(page, 'Yes');
+    await handlePopupDialog(page, 'OK');
+  });
+
+  test('Stop rootless podman machine', async ({ page }) => {
+    const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
+    await playExpect(podmanMachineDetails.podmanMachineName).toBeVisible();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING');
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+  });
+
+  test('Restart default podman machine', async ({ page, navigationBar }) => {
+    const dashboard = await navigationBar.openDashboard();
+    await playExpect(dashboard.heading).toBeVisible();
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+
     const resourcesPodmanConnections = new ResourceConnectionCardPage(
       page,
       RESOURCE_NAME,
@@ -87,5 +159,20 @@ test.describe.serial(`Podman machine switching validation `, () => {
     await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
     await podmanMachineDetails.podmanMachineStartButton.click();
     await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+    await handlePopupDialog(page, 'Yes');
+    await handlePopupDialog(page, 'OK');
   });
+
+  test('Clean up rootless podman machine', async ({ page }) => {
+    await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
+  });
+
+  async function handlePopupDialog(page: Page, action: string): Promise<void> {
+    const dialog = page.getByRole('dialog', { name: 'Podman', exact: true });
+    await playExpect(dialog).toBeVisible();
+
+    const clickOnButton = dialog.getByRole('button', { name: action, exact: true });
+    await playExpect(clickOnButton).toBeEnabled();
+    await clickOnButton.click();
+  }
 });

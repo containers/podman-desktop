@@ -34,6 +34,7 @@ export class PodmanOnboardingPage extends OnboardingPage {
   readonly podmanMachineStartAfterCreationCheckbox: Locator;
   readonly podmanMachineCreateButton: Locator;
   readonly podmanMachineShowLogsButton: Locator;
+  readonly goBackButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -41,7 +42,7 @@ export class PodmanOnboardingPage extends OnboardingPage {
       name: 'Autostart Podman engine when launching Podman Desktop',
     });
     this.createMachinePageTitle = this.onboardingComponent.getByLabel('title');
-    this.podmanMachineConfiguration = this.mainPage.getByRole('form', { name: 'Properties Information' });
+    this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
     this.podmanMachineName = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
     this.podmanMachineCPUs = this.podmanMachineConfiguration.getByRole('slider', { name: 'CPU(s)' });
     this.podmanMachineMemory = this.podmanMachineConfiguration.getByRole('slider', { name: 'Memory' });
@@ -59,5 +60,6 @@ export class PodmanOnboardingPage extends OnboardingPage {
     });
     this.podmanMachineCreateButton = this.podmanMachineConfiguration.getByRole('button', { name: 'Create' });
     this.podmanMachineShowLogsButton = this.mainPage.getByRole('button', { name: 'Show Logs' });
+    this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
   }
 }
