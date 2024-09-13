@@ -1,5 +1,6 @@
 <script lang="ts">
 import { FitAddon } from '@xterm/addon-fit';
+import { SerializeAddon } from '@xterm/addon-serialize';
 import { type IDisposable, Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
@@ -12,11 +13,20 @@ import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 export let podName: string;
 export let containerName: string;
 
+// On load, we collect the the original pod and container name,
+// and we will use these to correctly save the terminal state when the component is destroyed.
+// Due to the way Svelte works, we need to store the original pod and container name in a separate / safe manner so that
+// the original values are not written over when the component is re-rendered.
+let originalPodName = podName;
+let originalContainerName = containerName;
+let terminalContent: string = '';
+let serializeAddon: SerializeAddon;
+
 export let terminalXtermDiv: HTMLElement = document.createElement('div');
 let curRouterPath: string;
 
 interface State {
-  terminal: Terminal;
+  terminal: string;
   id: number;
 }
 
@@ -32,31 +42,23 @@ router.subscribe(route => {
 
 onMount(async () => {
   const savedState = getSavedTerminalState(podName, containerName);
+  await initializeNewTerminal(terminalXtermDiv);
 
-  if (savedState) {
-    shellTerminal = savedState.terminal;
-
-    // If there is a saved state, make sure that we 'update' the theme as well to make sure that the terminal theme matches the overall apperance
-    // if the user has changed from dark to light, or vice versa
-    shellTerminal.options.theme = getTerminalTheme();
-
-    id = savedState.id;
-    removeAllChildren(terminalXtermDiv);
-    shellTerminal.open(terminalXtermDiv);
-  } else {
-    await initializeNewTerminal(terminalXtermDiv);
+  // If there is a saved state with information in the terminal, we will write it to the terminal (it was serialized into a string before using the SerializeAddon)
+  // and then add a \r\n to the end of the terminal to ensure the cursor is on a new line.
+  if (savedState?.terminal) {
+    shellTerminal.write(savedState.terminal);
+    shellTerminal.write('\r\n');
+    shellTerminal.focus();
   }
 });
 
 onDestroy(() => {
-  saveTerminalState(podName, containerName, { terminal: shellTerminal, id: id } as State);
+  terminalContent = serializeAddon.serialize();
+  saveTerminalState(originalPodName, originalContainerName, { terminal: terminalContent, id: id } as State);
+  serializeAddon.dispose();
+  shellTerminal.dispose();
 });
-
-function removeAllChildren(element: HTMLElement): void {
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
-}
 
 function reconnect() {
   window
@@ -119,10 +121,10 @@ async function initializeNewTerminal(container: HTMLElement) {
   });
 
   const fitAddon = new FitAddon();
+  serializeAddon = new SerializeAddon();
   shellTerminal.loadAddon(fitAddon);
-  removeAllChildren(container);
+  shellTerminal.loadAddon(serializeAddon);
   shellTerminal.open(container);
-  fitAddon.fit();
 
   window.addEventListener('resize', () => {
     const resizeAsync = async () => {
@@ -136,12 +138,12 @@ async function initializeNewTerminal(container: HTMLElement) {
     };
     resizeAsync().catch(console.error);
   });
+  fitAddon.fit();
 
   await window.kubernetesExecResize(id, shellTerminal.cols, shellTerminal.rows);
 }
 
 function getSavedTerminalState(podName: string, containerName: string): State | undefined {
-  // TODO: This grabs the saved state, but what if the theme changes? We must update the terminal theme to match the overall apperance.
   let state;
   terminalStates.subscribe(states => {
     state = states.get(`${podName}-${containerName}`);
