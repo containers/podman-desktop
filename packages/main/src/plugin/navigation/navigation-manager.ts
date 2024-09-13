@@ -53,6 +53,9 @@ export class NavigationManager {
   }
 
   registerRoute(route: NavigationRoute): Disposable {
+    if (this.hasRoute(route.routeId)) {
+      throw new Error(`routeId ${route.routeId} is already registered.`);
+    }
     this.#registry.set(route.routeId, route);
 
     return Disposable.create(() => {

@@ -185,6 +185,21 @@ describe('register route', () => {
     expect(navigationManager.hasRoute(routeId)).toBeFalsy();
   });
 
+  test('registering existing route should throw an error', async () => {
+    const routeId = 'dummy-route-id';
+    navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'fake-command-id',
+    });
+
+    expect(() => {
+      return navigationManager.registerRoute({
+        routeId: routeId,
+        commandId: 'fake-command-id',
+      });
+    }).toThrowError('routeId dummy-route-id is already registered.');
+  });
+
   test('calling navigateToRoute with invalid routeId should raise an error', async () => {
     await expect(() => {
       return navigationManager.navigateToRoute('invalidId');
