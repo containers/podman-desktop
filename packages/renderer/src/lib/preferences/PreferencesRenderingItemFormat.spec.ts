@@ -22,10 +22,10 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { getInitialValue } from '/@/lib/preferences/Util';
 import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
@@ -328,4 +328,47 @@ test('Expect value is updated from an external change', async () => {
 
   // initial value should be 5
   await vi.waitFor(() => expect(inputField.value).toBe('5'));
+});
+
+describe('Expect for record with multiple formats', () => {
+  const recordId = 'record';
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: recordId,
+    title: 'Hello',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    scope: 'ContainerProviderConnectionFactory',
+    format: 'file,uri',
+  };
+
+  beforeEach(async () => {
+    await awaitRender(record, {});
+  });
+
+  test('to have radio buttons visible for each format', async () => {
+    const radioButtons = screen.getAllByRole('radio') as HTMLInputElement[];
+    expect(radioButtons).toHaveLength(2);
+    const fileRadio = screen.getByRole('radio', { name: 'File' }) as HTMLInputElement;
+    const uriRadio = screen.getByRole('radio', { name: 'Uri' }) as HTMLInputElement;
+    expect(fileRadio).toBeInTheDocument();
+    expect(uriRadio).toBeInTheDocument();
+  });
+
+  test('to have editor for file format visible', async () => {
+    const inputField = screen.getByLabelText('record-description') as HTMLInputElement;
+    expect(inputField).toBeVisible();
+    expect(inputField.type).toBe('text');
+    const input = screen.getByLabelText('browse');
+    expect(input).toBeVisible();
+  });
+
+  test('to change editor for selected radio button', async () => {
+    const input = screen.getByLabelText('browse');
+    expect(input).toBeVisible();
+    const uriRadio = screen.getByRole('radio', { name: 'Uri' }) as HTMLInputElement;
+    await fireEvent.click(uriRadio);
+    const inputs = screen.queryAllByLabelText('browse');
+    expect(inputs).toHaveLength(0);
+  });
 });
