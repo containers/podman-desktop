@@ -183,7 +183,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
             type="radio"
             on:change={onFormatChange}
             checked={selectedFormat === format}
-            name={`${record.id}_format`}
+            name={`${record.id}-format`}
             value={format}
             class="align-middle" />
           <label for={`${record.id}.${format}`} class="align-middle mr-2">{startCase(format)}</label>
