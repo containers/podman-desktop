@@ -198,8 +198,7 @@ async function createWindow(): Promise<BrowserWindow> {
               {
                 label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
                 // make it visible when link contains contribs and we're inside the extension
-                visible:
-                  parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
+                visible: parameters.linkURL.includes('/contribs/'),
                 click: (): void => {
                   browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
                 },
@@ -213,8 +212,7 @@ async function createWindow(): Promise<BrowserWindow> {
           return [
             {
               label: `Open DevTools of the webview`,
-              visible:
-                parameters.linkURL.includes('/webviews/') && parameters.pageURL.includes(`/webviews/${webviewId}`),
+              visible: parameters.linkURL.includes('/webviews/'),
               click: (): void => {
                 browserWindow.webContents.send('dev-tools:open-webview', webviewId);
               },
