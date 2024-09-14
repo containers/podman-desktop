@@ -1,6 +1,14 @@
 <script lang="ts">
-import { faFrown, faGrinStars, faMeh, faSmile } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import {
+  faFrown,
+  faGrinStars,
+  faHeart,
+  faMeh,
+  faQuestionCircle,
+  faSmile,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
+import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import type { FeedbackProperties } from '../../../../preload/src/index';
@@ -52,6 +60,12 @@ async function sendFeedback(): Promise<void> {
   await window.sendFeedback(properties);
   // close the modal
   hideModal();
+}
+
+async function openGitHub(): Promise<void> {
+  hideModal();
+  await window.telemetryTrack('feedback.openGitHub');
+  await window.openExternal('https://github.com/containers/podman-desktop');
 }
 </script>
 
@@ -125,6 +139,15 @@ async function sendFeedback(): Promise<void> {
         <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
       {:else if smileyRating === 2 && !hasFeedback}
         <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
+      {:else if smileyRating > 2}
+        <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
+          <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
+          <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
+            <Fa class="px-1 text-purple-500" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
+              class="px-1 text-amber-400"
+              icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
+          </span>
+        </div>
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">
