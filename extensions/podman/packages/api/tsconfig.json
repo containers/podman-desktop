@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "node16",
     "baseUrl": ".",
-    "types": [],
+    "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true

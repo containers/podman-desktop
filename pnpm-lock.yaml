@@ -439,6 +439,12 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@20.16.5)(jsdom@25.0.0)(terser@5.31.6)
 
+  extensions/podman/packages/api:
+    dependencies:
+      '@podman-desktop/api':
+        specifier: workspace:*
+        version: link:../../../../packages/extension-api
+
   extensions/podman/packages/extension:
     dependencies:
       '@ltd/j-toml':
