@@ -76,7 +76,7 @@ const extentionTypes = [
 ];
 
 for (const { extensionName, extensionType } of extentionTypes) {
-  test.describe.serial(`Extension installation for ${extensionType}`, () => {
+  test.describe.serial(`Extension installation for ${extensionType} @smoke`, () => {
     test.beforeAll(async () => {
       await _startup(extensionName);
     });
@@ -134,10 +134,19 @@ for (const { extensionName, extensionType } of extentionTypes) {
         await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
       });
 
-      test('Extension is active', async () => {
+      test('Extension is active and there are not errors', async () => {
         const extensionsPage = await navigationBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+        await playExpect(extensionPage.heading).toBeVisible();
         await playExpect(extensionPage.status).toHaveText(ACTIVE);
+        // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
+        const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
+        // we would like to propagate the error's stack trace into test failure message
+        let stackTrace = '';
+        if ((await errorTab.count()) > 0) {
+          stackTrace = await errorTab.innerText();
+        }
+        await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
       });
 
       test.describe.serial('Extension can be disabled and reenabled', () => {
