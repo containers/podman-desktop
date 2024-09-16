@@ -19,7 +19,7 @@ As a developer, you can:
 - Set a custom socket path. The default socket path is accessible to any user of the machine. By changing the path, you can restrict access to the socket and secure your Podman configuration.
 - Restore the Docker socket mapping to bind the Podman socket under the Docker socket path. For example, you might face a scenario where Podman does not emulate the default socket path and shows a warning to restore the Docker socket mapping in the UI.
 
-note:::
+:::note
 
 The Docker compatibility mode is enabled by default. However, you can customize the settings, if required.
 
