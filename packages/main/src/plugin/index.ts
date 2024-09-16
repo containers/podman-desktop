@@ -645,7 +645,7 @@ export class PluginSystem {
       apiSender,
       trayMenuRegistry,
       messageBox,
-      new ProgressImpl(taskManager),
+      new ProgressImpl(taskManager, navigationManager),
       statusBarRegistry,
       kubernetesClient,
       fileSystemMonitoring,
