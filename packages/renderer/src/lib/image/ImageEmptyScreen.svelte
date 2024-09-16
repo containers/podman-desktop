@@ -26,7 +26,6 @@ async function pullFirstImage() {
   pullInProgress = true;
   try {
     await window.pullImage(selectedProviderConnection, firstImageName, () => {});
-    pullInProgress = false;
   } catch (error: any) {
     const errorMessage = error.message ? error.message : error;
     await window.showMessageBox({
