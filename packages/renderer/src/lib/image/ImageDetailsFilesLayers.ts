@@ -23,6 +23,6 @@ export function signedHumanSize(n: number): string {
   if (n < 0) {
     return value;
   } else {
-    return '+' + value;
+    return `+${value}`;
   }
 }
