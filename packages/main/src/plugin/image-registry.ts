@@ -114,7 +114,10 @@ export class ImageRegistry {
   }
 
   getAuthconfigForServer(registryServer: string): Dockerode.AuthConfig | undefined {
-    const matchingUrl = registryServer;
+    let matchingUrl = registryServer;
+    if (matchingUrl === 'index.docker.io') {
+      matchingUrl = 'docker.io';
+    }
     // grab authentication data for this server
     const matchingRegistry = this.getRegistries().find(
       registry => registry.serverUrl.toLowerCase() === matchingUrl.toLowerCase(),
