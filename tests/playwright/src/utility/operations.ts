@@ -177,7 +177,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   const RESOURCE_NAME: string = 'podman';
   const navigationBar = new NavigationBar(page);
   const dashboardPage = await navigationBar.openDashboard();
-  await playExpect(dashboardPage.mainPage).toBeVisible({ timeout: 3000 });
+  await playExpect(dashboardPage.heading).toBeVisible();
   const settingsBar = await navigationBar.openSettings();
   const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
   await playExpect

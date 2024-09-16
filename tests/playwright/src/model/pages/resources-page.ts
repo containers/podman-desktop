@@ -31,7 +31,20 @@ export class ResourcesPage extends SettingsPage {
   }
 
   public async resourceCardIsVisible(resourceLabel: string): Promise<boolean> {
-    const resourceCard = this.content.getByRole('region', { name: resourceLabel });
-    return (await resourceCard.count()) > 0;
+    return (await this.resourceCardLocatorGenerator(resourceLabel).count()) > 0;
+  }
+
+  public async goToCreateNewResourcePage(resourceLabel: string): Promise<void> {
+    if (!(await this.resourceCardIsVisible(resourceLabel))) {
+      throw new Error(`Resource card with label ${resourceLabel} is not available`);
+    }
+
+    await this.resourceCardLocatorGenerator(resourceLabel)
+      .getByRole('button', { name: `Create new ${resourceLabel}` })
+      .click();
+  }
+
+  private resourceCardLocatorGenerator(resourceLabel: string): Locator {
+    return this.content.getByRole('region', { name: resourceLabel, exact: true });
   }
 }
