@@ -19,7 +19,7 @@ If you have multiple Kubernetes contexts, you must set the correct context in wh
 
 - [Installed Podman Desktop application](/docs/installation)
 - [A Podman machine](/docs/podman/creating-a-podman-machine)
-- [A running Kubernetes cluster](/tutorial/running-a-kubernetes-cluster)
+- A running Kubernetes cluster
 - A deployment YAML configuration for use. Create a `Deployment` file using the following code, if you do not have one on your machine:
 
 ```yaml
