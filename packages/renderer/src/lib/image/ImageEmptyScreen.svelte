@@ -33,8 +33,8 @@ async function pullFirstImage() {
       title: `Error while pulling image`,
       message: `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`,
     });
-    pullInProgress = false;
   }
+  pullInProgress = false;
 }
 </script>
 
