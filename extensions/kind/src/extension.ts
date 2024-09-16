@@ -405,13 +405,20 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // download, install system wide and update cli version
       await installer.download(releaseToInstall);
       const cliPath = installer.getKindCliStoragePath();
-      await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+
+      try {
+        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      } catch (err: unknown) {
+        console.log(`${KIND_CLI_NAME} not installed system-wide. Error: ${String(err)}`);
+      }
+
       kindCli?.updateVersion({
         version: releaseVersionToInstall,
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
       binaryPath = cliPath;
+      kindPath = cliPath;
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
     },
@@ -431,6 +438,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // update the version and path to undefined
       binaryVersion = undefined;
       binaryPath = undefined;
+      kindPath = undefined;
     },
   });
 
@@ -462,7 +470,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // download, install system wide and update cli version
       await installer.download(releaseToUpdateTo);
       const cliPath = installer.getKindCliStoragePath();
-      await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      try {
+        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      } catch (err: unknown) {
+        console.log(`${KIND_CLI_NAME} not updated system-wide. Error: ${String(err)}`);
+      }
       kindCli?.updateVersion({
         version: releaseVersionToUpdateTo,
         installationSource: 'extension',

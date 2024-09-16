@@ -490,6 +490,46 @@ test('after selecting the version to be installed it should download kind', asyn
   });
 });
 
+test('if installing system wide fails, it should not throw', async () => {
+  const installBinaryToSystemMock = vi.spyOn(util, 'installBinaryToSystem').mockRejectedValue('error');
+  vi.spyOn(util, 'getKindBinaryInfo').mockRejectedValue('no kind');
+  vi.mocked(kindInstallerMock.promptUserForVersion).mockResolvedValue({
+    tag: 'v1.0.0',
+  } as unknown as KindGithubReleaseArtifactMetadata);
+
+  let installer: extensionApi.CliToolInstaller | undefined;
+  vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
+    installer = mInstaller;
+    return { dispose: vi.fn() };
+  });
+  vi.spyOn(podmanDesktopApi.cli, 'createCliTool').mockReturnValue(cliToolMock);
+
+  await extension.activate(
+    vi.mocked<extensionApi.ExtensionContext>({
+      subscriptions: {
+        push: vi.fn(),
+      },
+    } as unknown as extensionApi.ExtensionContext),
+  );
+
+  await vi.waitFor(() => {
+    expect(installer).toBeDefined();
+  });
+
+  await installer?.selectVersion();
+
+  await installer?.doInstall({} as unknown as extensionApi.Logger);
+  expect(kindInstallerMock.download).toHaveBeenCalledWith({
+    tag: 'v1.0.0',
+  });
+  expect(kindInstallerMock.getKindCliStoragePath).toHaveBeenCalled();
+  expect(installBinaryToSystemMock).toHaveBeenCalledWith('storage-path', 'kind');
+  expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
+    installationSource: 'extension',
+    version: '1.0.0',
+  });
+});
+
 test('by uninstalling it should delete all executables', async () => {
   vi.mock('node:fs');
   vi.spyOn(util, 'getKindBinaryInfo').mockResolvedValue({
