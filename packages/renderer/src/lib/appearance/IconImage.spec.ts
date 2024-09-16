@@ -51,6 +51,13 @@ test('Expect valid source and alt text with dark mode', async () => {
   // expect to have valid source
   expect(imageElement).toHaveAttribute('src', 'dark.png');
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
+
+  await image.rerender({ image: { light: 'light2.png', dark: 'dark2.png' }, alt: 'this is another alt text' });
+  // wait getImage
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  expect(imageElement).toHaveAttribute('src', 'dark2.png');
+  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
 });
 
 test('Expect valid source and alt text with light mode', async () => {
@@ -67,6 +74,13 @@ test('Expect valid source and alt text with light mode', async () => {
   // expect to have valid source
   expect(imageElement).toHaveAttribute('src', 'light.png');
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
+
+  await image.rerender({ image: { light: 'light2.png', dark: 'dark2.png' }, alt: 'this is another alt text' });
+  // wait getImage
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  expect(imageElement).toHaveAttribute('src', 'light2.png');
+  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
 });
 
 test('Expect no alt attribute if missing and default image', async () => {
@@ -85,4 +99,25 @@ test('Expect no alt attribute if missing and default image', async () => {
 
   // alt should be missing
   expect(imageElement).not.toHaveAttribute('alt');
+});
+
+test('Expect string as image', async () => {
+  const image = render(IconImage, { image: 'image1', alt: 'this is alt text' });
+
+  // wait for image to be loaded
+  await new Promise(resolve => setTimeout(resolve, 200));
+
+  // grab image element
+  const imageElement = image.getByRole('img');
+
+  // expect to have valid source
+  expect(imageElement).toHaveAttribute('src', 'image1');
+  expect(imageElement).toHaveAttribute('alt', 'this is alt text');
+
+  await image.rerender({ image: 'image2', alt: 'this is another alt text' });
+  // wait getImage
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  expect(imageElement).toHaveAttribute('src', 'image2');
+  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
 });
