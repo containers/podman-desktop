@@ -8,7 +8,7 @@ tags: [podman-desktop, tutorial]
 
 # Introduction
 
-This tutorial covers end-to-end tasks that you must perform to accomplish a goal while working with the Podman Desktop application. Each tutorial section includes one or more procedures that contain a sequence of steps to follow.
+These tutorials cover end-to-end tasks that you must perform to accomplish a goal while working with the Podman Desktop application. Each task is a procedure that contains a sequence of steps to follow.
 
 Before going through each tutorial, get yourself familiarize with the key UI components of the Podman Desktop application:
 
