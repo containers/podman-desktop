@@ -193,3 +193,7 @@ export async function getMemTotalInfo(socketPath: string): Promise<number> {
     });
   });
 }
+
+export function removeVersionPrefix(version: string): string {
+  return version.replace('v', '').trim();
+}
