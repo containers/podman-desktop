@@ -4690,7 +4690,7 @@ declare module '@podman-desktop/api' {
      * Allow to define custom route for an extension.
      *
      * @remarks
-     * You commandId used must have been registered through {@link commands.registerCommand}
+     * The commandId used must have been registered through {@link commands.registerCommand}
      *
      * @example
      * ```ts
@@ -4715,7 +4715,7 @@ declare module '@podman-desktop/api' {
 
     /**
      * Allow extension to navigate to a custom route.
-     * The route need to have been registered using {@link navigation.register}
+     * The route needs to have been registered using {@link navigation.register}
      *
      * @param routeId the identifier of the route to use
      * @param args the arguments to provide to the command linked to the routeId
