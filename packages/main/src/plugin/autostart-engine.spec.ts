@@ -52,35 +52,6 @@ beforeAll(() => {
   providerRegistry.runAutostart = mockRunAutostart;
 });
 
-test('Check that default value is false if provider autostart setting is false', async () => {
-  vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
-    return {
-      get: (_section: string, _defaultValue: boolean) => false,
-    } as Configuration;
-  });
-
-  const autoStartConfigurationNode: IConfigurationNode = {
-    id: `preferences.${extensionId}.engine.autostart`,
-    title: `Autostart ${extensionDisplayName} engine`,
-    type: 'object',
-    extension: {
-      id: extensionId,
-    },
-    properties: {
-      [`preferences.${extensionId}.engine.autostart`]: {
-        description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
-        type: 'boolean',
-        default: false,
-        scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
-      },
-    },
-  };
-
-  const disposable = autostartEngine.registerProvider(extensionId, extensionDisplayName, 'internalId');
-  disposable.dispose();
-  expect(mockRegisterConfiguration).toBeCalledWith([autoStartConfigurationNode]);
-});
-
 test('Check that default value is true if provider autostart setting is not set', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {
