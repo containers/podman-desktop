@@ -11,7 +11,9 @@ import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
-import { router } from 'tinro';
+
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
@@ -158,7 +160,9 @@ onDestroy(() => {
 
 function goBackToPodsPage(): void {
   // redirect to the pods page
-  router.goto('/pods');
+  handleNavigation({
+    page: NavigationPage.PODS,
+  });
 }
 </script>
 
