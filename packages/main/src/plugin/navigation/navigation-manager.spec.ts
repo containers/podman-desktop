@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { ProviderContainerConnection } from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import { NavigationPage } from '/@api/navigation-page.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
@@ -59,6 +60,11 @@ const webviewRegistry = {
   listWebviews: vi.fn(),
 } as unknown as WebviewRegistry;
 
+const commandRegistry: CommandRegistry = {
+  hasCommand: vi.fn(),
+  executeCommand: vi.fn(),
+} as unknown as CommandRegistry;
+
 beforeEach(() => {
   vi.resetAllMocks();
   navigationManager = new TestNavigationManager(
@@ -67,6 +73,7 @@ beforeEach(() => {
     contributionManager,
     providerRegistry,
     webviewRegistry,
+    commandRegistry,
   );
 });
 
@@ -160,5 +167,85 @@ test('check navigateToEditProviderContainerConnection', async () => {
       provider: 'id',
       name: Buffer.from(connection.connection.name).toString('base64'),
     },
+  });
+});
+
+describe('register route', () => {
+  test('registering route should provide a disposable', () => {
+    const routeId = 'dummy-route-id';
+    const disposable = navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'fake-command-id',
+    });
+
+    expect(navigationManager.hasRoute(routeId)).toBeTruthy();
+
+    disposable.dispose();
+
+    expect(navigationManager.hasRoute(routeId)).toBeFalsy();
+  });
+
+  test('registering existing route should throw an error', async () => {
+    const routeId = 'dummy-route-id';
+    navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'fake-command-id',
+    });
+
+    expect(() => {
+      return navigationManager.registerRoute({
+        routeId: routeId,
+        commandId: 'fake-command-id',
+      });
+    }).toThrowError('routeId dummy-route-id is already registered.');
+  });
+
+  test('calling navigateToRoute with invalid routeId should raise an error', async () => {
+    await expect(() => {
+      return navigationManager.navigateToRoute('invalidId');
+    }).rejects.toThrowError('navigation route invalidId does not exists.');
+  });
+
+  test('calling navigateToRoute on route with invalid command should raise an error', async () => {
+    vi.mocked(commandRegistry.hasCommand).mockReturnValue(false);
+    const routeId = 'dummy-route-id';
+    navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'fake-command-id',
+    });
+
+    await expect(() => {
+      return navigationManager.navigateToRoute(routeId);
+    }).rejects.toThrowError('navigation route dummy-route-id registered an unknown command: fake-command-id');
+
+    expect(commandRegistry.hasCommand).toHaveBeenCalledOnce();
+  });
+
+  test('calling navigateToRoute should propagate the argument to the command', async () => {
+    vi.mocked(commandRegistry.hasCommand).mockReturnValue(true);
+    vi.mocked(commandRegistry.executeCommand).mockResolvedValue(undefined);
+    const routeId = 'dummy-route-id';
+    navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'dummy-command-id',
+    });
+
+    await navigationManager.navigateToRoute(routeId, 'potatoes', 'candies');
+
+    expect(commandRegistry.executeCommand).toHaveBeenCalledWith('dummy-command-id', 'potatoes', 'candies');
+  });
+
+  test('error in the command should be propagate to the caller', async () => {
+    vi.mocked(commandRegistry.hasCommand).mockReturnValue(true);
+    vi.mocked(commandRegistry.executeCommand).mockRejectedValue('Dummy error');
+    const routeId = 'dummy-route-id';
+    navigationManager.registerRoute({
+      routeId: routeId,
+      commandId: 'dummy-command-id',
+    });
+
+    await expect(() => {
+      return navigationManager.navigateToRoute(routeId);
+    }).rejects.toThrowError('Dummy error');
   });
 });

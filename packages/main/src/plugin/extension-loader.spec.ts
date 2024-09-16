@@ -229,6 +229,7 @@ const navigationManager: NavigationManager = new NavigationManager(
   contributionManager,
   providerRegistry,
   webviewRegistry,
+  commandRegistry,
 );
 
 const colorRegistry = {
@@ -2272,6 +2273,17 @@ test('when loading registry registerRegistry, do not push to disposables', async
   api.registry.registerRegistry(fakeRegistry);
 
   expect(disposables.length).toBe(0);
+});
+
+test('when registering a navigation route, should be pushed to disposables', () => {
+  const disposables: IDisposable[] = [];
+
+  const api = extensionLoader.createApi('/path', {}, disposables);
+  expect(api).toBeDefined();
+
+  expect(disposables.length).toBe(0);
+  api.navigation.register('dummy-route-id', 'dummy-command-id');
+  expect(disposables.length).toBe(1);
 });
 
 describe('loading extension folders', () => {

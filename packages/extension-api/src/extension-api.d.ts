@@ -4685,6 +4685,42 @@ declare module '@podman-desktop/api' {
      * Navigate to the Edit Provider Container Connection page
      */
     export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
+
+    /**
+     * Allow to define custom route for an extension.
+     *
+     * @remarks
+     * The commandId used must have been registered through {@link commands.registerCommand}
+     *
+     * @example
+     * ```ts
+     * import { navigation, commands } from '@podman-desktop/api';
+     *
+     * commands.registerCommand('redirect-download-command', (trackingId: string) => {
+     *   // todo: do something with the trackingId
+     * });
+     *
+     * // register the route
+     * navigation.register('download-page', 'redirect-download-command');
+     *
+     * // when needed call the navigate with the route id registered to
+     * // trigger the command
+     * navigation.navigate('download-page', 'dummy-tracking-id');
+     * ```
+     *
+     * @param routeId a unique string value that could be used in {@link navigation.navigate}
+     * @param commandId the command that will be executed on navigate
+     */
+    export function register(routeId: string, commandId: string): Disposable;
+
+    /**
+     * Allow extension to navigate to a custom route.
+     * The route needs to have been registered using {@link navigation.register}
+     *
+     * @param routeId the identifier of the route to use
+     * @param args the arguments to provide to the command linked to the routeId
+     */
+    export function navigate(routeId: string, ...args: unknown[]): Promise<void>;
   }
 
   /**
