@@ -11,6 +11,7 @@ import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
+import { router } from 'tinro';
 
 import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
@@ -155,8 +156,9 @@ onDestroy(() => {
   }
 });
 
-function goBackToHistory(): void {
-  window.history.go(-1);
+function goBackToPodsPage(): void {
+  // redirect to the pods page
+  router.goto('/pods');
 }
 </script>
 
@@ -339,7 +341,7 @@ function goBackToHistory(): void {
       {/if}
 
       {#if runFinished}
-        <Button on:click={() => goBackToHistory()} class="w-full">Done</Button>
+        <Button on:click={() => goBackToPodsPage()} class="w-full">Done</Button>
       {/if}
     </div>
   </EngineFormPage>
