@@ -4,6 +4,7 @@ import { createEventDispatcher } from 'svelte';
 import { ImageUtils } from './image-utils';
 import type { ImageFilesystemLayerUI } from './imageDetailsFiles';
 import ImageDetailsFilesExpandableCommand from './ImageDetailsFilesExpandableCommand.svelte';
+import { signedHumanSize } from './ImageDetailsFilesLayers';
 
 const dispatch = createEventDispatcher();
 
@@ -13,14 +14,6 @@ let currentLayerId: string | undefined;
 function onLayerSelected(layer: ImageFilesystemLayerUI) {
   currentLayerId = layer.id;
   dispatch('selected', layer);
-}
-
-function signedHumanSize(n: number): string {
-  if (n < 0) {
-    return new ImageUtils().getHumanSize(n);
-  } else {
-    return '+' + new ImageUtils().getHumanSize(n);
-  }
 }
 </script>
 
