@@ -20,6 +20,7 @@ let selectedLayer: ImageFilesystemLayerUI;
 let showLayerOnly: boolean;
 let loading: boolean;
 let cancellableTokenId: number = 0;
+let error: string = '';
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
@@ -36,6 +37,9 @@ onMount(async () => {
           .imageGetFilesystemLayers(filesProvider.id, imageInfo, cancellableTokenId)
           .then(layers => {
             imageLayers = layers;
+          })
+          .catch((err: unknown) => {
+            error = String(err);
           })
           .finally(() => {
             loading = false;
@@ -55,7 +59,11 @@ onDestroy(() => {
   <div class="p-4">Layers are being loaded. This can take a while for large images, please wait...</div>
 {/if}
 
-{#if imageLayers}
+{#if error}
+  <div class="p-4 text-[var(--pd-state-error)]">
+    {error}
+  </div>
+{:else if imageLayers}
   <div class="flex flex-col w-full h-full p-8 pr-0 text-[var(--pd-content-text)] bg-[var(--pd-content-bg)]">
     <div class="pr-4">
       <slot name="header-info" />
