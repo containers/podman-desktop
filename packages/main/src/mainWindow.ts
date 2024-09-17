@@ -23,6 +23,7 @@ import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
 import { app, autoUpdater, BrowserWindow, ipcMain, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 
+import { buildDevelopmentMenu } from './development-menu-builder.js';
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
@@ -187,45 +188,7 @@ async function createWindow(): Promise<BrowserWindow> {
     showInspectElement: import.meta.env.DEV,
     showServices: false,
     prepend: (_defaultActions, parameters) => {
-      // In development mode, show the "Open DevTools of Extension and Webviews" menu item
-      if (import.meta.env.DEV) {
-        let extensionId = '';
-        if (parameters?.linkURL?.includes('/contribs')) {
-          const extensionIdVal = parameters.linkURL.split('/contribs/')[1];
-          if (extensionIdVal) {
-            extensionId = extensionIdVal;
-            return [
-              {
-                label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
-                // make it visible when link contains contribs and we're inside the extension
-                visible:
-                  parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
-                click: (): void => {
-                  browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
-                },
-              },
-            ];
-          } else {
-            return [];
-          }
-        } else if (parameters?.linkURL?.includes('/webviews/')) {
-          const webviewId = parameters.linkURL.split('/webviews/')[1];
-          return [
-            {
-              label: `Open DevTools of the webview`,
-              visible:
-                parameters.linkURL.includes('/webviews/') && parameters.pageURL.includes(`/webviews/${webviewId}`),
-              click: (): void => {
-                browserWindow.webContents.send('dev-tools:open-webview', webviewId);
-              },
-            },
-          ];
-        } else {
-          return [];
-        }
-      } else {
-        return [];
-      }
+      return buildDevelopmentMenu(parameters, browserWindow, import.meta.env.DEV);
     },
     append: (_defaultActions, parameters) => {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
