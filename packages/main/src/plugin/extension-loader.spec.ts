@@ -2306,9 +2306,9 @@ test('withProgress should add the extension id to the routeId', async () => {
     {
       location: ProgressLocation.TASK_WIDGET,
       title: 'Dummy title',
-      navigation: {
+      details: {
         routeId: 'dummy-route-id',
-        arguments: ['hello', 'world'],
+        routeArgs: ['hello', 'world'],
       },
     },
     async () => {},
@@ -2318,9 +2318,9 @@ test('withProgress should add the extension id to the routeId', async () => {
     {
       location: ProgressLocation.TASK_WIDGET,
       title: 'Dummy title',
-      navigation: {
+      details: {
         routeId: 'pub.dummy.dummy-route-id',
-        arguments: ['hello', 'world'],
+        routeArgs: ['hello', 'world'],
       },
     },
     expect.any(Function),

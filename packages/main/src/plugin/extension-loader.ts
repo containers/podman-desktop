@@ -986,10 +986,10 @@ export class ExtensionLoader {
         return progress.withProgress(
           {
             ...options,
-            navigation: options.navigation
+            details: options.details
               ? {
-                  arguments: options.navigation.arguments,
-                  routeId: `${extensionInfo.id}.${options.navigation.routeId}`,
+                  routeArgs: options.details.routeArgs,
+                  routeId: `${extensionInfo.id}.${options.details.routeId}`,
                 }
               : undefined,
           },

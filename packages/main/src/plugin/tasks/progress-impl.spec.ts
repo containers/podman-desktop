@@ -150,9 +150,9 @@ test('Should create a task with a navigation action', async () => {
     {
       location: ProgressLocation.TASK_WIDGET,
       title: 'My task',
-      navigation: {
+      details: {
         routeId: 'dummy-route-id',
-        arguments: ['hello', 'world'],
+        routeArgs: ['hello', 'world'],
       },
     },
     async () => {
@@ -164,7 +164,7 @@ test('Should create a task with a navigation action', async () => {
     expect(taskAction).toBeDefined();
   });
 
-  expect(taskAction?.name).toBe('Goto task >');
+  expect(taskAction?.name).toBe('View');
   expect(taskAction?.execute).toBeInstanceOf(Function);
 
   // execute the task action

@@ -84,18 +84,18 @@ export class ProgressImpl {
   }
 
   protected getTaskAction(options: extensionApi.ProgressOptions): TaskAction | undefined {
-    if (!options.navigation) return undefined;
+    if (!options.details) return undefined;
 
-    if (!this.navigationManager.hasRoute(options.navigation.routeId)) {
-      console.warn(`cannot created task action for unknown routeId ${options.navigation.routeId}`);
+    if (!this.navigationManager.hasRoute(options.details.routeId)) {
+      console.warn(`cannot created task action for unknown routeId ${options.details.routeId}`);
       return undefined;
     }
 
     return {
-      name: 'Goto task >',
+      name: 'View',
       execute: (): unknown => {
-        if (!options.navigation) return;
-        return this.navigationManager.navigateToRoute(options.navigation.routeId, ...options.navigation.arguments);
+        if (!options.details) return;
+        return this.navigationManager.navigateToRoute(options.details.routeId, ...options.details.routeArgs);
       },
     };
   }

@@ -1205,9 +1205,9 @@ declare module '@podman-desktop/api' {
      *     {
      *       location: ProgressLocation.TASK_WIDGET,
      *       title: 'My task',
-     *       navigation: {
+     *       details: {
      *         routeId: 'dummy-route-id',
-     *         arguments: ['hello', 'world'],
+     *         routeArgs: ['hello', 'world'],
      *       }
      *     },
      *     async () => {
@@ -1216,15 +1216,15 @@ declare module '@podman-desktop/api' {
      *   );
      * ```
      */
-    navigation?: {
+    details?: {
       /**
        * The routeId used in {@link navigation.register}
        */
       routeId: string;
       /**
-       * The arguments to provide the navigation route
+       * The arguments to provide the route
        */
-      arguments: string[];
+      routeArgs: string[];
     };
   }
 
