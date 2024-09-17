@@ -24,7 +24,7 @@ import { isLinux, isMac, isWindows } from '../util.js';
 import type { Proxy } from './proxy.js';
 import { Exec } from './util/exec.js';
 
-export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySettings> {
+export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySettings | undefined> {
   if (isWindows()) {
     return getWindowsProxySettings();
   } else if (isMac()) {
@@ -33,12 +33,12 @@ export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySet
     const httpProxy = process.env['HTTP_PROXY'];
     const httpsProxy = process.env['HTTPS_PROXY'];
     const noProxy = process.env['NO_PROXY'];
-    return { httpProxy, httpsProxy, noProxy };
+    return (httpProxy ?? httpsProxy ?? noProxy) ? { httpProxy, httpsProxy, noProxy } : undefined;
   }
   throw new Error('Unsupported environment');
 }
 
-async function getWindowsProxySettings(): Promise<ProxySettings> {
+async function getWindowsProxySettings(): Promise<ProxySettings | undefined> {
   try {
     let enabled = false;
     let httpProxy = undefined;
@@ -67,10 +67,10 @@ async function getWindowsProxySettings(): Promise<ProxySettings> {
         noProxy = key.value;
       }
     });
-    return enabled ? { httpProxy, httpsProxy, noProxy } : ({} as ProxySettings);
+    return enabled ? { httpProxy, httpsProxy, noProxy } : undefined;
   } catch (err) {
     console.warn(`Error while getting Windows internet settings from registry`, err);
-    throw err;
+    return undefined;
   }
 }
 
@@ -116,7 +116,7 @@ async function getMacOSConnectionProxyByPass(exec: Exec, connection: string): Pr
   }
 }
 
-async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings> {
+async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings | undefined> {
   try {
     const result = await exec.exec('networksetup', ['-listallnetworkservices']);
     const lines = result.stdout.split(/\r?\n/);
@@ -136,9 +136,9 @@ async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings> {
         }
       }
     }
-    return { httpProxy, httpsProxy, noProxy };
+    return (httpProxy ?? httpsProxy ?? noProxy) ? { httpProxy, httpsProxy, noProxy } : undefined;
   } catch (err) {
     console.warn(`Error while getting MacOS network services`, err);
-    throw err;
+    return undefined;
   }
 }
