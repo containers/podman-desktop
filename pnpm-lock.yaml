@@ -454,8 +454,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       ssh2:
-        specifier: ^1.15.0
-        version: 1.15.0
+        specifier: ^1.16.0
+        version: 1.16.0
     devDependencies:
       '@types/ssh2':
         specifier: ^1.15.1
@@ -9857,8 +9857,8 @@ packages:
     resolution: {integrity: sha512-wvLeHgcVHKO8Sc/H/5lkGreJQVeYMm9rlmt8PuR1xE31rIuXhuzznUUqAt8MqLhB3MqJdFzlNAfpcWnxiFUcPw==}
     engines: {node: '>=12'}
 
-  ssh2@1.15.0:
-    resolution: {integrity: sha512-C0PHgX4h6lBxYx7hcXwu3QWdh4tg6tZZsTfXcdvc5caW/EMxaB4H9dWsl7qk+F7LAW762hp8VbXOX7x4xUYvEw==}
+  ssh2@1.16.0:
+    resolution: {integrity: sha512-r1X4KsBGedJqo7h8F5c4Ybpcr5RjyP+aWIG007uBPRjmdQWfEiVLzSK71Zji1B9sKxwaCvD8y8cwSkYrlLiRRg==}
     engines: {node: '>=10.16.0'}
 
   sshpk@1.18.0:
@@ -17636,7 +17636,7 @@ snapshots:
       debug: 4.3.7
       readable-stream: 3.6.2
       split-ca: 1.0.1
-      ssh2: 1.15.0
+      ssh2: 1.16.0
     transitivePeerDependencies:
       - supports-color
 
@@ -23024,7 +23024,7 @@ snapshots:
 
   srcset@4.0.0: {}
 
-  ssh2@1.15.0:
+  ssh2@1.16.0:
     dependencies:
       asn1: 0.2.6
       bcrypt-pbkdf: 1.0.2
