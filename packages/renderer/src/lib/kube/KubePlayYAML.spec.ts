@@ -21,6 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -67,6 +68,15 @@ const mockedErroredPlayKubeInfo: PlayKubeInfo = {
     },
   ],
 };
+
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
 
 // fake the window.events object
 beforeAll(() => {
@@ -148,7 +158,7 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   expect(error).toBeInTheDocument();
 });
 
-test('expect done button is there at the end', async () => {
+test('expect done button is there at the end and redirects to pods', async () => {
   (window as any).playKube = vi.fn().mockResolvedValue({
     Pods: [],
   });
@@ -179,4 +189,10 @@ test('expect done button is there at the end', async () => {
   expect(doneButton).toBeInTheDocument();
   // check that text value is also 'Done'
   expect(doneButton).toHaveTextContent('Done');
+
+  // check that clicking redirects to the pods page
+  expect(router.goto).not.toHaveBeenCalled();
+  await userEvent.click(doneButton);
+
+  expect(router.goto).toHaveBeenCalledWith(`/pods`);
 });
