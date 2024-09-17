@@ -63,13 +63,11 @@ export class Updater {
   }
 
   public async openReleaseNotes(version: string): Promise<void> {
-    console.log('called opennotes');
     if (version === 'current') {
       version = app.getVersion();
     } else if (version === 'latest') {
       version = this.#nextVersion?.substring(1) ?? '';
     }
-    console.log(version);
     const urlVersionFormat = version.split('.', 2).join('.');
     let notesURL = `https://podman-desktop.io/blog/podman-desktop-release-${urlVersionFormat}`;
     const response = await fetch(notesURL);
