@@ -37,6 +37,7 @@ import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import * as podmanCli from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
+import type { UpdateCheck } from './podman-install';
 import { PodmanInstall } from './podman-install';
 import { getAssetsFolder, isLinux, isMac, isWindows, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
 
@@ -181,9 +182,24 @@ vi.mock('@podman-desktop/api', async () => {
     provider: {
       onDidRegisterContainerConnection: vi.fn(),
       onDidUnregisterContainerConnection: vi.fn(),
+      createProvider: (): extensionApi.Provider =>
+        ({
+          updateWarnings: vi.fn(),
+          onDidUpdateVersion: vi.fn(),
+          registerAutostart: vi.fn(),
+        }) as unknown as extensionApi.Provider,
+    },
+    registry: {
+      registerRegistryProvider: vi.fn(),
+      onDidRegisterRegistry: vi.fn(),
+      onDidUnregisterRegistry: vi.fn(),
+      onDidUpdateRegistry: vi.fn(),
     },
     proxy: {
       isEnabled: (): boolean => false,
+      onDidUpdateProxy: vi.fn(),
+      onDidStateChange: vi.fn(),
+      getProxySettings: vi.fn(),
     },
     window: {
       showErrorMessage: vi.fn(),
@@ -2284,4 +2300,22 @@ test('if a machine stopped is successfully reporting an error in telemetry', asy
   );
 
   expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'stop', 'name'], expect.anything());
+});
+
+test('activate function returns an api implementation', async () => {
+  vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
+    hasUpdate: false,
+  } as unknown as UpdateCheck);
+  const contextMock = {
+    subscriptions: [],
+    secrets: {
+      delete: vi.fn(),
+      get: vi.fn(),
+      onDidChange: vi.fn(),
+      store: vi.fn(),
+    },
+  } as unknown as extensionApi.ExtensionContext;
+  const api = await extension.activate(contextMock);
+  expect(api).toBeDefined();
+  expect(typeof api.exec).toBe('function');
 });
