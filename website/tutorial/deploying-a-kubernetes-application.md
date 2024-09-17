@@ -1,4 +1,5 @@
 ---
+sidebar_position: 4
 title: Deploying a Kubernetes application
 description: Deploying a Kubernetes application
 keywords: [podman desktop, podman, Kubernetes]

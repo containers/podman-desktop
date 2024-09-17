@@ -1,4 +1,5 @@
 ---
+sidebar_position: 3
 title: Running a Kubernetes cluster
 description: Running a Kubernetes cluster
 keywords: [podman desktop, podman, Kubernetes]
@@ -14,13 +15,7 @@ This tutorial covers the following end-to-end tasks you require to run a Kuberne
 - Applicable on Winodws: Configure Podman on WSL
 - Creating and running a Kubernetes cluster
 
-You can use extensions, such as Kind, MiniKube, and others to start a local Kubernetes development cluster. When you have a running Kubernetes cluster, you can easily develop Kubernetes applications and test them before deploying to production. This tutorial focuses on creating a Kubernetes cluster using the Minikube extension.
-
-note:::
-
-You can perform the same tasks to create a cluster using the Kind extension.
-
-:::
+You can use extensions, such as Kind, MiniKube, and others to start a local Kubernetes development cluster. When you have a running Kubernetes cluster, you can easily develop and test Kubernetes applications before deploying them to production. This tutorial focuses on creating a Kubernetes cluster using the Minikube extension.
 
 ## Before you begin
 
@@ -43,7 +38,7 @@ You can perform the same tasks to create a cluster using the Kind extension.
 
 2. Click **Yes** to download the Minikube binary.
 3. Click **Yes** to install the binary system-wide for accessibility on the command line.
-4. Enter your system password if prompted. A notification of successful operation opens.
+4. Enter your system password, if prompted. A notification of successful operation opens.
    ![binary successfully installed](img/binary-installed.png)
 
 5. Click **OK**.
@@ -70,7 +65,7 @@ A Podman machine runs in the rootless mode on a Windows Subsystem for Linux (WSL
 ## Creating and running a Kubernetes cluster
 
 1. Go to **Settings > Resources**.
-2. In the Minikube tile, Click **Create new**. The **Create Minikube cluster** page opens.
+2. In the Minikube tile, click **Create new**.
    ![create a new cluster](img/create-a-new-cluster.png)
 
 3. Optional: Edit the cluster configuration, if required.
@@ -79,5 +74,3 @@ A Podman machine runs in the rootless mode on a Windows Subsystem for Linux (WSL
 5. Click **Go back to resources**.
 6. View that your Minikube cluster is running and a new minikube context is added in the status bar.
    ![Kube context added](img/new-context-added.png)
-
-You can now use this cluster to develop and test your Kubernetes applications before deploying them to production.
