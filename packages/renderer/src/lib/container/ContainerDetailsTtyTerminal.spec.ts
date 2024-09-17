@@ -34,6 +34,7 @@ beforeAll(() => {
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
+    removeListener: vi.fn(),
   });
 });
 
@@ -67,17 +68,17 @@ test('expect being able to attach terminal ', async () => {
   // wait attachContainerMock is called
   await waitFor(() => expect(attachContainerMock).toHaveBeenCalled());
 
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
   // write some data on the terminal
   onDataCallback(Buffer.from('hello\nworld'));
 
-  // wait 1s
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
   // search a div having aria-live="assertive" attribute
+  await waitFor(() => expect(renderObject.container.querySelector('div[aria-live="assertive"]')));
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
+  await vi.waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'), { timeout: 2500 });
 
   // check we have called attachContainer
   expect(attachContainerMock).toHaveBeenCalledTimes(1);

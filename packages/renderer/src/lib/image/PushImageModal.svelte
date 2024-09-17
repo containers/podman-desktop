@@ -1,15 +1,13 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, Link } from '@podman-desktop/ui-svelte';
-import { FitAddon } from '@xterm/addon-fit';
-import { Terminal } from '@xterm/xterm';
+import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import Dialog from '../dialogs/Dialog.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
@@ -17,6 +15,7 @@ export let imageInfoToPush: ImageInfoUI;
 
 let pushInProgress = false;
 let pushFinished = false;
+let initTerminal = false;
 let logsPush: Terminal;
 
 let selectedImageTag = '';
@@ -30,46 +29,9 @@ onMount(async () => {
   }
 });
 
-let terminalIntialized = false;
-
-async function initTerminal() {
-  if (terminalIntialized) {
-    return;
-  }
-
-  // missing element, return
-  if (!pushLogsXtermDiv) {
-    return;
-  }
-
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsPush = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme() });
-  const fitAddon = new FitAddon();
-  logsPush.loadAddon(fitAddon);
-
-  logsPush.open(pushLogsXtermDiv);
-  // disable cursor
-  logsPush.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    fitAddon.fit();
-  });
-  fitAddon.fit();
-  terminalIntialized = true;
-}
-
 async function pushImage(imageTag: string) {
   gotErrorDuringPush = false;
-  await tick();
-  await initTerminal();
+  initTerminal = true;
   await tick();
   logsPush?.reset();
 
@@ -104,7 +66,6 @@ function callback(name: string, data: string) {
     pushInProgress = false;
   }
 }
-let pushLogsXtermDiv: HTMLDivElement;
 
 let isAuthenticatedForThisImage = false;
 $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenticatedForThisImage = result));
@@ -143,7 +104,9 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
         </p>{/if}
     </div>
 
-    <div class="max-h-[185px]" bind:this={pushLogsXtermDiv}></div>
+    <div class="max-h-[185px]" hidden={initTerminal === false}>
+      <TerminalWindow bind:terminal={logsPush} disableStdIn />
+    </div>
   </div>
 
   <svelte:fragment slot="buttons">

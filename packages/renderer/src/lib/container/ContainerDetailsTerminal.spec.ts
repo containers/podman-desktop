@@ -32,6 +32,13 @@ const getConfigurationValueMock = vi.fn();
 const shellInContainerMock = vi.fn();
 const shellInContainerResizeMock = vi.fn();
 const receiveEndCallbackMock = vi.fn();
+vi.mock('xterm', () => {
+  return {
+    Terminal: vi
+      .fn()
+      .mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), dispose: vi.fn(), onData: vi.fn() }),
+  };
+});
 
 beforeEach(() => {
   vi.resetAllMocks();

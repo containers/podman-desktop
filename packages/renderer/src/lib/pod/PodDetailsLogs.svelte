@@ -2,21 +2,18 @@
 import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import { FitAddon } from '@xterm/addon-fit';
-import { Terminal } from '@xterm/xterm';
-import { onDestroy, onMount } from 'svelte';
+import type { Terminal } from '@xterm/xterm';
+import { onMount } from 'svelte';
 
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import { isMultiplexedLog } from '../stream/stream-utils';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 
 export let pod: PodInfoUI;
 
 // Log
-let logsXtermDiv: HTMLDivElement;
 let refPod: PodInfoUI;
 // Logs has been initialized
 let noLogs = true;
@@ -30,12 +27,6 @@ $: {
   }
   refPod = pod;
 }
-
-// Terminal resize
-let resizeObserver: ResizeObserver;
-let termFit: FitAddon;
-let currentRouterPath: string;
-let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURIComponent(pod.engineId)}/logs`;
 
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
@@ -54,6 +45,9 @@ function callback(name: string, data: string) {
     // 1: STDOUT
     // 2: STDERR
     logsTerminal?.write(data + '\r');
+  }
+  if (!noLogs) {
+    window.dispatchEvent(new Event('resize'));
   }
 }
 
@@ -99,61 +93,8 @@ async function fetchPodLogs() {
   }
 }
 
-async function refreshTerminal() {
-  // missing element, return
-  if (!logsXtermDiv) {
-    console.log('missing xterm div, exiting...');
-    return;
-  }
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsTerminal = new Terminal({
-    fontSize,
-    lineHeight,
-    disableStdin: true,
-    theme: getTerminalTheme(),
-    convertEol: true,
-  });
-  termFit = new FitAddon();
-  logsTerminal.loadAddon(termFit);
-
-  logsTerminal.open(logsXtermDiv);
-
-  // disable cursor
-  logsTerminal.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    if (currentRouterPath === logsRouterPath) {
-      termFit.fit();
-    }
-  });
-  termFit.fit();
-}
-
 onMount(async () => {
-  // Refresh the terminal on initial load
-  await refreshTerminal();
   fetchPodLogs();
-
-  // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(() => {
-    termFit?.fit();
-  });
-
-  // Observe the terminal div
-  resizeObserver.observe(logsXtermDiv);
-});
-
-onDestroy(() => {
-  // Cleanup the observer on destroy
-  resizeObserver?.unobserve(logsXtermDiv);
 });
 </script>
 
@@ -163,6 +104,6 @@ onDestroy(() => {
   class="min-w-full flex flex-col"
   class:invisible={noLogs === true}
   class:h-0={noLogs === true}
-  class:h-full={noLogs === false}
-  bind:this={logsXtermDiv}>
+  class:h-full={noLogs === false}>
+  <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn />
 </div>
