@@ -1157,29 +1157,17 @@ export function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'updatePodmanDesktop',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (): Promise<void> => {
-      return ipcInvoke('app:update');
-    },
-  );
+  contextBridge.exposeInMainWorld('updatePodmanDesktop', async (): Promise<void> => {
+    return ipcInvoke('app:update');
+  });
 
-  contextBridge.exposeInMainWorld(
-    'podmanDesktopUpdateAvailable',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (): Promise<boolean> => {
-      return ipcInvoke('app:update-available');
-    },
-  );
+  contextBridge.exposeInMainWorld('podmanDesktopUpdateAvailable', async (): Promise<boolean> => {
+    return ipcInvoke('app:update-available');
+  });
 
-  contextBridge.exposeInMainWorld(
-    'podmanDesktopOpenReleaseNotes',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (version: string): Promise<boolean> => {
-      return ipcInvoke('app:open-release-notes', version);
-    },
-  );
+  contextBridge.exposeInMainWorld('podmanDesktopOpenReleaseNotes', async (version: string): Promise<void> => {
+    return ipcInvoke('app:open-release-notes', version);
+  });
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');
