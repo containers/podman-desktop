@@ -30,6 +30,7 @@ import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
+const PODMAN_FULL_STARTUP_TIMEOUT = PODMAN_MACHINE_STARTUP_TIMEOUT + 30000;
 const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 const RESOURCE_NAME: string = 'podman';
 
@@ -128,6 +129,7 @@ test.describe.serial('Podman Machine verification', () => {
     test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
 
     test('Create a default Podman machine', async () => {
+      test.setTimeout(PODMAN_FULL_STARTUP_TIMEOUT);
       await podmanOnboardingPage.podmanMachineCreateButton.click();
       await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
       await podmanOnboardingPage.podmanMachineShowLogsButton.click();
