@@ -128,6 +128,7 @@ test.describe.serial('Podman Machine verification', () => {
     test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
 
     test('Create a default Podman machine', async () => {
+      test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + 30000);
       await podmanOnboardingPage.podmanMachineCreateButton.click();
       await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
       await podmanOnboardingPage.podmanMachineShowLogsButton.click();

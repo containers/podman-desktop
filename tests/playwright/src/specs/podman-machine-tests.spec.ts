@@ -26,6 +26,7 @@ import { ResourceConnectionCardPage } from '../model/pages/resource-connection-c
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
+import { isWindows } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
@@ -165,14 +166,19 @@ test.describe.serial(`Podman machine switching validation `, () => {
 
   test('Clean up rootless podman machine', async ({ page }) => {
     await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
+
+    if (isWindows) {
+      await handlePopupDialog(page, 'Yes');
+      await handlePopupDialog(page, 'OK');
+    }
   });
-
-  async function handlePopupDialog(page: Page, action: string): Promise<void> {
-    const dialog = page.getByRole('dialog', { name: 'Podman', exact: true });
-    await playExpect(dialog).toBeVisible();
-
-    const clickOnButton = dialog.getByRole('button', { name: action, exact: true });
-    await playExpect(clickOnButton).toBeEnabled();
-    await clickOnButton.click();
-  }
 });
+
+async function handlePopupDialog(page: Page, action: string): Promise<void> {
+  const dialog = page.getByRole('dialog', { name: 'Podman', exact: true });
+  await playExpect(dialog).toBeVisible();
+
+  const clickOnButton = dialog.getByRole('button', { name: action, exact: true });
+  await playExpect(clickOnButton).toBeEnabled();
+  await clickOnButton.click();
+}
