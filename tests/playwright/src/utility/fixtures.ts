@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 import { test as base } from '@playwright/test';
 
 import { WelcomePage } from '../model/pages/welcome-page';
@@ -30,6 +30,7 @@ export type TestFixtures = {
   navigationBar: NavigationBar;
   welcomePage: WelcomePage;
   page: Page;
+  context: BrowserContext;
   statusBar: StatusBar;
 };
 
@@ -37,14 +38,21 @@ export type FixtureOptions = {
   runnerOptions: RunnerOptions;
 };
 
+let newContext = false;
+
 export const test = base.extend<TestFixtures & FixtureOptions>({
   runnerOptions: [new RunnerOptions(), { option: true }],
   runner: async ({ runnerOptions }, use) => {
     const runner = await Runner.getInstance({ runnerOptions });
     await use(runner);
   },
-  page: async ({ runner }, use) => {
-    await use(runner.getPage());
+  context: async ({ runner }, use) => {
+    newContext = true;
+    await use(runner.getNewContext());
+  },
+  page: async ({ runner, context }, use) => {
+    const page = newContext ? context.pages()[0] : runner.getPage();
+    await use(page);
   },
   navigationBar: async ({ page }, use) => {
     const navigationBar = new NavigationBar(page);

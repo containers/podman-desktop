@@ -19,7 +19,7 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
+import type { BrowserContext, ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron, test } from '@playwright/test';
 import type { BrowserWindow } from 'electron';
 
@@ -125,6 +125,14 @@ export class Runner {
   public getPage(): Page {
     if (this._page) {
       return this._page;
+    } else {
+      throw Error('Application was not started yet');
+    }
+  }
+
+  public getNewContext(): BrowserContext {
+    if (this._app) {
+      return this._app.context();
     } else {
       throw Error('Application was not started yet');
     }

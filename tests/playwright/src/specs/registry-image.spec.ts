@@ -52,7 +52,8 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
-  test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  test('Cannot pull image from unauthenticated registry', async ({ context, page, navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);

@@ -39,7 +39,8 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('Registries handling verification', () => {
-  test('Check Registries page components and presence of default registries', async ({ navigationBar }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  test('Check Registries page components and presence of default registries', async ({ context, navigationBar }) => {
     const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
@@ -53,7 +54,8 @@ test.describe.serial('Registries handling verification', () => {
   });
 
   test.describe.serial('Registry addition workflow verification', () => {
-    test('Cannot add invalid registry', async ({ page, navigationBar }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    test('Cannot add invalid registry', async ({ context, page, navigationBar }) => {
       await navigationBar.openDashboard();
       const settingsBar = await navigationBar.openSettings();
       const registryPage = await settingsBar.openTabPage(RegistriesPage);
