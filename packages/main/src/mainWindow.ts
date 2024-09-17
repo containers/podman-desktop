@@ -23,7 +23,7 @@ import type { BrowserWindowConstructorOptions, Rectangle } from 'electron';
 import { app, autoUpdater, BrowserWindow, ipcMain, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 
-import * as developmentItemsMenuBuilder from './development-menu-builder.js';
+import { buildDevelopmentMenu } from './development-menu-builder.js';
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
@@ -188,7 +188,7 @@ async function createWindow(): Promise<BrowserWindow> {
     showInspectElement: import.meta.env.DEV,
     showServices: false,
     prepend: (_defaultActions, parameters) => {
-      return developmentItemsMenuBuilder.buildDevelopmentMenu(parameters, browserWindow, import.meta.env.DEV);
+      return buildDevelopmentMenu(parameters, browserWindow, import.meta.env.DEV);
     },
     append: (_defaultActions, parameters) => {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
