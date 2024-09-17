@@ -21,6 +21,7 @@
 import type { Event } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
@@ -30,6 +31,11 @@ import type { TaskManager } from './task-manager.js';
 const taskManager = {
   createTask: vi.fn(),
 } as unknown as TaskManager;
+
+const navigationManager = {
+  hasRoute: vi.fn(),
+  navigateToRoute: vi.fn(),
+} as unknown as NavigationManager;
 
 class TestTaskImpl implements Task {
   constructor(
@@ -62,7 +68,7 @@ test('Should create a task and report update', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, navigationManager);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
 
   expect(task.status).toBe('success');
@@ -72,7 +78,7 @@ test('Should create a task and report progress', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, navigationManager);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ increment: 50 });
   });
@@ -85,7 +91,7 @@ test('Should create a task and propagate the exception', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, navigationManager);
 
   await expect(
     progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
@@ -101,7 +107,7 @@ test('Should create a task and propagate the result', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, navigationManager);
 
   const result: string = await progress.withProgress<string>(
     { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
@@ -118,7 +124,7 @@ test('Should update the task name', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, navigationManager);
 
   await progress.withProgress<void>({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ message: 'New title' });
@@ -126,4 +132,44 @@ test('Should update the task name', async () => {
 
   expect(task.name).toBe('New title');
   expect(task.status).toBe('success');
+});
+
+test('Should create a task with a navigation action', async () => {
+  vi.mocked(navigationManager.hasRoute).mockReturnValue(true);
+
+  const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
+  const progress = new ProgressImpl(taskManager, navigationManager);
+
+  let taskAction: TaskAction | undefined;
+  vi.mocked(taskManager.createTask).mockImplementation(options => {
+    taskAction = options?.action;
+    return task;
+  });
+
+  await progress.withProgress<string>(
+    {
+      location: ProgressLocation.TASK_WIDGET,
+      title: 'My task',
+      details: {
+        routeId: 'dummy-route-id',
+        routeArgs: ['hello', 'world'],
+      },
+    },
+    async () => {
+      return 'dummy result';
+    },
+  );
+
+  await vi.waitFor(() => {
+    expect(taskAction).toBeDefined();
+  });
+
+  expect(taskAction?.name).toBe('View');
+  expect(taskAction?.execute).toBeInstanceOf(Function);
+
+  // execute the task action
+  taskAction?.execute(task);
+
+  // ensure the arguments and routeId is properly used
+  expect(navigationManager.navigateToRoute).toHaveBeenCalledWith('dummy-route-id', 'hello', 'world');
 });

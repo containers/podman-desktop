@@ -1193,6 +1193,39 @@ declare module '@podman-desktop/api' {
      * button.
      */
     cancellable?: boolean;
+
+    /**
+     * You may specify a navigation object, making the task having a
+     * navigate action that the user can trigger.
+     * @example
+     * ```ts
+     * import { window, type ProgressLocation } from '@podman-desktop/api';
+     *
+     * await window.withProgress<string>(
+     *     {
+     *       location: ProgressLocation.TASK_WIDGET,
+     *       title: 'My task',
+     *       details: {
+     *         routeId: 'dummy-route-id',
+     *         routeArgs: ['hello', 'world'],
+     *       }
+     *     },
+     *     async () => {
+     *       return 'dummy result';
+     *     },
+     *   );
+     * ```
+     */
+    details?: {
+      /**
+       * The routeId used in {@link navigation.register}
+       */
+      routeId: string;
+      /**
+       * The arguments to provide the route
+       */
+      routeArgs: string[];
+    };
   }
 
   /**

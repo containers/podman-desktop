@@ -983,7 +983,18 @@ export class ExtensionLoader {
           token: containerDesktopAPI.CancellationToken,
         ) => Promise<R>,
       ): Promise<R> => {
-        return progress.withProgress(options, task);
+        return progress.withProgress(
+          {
+            ...options,
+            details: options.details
+              ? {
+                  routeArgs: options.details.routeArgs,
+                  routeId: `${extensionInfo.id}.${options.details.routeId}`,
+                }
+              : undefined,
+          },
+          task,
+        );
       },
 
       showNotification: (notificationInfo: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {

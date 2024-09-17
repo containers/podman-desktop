@@ -64,7 +64,7 @@ import type { Proxy } from './proxy.js';
 import type { ExtensionSecretStorage, SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { NotificationRegistry } from './tasks/notification-registry.js';
-import type { ProgressImpl } from './tasks/progress-impl.js';
+import { type ProgressImpl, ProgressLocation } from './tasks/progress-impl.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { IDisposable } from './types/disposable.js';
@@ -141,7 +141,9 @@ const trayMenuRegistry: TrayMenuRegistry = {} as unknown as TrayMenuRegistry;
 
 const messageBox: MessageBox = {} as MessageBox;
 
-const progress: ProgressImpl = {} as ProgressImpl;
+const progress: ProgressImpl = {
+  withProgress: vi.fn(),
+} as unknown as ProgressImpl;
 
 const statusBarRegistry: StatusBarRegistry = {} as unknown as StatusBarRegistry;
 
@@ -2284,6 +2286,45 @@ test('when registering a navigation route, should be pushed to disposables', () 
   expect(disposables.length).toBe(0);
   api.navigation.register('dummy-route-id', 'dummy-command-id');
   expect(disposables.length).toBe(1);
+});
+
+test('withProgress should add the extension id to the routeId', async () => {
+  vi.mocked(progress.withProgress).mockResolvedValue(undefined);
+  const disposables: IDisposable[] = [];
+
+  const api = extensionLoader.createApi(
+    '/path',
+    {
+      publisher: 'pub',
+      name: 'dummy',
+    },
+    disposables,
+  );
+  expect(api).toBeDefined();
+
+  await api.window.withProgress<void>(
+    {
+      location: ProgressLocation.TASK_WIDGET,
+      title: 'Dummy title',
+      details: {
+        routeId: 'dummy-route-id',
+        routeArgs: ['hello', 'world'],
+      },
+    },
+    async () => {},
+  );
+
+  expect(progress.withProgress).toHaveBeenCalledWith(
+    {
+      location: ProgressLocation.TASK_WIDGET,
+      title: 'Dummy title',
+      details: {
+        routeId: 'pub.dummy.dummy-route-id',
+        routeArgs: ['hello', 'world'],
+      },
+    },
+    expect.any(Function),
+  );
 });
 
 describe('loading extension folders', () => {
