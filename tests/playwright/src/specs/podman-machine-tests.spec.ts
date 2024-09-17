@@ -18,14 +18,12 @@
 
 import * as os from 'node:os';
 
-import type { Page } from '@playwright/test';
-
 import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
 import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { deletePodmanMachine } from '../utility/operations';
+import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
 import { isWindows } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -127,8 +125,8 @@ test.describe.serial(`Podman machine switching validation `, () => {
     await podmanMachineDetails.podmanMachineStartButton.click();
     await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
 
-    await handlePopupDialog(page, 'Yes');
-    await handlePopupDialog(page, 'OK');
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
 
   test('Stop rootless podman machine', async ({ page }) => {
@@ -160,25 +158,16 @@ test.describe.serial(`Podman machine switching validation `, () => {
     await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
     await podmanMachineDetails.podmanMachineStartButton.click();
     await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
-    await handlePopupDialog(page, 'Yes');
-    await handlePopupDialog(page, 'OK');
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
 
   test('Clean up rootless podman machine', async ({ page }) => {
     await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
 
     if (isWindows) {
-      await handlePopupDialog(page, 'Yes');
-      await handlePopupDialog(page, 'OK');
+      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+      await handleConfirmationDialog(page, 'Podman', true, 'OK');
     }
   });
 });
-
-async function handlePopupDialog(page: Page, action: string): Promise<void> {
-  const dialog = page.getByRole('dialog', { name: 'Podman', exact: true });
-  await playExpect(dialog).toBeVisible();
-
-  const clickOnButton = dialog.getByRole('button', { name: action, exact: true });
-  await playExpect(clickOnButton).toBeEnabled();
-  await clickOnButton.click();
-}
