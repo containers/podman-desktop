@@ -45,7 +45,7 @@
     "tailwindcss": "^3.4.11",
     "tslib": "^2.7.0",
     "typescript": "^5.5.4",
-    "vite": "^5.4.5",
+    "vite": "^5.4.6",
     "vitest": "^2.0.5",
     "@xterm/xterm": "^5.5.0",
     "@xterm/addon-fit": "^0.10.0",
