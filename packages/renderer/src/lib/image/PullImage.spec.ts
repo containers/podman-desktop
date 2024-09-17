@@ -136,7 +136,7 @@ describe('PullImage', () => {
     expect(button).toBeInTheDocument();
     expect(button).toBeDisabled();
 
-    const textbox = screen.getByRole('textbox', { name: 'imageName' });
+    const textbox = screen.getByRole('textbox', { name: 'Image to Pull' });
     await userEvent.click(textbox);
     await userEvent.paste('some-valid-image');
 
@@ -173,7 +173,7 @@ describe('PullImage', () => {
     setup();
     render(PullImage);
 
-    const pullImageInput = screen.getByRole('textbox', { name: 'imageName' });
+    const pullImageInput = screen.getByRole('textbox', { name: 'Image to Pull' });
     expect(pullImageInput.matches(':focus')).toBe(true);
   });
 
