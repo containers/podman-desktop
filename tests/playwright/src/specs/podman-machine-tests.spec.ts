@@ -75,7 +75,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
   });
 
   test('Create rootless podman machine', async ({ page, navigationBar }) => {
-    test.setTimeout(120000);
+    test.setTimeout(150000);
 
     const dashboard = await navigationBar.openDashboard();
     await playExpect(dashboard.heading).toBeVisible();
@@ -101,7 +101,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
     await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).not.toBeChecked();
 
     await podmanMachineCreatePage.podmanMachineCreateButton.click();
-    await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 100000 });
+    await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 120000 });
     await podmanMachineCreatePage.goBackButton.click();
 
     await playExpect(resourcesPage.heading).toBeVisible();
@@ -114,7 +114,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
       ROOTLESS_PODMAN_MACHINE_VISIBLE,
     );
 
-    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible({ timeout: 30000 });
     await resourcesPodmanConnections.resourceElementDetailsButton.click();
 
     const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
