@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import Button from '@podman-desktop/ui-svelte/Button';
 import { type Args, defineMeta, setTemplate, type StoryContext } from '@storybook/addon-svelte-csf';
@@ -18,9 +18,7 @@ const { Story } = defineMeta({
     onclick: onclickFn,
   },
 });
-</script>
 
-<script lang="ts">
 setTemplate(template);
 </script>
 

@@ -784,8 +784,8 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(react@18.2.0)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
       '@storybook/addon-svelte-csf':
-        specifier: 5.0.0-next.1
-        version: 5.0.0-next.1(@storybook/svelte@8.3.0(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246))(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6))
+        specifier: 5.0.0-next.3
+        version: 5.0.0-next.3(@storybook/svelte@8.3.0(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246))(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6))
       '@storybook/blocks':
         specifier: ^8.3.0
         version: 8.3.0(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
@@ -3130,8 +3130,8 @@ packages:
     peerDependencies:
       storybook: ^8.3.0
 
-  '@storybook/addon-svelte-csf@5.0.0-next.1':
-    resolution: {integrity: sha512-WoGzdjeci1hRWwEWIa1KIwT1zuuFVhlJOUqpec1YrO+iCskjVk/ZqKHsOJ2K1FBSDdA9ztYEWxstAQP4ojOyEw==}
+  '@storybook/addon-svelte-csf@5.0.0-next.3':
+    resolution: {integrity: sha512-LIs+a/PdWT9ENnw1RrNJ5o7n3gkA9/VKqqgOuTthLk0BwsujQEfY0aWxkXFZWlAYhT8hINZ6tc3HglsUyN0pmg==}
     peerDependencies:
       '@storybook/svelte': ^8.0.0
       '@sveltejs/vite-plugin-svelte': ^4.0.0-next.0 || ^4.0.0
@@ -14072,11 +14072,11 @@ snapshots:
 
   '@isaacs/cliui@8.0.2':
     dependencies:
-      string-width: 5.1.2
+      string-width: 4.2.3
       string-width-cjs: string-width@4.2.3
       strip-ansi: 7.1.0
       strip-ansi-cjs: strip-ansi@6.0.1
-      wrap-ansi: 8.1.0
+      wrap-ansi: 7.0.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/fs-minipass@4.0.1':
@@ -14669,7 +14669,7 @@ snapshots:
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
       ts-dedent: 2.2.0
 
-  '@storybook/addon-svelte-csf@5.0.0-next.1(@storybook/svelte@8.3.0(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246))(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6))':
+  '@storybook/addon-svelte-csf@5.0.0-next.3(@storybook/svelte@8.3.0(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246))(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.246)(vite@5.4.5(@types/node@20.16.5)(terser@5.31.6))':
     dependencies:
       '@storybook/csf': 0.1.11
       '@storybook/docs-tools': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
