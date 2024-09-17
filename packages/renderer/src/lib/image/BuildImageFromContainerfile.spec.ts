@@ -399,4 +399,8 @@ test('Expect Containerfile path to be relative to build context', () => {
   buildContext = 'User//test/test1/test2';
   containerFilePath = 'User/test//test1/test2//test3/file1';
   expect(component.getRelativePath(buildContext, containerFilePath)).toBe('test3/file1');
+
+  buildContext = 'User\\test\\test1\\test2';
+  containerFilePath = 'User\\test\\test1\\test3\\file1';
+  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../test3/file1');
 });
