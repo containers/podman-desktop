@@ -386,7 +386,7 @@
     "@podman-desktop/api": "workspace:*",
     "compare-versions": "^6.1.1",
     "ps-list": "^8.1.1",
-    "ssh2": "^1.15.0"
+    "ssh2": "^1.16.0"
   },
   "devDependencies": {
     "@types/ssh2": "^1.15.1",
