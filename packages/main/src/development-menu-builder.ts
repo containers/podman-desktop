@@ -21,9 +21,10 @@ import type { BrowserWindow, ContextMenuParams, MenuItemConstructorOptions } fro
 export function buildDevelopmentMenu(
   parameters: ContextMenuParams,
   browserWindow: BrowserWindow,
+  devMode: boolean,
 ): MenuItemConstructorOptions[] {
   // In development mode, show the "Open DevTools of Extension and Webviews" menu item
-  if (import.meta.env.DEV) {
+  if (devMode) {
     let extensionId = '';
     if (parameters?.linkURL?.includes('/contribs')) {
       const extensionIdVal = parameters.linkURL.split('/contribs/')[1];
@@ -39,8 +40,6 @@ export function buildDevelopmentMenu(
             },
           },
         ];
-      } else {
-        return [];
       }
     } else if (parameters?.linkURL?.includes('/webviews/')) {
       const webviewId = parameters.linkURL.split('/webviews/')[1];
@@ -53,10 +52,7 @@ export function buildDevelopmentMenu(
           },
         },
       ];
-    } else {
-      return [];
     }
-  } else {
-    return [];
   }
+  return [];
 }

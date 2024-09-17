@@ -188,7 +188,7 @@ async function createWindow(): Promise<BrowserWindow> {
     showInspectElement: import.meta.env.DEV,
     showServices: false,
     prepend: (_defaultActions, parameters) => {
-      return developmentItemsMenuBuilder.buildDevelopmentMenu(parameters, browserWindow);
+      return developmentItemsMenuBuilder.buildDevelopmentMenu(parameters, browserWindow, import.meta.env.DEV);
     },
     append: (_defaultActions, parameters) => {
       return navigationItemsMenuBuilder?.buildNavigationMenu(parameters) ?? [];
