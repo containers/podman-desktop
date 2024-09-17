@@ -59,11 +59,8 @@ test.describe.serial('Pulling image from authenticated registry workflow verific
     const errorAlert = page.getByLabel('Error Message Content');
 
     const pullImagePage = await imagesPage.openPullImage();
-    const imageNameInput = pullImagePage.page.getByLabel('imageName');
-    const pullImageButton = pullImagePage.page.getByRole('button', { name: 'Pull' });
-
-    await imageNameInput.fill(fullImageTitle);
-    await pullImageButton.click();
+    await pullImagePage.imageNameInput.fill(fullImageTitle);
+    await pullImagePage.pullImageButton.click();
 
     await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
     await playExpect(errorAlert).toContainText('Error while pulling image from');
