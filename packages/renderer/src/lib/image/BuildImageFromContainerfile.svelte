@@ -112,12 +112,16 @@ function getTerminalCallback(): BuildImageCallback {
 
 export function getRelativePath(context: string, file: string): string {
   let relativePath = '';
+  // split paths based on backward or forward slashes (works for both Windows and Mac/Linux path formats)
   let contextPath = context.split(/[\\/]/).filter(dir => dir);
   let filePath = file.split(/[\\/]/).filter(dir => dir);
   let index = 0;
+  // find the first place where both paths don't match
   while (index < contextPath.length && index < filePath.length && contextPath[index] === filePath[index]) {
     index++;
   }
+  // add .. for the remaining length of the context path (if the context path didn't fully match part of the file path)
+  // then add the remaining path of the file
   if (index < contextPath.length) {
     let back = Array(contextPath.length - index).fill('..');
     relativePath = `${back.join('/')}/${filePath.slice(index).join('/')}`;

@@ -392,13 +392,17 @@ test('Expect build to include build arguments', async () => {
 test('Expect Containerfile path to be relative to build context', () => {
   setup();
   const { component } = render(BuildImageFromContainerfile, {});
-  let buildContext = 'User/test/test1/test2';
-  let containerFilePath = 'User/file1';
+  let buildContext = '/User/test/test1/test2';
+  let containerFilePath = '/User/file1';
   expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../../../file1');
 
-  buildContext = 'User//test/test1/test2';
-  containerFilePath = 'User/test//test1/test2//test3/file1';
+  buildContext = '/User//test/test1/test2';
+  containerFilePath = '/User/test//test1/test2//test3/file1';
   expect(component.getRelativePath(buildContext, containerFilePath)).toBe('test3/file1');
+
+  buildContext = '/User//test/test1/test2';
+  containerFilePath = '/User/test1//test1/test2//test3/file1';
+  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../../../test1/test1/test2/test3/file1');
 
   buildContext = 'User\\test\\test1\\test2';
   containerFilePath = 'User\\test\\test1\\test3\\file1';
