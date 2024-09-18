@@ -68,7 +68,12 @@ export class CLIToolsPage extends SettingsPage {
       return '';
     }
 
-    return await this.getToolRow(toolName).getByLabel('cli-version').innerText();
+    const version = await this.getToolRow(toolName).getByLabel('cli-version').innerText();
+    if (version.includes('No version detected')) {
+      return '';
+    }
+
+    return version;
   }
 
   public async installTool(toolName: string, version: string = ''): Promise<this> {

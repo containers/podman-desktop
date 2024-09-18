@@ -253,6 +253,8 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
 export async function ensureKindCliInstalled(page: Page, timeout = 60000): Promise<void> {
   const cliToolsPage = new CLIToolsPage(page);
   await playExpect(cliToolsPage.toolsTable).toBeVisible({ timeout: 10000 });
+  await playExpect.poll(async () => await cliToolsPage.toolsTable.count()).toBeGreaterThan(0);
+  await playExpect(cliToolsPage.getToolRow('Kind')).toBeVisible();
 
   if (!(await cliToolsPage.getCurrentToolVersion('Kind'))) {
     await cliToolsPage.installTool('Kind');
@@ -321,6 +323,6 @@ export async function deleteKindCluster(
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
   await playExpect
-    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 10000 })
+    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 20000 })
     .toBeFalsy();
 }
