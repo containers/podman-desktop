@@ -34,7 +34,7 @@ export class CLIToolsPage extends SettingsPage {
     super(page, 'CLI Tools');
     this.main = page.getByRole('region', { name: 'CLI Tools' }); //check name
     this.header = this.main.getByRole('region', { name: 'Header' });
-    this.heading = this.header.getByRole('heading', { name: 'CLI' });
+    this.heading = this.header.getByRole('heading', { name: 'CLI Tools', exact: true });
     this.content = this.main.getByRole('region', { name: 'Content' });
     this.toolsTable = this.content.getByRole('table', { name: 'cli-tools' });
     this.dropDownDialog = page.getByRole('dialog', {
