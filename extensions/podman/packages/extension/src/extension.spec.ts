@@ -107,6 +107,7 @@ const telemetryLogger: extensionApi.TelemetryLogger = {
 const mocks = vi.hoisted(() => ({
   getPodmanLocationMacMock: vi.fn(),
   getKrunkitVersionMock: vi.fn(),
+  getQemuVersionMock: vi.fn(),
 }));
 
 // mock ps-list
@@ -223,6 +224,12 @@ vi.mock('node:os', async () => {
   };
 });
 
+vi.mock('./qemu-helper', () => ({
+  QemuHelper: vi.fn().mockReturnValue({
+    getQemuVersion: mocks.getQemuVersionMock,
+  }),
+}));
+
 vi.mock('./krunkit-helper', async () => {
   return {
     KrunkitHelper: vi.fn().mockImplementation(() => {
@@ -283,6 +290,10 @@ vi.mock('./util', async () => {
 beforeEach(() => {
   vi.resetAllMocks();
   console.error = consoleErrorMock;
+
+  (extensionApi.env.isMac as boolean) = true;
+  (extensionApi.env.isLinux as boolean) = false;
+  (extensionApi.env.isWindows as boolean) = false;
 });
 
 afterEach(() => {
@@ -2098,59 +2109,117 @@ test('isLibkrunSupported should return false with previous 5.1.2 version', async
   expect(enabled).toBeFalsy();
 });
 
-test('sendTelemetryRecords with krunkit found', async () => {
-  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
-    version: '5.1.2',
+describe('sendTelemetryRecords', () => {
+  test('krunkit found', async () => {
+    vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+      version: '5.1.2',
+    });
+    mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+    mocks.getKrunkitVersionMock.mockResolvedValue('1.2.3');
+
+    extension.sendTelemetryRecords(
+      'evt',
+      {
+        provider: 'libkrun',
+      } as Record<string, unknown>,
+      false,
+    );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+      'evt',
+      expect.objectContaining({
+        krunkitPath: '/opt/podman/bin',
+        krunkitVersion: '1.2.3',
+        podmanCliFoundPath: '/opt/podman/bin/podman',
+        podmanCliSource: 'installer',
+        podmanCliVersion: '5.1.2',
+        provider: 'libkrun',
+      }),
+    );
   });
-  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
-  mocks.getKrunkitVersionMock.mockResolvedValue('1.2.3');
 
-  extension.sendTelemetryRecords(
-    'evt',
-    {
-      provider: 'libkrun',
-    } as Record<string, unknown>,
-    false,
-  );
-  await new Promise(resolve => setTimeout(resolve, 100));
-  expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
-    'evt',
-    expect.objectContaining({
-      krunkitPath: '/opt/podman/bin',
-      krunkitVersion: '1.2.3',
-      podmanCliFoundPath: '/opt/podman/bin/podman',
-      podmanCliSource: 'installer',
-      podmanCliVersion: '5.1.2',
-      provider: 'libkrun',
-    }),
-  );
-});
+  test('krunkit not found', async () => {
+    vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+      version: '5.1.2',
+    });
+    mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
+    mocks.getKrunkitVersionMock.mockRejectedValue('command not found');
 
-test('sendTelemetryRecords with krunkit not found', async () => {
-  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
-    version: '5.1.2',
+    extension.sendTelemetryRecords(
+      'evt',
+      {
+        provider: 'libkrun',
+      } as Record<string, unknown>,
+      false,
+    );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+      'evt',
+      expect.objectContaining({
+        errorKrunkitVersion: 'command not found',
+        podmanCliFoundPath: '/opt/podman/bin/podman',
+        podmanCliSource: 'installer',
+        podmanCliVersion: '5.1.2',
+        provider: 'libkrun',
+      }),
+    );
   });
-  mocks.getPodmanLocationMacMock.mockResolvedValue({ foundPath: '/opt/podman/bin/podman', source: 'installer' });
-  mocks.getKrunkitVersionMock.mockRejectedValue('command not found');
 
-  extension.sendTelemetryRecords(
-    'evt',
-    {
-      provider: 'libkrun',
-    } as Record<string, unknown>,
-    false,
-  );
-  await new Promise(resolve => setTimeout(resolve, 100));
-  expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
-    'evt',
-    expect.objectContaining({
-      errorKrunkitVersion: 'command not found',
-      podmanCliFoundPath: '/opt/podman/bin/podman',
-      podmanCliSource: 'installer',
-      podmanCliVersion: '5.1.2',
-      provider: 'libkrun',
-    }),
-  );
+  test('qemu found', async () => {
+    vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+      version: '5.1.2',
+    });
+    extension.sendTelemetryRecords(
+      'evt',
+      {
+        provider: 'qemu',
+      } as Record<string, unknown>,
+      false,
+    );
+    (extensionApi.env.isLinux as boolean) = true;
+    (extensionApi.env.isMac as boolean) = false;
+    (extensionApi.env.isWindows as boolean) = false;
+
+    mocks.getQemuVersionMock.mockResolvedValue('5.5.5');
+
+    await vi.waitFor(() => {
+      expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+        'evt',
+        expect.objectContaining({
+          provider: 'qemu',
+          qemuVersion: '5.5.5',
+        }),
+      );
+    });
+  });
+
+  test('qemu not found', async () => {
+    vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+      version: '5.1.2',
+    });
+    extension.sendTelemetryRecords(
+      'evt',
+      {
+        provider: 'qemu',
+      } as Record<string, unknown>,
+      false,
+    );
+    (extensionApi.env.isLinux as boolean) = true;
+    (extensionApi.env.isMac as boolean) = false;
+    (extensionApi.env.isWindows as boolean) = false;
+
+    mocks.getQemuVersionMock.mockRejectedValue('command not found');
+
+    await vi.waitFor(() => {
+      expect(telemetryLogger.logUsage).toHaveBeenCalledWith(
+        'evt',
+        expect.objectContaining({
+          provider: 'qemu',
+          errorQemuVersion: 'command not found',
+        }),
+      );
+    });
+  });
 });
 
 test('if a machine stopped is successfully reporting telemetry', async () => {

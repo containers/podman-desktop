@@ -38,6 +38,7 @@ import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { PodmanInstall } from './podman-install';
 import { PodmanRemoteConnections } from './podman-remote-connections';
+import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import {
   appConfigDir,
@@ -89,6 +90,7 @@ const configurationCompatibilityMode = 'setting.dockerCompatibility';
 let telemetryLogger: extensionApi.TelemetryLogger | undefined;
 
 const wslHelper = new WslHelper();
+const qemuHelper = new QemuHelper();
 const krunkitHelper = new KrunkitHelper();
 const podmanBinaryHelper = new PodmanBinaryLocationHelper();
 const podmanInfoHelper = new PodmanInfoHelper();
@@ -1850,6 +1852,13 @@ export function sendTelemetryRecords(
       } catch (error) {
         console.trace('unable to check wsl version', error);
         telemetryRecords.errorWslVersion = error;
+      }
+    } else if (extensionApi.env.isLinux && telemetryRecords.provider === 'qemu') {
+      try {
+        telemetryRecords.qemuVersion = await qemuHelper.getQemuVersion();
+      } catch (err: unknown) {
+        console.trace('unable to check qemu version', err);
+        telemetryRecords.errorQemuVersion = err;
       }
     }
 
