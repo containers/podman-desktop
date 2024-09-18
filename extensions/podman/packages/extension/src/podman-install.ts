@@ -611,7 +611,7 @@ class WinVersionCheck extends BaseCheck {
 
 class WinMemoryCheck extends BaseCheck {
   title = 'RAM';
-  private REQUIRED_MEM = 6 * 1024 * 1024 * 1024; // 6Gb
+  private REQUIRED_MEM = 5 * 1024 * 1024 * 1024; // 5Gb
 
   async execute(): Promise<extensionApi.CheckResult> {
     const totalMem = os.totalmem();
@@ -619,7 +619,7 @@ class WinMemoryCheck extends BaseCheck {
       return this.createSuccessfulResult();
     } else {
       return this.createFailureResult({
-        description: 'You need at least 6GB to run Podman.',
+        description: 'You need at least 5GB to run Podman.',
       });
     }
   }
