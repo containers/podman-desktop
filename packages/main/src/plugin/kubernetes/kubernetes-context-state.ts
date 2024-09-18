@@ -63,6 +63,7 @@ import {
   connectTimeout,
   dispatchTimeout,
 } from './kubernetes-context-state-constants.js';
+import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 
 // If the number of contexts in the kubeconfig file is greater than this number,
 // only the connectivity to the current context will be checked
@@ -333,40 +334,13 @@ export class ContextsStates {
   }
 }
 
-class SecondaryResourceWatchersRegistry {
-  // Map resourceName to number of watchers
-  private watchingSecondaryResource = new Map<string, number>();
-
-  subscribe(resourceName: string): void {
-    let count = this.watchingSecondaryResource.get(resourceName);
-    if (count === undefined) {
-      this.watchingSecondaryResource.set(resourceName, 0);
-      count = 0;
-    }
-    this.watchingSecondaryResource.set(resourceName, count + 1);
-  }
-
-  unsubscribe(resourceName: string): void {
-    const count = this.watchingSecondaryResource.get(resourceName);
-    if (count === undefined) {
-      throw new Error(`unsubscribe before subscribe on resource ${resourceName}`);
-    }
-    this.watchingSecondaryResource.set(resourceName, count - 1);
-  }
-
-  hasSubscribers(resourceName: string): boolean {
-    const count = this.watchingSecondaryResource.get(resourceName);
-    return !!count;
-  }
-}
-
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
 // manages the state of the different kube contexts
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
   private currentContext: KubeContext | undefined;
-  private secondaryWatchers = new SecondaryResourceWatchersRegistry();
+  private secondaryWatchers = new ResourceWatchersRegistry();
 
   private dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
   private dispatchCurrentContextGeneralStateTimer: NodeJS.Timeout | undefined;
