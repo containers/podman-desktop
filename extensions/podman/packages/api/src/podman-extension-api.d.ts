@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RunOptions, RunResult } from '@podman-desktop/api';
+import type { ProviderContainerConnection, RunOptions, RunResult } from '@podman-desktop/api';
 
 export interface PodmanExtensionApi {
-  exec(args: string[], options?: RunOptions): Promise<RunResult>;
+  exec(args: string[], connection?: ProviderContainerConnection, options?: RunOptions): Promise<RunResult>;
 }
