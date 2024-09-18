@@ -76,6 +76,10 @@ export class WebviewPanelImpl implements WebviewPanel {
     this.#viewType = panelDetails.viewType;
   }
 
+  get id(): string {
+    return this.internalId;
+  }
+
   get internalId(): string {
     return this.#internalId;
   }

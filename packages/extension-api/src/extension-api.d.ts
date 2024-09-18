@@ -1894,6 +1894,10 @@ declare module '@podman-desktop/api' {
    */
   interface WebviewPanel {
     /**
+     * The identifier of the webview. Useful for {@link navigation.navigateToWebview}.
+     */
+    readonly id: string;
+    /**
      * Identifies the type of the webview panel.
      */
     readonly viewType: string;

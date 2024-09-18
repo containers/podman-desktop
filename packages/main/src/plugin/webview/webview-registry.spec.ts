@@ -246,6 +246,7 @@ test('check configureRouter with valid uuid and file exists', async () => {
     'viewTypeInfo',
     'customTitle',
   );
+  expect(panel.id).toBeDefined();
   const panelImpl = panel as WebviewPanelImpl;
   const uuid = panelImpl.webview.uuid;
 
