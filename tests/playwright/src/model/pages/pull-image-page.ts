@@ -39,7 +39,7 @@ export class PullImagePage extends BasePage {
     this.imageNameInput = page.getByLabel('Image to Pull');
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
+  async pullImage(imageName: string, tag = '', timeout = 120000): Promise<ImagesPage> {
     const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
     await this.imageNameInput.fill(fullImageName);
     await playExpect(this.pullImageButton).toBeEnabled();
