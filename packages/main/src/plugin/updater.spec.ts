@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IncomingMessage } from 'node:http';
+
 import type { Configuration } from '@podman-desktop/api';
 import { app, shell } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
@@ -55,6 +57,14 @@ vi.mock('electron-updater', () => ({
 
 vi.mock('/@/util.js', () => ({
   isLinux: vi.fn(),
+}));
+
+const getStatusCodeMock = { statusCode: 200 } as IncomingMessage;
+
+vi.mock('https', () => ({
+  get: (_: string, callback: (_: IncomingMessage) => void): void => {
+    callback(getStatusCodeMock);
+  },
 }));
 
 const messageBoxMock = {
@@ -107,6 +117,7 @@ beforeEach(() => {
   vi.mocked(taskManagerMock.createTask).mockResolvedValue({
     progress: 0,
   } as unknown as Task);
+  console.error = vi.fn();
 });
 
 test('expect env PROD to be truthy', () => {
@@ -550,7 +561,6 @@ test('open release notes from podman-desktop.io', async () => {
       version: '1.2.0',
     },
   } as unknown as UpdateCheckResult);
-  vi.spyOn(global, 'fetch').mockImplementation(() => Promise.resolve({ ok: true } as Response));
 
   const updater = new Updater(
     messageBoxMock,
@@ -559,6 +569,8 @@ test('open release notes from podman-desktop.io', async () => {
     commandRegistryMock,
     taskManagerMock,
   );
+
+  vi.mocked(shell.openExternal).mockResolvedValue();
   updater.init();
 
   await updater.openReleaseNotes('current');
@@ -575,7 +587,7 @@ test('open release notes from GitHub', async () => {
     },
   } as unknown as UpdateCheckResult);
 
-  vi.mocked(fetch).mockImplementation(() => Promise.resolve({ ok: false } as Response));
+  getStatusCodeMock.statusCode = 404;
 
   const updater = new Updater(
     messageBoxMock,
@@ -584,6 +596,7 @@ test('open release notes from GitHub', async () => {
     commandRegistryMock,
     taskManagerMock,
   );
+  vi.mocked(shell.openExternal).mockResolvedValue();
   updater.init();
 
   await updater.openReleaseNotes('current');
