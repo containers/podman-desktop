@@ -64,16 +64,11 @@ export class CLIToolsPage extends SettingsPage {
   }
 
   public async getCurrentToolVersion(toolName: string): Promise<string> {
-    if ((await this.getToolRow(toolName).getByLabel('no-cli-version').count()) > 0) {
+    if ((await this.getToolRow(toolName).getByLabel('no-cli-version', { exact: true }).count()) > 0) {
       return '';
     }
 
-    const version = await this.getToolRow(toolName).getByLabel('cli-version').innerText();
-    if (version.includes('No version detected')) {
-      return '';
-    }
-
-    return version;
+    return await this.getToolRow(toolName).getByLabel('cli-version', { exact: true }).innerText();
   }
 
   public async installTool(toolName: string, version: string = ''): Promise<this> {
