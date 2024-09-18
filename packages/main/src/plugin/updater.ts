@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as https from 'node:https';
+
 import { app, shell } from 'electron';
 import {
   autoUpdater,
@@ -70,11 +72,12 @@ export class Updater {
     }
     const urlVersionFormat = version.split('.', 2).join('.');
     let notesURL = `https://podman-desktop.io/blog/podman-desktop-release-${urlVersionFormat}`;
-    const response = await fetch(notesURL);
-    if (!response.ok) {
-      notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${version}`;
-    }
-    await shell.openExternal(notesURL);
+    https.get(notesURL, res => {
+      if (res.statusCode !== 200) {
+        notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${version}`;
+      }
+      shell.openExternal(notesURL).catch(console.error);
+    });
   }
 
   /**
