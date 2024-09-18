@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { ImageFilesystemLayer } from '@podman-desktop/api';
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -273,5 +273,31 @@ describe('ImageDetailsFiles component', () => {
     expect(imageGetFilesystemLayersMock).toHaveBeenCalledWith(expect.anything(), expect.anything(), TOKEN_ID);
     component.unmount();
     expect(cancelTokenMock).toHaveBeenCalledWith(TOKEN_ID);
+  });
+
+  test('error during imageGetFilesystemLayers', async () => {
+    getCancellableTokenSourceMock.mockResolvedValue(101010);
+    imageGetFilesystemLayersMock.mockRejectedValue(new Error('an error'));
+    const imageInfo = {
+      engineId: 'podman.Podman',
+      engineName: 'Podman',
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
+      Digest: '',
+    };
+    render(ImageDetailsFiles, {
+      imageInfo,
+    });
+    imageFilesProviders.set([{ id: 'provider1', label: 'Provider 1' }]);
+    await tick();
+    await tick();
+    screen.getByText('Error: an error');
   });
 });
