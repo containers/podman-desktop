@@ -77,7 +77,7 @@ import { Emitter } from '../events/emitter.js';
 import type { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
 import { Uri } from '../types/uri.js';
-import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from './contexts-states.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
 

@@ -25,7 +25,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/contexts-states';
 
 const mocks = vi.hoisted(() => ({
   subscribeMock: vi.fn(),

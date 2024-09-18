@@ -94,12 +94,12 @@ import type {
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes/contexts-states';
 import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorSelector,
 } from '../../main/src/plugin/kubernetes/kube-generator-registry';
-import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes/kubernetes-context-state';
 import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
