@@ -261,7 +261,7 @@ test('expect winversion preflight check return failure result if the version is 
   expect(result.docLinks?.[0].title).equal('WSL2 Manual Installation Steps');
 });
 
-test('expect winMemory preflight check return successful result if the machine has more than 6GB of memory', async () => {
+test('expect winMemory preflight check return successful result if the machine has more than 5GB of memory', async () => {
   const SYSTEM_MEM = 7 * 1024 * 1024 * 1024;
   vi.spyOn(os, 'totalmem').mockReturnValue(SYSTEM_MEM);
 
@@ -272,7 +272,7 @@ test('expect winMemory preflight check return successful result if the machine h
   expect(result.successful).toBeTruthy();
 });
 
-test('expect winMemory preflight check return failure result if the machine has less than 6GB of memory', async () => {
+test('expect winMemory preflight check return failure result if the machine has less than 5GB of memory', async () => {
   const SYSTEM_MEM = 4 * 1024 * 1024 * 1024;
   vi.spyOn(os, 'totalmem').mockReturnValue(SYSTEM_MEM);
 
@@ -280,7 +280,7 @@ test('expect winMemory preflight check return failure result if the machine has 
   const preflights = installer.getPreflightChecks();
   const winMemoryCheck = preflights[2];
   const result = await winMemoryCheck.execute();
-  expect(result.description).equal('You need at least 6GB to run Podman.');
+  expect(result.description).equal('You need at least 5GB to run Podman.');
   expect(result.docLinksDescription).toBeUndefined();
   expect(result.docLinks).toBeUndefined();
   expect(result.fixCommand).toBeUndefined();
