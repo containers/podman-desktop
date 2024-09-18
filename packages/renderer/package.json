@@ -42,7 +42,7 @@
     "svelte-eslint-parser": "^0.41.1",
     "svelte-fa": "^4.0.2",
     "svelte-steps": "2.4.1",
-    "tailwindcss": "^3.4.11",
+    "tailwindcss": "^3.4.12",
     "tslib": "^2.7.0",
     "typescript": "^5.5.4",
     "vite": "^5.4.6",
