@@ -50,7 +50,7 @@ function observe(iframe: HTMLIFrameElement): void {
 function StorybookRoot(): JSX.Element {
   // eslint-disable-next-line no-null/no-null
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   const { search } = useLocation();
   const [id, setId] = React.useState<string | undefined>(undefined);
@@ -67,7 +67,7 @@ function StorybookRoot(): JSX.Element {
     iframeRef?.current?.contentWindow?.postMessage(
       JSON.stringify({
         key: 'storybook-channel',
-        event: { type: 'DARK_MODE', args: [isDarkTheme] },
+        event: { type: 'DARK_MODE', args: [colorMode === 'dark'] },
       }),
     );
   };
@@ -93,7 +93,7 @@ function StorybookRoot(): JSX.Element {
 
   useEffect(() => {
     notifyIframe();
-  }, [isDarkTheme]);
+  }, [colorMode]);
 
   return (
     <div className={clsx(styles.storybookRoot)}>
