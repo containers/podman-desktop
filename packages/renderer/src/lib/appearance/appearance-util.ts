@@ -16,10 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { get } from 'svelte/store';
-
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import { isDark } from '../../stores/appearance';
+
+let isDarkTheme = false;
+isDark.subscribe(value => {
+  isDarkTheme = value;
+});
 
 export class AppearanceUtil {
   async getTheme(): Promise<string> {
@@ -48,7 +51,6 @@ export class AppearanceUtil {
       return icon;
     }
 
-    const isDarkTheme = get(isDark);
     if (isDarkTheme && icon.dark) {
       return icon.dark;
     } else if (!isDarkTheme && icon.light) {
