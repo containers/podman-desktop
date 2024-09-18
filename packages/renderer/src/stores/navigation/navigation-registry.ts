@@ -82,6 +82,11 @@ function collecItem(navigationRegistryEntry: NavigationRegistryEntry, items: Dis
   if (items.find(i => i.name === navigationRegistryEntry.name)) {
     return;
   }
+
+  items.push({
+    name: navigationRegistryEntry.name,
+    visible: navigationRegistryEntry.hidden ? false : true,
+  });
 }
 
 // use helper here as window methods are initialized after the store in tests
