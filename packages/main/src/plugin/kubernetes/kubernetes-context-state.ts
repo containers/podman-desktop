@@ -55,6 +55,7 @@ import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
+import { Backoff } from './backoff.js';
 import {
   backoffInitialValue,
   backoffJitter,
@@ -184,34 +185,6 @@ interface SetStateAndDispatchOptions {
   resources?: ResourcesDispatchOptions;
   // the caller can modify the `previous` state in this function, which will be called before the state is dispatched
   update: (previous: ContextState) => void;
-}
-
-class Backoff {
-  private readonly initial: number;
-  constructor(
-    public value: number,
-    private readonly max: number,
-    private readonly jitter: number,
-  ) {
-    this.initial = value;
-    this.value += this.getJitter();
-  }
-  get(): number {
-    const current = this.value;
-    if (this.value < this.max) {
-      this.value *= 2;
-      this.value += this.getJitter();
-    }
-    return current;
-  }
-  reset(): void {
-    this.value = this.initial + this.getJitter();
-  }
-
-  private getJitter(): number {
-    // eslint-disable-next-line sonarjs/pseudo-random
-    return Math.floor(this.jitter * Math.random());
-  }
 }
 
 export class ContextsStates {
