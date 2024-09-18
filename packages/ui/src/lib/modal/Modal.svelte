@@ -6,7 +6,6 @@ import { tabWithinParent } from '../utils/dialog-utils';
 const dispatch = createEventDispatcher();
 
 let modal: HTMLDivElement;
-export let name = '';
 export let top: boolean = false;
 export let ignoreFocusOut: boolean = false;
 export let onclose: () => void = () => {
@@ -57,7 +56,7 @@ function handleMousedown(e: MouseEvent): void {
     class:my-[32px]={top}
     class="bg-[var(--pd-modal-bg)] z-50 rounded-xl overflow-auto w-[calc(200vw-4em)] h-fit max-w-[42em] max-h-[calc(100vh-4em)] border-[1px] border-[var(--pd-modal-border)]"
     role="dialog"
-    aria-label={name}
+    aria-label="drop-down-dialog"
     aria-modal="true"
     bind:this={modal}>
     <slot />

@@ -28,13 +28,16 @@ const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async ({ runner, welcomePage, page }) => {
+test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   test.setTimeout(250000);
   runner.setVideoAndTraceName('kubernetes-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   if (!skipKindInstallation) {
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.cliToolsTab.click();
+
     await ensureKindCliInstalled(page);
   }
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);

@@ -19,6 +19,7 @@
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
+import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import {
@@ -34,6 +35,7 @@ const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const CLUSTER_CREATION_TIMEOUT: number = 200000;
+let resourcesPage: ResourcesPage;
 
 let kindResourceCard: ResourceConnectionCardPage;
 
@@ -43,6 +45,7 @@ test.beforeAll(async ({ runner, page, welcomePage }) => {
   runner.setVideoAndTraceName('kind-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
+  resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
 });
 
@@ -52,8 +55,11 @@ test.afterAll(async ({ runner }) => {
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async ({ page }) => {
+    test('Install Kind CLI', async ({ page, navigationBar }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.cliToolsTab.click();
+
       await ensureKindCliInstalled(page);
     });
 
@@ -64,6 +70,13 @@ test.describe.serial('Kind End-to-End Tests', () => {
         .poll(async () => await extensionsPage.extensionIsInstalled(EXTENSION_LABEL), { timeout: 10000 })
         .toBeTruthy();
       await playExpect(kindExtension.status).toHaveText('ACTIVE');
+      await kindExtension.disableExtension();
+      await navigationBar.openSettings();
+      await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();
+      await navigationBar.openExtensions();
+      await kindExtension.enableExtension();
+      await navigationBar.openSettings();
+      await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
     });
   });
   test.describe('Kind cluster operations', () => {
