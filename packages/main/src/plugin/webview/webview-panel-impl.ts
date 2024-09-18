@@ -35,7 +35,7 @@ import type { WebviewRegistry } from './webview-registry.js';
 type IconPath = Uri | { readonly light: Uri; readonly dark: Uri };
 
 export class WebviewPanelImpl implements WebviewPanel {
-  readonly #internalId: string;
+  readonly #id: string;
   readonly #webviewRegistry: WebviewRegistry;
   readonly #apiSender: ApiSenderType;
 
@@ -55,7 +55,7 @@ export class WebviewPanelImpl implements WebviewPanel {
   readonly onDidChangeViewState: Event<WebviewPanelOnDidChangeViewStateEvent> = this.#onDidChangeViewState.event;
 
   constructor(
-    internalId: string,
+    id: string,
     webviewRegistry: WebviewRegistry,
     apiSender: ApiSenderType,
     webview: WebviewImpl,
@@ -66,7 +66,7 @@ export class WebviewPanelImpl implements WebviewPanel {
       viewType: string;
     },
   ) {
-    this.#internalId = internalId;
+    this.#id = id;
     this.#webviewRegistry = webviewRegistry;
     this.#apiSender = apiSender;
     this.#webview = webview;
@@ -77,11 +77,7 @@ export class WebviewPanelImpl implements WebviewPanel {
   }
 
   get id(): string {
-    return this.internalId;
-  }
-
-  get internalId(): string {
-    return this.#internalId;
+    return this.#id;
   }
 
   get viewType(): string {
@@ -99,7 +95,7 @@ export class WebviewPanelImpl implements WebviewPanel {
     if (this.#title !== val) {
       this.#title = val;
       // need to notify the render that the title has changed
-      this.#apiSender.send('webview-panel-update:title', { id: this.#internalId, title: val });
+      this.#apiSender.send('webview-panel-update:title', { id: this.#id, title: val });
     }
   }
 
@@ -159,7 +155,7 @@ export class WebviewPanelImpl implements WebviewPanel {
     const navigationRequest: NavigationRequest<NavigationPage.WEBVIEW> = {
       page: NavigationPage.WEBVIEW,
       parameters: {
-        id: this.#internalId,
+        id: this.#id,
       },
     };
     this.#apiSender.send('navigate', navigationRequest);

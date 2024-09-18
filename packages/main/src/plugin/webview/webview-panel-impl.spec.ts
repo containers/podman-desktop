@@ -52,7 +52,7 @@ beforeEach(() => {
 
 test('check internalId', async () => {
   // expect internalId is correct
-  expect(webviewPanelImpl.internalId).toBe('internalId0');
+  expect(webviewPanelImpl.id).toBe('internalId0');
 });
 
 test('check viewType', async () => {
@@ -78,7 +78,7 @@ test('allow to update title', async () => {
 
   // expect apiSender.send has been called with correct parameters
   expect(apiSender.send).toHaveBeenCalledWith('webview-panel-update:title', {
-    id: webviewPanelImpl.internalId,
+    id: webviewPanelImpl.id,
     title: 'newTitle',
   });
 });

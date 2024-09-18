@@ -193,7 +193,7 @@ export class WebviewRegistry {
   async makeDefaultWebviewVisible(id: string): Promise<void> {
     // filter all webviews matching the given id
     const activeWebviewPanels = Array.from(this.#webviews.values()).filter(webviewPanel => {
-      return webviewPanel.internalId === id;
+      return webviewPanel.id === id;
     });
 
     // update the state of the webviews
@@ -203,7 +203,7 @@ export class WebviewRegistry {
 
     // now, update the state of the non active webviews
     const nonActiveWebviewPanels = Array.from(this.#webviews.values()).filter(webviewPanel => {
-      return webviewPanel.internalId !== id;
+      return webviewPanel.id !== id;
     });
     for (const webviewPanel of nonActiveWebviewPanels) {
       webviewPanel.updateViewState(false, false);
@@ -254,14 +254,14 @@ export class WebviewRegistry {
     });
 
     this.#uuidAndPaths.set(webview.uuid, extensionInfo.extensionPath);
-    this.#webviews.set(webviewPanelImpl.internalId, webviewPanelImpl);
-    this.#apiSender.send('webview-create', webviewPanelImpl.internalId);
+    this.#webviews.set(webviewPanelImpl.id, webviewPanelImpl);
+    this.#apiSender.send('webview-create', webviewPanelImpl.id);
     return webviewPanelImpl;
   }
 
   disposeWebviewPanel(webviewPanelImpl: WebviewPanelImpl): void {
-    this.#webviews.delete(webviewPanelImpl.internalId);
-    this.#apiSender.send('webview-delete', webviewPanelImpl.internalId);
+    this.#webviews.delete(webviewPanelImpl.id);
+    this.#apiSender.send('webview-delete', webviewPanelImpl.id);
   }
 
   async postMessageToWebview(id: string, message: { data: unknown }): Promise<void> {

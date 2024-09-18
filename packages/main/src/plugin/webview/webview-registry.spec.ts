@@ -387,7 +387,7 @@ test('check makeDefaultWebviewVisible', async () => {
   const panelImpl2 = panel2 as WebviewPanelImpl;
   const spyUpdateViewState2 = vi.spyOn(panelImpl2, 'updateViewState');
 
-  await webviewRegistry.makeDefaultWebviewVisible(panelImpl1.internalId);
+  await webviewRegistry.makeDefaultWebviewVisible(panelImpl1.id);
 
   expect(spyUpdateViewState1).toHaveBeenCalledWith(true, true);
   expect(spyUpdateViewState2).toHaveBeenCalledWith(false, false);
@@ -395,7 +395,7 @@ test('check makeDefaultWebviewVisible', async () => {
   // now call again with the second webview (reset first the calls)
   spyUpdateViewState1.mockClear();
   spyUpdateViewState2.mockClear();
-  await webviewRegistry.makeDefaultWebviewVisible(panelImpl2.internalId);
+  await webviewRegistry.makeDefaultWebviewVisible(panelImpl2.id);
   expect(spyUpdateViewState1).toHaveBeenCalledWith(false, false);
   expect(spyUpdateViewState2).toHaveBeenCalledWith(true, true);
 });
@@ -411,7 +411,7 @@ test('check postMessageToWebview', async () => {
   // spy webviewImpl.handleMessage
   const spyHandleMessage = vi.spyOn(panelImpl1.webview, 'handleMessage');
 
-  await webviewRegistry.postMessageToWebview(panelImpl1.internalId, { data: 'hello world' });
+  await webviewRegistry.postMessageToWebview(panelImpl1.id, { data: 'hello world' });
 
   // check
   expect(spyHandleMessage).toHaveBeenCalledWith('hello world');
@@ -425,7 +425,7 @@ test('check updateWebviewState', async () => {
   );
   const panelImpl1 = panel1 as WebviewPanelImpl;
 
-  await webviewRegistry.updateWebviewState(panelImpl1.internalId, { state: 'myState' });
+  await webviewRegistry.updateWebviewState(panelImpl1.id, { state: 'myState' });
 
   // check
   expect(panelImpl1.webview.state).toStrictEqual({ state: 'myState' });
@@ -452,11 +452,11 @@ test('check listWebviews', async () => {
 
   // check
   expect(webviews.length).toBe(2);
-  expect(webviews[0]?.id).toBe(panelImpl1.internalId);
+  expect(webviews[0]?.id).toBe(panelImpl1.id);
   expect(webviews[0]?.viewType).toBe('viewTypeInfo');
   expect(webviews[0]?.html).toBe('html1');
 
-  expect(webviews[1]?.id).toBe(panelImpl2.internalId);
+  expect(webviews[1]?.id).toBe(panelImpl2.id);
   expect(webviews[1]?.viewType).toBe('viewTypeInfo');
   expect(webviews[1]?.html).toBe('html2');
 });
@@ -482,11 +482,11 @@ test('check listSimpleWebviews', async () => {
 
   // check
   expect(webviews.length).toBe(2);
-  expect(webviews[0]?.id).toBe(panelImpl1.internalId);
+  expect(webviews[0]?.id).toBe(panelImpl1.id);
   expect(webviews[0]?.viewType).toBe('viewTypeInfo');
   expect(webviews[0]?.title).toBe('customTitle1');
 
-  expect(webviews[1]?.id).toBe(panelImpl2.internalId);
+  expect(webviews[1]?.id).toBe(panelImpl2.id);
   expect(webviews[1]?.viewType).toBe('viewTypeInfo');
   expect(webviews[1]?.title).toBe('customTitle2');
 });
