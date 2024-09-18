@@ -97,7 +97,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
   });
 
   test('Create volumes from bootc-image-builder', async ({ navigationBar }) => {
-    test.setTimeout(150000);
+    test.setTimeout(210000);
 
     //count the number of existing volumes
     let volumesPage = await navigationBar.openVolumes();
@@ -119,7 +119,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     //pull image from quay.io/centos-bootc/bootc-image-builder
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(imageToPull, imageTag);
+    images = await pullImagePage.pullImage(imageToPull, imageTag, 120000);
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
 
     //start a container from the image (generates 4 new volumes)
