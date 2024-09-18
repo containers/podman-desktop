@@ -102,7 +102,7 @@ function StorybookRoot(): JSX.Element {
           isHidden={false}
           onCollapse={() => {}}
           sidebar={storybookItems as PropSidebarItem[]}
-          path="/storybook"></DocSidebar>
+          path={`/storybook?id=${id}`}></DocSidebar>
       </aside>
       {id ? (
         <iframe
