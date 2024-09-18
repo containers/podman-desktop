@@ -35,8 +35,8 @@ const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const CLUSTER_CREATION_TIMEOUT: number = 200000;
-
 let resourcesPage: ResourcesPage;
+
 let kindResourceCard: ResourceConnectionCardPage;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
@@ -55,8 +55,11 @@ test.afterAll(async ({ runner }) => {
 
 test.describe.serial('Kind End-to-End Tests', () => {
   test.describe.serial('Kind installation', () => {
-    test('Install Kind CLI', async ({ page }) => {
+    test('Install Kind CLI', async ({ page, navigationBar }) => {
       test.skip(!!skipKindInstallation, 'Skipping Kind installation');
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.cliToolsTab.click();
+
       await ensureKindCliInstalled(page);
     });
 

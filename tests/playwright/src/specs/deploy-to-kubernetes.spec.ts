@@ -42,13 +42,16 @@ const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: fal
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
-test.beforeAll(async ({ runner, welcomePage, page }) => {
+test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   test.setTimeout(250000);
   runner.setVideoAndTraceName('deploy-to-k8s-e2e');
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   if (!skipKindInstallation) {
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.cliToolsTab.click();
+
     await ensureKindCliInstalled(page);
   }
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);

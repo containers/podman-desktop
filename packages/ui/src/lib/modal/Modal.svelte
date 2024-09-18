@@ -6,7 +6,7 @@ import { tabWithinParent } from '../utils/dialog-utils';
 const dispatch = createEventDispatcher();
 
 let modal: HTMLDivElement;
-export let name = '';
+export let name = 'drop-down-dialog';
 export let top: boolean = false;
 export let ignoreFocusOut: boolean = false;
 export let onclose: () => void = () => {

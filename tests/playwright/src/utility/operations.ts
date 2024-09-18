@@ -24,6 +24,7 @@ import { expect as playExpect } from '@playwright/test';
 import { ResourceElementActions } from '../model/core/operations';
 import { ResourceElementState } from '../model/core/states';
 import type { KindClusterOptions } from '../model/core/types';
+import { CLIToolsPage } from '../model/pages/cli-tools-page';
 import { CreateKindClusterPage } from '../model/pages/create-kind-cluster-page';
 import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
@@ -238,7 +239,10 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
     }
     return undefined;
   } catch (error) {
-    if (error instanceof Error && error.message === 'Page is empty, there is no content') {
+    if (
+      error instanceof Error &&
+      (error.message === 'Page is empty, there is no content' || error.message.includes('does not exist'))
+    ) {
       return undefined;
     } else {
       throw error;
@@ -246,13 +250,19 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
   }
 }
 
-export async function ensureKindCliInstalled(page: Page): Promise<void> {
-  const statusBar = new StatusBar(page);
+export async function ensureKindCliInstalled(page: Page, timeout = 60000): Promise<void> {
+  const cliToolsPage = new CLIToolsPage(page);
+  await playExpect(cliToolsPage.toolsTable).toBeVisible({ timeout: 10000 });
+  await playExpect.poll(async () => await cliToolsPage.toolsTable.count()).toBeGreaterThan(0);
+  await playExpect(cliToolsPage.getToolRow('Kind')).toBeVisible();
 
-  if (await statusBar.kindInstallationButtonIsVisible()) {
-    await statusBar.installKindCLI();
+  if (!(await cliToolsPage.getCurrentToolVersion('Kind'))) {
+    await cliToolsPage.installTool('Kind');
   }
-  await playExpect(statusBar.kindInstallationButton).not.toBeVisible();
+
+  await playExpect
+    .poll(async () => await cliToolsPage.getCurrentToolVersion('Kind'), { timeout: timeout })
+    .toBeTruthy();
 }
 
 export async function createKindCluster(
@@ -313,6 +323,6 @@ export async function deleteKindCluster(
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
   await playExpect
-    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 10000 })
+    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 20000 })
     .toBeFalsy();
 }

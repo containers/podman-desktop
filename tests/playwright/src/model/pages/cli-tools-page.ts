@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { expect as playExpect } from '@playwright/test';
 import type { Locator, Page } from 'playwright';
 
 import { SettingsPage } from './settings-page';
@@ -26,6 +27,8 @@ export class CLIToolsPage extends SettingsPage {
   readonly content: Locator;
   readonly heading: Locator;
   readonly toolsTable: Locator;
+  readonly dropDownDialog: Locator;
+  readonly versionInputField: Locator;
 
   constructor(page: Page) {
     super(page, 'CLI Tools');
@@ -34,5 +37,54 @@ export class CLIToolsPage extends SettingsPage {
     this.heading = this.header.getByRole('heading', { name: 'CLI Tools', exact: true });
     this.content = this.main.getByRole('region', { name: 'Content' });
     this.toolsTable = this.content.getByRole('table', { name: 'cli-tools' });
+    this.dropDownDialog = page.getByRole('dialog', {
+      name: 'drop-down-dialog',
+    });
+    this.versionInputField = this.dropDownDialog.getByRole('textbox');
+  }
+
+  public getToolRow(toolName: string): Locator {
+    return this.toolsTable.getByRole('row', { name: toolName, exact: true });
+  }
+
+  public getInstallButton(toolName: string): Locator {
+    return this.getToolRow(toolName).getByLabel('Install', { exact: true });
+  }
+
+  public getUninstallButton(toolName: string): Locator {
+    return this.getToolRow(toolName).getByLabel('Uninstall', { exact: true });
+  }
+
+  public getUpdateButton(toolName: string): Locator {
+    return this.getToolRow(toolName).getByLabel('Update', { exact: true });
+  }
+
+  public getVersionSelectionButton(version: string): Locator {
+    return this.dropDownDialog.getByRole('button', { name: version });
+  }
+
+  public async getCurrentToolVersion(toolName: string): Promise<string> {
+    if ((await this.getToolRow(toolName).getByLabel('no-cli-version', { exact: true }).count()) > 0) {
+      return '';
+    }
+
+    return await this.getToolRow(toolName).getByLabel('cli-version', { exact: true }).innerText();
+  }
+
+  public async installTool(toolName: string, version: string = ''): Promise<this> {
+    await playExpect(this.getInstallButton(toolName)).toBeEnabled();
+    await this.getInstallButton(toolName).click();
+    await playExpect(this.dropDownDialog).toBeVisible();
+    if (!version) {
+      version = await this.getLatestVersionNumber();
+    }
+
+    await playExpect(this.getVersionSelectionButton(version)).toBeEnabled();
+    await this.getVersionSelectionButton(version).click();
+    return this;
+  }
+
+  private async getLatestVersionNumber(): Promise<string> {
+    return await this.dropDownDialog.getByRole('button').first().innerText();
   }
 }
