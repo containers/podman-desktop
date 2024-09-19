@@ -105,8 +105,8 @@ export class EnvfileParser {
       }
     } else {
       // if there is a comment, and that it is preceded by a space, remove it
-      if (updatedValue?.includes(' #')) {
-        updatedValue = updatedValue.split(' #')[0];
+      if (updatedValue.includes(' #')) {
+        updatedValue = updatedValue.split(' #')[0] ?? '';
       }
     }
 
