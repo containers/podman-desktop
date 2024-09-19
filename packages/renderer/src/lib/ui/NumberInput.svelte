@@ -17,13 +17,14 @@ export let onValidation = (_value: number, _error?: string) => {};
 
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
+$: valueAsString = String(value);
 
-$: if (value !== undefined || disabled) {
+$: if (valueAsString !== undefined || disabled) {
   validateNumber();
 }
 
 function validateNumber() {
-  const numberToValidate = Number(value);
+  const numberToValidate = Number(valueAsString);
   if (maximum !== undefined && numberToValidate > maximum) {
     error = `The value cannot be greater than ${maximum}`;
   } else if (minimum !== undefined && numberToValidate < minimum) {
@@ -34,6 +35,8 @@ function validateNumber() {
   minimumEnabled = !disabled && (minimum === undefined || minimum < numberToValidate);
   maximumEnabled = !disabled && (maximum === undefined || maximum > numberToValidate);
 
+  // update converted value
+  value = numberToValidate;
   // send the callback
   onValidation(numberToValidate, error);
 }
@@ -87,7 +90,7 @@ function onIncrement(e: MouseEvent) {
   class={$$props.class || ''}
   inputClass="text-center"
   name={name}
-  bind:value={value}
+  bind:value={valueAsString}
   on:keypress={event => onKeyPress(event)}
   on:input
   showError={showError}
