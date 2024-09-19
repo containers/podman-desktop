@@ -6,7 +6,7 @@ import Fa from 'svelte-fa';
 export let placeholder: string | undefined = undefined;
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
-export let value: string | number | undefined = undefined;
+export let value: string | undefined = undefined;
 export let readonly: boolean = false;
 export let required: boolean = false;
 export let clearable: boolean = false;
