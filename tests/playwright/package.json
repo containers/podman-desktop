@@ -22,7 +22,7 @@
   "devDependencies": {
     "@playwright/test": "1.47.1",
     "@types/node": "^20",
-    "electron": "32.1.0",
+    "electron": "32.1.1",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   }
