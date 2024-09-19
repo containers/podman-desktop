@@ -1,0 +1,7 @@
+.xterm {
+  padding: 5px;
+}
+
+.xterm .xterm-viewport {
+  overflow-y: auto;
+}
