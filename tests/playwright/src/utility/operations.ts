@@ -193,8 +193,8 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     { timeout: 15000 },
   );
   if (await podmanResourceCard.resourceElement.isVisible()) {
-    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
-    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
+    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible();
+    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible();
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Starting) {
       console.log('Podman machine is in starting currently, will send stop command via CLI');
       // eslint-disable-next-line sonarjs/os-command

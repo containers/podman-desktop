@@ -20,6 +20,7 @@ import * as os from 'node:os';
 
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 
@@ -36,6 +37,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
     (process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true') ||
     (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')
   ) {
+    await waitForPodmanMachineStartup(page);
     await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
   }
 });
