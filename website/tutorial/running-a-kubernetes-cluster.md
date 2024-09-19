@@ -46,21 +46,11 @@ You can use extensions, such as Kind, MiniKube, and others to start a local Kube
 
 ## Applicable on Windows: Configure Podman on WSL
 
-A Podman machine runs in the rootless mode on a Windows Subsystem for Linux (WSL) instance. To use the Minikube tool, you must set the Podman machine to rootful mode.
+To use the Minikube tool on Windows, you must have a Podman machine running in rootful mode.
 
-- Run the following commands one by one:
+- The Podman Desktop **Settings** enable you to create a default Podman machine that runs in rootful mode. However, if you have a custom Podman machine that you want to run in rootful mode, you can enable the setting from the UI.
 
-  ```sh
-  $ podman machine stop
-  ```
-
-  ```sh
-  $ podman machine set --rootful
-  ```
-
-  ```sh
-  $ podman machine start
-  ```
+  ![root mode enabled](img/root-mode-enabled.png)
 
 ## Creating and running a Kubernetes cluster
 
