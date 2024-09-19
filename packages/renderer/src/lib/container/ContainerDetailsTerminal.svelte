@@ -1,6 +1,5 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
-import '../ui/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
@@ -160,7 +159,11 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full" bind:this={terminalXtermDiv} class:hidden={container.state !== 'RUNNING'}></div>
+<div
+  class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]"
+  bind:this={terminalXtermDiv}
+  class:hidden={container.state !== 'RUNNING'}>
+</div>
 
 <EmptyScreen
   hidden={container.state === 'RUNNING'}

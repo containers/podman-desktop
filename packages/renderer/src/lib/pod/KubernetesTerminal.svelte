@@ -1,6 +1,4 @@
 <script lang="ts">
-import '../ui/xterm.css';
-
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { type IDisposable, Terminal } from '@xterm/xterm';
@@ -161,4 +159,4 @@ function saveTerminalState(podName: string, containerName: string, state: State)
 }
 </script>
 
-<div class="h-full w-full" bind:this={terminalXtermDiv}></div>
+<div class="h-full w-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv}></div>

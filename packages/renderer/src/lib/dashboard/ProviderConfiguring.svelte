@@ -1,6 +1,5 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
-import '../ui/xterm.css';
 
 import { Spinner } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
@@ -100,7 +99,7 @@ onDestroy(() => {
     </div>
 
     <div
-      class="bg-[var(--pd-terminal-background)]"
+      class="bg-[var(--pd-terminal-background)] p-[5px] pr-0"
       style="width: 100%; text-align: left; display: {initializeError ? 'block' : 'none'}"
       bind:this={logsXtermDiv}>
     </div>
