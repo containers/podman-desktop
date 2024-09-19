@@ -229,17 +229,19 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
 }
 
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string | undefined> {
+  let volumeName;
+  let volumeSummaryContent;
   try {
     const navigationBar = new NavigationBar(page);
     const volumePage = await navigationBar.openVolumes();
     const rows = await volumePage.getAllTableRows();
 
     for (let i = rows.length - 1; i > 0; i--) {
-      const volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
+      volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
       if (volumeName) {
         const volumeDetails = await volumePage.openVolumeDetails(volumeName);
         await volumeDetails.activateTab(VolumeDetailsPage.SUMMARY_TAB);
-        const volumeSummaryContent = await volumeDetails.tabContent.allTextContents();
+        volumeSummaryContent = await volumeDetails.tabContent.allTextContents();
         for (const content of volumeSummaryContent) {
           if (content.includes(containerName)) {
             await volumeDetails.backLink.click();
