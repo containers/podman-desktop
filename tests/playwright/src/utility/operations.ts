@@ -193,8 +193,8 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     { timeout: 15000 },
   );
   if (await podmanResourceCard.resourceElement.isVisible()) {
-    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible({ timeout: 3000 });
-    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible({ timeout: 3000 });
+    await playExpect(podmanResourceCard.resourceElementConnectionActions).toBeVisible();
+    await playExpect(podmanResourceCard.resourceElementConnectionStatus).toBeVisible();
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Starting) {
       console.log('Podman machine is in starting currently, will send stop command via CLI');
       // eslint-disable-next-line sonarjs/os-command
@@ -205,7 +205,18 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
       console.log('Podman machine stopped via CLI');
     }
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
-      await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
+      try {
+        await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
+        await waitUntil(
+          async () =>
+            (await podmanResourceCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Off),
+          { timeout: 30000, sendError: true },
+        );
+      } catch (error) {
+        console.log('Podman machine stop failed, will try to stop it via CLI');
+        // eslint-disable-next-line sonarjs/os-command
+        execSync(`podman machine stop ${machineVisibleName}`);
+      }
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 30_000,
       });
@@ -218,16 +229,19 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
 }
 
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string | undefined> {
+  let volumeName;
+  let volumeSummaryContent;
   try {
     const navigationBar = new NavigationBar(page);
     const volumePage = await navigationBar.openVolumes();
     const rows = await volumePage.getAllTableRows();
+
     for (let i = rows.length - 1; i > 0; i--) {
-      const volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
+      volumeName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
       if (volumeName) {
         const volumeDetails = await volumePage.openVolumeDetails(volumeName);
         await volumeDetails.activateTab(VolumeDetailsPage.SUMMARY_TAB);
-        const volumeSummaryContent = await volumeDetails.tabContent.allTextContents();
+        volumeSummaryContent = await volumeDetails.tabContent.allTextContents();
         for (const content of volumeSummaryContent) {
           if (content.includes(containerName)) {
             await volumeDetails.backLink.click();

@@ -24,7 +24,6 @@ import { ResourceConnectionCardPage } from '../model/pages/resource-connection-c
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
-import { isWindows } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
@@ -165,9 +164,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
   test('Clean up rootless podman machine', async ({ page }) => {
     await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
 
-    if (isWindows) {
-      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
-      await handleConfirmationDialog(page, 'Podman', true, 'OK');
-    }
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
 });
