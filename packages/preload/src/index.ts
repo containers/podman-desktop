@@ -65,6 +65,7 @@ import type { ImageInfo } from '/@api/image-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry';
 import type { KubeContext } from '/@api/kubernetes-context';
+import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification';
@@ -94,7 +95,6 @@ import type {
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
-import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes/contexts-states';
 import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,

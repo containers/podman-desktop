@@ -52,18 +52,14 @@ import {
 } from '@kubernetes/client-node';
 
 import type { KubeContext } from '/@api/kubernetes-context.js';
+import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import { isSecondaryResourceName, secondaryResources } from '/@api/kubernetes-contexts-states.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
-import type {
-  CheckingState,
-  ContextGeneralState,
-  ContextInternalState,
-  ContextState,
-  ResourceName,
-} from './contexts-states.js';
-import { ContextsStates, isSecondaryResourceName, secondaryResources } from './contexts-states.js';
+import type { ContextInternalState, ContextState } from './contexts-states.js';
+import { ContextsStates } from './contexts-states.js';
 import {
   backoffInitialValue,
   backoffJitter,

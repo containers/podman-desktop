@@ -18,7 +18,9 @@
 import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 import { describe, expect, test } from 'vitest';
 
-import { ContextsStates, isSecondaryResourceName } from './contexts-states.js';
+import { isSecondaryResourceName } from '/@api/kubernetes-contexts-states.js';
+
+import { ContextsStates } from './contexts-states.js';
 import { FakeInformer } from './kubernetes-context-state.spec.js';
 
 describe('ContextsStates tests', () => {

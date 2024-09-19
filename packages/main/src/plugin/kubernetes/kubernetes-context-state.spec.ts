@@ -22,9 +22,9 @@ import { KubeConfig, makeInformer } from '@kubernetes/client-node';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { KubeContext } from '/@api/kubernetes-context.js';
+import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
-import type { CheckingState, ContextGeneralState, ResourceName } from './contexts-states.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 
 interface InformerEvent {

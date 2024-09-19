@@ -18,13 +18,11 @@
 
 import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 
+import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import { isSecondaryResourceName } from '/@api/kubernetes-contexts-states.js';
+
 // ContextInternalState stores informers for a kube context
 export type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
-
-// CheckingState indicates the state of the check for a context
-export interface CheckingState {
-  state: 'waiting' | 'checking' | 'gaveup';
-}
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -34,43 +32,9 @@ export interface ContextState {
   reachable: boolean;
   resources: ContextStateResources;
 }
-// A selection of resources, to indicate the 'general' status of a context
-type selectedResources = ['pods', 'deployments'];
-
-// resources managed by podman desktop, excepted the primary ones
-// This is where to add new resources when adding new informers
-export const secondaryResources = [
-  'services',
-  'ingresses',
-  'routes',
-  'configmaps',
-  'secrets',
-  'nodes',
-  'persistentvolumeclaims',
-] as const;
-
-export type SelectedResourceName = selectedResources[number];
-export type SecondaryResourceName = (typeof secondaryResources)[number];
-export type ResourceName = SelectedResourceName | SecondaryResourceName;
-
-export function isSecondaryResourceName(value: string): value is SecondaryResourceName {
-  return secondaryResources.includes(value as SecondaryResourceName);
-}
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
-};
-
-// information sent: status and count of selected resources
-export interface ContextGeneralState {
-  checking?: CheckingState;
-  error?: string;
-  reachable: boolean;
-  resources: SelectedResourcesCount;
-}
-
-export type SelectedResourcesCount = {
-  [resourceName in SelectedResourceName]: number;
 };
 
 export class ContextsStates {
