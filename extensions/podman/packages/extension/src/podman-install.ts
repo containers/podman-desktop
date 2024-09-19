@@ -668,19 +668,21 @@ export class WSL2Check extends WindowsCheck {
   title = 'WSL2 Installed';
   installWSLCommandId = 'podman.onboarding.installWSL';
 
-  constructor(private extensionContext: extensionApi.ExtensionContext) {
+  constructor(private extensionContext?: extensionApi.ExtensionContext) {
     super();
   }
 
   async init(): Promise<void> {
-    const wslCommand = extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
-      const installSucceeded = await this.installWSL();
-      if (installSucceeded) {
-        // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
-        await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
-      }
-    });
-    this.extensionContext.subscriptions.push(wslCommand);
+    if (this.extensionContext) {
+      const wslCommand = extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+        const installSucceeded = await this.installWSL();
+        if (installSucceeded) {
+          // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
+          await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
+        }
+      });
+      this.extensionContext.subscriptions.push(wslCommand);
+    }
   }
 
   async execute(): Promise<extensionApi.CheckResult> {
@@ -831,6 +833,11 @@ export class HyperVCheck extends WindowsCheck {
         },
       });
     }
+    if (!(await this.isPodmanDesktopElevated())) {
+      return this.createFailureResult({
+        description: 'You must run Podman Desktop with administrative rights to run Hyper-V Podman machines.',
+      });
+    }
     if (!(await this.isHyperVinstalled())) {
       return this.createFailureResult({
         description: 'Hyper-V is not installed on your system.',
@@ -852,6 +859,17 @@ export class HyperVCheck extends WindowsCheck {
       });
     }
     return this.createSuccessfulResult();
+  }
+
+  private async isPodmanDesktopElevated(): Promise<boolean> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
+        '(New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
+      ]);
+      return res.trim() === 'True';
+    } catch (err: unknown) {
+      return false;
+    }
   }
 
   private async isHyperVinstalled(): Promise<boolean> {
