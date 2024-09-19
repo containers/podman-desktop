@@ -18,8 +18,13 @@
 
 import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 
-import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
-import { isSecondaryResourceName } from '/@api/kubernetes-contexts-states.js';
+import type {
+  CheckingState,
+  ContextGeneralState,
+  ResourceName,
+  SecondaryResourceName,
+} from '/@api/kubernetes-contexts-states.js';
+import { secondaryResources } from '/@api/kubernetes-contexts-states.js';
 
 // ContextInternalState stores informers for a kube context
 export type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
@@ -36,6 +41,10 @@ export interface ContextState {
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
 };
+
+export function isSecondaryResourceName(value: string): value is SecondaryResourceName {
+  return secondaryResources.includes(value as SecondaryResourceName);
+}
 
 export class ContextsStates {
   private state = new Map<string, ContextState>();

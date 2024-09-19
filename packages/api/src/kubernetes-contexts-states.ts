@@ -36,10 +36,6 @@ export const secondaryResources = [
   'persistentvolumeclaims',
 ] as const;
 
-export function isSecondaryResourceName(value: string): value is SecondaryResourceName {
-  return secondaryResources.includes(value as SecondaryResourceName);
-}
-
 export type SecondaryResourceName = (typeof secondaryResources)[number];
 export type ResourceName = SelectedResourceName | SecondaryResourceName;
 
