@@ -8,7 +8,7 @@ tags: [podman-desktop, deploying-a-kubernetes-application]
 
 # Deploying a Kubernetes application
 
-This tutorial covers the following end-to-end tasks you require to deploy an application in a Kubernetes cluster:
+This tutorial covers the following end-to-end tasks required to deploy an application in a Kubernetes cluster:
 
 - Set the Kubernetes context
 - Creating a deployment
@@ -18,9 +18,9 @@ If you have multiple Kubernetes contexts, you must set the correct context in wh
 
 ## Before you begin
 
-- [Installed Podman Desktop application](/docs/installation)
-- [A Podman machine](/docs/podman/creating-a-podman-machine)
-- A running Kubernetes cluster
+- [Installed Podman Desktop application](/docs/installation).
+- [A Podman machine](/docs/podman/creating-a-podman-machine).
+- [A running Kubernetes cluster](/docs/kind/creating-a-kind-cluster).
 - A deployment YAML configuration for use. Create a `Deployment` file using the following code, if you do not have one on your machine:
 
 ```yaml
@@ -42,7 +42,7 @@ spec:
         - name: nginx-container
           image: nginx:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8080
 ```
 
 This YAML configuration creates a deployment running three NGINX pods.
@@ -60,10 +60,10 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 9376
+      targetPort: 8080
 ```
 
-This YAML configuration creates a new service named `my-service` with the default ClusterIP service type. The service listens for client requests on port `80` and then forwards those requests to port `9376` on the container.
+This YAML configuration creates a new service named `my-service` with the default ClusterIP service type. The service listens for client requests on port `80` and then forwards those requests to port `8080` on the container.
 
 ## Setting the Kubernetes context
 

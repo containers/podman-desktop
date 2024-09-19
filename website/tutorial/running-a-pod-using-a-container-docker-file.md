@@ -8,7 +8,7 @@ tags: [podman-desktop, running-a-pod-from-docker-file, running-a-pod-from-contai
 
 # Running a pod using a container or docker file
 
-This tutorial covers the following end-to-end tasks a user requires to run a pod from a container or docker file:
+This tutorial covers the following end-to-end tasks required to run a pod from a container or docker file:
 
 - Building an image
 - Creating a container
@@ -44,8 +44,8 @@ When creating a container, you can set the following configurations:
 
 ## Before you begin
 
-- [Installed Podman Desktop application](/docs/installation)
-- [A Podman machine](/docs/podman/creating-a-podman-machine)
+- [Installed Podman Desktop application](/docs/installation).
+- [A Podman machine](/docs/podman/creating-a-podman-machine).
 - A docker or container file to use. Create a docker file using the following code, if you do not have one on your machine:
 
 ```dockerfile

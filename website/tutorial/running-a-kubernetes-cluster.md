@@ -8,11 +8,11 @@ tags: [podman-desktop, running-a-kubernetes-cluster, set-up-a-cluster]
 
 # Running a Kubernetes cluster
 
-This tutorial covers the following end-to-end tasks you require to run a Kubernetes cluster with the help of an extension:
+This tutorial covers the following end-to-end tasks required to run a Kubernetes cluster with the help of an extension:
 
 - Installing the extension
 - Installing CLI on your local machine
-- Applicable on Winodws: Configure Podman on WSL
+- Applicable on Windows: Configure Podman on WSL
 - Creating and running a Kubernetes cluster
 
 You can use extensions, such as Kind, MiniKube, and others to start a local Kubernetes development cluster. When you have a running Kubernetes cluster, you can easily develop and test Kubernetes applications before deploying them to production. This tutorial focuses on creating a Kubernetes cluster using the Minikube extension.
