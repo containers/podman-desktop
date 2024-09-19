@@ -28,6 +28,7 @@ import { ResourcesPage } from '../model/pages/resources-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
+import { isLinux, isMac } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
@@ -42,7 +43,12 @@ let podmanOnboardingPage: PodmanOnboardingPage;
 
 let notificationPodmanSetup: Locator;
 
-test.skip(os.platform() === 'linux', 'Tests suite should not run on Linux platform');
+test.skip(isLinux, 'Tests suite should not run on Linux platform');
+
+test.skip(
+  isMac,
+  'Due to issue https://github.com/containers/podman-desktop/issues/8984 which causes problems on cicd on macOs this test suite is deactived on macs until a fix is provided',
+);
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('podman-machine-e2e');
