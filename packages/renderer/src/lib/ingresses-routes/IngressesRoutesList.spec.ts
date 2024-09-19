@@ -29,9 +29,9 @@ import { readable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 import type { V1Route } from '/@api/openshift-types';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
 import IngressesRoutesList from './IngressesRoutesList.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
+import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
 import Label from './Label.svelte';
 
 function getText(state?: ContextGeneralState): string {

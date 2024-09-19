@@ -22,6 +22,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, type RenderResult } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { configurationProperties } from '/@/stores/configurationProperties';
+
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import Appearance from './Appearance.svelte';
 
@@ -71,10 +73,11 @@ test('Expect light mode using system when OS is set to light', async () => {
   });
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
+  configurationProperties.set([]);
 
   const { baseElement } = await awaitRender();
   // expect to have no (dark) class as OS is using light
-  expect(getRootElementClassesValue(baseElement)).toBe('');
+  await vi.waitFor(() => expect(getRootElementClassesValue(baseElement)).toBe(''));
 });
 
 test('Expect dark mode using system when OS is set to dark', async () => {
@@ -85,14 +88,16 @@ test('Expect dark mode using system when OS is set to dark', async () => {
   });
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
+  configurationProperties.set([]);
 
   const { baseElement } = await awaitRender();
   // expect to have class being "dark" as OS is using dark
-  expect(getRootElementClassesValue(baseElement)).toBe('dark');
+  await vi.waitFor(() => expect(getRootElementClassesValue(baseElement)).toBe('dark'));
 });
 
 test('Expect light mode using light configuration', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
+  configurationProperties.set([]);
 
   const { baseElement } = await awaitRender();
 
@@ -105,10 +110,11 @@ test('Expect light mode using light configuration', async () => {
 
 test('Expect dark mode using dark configuration', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.DarkEnumValue);
+  configurationProperties.set([]);
 
   const { baseElement } = await awaitRender();
 
-  // expect to have class being "dark" as we should be in light mode
+  // expect to have class being "dark" as we should be in dark mode
   expect(getRootElementClassesValue(baseElement)).toBe('dark');
 
   // expect to have color-scheme: dark

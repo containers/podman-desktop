@@ -17,27 +17,14 @@
  ***********************************************************************/
 
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import { isDark } from '../../stores/appearance';
+
+let isDarkTheme = false;
+isDark.subscribe(value => {
+  isDarkTheme = value;
+});
 
 export class AppearanceUtil {
-  async isDarkMode(): Promise<boolean> {
-    // get the configuration of the appearance
-    const appearance = await window.getConfigurationValue<string>(
-      AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
-    );
-
-    let isDark = false;
-
-    if (appearance === AppearanceSettings.SystemEnumValue) {
-      // need to read the system default theme using the window.matchMedia
-      isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    } else if (appearance === AppearanceSettings.LightEnumValue) {
-      isDark = false;
-    } else if (appearance === AppearanceSettings.DarkEnumValue) {
-      isDark = true;
-    }
-    return isDark;
-  }
-
   async getTheme(): Promise<string> {
     const themeName = await window.getConfigurationValue<string>(
       AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
@@ -64,10 +51,9 @@ export class AppearanceUtil {
       return icon;
     }
 
-    const isDark: boolean = await this.isDarkMode();
-    if (isDark && icon.dark) {
+    if (isDarkTheme && icon.dark) {
       return icon.dark;
-    } else if (!isDark && icon.light) {
+    } else if (!isDarkTheme && icon.light) {
       return icon.light;
     }
     return undefined;

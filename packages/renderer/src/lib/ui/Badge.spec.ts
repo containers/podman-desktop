@@ -21,11 +21,19 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import Badge from './Badge.svelte';
 
 // mock window.getConfigurationValue
 const getConfigurationValueMock = vi.fn();
+const getImageMock = vi.fn();
+
+vi.mock('/@/lib/appearance/appearance-util', () => {
+  return {
+    AppearanceUtil: class {
+      getImage = getImageMock;
+    },
+  };
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -33,6 +41,7 @@ beforeEach(() => {
 });
 
 test('Should display badge', async () => {
+  getImageMock.mockReturnValue('bg-gray-500');
   render(Badge, { label: 'customLabel' });
 
   // expect to see label inside the label
@@ -47,6 +56,7 @@ test('Should display badge', async () => {
 });
 
 test('Should display badge with rgb color', async () => {
+  getImageMock.mockReturnValue('#ff0000');
   render(Badge, { label: 'customLabel', color: '#ff0000' });
 
   // expect to see label inside the label
@@ -61,8 +71,7 @@ test('Should display badge with rgb color', async () => {
 });
 
 test('Should display badge with light color', async () => {
-  getConfigurationValueMock.mockResolvedValueOnce(AppearanceSettings.LightEnumValue);
-
+  getImageMock.mockReturnValue('#ff0000');
   render(Badge, { label: 'customLabel', color: { light: '#ff0000', dark: '#00ff00' } });
 
   // expect to see label inside the label
@@ -77,9 +86,8 @@ test('Should display badge with light color', async () => {
 });
 
 test('Should display badge with dark color', async () => {
-  getConfigurationValueMock.mockResolvedValueOnce(AppearanceSettings.DarkEnumValue);
-
-  render(Badge, { label: 'customLabel', color: { light: '#ff0000', dark: '#00ff00' } });
+  getImageMock.mockReturnValue('#00FF00');
+  render(Badge, { label: 'customLabel', color: { light: '#FF0000', dark: '#00FF00' } });
 
   // expect to see label inside the label
   const label = screen.getByText('customLabel');
