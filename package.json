@@ -44,7 +44,7 @@
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/extension-installation.spec.ts",
     "test:e2e:pw": "npm run test:e2e:build && npm run test:e2e:pw:run",
-    "test:e2e:pw:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/podman-machine-tests.spec.ts",
+    "test:e2e:pw:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/kind.spec.ts",
     "test:e2e:update": "npm run test:e2e:build && npm run test:e2e:update:run",
     "test:e2e:update:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/installation/ -g @update-install",
     "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
