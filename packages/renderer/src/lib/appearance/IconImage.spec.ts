@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 test('Expect valid source and alt text with dark mode', async () => {
-  getImageMock.mockReturnValue('dark.png');
+  getImageMock.mockResolvedValue('dark.png');
 
   const image = render(IconImage, { image: { light: 'light.png', dark: 'dark.png' }, alt: 'this is alt text' });
 
@@ -61,16 +61,13 @@ test('Expect valid source and alt text with dark mode', async () => {
   await vi.waitFor(async () => expect(imageElement).toHaveAttribute('src', 'dark.png'));
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 
+  vi.clearAllMocks();
   await image.rerender({ image: { light: 'light2.png', dark: 'dark2.png' }, alt: 'this is another alt text' });
-  // wait getImage
-  await new Promise(resolve => setTimeout(resolve, 0));
-
-  expect(imageElement).toHaveAttribute('src', 'dark2.png');
-  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
+  expect(getImageMock).toHaveBeenCalledWith({ light: 'light2.png', dark: 'dark2.png' });
 });
 
 test('Expect valid source and alt text with light mode', async () => {
-  getImageMock.mockReturnValue('light.png');
+  getImageMock.mockResolvedValue('light.png');
 
   const image = render(IconImage, { image: { light: 'light.png', dark: 'dark.png' }, alt: 'this is alt text' });
 
@@ -84,17 +81,14 @@ test('Expect valid source and alt text with light mode', async () => {
   await vi.waitFor(async () => expect(imageElement).toHaveAttribute('src', 'light.png'));
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 
+  vi.clearAllMocks();
   await image.rerender({ image: { light: 'light2.png', dark: 'dark2.png' }, alt: 'this is another alt text' });
-  // wait getImage
-  await new Promise(resolve => setTimeout(resolve, 0));
-
-  expect(imageElement).toHaveAttribute('src', 'light2.png');
-  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
+  expect(getImageMock).toHaveBeenCalledWith({ light: 'light2.png', dark: 'dark2.png' });
 });
 
 test('Expect no alt attribute if missing and default image', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
-  getImageMock.mockReturnValue('image.png');
+  getImageMock.mockResolvedValue('image.png');
 
   const image = render(IconImage, { image: 'image.png' });
 
@@ -112,6 +106,7 @@ test('Expect no alt attribute if missing and default image', async () => {
 });
 
 test('Expect string as image', async () => {
+  getImageMock.mockResolvedValue('image1');
   const image = render(IconImage, { image: 'image1', alt: 'this is alt text' });
 
   // wait for image to be loaded
@@ -124,10 +119,7 @@ test('Expect string as image', async () => {
   expect(imageElement).toHaveAttribute('src', 'image1');
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 
+  vi.clearAllMocks();
   await image.rerender({ image: 'image2', alt: 'this is another alt text' });
-  // wait getImage
-  await new Promise(resolve => setTimeout(resolve, 0));
-
-  expect(imageElement).toHaveAttribute('src', 'image2');
-  expect(imageElement).toHaveAttribute('alt', 'this is another alt text');
+  expect(getImageMock).toHaveBeenCalledWith('image2');
 });
