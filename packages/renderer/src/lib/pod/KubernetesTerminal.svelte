@@ -1,4 +1,6 @@
 <script lang="ts">
+import '../ui/xterm.css';
+
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { type IDisposable, Terminal } from '@xterm/xterm';

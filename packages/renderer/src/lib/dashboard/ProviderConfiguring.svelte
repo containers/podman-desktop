@@ -1,5 +1,6 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
+import '../ui/xterm.css';
 
 import { Spinner } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
