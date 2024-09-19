@@ -151,6 +151,13 @@ describe('check values', () => {
     expect(result.key).toBe('VAR');
     expect(result.value).toBe(`{"hello": "json"}`);
   });
+
+  test('simple value containing equal signs', () => {
+    const item = `VAR=dGhpcyBpcyBqdXN0IGEgdGVzdA==`;
+    const result = envfileParser.envFileCleanEntry(item);
+    expect(result.key).toBe('VAR');
+    expect(result.value).toBe(`dGhpcyBpcyBqdXN0IGEgdGVzdA==`);
+  });
 });
 
 test('check parseEnvFile', async () => {

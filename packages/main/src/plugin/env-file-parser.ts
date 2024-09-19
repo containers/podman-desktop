@@ -81,7 +81,8 @@ export class EnvfileParser {
       return { key: undefined, value: undefined };
     }
 
-    const [key, value] = entry.split('=');
+    const [key, ...rest] = entry.split('=');
+    const value = rest.join('=');
 
     let updatedValue = value;
 
@@ -104,8 +105,8 @@ export class EnvfileParser {
       }
     } else {
       // if there is a comment, and that it is preceded by a space, remove it
-      if (updatedValue?.includes(' #')) {
-        updatedValue = updatedValue.split(' #')[0];
+      if (updatedValue.includes(' #')) {
+        updatedValue = updatedValue.split(' #')[0] ?? '';
       }
     }
 
