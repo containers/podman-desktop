@@ -205,7 +205,18 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
       console.log('Podman machine stopped via CLI');
     }
     if ((await podmanResourceCard.resourceElementConnectionStatus.innerText()) === ResourceElementState.Running) {
-      await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
+      try {
+        await podmanResourceCard.performConnectionAction(ResourceElementActions.Stop);
+        await waitUntil(
+          async () =>
+            (await podmanResourceCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Off),
+          { timeout: 30000, sendError: true },
+        );
+      } catch (error) {
+        console.log('Podman machine stop failed, will try to stop it via CLI');
+        // eslint-disable-next-line sonarjs/os-command
+        execSync(`podman machine stop ${machineVisibleName}`);
+      }
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
         timeout: 30_000,
       });
