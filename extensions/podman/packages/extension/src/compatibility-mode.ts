@@ -52,14 +52,14 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   // Find the podman-mac-helper binary which should only be located in either
   // brew or podman's install location
   findPodmanHelper(): string {
-    const homebrewPath = '/opt/homebrew/bin/podman-mac-helper';
     const podmanPath = '/opt/podman/bin/podman-mac-helper';
+    const homebrewPath = '/opt/homebrew/bin/podman-mac-helper';
     const userBinaryPath = '/usr/local/bin/podman-mac-helper';
 
-    if (fs.existsSync(homebrewPath)) {
-      return homebrewPath;
-    } else if (fs.existsSync(podmanPath)) {
+    if (fs.existsSync(podmanPath)) {
       return podmanPath;
+    } else if (fs.existsSync(homebrewPath)) {
+      return homebrewPath;
     } else if (fs.existsSync(userBinaryPath)) {
       return userBinaryPath;
     } else {

@@ -608,7 +608,7 @@ describe('getInstallationPath', () => {
 
     const path = getInstallationPath();
 
-    expect(path).toBe(`/usr/bin:${macosExtraPath}`);
+    expect(path).toBe(`${macosExtraPath}:/usr/bin`);
   });
 
   test('should return the installation path for macOS with defined param', () => {
@@ -619,7 +619,7 @@ describe('getInstallationPath', () => {
 
     const path = getInstallationPath('/usr/other');
 
-    expect(path).toBe(`/usr/other:${macosExtraPath}`);
+    expect(path).toBe(`${macosExtraPath}:/usr/other`);
   });
 
   test('should return the installation path for other platforms', () => {
