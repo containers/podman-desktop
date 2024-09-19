@@ -60,6 +60,15 @@ test('expect no badges shown as no context has been provided.', async () => {
   expect(status).toBeNull();
 });
 
+test('expect no badges shown with no current context error', async () => {
+  mocks.getCurrentKubeContextState.mockReturnValue({ error: 'no current context' });
+  render(KubernetesCurrentContextConnectionBadge);
+
+  expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
+  const status = screen.queryByRole('status');
+  expect(status).toBeNull();
+});
+
 test('expect badges to show as there is a context', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: undefined,

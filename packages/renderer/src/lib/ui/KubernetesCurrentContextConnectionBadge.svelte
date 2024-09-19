@@ -1,6 +1,6 @@
 <script lang="ts">
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
-import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import { type ContextGeneralState, NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import Label from './Label.svelte';
 
@@ -17,7 +17,7 @@ function getClassColor(state?: ContextGeneralState): string {
 $: text = getText($kubernetesCurrentContextState);
 </script>
 
-{#if $kubernetesCurrentContextState}
+{#if $kubernetesCurrentContextState && $kubernetesCurrentContextState.error !== NO_CURRENT_CONTEXT_ERROR}
   <Label role="status" name={text} tip={$kubernetesCurrentContextState.error}
     ><div class="w-2 h-2 {getClassColor($kubernetesCurrentContextState)} rounded-full mx-1"></div></Label>
 {/if}
