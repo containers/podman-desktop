@@ -81,7 +81,8 @@ export class EnvfileParser {
       return { key: undefined, value: undefined };
     }
 
-    const [key, value] = entry.split('=');
+    const [key, ...rest] = entry.split('=');
+    const value = rest.join('=');
 
     let updatedValue = value;
 
