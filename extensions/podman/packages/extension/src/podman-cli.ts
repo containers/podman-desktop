@@ -19,7 +19,7 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { isMac, isWindows } from './util';
 
-const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+const macosExtraPath = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 
 export function getInstallationPath(): string | undefined {
   const env = process.env;

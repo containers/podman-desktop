@@ -37,7 +37,7 @@ export interface RawExecResult {
 }
 
 export class DockerPluginAdapter {
-  static readonly MACOS_EXTRA_PATH = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+  static readonly MACOS_EXTRA_PATH = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 
   constructor(
     private contributionManager: ContributionManager,

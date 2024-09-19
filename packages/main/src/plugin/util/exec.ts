@@ -25,7 +25,7 @@ import * as sudo from 'sudo-prompt';
 import { isLinux, isMac, isWindows } from '../../util.js';
 import type { Proxy } from '../proxy.js';
 
-export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+export const macosExtraPath = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 
 class RunErrorImpl extends Error implements RunError {
   constructor(
@@ -248,7 +248,7 @@ export function getInstallationPath(envPATH?: string): string {
     if (!envPATH) {
       return macosExtraPath;
     } else {
-      return envPATH.concat(':').concat(macosExtraPath);
+      return macosExtraPath.concat(':').concat(envPATH);
     }
   } else {
     return envPATH ?? '';

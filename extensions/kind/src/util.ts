@@ -22,7 +22,7 @@ import { isAbsolute, join } from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
-const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+const macosExtraPath = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 const localBinDir = '/usr/local/bin';
 
 export function getSystemBinaryPath(binaryName: string): string {
