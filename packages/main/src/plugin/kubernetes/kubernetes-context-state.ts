@@ -52,10 +52,14 @@ import {
 } from '@kubernetes/client-node';
 
 import type { KubeContext } from '/@api/kubernetes-context.js';
+import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import { secondaryResources } from '/@api/kubernetes-contexts-states.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
+import type { ContextInternalState, ContextState } from './contexts-states.js';
+import { ContextsStates, isSecondaryResourceName } from './contexts-states.js';
 import {
   backoffInitialValue,
   backoffJitter,
@@ -68,62 +72,6 @@ import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 // If the number of contexts in the kubeconfig file is greater than this number,
 // only the connectivity to the current context will be checked
 const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
-
-// ContextInternalState stores informers for a kube context
-type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
-
-// CheckingState indicates the state of the check for a context
-export interface CheckingState {
-  state: 'waiting' | 'checking' | 'gaveup';
-}
-
-// ContextState stores information for the user about a kube context: is the cluster reachable, the number
-// of instances of different resources
-interface ContextState {
-  checking: CheckingState;
-  error?: string;
-  reachable: boolean;
-  resources: ContextStateResources;
-}
-
-// A selection of resources, to indicate the 'general' status of a context
-type selectedResources = ['pods', 'deployments'];
-
-// resources managed by podman desktop, excepted the primary ones
-// This is where to add new resources when adding new informers
-const secondaryResources = [
-  'services',
-  'ingresses',
-  'routes',
-  'configmaps',
-  'secrets',
-  'nodes',
-  'persistentvolumeclaims',
-] as const;
-
-export type SelectedResourceName = selectedResources[number];
-export type SecondaryResourceName = (typeof secondaryResources)[number];
-export type ResourceName = SelectedResourceName | SecondaryResourceName;
-
-function isSecondaryResourceName(value: string): value is SecondaryResourceName {
-  return secondaryResources.includes(value as SecondaryResourceName);
-}
-
-export type ContextStateResources = {
-  [resourceName in ResourceName]: KubernetesObject[];
-};
-
-// information sent: status and count of selected resources
-export interface ContextGeneralState {
-  checking?: CheckingState;
-  error?: string;
-  reachable: boolean;
-  resources: SelectedResourcesCount;
-}
-
-export type SelectedResourcesCount = {
-  [resourceName in SelectedResourceName]: number;
-};
 
 interface CreateInformerOptions<T> {
   // resource name, for logging
@@ -186,152 +134,6 @@ interface SetStateAndDispatchOptions {
   resources?: ResourcesDispatchOptions;
   // the caller can modify the `previous` state in this function, which will be called before the state is dispatched
   update: (previous: ContextState) => void;
-}
-
-export class ContextsStates {
-  private state = new Map<string, ContextState>();
-  private informers = new Map<string, ContextInternalState>();
-
-  hasContext(name: string): boolean {
-    return this.informers.has(name);
-  }
-
-  hasInformer(context: string, resourceName: ResourceName): boolean {
-    const informers = this.informers.get(context);
-    return !!informers?.get(resourceName);
-  }
-
-  setInformers(name: string, informers: ContextInternalState | undefined): void {
-    if (informers) {
-      this.informers.set(name, informers);
-    }
-  }
-
-  setResourceInformer(contextName: string, resourceName: ResourceName, informer: Informer<KubernetesObject>): void {
-    const informers = this.informers.get(contextName);
-    if (!informers) {
-      throw new Error(`watchers for context ${contextName} not found`);
-    }
-    informers.set(resourceName, informer);
-  }
-
-  getContextsNames(): Iterable<string> {
-    return this.informers.keys();
-  }
-
-  getContextsGeneralState(): Map<string, ContextGeneralState> {
-    const result = new Map<string, ContextGeneralState>();
-    this.state.forEach((val, key) => {
-      result.set(key, {
-        ...val,
-        resources: {
-          pods: val.reachable ? val.resources.pods.length : 0,
-          deployments: val.reachable ? val.resources.deployments.length : 0,
-        },
-      });
-    });
-    return result;
-  }
-
-  getContextsCheckingState(): Map<string, CheckingState> {
-    const result = new Map<string, CheckingState>();
-    this.state.forEach((val, key) => {
-      result.set(key, val.checking);
-    });
-    return result;
-  }
-
-  getCurrentContextGeneralState(current: string): ContextGeneralState {
-    if (current) {
-      const state = this.state.get(current);
-      if (state) {
-        return {
-          ...state,
-          resources: {
-            pods: state.reachable ? state.resources.pods.length : 0,
-            deployments: state.reachable ? state.resources.deployments.length : 0,
-          },
-        };
-      }
-    }
-    return {
-      reachable: false,
-      error: 'no current context',
-      resources: { pods: 0, deployments: 0 },
-    };
-  }
-
-  getContextResources(current: string, resourceName: ResourceName): KubernetesObject[] {
-    if (current) {
-      const state = this.state.get(current);
-      if (!state?.reachable) {
-        return [];
-      }
-      if (state) {
-        return state.resources[resourceName];
-      }
-    }
-    return [];
-  }
-
-  isReachable(contextName: string): boolean {
-    return this.state.get(contextName)?.reachable ?? false;
-  }
-
-  safeSetState(name: string, update: (previous: ContextState) => void): void {
-    if (!this.state.has(name)) {
-      this.state.set(name, {
-        checking: { state: 'waiting' },
-        error: undefined,
-        reachable: false,
-        resources: {
-          pods: [],
-          deployments: [],
-          nodes: [],
-          persistentvolumeclaims: [],
-          services: [],
-          ingresses: [],
-          routes: [],
-          configmaps: [],
-          secrets: [],
-          // add new resources here when adding new informers
-        },
-      });
-    }
-    const val = this.state.get(name);
-    if (!val) {
-      throw new Error('value not correctly set in map');
-    }
-    update(val);
-  }
-
-  async dispose(name: string): Promise<void> {
-    const informers = this.informers.get(name);
-    if (informers) {
-      for (const informer of informers.values()) {
-        await informer.stop();
-      }
-    }
-    this.informers.delete(name);
-    this.state.delete(name);
-  }
-
-  async disposeSecondaryInformers(contextName: string): Promise<void> {
-    const informers = this.informers.get(contextName);
-    if (informers) {
-      for (const [resourceName, informer] of informers) {
-        if (isSecondaryResourceName(resourceName)) {
-          await informer?.stop();
-          // We clear the informer and the local state
-          informers.delete(resourceName);
-          const state = this.state.get(contextName);
-          if (state) {
-            state.resources[resourceName] = [];
-          }
-        }
-      }
-    }
-  }
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)

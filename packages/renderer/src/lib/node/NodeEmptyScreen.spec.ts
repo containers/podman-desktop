@@ -23,7 +23,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
+import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+
 import NodeEmptyScreen from './NodeEmptyScreen.svelte';
 
 const mocks = vi.hoisted(() => ({

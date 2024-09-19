@@ -2,8 +2,8 @@
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
+import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes/kubernetes-context-state';
 import NodeIcon from '../images/NodeIcon.svelte';
 
 // If the current context is CONNECTED and we are on this empty screen
