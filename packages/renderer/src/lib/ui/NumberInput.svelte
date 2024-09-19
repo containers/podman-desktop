@@ -17,7 +17,7 @@ export let onValidation = (_value: number, _error?: string) => {};
 
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
-$: valueAsString = String(value);
+$: valueAsString = value !== undefined ? String(value) : undefined;
 
 $: if (valueAsString !== undefined || disabled) {
   validateNumber();
