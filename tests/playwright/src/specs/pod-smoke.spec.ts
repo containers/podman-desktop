@@ -103,17 +103,17 @@ test.afterAll(async ({ page, runner }) => {
 
 test.describe.serial('Verification of pod creation workflow @smoke', () => {
   test('Pulling images', async ({ navigationBar }) => {
-    test.setTimeout(60000);
+    test.setTimeout(180000);
 
     let images = await navigationBar.openImages();
     let pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(backendImage, imagesTag, 60000);
+    images = await pullImagePage.pullImage(backendImage, imagesTag, 90000);
     const backendExists = await images.waitForImageExists(backendImage);
     playExpect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
 
     await navigationBar.openImages();
     pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(frontendImage, imagesTag, 60000);
+    images = await pullImagePage.pullImage(frontendImage, imagesTag, 90000);
     const frontendExists = await images.waitForImageExists(frontendImage);
     playExpect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
   });
