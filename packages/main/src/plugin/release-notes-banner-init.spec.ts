@@ -36,14 +36,13 @@ test('should register a configuration', async () => {
 
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
-  const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0][0][0];
-  expect(configurationNode).toBeDefined();
-  expect(configurationNode.id).toBe('releaseNotesBanner');
-  expect(configurationNode.title).toBe('Show release notes banner');
-  expect(configurationNode.properties).toBeDefined();
-  expect(Object.keys(configurationNode.properties ?? {}).length).toBe(1);
-  expect(configurationNode.properties?.['releaseNotesBanner.show']).toBeDefined();
-  expect(configurationNode.properties?.['releaseNotesBanner.show'].type).toBe('boolean');
-  expect(configurationNode.properties?.['releaseNotesBanner.show'].default).toBe(true);
-  expect(configurationNode.properties?.['releaseNotesBanner.show'].hidden).toBe(true);
+  const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0]?.[0][0];
+  expect(configurationNode?.id).toBe('releaseNotesBanner');
+  expect(configurationNode?.title).toBe('Show release notes banner');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(1);
+  expect(configurationNode?.properties?.['releaseNotesBanner.show']).toBeDefined();
+  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.default).toBe(true);
+  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.hidden).toBe(true);
 });
