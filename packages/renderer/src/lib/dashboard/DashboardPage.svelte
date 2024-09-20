@@ -15,7 +15,7 @@ import ProviderNotInstalled from './ProviderNotInstalled.svelte';
 import ProviderReady from './ProviderReady.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
-import ReleaseNotesBox from './release-notes/ReleaseNotesBox.svelte';
+import ReleaseNotesBox from './ReleaseNotesBox.svelte';
 
 const providerInitContexts = new Map<string, InitializationContext>();
 

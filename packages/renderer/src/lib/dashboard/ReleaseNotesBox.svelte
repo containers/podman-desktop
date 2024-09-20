@@ -3,9 +3,9 @@ import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { Button, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
-import Markdown from '../../markdown/Markdown.svelte';
-import { showReleaseNotesBanner } from './release-notes-store';
+import Markdown from '../markdown/Markdown.svelte';
 
+let showBanner = true;
 let updateAvilable = false;
 let currentVersion: string;
 let title: string = '';
@@ -31,22 +31,27 @@ async function getInfoFromNotes() {
 }
 
 function onclose() {
-  $showReleaseNotesBanner = false;
+  window.updateConfigurationValue('releaseNotesBanner.show', false);
+  showBanner = false;
 }
 
 onMount(async () => {
-  window
-    .podmanDesktopUpdateAvailable()
-    .then(available => (updateAvilable = available))
-    .catch(() => {
-      console.log('Cannot check for update');
-    });
-  currentVersion = await window.getPodmanDesktopVersion();
-  await getInfoFromNotes();
+  showBanner = await window.getConfigurationValue('releaseNotesBanner.show');
+  console.log(showBanner);
+  if (showBanner) {
+    window
+      .podmanDesktopUpdateAvailable()
+      .then(available => (updateAvilable = available))
+      .catch(() => {
+        console.log('Cannot check for update');
+      });
+    currentVersion = await window.getPodmanDesktopVersion();
+    await getInfoFromNotes();
+  }
 });
 </script>
 
-{#if $showReleaseNotesBanner}
+{#if showBanner}
   <div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-[230px] items-center">
     {#if imageUrl}
       <img src={imageUrl} class="max-h-[190px] w-auto max-w-[20%] object-contain rounded-md" alt={imageAlt} />

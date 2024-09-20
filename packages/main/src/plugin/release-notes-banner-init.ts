@@ -16,11 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Writable, writable } from 'svelte/store';
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
-export const showReleaseNotesBanner = setup();
+export class ReleaseNotesBannerInit {
+  constructor(private configurationRegistry: IConfigurationRegistry) {}
 
-export function setup(): Writable<boolean> {
-  const store = writable(true);
-  return store;
+  init(): void {
+    const releaseNotesBannerConfiguration: IConfigurationNode = {
+      id: 'releaseNotesBanner',
+      title: 'Show release notes banner',
+      type: 'object',
+      properties: {
+        ['releaseNotesBanner.show']: {
+          type: 'boolean',
+          default: true,
+          hidden: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([releaseNotesBannerConfiguration]);
+  }
 }
