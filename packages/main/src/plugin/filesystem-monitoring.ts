@@ -96,7 +96,7 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
 
   dispose(): void {
     if (this.watcher) {
-      this.watcher.close().catch((err: unknown) => {
+      this.watcher.close()?.catch((err: unknown) => {
         console.error('unable to close watcher', err);
       });
     }
