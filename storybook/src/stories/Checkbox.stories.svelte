@@ -10,12 +10,52 @@ const { Story } = defineMeta({
   component: Checkbox,
   title: 'Checkbox',
   tags: ['autodocs'],
-  args: {
-    checked: false,
-    disabled: false,
-    indeterminate: false,
-    disabledTooltip: '',
-    required: false,
+  argTypes: {
+    content: {
+      control: 'text',
+      description: 'Text to show next to the checkbox',
+      defaultValue: '',
+    },
+    title: {
+      control: 'text',
+      description: 'tooltip displayed when hovering the checkbox',
+      defaultValue: '',
+    },
+    checked: {
+      control: 'boolean',
+      description: 'Flag the checkbox as being checked',
+      defaultValue: false,
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Flag the checkbox as being disabled',
+      defaultValue: false,
+    },
+    indeterminate: {
+      control: 'boolean',
+      description: 'Flag the checkbox as being indeterminate',
+      defaultValue: false,
+    },
+    disabledTooltip: {
+      control: 'text',
+      description: 'Tooltip to show when the checkbox is disabled',
+      defaultValue: '',
+    },
+    required: {
+      control: 'boolean',
+      description: 'Flag the checkbox as being required',
+      defaultValue: false,
+    },
+    id: {
+      control: 'text',
+      description: 'Id of the checkbox',
+      defaultValue: undefined,
+    },
+    name: {
+      control: 'text',
+      description: 'Name of the checkbox',
+      defaultValue: undefined,
+    },
   },
 });
 </script>

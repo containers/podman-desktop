@@ -11,7 +11,54 @@ const { Story } = defineMeta({
   component: Tooltip,
   title: 'Tooltip',
   tags: ['autodocs'],
-  args: {},
+  argTypes: {
+    tip: {
+      control: 'text',
+      description: 'Text to show in the tooltip',
+      defaultValue: 'This is a tooltip',
+    },
+    top: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the top',
+      defaultValue: false,
+    },
+    topLeft: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the top left',
+      defaultValue: false,
+    },
+    topRight: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the top right',
+      defaultValue: false,
+    },
+    right: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the right',
+      defaultValue: false,
+    },
+    bottom: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the bottom',
+      defaultValue: false,
+    },
+    bottomLeft: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the bottom left',
+      defaultValue: false,
+    },
+    bottomRight: {
+      control: 'boolean',
+
+      description: 'Flag the tooltip as being at the bottom right',
+      defaultValue: false,
+    },
+    left: {
+      control: 'boolean',
+      description: 'Flag the tooltip as being at the left',
+      defaultValue: false,
+    },
+  },
 });
 </script>
 
@@ -20,9 +67,12 @@ setTemplate(template);
 </script>
 
 {#snippet template({ _children, ...args }: Args<typeof Story>, _context: StoryContext<typeof Story>)}
-  Hover the icon: <Tooltip {...args}>
-    <StarIcon />
-  </Tooltip>
+  <div class="p-5 align-middle items-center flex flex-row">
+    Move mouse over the star icon to see the tooltip
+    <Tooltip {...args}>
+      <StarIcon />
+    </Tooltip>
+  </div>
 {/snippet}
 
 <Story

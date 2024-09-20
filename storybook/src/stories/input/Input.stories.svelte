@@ -10,6 +10,43 @@ const { Story } = defineMeta({
   component: Input,
   title: 'Input/Input',
   tags: ['autodocs'],
+  argTypes: {
+    placeholder: {
+      control: 'text',
+      description: 'placeholder text to show if input field is empty',
+      defaultValue: '',
+    },
+    value: {
+      control: 'text',
+      description: 'initial value',
+      defaultValue: '',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Flag the input as being disabled',
+      defaultValue: false,
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'if true, the input field cannot be edited',
+      defaultValue: false,
+    },
+    required: {
+      control: 'boolean',
+      description: 'if true, the input field is required',
+      defaultValue: false,
+    },
+    clearable: {
+      control: 'boolean',
+      description: 'if true, the input field can be cleared with an icon',
+      defaultValue: false,
+    },
+    error: {
+      control: 'text',
+      description: 'error message to show if input is invalid',
+      defaultValue: '',
+    },
+  },
 });
 </script>
 
