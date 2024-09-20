@@ -692,7 +692,7 @@ export class ImageRegistry {
         platformOs = 'windows';
       }
       // find the manifest corresponding to our platform
-      const matchedManifest = this.getBestManifest(
+      const matchedManifest = this.findBestManifest(
         parsedManifest.manifests.filter(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (m: any) =>
@@ -718,7 +718,7 @@ export class ImageRegistry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getBestManifest(manifests: any[], wantedArch: string, wantedOs: string): any | undefined {
+  findBestManifest(manifests: any[], wantedArch: string, wantedOs: string): any | undefined {
     // eslint-disable-next-line etc/no-commented-out-code
     // manifestsMap [os] [arch] = manifest
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

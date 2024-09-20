@@ -626,7 +626,7 @@ describe('expect checkCredentials', async () => {
   });
 });
 
-test('getBestManifest returns the expected manifest', () => {
+test('findBestManifest returns the expected manifest', () => {
   const manifests = {
     'linux-amd64': {
       platform: {
@@ -667,14 +667,14 @@ test('getBestManifest returns the expected manifest', () => {
 
   // Exact matches
   expect(
-    imageRegistry.getBestManifest(
+    imageRegistry.findBestManifest(
       [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
       'amd64',
       'linux',
     ),
   ).toHaveProperty('name', 'linux-amd64');
   expect(
-    imageRegistry.getBestManifest(
+    imageRegistry.findBestManifest(
       [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
       'amd64',
       'windows',
@@ -683,35 +683,35 @@ test('getBestManifest returns the expected manifest', () => {
 
   // Linux by default
   expect(
-    imageRegistry.getBestManifest(
+    imageRegistry.findBestManifest(
       [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
       'amd64',
       'darwin',
     ),
   ).toHaveProperty('name', 'linux-amd64');
   expect(
-    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'amd64', 'darwin'),
+    imageRegistry.findBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'amd64', 'darwin'),
   ).toHaveProperty('name', 'linux-amd64');
 
   // Only one os by default
   expect(
-    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'amd64', 'darwin'),
+    imageRegistry.findBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'amd64', 'darwin'),
   ).toBeUndefined();
   expect(
-    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'arm64', 'darwin'),
+    imageRegistry.findBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'arm64', 'darwin'),
   ).toBeUndefined();
   expect(
-    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'unknown-arch', 'darwin'),
+    imageRegistry.findBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'unknown-arch', 'darwin'),
   ).toBeUndefined();
 
   // amd64 arch by default, linux os by default
   expect(
-    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'arm64', 'darwin'),
+    imageRegistry.findBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'arm64', 'darwin'),
   ).toHaveProperty('name', 'linux-amd64');
 
   // no default OS found
   expect(
-    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['darwin-amd64']], 'amd64', 'linux'),
+    imageRegistry.findBestManifest([manifests['windows-amd64'], manifests['darwin-amd64']], 'amd64', 'linux'),
   ).toBeUndefined();
 });
 
@@ -730,9 +730,9 @@ test('getManifestFromUrl returns the expected manifest with mediaType', async ()
     .get('/v2/foo/bar/manifests/1234')
     .reply(200, JSON.stringify({ endManifest: true }));
 
-  // mock getBestManifest
-  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
-  spyGetBestManifest.mockReturnValue({
+  // mock findBestManifest
+  const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
+  spyFindBestManifest.mockReturnValue({
     digest: 1234,
   });
 
@@ -748,7 +748,7 @@ test('getManifestFromUrl returns the expected manifest with mediaType', async ()
 
   expect(manifest).toBeDefined();
   expect(manifest).toHaveProperty('endManifest', true);
-  expect(spyGetBestManifest).toHaveBeenCalled();
+  expect(spyFindBestManifest).toHaveBeenCalled();
 });
 
 test('getManifestFromUrl returns the expected manifest without mediaType but with manifests', async () => {
@@ -769,9 +769,9 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
     .get('/v2/foo/bar/manifests/1234')
     .reply(200, JSON.stringify({ endManifest: true }));
 
-  // mock getBestManifest
-  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
-  spyGetBestManifest.mockReturnValue({
+  // mock findBestManifest
+  const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
+  spyFindBestManifest.mockReturnValue({
     digest: 1234,
   });
 
@@ -787,7 +787,7 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
 
   expect(manifest).toBeDefined();
   expect(manifest).toHaveProperty('endManifest', true);
-  expect(spyGetBestManifest).toHaveBeenCalled();
+  expect(spyFindBestManifest).toHaveBeenCalled();
 });
 
 test('getManifestFromUrl returns the expected manifest with docker manifest v2', async () => {
@@ -814,9 +814,9 @@ test('getManifestFromUrl returns the expected manifest with docker manifest v2',
     .get('/v2/foo/bar/manifests/1234')
     .reply(200, JSON.stringify({ endManifest: true }));
 
-  // mock getBestManifest
-  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
-  spyGetBestManifest.mockReturnValue({
+  // mock findBestManifest
+  const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
+  spyFindBestManifest.mockReturnValue({
     digest: 1234,
   });
 
@@ -832,9 +832,9 @@ test('getManifestFromUrl returns the expected manifest with docker manifest v2',
 
   expect(manifest).toBeDefined();
   expect(manifest).toHaveProperty('endManifest', true);
-  expect(spyGetBestManifest).toHaveBeenCalled();
+  expect(spyFindBestManifest).toHaveBeenCalled();
   // check first item of the call and first element of the array
-  expect(spyGetBestManifest.mock.calls[0]?.[0][0]).contains({ name: 'docker-manifest' });
+  expect(spyFindBestManifest.mock.calls[0]?.[0][0]).contains({ name: 'docker-manifest' });
 });
 
 test('getAuthconfigForServer returns the expected authconfig', async () => {
