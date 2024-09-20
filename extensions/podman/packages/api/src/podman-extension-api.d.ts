@@ -17,7 +17,10 @@
  ***********************************************************************/
 
 import type { ProviderContainerConnection, RunOptions, RunResult } from '@podman-desktop/api';
+export interface PodmanRunOptions extends RunOptions {
+  connection?: ProviderContainerConnection;
+}
 
 export interface PodmanExtensionApi {
-  exec(args: string[], connection?: ProviderContainerConnection, options?: RunOptions): Promise<RunResult>;
+  exec(args: string[], options?: PodmanRunOptions): Promise<RunResult>;
 }
