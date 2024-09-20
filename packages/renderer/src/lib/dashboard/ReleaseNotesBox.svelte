@@ -36,8 +36,7 @@ function onclose() {
 }
 
 onMount(async () => {
-  showBanner = await window.getConfigurationValue('releaseNotesBanner.show');
-  console.log(showBanner);
+  showBanner = (await window.getConfigurationValue('releaseNotesBanner.show')) ?? true;
   if (showBanner) {
     window
       .podmanDesktopUpdateAvailable()
