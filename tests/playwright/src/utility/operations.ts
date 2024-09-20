@@ -161,7 +161,7 @@ export async function handleConfirmationDialog(
 ): Promise<void> {
   // wait for dialog to appear using waitFor
   const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
-  await playExpect(dialog).toBeVisible();
+  await waitUntil(async () => await dialog.isVisible());
   const button = confirm
     ? dialog.getByRole('button', { name: confirmationButton })
     : dialog.getByRole('button', { name: cancelButton });
@@ -228,7 +228,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   }
 }
 
-export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string | undefined> {
+export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string> {
   let volumeName;
   let volumeSummaryContent;
   try {
@@ -251,13 +251,13 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
         await volumeDetails.backLink.click();
       }
     }
-    return undefined;
+    return '';
   } catch (error) {
     if (
       error instanceof Error &&
       (error.message === 'Page is empty, there is no content' || error.message.includes('does not exist'))
     ) {
-      return undefined;
+      return '';
     } else {
       throw error;
     }
@@ -325,6 +325,7 @@ export async function deleteKindCluster(
 ): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const kindResourceCard = new ResourceConnectionCardPage(page, 'kind');
+  const volumeName = await getVolumeNameForContainer(page, containerName);
 
   await navigationBar.openSettings();
   await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
@@ -334,9 +335,10 @@ export async function deleteKindCluster(
   await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
   await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
   const containersPage = await navigationBar.openContainers();
+  await playExpect(containersPage.heading).toBeVisible();
   await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
 
-  await playExpect
-    .poll(async () => await getVolumeNameForContainer(page, containerName), { timeout: 20000 })
-    .toBeFalsy();
+  const volumePage = await navigationBar.openVolumes();
+  await playExpect(volumePage.heading).toBeVisible();
+  await playExpect.poll(async () => await volumePage.waitForVolumeDelete(volumeName), { timeout: 20000 }).toBeTruthy();
 }

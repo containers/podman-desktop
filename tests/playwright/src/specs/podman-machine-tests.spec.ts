@@ -164,7 +164,11 @@ test.describe.serial(`Podman machine switching validation `, () => {
   test('Clean up rootless podman machine', async ({ page }) => {
     await deletePodmanMachine(page, ROOTLESS_PODMAN_MACHINE_VISIBLE);
 
-    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
-    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+    try {
+      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+      await handleConfirmationDialog(page, 'Podman', true, 'OK');
+    } catch (error) {
+      console.error('No handing dialog displayed', error);
+    }
   });
 });

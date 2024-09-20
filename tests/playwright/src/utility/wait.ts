@@ -39,7 +39,7 @@ export async function wait(
     await delay(diff);
   }
   const message =
-    errorMessage || errorMessage.length === 0
+    errorMessage.length === 0
       ? `Timeout (${timeout} ms) was reach while waiting for condition (${waitFunction.name}) to become '${String(
           until,
         )}'`
