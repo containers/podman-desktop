@@ -185,7 +185,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     .poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME), { timeout: 10000 })
     .toBeTruthy();
   const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineVisibleName);
-  await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10000 });
+  await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10_000 });
   await waitUntil(
     async () => {
       return await podmanResourceCard.resourceElement.isVisible();
@@ -218,11 +218,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
         execSync(`podman machine stop ${machineVisibleName}`);
       }
       await playExpect(podmanResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-        timeout: 30000,
+        timeout: 30_000,
       });
     }
     await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
-    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 60000 });
+    await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 60_000 });
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
   }
