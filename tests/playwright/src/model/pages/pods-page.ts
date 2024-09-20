@@ -85,9 +85,7 @@ export class PodsPage extends MainPage {
     const deployedContainerRow = await this.getPodRowByName(podName);
     if (deployedContainerRow) {
       const env = await deployedContainerRow.getByRole('cell').nth(4).textContent();
-      if (env?.trim() === environment) {
-        return true;
-      }
+      return env?.trim() === environment;
     }
     return false;
   }
