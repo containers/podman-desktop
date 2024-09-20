@@ -38,7 +38,7 @@
     "postcss": "^8.4.47",
     "postcss-load-config": "^6.0.1",
     "svelte": "5.0.0-next.225",
-    "svelte-check": "^3.8.6",
+    "svelte-check": "^4.0.2",
     "svelte-eslint-parser": "^0.41.1",
     "svelte-fa": "^4.0.2",
     "svelte-steps": "2.4.1",
