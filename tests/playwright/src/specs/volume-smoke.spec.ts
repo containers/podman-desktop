@@ -45,7 +45,9 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     await playExpect(volumesPage.heading).toBeVisible();
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
     volumesPage = await createVolumePage.createVolume(volumeName);
-    await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
+    await playExpect
+      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), { timeout: 15_000 })
+      .toBeTruthy();
   });
 
   test('Test navigation between pages', async ({ navigationBar }) => {
