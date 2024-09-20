@@ -14,7 +14,6 @@ let imageUrl: string = '';
 let imageAlt: string = '';
 
 async function getInfoFromNotes() {
-  currentVersion = '1.12.0'; // for testing purposes only, will remove before merging
   let curVersionSplit = currentVersion.split('.', 2);
   const urlVersionFormat = curVersionSplit.join('.');
   let notesURL = `https://podman-desktop.io/release-notes/${urlVersionFormat}.json`;
@@ -49,7 +48,9 @@ onMount(async () => {
 
 {#if $showReleaseNotesBanner}
   <div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-[230px] items-center">
-    <img src={imageUrl} class="max-h-[190px] w-auto max-w-[20%] object-contain rounded-md" alt={imageAlt} />
+    {#if imageUrl}
+      <img src={imageUrl} class="max-h-[190px] w-auto max-w-[20%] object-contain rounded-md" alt={imageAlt} />
+    {/if}
     <div class="flex flex-col flex-1">
       <div class="flex flex-row items-center justify-between">
         <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl ml-2">
