@@ -62,7 +62,7 @@ test.afterAll(async ({ runner, page }) => {
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
-    await deleteKindCluster(page, KIND_CONTAINER_NAME);
+    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
   } finally {
     await runner.close();
   }

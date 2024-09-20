@@ -288,14 +288,21 @@ export async function createKindCluster(
 ): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const statusBar = new StatusBar(page);
-  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind');
+  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind', clusterName);
   const createKindClusterPage = new CreateKindClusterPage(page);
 
   const settingsPage = await navigationBar.openSettings();
   const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
+  await playExpect(resourcesPage.heading).toBeVisible();
   await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('kind')).toBeTruthy();
   await playExpect(kindResourceCard.markdownContent).toBeVisible();
   await playExpect(kindResourceCard.createButton).toBeVisible();
+
+  if (await kindResourceCard.doesResourceElementExist()) {
+    console.log(`Kind cluster [${clusterName}] already present, skipping creation.`);
+    return;
+  }
+
   await kindResourceCard.createButton.click();
   if (usedefaultOptions) {
     await createKindClusterPage.createClusterDefault(clusterName, timeout);
@@ -322,12 +329,20 @@ export async function createKindCluster(
 export async function deleteKindCluster(
   page: Page,
   containerName: string = 'kind-cluster-control-plane',
+  clusterName: string = 'kind-cluster',
 ): Promise<void> {
   const navigationBar = new NavigationBar(page);
-  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind');
+  const kindResourceCard = new ResourceConnectionCardPage(page, 'kind', clusterName);
   const volumeName = await getVolumeNameForContainer(page, containerName);
 
   await navigationBar.openSettings();
+  const resourcesPage = new ResourcesPage(page);
+  await playExpect(resourcesPage.heading).toBeVisible();
+  if (!(await kindResourceCard.doesResourceElementExist())) {
+    console.log(`Kind cluster [${clusterName}] not present, skipping deletion.`);
+    return;
+  }
+
   await kindResourceCard.performConnectionAction(ResourceElementActions.Stop);
   await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
     timeout: 50000,
