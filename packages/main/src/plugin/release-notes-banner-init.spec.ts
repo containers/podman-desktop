@@ -37,6 +37,7 @@ test('should register a configuration', async () => {
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
 
   const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0][0][0];
+  expect(configurationNode).toBeDefined();
   expect(configurationNode.id).toBe('releaseNotesBanner');
   expect(configurationNode.title).toBe('Show release notes banner');
   expect(configurationNode.properties).toBeDefined();
