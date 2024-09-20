@@ -31,7 +31,7 @@ test.skip(
 );
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
-  test.setTimeout(120000);
+  test.setTimeout(120_000);
   runner.setVideoAndTraceName('podman-machine-dashboard');
   await welcomePage.handleWelcomePage(true);
 
