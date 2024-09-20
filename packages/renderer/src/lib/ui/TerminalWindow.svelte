@@ -66,4 +66,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class={$$props.class} bind:this={logsXtermDiv}></div>
+<div class="{$$props.class} p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={logsXtermDiv}></div>
