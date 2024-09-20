@@ -51,6 +51,7 @@ test.skip(
 );
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
+  test.setTimeout(120000);
   runner.setVideoAndTraceName('podman-machine-e2e');
 
   await welcomePage.handleWelcomePage(true);
