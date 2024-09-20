@@ -718,7 +718,7 @@ export class ImageRegistry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getBestManifest(manifests: any[], wantedArch: string, wantedOs: string): any {
+  getBestManifest(manifests: any[], wantedArch: string, wantedOs: string): any | undefined {
     // eslint-disable-next-line etc/no-commented-out-code
     // manifestsMap [os] [arch] = manifest
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -739,14 +739,16 @@ export class ImageRegistry {
     if (!wantedOses) {
       wantedOses = manifestsMap.get('linux');
     }
-    if (!wantedOses) {
+
+    const keys = Array.from(wantedOses?.keys() ?? []);
+    if (!wantedOses || !keys[0]) {
       return;
     }
 
     let wanted = wantedOses.get(wantedArch);
     if (!wanted) {
       if (wantedOses.size === 1) {
-        wanted = wantedOses.get(wantedOses.keys().next().value);
+        wanted = wantedOses.get(keys[0]);
       } else {
         wanted = wantedOses.get('amd64');
       }
