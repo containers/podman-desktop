@@ -40,6 +40,7 @@ export const aFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
@@ -65,6 +66,7 @@ export const bFakeExtension: CatalogExtension = {
   extensionName: 'b-extension',
   displayName: 'B Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {

@@ -45,6 +45,7 @@ const catalogExtension1: CatalogExtension = {
   publisherDisplayName: 'Foo publisher display name',
   shortDescription: 'Foo extension short description',
   categories: ['Kubernetes'],
+  keywords: [],
   unlisted: false,
   versions: [
     {
@@ -65,6 +66,7 @@ const catalogExtension2: CatalogExtension = {
   publisherDisplayName: 'Foo publisher display name',
   shortDescription: 'Foo extension short description',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
