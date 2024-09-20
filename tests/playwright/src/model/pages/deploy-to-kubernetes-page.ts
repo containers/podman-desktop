@@ -59,6 +59,7 @@ export class DeployToKubernetesPage extends BasePage {
     timeout: number = 80000,
   ): Promise<void> {
     await playExpect(this.podName).toBeVisible();
+    await this.podName.clear();
     await this.podName.fill(name);
 
     await playExpect(this.servicesCheckbox).toBeEnabled();
