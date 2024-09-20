@@ -612,8 +612,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       micromark-extension-directive:
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.0.2
+        version: 3.0.2
       moment:
         specifier: ^2.30.1
         version: 2.30.1
@@ -7838,8 +7838,8 @@ packages:
   micromark-core-commonmark@2.0.1:
     resolution: {integrity: sha512-CUQyKr1e///ZODyD1U3xit6zXwy1a8q2a1S1HKtIlmgvurrEpaw/Y9y6KSIbF8P59cn/NjzHyO+Q2fAyYLQrAA==}
 
-  micromark-extension-directive@3.0.1:
-    resolution: {integrity: sha512-VGV2uxUzhEZmaP7NSFo2vtq7M2nUD+WfmYQD+d8i/1nHbzE+rMy9uzTvUybBbNiVbrhOZibg3gbyoARGqgDWyg==}
+  micromark-extension-directive@3.0.2:
+    resolution: {integrity: sha512-wjcXHgk+PPdmvR58Le9d7zQYWy+vKEU9Se44p2CrCDPiLr2FMyiT4Fyb5UFKFC66wGB3kPlgD7q3TnoqPS7SZA==}
 
   micromark-extension-frontmatter@2.0.0:
     resolution: {integrity: sha512-C4AkuM3dA58cgZha7zVnuVxBhDsbttIMiytjgsM2XbHAB2faRVaHRle40558FBN+DJcrLNCoqG5mlrpdU4cRtg==}
@@ -20656,7 +20656,7 @@ snapshots:
       micromark-util-symbol: 2.0.0
       micromark-util-types: 2.0.0
 
-  micromark-extension-directive@3.0.1:
+  micromark-extension-directive@3.0.2:
     dependencies:
       devlop: 1.1.0
       micromark-factory-space: 2.0.0
@@ -22413,7 +22413,7 @@ snapshots:
     dependencies:
       '@types/mdast': 4.0.4
       mdast-util-directive: 3.0.0
-      micromark-extension-directive: 3.0.1
+      micromark-extension-directive: 3.0.2
       unified: 11.0.5
     transitivePeerDependencies:
       - supports-color
