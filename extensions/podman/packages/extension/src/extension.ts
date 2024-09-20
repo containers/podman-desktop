@@ -26,7 +26,7 @@ import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
-import type { PodmanExtensionApi } from '../../api/src/podman-extension-api';
+import type { PodmanExtensionApi, PodmanRunOptions } from '../../api/src/podman-extension-api';
 import { getSocketCompatibility } from './compatibility-mode';
 import { getDetectionChecks } from './detection-checks';
 import { KrunkitHelper } from './krunkit-helper';
