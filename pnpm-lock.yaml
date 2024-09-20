@@ -630,8 +630,8 @@ importers:
         specifier: 5.0.0-next.225
         version: 5.0.0-next.225
       svelte-check:
-        specifier: ^3.8.6
-        version: 3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.47)(svelte@5.0.0-next.225)
+        specifier: ^4.0.2
+        version: 4.0.2(svelte@5.0.0-next.225)(typescript@5.5.4)
       svelte-eslint-parser:
         specifier: ^0.41.1
         version: 0.41.1(svelte@5.0.0-next.225)
@@ -727,8 +727,8 @@ importers:
         specifier: 5.0.0-next.225
         version: 5.0.0-next.225
       svelte-check:
-        specifier: ^3.8.6
-        version: 3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.47)(svelte@5.0.0-next.225)
+        specifier: ^4.0.2
+        version: 4.0.2(svelte@5.0.0-next.225)(typescript@5.5.4)
       svelte-eslint-parser:
         specifier: ^0.41.1
         version: 0.41.1(svelte@5.0.0-next.225)
@@ -841,8 +841,8 @@ importers:
         specifier: 5.0.0-next.225
         version: 5.0.0-next.225
       svelte-check:
-        specifier: ^3.8.6
-        version: 3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.47)(svelte@5.0.0-next.225)
+        specifier: ^4.0.2
+        version: 4.0.2(svelte@5.0.0-next.225)(typescript@5.5.4)
       tailwindcss:
         specifier: ^3.4.12
         version: 3.4.12
@@ -6210,6 +6210,14 @@ packages:
   fd-slicer@1.1.0:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
 
+  fdir@6.3.0:
+    resolution: {integrity: sha512-QOnuT+BOtivR77wYvCWHfGt9s4Pz1VIMbD463vegT5MLqNXy8rYFT/lPVEqf/bhYeT6qmqrNHhsX+rWwe3rOCQ==}
+    peerDependencies:
+      picomatch: ^3 || ^4
+    peerDependenciesMeta:
+      picomatch:
+        optional: true
+
   feed@4.2.2:
     resolution: {integrity: sha512-u5/sxGfiMfZNtJ3OvQpXcvotFpYkL0n9u9mM2vkui2nGo8b4wvDkJ8gAkYqbA8QpGyFCv3RK0Z+Iv+9veCS9bQ==}
     engines: {node: '>=0.4.0'}
@@ -10055,11 +10063,13 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte-check@3.8.6:
-    resolution: {integrity: sha512-ij0u4Lw/sOTREP13BdWZjiXD/BlHE6/e2e34XzmVmsp5IN4kVa3PWP65NM32JAgwjZlwBg/+JtiNV1MM8khu0Q==}
+  svelte-check@4.0.2:
+    resolution: {integrity: sha512-w2yqcG9ELJe2RJCnAvB7v0OgkHhL3czzz/tVoxGFfO6y4mOrF6QHCDhXijeXzsU7LVKEwWS3Qd9tza4JBuDxqA==}
+    engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
-      svelte: ^3.55.0 || ^4.0.0-next.0 || ^4.0.0 || ^5.0.0-next.0
+      svelte: ^4.0.0 || ^5.0.0-next.0
+      typescript: '>=5.0.0'
 
   svelte-eslint-parser@0.41.1:
     resolution: {integrity: sha512-08ndI6zTghzI8SuJAFpvMbA/haPSGn3xz19pjre19yYMw8Nw/wQJ2PrZBI/L8ijGTgtkWCQQiLLy+Z1tfaCwNA==}
@@ -18713,6 +18723,8 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
+  fdir@6.3.0: {}
+
   feed@4.2.2:
     dependencies:
       xml-js: 1.6.11
@@ -23296,25 +23308,17 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@3.8.6(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.47)(svelte@5.0.0-next.225):
+  svelte-check@4.0.2(svelte@5.0.0-next.225)(typescript@5.5.4):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 3.6.0
-      picocolors: 1.0.1
+      fdir: 6.3.0
+      picocolors: 1.1.0
       sade: 1.8.1
       svelte: 5.0.0-next.225
-      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(tsx@4.19.1)(yaml@2.5.1))(postcss@8.4.47)(svelte@5.0.0-next.225)(typescript@5.5.4)
       typescript: 5.5.4
     transitivePeerDependencies:
-      - '@babel/core'
-      - coffeescript
-      - less
-      - postcss
-      - postcss-load-config
-      - pug
-      - sass
-      - stylus
-      - sugarss
+      - picomatch
 
   svelte-eslint-parser@0.41.1(svelte@5.0.0-next.225):
     dependencies:
