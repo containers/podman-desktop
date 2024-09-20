@@ -17,9 +17,13 @@
 
 name: pr-check
 
-on: 
+on:
   pull_request:
     types: [labeled, synchronize, opened, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   windows:
@@ -337,7 +341,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Evaluate changes in files   
+      - name: Evaluate changes in files
         id: pnpm_changed
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }}
@@ -411,7 +415,7 @@ jobs:
       always()
     steps:
       - name: Evaluate the Windows Update test results
-        run: | 
+        run: |
           echo "Windows updater result: ${{ needs.run-update-e2e-test.result }}"
           if [ "${{ needs.run-update-e2e-test.result }}" = "failure" ]; then
             echo "Windows udpater test failed..."
