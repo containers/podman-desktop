@@ -127,6 +127,7 @@ export class ExtensionsCatalog {
           publisherName: extension.publisher.publisherName,
           publisherDisplayName: extension.publisher.displayName,
           categories: extension.categories,
+          keywords: extension.keywords,
           unlisted: extension.unlisted ?? false,
           extensionName: extension.extensionName,
           shortDescription: extension.shortDescription,
@@ -250,6 +251,7 @@ interface InternalCatalogExtensionJSON {
   extensionName: string;
   displayName: string;
   categories: string[];
+  keywords: string[];
   unlisted?: boolean;
   shortDescription: string;
   versions: InternalCatalogExtensionVersionJSON[];

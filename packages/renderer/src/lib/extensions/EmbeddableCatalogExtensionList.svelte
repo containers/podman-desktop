@@ -11,6 +11,7 @@ import { ExtensionsUtils } from './extensions-utils';
 
 // restricted category to display
 export let category: string | undefined = undefined;
+export let keywords: string[] = [];
 
 // show installed extensions
 export let showInstalled: boolean = true;
@@ -24,6 +25,12 @@ const catalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
       const filteredCategory = category;
       $catalogExtensionInfos = $catalogExtensionInfos.filter(catalogExtension =>
         catalogExtension.categories.includes(filteredCategory),
+      );
+    }
+    for (const keyword of keywords) {
+      const filteredKeyword = keyword;
+      $catalogExtensionInfos = $catalogExtensionInfos.filter(catalogExtension =>
+        catalogExtension.keywords.includes(filteredKeyword),
       );
     }
     if (!showInstalled) {
