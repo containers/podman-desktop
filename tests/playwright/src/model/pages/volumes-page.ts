@@ -91,11 +91,17 @@ export class VolumesPage extends MainPage {
   }
 
   async waitForVolumeExists(name: string): Promise<boolean> {
+    if (!name) {
+      throw Error('Volume name is not provided');
+    }
     await waitUntil(async () => await this.volumeExists(name));
     return true;
   }
 
   async waitForVolumeDelete(name: string): Promise<boolean> {
+    if (!name) {
+      throw Error('Volume name is not provided');
+    }
     await waitWhile(async () => await this.volumeExists(name));
     return true;
   }

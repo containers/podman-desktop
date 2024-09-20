@@ -49,8 +49,12 @@ test.beforeAll(async ({ runner, page, welcomePage }) => {
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
 });
 
-test.afterAll(async ({ runner }) => {
-  await runner.close();
+test.afterAll(async ({ runner, page }) => {
+  try {
+    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+  } finally {
+    await runner.close();
+  }
 });
 
 test.describe.serial('Kind End-to-End Tests', () => {
@@ -128,7 +132,7 @@ test.describe.serial('Kind End-to-End Tests', () => {
     });
 
     test('Kind cluster operations - DELETE', async ({ page }) => {
-      await deleteKindCluster(page, KIND_CONTAINER_NAME);
+      await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
     });
   });
 });

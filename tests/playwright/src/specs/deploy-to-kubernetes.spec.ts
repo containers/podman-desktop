@@ -62,17 +62,18 @@ test.afterAll(async ({ runner, page }) => {
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
-    await deleteKindCluster(page, KIND_CONTAINER_NAME);
+    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
   } finally {
     await runner.close();
   }
 });
 
-test.describe('Deploy a container to the Kind cluster', () => {
-  test.skip(
-    !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-    'Tests suite should not run on Linux platform',
-  );
+test.skip(
+  !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
+  'Tests suite should not run on Linux platform',
+);
+
+test.describe.serial('Deploy a container to the Kind cluster', () => {
   test('Pull an image and start a container', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();

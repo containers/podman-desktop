@@ -46,7 +46,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
-    await deleteKindCluster(page, KIND_NODE);
+    await deleteKindCluster(page, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
   }
