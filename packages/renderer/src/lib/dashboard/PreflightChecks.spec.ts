@@ -17,10 +17,20 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import PreflightChecks from './PreflightChecks.svelte';
+
+beforeEach(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      openExternal: vi.fn(),
+    },
+    writable: true,
+  });
+  vi.resetAllMocks();
+});
 
 test('Expect preCheck to be displayed when having just title and description', async () => {
   render(PreflightChecks, {
@@ -75,5 +85,8 @@ test('Expect preCheck to be displayed when having all props', async () => {
   const docLinks = screen.getByLabelText('precheck-link');
   expect(docLinks).toBeInTheDocument();
   expect(docLinks.textContent).equals('link');
-  expect(docLinks.getAttribute('href')).equals('url');
+  // click on the button
+  await fireEvent.click(docLinks);
+  // check openExternal is called
+  expect(window.openExternal).toHaveBeenCalledWith('url');
 });
