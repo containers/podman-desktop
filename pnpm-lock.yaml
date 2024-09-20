@@ -30,8 +30,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       chokidar:
-        specifier: ^3.6.0
-        version: 3.6.0
+        specifier: ^4.0.0
+        version: 4.0.0
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
