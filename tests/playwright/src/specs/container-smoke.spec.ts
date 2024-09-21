@@ -75,13 +75,13 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
   test.describe.configure({ retries: 2 });
 
   test(`Pulling of '${imageToPull}:${imageTag}' image`, async ({ navigationBar }) => {
-    test.setTimeout(90000);
+    test.setTimeout(90_000);
 
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(imageToPull, imageTag);
 
-    await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
+    await playExpect.poll(async () => await images.waitForImageExists(imageToPull), { timeout: 10_000 }).toBeTruthy();
   });
 
   test(`Start a container '${containerToRun}' from image`, async ({ navigationBar }) => {
@@ -91,11 +91,11 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     const containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 15_000 })
       .toBeTruthy();
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
-      .poll(async () => await containerDetails.getState(), { timeout: 10000 })
+      .poll(async () => await containerDetails.getState(), { timeout: 15_000 })
       .toContain(ContainerState.Running);
 
     images = await navigationBar.openImages();
@@ -154,10 +154,9 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await containersDetails.stopContainer();
 
     await playExpect
-      .poll(async () => await containersDetails.getState(), { timeout: 20000 })
+      .poll(async () => await containersDetails.getState(), { timeout: 30_000 })
       .toContain(ContainerState.Exited);
-    const startButton = containersDetails.getPage().getByRole('button', { name: 'Start Container', exact: true });
-    await playExpect(startButton).toBeVisible();
+    await playExpect(containersDetails.startButton).toBeVisible();
   });
 
   test(`Start a container from the Containers page`, async ({ navigationBar }) => {
@@ -173,7 +172,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
-      .poll(async () => containersDetails.getState(), { timeout: 20000 })
+      .poll(async () => containersDetails.getState(), { timeout: 30_000 })
       .toContain(ContainerState.Running);
   });
 
@@ -190,7 +189,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
-      .poll(async () => containersDetails.getState(), { timeout: 20000 })
+      .poll(async () => containersDetails.getState(), { timeout: 30_000 })
       .toContain(ContainerState.Exited);
   });
 
@@ -200,7 +199,9 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     const containersPage = await containersDetails.deleteContainer();
     await playExpect(containersPage.heading).toBeVisible();
-    await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
+    await playExpect
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 10_000 })
+      .toBeFalsy();
   });
 
   test(`Deleting a container from the Containers page`, async ({ navigationBar }) => {
@@ -211,11 +212,11 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     const containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10_000 })
       .toBeTruthy();
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await playExpect
-      .poll(async () => await containerDetails.getState(), { timeout: 10000 })
+      .poll(async () => await containerDetails.getState(), { timeout: 15_000 })
       .toContain(ContainerState.Running);
 
     images = await navigationBar.openImages();
@@ -226,7 +227,7 @@ test.describe.serial('Verification of container creation workflow @smoke', () =>
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30_000 })
       .toBeFalsy();
   });
 

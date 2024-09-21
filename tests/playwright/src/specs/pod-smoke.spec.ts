@@ -79,7 +79,7 @@ test.afterEach(async () => {
 });
 
 test.afterAll(async ({ page, runner }) => {
-  test.setTimeout(120000);
+  test.setTimeout(120_000);
 
   try {
     if (!resetTestData) return;
@@ -103,17 +103,17 @@ test.afterAll(async ({ page, runner }) => {
 
 test.describe.serial('Verification of pod creation workflow @smoke', () => {
   test('Pulling images', async ({ navigationBar }) => {
-    test.setTimeout(180000);
+    test.setTimeout(180_000);
 
     let images = await navigationBar.openImages();
     let pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(backendImage, imagesTag, 90000);
+    images = await pullImagePage.pullImage(backendImage, imagesTag, 90_000);
     const backendExists = await images.waitForImageExists(backendImage);
     playExpect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
 
     await navigationBar.openImages();
     pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(frontendImage, imagesTag, 90000);
+    images = await pullImagePage.pullImage(frontendImage, imagesTag, 90_000);
     const frontendExists = await images.waitForImageExists(frontendImage);
     playExpect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
   });
@@ -126,11 +126,11 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     let containers = await runImage.startContainer(backendContainer, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(backendContainer), { timeout: 15000 })
+      .poll(async () => await containers.containerExists(backendContainer), { timeout: 15_000 })
       .toBeTruthy();
     let containerDetails = await containers.openContainersDetails(backendContainer);
     await playExpect
-      .poll(async () => await containerDetails.getState(), { timeout: 15000 })
+      .poll(async () => await containerDetails.getState(), { timeout: 15_000 })
       .toBe(ContainerState.Running);
     await waitUntil(async () => {
       backendPort = await containerDetails.getContainerPort();
@@ -145,14 +145,14 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     containers = await runImage.startContainer(frontendContainer, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(frontendContainer), { timeout: 15000 })
+      .poll(async () => await containers.containerExists(frontendContainer), { timeout: 15_000 })
       .toBeTruthy();
     containerDetails = await containers.openContainersDetails(frontendContainer);
     frontendPort = await containerDetails.getContainerPort();
     const expectedPort = isMac ? '5101' : '5000';
     playExpect(frontendPort).toContain(expectedPort);
     await playExpect
-      .poll(async () => await containerDetails.getState(), { timeout: 15000 })
+      .poll(async () => await containerDetails.getState(), { timeout: 15_000 })
       .toBe(ContainerState.Running);
   });
 
@@ -162,15 +162,15 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     const containers = await navigationBar.openContainers();
     const createPodPage = await containers.openCreatePodPage(Array.of(backendContainer, frontendContainer));
     const pods = await createPodPage.createPod(podToRun);
-    await playExpect(pods.heading).toBeVisible({ timeout: 60000 });
-    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15000 }).toBeTruthy();
+    await playExpect(pods.heading).toBeVisible({ timeout: 60_000 });
+    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15_000 }).toBeTruthy();
     const podDetails = await pods.openPodDetails(podToRun);
-    await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Running);
+    await playExpect.poll(async () => await podDetails.getState(), { timeout: 15_000 }).toBe(PodState.Running);
   });
 
   test('Test navigation between pages', async ({ navigationBar }) => {
     const pods = await navigationBar.openPods();
-    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
+    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10_000 }).toBeTruthy();
 
     const podDetails = await pods.openPodDetails(podToRun);
     await playExpect(podDetails.heading).toBeVisible();
@@ -185,7 +185,7 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
 
   test('Checking pod details', async ({ navigationBar }) => {
     const pods = await navigationBar.openPods();
-    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
+    await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10_000 }).toBeTruthy();
     const podDetails = await pods.openPodDetails(podToRun);
     await playExpect(podDetails.heading).toBeVisible();
     await playExpect(podDetails.heading).toContainText(podToRun);
@@ -202,12 +202,12 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     const containers = await navigationBar.openContainers();
     const backendContainerDetails = await containers.openContainersDetails(backendContainer);
     await playExpect
-      .poll(async () => await backendContainerDetails.getState(), { timeout: 15000 })
+      .poll(async () => await backendContainerDetails.getState(), { timeout: 15_000 })
       .toBe(ContainerState.Exited);
     await navigationBar.openContainers();
     const frontendContainerDetails = await containers.openContainersDetails(frontendContainer);
     await playExpect
-      .poll(async () => await frontendContainerDetails.getState(), { timeout: 15000 })
+      .poll(async () => await frontendContainerDetails.getState(), { timeout: 15_000 })
       .toBe(ContainerState.Exited);
   });
 
@@ -230,12 +230,14 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
 
   test(`Checking pods under containers`, async ({ navigationBar }) => {
     const containers = await navigationBar.openContainers();
-    await playExpect.poll(async () => containers.containerExists(`${podToRun} (pod)`), { timeout: 10000 }).toBeTruthy();
     await playExpect
-      .poll(async () => containers.containerExists(`${backendContainer}-podified`), { timeout: 10000 })
+      .poll(async () => containers.containerExists(`${podToRun} (pod)`), { timeout: 10_000 })
       .toBeTruthy();
     await playExpect
-      .poll(async () => containers.containerExists(`${frontendContainer}-podified`), { timeout: 10000 })
+      .poll(async () => containers.containerExists(`${backendContainer}-podified`), { timeout: 10_000 })
+      .toBeTruthy();
+    await playExpect
+      .poll(async () => containers.containerExists(`${frontendContainer}-podified`), { timeout: 10_000 })
       .toBeTruthy();
   });
 
@@ -245,7 +247,7 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     // fetch the application page
     // this might not work on macos
     const address = 'http://localhost:' + frontendPort;
-    await playExpect.poll(async () => await appRunningOnPort(address), { timeout: 60000 }).toBeTruthy();
+    await playExpect.poll(async () => await appRunningOnPort(address), { timeout: 60_000 }).toBeTruthy();
 
     for (let i = 2; i < 5; i++) {
       const response: Response = await fetch(address);
@@ -265,40 +267,57 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
     test.describe.configure({ retries: 1 });
     test('Restarting pod', async ({ navigationBar }) => {
       const pods = await navigationBar.openPods();
+      await playExpect(pods.heading).toBeVisible({ timeout: 15_000 });
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15_000 }).toBeTruthy();
+
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
+
       await podDetails.restartPod();
-      await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Restarting);
-      await playExpect.poll(async () => await podDetails.getState(), { timeout: 30000 }).toBe(PodState.Running);
+      await playExpect.poll(async () => await podDetails.getState(), { timeout: 15_000 }).toBe(PodState.Restarting);
+      await playExpect.poll(async () => await podDetails.getState(), { timeout: 30_000 }).toBe(PodState.Running);
       await playExpect(podDetails.stopButton).toBeVisible();
     });
 
     test('Stopping and starting pod', async ({ navigationBar }) => {
       const pods = await navigationBar.openPods();
-      const podDetailsPage = await pods.openPodDetails(podToRun);
-      await podDetailsPage.stopPod(podToRun, true);
-      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
+      await playExpect(pods.heading).toBeVisible({ timeout: 15_000 });
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15_000 }).toBeTruthy();
 
-      await podDetailsPage.startPod(true);
-      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Running);
+      const podDetailsPage = await pods.openPodDetails(podToRun);
+      await playExpect(podDetailsPage.heading).toBeVisible();
+      await playExpect(podDetailsPage.heading).toContainText(podToRun);
+      await podDetailsPage.stopPod();
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30_000 }).toBe(PodState.Exited);
+
+      await podDetailsPage.startPod();
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30_000 }).toBe(PodState.Running);
       await playExpect(podDetailsPage.stopButton).toBeVisible();
     });
 
     test('Stopping and deleting pod', async ({ navigationBar }) => {
+      test.setTimeout(90_000);
+
       const pods = await navigationBar.openPods();
+      await playExpect(pods.heading).toBeVisible({ timeout: 15_000 });
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15_000 }).toBeTruthy();
+
       const podDetailsPage = await pods.openPodDetails(podToRun);
-      await podDetailsPage.stopPod(podToRun, true);
-      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
+      await playExpect(podDetailsPage.heading).toBeVisible();
+      await playExpect(podDetailsPage.heading).toContainText(podToRun);
+
+      await podDetailsPage.stopPod();
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30_000 }).toBe(PodState.Exited);
 
       await playExpect(podDetailsPage.heading).toContainText(podToRun);
       const podsPage = await podDetailsPage.deletePod();
-      await playExpect(podsPage.heading).toBeVisible();
-      await playExpect.poll(async () => await podsPage.podExists(podToRun), { timeout: 20000 }).toBeFalsy();
+      await playExpect(podsPage.heading).toBeVisible({ timeout: 30_000 });
+      await playExpect.poll(async () => await podsPage.podExists(podToRun), { timeout: 30_000 }).toBeFalsy();
     });
 
     test('Pruning pods', async ({ page, navigationBar }) => {
-      test.setTimeout(90000);
+      test.setTimeout(90_000);
 
       const portsList = [5001, 5002, 5003];
 
@@ -313,24 +332,27 @@ test.describe.serial('Verification of pod creation workflow @smoke', () => {
         const containersPage = await runImagePage.startContainer(containerNames[i], containerStartParams);
         await playExpect(containersPage.heading).toBeVisible();
         await playExpect
-          .poll(async () => containersPage.containerExists(containerNames[i]), { timeout: 15000 })
+          .poll(async () => containersPage.containerExists(containerNames[i]), { timeout: 15_000 })
           .toBeTruthy();
         await containersPage.uncheckAllContainers();
         const createPodPage = await containersPage.openCreatePodPage(Array.of(containerNames[i]));
         const podsPage = await createPodPage.createPod(podNames[i]);
-        await playExpect(podsPage.heading).toBeVisible({ timeout: 60000 });
-        await playExpect.poll(async () => await podsPage.podExists(podNames[i]), { timeout: 15000 }).toBeTruthy();
+        await playExpect(podsPage.heading).toBeVisible({ timeout: 60_000 });
+        await playExpect.poll(async () => await podsPage.podExists(podNames[i]), { timeout: 15_000 }).toBeTruthy();
       }
 
       for (const pod of podNames) {
         const podDetailsPage = await new PodsPage(page).openPodDetails(pod);
-        await podDetailsPage.stopPod(pod, true);
-        await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
+        await playExpect(podDetailsPage.heading).toBeVisible();
+        await playExpect(podDetailsPage.heading).toContainText(pod);
+
+        await podDetailsPage.stopPod();
+        await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30_000 }).toBe(PodState.Exited);
 
         const podsPage = await navigationBar.openPods();
         await playExpect(podsPage.heading).toBeVisible();
         await podsPage.prunePods();
-        await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15000 }).toBeFalsy();
+        await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15_000 }).toBeFalsy();
       }
     });
   });
