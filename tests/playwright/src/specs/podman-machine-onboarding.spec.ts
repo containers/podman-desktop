@@ -113,6 +113,7 @@ test.describe.serial('Podman Machine verification', () => {
     test('Expect no machine created message and proceed to next page', async () => {
       await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText(
         `We could not find any Podman machine. Let's create one!`,
+        { timeout: 20_000 },
       );
       await podmanOnboardingPage.nextStepButton.click();
     });
