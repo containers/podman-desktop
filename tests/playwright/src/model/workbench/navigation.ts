@@ -53,26 +53,26 @@ export class NavigationBar {
   }
 
   async openDashboard(): Promise<DashboardPage> {
-    await this.dashboardLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.dashboardLink.click({ timeout: 5000 });
+    await this.dashboardLink.waitFor({ state: 'visible' });
+    await this.dashboardLink.click();
     return new DashboardPage(this.page);
   }
 
   async openImages(): Promise<ImagesPage> {
-    await this.imagesLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.imagesLink.click({ timeout: 5000 });
+    await this.imagesLink.waitFor({ state: 'visible' });
+    await this.imagesLink.click();
     return new ImagesPage(this.page);
   }
 
   async openContainers(): Promise<ContainersPage> {
-    await this.containersLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.containersLink.click({ timeout: 5000 });
+    await this.containersLink.waitFor({ state: 'visible' });
+    await this.containersLink.click();
     return new ContainersPage(this.page);
   }
 
   async openPods(): Promise<PodsPage> {
-    await this.podsLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.podsLink.click({ timeout: 5000 });
+    await this.podsLink.waitFor({ state: 'visible' });
+    await this.podsLink.click();
     return new PodsPage(this.page);
   }
 
@@ -80,14 +80,14 @@ export class NavigationBar {
     const settingsBar = new SettingsBar(this.page);
     if (!(await settingsBar.settingsNavBar.isVisible())) {
       await expect(this.settingsLink).toBeVisible();
-      await this.settingsLink.click({ timeout: 5000 });
+      await this.settingsLink.click();
     }
     return settingsBar;
   }
 
   async openVolumes(): Promise<VolumesPage> {
-    await this.volumesLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.volumesLink.click({ timeout: 5000 });
+    await this.volumesLink.waitFor({ state: 'visible' });
+    await this.volumesLink.click();
     return new VolumesPage(this.page);
   }
 
@@ -95,14 +95,14 @@ export class NavigationBar {
     const kubernetesBar = new KubernetesBar(this.page);
     if (!(await kubernetesBar.kubernetesNavBar.isVisible())) {
       await expect(this.kubernetesLink).toBeVisible();
-      await this.kubernetesLink.click({ timeout: 5000 });
+      await this.kubernetesLink.click();
     }
     return new KubernetesBar(this.page);
   }
 
   async openExtensions(): Promise<ExtensionsPage> {
-    await this.extensionsLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.extensionsLink.click({ timeout: 5000 });
+    await this.extensionsLink.waitFor({ state: 'visible' });
+    await this.extensionsLink.click();
     return new ExtensionsPage(this.page);
   }
 }

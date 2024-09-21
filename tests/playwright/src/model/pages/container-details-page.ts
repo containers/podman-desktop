@@ -30,6 +30,7 @@ export class ContainerDetailsPage extends DetailsPage {
   readonly deleteButton: Locator;
   readonly imageLink: Locator;
   readonly deployButton: Locator;
+  readonly startButton: Locator;
 
   static readonly SUMMARY_TAB = 'Summary';
   static readonly LOGS_TAB = 'Logs';
@@ -43,6 +44,7 @@ export class ContainerDetailsPage extends DetailsPage {
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
     this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
     this.deployButton = this.controlActions.getByRole('button', { name: 'Deploy to Kubernetes' });
+    this.startButton = this.controlActions.getByRole('button', { name: 'Start Container', exact: true });
   }
 
   async getState(): Promise<string> {
@@ -54,18 +56,9 @@ export class ContainerDetailsPage extends DetailsPage {
     return ContainerState.Unknown;
   }
 
-  async stopContainer(failIfStopped = false): Promise<void> {
-    try {
-      await playExpect.poll(async () => await this.getState()).toBe(ContainerState.Running);
-      await playExpect(this.stopButton).toBeEnabled();
-      await this.stopButton.click();
-    } catch (error) {
-      if (failIfStopped) {
-        throw Error(
-          `Container is not running, its state is: ${await this.getState()}, stop button not available: ${error}`,
-        );
-      }
-    }
+  async stopContainer(): Promise<void> {
+    await playExpect(this.stopButton).toBeEnabled();
+    await this.stopButton.click();
   }
 
   async deleteContainer(): Promise<ContainersPage> {
