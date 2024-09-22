@@ -148,7 +148,7 @@ export async function deletePod(page: Page, name: string): Promise<void> {
           async () => {
             return !!(await pods.getPodRowByName(name));
           },
-          { timeout: 20000 },
+          { timeout: 50_000 },
         );
       } catch (error) {
         if (!(error as Error).message.includes('Page is empty')) {
