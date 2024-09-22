@@ -111,7 +111,7 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
       imagesPage = await imageDetailsPage.deleteImage();
       await playExpect(imagesPage.heading).toBeVisible({ timeout: 30_000 });
       await playExpect
-        .poll(async () => await imagesPage.waitForImageDelete(frontendImage), { timeout: 10_0000 })
+        .poll(async () => await imagesPage.waitForImageDelete(frontendImage), { timeout: 10_000 })
         .toBeTruthy();
     });
   });
