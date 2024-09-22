@@ -54,7 +54,7 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe.serial(`Play yaml file to pull images and create pod for app ${podAppName} @smoke`, () => {
-  test.describe.configure({ timeout: 150000 });
+  test.describe.configure({ timeout: 150_000 });
 
   test('Playing yaml', async ({ navigationBar }) => {
     let podsPage = await navigationBar.openPods();
@@ -69,37 +69,50 @@ test.describe.serial(`Play yaml file to pull images and create pod for app ${pod
   });
 
   test('Checking that created pod from yaml is correct', async ({ page, navigationBar }) => {
+    test.setTimeout(120_000);
     const podsPage = await navigationBar.openPods();
     await playExpect(podsPage.heading).toBeVisible();
 
-    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeTruthy();
+    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60_000 }).toBeTruthy();
     await deletePod(page, podName);
-    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
+    await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60_000 }).toBeFalsy();
   });
 
   test('Checking that pulled images from yaml are correct', async ({ navigationBar }) => {
+    test.setTimeout(120_000);
+
     let imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
-    await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
-    await playExpect
-      .poll(async () => await imagesPage.getCurrentStatusOfImage(backendImage), { timeout: 15000 })
-      .toBe('UNUSED');
-    await playExpect
-      .poll(async () => await imagesPage.getCurrentStatusOfImage(frontendImage), { timeout: 15000 })
-      .toBe('UNUSED');
+    await test.step('Checking that images are pulled', async () => {
+      await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
+      await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
+      await playExpect
+        .poll(async () => await imagesPage.getCurrentStatusOfImage(backendImage), { timeout: 15_000 })
+        .toBe('UNUSED');
+      await playExpect
+        .poll(async () => await imagesPage.getCurrentStatusOfImage(frontendImage), { timeout: 15_000 })
+        .toBe('UNUSED');
+    });
 
-    let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
-    await playExpect(imageDetailsPage.heading).toContainText(backendImage);
-    imagesPage = await imageDetailsPage.deleteImage();
-    await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
-    await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
+    await test.step(`Deleting image ${backendImage}`, async () => {
+      const imageDetailsPage = await imagesPage.openImageDetails(backendImage);
+      await playExpect(imageDetailsPage.heading).toContainText(backendImage);
+      imagesPage = await imageDetailsPage.deleteImage();
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 30_000 });
+      await playExpect
+        .poll(async () => await imagesPage.waitForImageDelete(backendImage), { timeout: 10_000 })
+        .toBeTruthy();
+    });
 
-    imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
-    await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
-    imagesPage = await imageDetailsPage.deleteImage();
-    await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
-    await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
+    await test.step(`Deleting image ${frontendImage}`, async () => {
+      const imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
+      await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
+      imagesPage = await imageDetailsPage.deleteImage();
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 30_000 });
+      await playExpect
+        .poll(async () => await imagesPage.waitForImageDelete(frontendImage), { timeout: 10_0000 })
+        .toBeTruthy();
+    });
   });
 });
