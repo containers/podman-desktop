@@ -30,7 +30,7 @@ import {
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
-const CLUSTER_CREATION_TIMEOUT: number = 300000;
+const CLUSTER_CREATION_TIMEOUT: number = 300_000;
 const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
 const IMAGE_TO_PULL: string = 'ghcr.io/linuxcontainers/alpine';

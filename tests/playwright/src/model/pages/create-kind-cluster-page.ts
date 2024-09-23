@@ -108,7 +108,7 @@ export class CreateKindClusterPage extends BasePage {
     await this.createCluster(timeout);
   }
 
-  private async createCluster(timeout: number = 300000): Promise<void> {
+  private async createCluster(timeout: number = 300_000): Promise<void> {
     await playExpect(this.clusterCreationButton).toBeVisible();
     await this.clusterCreationButton.click();
     await this.logsButton.scrollIntoViewIfNeeded();
