@@ -11,6 +11,7 @@
     will-change: width;
     transition: width var(--ifm-transition-fast) ease;
     clip-path: inset(0);
+    height: 100vh;
   }
 
   .docSidebarContainerHidden {

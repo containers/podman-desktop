@@ -21,7 +21,7 @@ import React from 'react';
 
 export default function EmptyPage(): JSX.Element {
   return (
-    <div className="justify-center grow flex w-full">
+    <div className="justify-center items-center grow flex w-full">
       <span>No component selected</span>
     </div>
   );
