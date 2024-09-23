@@ -33,6 +33,7 @@ async function pushImage(imageTag: string) {
   gotErrorDuringPush = false;
   initTerminal = true;
   await tick();
+  window.dispatchEvent(new Event('resize'));
   logsPush?.reset();
 
   pushInProgress = true;
@@ -104,8 +105,8 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
         </p>{/if}
     </div>
 
-    <div class="max-h-[185px]" hidden={initTerminal === false}>
-      <TerminalWindow bind:terminal={logsPush} disableStdIn />
+    <div class="h-[185px]" hidden={initTerminal === false}>
+      <TerminalWindow class="h-full" bind:terminal={logsPush} disableStdIn />
     </div>
   </div>
 
