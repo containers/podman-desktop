@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { NavigationBar } from '../model/workbench/navigation';
 
@@ -29,24 +29,26 @@ export async function wait(
   sendError: boolean,
   errorMessage: string,
 ): Promise<void> {
-  let time = timeout;
-  while (time > 0) {
-    const waitFuncResult = await waitFunction();
-    if (waitFuncResult === until) {
-      return;
+  await test.step(`Wait for condition ${waitFunction.name} to become '${String(until)}'`, async () => {
+    let time = timeout;
+    while (time > 0) {
+      const waitFuncResult = await waitFunction();
+      if (waitFuncResult === until) {
+        return;
+      }
+      time = time - diff;
+      await delay(diff);
     }
-    time = time - diff;
-    await delay(diff);
-  }
-  const message =
-    errorMessage.length === 0
-      ? `Timeout (${timeout} ms) was reach while waiting for condition (${waitFunction.name}) to become '${String(
-          until,
-        )}'`
-      : errorMessage;
-  if (sendError) {
-    throw Error(message);
-  }
+    const message =
+      errorMessage.length === 0
+        ? `Timeout (${timeout} ms) was reach while waiting for condition (${waitFunction.name}) to become '${String(
+            until,
+          )}'`
+        : errorMessage;
+    if (sendError) {
+      throw Error(message);
+    }
+  });
 }
 
 /**
@@ -102,31 +104,14 @@ export async function delay(ms: number): Promise<void> {
   });
 }
 
-export async function executeWithTimeout(
-  callback: () => Promise<void>,
-  timeout: number,
-  error = 'Timeout reached while waiting for a function to finish',
-): Promise<unknown> {
-  let cancelTimeout: NodeJS.Timeout;
-
-  const timeoutPromise = new Promise((_, reject) => {
-    cancelTimeout = setTimeout(() => {
-      reject(new Error(error));
-    }, timeout);
-  });
-
-  return Promise.race([callback, timeoutPromise]).then(result => {
-    clearTimeout(cancelTimeout);
-    return result;
-  });
-}
-
 export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 30000): Promise<void> {
-  const dashboardPage = await new NavigationBar(page).openDashboard();
-  await playExpect(dashboardPage.heading).toBeVisible();
-  await waitUntil(async () => await dashboardPage.podmanStatusLabel.isVisible(), {
-    timeout: timeoutOut,
-    sendError: false,
+  await test.step('Wait for Podman machine to be running', async () => {
+    const dashboardPage = await new NavigationBar(page).openDashboard();
+    await playExpect(dashboardPage.heading).toBeVisible();
+    await waitUntil(async () => await dashboardPage.podmanStatusLabel.isVisible(), {
+      timeout: timeoutOut,
+      sendError: false,
+    });
+    await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: timeoutOut });
   });
-  await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: timeoutOut });
 }

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { MainPage } from './main-page';
@@ -53,6 +54,7 @@ export class PodsPage extends MainPage {
   }
 
   async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {
+    await playExpect(this.playKubernetesYAMLButton).toBeEnabled();
     await this.playKubernetesYAMLButton.click();
     return new PlayKubeYamlPage(this.page);
   }

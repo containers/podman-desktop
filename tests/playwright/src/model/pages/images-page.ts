@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil, waitWhile } from '../../utility/wait';
@@ -49,25 +49,31 @@ export class ImagesPage extends MainPage {
   }
 
   async openPullImage(): Promise<PullImagePage> {
-    await waitWhile(() => this.noContainerEngine(), {
-      timeout: 50000,
-      message: 'No Container Engine is available, cannot pull an image',
+    return await test.step('Open pull image page', async () => {
+      await waitWhile(() => this.noContainerEngine(), {
+        timeout: 50000,
+        message: 'No Container Engine is available, cannot pull an image',
+      });
+      await this.pullImageButton.click();
+      return new PullImagePage(this.page);
     });
-    await this.pullImageButton.click();
-    return new PullImagePage(this.page);
   }
 
   async pullImage(image: string): Promise<ImagesPage> {
-    const pullImagePage = await this.openPullImage();
-    await playExpect(pullImagePage.heading).toBeVisible();
-    return await pullImagePage.pullImage(image);
+    return await test.step(`Pull image: ${image}`, async () => {
+      const pullImagePage = await this.openPullImage();
+      await playExpect(pullImagePage.heading).toBeVisible();
+      return await pullImagePage.pullImage(image);
+    });
   }
 
   async renameImage(oldname: string, newname: string): Promise<ImagesPage> {
-    const imageDetailsPage = await this.openImageDetails(oldname);
-    await playExpect(imageDetailsPage.heading).toContainText(oldname);
-    const editImagePage = await imageDetailsPage.openEditImage();
-    return await editImagePage.renameImage(newname);
+    return await test.step(`Rename ${oldname} to ${newname}`, async () => {
+      const imageDetailsPage = await this.openImageDetails(oldname);
+      await playExpect(imageDetailsPage.heading).toContainText(oldname);
+      const editImagePage = await imageDetailsPage.openEditImage();
+      return await editImagePage.renameImage(newname);
+    });
   }
 
   async startContainerWithImage(
@@ -75,59 +81,74 @@ export class ImagesPage extends MainPage {
     containerName: string,
     containersParams?: ContainerInteractiveParams,
   ): Promise<ContainersPage> {
-    const imageDetails = await this.openImageDetails(image);
-    const runImage = await imageDetails.openRunImage();
-    return await runImage.startContainer(containerName, containersParams);
+    return await test.step(`Start container with image: ${image}`, async () => {
+      const imageDetails = await this.openImageDetails(image);
+      const runImage = await imageDetails.openRunImage();
+      return await runImage.startContainer(containerName, containersParams);
+    });
   }
 
   async openImageDetails(name: string): Promise<ImageDetailsPage> {
-    const imageRow = await this.getImageRowByName(name);
-    if (imageRow === undefined) {
-      throw Error(`Image: '${name}' does not exist`);
-    }
-    const imageRowName = imageRow.getByRole('cell').nth(3);
-    await imageRowName.click();
-    return new ImageDetailsPage(this.page, name);
+    return await test.step(`Open image details page for image: ${name}`, async () => {
+      const imageRow = await this.getImageRowByName(name);
+      if (imageRow === undefined) {
+        throw Error(`Image: '${name}' does not exist`);
+      }
+      const imageRowName = imageRow.getByRole('cell').nth(3);
+      await imageRowName.click();
+      return new ImageDetailsPage(this.page, name);
+    });
   }
 
   async pruneImages(): Promise<ImagesPage> {
-    await this.pruneImagesButton.click();
-    await handleConfirmationDialog(this.page, 'Prune');
-    return this;
+    return await test.step('Prune images', async () => {
+      await this.pruneImagesButton.click();
+      await handleConfirmationDialog(this.page, 'Prune');
+      return this;
+    });
   }
 
   async openBuildImage(): Promise<BuildImagePage> {
-    await this.buildImageButton.click();
-    return new BuildImagePage(this.page);
+    return test.step(`Open build image page`, async () => {
+      await this.buildImageButton.click();
+      return new BuildImagePage(this.page);
+    });
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {
     return this.getRowFromTableByName(name);
   }
 
-  protected async imageExists(name: string): Promise<boolean> {
-    const result = await this.getImageRowByName(name);
-    return result !== undefined;
+  private async imageExists(name: string): Promise<boolean> {
+    return await test.step(`Check if image: ${name} exists`, async () => {
+      const result = await this.getImageRowByName(name);
+      return result !== undefined;
+    });
   }
 
   async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
-    await waitUntil(async () => await this.imageExists(name), { timeout: timeout });
-    return true;
+    return await test.step(`Wait for image: ${name} to exist`, async () => {
+      await waitUntil(async () => await this.imageExists(name), { timeout: timeout });
+      return true;
+    });
   }
 
   async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
-    await waitWhile(async () => await this.imageExists(name), { timeout: timeout });
-    return true;
+    return await test.step(`Wait for image: ${name} to be deleted`, async () => {
+      await waitWhile(async () => await this.imageExists(name), { timeout: timeout });
+      return true;
+    });
   }
 
   async getCurrentStatusOfImage(name: string): Promise<string> {
-    let status = '';
-    const row = await this.getImageRowByName(name);
+    return await test.step(`Get current status of image: ${name}`, async () => {
+      let status = '';
+      const row = await this.getImageRowByName(name);
 
-    if (row === undefined) throw new Error(`Image: '${name}' does not exist`);
-
-    status = status + (await row.getByRole('status').getAttribute('title'));
-    return status;
+      if (row === undefined) throw new Error(`Image: '${name}' does not exist`);
+      status = status + (await row.getByRole('status').getAttribute('title'));
+      return status;
+    });
   }
 
   async loadImages(archivePath: string): Promise<ImagesPage> {

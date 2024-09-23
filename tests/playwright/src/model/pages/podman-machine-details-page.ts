@@ -31,9 +31,9 @@ export class PodmanMachineDetails extends ResourcesPage {
 
   constructor(page: Page, podmanMachineName: string) {
     super(page);
-    this.podmanMachineName = this.getPage().getByRole('heading', { name: podmanMachineName });
-    this.podmanMachineStatus = this.getPage().getByLabel('Connection Status Label');
-    this.podmanMachineConnectionActions = this.getPage().getByRole('group', { name: 'Connection Actions' });
+    this.podmanMachineName = page.getByRole('heading', { name: podmanMachineName });
+    this.podmanMachineStatus = page.getByLabel('Connection Status Label');
+    this.podmanMachineConnectionActions = page.getByRole('group', { name: 'Connection Actions' });
     this.podmanMachineStartButton = this.podmanMachineConnectionActions.getByRole('button', {
       name: 'Start',
       exact: true,
