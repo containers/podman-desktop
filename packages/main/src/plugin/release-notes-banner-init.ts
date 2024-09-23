@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { app } from 'electron';
+
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
 export class ReleaseNotesBannerInit {
@@ -27,7 +29,7 @@ export class ReleaseNotesBannerInit {
       title: 'Show release notes banner',
       type: 'object',
       properties: {
-        ['releaseNotesBanner.show']: {
+        [`releaseNotesBanner.show.${app.getVersion()}`]: {
           type: 'boolean',
           default: true,
           hidden: true,

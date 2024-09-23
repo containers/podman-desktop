@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { app } from 'electron';
 import { expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from './configuration-registry.js';
@@ -30,6 +31,7 @@ const configurationRegistryMock = {
 } as unknown as ConfigurationRegistry;
 
 test('should register a configuration', async () => {
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
   releaseNotesBannerInit = new ReleaseNotesBannerInit(configurationRegistryMock);
 
   releaseNotesBannerInit.init();
@@ -41,8 +43,8 @@ test('should register a configuration', async () => {
   expect(configurationNode?.title).toBe('Show release notes banner');
   expect(configurationNode?.properties).toBeDefined();
   expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(1);
-  expect(configurationNode?.properties?.['releaseNotesBanner.show']).toBeDefined();
-  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.type).toBe('boolean');
-  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.default).toBe(true);
-  expect(configurationNode?.properties?.['releaseNotesBanner.show']?.hidden).toBe(true);
+  expect(configurationNode?.properties?.['releaseNotesBanner.show.1.1.0']).toBeDefined();
+  expect(configurationNode?.properties?.['releaseNotesBanner.show.1.1.0']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['releaseNotesBanner.show.1.1.0']?.default).toBe(true);
+  expect(configurationNode?.properties?.['releaseNotesBanner.show.1.1.0']?.hidden).toBe(true);
 });
