@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-const tailwindColors = require('tailwindcss/colors')
-
-import colorPalette from './tailwind-color-palette.json';
+const tailwindColors = require('tailwindcss/colors');
+const colorPalette = require('./tailwind-color-palette.json');
 
 module.exports = {
   content: [
@@ -33,20 +32,20 @@ module.exports = {
         width: 'width',
       },
       width: {
-        'leftnavbar': '48px',
-        'leftsidebar': '225px',
+        leftnavbar: '48px',
+        leftsidebar: '225px',
       },
       minWidth: {
-        'leftnavbar': '48px',
-        'leftsidebar': '225px',
+        leftnavbar: '48px',
+        leftsidebar: '225px',
       },
     },
     fontSize: {
-      'xs': '10px',
-      'sm': '11px',
-      'base': '12px',
-      'lg': '14px',
-      'xl': '16px',
+      xs: '10px',
+      sm: '11px',
+      base: '12px',
+      lg: '14px',
+      xl: '16px',
       '2xl': '18px',
       '3xl': '20px',
       '4xl': '24px',
@@ -56,10 +55,10 @@ module.exports = {
     colors: {
       // import colors from the color palette
       ...colorPalette,
-      
+
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
-      'zinc': {
+      zinc: {
         100: tailwindColors.zinc[100],
         200: tailwindColors.zinc[200],
         300: tailwindColors.zinc[300],
@@ -67,8 +66,8 @@ module.exports = {
         600: tailwindColors.zinc[600],
         700: tailwindColors.zinc[700],
       },
-      'violet': {
-         50: tailwindColors.violet[50],
+      violet: {
+        50: tailwindColors.violet[50],
         400: tailwindColors.violet[400],
         500: tailwindColors.violet[500],
         600: tailwindColors.violet[600],
