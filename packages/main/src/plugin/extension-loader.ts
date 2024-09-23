@@ -695,7 +695,7 @@ export class ExtensionLoader {
       extensionConfiguration.title = `Extension: ${extensionConfiguration.title}`;
       extensionConfiguration.id = 'preferences.' + extension.id;
 
-      extension.subscriptions.push(this.configurationRegistry.registerConfigurations([extensionConfiguration]));
+      this.configurationRegistry.registerConfigurations([extensionConfiguration]);
     }
 
     const extensionCommands = extension.manifest?.contributes?.commands;

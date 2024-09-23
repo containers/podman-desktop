@@ -111,15 +111,8 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   settingsBar = await navigationBar.openSettings();
   await settingsBar.preferencesTab.click();
 
-  if (enabled) {
-    await playExpect(
-      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-    ).toBeVisible();
-  } else {
-    await playExpect(
-      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-    ).not.toBeVisible();
-  }
+  await playExpect(settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION)).toBeVisible();
+
   // collapse Settings -> Preferences menu
   await settingsBar.preferencesTab.click();
 }

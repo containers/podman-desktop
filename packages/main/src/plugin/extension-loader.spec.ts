@@ -128,6 +128,7 @@ const configurationRegistryGetConfigurationMock = vi.fn();
 const configurationRegistryUpdateConfigurationMock = vi.fn();
 const configurationRegistry: ConfigurationRegistry = {
   getConfiguration: configurationRegistryGetConfigurationMock,
+  registerConfigurations: vi.fn(),
   updateConfigurationValue: configurationRegistryUpdateConfigurationMock,
 } as unknown as ConfigurationRegistry;
 
@@ -533,6 +534,43 @@ test('Verify extension load', async () => {
     'loadExtension.error',
     expect.objectContaining({ extensionId: id, extensionVersion: '1.1' }),
   );
+});
+
+test('Verify extension do not add configuration to subscriptions', async () => {
+  const id = 'extension.foo';
+
+  const disposable = {
+    dispose: vi.fn(),
+  } as unknown as Disposable;
+  vi.mocked(configurationRegistry.registerConfigurations).mockReturnValue(disposable);
+
+  const subscriptions: Disposable[] = [];
+
+  await extensionLoader.loadExtension({
+    id: id,
+    name: 'id',
+    path: 'dummy',
+    api: {} as typeof containerDesktopAPI,
+    mainPath: '',
+    removable: false,
+    manifest: {
+      version: '1.1',
+      contributes: {
+        configuration: {
+          title: 'dummy-configuration-title',
+        },
+      },
+    },
+    subscriptions: subscriptions,
+    readme: '',
+    dispose: vi.fn(),
+  });
+
+  expect(configurationRegistry.registerConfigurations).toHaveBeenCalled();
+  expect(subscriptions).not.toContain(disposable);
+
+  await extensionLoader.deactivateExtension(id);
+  expect(disposable.dispose).not.toHaveBeenCalled();
 });
 
 test('Verify disable extension updates configuration', async () => {

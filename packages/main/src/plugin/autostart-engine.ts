@@ -31,17 +31,13 @@ export class AutostartEngine {
 
   registerProvider(extensionId: string, extensionDisplayName: string, providerInternalId: string): Disposable {
     this.providerExtension.set(providerInternalId, extensionId);
-    const autostartConfiguration = this.registerProviderConfiguration(extensionId, extensionDisplayName);
+    this.registerProviderConfiguration(extensionId, extensionDisplayName);
     return Disposable.create(() => {
       this.providerExtension.delete(providerInternalId);
-      this.configurationRegistry.deregisterConfigurations([autostartConfiguration]);
     });
   }
 
   private registerProviderConfiguration(extensionId: string, extensionDisplayName: string): IConfigurationNode {
-    const extensionConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
-    const autostart = extensionConfiguration.get<boolean>('engine.autostart', true);
-
     const autoStartConfigurationNode: IConfigurationNode = {
       id: `preferences.${extensionId}.engine.autostart`,
       title: `Autostart ${extensionDisplayName} engine`,
@@ -53,7 +49,7 @@ export class AutostartEngine {
         [`preferences.${extensionId}.engine.autostart`]: {
           description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
           type: 'boolean',
-          default: autostart,
+          default: true,
           scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
         },
       },
