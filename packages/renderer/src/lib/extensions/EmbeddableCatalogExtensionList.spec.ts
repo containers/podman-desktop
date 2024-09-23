@@ -41,6 +41,7 @@ export const aFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: ['Authentication'],
+  keywords: ['key1', 'key2', 'keyA'],
   unlisted: false,
   versions: [
     {
@@ -66,6 +67,7 @@ export const bFakeExtension: CatalogExtension = {
   extensionName: 'b-extension',
   displayName: 'B Extension',
   categories: [],
+  keywords: ['key1', 'key2', 'keyB'],
   unlisted: false,
   versions: [
     {
@@ -146,4 +148,40 @@ test('Check with a not displaying installed', async () => {
   // this one should be there
   const extensionB = screen.queryByRole('group', { name: 'B Extension' });
   expect(extensionB).toBeInTheDocument();
+});
+
+test('Check with specific keywords common to both extensions', async () => {
+  catalogExtensionInfos.set([aFakeExtension, bFakeExtension]);
+  extensionInfos.set(combined);
+
+  render(EmbeddableCatalogExtensionList, { keywords: ['key1', 'key2'] });
+
+  // 'Available extensions' text
+  const availableExtensions = screen.queryByText('Available extensions');
+  expect(availableExtensions).toBeInTheDocument();
+
+  // we should have both extensions
+  const extensionA = screen.getByRole('group', { name: 'A Extension' });
+  expect(extensionA).toBeInTheDocument();
+
+  const extensionB = screen.queryByRole('group', { name: 'B Extension' });
+  expect(extensionB).toBeInTheDocument();
+});
+
+test('Check with a specific keyword set to one extensions only', async () => {
+  catalogExtensionInfos.set([aFakeExtension, bFakeExtension]);
+  extensionInfos.set(combined);
+
+  render(EmbeddableCatalogExtensionList, { keywords: ['keyA'] });
+
+  // 'Available extensions' text
+  const availableExtensions = screen.queryByText('Available extensions');
+  expect(availableExtensions).toBeInTheDocument();
+
+  // we should have extension A only
+  const extensionA = screen.getByRole('group', { name: 'A Extension' });
+  expect(extensionA).toBeInTheDocument();
+
+  const extensionB = screen.queryByRole('group', { name: 'B Extension' });
+  expect(extensionB).not.toBeInTheDocument();
 });

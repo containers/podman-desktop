@@ -46,6 +46,7 @@ export const aFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
@@ -71,6 +72,7 @@ export const withSpacesFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {

@@ -36,6 +36,7 @@ export interface CatalogExtension {
   extensionName: string;
   displayName: string;
   categories: string[];
+  keywords: string[];
   unlisted: boolean;
   versions: CatalogExtensionVersion[];
 }

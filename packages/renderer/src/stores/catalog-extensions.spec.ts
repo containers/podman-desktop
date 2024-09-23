@@ -74,6 +74,7 @@ test('catalog extension should be updated in case of a container is removed', as
       publisherDisplayName: 'Foo publisher display name',
       unlisted: false,
       categories: [],
+      keywords: [],
       versions: [
         {
           version: '1.0.0',
@@ -92,6 +93,7 @@ test('catalog extension should be updated in case of a container is removed', as
       shortDescription: 'short description',
       publisherDisplayName: 'Foo publisher display name',
       categories: [],
+      keywords: [],
       unlisted: true,
       versions: [
         {

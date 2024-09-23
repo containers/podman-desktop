@@ -34,6 +34,7 @@ export const aFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
@@ -59,6 +60,7 @@ export const bFakeExtension: CatalogExtension = {
   extensionName: 'b-extension',
   displayName: 'B Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
@@ -84,6 +86,7 @@ export const unlistedFakeCatalogExtension: CatalogExtension = {
   extensionName: 'unlisted-extension',
   displayName: 'Unlisted Extension',
   categories: [],
+  keywords: [],
   unlisted: true,
 
   versions: [
@@ -110,6 +113,7 @@ export const yFakeCatalogExtension: CatalogExtension = {
   extensionName: 'y-extension',
   displayName: 'Y Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
 
   versions: [
@@ -136,6 +140,7 @@ export const zFakeCatalogExtension: CatalogExtension = {
   extensionName: 'z-extension',
   displayName: 'Z Extension',
   categories: [],
+  keywords: [],
   unlisted: false,
   versions: [
     {
