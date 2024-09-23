@@ -20,67 +20,30 @@ import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
+import { MachineCreationForm } from './forms/machine-creation-form';
 import { ResourcesPage } from './resources-page';
 
 export class CreateMachinePage extends BasePage {
   readonly heading: Locator;
-  readonly podmanMachineName: Locator;
-  readonly podmanMachineConfiguration: Locator;
-  readonly imagePathBox: Locator;
-  readonly browseImagesButton: Locator;
-  readonly podmanMachineCPUs: Locator;
-  readonly podmanMachineMemory: Locator;
-  readonly podmanMachineDiskSize: Locator;
-  readonly rootPriviledgesCheckbox: Locator;
-  readonly userModeNetworkingCheckbox: Locator;
-  readonly startNowCheckbox: Locator;
   readonly closeButton: Locator;
   readonly createMachineButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
-    this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
-    this.podmanMachineName = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
-    this.imagePathBox = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Image Path (Optional) ' });
-    this.browseImagesButton = this.podmanMachineConfiguration.getByRole('button', {
-      name: 'button-Image Path (Optional)',
-    });
-    this.podmanMachineCPUs = this.podmanMachineConfiguration.getByRole('slider', { name: 'CPU(s)' });
-    this.podmanMachineMemory = this.podmanMachineConfiguration.getByRole('slider', { name: 'Memory' });
-    this.podmanMachineDiskSize = this.podmanMachineConfiguration.getByRole('slider', { name: 'Disk size' });
-    this.rootPriviledgesCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', {
-      name: 'Machine with root privileges',
-    });
-    this.userModeNetworkingCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', {
-      name: 'User mode networking',
-    });
-    this.startNowCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', { name: 'Start the machine now' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
     this.createMachineButton = this.page.getByRole('button', { name: 'Create' });
   }
 
   async createMachine(
     machineName: string,
-    isRootful: boolean = true,
-    enableUserNet: boolean = false,
-    startNow: boolean = true,
+    isRootful?: boolean,
+    enableUserNet?: boolean,
+    startNow?: boolean,
     setAsDefault: boolean = true,
   ): Promise<ResourcesPage> {
-    await playExpect(this.podmanMachineConfiguration).toBeVisible();
-    await this.podmanMachineName.fill(machineName);
-
-    if (isRootful !== (await this.isEnabled(this.rootPriviledgesCheckbox))) {
-      await this.switchCheckbox(this.rootPriviledgesCheckbox);
-    }
-
-    if (enableUserNet !== (await this.isEnabled(this.userModeNetworkingCheckbox))) {
-      await this.switchCheckbox(this.userModeNetworkingCheckbox);
-    }
-
-    if (startNow !== (await this.isEnabled(this.startNowCheckbox))) {
-      await this.switchCheckbox(this.startNowCheckbox);
-    }
+    const machineCreationForm = new MachineCreationForm(this.page);
+    await machineCreationForm.configureMachine(machineName, isRootful, enableUserNet, startNow);
 
     await this.createMachineButton.click();
     await this.page.waitForTimeout(60_000);
@@ -95,29 +58,6 @@ export class CreateMachinePage extends BasePage {
     await goBackToResourcesButton.click();
 
     return new ResourcesPage(this.page);
-  }
-
-  async isEnabled(checkbox: Locator): Promise<boolean> {
-    await playExpect(checkbox).toBeVisible();
-    const upperElement = checkbox.locator('..').locator('..');
-    const clickableCheckbox = upperElement.getByText('Enabled');
-    return await clickableCheckbox.isVisible();
-  }
-
-  async switchCheckbox(checkbox: Locator): Promise<void> {
-    await playExpect(checkbox).toBeVisible();
-    const upperElement = checkbox.locator('..').locator('..');
-
-    const wasEnabled = await this.isEnabled(checkbox);
-    let checkText;
-    if (wasEnabled) {
-      checkText = 'Enabled';
-    } else {
-      checkText = 'Disabled';
-    }
-
-    const clickableCheckbox = upperElement.getByText(checkText);
-    await clickableCheckbox.click();
   }
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
