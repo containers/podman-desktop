@@ -6,6 +6,8 @@ import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import CatalogExtension from './CatalogExtension.svelte';
 
 export let catalogExtensions: CatalogExtensionInfoUI[];
+export let title: string = 'Available extensions';
+export let hideIfEmpty: boolean = false;
 
 async function fetchCatalog() {
   try {
@@ -24,12 +26,12 @@ async function fetchCatalog() {
 <div class="flex flex-col grow px-5 py-3">
   {#if catalogExtensions.length > 0}
     <div class="mb-4 flex flex-row">
-      <div class="flex items-center text-[var(--pd-content-header)]">Available extensions</div>
+      <div class="flex items-center text-[var(--pd-content-header)]">{title}</div>
       <div class="flex-1 text-right">
         <Button type="link" on:click={() => fetchCatalog()}>Refresh the catalog</Button>
       </div>
     </div>
-  {:else}
+  {:else if !hideIfEmpty}
     <EmptyScreen
       title="No extensions in the catalog"
       message="No extensions from the catalog. It seems that the internet connection was not available to download the catalog."
