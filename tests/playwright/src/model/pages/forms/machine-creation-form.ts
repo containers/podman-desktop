@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { expect as playExpect, Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from '../base-page';
 
@@ -31,6 +32,7 @@ export class MachineCreationForm extends BasePage {
   readonly rootPriviledgesCheckbox: Locator;
   readonly userModeNetworkingCheckbox: Locator;
   readonly startNowCheckbox: Locator;
+  readonly createMachineButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -50,30 +52,31 @@ export class MachineCreationForm extends BasePage {
       name: 'User mode networking',
     });
     this.startNowCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', { name: 'Start the machine now' });
+    this.createMachineButton = this.podmanMachineConfiguration.getByRole('button', { name: 'Create' });
   }
 
-  async configureMachine(
+  async setupAndCreateMachine(
     machineName: string,
-    isRootful: boolean = true,
-    enableUserNet: boolean = false,
-    startNow: boolean = true,
+    isRootful: boolean,
+    enableUserNet: boolean,
+    startNow: boolean,
   ): Promise<void> {
-    await playExpect(this.podmanMachineConfiguration).toBeVisible();
+    await playExpect(this.podmanMachineConfiguration).toBeVisible({ timeout: 10_000 });
+    await this.podmanMachineName.clear();
     await this.podmanMachineName.fill(machineName);
 
-    if (isRootful !== (await this.rootPriviledgesCheckbox.isChecked())) {
-      await this.rootPriviledgesCheckbox.locator('..').click();
-      playExpect(await this.rootPriviledgesCheckbox.isChecked()).toBe(isRootful);
-    }
+    await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
+    await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
+    await this.ensureCheckboxState(startNow, this.startNowCheckbox);
 
-    if (enableUserNet !== (await this.userModeNetworkingCheckbox.isChecked())) {
-      await this.userModeNetworkingCheckbox.locator('..').click();
-      playExpect(await this.userModeNetworkingCheckbox.isChecked()).toBe(enableUserNet);
-    }
+    await playExpect(this.createMachineButton).toBeEnabled();
+    await this.createMachineButton.click();
+  }
 
-    if (startNow !== (await this.startNowCheckbox.isChecked())) {
-      await this.startNowCheckbox.locator('..').click();
-      playExpect(await this.startNowCheckbox.isChecked()).toBe(startNow);
+  async ensureCheckboxState(desiredState: boolean, checkbox: Locator): Promise<void> {
+    if (desiredState !== (await checkbox.isChecked())) {
+      await checkbox.locator('..').click();
+      playExpect(await checkbox.isChecked()).toBe(desiredState);
     }
   }
 }

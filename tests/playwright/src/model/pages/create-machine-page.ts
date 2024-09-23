@@ -25,27 +25,21 @@ import { ResourcesPage } from './resources-page';
 
 export class CreateMachinePage extends BasePage {
   readonly heading: Locator;
+  readonly machineCreationForm: MachineCreationForm;
   readonly closeButton: Locator;
-  readonly createMachineButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
+    this.machineCreationForm = new MachineCreationForm(this.page);
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
-    this.createMachineButton = this.page.getByRole('button', { name: 'Create' });
   }
 
   async createMachine(
     machineName: string,
-    isRootful?: boolean,
-    enableUserNet?: boolean,
-    startNow?: boolean,
-    setAsDefault: boolean = true,
+    { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
-    const machineCreationForm = new MachineCreationForm(this.page);
-    await machineCreationForm.configureMachine(machineName, isRootful, enableUserNet, startNow);
-
-    await this.createMachineButton.click();
+    await this.machineCreationForm.setupAndCreateMachine(machineName, isRootful, enableUserNet, startNow);
     await this.page.waitForTimeout(60_000);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
@@ -62,18 +56,17 @@ export class CreateMachinePage extends BasePage {
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    const dialogMessage = connectionDialog.getByText(
+    await playExpect(connectionDialog).toBeVisible({ timeout: 30_000 });
+
+    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
+    await playExpect(dialogMessage).toHaveText(
       new RegExp(
         `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
       ),
     );
-    if ((await connectionDialog.isVisible()) && (await dialogMessage.isVisible())) {
-      let handleButtonName = 'Yes';
-      if (!setAsDefault) {
-        handleButtonName = 'Ignore';
-      }
-      const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
-      await handleButton.click();
-    }
+
+    const handleButtonName = setAsDefault ? 'Yes' : 'Ignore';
+    const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
+    await handleButton.click();
   }
 }

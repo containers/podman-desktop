@@ -234,27 +234,10 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
       }
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
       await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 60_000 });
-
-      const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, 'podman-machine-default');
-      if (await defaultMachineCard.resourceElement.isVisible()) {
-        await handleResetDefaultConnectionDialog(page);
-      }
     } else {
       console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
     }
   });
-}
-
-export async function handleResetDefaultConnectionDialog(page: Page): Promise<void> {
-  const connectionDialog = page.getByRole('dialog', { name: 'Podman' });
-  await playExpect(connectionDialog).toBeVisible({ timeout: 20_000 });
-
-  const handleButton = connectionDialog.getByRole('button', { name: 'Yes' });
-  await handleButton.click();
-
-  await playExpect(connectionDialog).toBeVisible();
-  const okButton = connectionDialog.getByRole('button', { name: 'OK' });
-  await okButton.click();
 }
 
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string> {
@@ -316,7 +299,7 @@ export async function createKindCluster(
   page: Page,
   clusterName: string,
   usedefaultOptions: boolean,
-  timeout: number = 200000,
+  timeout: number = 200_000,
   { providerType, httpPort, httpsPort, useIngressController, containerImage }: KindClusterOptions = {},
 ): Promise<void> {
   await test.step('Create Kind cluster', async () => {

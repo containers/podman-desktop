@@ -17,57 +17,42 @@
  ***********************************************************************/
 import * as os from 'node:os';
 
-import type { Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
-
+import { ResourceElementState } from '../model/core/states';
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { NavigationBar } from '../model/workbench/navigation';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine } from '../utility/operations';
 
-let pdRunner: PodmanDesktopRunner;
-let page: Page;
-let navBar: NavigationBar;
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
-const MACHINE_VISIBLE_NAME: string = 'Podman Machine rootless';
 
-beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('podman-rootless-machine-e2e');
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
-  const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
-  navBar = new NavigationBar(page);
 });
 
-afterAll(async () => {
-  await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
-beforeEach<RunnerTestContext>(async ctx => {
-  ctx.pdRunner = pdRunner;
-});
+test.skip(os.platform() === 'linux', 'Runs only on Windows and Mac');
+test.describe('Rootless Podman machine Verification', () => {
+  test('Create a rootless machine', async ({ page, navigationBar }) => {
+    test.setTimeout(200_000);
 
-describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification', async () => {
-  test('Create a rootless machine', async () => {
-    await navBar.openSettings();
+    await navigationBar.openSettings();
     const podmanResources = new ResourceConnectionCardPage(page, 'podman');
-
     await podmanResources.createButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
-    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true, false);
-    await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
+    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, { isRootful: false, setAsDefault: false });
 
-    const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
-    const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
-    playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
-  }, 150_000);
+    const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
+    await playExpect(machineBox.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
+  });
+  test('Clean up rootless machine', async ({ page }) => {
+    test.setTimeout(150_000);
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  });
 });
