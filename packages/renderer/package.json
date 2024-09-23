@@ -30,7 +30,7 @@
     "eslint-plugin-svelte": "^2.44.0",
     "filesize": "^10.1.6",
     "humanize-duration": "^3.32.1",
-    "jsdom": "^25.0.0",
+    "jsdom": "^25.0.1",
     "micromark": "^4.0.0",
     "micromark-extension-directive": "^3.0.2",
     "moment": "^2.30.1",
