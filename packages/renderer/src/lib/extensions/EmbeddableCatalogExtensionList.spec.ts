@@ -185,3 +185,33 @@ test('Check with a specific keyword set to one extensions only', async () => {
   const extensionB = screen.queryByRole('group', { name: 'B Extension' });
   expect(extensionB).not.toBeInTheDocument();
 });
+
+test('non default title', async () => {
+  catalogExtensionInfos.set([aFakeExtension, bFakeExtension]);
+  extensionInfos.set(combined);
+
+  render(EmbeddableCatalogExtensionList, { title: 'Another title' });
+  const availableExtensions = screen.queryByText('Available extensions');
+  expect(availableExtensions).not.toBeInTheDocument();
+
+  const title = screen.queryByText('Another title');
+  expect(title).toBeInTheDocument();
+});
+
+test('empty catalog, do not hide if empty (default)', async () => {
+  catalogExtensionInfos.set([]);
+  extensionInfos.set(combined);
+  render(EmbeddableCatalogExtensionList, {});
+
+  const emptyMsg = screen.queryByText('No extensions in the catalog');
+  expect(emptyMsg).toBeInTheDocument();
+});
+
+test('empty catalog, hide if empty', async () => {
+  catalogExtensionInfos.set([]);
+  extensionInfos.set(combined);
+  render(EmbeddableCatalogExtensionList, { showEmptyScreen: false });
+
+  const emptyMsg = screen.queryByText('No extensions in the catalog');
+  expect(emptyMsg).not.toBeInTheDocument();
+});

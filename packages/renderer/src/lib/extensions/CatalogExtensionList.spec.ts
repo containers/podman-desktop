@@ -108,3 +108,26 @@ test('Check with 2 extensions', async () => {
   const refreshButton = screen.getByRole('button', { name: 'Refresh the catalog' });
   expect(refreshButton).toBeInTheDocument();
 });
+
+test('non default title', async () => {
+  render(CatalogExtensionList, { title: 'Another title', catalogExtensions: [extensionA, extensionB] });
+  const availableExtensions = screen.queryByText('Available extensions');
+  expect(availableExtensions).not.toBeInTheDocument();
+
+  const title = screen.queryByText('Another title');
+  expect(title).toBeInTheDocument();
+});
+
+test('empty catalog, do not hide if empty (default)', async () => {
+  render(CatalogExtensionList, { catalogExtensions: [] });
+
+  const emptyMsg = screen.queryByText('No extensions in the catalog');
+  expect(emptyMsg).toBeInTheDocument();
+});
+
+test('empty catalog, hide if empty', async () => {
+  render(CatalogExtensionList, { showEmptyScreen: false, catalogExtensions: [] });
+
+  const emptyMsg = screen.queryByText('No extensions in the catalog');
+  expect(emptyMsg).not.toBeInTheDocument();
+});
