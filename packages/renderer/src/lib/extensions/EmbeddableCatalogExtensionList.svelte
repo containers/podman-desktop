@@ -13,7 +13,7 @@ import { ExtensionsUtils } from './extensions-utils';
 export let category: string | undefined = undefined;
 export let keywords: string[] = [];
 export let title = 'Available extensions';
-export let hideEmpty: boolean = false;
+export let showEmptyScreen: boolean = true;
 
 // show installed extensions
 export let showInstalled: boolean = true;
@@ -52,5 +52,5 @@ const catalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
 </script>
 
 <div class="flex bg-[var(--pd-content-bg)] text-left">
-  <CatalogExtensionList title={title} hideEmpty={hideEmpty} catalogExtensions={$catalogExtensions} />
+  <CatalogExtensionList title={title} showEmptyScreen={showEmptyScreen} catalogExtensions={$catalogExtensions} />
 </div>
