@@ -19,15 +19,15 @@
 
 const AdmZip = require('adm-zip');
 const path = require('path');
-const package = require('../package.json');
+const packageJson = require('../package.json');
 const { mkdirp } = require('mkdirp');
 const fs = require('fs');
 const byline = require('byline');
 const cp = require('copyfiles');
 
-const destFile = path.resolve(__dirname, `../${package.name}.cdix`);
+const destFile = path.resolve(__dirname, `../${packageJson.name}.cdix`);
 const builtinDirectory = path.resolve(__dirname, '../builtin');
-const zipDirectory = path.resolve(builtinDirectory, `${package.name}.cdix`);
+const zipDirectory = path.resolve(builtinDirectory, `${packageJson.name}.cdix`);
 const extFiles = path.resolve(__dirname, '../.extfiles');
 const fileStream = fs.createReadStream(extFiles, { encoding: 'utf8' });
 
