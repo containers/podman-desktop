@@ -48,7 +48,7 @@ You can use extensions, such as Kind, MiniKube, and others to start a local Kube
 
 To use the Minikube tool on Windows, you must have a Podman machine running in rootful mode.
 
-- The Podman Desktop **Settings** enable you to create a default Podman machine that runs in rootful mode. However, if you have a custom Podman machine that you want to run in rootful mode, you can enable the setting from the UI.
+- By default, the Podman Desktop **Settings** enable you to create a Podman machine that runs in rootful mode.
 
   ![root mode enabled](img/root-mode-enabled.png)
 
