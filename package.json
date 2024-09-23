@@ -115,7 +115,7 @@
     "@electron/fuses": "^1.8.0",
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.10.0",
+    "@eslint/js": "^9.11.0",
     "@playwright/test": "1.47.2",
     "@podman-desktop/api": "workspace:",
     "@rollup/plugin-commonjs": "^26.0.1",
