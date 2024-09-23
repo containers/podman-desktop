@@ -7,7 +7,7 @@ import CatalogExtension from './CatalogExtension.svelte';
 
 export let catalogExtensions: CatalogExtensionInfoUI[];
 export let title: string = 'Available extensions';
-export let hideIfEmpty: boolean = false;
+export let hideEmpty: boolean = false;
 
 async function fetchCatalog() {
   try {
@@ -31,7 +31,7 @@ async function fetchCatalog() {
         <Button type="link" on:click={() => fetchCatalog()}>Refresh the catalog</Button>
       </div>
     </div>
-  {:else if !hideIfEmpty}
+  {:else if !hideEmpty}
     <EmptyScreen
       title="No extensions in the catalog"
       message="No extensions from the catalog. It seems that the internet connection was not available to download the catalog."

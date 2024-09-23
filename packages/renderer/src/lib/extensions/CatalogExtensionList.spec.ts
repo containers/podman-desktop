@@ -126,7 +126,7 @@ test('empty catalog, do not hide if empty (default)', async () => {
 });
 
 test('empty catalog, hide if empty', async () => {
-  render(CatalogExtensionList, { hideIfEmpty: true, catalogExtensions: [] });
+  render(CatalogExtensionList, { hideEmpty: true, catalogExtensions: [] });
 
   const emptyMsg = screen.queryByText('No extensions in the catalog');
   expect(emptyMsg).not.toBeInTheDocument();
