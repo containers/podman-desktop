@@ -26,6 +26,7 @@ import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
+import type { PodmanExtensionApi, PodmanRunOptions } from '../../api/src/podman-extension-api';
 import { getSocketCompatibility } from './compatibility-mode';
 import { getDetectionChecks } from './detection-checks';
 import { KrunkitHelper } from './krunkit-helper';
@@ -1246,7 +1247,11 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
   });
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+async function exec(args: string[], options?: PodmanRunOptions): Promise<extensionApi.RunResult> {
+  return execPodman(args, options?.connection?.connection.vmTypeDisplayName, options);
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<PodmanExtensionApi> {
   initExtensionContext(extensionContext);
 
   initTelemetryLogger();
@@ -1658,6 +1663,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const podmanRemoteConnections = new PodmanRemoteConnections(extensionContext, provider);
   podmanRemoteConnections.start();
+
+  return {
+    exec,
+  };
 }
 
 export async function calcPodmanMachineSetting(podmanConfiguration: PodmanConfiguration): Promise<void> {
