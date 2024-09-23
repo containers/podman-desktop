@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@podman-desktop/ui-svelte": "workspace:*",
-    "@zerodevx/svelte-toast": "^0.9.5",
+    "@zerodevx/svelte-toast": "^0.9.6",
     "electron-context-menu": "4.0.4",
     "js-yaml": "^4.1.0",
     "tinro": "^0.6.12",
