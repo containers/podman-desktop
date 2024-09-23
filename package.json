@@ -178,7 +178,7 @@
     "@types/stream-json": "^1.7.7",
     "adm-zip": "^0.5.16",
     "check-disk-space": "^3.4.0",
-    "chokidar": "^4.0.0",
+    "chokidar": "^4.0.1",
     "compare-versions": "^6.1.1",
     "date.js": "^0.3.3",
     "dockerode": "^4.0.2",
