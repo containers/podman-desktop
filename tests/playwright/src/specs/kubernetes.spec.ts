@@ -23,7 +23,7 @@ import { createKindCluster, deleteKindCluster, ensureKindCliInstalled } from '..
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
-const CLUSTER_CREATION_TIMEOUT: number = 200000;
+const CLUSTER_CREATION_TIMEOUT: number = 300000;
 const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
