@@ -144,7 +144,7 @@ li.footer__item a svg {
 }
 
 .navbar__item {
-  font-size: 1em;
+  font-size: 0.9em;
 }
 
 .pagination-nav {
@@ -191,13 +191,13 @@ li.footer__item a svg {
   background-color: transparent !important;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1230px) {
   .navbar__title {
-    font-size: 2em;
+    font-size: 1.7em;
   }
 
   .navbar__item {
-    font-size: 1.2em;
+    font-size: 1em;
   }
 }
 
