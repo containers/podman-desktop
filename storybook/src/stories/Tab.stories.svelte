@@ -10,15 +10,16 @@ const { Story } = defineMeta({
   component: Tab,
   title: 'Tab',
   tags: ['autodocs'],
-  args: {
-    title: 'Tab',
-    selected: false,
-  },
   argTypes: {
     title: {
       control: 'text',
       description: 'Title of the tab',
       defaultValue: 'Tab',
+    },
+    url: {
+      control: 'text',
+      description: 'Link to navigate to when tab is clicked',
+      defaultValue: '',
     },
     selected: {
       control: 'boolean',
@@ -33,22 +34,19 @@ const { Story } = defineMeta({
 setTemplate(template);
 </script>
 
-{#snippet template({ items }: Args<typeof Story>, _context: StoryContext<typeof Story>)}
-  <div class="flex flex-row px-2">
-    {#each items as item}
-      <Tab {...item} />
-    {/each}
-  </div>
+{#snippet template({ ...args }: Args<typeof Story>, _context: StoryContext<typeof Story>)}
+  <Tab title={args.title ?? ''} selected={args.selected ?? false} url={args.url ?? ''} />
 {/snippet}
 
 <Story
   name="Basic"
   args={{
-    items: [{ title: 'title 1' }, { title: 'title 2' }, { title: 'title 3' }],
+    title: 'title 1',
   }} />
 
 <Story
   name="Selected"
   args={{
-    items: [{ title: 'title 1', selected: false }, { title: 'title 2', selected: true }, { title: 'title 3' }],
+    title: 'title 1',
+    selected: true,
   }} />
