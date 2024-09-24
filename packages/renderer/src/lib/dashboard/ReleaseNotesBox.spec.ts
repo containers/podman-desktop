@@ -49,6 +49,9 @@ beforeEach(() => {
   (global as any).fetch = fetchMock.mockImplementation(() =>
     Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
   );
+  (window.events as unknown) = {
+    receive: vi.fn(),
+  };
 });
 
 test('expect banner to be visible', async () => {

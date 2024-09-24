@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app } from 'electron';
 import { expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from './configuration-registry.js';
@@ -26,12 +25,17 @@ let releaseNotesBannerInit: ReleaseNotesBannerInit;
 
 const registerConfigurationsMock = vi.fn();
 
+vi.mock('electron', () => ({
+  app: {
+    getVersion: vi.fn().mockReturnValue('1.1.0'),
+  },
+}));
+
 const configurationRegistryMock = {
   registerConfigurations: registerConfigurationsMock,
 } as unknown as ConfigurationRegistry;
 
 test('should register a configuration', async () => {
-  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
   releaseNotesBannerInit = new ReleaseNotesBannerInit(configurationRegistryMock);
 
   releaseNotesBannerInit.init();

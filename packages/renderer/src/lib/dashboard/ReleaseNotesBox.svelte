@@ -15,6 +15,10 @@ let summary: string = '';
 let imageUrl: string = '';
 let imageAlt: string = '';
 
+window.events?.receive('show-release-notes', () => {
+  showBanner = true;
+});
+
 async function getInfoFromNotes() {
   let curVersionSplit = currentVersion.split('.', 2);
   const urlVersionFormat = curVersionSplit.join('.');
@@ -39,7 +43,6 @@ function onclose() {
 
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
-  window.updateConfigurationValue(`releaseNotesBanner.show.${currentVersion}`, true);
   showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show.${currentVersion}`)) ?? true;
   if (showBanner) {
     window
@@ -76,7 +79,7 @@ onMount(async () => {
             >Update</Button>
         </div>
         <div class="flex justify-end items-center text-[var(--pd-content-card-light-title)] mt-2">
-          v{currentVersion}
+          Podman Desktop v{currentVersion}
         </div>
       </div>
     </div>
