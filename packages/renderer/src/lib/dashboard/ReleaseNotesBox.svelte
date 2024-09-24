@@ -5,8 +5,8 @@ import { onMount } from 'svelte';
 
 import Markdown from '../markdown/Markdown.svelte';
 
-let showBanner = true;
-let notesAvailable = true;
+let showBanner = false;
+let notesAvailable = false;
 let updateAvilable = false;
 let notesURL: string;
 let currentVersion: string;
@@ -25,9 +25,9 @@ async function getInfoFromNotes() {
   notesURL = `https://podman-desktop.io/release-notes/${urlVersionFormat}.json`;
   const response = await fetch(notesURL);
   if (!response.ok) {
-    notesAvailable = false;
     notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${currentVersion}`;
   } else {
+    notesAvailable = true;
     let notesInfo = await response.json();
     imageUrl = notesInfo.image ? notesInfo.image : '';
     imageAlt = imageUrl ? `Podman Desktop ${urlVersionFormat} release image` : '';
@@ -37,22 +37,20 @@ async function getInfoFromNotes() {
 }
 
 function onclose() {
-  window.updateConfigurationValue('releaseNotesBanner.show', false);
+  window.updateConfigurationValue(`releaseNotesBanner.show.${currentVersion}`, false);
   showBanner = false;
 }
 
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
   showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show.${currentVersion}`)) ?? true;
-  if (showBanner) {
-    window
-      .podmanDesktopUpdateAvailable()
-      .then(available => (updateAvilable = available))
-      .catch(() => {
-        console.log('Cannot check for update');
-      });
-    await getInfoFromNotes();
-  }
+  window
+    .podmanDesktopUpdateAvailable()
+    .then(available => (updateAvilable = available))
+    .catch(() => {
+      console.log('Cannot check for update');
+    });
+  await getInfoFromNotes();
 });
 </script>
 

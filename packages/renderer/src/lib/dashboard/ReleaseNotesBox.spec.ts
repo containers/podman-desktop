@@ -74,7 +74,9 @@ test('expect no release notes available', async () => {
   expect(screen.queryByText(responsJSON.title)).not.toBeInTheDocument();
   expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
   expect(screen.queryByRole('img')).not.toBeInTheDocument();
-  expect(screen.getByText('Release notes are currently unavailable, please check again later.')).toBeInTheDocument();
+  expect(
+    screen.getByText('Release notes are currently unavailable, please check again later or try this link'),
+  ).toBeInTheDocument();
 });
 
 test('expect update button to show when there is an update', async () => {
@@ -103,7 +105,7 @@ test('expect clicking on close button to not show banner anymore', async () => {
   const closeButton = screen.getByRole('button', { name: 'Close' });
   await userEvent.click(closeButton);
   await tick();
-  expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show', false);
+  expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show.1.1.0', false);
   expect(screen.queryByText(responsJSON.title)).not.toBeInTheDocument();
   expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
 });
