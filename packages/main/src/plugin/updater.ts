@@ -37,6 +37,7 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 
+import type { ApiSenderType } from './api.js';
 import { homepage, repository } from '../../../../package.json';
 import type { TaskManager } from './tasks/task-manager.js';
 
@@ -59,6 +60,7 @@ export class Updater {
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
     private taskManager: TaskManager,
+    private apiSender: ApiSenderType,
   ) {
     this.#currentVersion = `v${app.getVersion()}`;
     this.#updateInProgress = false;
