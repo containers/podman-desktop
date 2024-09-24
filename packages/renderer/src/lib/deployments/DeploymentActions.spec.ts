@@ -27,15 +27,36 @@ import type { DeploymentUI } from './DeploymentUI';
 const updateMock = vi.fn();
 const deleteMock = vi.fn();
 
-const deployment: DeploymentUI = {
-  name: 'my-deployment',
-  status: 'RUNNING',
-  namespace: '',
-  replicas: 0,
-  ready: 0,
-  selected: false,
-  conditions: [],
-};
+class DeploymentfUIImpl {
+  #status: string;
+  constructor(
+    public name: string,
+    initialStatus: string,
+    public namespace: string,
+    public replicas: number,
+    public ready: number,
+    public selected: boolean,
+    public conditions: unknown[],
+  ) {
+    this.#status = initialStatus;
+  }
+  set status(status: string) {
+    this.#status = status;
+  }
+  get status(): string {
+    return this.#status;
+  }
+}
+
+const deployment: DeploymentUI = new DeploymentfUIImpl(
+  'my-deployment',
+  'RUNNING',
+  '',
+  0,
+  0,
+  false,
+  [],
+) as unknown as DeploymentUI;
 
 beforeEach(() => {
   (window as any).kubernetesDeleteDeployment = deleteMock;

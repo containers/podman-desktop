@@ -27,6 +27,23 @@ import type { VolumeInfoUI } from './VolumeInfoUI';
 const showMessageBoxMock = vi.fn();
 const removeVolumeMock = vi.fn();
 
+class VolumeInfoUIImpl {
+  #status: string;
+  constructor(
+    public name: string,
+    initialStatus: string,
+  ) {
+    this.#status = initialStatus;
+  }
+
+  get status() {
+    return this.#status;
+  }
+  set status(status: string) {
+    this.#status = status;
+  }
+}
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).removeVolume = removeVolumeMock;
@@ -36,10 +53,7 @@ test('Expect prompt dialog and deletion', async () => {
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
-  const volume: VolumeInfoUI = {
-    name: 'dummy',
-    status: 'UNUSED',
-  } as VolumeInfoUI;
+  const volume: VolumeInfoUI = new VolumeInfoUIImpl('dummy', 'UNUSED') as unknown as VolumeInfoUI;
 
   render(VolumeActions, {
     volume,

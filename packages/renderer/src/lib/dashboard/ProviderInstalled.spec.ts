@@ -36,6 +36,29 @@ vi.mock('@xterm/xterm', () => {
   };
 });
 
+class InitializationContextImpl {
+  #promise: unknown;
+  #error: unknown;
+
+  constructor(public mode: string) {}
+
+  set promise(promise: unknown) {
+    this.#promise = promise;
+  }
+
+  get promise(): unknown {
+    return this.#promise;
+  }
+
+  set error(error: unknown) {
+    this.#error = error;
+  }
+
+  get error(): unknown {
+    return this.#error;
+  }
+}
+
 // fake the window.events object
 beforeAll(() => {
   (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
@@ -70,7 +93,9 @@ test('Expect installed provider shows button', async () => {
     cleanupSupport: false,
   };
 
-  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  const initializationContext: InitializationContext = new InitializationContextImpl(
+    InitializeAndStartMode,
+  ) as unknown as InitializationContext;
   render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
 
   const providerText = screen.getByText(content => content === 'MyProvider');
@@ -118,7 +143,9 @@ test('Expect to see the initialize context error if provider installation fails'
     cleanupSupport: false,
   };
 
-  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  const initializationContext: InitializationContext = new InitializationContextImpl(
+    InitializeAndStartMode,
+  ) as unknown as InitializationContext;
   render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
 
   const providerText = screen.getByText(content => content === 'MyProvider');

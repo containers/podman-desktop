@@ -25,10 +25,24 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
-const container: ContainerInfoUI = {
-  id: 'container-id',
-  engineId: 'container-engine-id',
-} as ContainerInfoUI;
+class ContainerInfoUIImpl {
+  #actionError: string = '';
+  constructor(
+    public id: string,
+    public engineId: string,
+  ) {}
+  set actionError(error: string) {
+    this.#actionError = error;
+  }
+  get actionError(): string {
+    return this.#actionError;
+  }
+}
+
+const container: ContainerInfoUI = new ContainerInfoUIImpl(
+  'container-id',
+  'container-engine-id',
+) as unknown as ContainerInfoUI;
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
