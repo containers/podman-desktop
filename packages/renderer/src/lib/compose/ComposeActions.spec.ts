@@ -68,13 +68,11 @@ test('Expect no error and status starting compose', async () => {
   const startButton = screen.getByRole('button', { name: 'Start Compose' });
   await fireEvent.click(startButton);
 
-  vi.waitFor(() => {
-    expect(compose.status).toEqual('STARTING');
-    expect(compose.actionError).toEqual('');
-    expect(compose.containers[0].state).toEqual('STARTING');
-    expect(compose.containers[0].actionError).toEqual('');
-    expect(updateMock).toHaveBeenCalled();
-  });
+  expect(compose.status).toEqual('STARTING');
+  expect(compose.actionError).toEqual('');
+  expect(compose.containers[0].state).toEqual('STARTING');
+  expect(compose.containers[0].actionError).toEqual('');
+  expect(updateMock).toHaveBeenCalled();
 });
 
 test('Expect no error and status stopping compose', async () => {
