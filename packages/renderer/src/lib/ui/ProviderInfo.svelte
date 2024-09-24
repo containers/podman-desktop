@@ -2,32 +2,35 @@
 import { ContainerGroupInfoTypeUI } from '../container/ContainerInfoUI';
 import { PodGroupInfoTypeUI } from '../pod/PodInfoUI';
 import Label from './Label.svelte';
+import ProviderInfoCircle from './ProviderInfoCircle.svelte';
 
-// Name of the provider (e.g. podman, docker, kubernetes)
-export let provider = '';
+type ProviderNameType = 'docker' | 'podman' | 'kubernetes' | undefined;
 
-// Only used for Kubernetes-like distros
-export let context = '';
+// provider: name of the provider (e.g. podman, docker, kubernetes)
+// context: only used for Kubernetes-like distros
+let { provider = '', context = '' }: { provider?: string; context?: string } = $props();
 
-// Each provider has a colour associated to it within tailwind, this is a map of those colours.
-// bg-purple-600 = podman
-// bg-sky-300 = docker
-// bg-sky-600 = kubernetes
-// bg-gray-900 = unknown
-function getProviderColour(providerName: string): string {
+// providerName: name of the provider in lowercase (e.g. podman, docker, kubernetes)
+let providerName: ProviderNameType = $state(undefined);
+
+function getProviderName(providerName: string): ProviderNameType {
   switch (providerName?.toLowerCase()) {
     case ContainerGroupInfoTypeUI.PODMAN:
-      return 'bg-purple-600';
+      return 'podman';
     case ContainerGroupInfoTypeUI.DOCKER:
-      return 'bg-sky-400';
+      return 'docker';
     case PodGroupInfoTypeUI.KUBERNETES:
-      return 'bg-sky-600';
+      return 'kubernetes';
     default:
-      return 'bg-gray-900';
+      return undefined;
   }
 }
+
+$effect(() => {
+  providerName = getProviderName(provider);
+});
 </script>
 
 <Label tip={provider === 'Kubernetes' ? context : ''} name={provider} capitalize>
-  <div class="w-2 h-2 {getProviderColour(provider)} rounded-full"></div>
+  <ProviderInfoCircle type={providerName} />
 </Label>

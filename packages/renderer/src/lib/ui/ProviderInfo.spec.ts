@@ -55,3 +55,14 @@ test('Expect docker is blue', async () => {
   expect(label.parentElement?.firstChild).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toHaveClass('bg-sky-400');
 });
+
+test('Expect kubernetes is blue', async () => {
+  const provider = 'Kubernetes';
+  render(ProviderInfo, {
+    provider,
+  });
+  const label = screen.getByText(provider);
+  expect(label).toBeInTheDocument();
+  expect(label.parentElement?.firstChild).toBeInTheDocument();
+  expect(label.parentElement?.firstChild).toHaveClass('bg-sky-600');
+});
