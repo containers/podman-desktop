@@ -61,6 +61,24 @@ const fakedImage: ImageInfoUI = {
   name: 'dummy',
 } as unknown as ImageInfoUI;
 
+class Image {
+  #status: string;
+  constructor(
+    public name: string,
+    initialStatus: string,
+  ) {
+    this.#status = initialStatus;
+  }
+
+  set status(status: string) {
+    this.#status = status;
+  }
+
+  get status(): string {
+    return this.#status;
+  }
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
 });
@@ -69,10 +87,7 @@ test('Expect showMessageBox to be called when error occurs', async () => {
   vi.mocked(withConfirmation).mockImplementation(f => f());
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 
-  const image: ImageInfoUI = {
-    name: 'dummy',
-    status: 'UNUSED',
-  } as ImageInfoUI;
+  const image: ImageInfoUI = new Image('dummy', 'UNUSED') as unknown as ImageInfoUI;
 
   render(ImageActions, {
     onPushImage: vi.fn(),
@@ -87,7 +102,7 @@ test('Expect showMessageBox to be called when error occurs', async () => {
     expect(showMessageBoxMock).toHaveBeenCalledOnce();
   });
 
-  expect(image.status).toBe('DELETING');
+  await waitFor(() => expect(image.status).toBe('DELETING'));
 });
 
 test('Expect no dropdown when one contribution and dropdownMenu off', async () => {

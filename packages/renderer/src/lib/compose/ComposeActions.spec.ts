@@ -25,21 +25,40 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeActions from './ComposeActions.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 
-const compose: ComposeInfoUI = {
-  engineId: 'podman',
-  engineType: 'podman',
-  name: 'my-compose-group',
-  status: 'STOPPED',
-  actionInProgress: false,
-  actionError: undefined,
-  containers: [
+class ComposeInfoUIImpl implements ComposeInfoUI {
+  #status: string = 'STOPPED';
+  constructor(
+    public engineId: string,
+    public engineType: 'docker' | 'podman',
+    public name: string,
+    initialStatus: string,
+    public actionInProgress: boolean,
+    public actionError: string | undefined,
+    public containers: ContainerInfoUI[],
+  ) {}
+  set status(status: string) {
+    this.#status = status;
+  }
+  get status(): string {
+    return this.#status;
+  }
+}
+
+const compose: ComposeInfoUI = new ComposeInfoUIImpl(
+  'podman',
+  'podman',
+  'my-compose-group',
+  'STOPPED',
+  false,
+  undefined,
+  [
     {
       actionInProgress: false,
       actionError: undefined,
       state: 'STOPPED',
     } as ContainerInfoUI,
   ],
-} as ComposeInfoUI;
+);
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();

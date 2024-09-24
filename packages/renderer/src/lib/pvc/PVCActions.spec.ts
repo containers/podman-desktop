@@ -28,15 +28,27 @@ const updateMock = vi.fn();
 const deleteMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
-const fakePVC: PVCUI = {
-  name: 'pvc-1',
-  namespace: 'default',
-  status: 'RUNNING',
-  storageClass: 'standard',
-  accessModes: ['ReadWriteOnce'],
-  selected: false,
-  size: '1Gi',
-};
+class StatusHolder {
+  #status: string;
+  constructor(initialStatus: string) {
+    this.#status = initialStatus;
+  }
+  set status(status: string) {
+    this.#status = status;
+  }
+  get status(): string {
+    return this.#status;
+  }
+}
+
+const fakePVC: PVCUI = new StatusHolder('RUNNING') as unknown as PVCUI;
+fakePVC.name = 'pvc-1';
+fakePVC.namespace = 'default';
+fakePVC.status = 'RUNNING';
+fakePVC.storageClass = 'standard';
+fakePVC.accessModes = ['ReadWriteOnce'];
+fakePVC.selected = false;
+fakePVC.size = '1Gi';
 
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
@@ -62,7 +74,7 @@ test('Expect no error and status deleting PVC', async () => {
   await fireEvent.click(deleteButton);
 
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-  expect(fakePVC.status).toEqual('DELETING');
+  await waitFor(() => expect(fakePVC.status).toEqual('DELETING'));
   expect(updateMock).toHaveBeenCalled();
   expect(deleteMock).toHaveBeenCalled();
 });

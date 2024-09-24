@@ -28,15 +28,30 @@ const updateMock = vi.fn();
 const deleteMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
-const service: ServiceUI = {
-  name: 'my-service',
-  status: 'RUNNING',
-  namespace: '',
-  selected: false,
-  type: '',
-  clusterIP: '',
-  ports: '',
-};
+class ServiceUIImpl {
+  #status: string;
+  constructor(
+    public name: string,
+    initStatus: string,
+    public namespace: string,
+    public selected: boolean,
+    public type: string,
+    public clusterIP: string,
+    public ports: string,
+  ) {
+    this.#status = initStatus;
+  }
+
+  set status(status: string) {
+    this.#status = status;
+  }
+
+  get status(): string {
+    return this.#status;
+  }
+}
+
+const service: ServiceUI = new ServiceUIImpl('my-service', 'RUNNING', '', false, '', '', '');
 
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
@@ -58,9 +73,10 @@ test('Expect no error and status deleting service', async () => {
   await fireEvent.click(deleteButton);
 
   // Wait for confirmation modal to disappear after clicking on delete
-  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-
-  expect(service.status).toEqual('DELETING');
-  expect(updateMock).toHaveBeenCalled();
-  expect(deleteMock).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(service.status).toEqual('DELETING');
+    expect(updateMock).toHaveBeenCalled();
+    expect(deleteMock).toHaveBeenCalled();
+  });
 });
