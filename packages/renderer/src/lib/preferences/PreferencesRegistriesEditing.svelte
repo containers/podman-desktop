@@ -328,6 +328,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                       class="justify-center"
                       id="hide-password"
                       title="Hide password"
+                      aria-label="Hide password"
                       aria-expanded="true"
                       aria-haspopup="true"
                       on:click={() => setPasswordForRegistryVisible(registry, false)}>
@@ -339,6 +340,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                       class="justify-center"
                       id="show-password"
                       title="Show password"
+                      aria-label="Show password"
                       aria-expanded="true"
                       aria-haspopup="true"
                       on:click={() => setPasswordForRegistryVisible(registry, true)}>
