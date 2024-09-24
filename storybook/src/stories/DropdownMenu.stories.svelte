@@ -20,11 +20,13 @@ setTemplate(template);
 </script>
 
 {#snippet template({ _children, ...args }: Args<typeof Story>, _context: StoryContext<typeof Story>)}
-  <DropdownMenu>
-    {#each args.items as item}
-      <DropdownMenu.Item {...item} />
-    {/each}
-  </DropdownMenu>
+  <div class="flex min-h-52 justify-center p-10">
+    <DropdownMenu>
+      {#each args.items as item}
+        <DropdownMenu.Item {...item} />
+      {/each}
+    </DropdownMenu>
+  </div>
 {/snippet}
 
 <Story
