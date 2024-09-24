@@ -36,7 +36,6 @@ import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 
-import type { ApiSenderType } from './api.js';
 import type { TaskManager } from './tasks/task-manager.js';
 
 /**
@@ -58,7 +57,6 @@ export class Updater {
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
     private taskManager: TaskManager,
-    private apiSender: ApiSenderType,
   ) {
     this.#currentVersion = `v${app.getVersion()}`;
     this.#updateInProgress = false;
