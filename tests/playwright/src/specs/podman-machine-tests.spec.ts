@@ -104,26 +104,13 @@ test.describe.serial(`Podman machine switching validation `, () => {
     });
 
     const podmanMachineCreatePage = new PodmanOnboardingPage(page);
-    await test.step('Fill in podman machine name input box', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineName).toBeVisible();
-      await podmanMachineCreatePage.podmanMachineName.clear();
-      await podmanMachineCreatePage.podmanMachineName.fill(ROOTLESS_PODMAN_MACHINE_VISIBLE);
-    });
-
-    await test.step('Set podman machine to be rootless', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).toBeChecked();
-      await podmanMachineCreatePage.podmanMachineRootfulCheckbox.locator('..').click();
-      await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).not.toBeChecked();
-    });
-
-    await test.step('Set podman machine to not start after creation', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
-      await podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox.locator('..').click();
-      await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).not.toBeChecked();
-    });
-
     await test.step('Create podman machine', async () => {
-      await podmanMachineCreatePage.podmanMachineCreateButton.click();
+      await podmanMachineCreatePage.machineCreationForm.setupAndCreateMachine(
+        ROOTLESS_PODMAN_MACHINE_VISIBLE,
+        false,
+        false,
+        false,
+      );
       await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 180_000 });
       await podmanMachineCreatePage.goBackButton.click();
     });

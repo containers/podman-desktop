@@ -25,15 +25,15 @@ import { deletePodmanMachine } from '../utility/operations';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 
-test.beforeAll(async ({ pdRunner, welcomePage }) => {
-  pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('podman-rootless-machine-e2e');
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
   await welcomePage.handleWelcomePage(true);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.skip(os.platform() === 'linux', 'Runs only on Windows and Mac');

@@ -25,34 +25,28 @@ import { ResourcesPage } from './resources-page';
 
 export class CreateMachinePage extends BasePage {
   readonly heading: Locator;
+  readonly machineCreationForm: MachineCreationForm;
   readonly closeButton: Locator;
-  readonly createMachineButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
+    this.machineCreationForm = new MachineCreationForm(this.page);
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
-    this.createMachineButton = this.page.getByRole('button', { name: 'Create' });
   }
 
   async createMachine(
     machineName: string,
-    isRootful?: boolean,
-    enableUserNet?: boolean,
-    startNow?: boolean,
-    setAsDefault: boolean = true,
+    { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
-    const machineCreationForm = new MachineCreationForm(this.page);
-    await machineCreationForm.configureMachine(machineName, isRootful, enableUserNet, startNow);
-
-    await playExpect(this.createMachineButton).toBeEnabled();
-    await this.createMachineButton.click();
-
-    // wait for machine creation and handle connections
-    await this.handleConnectionDialog(machineName, setAsDefault);
+    await this.machineCreationForm.setupAndCreateMachine(machineName, isRootful, enableUserNet, startNow);
+    await this.page.waitForTimeout(60_000);
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
+
+    await this.handleConnectionDialog(machineName, setAsDefault);
+
     await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
@@ -62,7 +56,7 @@ export class CreateMachinePage extends BasePage {
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    await playExpect(connectionDialog).toBeVisible({ timeout: 60_000 });
+    await playExpect(connectionDialog).toBeVisible({ timeout: 30_000 });
 
     const dialogMessage = connectionDialog.getByLabel('Dialog Message');
     await playExpect(dialogMessage).toHaveText(
