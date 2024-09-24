@@ -119,7 +119,10 @@ export class Updater {
     );
   }
 
-  private registerDefaultCommands(): void {
+  /**
+   * Registers commands related to version and update.
+   */
+  private registerCommands(): void {
     // Show a "No update available" only for macOS and Windows users and on production builds
     let detailMessage: string;
     if (!isLinux() && import.meta.env.PROD) {
@@ -129,24 +132,14 @@ export class Updater {
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
     this.commandRegistry.registerCommand('version', async () => {
-      const result = await this.messageBox.showMessageBox({
+      await this.messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
-        buttons: ['View release notes'],
       });
-      if (result.response === 0) {
-        await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show.${app.getVersion()}`, true);
-        this.apiSender.send('show-release-notes');
-      }
     });
-  }
 
-  /**
-   * Registers commands related to version and update.
-   */
-  private registerCommands(): void {
     // Update will create a standard "autoUpdater" dialog / update process
     this.commandRegistry.registerCommand('update', async (context?: 'startup' | 'status-bar-entry') => {
       if (this.#updateAlreadyDownloaded) {
@@ -178,9 +171,9 @@ export class Updater {
 
       let buttons: string[];
       if (context === 'startup') {
-        buttons = ['Update now', 'View release notes', 'Remind me later', 'Do not show again'];
+        buttons = ['Update now', 'Remind me later', 'Do not show again'];
       } else {
-        buttons = ['Update now', 'View release notes', 'Cancel'];
+        buttons = ['Update now', 'Cancel'];
       }
 
       const result = await this.messageBox.showMessageBox({
@@ -190,10 +183,8 @@ export class Updater {
         buttons: buttons,
         cancelId: 1,
       });
-      if (result.response === 3) {
+      if (result.response === 2) {
         this.updateConfigurationValue('never');
-      } else if (result.response === 1) {
-        await this.openReleaseNotes(updateVersion);
       } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
@@ -373,8 +364,6 @@ export class Updater {
   public init(): Disposable {
     // disable auto download
     autoUpdater.autoDownload = false;
-
-    this.registerDefaultCommands();
 
     // Only check on production builds for Windows and macOS users
     if (!import.meta.env.PROD || isLinux()) {

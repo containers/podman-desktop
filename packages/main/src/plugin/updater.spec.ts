@@ -333,7 +333,7 @@ test('expect command update not to be called when configuration value on never',
 
 test('clicking on "Update Never" should set the configuration value to never', async () => {
   vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
-    response: 3, // Update never
+    response: 2, // Update never
   });
 
   let mListener: (() => Promise<void>) | undefined;
@@ -414,7 +414,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
+      buttons: ['Update now', 'Remind me later', 'Do not show again'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -430,7 +430,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'View release notes', 'Cancel'],
+      buttons: ['Update now', 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
