@@ -56,7 +56,7 @@ beforeEach(() => {
 
 test('expect banner to be visible', async () => {
   render(ReleaseNotesBox);
-  expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show');
+  expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show.1.1.0');
   await waitFor(() => expect(fetchMock).toBeCalledWith('https://podman-desktop.io/release-notes/1.1.json'));
   await waitFor(() => expect(fetchJSONMock).toBeCalled());
   await tick();
