@@ -202,7 +202,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
       await handleConfirmationDialog(page, 'Podman', true, 'Yes');
       await handleConfirmationDialog(page, 'Podman', true, 'OK');
     } catch (error) {
-      console.log('No handing dialog displayed', error);
+      console.log('No handling dialog displayed', error);
     }
   });
 });

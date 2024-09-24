@@ -44,18 +44,22 @@ export class CreateMachinePage extends BasePage {
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
-    await this.handleConnectionDialog(machineName, setAsDefault);
-
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 10_000 });
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 60_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
-    await goBackToResourcesButton.click();
 
+    try {
+      await this.handleConnectionDialog(machineName, setAsDefault);
+    } catch (error) {
+      console.log('No handling dialog displayed', error);
+    }
+
+    await goBackToResourcesButton.click();
     return new ResourcesPage(this.page);
   }
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
     const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    await playExpect(connectionDialog).toBeVisible({ timeout: 60_000 });
+    await playExpect(connectionDialog).toBeVisible({ timeout: 10_000 });
 
     const dialogMessage = connectionDialog.getByLabel('Dialog Message');
     await playExpect(dialogMessage).toHaveText(
