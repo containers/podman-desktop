@@ -71,7 +71,7 @@ test('Expect no error and status starting container', async () => {
   const startButton = screen.getByRole('button', { name: 'Start Container' });
   await fireEvent.click(startButton);
 
-  await waitFor(() => expect(container.state).toEqual('STARTING'));
+  expect(container.state).toEqual('STARTING');
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
 });
@@ -83,7 +83,7 @@ test('Expect no error and status stopping container', async () => {
   const stopButton = screen.getByRole('button', { name: 'Stop Container' });
   await fireEvent.click(stopButton);
 
-  await waitFor(() => expect(container.state).toEqual('STOPPING'));
+  expect(container.state).toEqual('STOPPING');
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
 });
@@ -95,7 +95,7 @@ test('Expect no error and status restarting container', async () => {
   const restartButton = screen.getByRole('button', { name: 'Restart Container' });
   await fireEvent.click(restartButton);
 
-  await waitFor(() => expect(container.state).toEqual('RESTARTING'));
+  expect(container.state).toEqual('RESTARTING');
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
 });
@@ -112,7 +112,7 @@ test('Expect no error and status deleting container', async () => {
   // Wait for confirmation modal to disappear after clicking on delete
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-  await waitFor(() => expect(container.state).toEqual('DELETING'));
+  expect(container.state).toEqual('DELETING');
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
 });

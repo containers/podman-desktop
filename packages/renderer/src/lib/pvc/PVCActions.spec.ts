@@ -74,7 +74,7 @@ test('Expect no error and status deleting PVC', async () => {
   await fireEvent.click(deleteButton);
 
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-  await waitFor(() => expect(fakePVC.status).toEqual('DELETING'));
+  expect(fakePVC.status).toEqual('DELETING');
   expect(updateMock).toHaveBeenCalled();
   expect(deleteMock).toHaveBeenCalled();
 });

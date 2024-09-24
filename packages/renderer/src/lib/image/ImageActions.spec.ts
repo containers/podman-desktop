@@ -102,7 +102,7 @@ test('Expect showMessageBox to be called when error occurs', async () => {
     expect(showMessageBoxMock).toHaveBeenCalledOnce();
   });
 
-  await waitFor(() => expect(image.status).toBe('DELETING'));
+  expect(image.status).toBe('DELETING');
 });
 
 test('Expect no dropdown when one contribution and dropdownMenu off', async () => {
