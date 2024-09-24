@@ -100,7 +100,7 @@ async function getMacOSConnectionProxyInfo(
     return enabled && server ? (port ? `http://${server}:${port}` : `http:/${server}`) : undefined;
   } catch (err) {
     console.warn(`Error while getting MacOS proxy settings for connection ${connection}`, err);
-    throw err;
+    return undefined;
   }
 }
 
@@ -112,7 +112,7 @@ async function getMacOSConnectionProxyByPass(exec: Exec, connection: string): Pr
     return line.length > 0 ? line : undefined;
   } catch (err) {
     console.warn(`Error while getting MacOS proxy settings for connection ${connection}`, err);
-    throw err;
+    return undefined;
   }
 }
 
