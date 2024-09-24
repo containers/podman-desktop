@@ -23,6 +23,7 @@ export class RunnerOptions {
   public readonly _autoUpdate: boolean;
   public readonly _autoCheckUpdates: boolean;
   public readonly _extensionsDisabled: string[];
+  public readonly _aiLabModelUploadDisabled: boolean;
   public readonly _binaryPath: string | undefined;
 
   constructor({
@@ -32,6 +33,7 @@ export class RunnerOptions {
     autoUpdate = true,
     autoCheckUpdates = true,
     extensionsDisabled = [],
+    aiLabModelUploadDisabled = false,
     binaryPath = undefined,
   }: {
     profile?: string;
@@ -40,6 +42,7 @@ export class RunnerOptions {
     autoUpdate?: boolean;
     autoCheckUpdates?: boolean;
     extensionsDisabled?: string[];
+    aiLabModelUploadDisabled?: boolean;
     binaryPath?: string;
   } = {}) {
     this._profile = profile;
@@ -48,6 +51,7 @@ export class RunnerOptions {
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdates = autoCheckUpdates;
     this._extensionsDisabled = extensionsDisabled;
+    this._aiLabModelUploadDisabled = aiLabModelUploadDisabled;
     this._binaryPath = binaryPath;
   }
 
@@ -60,6 +64,7 @@ export class RunnerOptions {
         'extensions.autoUpdate': this._autoUpdate,
         'extensions.autoCheckUpdates': this._autoCheckUpdates,
         'extensions.disabled': this._extensionsDisabled,
+        'ai-lab.modelUploadDisabled': this._aiLabModelUploadDisabled,
         'podman.binary.path': this._binaryPath,
       });
     }
@@ -69,6 +74,7 @@ export class RunnerOptions {
       'extensions.autoUpdate': this._autoUpdate,
       'extensions.autoCheckUpdates': this._autoCheckUpdates,
       'extensions.disabled': this._extensionsDisabled,
+      'ai-lab.modelUploadDisabled': this._aiLabModelUploadDisabled,
     });
   }
 }
