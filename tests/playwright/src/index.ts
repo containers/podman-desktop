@@ -53,6 +53,7 @@ export * from './model/pages/extension-card-page';
 export * from './model/pages/extension-catalog-card-page';
 export * from './model/pages/extension-details-page';
 export * from './model/pages/extensions-page';
+export * from './model/pages/forms/machine-creation-form';
 export * from './model/pages/image-details-page';
 export * from './model/pages/image-edit-page';
 export * from './model/pages/images-page';

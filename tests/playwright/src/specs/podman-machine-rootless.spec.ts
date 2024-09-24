@@ -21,19 +21,19 @@ import { ResourceElementState } from '../model/core/states';
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { deletePodmanMachine } from '../utility/operations';
+import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 
-test.beforeAll(async ({ pdRunner, welcomePage }) => {
-  pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
+test.beforeAll(async ({ runner, welcomePage }) => {
+  runner.setVideoAndTraceName('podman-rootless-machine-e2e');
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
   await welcomePage.handleWelcomePage(true);
 });
 
-test.afterAll(async ({ pdRunner }) => {
-  await pdRunner.close();
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.skip(os.platform() === 'linux', 'Runs only on Windows and Mac');
@@ -54,5 +54,12 @@ test.describe('Rootless Podman machine Verification', () => {
   test('Clean up rootless machine', async ({ page }) => {
     test.setTimeout(150_000);
     await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+
+    try {
+      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+      await handleConfirmationDialog(page, 'Podman', true, 'OK');
+    } catch (error) {
+      console.log('No handing dialog displayed', error);
+    }
   });
 });
