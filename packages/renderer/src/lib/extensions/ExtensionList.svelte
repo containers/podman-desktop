@@ -107,18 +107,24 @@ let installManualImageModal: boolean = false;
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
-    {#if searchTerm && $filteredInstalledExtensions.length === 0 && $filteredCatalogExtensions.length === 0}
-      <FilteredEmptyScreen
-        icon={ExtensionIcon}
-        kind="extensions"
-        searchTerm={searchTerm}
-        on:resetFilter={() => (searchTerm = '')} />
-    {/if}
-
     {#if screen === 'installed'}
+      {#if searchTerm && $filteredInstalledExtensions.length === 0}
+        <FilteredEmptyScreen
+          icon={ExtensionIcon}
+          kind="extensions"
+          searchTerm={searchTerm}
+          on:resetFilter={() => (searchTerm = '')} />
+      {/if}
       <InstalledExtensionList extensionInfos={$filteredInstalledExtensions} />
     {:else}
-      <CatalogExtensionList catalogExtensions={$filteredCatalogExtensions} />
+      {#if searchTerm && $filteredCatalogExtensions.length === 0}
+        <FilteredEmptyScreen
+          icon={ExtensionIcon}
+          kind="extensions"
+          searchTerm={searchTerm}
+          on:resetFilter={() => (searchTerm = '')} />
+      {/if}
+      <CatalogExtensionList showEmptyScreen={!searchTerm} catalogExtensions={$filteredCatalogExtensions} />
     {/if}
   </div>
 </NavPage>

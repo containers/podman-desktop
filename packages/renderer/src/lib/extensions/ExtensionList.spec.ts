@@ -118,3 +118,54 @@ test('Expect to see extensions', async () => {
   const extensionIdBAfterSwitch = screen.getByRole('group', { name: 'B Extension' });
   expect(extensionIdBAfterSwitch).toBeInTheDocument();
 });
+
+test('Expect to see empty screen on extension page only', async () => {
+  catalogExtensionInfos.set([aFakeExtension]);
+  extensionInfos.set([]);
+
+  render(ExtensionList, { searchTerm: 'A' });
+
+  let title = screen.queryByText("No extensions matching 'A' found");
+  expect(title).toBeInTheDocument();
+
+  // click on the catalog
+  const catalogTab = screen.getByRole('button', { name: 'Catalog' });
+  await fireEvent.click(catalogTab);
+
+  title = screen.queryByText("No extensions matching 'A' found");
+  expect(title).not.toBeInTheDocument();
+});
+
+test('Expect to see empty screen on catalog page only', async () => {
+  catalogExtensionInfos.set([]);
+  extensionInfos.set(combined);
+
+  render(ExtensionList, { searchTerm: 'A' });
+
+  let title = screen.queryByText("No extensions matching 'A' found");
+  expect(title).not.toBeInTheDocument();
+
+  // click on the catalog
+  const catalogTab = screen.getByRole('button', { name: 'Catalog' });
+  await fireEvent.click(catalogTab);
+
+  title = screen.queryByText("No extensions matching 'A' found");
+  expect(title).toBeInTheDocument();
+});
+
+test('Expect to see empty screens on both pages', async () => {
+  catalogExtensionInfos.set([]);
+  extensionInfos.set([]);
+
+  render(ExtensionList, { searchTerm: 'foo' });
+
+  let title = screen.getByText("No extensions matching 'foo' found");
+  expect(title).toBeInTheDocument();
+
+  // click on the catalog
+  const catalogTab = screen.getByRole('button', { name: 'Catalog' });
+  await fireEvent.click(catalogTab);
+
+  title = screen.getByText("No extensions matching 'foo' found");
+  expect(title).toBeInTheDocument();
+});
