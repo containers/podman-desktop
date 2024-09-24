@@ -56,6 +56,7 @@ beforeEach(() => {
 
 test('expect banner to be visible', async () => {
   render(ReleaseNotesBox);
+  await tick();
   expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show.1.1.0');
   await waitFor(() => expect(fetchMock).toBeCalledWith('https://podman-desktop.io/release-notes/1.1.json'));
   await waitFor(() => expect(fetchJSONMock).toBeCalled());
@@ -75,7 +76,7 @@ test('expect no release notes available', async () => {
   expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
   expect(screen.queryByRole('img')).not.toBeInTheDocument();
   expect(
-    screen.getByText('Release notes are currently unavailable, please check again later or try this link'),
+    screen.getByText('Release notes are currently unavailable, please check again later or try this'),
   ).toBeInTheDocument();
 });
 
