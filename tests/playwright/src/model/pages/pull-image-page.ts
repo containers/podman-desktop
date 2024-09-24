@@ -28,6 +28,8 @@ export class PullImagePage extends BasePage {
   readonly backToImagesLink: Locator;
   readonly manageRegistriesButton: Locator;
   readonly imageNameInput: Locator;
+  readonly tabContent: Locator;
+  readonly searchResultsTable: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -37,9 +39,11 @@ export class PullImagePage extends BasePage {
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
     this.imageNameInput = page.getByLabel('Image to Pull');
+    this.tabContent = page.getByRole('region', { name: 'Tab content', exact: true });
+    this.searchResultsTable = this.tabContent.getByRole('row');
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
+  async pullImage(imageName: string, tag = '', timeout = 60_000): Promise<ImagesPage> {
     const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
     await this.imageNameInput.fill(fullImageName);
     await playExpect(this.pullImageButton).toBeEnabled();
@@ -49,5 +53,54 @@ export class PullImagePage extends BasePage {
     await playExpect(doneButton).toBeEnabled({ timeout: timeout });
     await doneButton.click();
     return new ImagesPage(this.page);
+  }
+
+  async getAllSearchResultsFor(imageName: string, searchForVersion: boolean, imageTag = ''): Promise<string[]> {
+    if (!imageName || imageName.length === 0) {
+      throw new Error('Image name is invalid');
+    }
+
+    let searchString;
+
+    if (searchForVersion) {
+      searchString = `${imageName}:${imageTag}`;
+    } else {
+      searchString = imageName;
+    }
+
+    await this.imageNameInput.fill(searchString);
+    await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+
+    const resultList: string[] = [];
+    const resultRows = await this.getAllResultButtonLocators(searchString);
+    for (const row of resultRows) {
+      const result = await row.innerText();
+      resultList.push(result);
+    }
+
+    return resultList;
+  }
+
+  async pullImageFromSearchResults(pattern: string, timeout = 60_000): Promise<ImagesPage> {
+    const getExactButtonLocator = this.searchResultsTable.getByRole('button', { name: pattern, exact: true }).first();
+
+    await getExactButtonLocator.scrollIntoViewIfNeeded();
+    await getExactButtonLocator.focus();
+
+    await playExpect(getExactButtonLocator).toBeEnabled();
+    await getExactButtonLocator.click();
+
+    await playExpect(this.imageNameInput).toHaveText(pattern);
+    await playExpect(this.pullImageButton).toBeEnabled();
+    await this.pullImageButton.click();
+
+    const doneButton = this.page.getByRole('button', { name: 'Done' });
+    await playExpect(doneButton).toBeEnabled({ timeout: timeout });
+    await doneButton.click();
+    return new ImagesPage(this.page);
+  }
+
+  private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
+    return this.searchResultsTable.getByRole('button', { name: pattern }).all();
   }
 }
