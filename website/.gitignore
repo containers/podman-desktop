@@ -10,6 +10,7 @@
 # Generated files
 .docusaurus
 .cache-loader
+static/release-notes
 
 # Cache
 .eslintcache

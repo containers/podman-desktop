@@ -27,12 +27,34 @@ import type { V1Route } from '/@api/openshift-types';
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 
-const podmanPod: PodInfoUI = {
-  id: 'pod',
-  containers: [{ Id: 'pod' }],
-  status: 'RUNNING',
-  kind: 'podman',
-} as PodInfoUI;
+class Pod {
+  #status: string;
+  #actionError: string;
+  constructor(
+    public id: string,
+    public containers: { Id: string }[],
+    initialStatus: string,
+    public kind: string,
+    actionError: string,
+  ) {
+    this.#status = initialStatus;
+    this.#actionError = actionError;
+  }
+  set acitonError(error: string) {
+    this.#actionError = error;
+  }
+  get acitonError(): string {
+    return this.#actionError;
+  }
+  set status(status: string) {
+    this.#status = status;
+  }
+  get status() {
+    return this.#status;
+  }
+}
+
+const podmanPod: PodInfoUI = new Pod('pod', [{ Id: 'pod' }], 'RUNNING', 'podman', '') as unknown as PodInfoUI;
 
 const kubernetesPod: PodInfoUI = {
   id: 'pod',

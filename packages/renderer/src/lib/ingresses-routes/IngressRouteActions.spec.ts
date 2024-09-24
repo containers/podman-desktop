@@ -39,13 +39,24 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+class StatusHolder {
+  #status: string;
+  constructor(initialStatus: string) {
+    this.#status = initialStatus;
+  }
+  set status(status: string) {
+    this.#status = status;
+  }
+  get status(): string {
+    return this.#status;
+  }
+}
+
 test('Expect no error and status deleting ingress', async () => {
-  const ingressUI: IngressUI = {
-    name: 'my-ingress',
-    namespace: 'test-namespace',
-    status: 'RUNNING',
-    selected: false,
-  };
+  const ingressUI: IngressUI = new StatusHolder('RUNNING') as unknown as IngressUI;
+  ingressUI.name = 'my-ingress';
+  ingressUI.namespace = 'test-namespace';
+  ingressUI.selected = false;
 
   render(IngressRouteActions, { ingressRoute: ingressUI, onUpdate: updateMock });
 
@@ -59,19 +70,18 @@ test('Expect no error and status deleting ingress', async () => {
 });
 
 test('Expect no error and status deleting route', async () => {
-  const routeUI: RouteUI = {
-    name: 'my-route',
-    namespace: 'test-namespace',
-    status: 'RUNNING',
-    host: 'foo.bar.com',
-    port: '80',
-    to: {
-      kind: 'Service',
-      name: 'service',
-    },
-    selected: false,
-    tlsEnabled: false,
+  const routeUI: RouteUI = new StatusHolder('RUNNING') as unknown as RouteUI;
+  routeUI.name = 'my-route';
+  routeUI.namespace = 'test-namespace';
+  routeUI.status = 'RUNNING';
+  routeUI.host = 'foo.bar.com';
+  routeUI.port = '80';
+  routeUI.to = {
+    kind: 'Service',
+    name: 'service',
   };
+  routeUI.selected = false;
+  routeUI.tlsEnabled = false;
 
   render(IngressRouteActions, { ingressRoute: routeUI, onUpdate: updateMock });
 

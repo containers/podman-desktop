@@ -23,7 +23,9 @@ export class RunnerOptions {
   public readonly _autoUpdate: boolean;
   public readonly _autoCheckUpdates: boolean;
   public readonly _extensionsDisabled: string[];
+  public readonly _aiLabModelUploadDisabled: boolean;
   public readonly _binaryPath: string | undefined;
+  public readonly _customSettings: { [key: string]: unknown } = {};
 
   constructor({
     profile = '',
@@ -32,7 +34,9 @@ export class RunnerOptions {
     autoUpdate = true,
     autoCheckUpdates = true,
     extensionsDisabled = [],
+    aiLabModelUploadDisabled = false,
     binaryPath = undefined,
+    customSettings = {},
   }: {
     profile?: string;
     customFolder?: string;
@@ -40,7 +44,9 @@ export class RunnerOptions {
     autoUpdate?: boolean;
     autoCheckUpdates?: boolean;
     extensionsDisabled?: string[];
+    aiLabModelUploadDisabled?: boolean;
     binaryPath?: string;
+    customSettings?: { [key: string]: unknown };
   } = {}) {
     this._profile = profile;
     this._customFolder = customFolder;
@@ -48,7 +54,9 @@ export class RunnerOptions {
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdates = autoCheckUpdates;
     this._extensionsDisabled = extensionsDisabled;
+    this._aiLabModelUploadDisabled = aiLabModelUploadDisabled;
     this._binaryPath = binaryPath;
+    this._customSettings = customSettings;
   }
 
   public createSettingsJson(): string {
@@ -60,7 +68,9 @@ export class RunnerOptions {
         'extensions.autoUpdate': this._autoUpdate,
         'extensions.autoCheckUpdates': this._autoCheckUpdates,
         'extensions.disabled': this._extensionsDisabled,
+        'ai-lab.modelUploadDisabled': this._aiLabModelUploadDisabled,
         'podman.binary.path': this._binaryPath,
+        ...this._customSettings,
       });
     }
 
@@ -69,6 +79,8 @@ export class RunnerOptions {
       'extensions.autoUpdate': this._autoUpdate,
       'extensions.autoCheckUpdates': this._autoCheckUpdates,
       'extensions.disabled': this._extensionsDisabled,
+      'ai-lab.modelUploadDisabled': this._aiLabModelUploadDisabled,
+      ...this._customSettings,
     });
   }
 }

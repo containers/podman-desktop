@@ -1307,6 +1307,10 @@ export class ColorRegistry {
       dark: colorPalette.red[500],
       light: colorPalette.red[600],
     });
+    this.registerColor(`${state}info`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
   }
 
   // colors for image files explorer
