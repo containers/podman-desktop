@@ -2,8 +2,8 @@
 * @containers/podman-desktop-reviewers @benoitf
 
 # website
-website/** @containers/podman-desktop-reviewers @slemeur @cdrage @benoitf
-website/docs/** @containers/podman-desktop-reviewers @shipsing @slemeur @cdrage @benoitf
+website/** @containers/podman-desktop-reviewers @slemeur @cdrage @benoitf @Firewall
+website/docs/** @containers/podman-desktop-reviewers @shipsing @slemeur @cdrage @benoitf @Firewall
 
 # playwright tests
 tests/playwright/** @containers/podman-desktop-reviewers @containers/podman-desktop-qe-reviewers @benoitf
