@@ -22,4 +22,4 @@ export const isLinux = os.platform() === 'linux';
 export const isMac = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 
-export const isCI = process.env.CI ? process.env.CI : false;
+export const isCI = process.env.CI ? process.env.CI === 'true' : false;
