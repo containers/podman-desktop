@@ -38,7 +38,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Registries handling verification', () => {
+test.describe('Registries handling verification', () => {
   test('Check Registries page components and presence of default registries', async ({ navigationBar }) => {
     const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
@@ -52,39 +52,37 @@ test.describe.serial('Registries handling verification', () => {
     }
   });
 
+  test('Cannot add invalid registry', async ({ page, navigationBar }) => {
+    await navigationBar.openDashboard();
+    const settingsBar = await navigationBar.openSettings();
+    const registryPage = await settingsBar.openTabPage(RegistriesPage);
+
+    await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
+    const urlErrorMsg = page.getByText(
+      /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
+    );
+    await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
+    await playExpect(registryPage.cancelDialogButton).toBeEnabled();
+    await registryPage.cancelDialogButton.click();
+
+    await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
+    const credsErrorMsg = page.getByText('Wrong Username or Password.');
+    await playExpect(credsErrorMsg).toBeVisible();
+    await playExpect(registryPage.cancelDialogButton).toBeEnabled();
+    await registryPage.cancelDialogButton.click();
+  });
+
   test.describe.serial('Registry addition workflow verification', () => {
-    test('Cannot add invalid registry', async ({ page, navigationBar }) => {
-      await navigationBar.openDashboard();
-      const settingsBar = await navigationBar.openSettings();
-      const registryPage = await settingsBar.openTabPage(RegistriesPage);
+    test.skip(!canTestRegistry(), 'Registry tests are disabled');
 
-      await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
-      const urlErrorMsg = page.getByText(
-        /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
-      );
-      await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
-      await playExpect(registryPage.cancelDialogButton).toBeEnabled();
-      await registryPage.cancelDialogButton.click();
+    test('Valid registry addition verification', async ({ page }) => {
+      const registryPage = new RegistriesPage(page);
 
-      await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
-      const credsErrorMsg = page.getByText('Wrong Username or Password.');
-      await playExpect(credsErrorMsg).toBeVisible();
-      await playExpect(registryPage.cancelDialogButton).toBeEnabled();
-      await registryPage.cancelDialogButton.click();
-    });
+      await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
 
-    test.describe.serial(() => {
-      test.skip(!canTestRegistry(), 'Registry tests are disabled');
-
-      test('Valid registry addition verification', async ({ page }) => {
-        const registryPage = new RegistriesPage(page);
-
-        await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
-
-        const registryBox = registryPage.registriesTable.getByLabel(registryName);
-        const username = registryBox.getByText(registryUsername);
-        await playExpect(username).toBeVisible({ timeout: 50000 });
-      });
+      const registryBox = registryPage.registriesTable.getByLabel(registryName);
+      const username = registryBox.getByText(registryUsername);
+      await playExpect(username).toBeVisible({ timeout: 50000 });
     });
 
     test('Registry editing availability and invalid credentials verification', async ({ page }) => {
