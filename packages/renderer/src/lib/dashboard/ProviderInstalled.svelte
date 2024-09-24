@@ -148,6 +148,7 @@ function onInstallationClick() {
           </button>
           <button
             class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
+            aria-label="Installation options menu"
             on:click={() => updateOptionsMenu(!installationOptionsMenuVisible)}>
             <i class="fas fa-caret-down"></i>
           </button>
