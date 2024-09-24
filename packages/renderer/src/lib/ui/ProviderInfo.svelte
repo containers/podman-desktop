@@ -4,14 +4,16 @@ import { PodGroupInfoTypeUI } from '../pod/PodInfoUI';
 import Label from './Label.svelte';
 import ProviderInfoCircle from './ProviderInfoCircle.svelte';
 
+type ProviderNameType = 'docker' | 'podman' | 'kubernetes' | undefined;
+
 // provider: name of the provider (e.g. podman, docker, kubernetes)
 // context: only used for Kubernetes-like distros
 let { provider = '', context = '' }: { provider?: string; context?: string } = $props();
 
 // providerName: name of the provider in lowercase (e.g. podman, docker, kubernetes)
-let providerName: 'docker' | 'podman' | 'kubernetes' | undefined = $state(undefined);
+let providerName: ProviderNameType = $state(undefined);
 
-function getProviderName(providerName: string): 'docker' | 'podman' | 'kubernetes' | undefined {
+function getProviderName(providerName: string): ProviderNameType {
   switch (providerName?.toLowerCase()) {
     case ContainerGroupInfoTypeUI.PODMAN:
       return 'podman';
