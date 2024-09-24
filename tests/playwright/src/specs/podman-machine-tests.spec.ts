@@ -22,7 +22,7 @@ import { ResourceConnectionCardPage } from '../model/pages/resource-connection-c
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
-import { isLinux, isWindows } from '../utility/platform';
+import { isLinux } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
@@ -103,34 +103,14 @@ test.describe.serial(`Podman machine switching validation `, () => {
     });
 
     const podmanMachineCreatePage = new PodmanOnboardingPage(page);
-    await test.step('Fill in podman machine name input box', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineName).toBeVisible();
-      await podmanMachineCreatePage.podmanMachineName.clear();
-      await podmanMachineCreatePage.podmanMachineName.fill(ROOTLESS_PODMAN_MACHINE_VISIBLE);
-    });
-
-    await test.step('Set podman machine to be rootless', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).toBeChecked();
-      await podmanMachineCreatePage.podmanMachineRootfulCheckbox.locator('..').click();
-      await playExpect(podmanMachineCreatePage.podmanMachineRootfulCheckbox).not.toBeChecked();
-    });
-
-    if (isWindows) {
-      await test.step('Set podman machine to use user mode networking', async () => {
-        await playExpect(podmanMachineCreatePage.podmanMachineUserModeNetworkingCheckbox).not.toBeChecked();
-        await podmanMachineCreatePage.podmanMachineUserModeNetworkingCheckbox.locator('..').click();
-        await playExpect(podmanMachineCreatePage.podmanMachineUserModeNetworkingCheckbox).toBeChecked();
-      });
-    }
-
-    await test.step('Set podman machine to not start after creation', async () => {
-      await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
-      await podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox.locator('..').click();
-      await playExpect(podmanMachineCreatePage.podmanMachineStartAfterCreationCheckbox).not.toBeChecked();
-    });
 
     await test.step('Create podman machine', async () => {
-      await podmanMachineCreatePage.podmanMachineCreateButton.click();
+      await podmanMachineCreatePage.machineCreationForm.setupAndCreateMachine(
+        ROOTLESS_PODMAN_MACHINE_VISIBLE,
+        false,
+        false,
+        false,
+      );
       await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 180_000 });
       await podmanMachineCreatePage.goBackButton.click();
     });
@@ -222,7 +202,7 @@ test.describe.serial(`Podman machine switching validation `, () => {
       await handleConfirmationDialog(page, 'Podman', true, 'Yes');
       await handleConfirmationDialog(page, 'Podman', true, 'OK');
     } catch (error) {
-      console.log('No handing dialog displayed', error);
+      console.log('No handling dialog displayed', error);
     }
   });
 });

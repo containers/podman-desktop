@@ -120,18 +120,20 @@ test.describe.serial('Podman Machine verification', () => {
 
     test('Verify default podman machine settings', async () => {
       await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText(`Create a Podman machine`);
-      await playExpect(podmanOnboardingPage.podmanMachineConfiguration).toBeVisible();
-      await playExpect(podmanOnboardingPage.podmanMachineName).toHaveValue('podman-machine-default');
-      await playExpect(podmanOnboardingPage.podmanMachineImage).toHaveValue('');
-      await playExpect(podmanOnboardingPage.podmanMachineRootfulCheckbox).toBeChecked();
-      await playExpect(podmanOnboardingPage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
+      await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineConfiguration).toBeVisible();
+      await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineName).toHaveValue(
+        'podman-machine-default',
+      );
+      await playExpect(podmanOnboardingPage.machineCreationForm.imagePathBox).toHaveValue('');
+      await playExpect(podmanOnboardingPage.machineCreationForm.rootPriviledgesCheckbox).toBeChecked();
+      await playExpect(podmanOnboardingPage.machineCreationForm.startNowCheckbox).toBeChecked();
 
       if (os.platform() === 'win32') {
-        await playExpect(podmanOnboardingPage.podmanMachineUserModeNetworkingCheckbox).not.toBeChecked();
+        await playExpect(podmanOnboardingPage.machineCreationForm.userModeNetworkingCheckbox).not.toBeChecked();
       } else {
-        await playExpect(podmanOnboardingPage.podmanMachineCPUs).toBeVisible();
-        await playExpect(podmanOnboardingPage.podmanMachineMemory).toBeVisible();
-        await playExpect(podmanOnboardingPage.podmanMachineDiskSize).toBeVisible();
+        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineCPUs).toBeVisible();
+        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineMemory).toBeVisible();
+        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineDiskSize).toBeVisible();
       }
     });
   });
@@ -140,7 +142,7 @@ test.describe.serial('Podman Machine verification', () => {
 
     test('Create a default Podman machine', async () => {
       test.setTimeout(PODMAN_FULL_STARTUP_TIMEOUT);
-      await podmanOnboardingPage.podmanMachineCreateButton.click();
+      await podmanOnboardingPage.machineCreationForm.createMachineButton.click();
       await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
       await podmanOnboardingPage.podmanMachineShowLogsButton.click();
       await playExpect(podmanOnboardingPage.onboardingStatusMessage).toBeVisible({
