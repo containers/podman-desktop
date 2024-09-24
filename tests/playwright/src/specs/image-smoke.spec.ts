@@ -28,6 +28,8 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const helloContainer = 'quay.io/podman/hello';
 const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
+const imageToSearch = 'ghcr.io/linuxcontainers/alpine';
+const imageTagToSearch = 'latest';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +64,31 @@ test.describe.serial('Image workflow verification @smoke', () => {
     const exists = await updatedImages.waitForImageExists(helloContainer);
     playExpect(exists, `${helloContainer} image not present in the list of images`).toBeTruthy();
     playExpect(await updatedImages.getCurrentStatusOfImage(helloContainer)).toBe('UNUSED');
+  });
+
+  test('Pull image from search results', async ({ navigationBar }) => {
+    let imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const pullImagePage = await imagesPage.openPullImage();
+    await playExpect(pullImagePage.heading).toBeVisible();
+
+    const searchResults = await pullImagePage.getAllSearchResultsFor(imageToSearch, true);
+    playExpect(searchResults.length).toBeGreaterThan(0);
+
+    imagesPage = await pullImagePage.pullImageFromSearchResults(imageToSearch + ':' + imageTagToSearch);
+    await playExpect(imagesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await imagesPage.waitForImageExists(imageToSearch)).toBeTruthy();
+
+    const imageDetailPage = await imagesPage.openImageDetails(imageToSearch);
+    await playExpect(imageDetailPage.heading).toBeVisible();
+
+    imagesPage = await imageDetailPage.deleteImage();
+    await playExpect(imagesPage.heading).toBeVisible({ timeout: 30_000 });
+
+    await playExpect
+      .poll(async () => await imagesPage.waitForImageDelete(imageToSearch, 60_000), { timeout: 0 })
+      .toBeTruthy();
   });
 
   test('Test navigation between pages', async ({ navigationBar }) => {

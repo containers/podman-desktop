@@ -17,9 +17,8 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
-import type { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { DetailsPage } from './details-page';
 import { ImageEditPage } from './image-edit-page';
@@ -57,43 +56,28 @@ export class ImageDetailsPage extends DetailsPage {
   }
 
   async openRunImage(): Promise<RunImagePage> {
-    await playExpect(this.runImageButton).toBeEnabled({ timeout: 30000 });
-    await this.runImageButton.click();
-    return new RunImagePage(this.page, this.resourceName);
+    return await test.step('Open run image page', async () => {
+      await playExpect(this.runImageButton).toBeEnabled({ timeout: 30_000 });
+      await this.runImageButton.click();
+      return new RunImagePage(this.page, this.resourceName);
+    });
   }
 
   async openEditImage(): Promise<ImageEditPage> {
-    await playExpect(this.editButton).toBeEnabled({ timeout: 30000 });
-    await this.editButton.click();
-    return new ImageEditPage(this.page, this.resourceName);
+    return await test.step('Open edit image page', async () => {
+      await playExpect(this.editButton).toBeEnabled({ timeout: 30_000 });
+      await this.editButton.click();
+      return new ImageEditPage(this.page, this.resourceName);
+    });
   }
 
   async deleteImage(): Promise<ImagesPage> {
-    await playExpect(this.deleteButton).toBeEnabled({ timeout: 30000 });
-    await this.deleteButton.click();
-    await handleConfirmationDialog(this.page);
-    return new ImagesPage(this.page);
-  }
-
-  async buildDiskImage(pdRunner: PodmanDesktopRunner): Promise<[Page, Page]> {
-    await this.actionsButton.click();
-    await playExpect(this.buildDiskImageButton).toBeEnabled();
-    await this.buildDiskImageButton.click();
-
-    const webView = this.page.getByRole('document', { name: 'Bootable Containers' });
-    await playExpect(webView).toBeVisible();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const [mainPage, webViewPage] = pdRunner.getElectronApp().windows();
-    await mainPage.evaluate(() => {
-      const element = document.querySelector('webview');
-      if (element) {
-        (element as HTMLElement).focus();
-      } else {
-        console.log(`element is null`);
-      }
+    return await test.step('Delete image', async () => {
+      await playExpect(this.deleteButton).toBeEnabled({ timeout: 30_000 });
+      await this.deleteButton.click();
+      await handleConfirmationDialog(this.page);
+      return new ImagesPage(this.page);
     });
-
-    return [mainPage, webViewPage];
   }
 
   async saveImage(outputPath: string): Promise<ImagesPage> {
