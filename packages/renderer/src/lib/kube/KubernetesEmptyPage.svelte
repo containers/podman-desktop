@@ -19,11 +19,9 @@ import KubeIcon from '../images/KubeIcon.svelte';
 
     <div class="w-full justify-center flex flex-row space-x-3">
       {#each $providerInfos.filter(p => p.kubernetesProviderConnectionCreation) as provider}
-        <Link
-          onclick={() => router.goto(`/preferences/provider/${provider.internalId}`)}
-          aria-label="Create new {provider.kubernetesProviderConnectionCreationDisplayName ?? provider.name}">
-          {provider.kubernetesProviderConnectionCreationButtonTitle ?? 'Create new'}
-          {provider.kubernetesProviderConnectionCreationDisplayName ?? provider.name}...
+        {@const label = `${provider.kubernetesProviderConnectionCreationButtonTitle ?? 'Create new'} ${provider.kubernetesProviderConnectionCreationDisplayName ?? provider.name}...`}
+        <Link onclick={() => router.goto(`/preferences/provider/${provider.internalId}`)} aria-label={label}>
+          {label}
         </Link>
       {/each}
     </div>
