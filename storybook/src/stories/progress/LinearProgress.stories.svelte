@@ -21,4 +21,4 @@ setTemplate(template);
   <LinearProgress {...args} />
 {/snippet}
 
-<Story name="Example" />
+<Story name="Basic" />

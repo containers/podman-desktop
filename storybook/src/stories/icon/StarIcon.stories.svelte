@@ -20,4 +20,4 @@ setTemplate(template);
   <StarIcon {...args} />
 {/snippet}
 
-<Story name="Example" />
+<Story name="Basic" />

@@ -30,4 +30,4 @@ setTemplate(template);
   <CloseButton on:click={doClick} />
 {/snippet}
 
-<Story name="Example" />
+<Story name="Basic" />

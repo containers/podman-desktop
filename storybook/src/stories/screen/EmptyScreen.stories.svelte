@@ -55,7 +55,7 @@ setTemplate(template);
 {/snippet}
 
 <Story
-  name="Example"
+  name="Basic"
   args={{
     icon: faRocket,
   }} />

@@ -21,4 +21,4 @@ setTemplate(template);
   <Spinner {...args} />
 {/snippet}
 
-<Story name="Example" />
+<Story name="Basic" />
