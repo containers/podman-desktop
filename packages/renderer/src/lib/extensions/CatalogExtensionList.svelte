@@ -47,7 +47,7 @@ async function fetchCatalog() {
       class="grid min-[920px]:grid-cols-2 min-[1180px]:grid-cols-3 gap-3"
       role="region"
       aria-label="Catalog Extensions">
-      {#each catalogExtensions as catalogExtension}
+      {#each catalogExtensions as catalogExtension (catalogExtension.id)}
         <CatalogExtension catalogExtensionUI={catalogExtension} />
       {/each}
     </div>
