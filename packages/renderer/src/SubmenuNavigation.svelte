@@ -7,10 +7,13 @@ import type { NavigationRegistryEntry } from './stores/navigation/navigation-reg
 export let title: string;
 export let items: NavigationRegistryEntry[] | undefined;
 export let meta: TinroRouteMeta;
+export let mini: boolean = false;
 </script>
 
 <nav
-  class="z-1 w-leftsidebar min-w-leftsidebar flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 {mini
+    ? 'w-minileftsidebar min-w-minileftsidebar'
+    : 'w-leftsidebar min-w-leftsidebar'} flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label={title + ' Navigation Bar'}>
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-10">
@@ -20,7 +23,7 @@ export let meta: TinroRouteMeta;
       </p>
     </div>
   </div>
-  <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
+  <div class="h-full overflow-hidden hover:overflow-y-auto text-sm" style="margin-bottom:auto">
     {#each items ?? [] as item}
       <SettingsNavItem title={item.tooltip} href={item.link} selected={meta.url.startsWith(item.link)}
       ></SettingsNavItem>

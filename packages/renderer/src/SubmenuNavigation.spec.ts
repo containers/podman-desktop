@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import '@testing-library/jest-dom';
+
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { render, screen } from '@testing-library/svelte';
 import type { TinroRouteMeta } from 'tinro';
@@ -62,4 +64,30 @@ test('SubmenuNavigation displays a title and builds SettingsNavItem components',
     href: '/link2',
     selected: false,
   });
+});
+
+test('if mini=true is passed to SubmenuNavigation, it should render a mini version', async () => {
+  render(SubmenuNavigation, {
+    title: 'A title',
+    items: [
+      {
+        tooltip: 'entry 1',
+        link: '/link1',
+      } as unknown as NavigationRegistryEntry,
+      {
+        tooltip: 'entry 2',
+        link: '/link2',
+      } as unknown as NavigationRegistryEntry,
+    ],
+    meta: {
+      url: '/link1/subpath',
+    } as TinroRouteMeta,
+    mini: true,
+  });
+
+  // Expect w-minileftsidebar min-w-minileftsidebar classes to be present
+  // since 'mini' was passed as true
+  const miniLeftSidebar = screen.getByLabelText('A title Navigation Bar');
+  expect(miniLeftSidebar).toHaveClass('w-minileftsidebar');
+  expect(miniLeftSidebar).toHaveClass('min-w-minileftsidebar');
 });

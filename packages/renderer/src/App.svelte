@@ -117,7 +117,12 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
       {/if}
       {#each $navigationRegistry.filter(item => item.type === 'submenu') as navigationRegistryItem}
         {#if meta.url.startsWith(navigationRegistryItem.link) && navigationRegistryItem.items?.length}
-          <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} items={navigationRegistryItem.items} />
+          <!-- If the meta url starts with "kubernetes" we will pass mini=true to the submenu navigation to reduce the size of it for less whitespace -->
+          <SubmenuNavigation
+            meta={meta}
+            title={navigationRegistryItem.tooltip}
+            items={navigationRegistryItem.items}
+            mini={meta.url.startsWith('/kubernetes')} />
         {/if}
       {/each}
 
