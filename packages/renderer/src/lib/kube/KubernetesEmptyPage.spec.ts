@@ -42,7 +42,7 @@ vi.mock('tinro', () => {
   };
 });
 
-test('expect to call EmbeddableCatealogExtensionList for Kubernetes providers local and remote', () => {
+test('expect to call EmbeddableCatalogExtensionList for Kubernetes providers local and remote', () => {
   render(KubernetesEmptyPage);
   expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenCalledTimes(2);
   expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenNthCalledWith(

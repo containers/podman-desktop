@@ -24,6 +24,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import App from './App.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
@@ -170,7 +171,7 @@ test('do not display kubernetes empty screen if current context', async () => {
 test('displays kubernetes empty screen if no current context', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
     reachable: false,
-    error: 'no current context',
+    error: NO_CURRENT_CONTEXT_ERROR,
     resources: { pods: 0, deployments: 0 },
   } as ContextGeneralState);
 
