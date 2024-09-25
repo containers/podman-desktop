@@ -116,6 +116,9 @@ export type MachineJSON = {
   Default: boolean;
   VMType: string;
   UserModeNetworking?: boolean;
+  Port: number;
+  RemoteUsername: string;
+  IdentityPath: string;
 };
 
 export type ConnectionJSON = {
@@ -136,6 +139,9 @@ export type MachineInfo = {
   diskUsage: number;
   memoryUsage: number;
   vmType: string;
+  port: number;
+  remoteUsername: string;
+  identityPath: string;
 };
 
 export type MachineListOutput = {
@@ -278,6 +284,9 @@ export async function updateMachines(
           ? (machineInfo?.memoryUsed * 100) / machineInfo?.memory
           : 0,
       vmType: machine.VMType,
+      port: machine.Port,
+      remoteUsername: machine.RemoteUsername,
+      identityPath: machine.IdentityPath,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
