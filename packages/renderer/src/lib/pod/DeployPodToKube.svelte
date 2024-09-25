@@ -557,7 +557,7 @@ function updateKubeResult() {
             </div>
           {/if}
         </div>
-        <div class="text-[var(--pd-content-card-text)]">
+        <div class="text-[var(--pd-content-card-text)]" role="region" aria-label="Pod Deployment Status Info">
           {#if createdPod.metadata?.name}
             <p class="pt-2">Name: {createdPod.metadata.name}</p>
           {/if}
