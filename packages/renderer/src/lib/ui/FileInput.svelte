@@ -2,6 +2,7 @@
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, Input } from '@podman-desktop/ui-svelte';
+import { createEventDispatcher } from 'svelte';
 
 export let placeholder: string | undefined = undefined;
 export let id: string | undefined = undefined;
@@ -11,10 +12,13 @@ export let options: OpenDialogOptions;
 export let readonly: boolean = false;
 export let required: boolean = false;
 
+const dispatch = createEventDispatcher<{ change: string }>();
+
 async function openDialog() {
   const result = await window.openDialog(options);
   if (result?.[0]) {
     value = result[0];
+    dispatch('change', value);
   }
 }
 </script>

@@ -20,11 +20,13 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import * as svelte from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import FileInput from './FileInput.svelte';
 
 const openDialogMock = vi.fn();
+const dispatchMock = vi.fn();
 
 beforeAll(() => {
   (window as any).openDialog = openDialogMock;
@@ -43,6 +45,7 @@ test('Expect clicking the button opens file dialog', async () => {
 });
 
 test('Expect value to change when selecting via file dialog', async () => {
+  vi.spyOn(svelte, 'createEventDispatcher').mockReturnValue(dispatchMock);
   const filename = 'somefile';
   openDialogMock.mockResolvedValue([filename]);
 
@@ -57,4 +60,6 @@ test('Expect value to change when selecting via file dialog', async () => {
   const input = screen.getByRole('textbox');
   expect(input).toBeInTheDocument();
   expect(input).toHaveValue(filename);
+
+  expect(dispatchMock).toHaveBeenCalledWith('change', filename);
 });

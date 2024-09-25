@@ -9,20 +9,11 @@ export let record: IConfigurationPropertyRecordedSchema;
 export let value: string = '';
 export let onChange = async (_id: string, _value: string) => {};
 
-let lastValue: string;
-
 let invalidEntry = false;
 let dialogOptions: OpenDialogOptions = {
   title: `Select ${record.description}`,
   selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
 };
-
-$: if (value !== lastValue) {
-  if (record.id) {
-    onChange(record.id, value).catch((_: unknown) => (invalidEntry = true));
-  }
-  lastValue = value;
-}
 </script>
 
 <div class="w-full flex">
@@ -30,6 +21,11 @@ $: if (value !== lastValue) {
     id="input-standard-{record.id}"
     name={record.id}
     bind:value={value}
+    on:change={(e: CustomEvent<string>) => {
+      if (record.id) {
+        onChange(record.id, e.detail).catch((_: unknown) => (invalidEntry = true));
+      }
+    }}
     readonly={record.readonly ?? true}
     placeholder={record.placeholder}
     options={dialogOptions}
