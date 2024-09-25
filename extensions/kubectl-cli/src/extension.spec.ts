@@ -20,11 +20,10 @@
 import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { afterEach } from 'node:test';
 
 import type { CliToolSelectUpdate, Configuration, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as cliRun from './cli-run';
 import * as KubectlExtension from './extension';
