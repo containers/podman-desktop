@@ -13,57 +13,67 @@ This tutorial covers the following end-to-end tasks required to deploy an applic
 - Set the Kubernetes context
 - Creating a deployment
 - Creating a service
+- Verifying the service: port forwarding
 
 If you have multiple Kubernetes contexts, you must set the correct context in which you want to create your application resources. Within a Kubernetes cluster, you can access the application by its internal IP address. However, if you want to make your application accessible from an outside network, you must expose the pod containing your application as a Kubernetes service.
+To access the service running on your Kubernetes cluster, you can use one of the following options:
+
+- Port forwarding with CLI (covered in this tutorial)
+- [Create an ingress controller with UI](/docs/kind/building-an-image-and-testing-it-in-kind)
 
 ## Before you begin
 
-- [Installed Podman Desktop application](/docs/installation).
-- [A Podman machine](/docs/podman/creating-a-podman-machine).
+Make sure you have:
+
+- [Installed Podman Desktop](/docs/installation).
+- [A running Podman machine](/docs/podman/creating-a-podman-machine).
 - [A running Kubernetes cluster](/docs/kind/creating-a-kind-cluster).
-- A deployment YAML configuration for use. Create a `Deployment` file using the following code, if you do not have one on your machine:
+- A developer role.
+- Created a `Deployment` file using the following code, if you do not have one on your machine:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: my-nginx
 spec:
-  replicas: 3
   selector:
     matchLabels:
-      app: nginx
+      run: my-nginx
+  replicas: 2
   template:
     metadata:
       labels:
-        app: nginx
+        run: my-nginx
     spec:
       containers:
-        - name: nginx-container
-          image: nginx:latest
+        - name: my-nginx
+          image: nginx
           ports:
-            - containerPort: 8080
+            - containerPort: 80
 ```
 
-This YAML configuration creates a deployment running three NGINX pods.
+This YAML configuration creates a `my-nginx` deployment running two Nginx pods.
 
-- A service YAML configuration for use. Create a `Service` file using the following code, if you do not have one on your machine:
+- Created a `Service` file using the following code, if you do not have one on your machine:
 
 ```yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-service
+  name: my-nginx
+  labels:
+    run: my-nginx
 spec:
-  selector:
-    app.kubernetes.io/name: MyApp
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    run: my-nginx
 ```
 
-This YAML configuration creates a new service named `my-service` with the default ClusterIP service type. The service listens for client requests on port `80` and then forwards those requests to port `8080` on the container.
+This YAML configuration creates a service named `my-nginx` to expose the Nginx deployment outside the Kubernetes cluster. The service listens client requests on port `80` and then forwards them to a target port `80` on the container.
 
 ## Setting the Kubernetes context
 
@@ -79,11 +89,11 @@ This YAML configuration creates a new service named `my-service` with the defaul
 3. Select the YAML configuration file and click **Open**. A successful operation notification opens.
    ![notification](img/applied-yaml.png)
 4. Click **OK**.
-5. View the newly created deployment on the same page.
+5. View the newly created `my-nginx` deployment on the same page.
    ![new deployment](img/new-deployment.png)
 6. Restart the Podman Desktop application.
 7. Go to **Pods** from the left navigation pane.
-8. View the three newly created `nginx-deplyment` pods.
+8. View the two newly created `my-nginx` pods.
    ![new running pods](img/running-pods.png)
 
 ## Creating a service
@@ -94,3 +104,16 @@ This YAML configuration creates a new service named `my-service` with the defaul
 4. Click **OK**.
 5. View the newly created service on the same page.
    ![new service object](img/new-service-object.png)
+
+## Verifying the service: port forwarding
+
+1. Use the `kubectl port-forward` command to forward a local port to the service:
+
+```sh
+kubectl port-forward service/my-nginx 20000:80
+```
+
+2. Open a web browser.
+3. Enter the local host address, that is, _http://localhost:20000_.
+4. View the Nginx welcome page.
+   ![welcome page](img/welcome-page.png)

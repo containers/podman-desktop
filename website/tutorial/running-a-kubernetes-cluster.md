@@ -15,16 +15,19 @@ This tutorial covers the following end-to-end tasks required to run a Kubernetes
 - Applicable on Windows: Configure Podman on WSL
 - Creating and running a Kubernetes cluster
 
-You can use extensions, such as Kind, MiniKube, and others to start a local Kubernetes development cluster. When you have a running Kubernetes cluster, you can easily develop and test Kubernetes applications before deploying them to production. This tutorial focuses on creating a Kubernetes cluster using the Minikube extension.
+You can use extensions, such as Kind and Minikube to start a local Kubernetes development cluster. When you have a running Kubernetes cluster, you can easily develop and test Kubernetes applications before deploying them to production. This tutorial focuses on creating a Kubernetes cluster using the Minikube extension.
 
 ## Before you begin
 
-- [Installed Podman Desktop application](/docs/installation)
-- [A Podman machine](/docs/podman/creating-a-podman-machine)
+Make sure you have:
+
+- [Installed Podman Desktop](/docs/installation).
+- [A running Podman machine](/docs/podman/creating-a-podman-machine).
+- A developer role.
 
 ## Installing the extension
 
-1. Go to **extensions > Catalog**.
+1. Go to **Extensions > Catalog**.
 2. Click the **Install** icon to install the Minikube extension.
    ![install the extension](img/install-icon.png)
 
@@ -64,3 +67,9 @@ To use the Minikube tool on Windows, you must have a Podman machine running in r
 5. Click **Go back to resources**.
 6. View that your Minikube cluster is running and a new minikube context is added in the status bar.
    ![Kube context added](img/new-context-added.png)
+
+## Additional resources
+
+- [Working with a Kind cluster](/docs/kind)
+- [Working with a Minikube cluster](/docs/minikube)
+- [Working with a Lima cluster](/docs/lima)
