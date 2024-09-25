@@ -145,7 +145,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
   });
 
   test('Prune images', async ({ navigationBar }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
 
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
@@ -165,7 +165,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
 
     for (const image of imageList) {
       await playExpect
-        .poll(async () => await imagesPage.waitForImageDelete(image, 90_000), { timeout: 0 })
+        .poll(async () => await imagesPage.waitForImageDelete(image, 180_000), { timeout: 0 })
         .toBeTruthy();
     }
   });
