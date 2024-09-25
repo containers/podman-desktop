@@ -609,8 +609,8 @@ export class ColorRegistry {
       light: colorPalette.gray[100],
     });
     this.registerColor(`${sNav}disabled-bg`, {
-      dark: colorPalette.charcoal[900],
-      light: colorPalette.charcoal[900],
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
     });
     this.registerColor(`${sNav}hover-bg`, {
       dark: colorPalette.transparent,
@@ -618,31 +618,31 @@ export class ColorRegistry {
     });
     this.registerColor(`${sNav}focused-text`, {
       dark: colorPalette.white,
-      light: colorPalette.gray[900],
+      light: colorPalette.charcoal[900],
     });
     this.registerColor(`${sNav}error-text`, {
       dark: colorPalette.red[500],
       light: colorPalette.red[500],
     });
     this.registerColor(`${sNav}disabled-text`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.gray[900],
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.gray[700],
     });
     this.registerColor(`${sNav}hover-text`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.gray[900],
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}placeholder-text`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.gray[900],
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}stroke`, {
       dark: colorPalette.charcoal[400],
-      light: colorPalette.charcoal[400],
+      light: colorPalette.gray[700],
     });
     this.registerColor(`${sNav}hover-stroke`, {
       dark: colorPalette.purple[400],
-      light: colorPalette.purple[400],
+      light: colorPalette.purple[500],
     });
     this.registerColor(`${sNav}stroke-error`, {
       dark: colorPalette.red[500],
@@ -653,20 +653,20 @@ export class ColorRegistry {
       light: colorPalette.charcoal[100],
     });
     this.registerColor(`${sNav}icon`, {
-      dark: colorPalette.gray[500],
-      light: colorPalette.gray[500],
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}focused-icon`, {
       dark: colorPalette.gray[500],
-      light: colorPalette.gray[500],
+      light: colorPalette.purple[600],
     });
     this.registerColor(`${sNav}disabled-icon`, {
-      dark: colorPalette.gray[500],
-      light: colorPalette.gray[500],
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.gray[700],
     });
     this.registerColor(`${sNav}hover-icon`, {
-      dark: colorPalette.gray[500],
-      light: colorPalette.gray[500],
+      dark: colorPalette.gray[700],
+      light: colorPalette.purple[600],
     });
   }
 
