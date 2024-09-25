@@ -2463,6 +2463,9 @@ test('getJSONMachineList should only get machines from wsl if hyperv is not enab
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
     {
       Name: 'podman-machine-1',
@@ -2473,6 +2476,9 @@ test('getJSONMachineList should only get machines from wsl if hyperv is not enab
       Starting: false,
       Default: false,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
   ];
   const execPodmanSpy = vi.spyOn(util, 'execPodman').mockResolvedValue({
@@ -2521,6 +2527,9 @@ test('getJSONMachineList should only get machines from hyperv if wsl is not enab
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
     {
       Name: 'podman-machine-1',
@@ -2531,6 +2540,9 @@ test('getJSONMachineList should only get machines from hyperv if wsl is not enab
       Starting: false,
       Default: false,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
   ];
   const execPodmanSpy = vi.spyOn(util, 'execPodman').mockResolvedValue({
@@ -2580,6 +2592,9 @@ test('getJSONMachineList should get machines from hyperv and wsl if both are ena
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
     {
       Name: 'podman-machine-1',
@@ -2590,6 +2605,9 @@ test('getJSONMachineList should get machines from hyperv and wsl if both are ena
       Starting: false,
       Default: false,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
   ];
   const execPodmanSpy = vi.spyOn(util, 'execPodman').mockResolvedValue({
