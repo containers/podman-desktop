@@ -17,20 +17,24 @@
  ***********************************************************************/
 
 import type { KubernetesObject } from '@kubernetes/client-node';
+import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
+import { type ContextGeneralState, NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
+import * as kubeContextStore from '../kubernetes-contexts-state';
 import { createNavigationKubernetesGroup } from './navigation-registry-kubernetes.svelte';
+
+vi.mock('../kubernetes-contexts-state', async () => {
+  return {};
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
 });
 
-const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
-
-test('createNavigationImageEntry', async () => {
+test('createNavigationImageEntry with current context', async () => {
   const nodes: KubernetesObject[] = [
     {
       apiVersion: 'v1',
@@ -47,7 +51,15 @@ test('createNavigationImageEntry', async () => {
       },
     },
   ];
-  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue(nodes);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable<ContextGeneralState>({} as ContextGeneralState);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextNodes = readable<KubernetesObject[]>(nodes);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextServices = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
 
   const entry = createNavigationKubernetesGroup();
 
@@ -58,5 +70,30 @@ test('createNavigationImageEntry', async () => {
   // should have 6 items
   await vi.waitFor(() => {
     expect(entry.items?.length).toBe(6);
+  });
+});
+
+test('createNavigationImageEntry without current context', async () => {
+  vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable<ContextGeneralState>({
+    error: NO_CURRENT_CONTEXT_ERROR,
+  } as ContextGeneralState);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextNodes = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextServices = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+
+  const entry = createNavigationKubernetesGroup();
+
+  expect(entry).toBeDefined();
+  expect(entry.name).toBe('Kubernetes');
+  expect(entry.icon.iconComponent).toBe(KubeIcon);
+
+  // should have 0 items
+  await vi.waitFor(() => {
+    expect(entry.items?.length).toBe(0);
   });
 });

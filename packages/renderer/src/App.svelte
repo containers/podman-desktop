@@ -116,7 +116,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <PreferencesNavigation meta={meta} />
       {/if}
       {#each $navigationRegistry.filter(item => item.type === 'submenu') as navigationRegistryItem}
-        {#if meta.url.startsWith(navigationRegistryItem.link)}
+        {#if meta.url.startsWith(navigationRegistryItem.link) && navigationRegistryItem.items?.length}
           <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} items={navigationRegistryItem.items} />
         {/if}
       {/each}

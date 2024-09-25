@@ -25,16 +25,20 @@ import { configurationProperties } from '../configurationProperties';
 import { fetchNavigationRegistries, navigationRegistry } from './navigation-registry';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
+const kubernetesGetCurrentContextGeneralStateMock = vi.fn();
+
 const getConfigurationValueMock = vi.fn();
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  (window as any).window.kubernetesGetCurrentContextGeneralState = kubernetesGetCurrentContextGeneralStateMock;
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).sendNavigationItems = vi.fn();
 });
 
 test('check navigation registry items', async () => {
   kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([]);
+  kubernetesGetCurrentContextGeneralStateMock.mockResolvedValue({});
   await fetchNavigationRegistries();
   const registries = get(navigationRegistry);
   // expect 7 items in the registry
