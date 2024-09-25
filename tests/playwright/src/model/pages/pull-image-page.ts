@@ -106,6 +106,12 @@ export class PullImagePage extends BasePage {
     });
   }
 
+  async clearImageSearch(): Promise<void> {
+    await this.imageNameInput.clear();
+    await playExpect(this.imageNameInput).toHaveValue('');
+    await playExpect(this.searchResultsTable).not.toBeVisible();
+  }
+
   private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
     return this.searchResultsTable.getByRole('button', { name: pattern }).all();
   }
