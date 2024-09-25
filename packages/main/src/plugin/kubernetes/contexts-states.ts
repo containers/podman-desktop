@@ -24,7 +24,7 @@ import type {
   ResourceName,
   SecondaryResourceName,
 } from '/@api/kubernetes-contexts-states.js';
-import { secondaryResources } from '/@api/kubernetes-contexts-states.js';
+import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '/@api/kubernetes-contexts-states.js';
 
 // ContextInternalState stores informers for a kube context
 export type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
@@ -114,7 +114,7 @@ export class ContextsStates {
     }
     return {
       reachable: false,
-      error: 'no current context',
+      error: NO_CURRENT_CONTEXT_ERROR,
       resources: { pods: 0, deployments: 0 },
     };
   }

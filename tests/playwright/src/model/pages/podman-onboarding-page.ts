@@ -18,21 +18,13 @@
 
 import type { Locator, Page } from '@playwright/test';
 
+import { MachineCreationForm } from './forms/machine-creation-form';
 import { OnboardingPage } from './onboarding-page';
 
 export class PodmanOnboardingPage extends OnboardingPage {
   readonly podmanAutostartToggle: Locator;
   readonly createMachinePageTitle: Locator;
-  readonly podmanMachineConfiguration: Locator;
-  readonly podmanMachineName: Locator;
-  readonly podmanMachineCPUs: Locator;
-  readonly podmanMachineMemory: Locator;
-  readonly podmanMachineDiskSize: Locator;
-  readonly podmanMachineImage: Locator;
-  readonly podmanMachineRootfulCheckbox: Locator;
-  readonly podmanMachineUserModeNetworkingCheckbox: Locator;
-  readonly podmanMachineStartAfterCreationCheckbox: Locator;
-  readonly podmanMachineCreateButton: Locator;
+  readonly machineCreationForm: MachineCreationForm;
   readonly podmanMachineShowLogsButton: Locator;
   readonly goBackButton: Locator;
 
@@ -42,23 +34,7 @@ export class PodmanOnboardingPage extends OnboardingPage {
       name: 'Autostart Podman engine when launching Podman Desktop',
     });
     this.createMachinePageTitle = this.onboardingComponent.getByLabel('title');
-    this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
-    this.podmanMachineName = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
-    this.podmanMachineCPUs = this.podmanMachineConfiguration.getByRole('slider', { name: 'CPU(s)' });
-    this.podmanMachineMemory = this.podmanMachineConfiguration.getByRole('slider', { name: 'Memory' });
-    this.podmanMachineDiskSize = this.podmanMachineConfiguration.getByRole('slider', { name: 'Disk size' });
-    this.podmanMachineImage = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Image Path (Optional)' });
-    this.podmanMachineRootfulCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', {
-      name: 'Machine with root privileges',
-    });
-    this.podmanMachineUserModeNetworkingCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', {
-      name: 'User mode networking',
-      exact: false,
-    });
-    this.podmanMachineStartAfterCreationCheckbox = this.podmanMachineConfiguration.getByRole('checkbox', {
-      name: 'Start the machine now',
-    });
-    this.podmanMachineCreateButton = this.podmanMachineConfiguration.getByRole('button', { name: 'Create' });
+    this.machineCreationForm = new MachineCreationForm(this.page);
     this.podmanMachineShowLogsButton = this.mainPage.getByRole('button', { name: 'Show Logs' });
     this.goBackButton = this.page.getByRole('button', { name: 'Go back to resources' });
   }

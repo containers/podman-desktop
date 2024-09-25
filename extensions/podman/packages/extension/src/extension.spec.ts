@@ -89,6 +89,9 @@ const machineInfo: extension.MachineInfo = {
   diskUsage: 0,
   memoryUsage: 0,
   vmType: VMTYPE.LIBKRUN,
+  port: 1234,
+  remoteUsername: 'user',
+  identityPath: '/path/to/key',
 };
 
 const podmanConfiguration = {} as unknown as PodmanConfiguration;
@@ -129,6 +132,9 @@ beforeEach(() => {
       Starting: false,
       Default: false,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
     {
       Name: machine1Name,
@@ -139,6 +145,9 @@ beforeEach(() => {
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 456,
+      RemoteUsername: 'admin',
+      IdentityPath: '/path/to/key1',
     },
   ];
 
@@ -514,6 +523,9 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
     {
       Name: 'podman-machine-1',
@@ -524,6 +536,9 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
       Starting: false,
       Default: false,
       VMType: VMTYPE.LIBKRUN,
+      Port: 456,
+      RemoteUsername: 'admin',
+      IdentityPath: '/path/to/key`',
     },
   ];
 
@@ -929,6 +944,9 @@ test('test checkDefaultMachine, if the default connection is not in sync with th
       Starting: false,
       Default: true,
       VMType: VMTYPE.LIBKRUN,
+      Port: 123,
+      RemoteUsername: 'user',
+      IdentityPath: '/path/to/key',
     },
   ];
 

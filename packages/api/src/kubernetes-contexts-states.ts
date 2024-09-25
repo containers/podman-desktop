@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export const NO_CURRENT_CONTEXT_ERROR = 'no current context';
+
 // CheckingState indicates the state of the check for a context
 export interface CheckingState {
   state: 'waiting' | 'checking' | 'gaveup';
