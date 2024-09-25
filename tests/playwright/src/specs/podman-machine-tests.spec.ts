@@ -105,12 +105,11 @@ test.describe.serial(`Podman machine switching validation `, () => {
     const podmanMachineCreatePage = new PodmanOnboardingPage(page);
 
     await test.step('Create podman machine', async () => {
-      await podmanMachineCreatePage.machineCreationForm.setupAndCreateMachine(
-        ROOTLESS_PODMAN_MACHINE_VISIBLE,
-        false,
-        false,
-        false,
-      );
+      await podmanMachineCreatePage.machineCreationForm.setupAndCreateMachine(ROOTLESS_PODMAN_MACHINE_VISIBLE, {
+        isRootful: false,
+        enableUserNet: true,
+        startNow: false,
+      });
       await playExpect(podmanMachineCreatePage.goBackButton).toBeEnabled({ timeout: 180_000 });
       await podmanMachineCreatePage.goBackButton.click();
     });
