@@ -107,9 +107,11 @@ export class PullImagePage extends BasePage {
   }
 
   async clearImageSearch(): Promise<void> {
-    await this.imageNameInput.clear();
-    await playExpect(this.imageNameInput).toHaveValue('');
-    await playExpect(this.searchResultsTable).not.toBeVisible();
+    await test.step('Clear image search', async () => {
+      await this.imageNameInput.clear();
+      await playExpect(this.imageNameInput).toHaveValue('');
+      await playExpect(this.searchResultsTable).not.toBeVisible();
+    });
   }
 
   private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
