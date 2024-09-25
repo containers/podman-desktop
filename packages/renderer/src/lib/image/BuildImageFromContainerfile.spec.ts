@@ -20,12 +20,10 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { beforeEach } from 'node:test';
-
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
 import { buildImagesInfo } from '/@/stores/build-images';

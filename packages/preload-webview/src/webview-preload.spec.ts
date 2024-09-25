@@ -18,13 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { afterEach } from 'node:test';
-
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 import type { MockInstance } from 'vitest';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ColorInfo } from '/@api/color-info';
 import type { WebviewInfo } from '/@api/webview-info';

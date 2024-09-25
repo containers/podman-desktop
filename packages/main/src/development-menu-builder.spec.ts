@@ -16,10 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach } from 'node:test';
-
 import type { BrowserWindow, ContextMenuParams, MenuItem } from 'electron';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { buildDevelopmentMenu } from './development-menu-builder.js';
 
