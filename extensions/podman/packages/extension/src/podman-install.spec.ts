@@ -639,10 +639,33 @@ describe('HyperV', () => {
     expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
   });
 
+  test('expect HyperV preflight check return failure result if Podman Desktop is not run with elevated privileges', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal(
+      'You must run Podman Desktop with administrative rights to run Hyper-V Podman machines.',
+    );
+    expect(result.docLinks).toBeUndefined();
+  });
+
   test('expect HyperV preflight check return failure result if HyperV not installed', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ === 0) {
+      if (index++ <= 1) {
         return Promise.resolve({
           stdout: 'True',
           stderr: '',
@@ -666,7 +689,7 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return failure result if HyperV not running', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 2) {
+      if (index++ <= 2) {
         return Promise.resolve({
           stdout: 'True',
           stderr: '',
@@ -690,9 +713,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return OK', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 3) {
+      if (index++ < 4) {
         return Promise.resolve({
-          stdout: index === 3 ? 'Running' : 'True',
+          stdout: index === 4 ? 'Running' : 'True',
           stderr: '',
           command: 'command',
         });
