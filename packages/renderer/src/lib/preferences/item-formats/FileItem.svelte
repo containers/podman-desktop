@@ -14,6 +14,12 @@ let dialogOptions: OpenDialogOptions = {
   title: `Select ${record.description}`,
   selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
 };
+
+function onChangeFileInput(value: string): void {
+  if (record.id) {
+    onChange(record.id, value).catch((_: unknown) => (invalidEntry = true));
+  }
+}
 </script>
 
 <div class="w-full flex">
@@ -21,11 +27,7 @@ let dialogOptions: OpenDialogOptions = {
     id="input-standard-{record.id}"
     name={record.id}
     bind:value={value}
-    onChange={(value: string) => {
-      if (record.id) {
-        onChange(record.id, value).catch((_: unknown) => (invalidEntry = true));
-      }
-    }}
+    onChange={onChangeFileInput}
     readonly={record.readonly ?? true}
     placeholder={record.placeholder}
     options={dialogOptions}
