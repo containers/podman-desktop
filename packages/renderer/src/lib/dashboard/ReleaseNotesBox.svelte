@@ -37,13 +37,13 @@ async function getInfoFromNotes() {
 }
 
 function onclose() {
-  window.updateConfigurationValue(`releaseNotesBanner.show.${currentVersion}`, false);
+  window.updateConfigurationValue(`releaseNotesBanner.show`, currentVersion);
   showBanner = false;
 }
 
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
-  showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show.${currentVersion}`)) ?? true;
+  showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show`)) !== currentVersion ? true : false;
   window
     .podmanDesktopUpdateAvailable()
     .then(available => (updateAvilable = available))

@@ -45,7 +45,7 @@ beforeEach(() => {
   (window as any).podmanDesktopOpenReleaseNotes = podmanDesktopOpenReleaseNotesMock;
   (window as any).updatePodmanDesktop = updatePodmanDesktopMock;
   (window as any).updateConfigurationValue = updateConfigurationValueMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(true);
+  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue('show');
   (global as any).fetch = fetchMock.mockImplementation(() =>
     Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
   );
@@ -57,7 +57,7 @@ beforeEach(() => {
 test('expect banner to be visible', async () => {
   render(ReleaseNotesBox);
   await tick();
-  expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show.1.1.0');
+  expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show');
   await waitFor(() => expect(fetchMock).toBeCalledWith('https://podman-desktop.io/release-notes/1.1.json'));
   await waitFor(() => expect(fetchJSONMock).toBeCalled());
   await tick();
@@ -106,7 +106,7 @@ test('expect clicking on close button to not show banner anymore', async () => {
   const closeButton = screen.getByRole('button', { name: 'Close' });
   await userEvent.click(closeButton);
   await tick();
-  expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show.1.1.0', false);
+  expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show', '1.1.0');
   expect(screen.queryByText(responsJSON.title)).not.toBeInTheDocument();
   expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
 });
