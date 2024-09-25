@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
@@ -41,16 +41,18 @@ export class ImageEditPage extends BasePage {
   }
 
   async renameImage(name: string): Promise<ImagesPage> {
-    if (!name) {
-      throw Error(`Provide name is invalid!`);
-    }
+    return await test.step('Rename image', async () => {
+      if (!name) {
+        throw Error(`Provide name is invalid!`);
+      }
 
-    await playExpect(this.saveButton).toBeVisible();
-    await this.imageName.clear();
-    await this.imageName.fill(name);
+      await playExpect(this.saveButton).toBeVisible();
+      await this.imageName.clear();
+      await this.imageName.fill(name);
 
-    await playExpect(this.saveButton).toBeEnabled();
-    await this.saveButton.click();
-    return new ImagesPage(this.page);
+      await playExpect(this.saveButton).toBeEnabled();
+      await this.saveButton.click();
+      return new ImagesPage(this.page);
+    });
   }
 }

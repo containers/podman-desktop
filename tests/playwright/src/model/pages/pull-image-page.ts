@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
@@ -28,6 +28,9 @@ export class PullImagePage extends BasePage {
   readonly backToImagesLink: Locator;
   readonly manageRegistriesButton: Locator;
   readonly imageNameInput: Locator;
+  readonly tabContent: Locator;
+  readonly searchResultsTable: Locator;
+  readonly doneButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -37,17 +40,81 @@ export class PullImagePage extends BasePage {
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
     this.imageNameInput = page.getByLabel('Image to Pull');
+    this.tabContent = page.getByRole('region', { name: 'Tab Content', exact: true });
+    this.searchResultsTable = this.tabContent.getByRole('row');
+    this.doneButton = page.getByRole('button', { name: 'Done', exact: true });
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
-    const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
-    await this.imageNameInput.fill(fullImageName);
-    await playExpect(this.pullImageButton).toBeEnabled();
-    await this.pullImageButton.click();
+  async pullImage(imageName: string, tag = '', timeout = 60_000): Promise<ImagesPage> {
+    return test.step(`Pulling image ${imageName}:${tag}`, async () => {
+      const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
+      await this.imageNameInput.fill(fullImageName);
+      await playExpect(this.pullImageButton).toBeEnabled();
+      await this.pullImageButton.click();
 
-    const doneButton = this.page.getByRole('button', { name: 'Done' });
-    await playExpect(doneButton).toBeEnabled({ timeout: timeout });
-    await doneButton.click();
-    return new ImagesPage(this.page);
+      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
+      await this.doneButton.click();
+      return new ImagesPage(this.page);
+    });
+  }
+
+  async getAllSearchResultsFor(imageName: string, searchForVersion: boolean, imageTag = ''): Promise<string[]> {
+    return await test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
+      if (!imageName || imageName.length === 0) {
+        throw new Error('Image name is invalid');
+      }
+
+      let searchString;
+
+      if (searchForVersion) {
+        searchString = `${imageName}:${imageTag}`;
+      } else {
+        searchString = imageName;
+      }
+
+      await this.imageNameInput.fill(searchString);
+      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+
+      const resultList: string[] = [];
+      const resultRows = await this.getAllResultButtonLocators(searchString);
+      for (const row of resultRows) {
+        const result = await row.innerText();
+        resultList.push(result);
+      }
+
+      return resultList;
+    });
+  }
+
+  async pullImageFromSearchResults(pattern: string, timeout = 60_000): Promise<ImagesPage> {
+    return await test.step(`Pull image from search results: ${pattern}`, async () => {
+      const getExactButtonLocator = this.searchResultsTable.getByRole('button', { name: pattern, exact: true }).first();
+
+      await getExactButtonLocator.scrollIntoViewIfNeeded();
+      await getExactButtonLocator.focus();
+
+      await playExpect(getExactButtonLocator).toBeEnabled();
+      await getExactButtonLocator.click();
+
+      await playExpect(this.imageNameInput).toHaveValue(pattern);
+      await playExpect(this.pullImageButton).toBeEnabled();
+      await this.pullImageButton.click();
+
+      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
+      await this.doneButton.click();
+      return new ImagesPage(this.page);
+    });
+  }
+
+  async clearImageSearch(): Promise<void> {
+    await test.step('Clear image search', async () => {
+      await this.imageNameInput.clear();
+      await playExpect(this.imageNameInput).toHaveValue('');
+      await playExpect(this.searchResultsTable).not.toBeVisible();
+    });
+  }
+
+  private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
+    return this.searchResultsTable.getByRole('button', { name: pattern }).all();
   }
 }
