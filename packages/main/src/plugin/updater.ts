@@ -162,7 +162,7 @@ export class Updater {
         buttons: ['View release notes'],
       });
       if (result.response === 0) {
-        await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show.${app.getVersion()}`, true);
+        await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
         console.log(`this.apiSender.send('show-release-notes');`);
       }
     });
