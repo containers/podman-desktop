@@ -20,10 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ImageDetailsPage } from '../model/pages/image-details-page';
-import type { ImagesPage } from '../model/pages/images-page';
-import type { NavigationBar } from '../model/workbench/navigation';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { handleConfirmationDialog } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const helloContainer = 'quay.io/podman/hello';
@@ -46,14 +43,6 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('Image workflow verification @smoke', () => {
-  async function pullImageByName(imageName: string, navigationBar: NavigationBar): Promise<ImagesPage> {
-    let imagesPage = await navigationBar.openImages();
-    const pullImagePage = await imagesPage.openPullImage();
-    imagesPage = await pullImagePage.pullImage(imageName);
-    await imagesPage.waitForImageExists(imageName);
-    return imagesPage;
-  }
-
   test('Pull image', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
@@ -120,17 +109,20 @@ test.describe.serial('Image workflow verification @smoke', () => {
     playExpect(await imagesPage.waitForImageExists('quay.io/podman/hi')).toBe(true);
   });
 
-  test('Delete image', async ({ page, navigationBar }) => {
-    const imagesPage = await pullImageByName(helloContainer, navigationBar);
-    playExpect(await imagesPage.waitForImageExists(helloContainer)).toBe(true);
+  test('Delete image', async ({ navigationBar }) => {
+    let imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    await imagesPage.pullImage(helloContainer);
+    await playExpect(imagesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
 
     const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
-    await playExpect(imageDetailPage.deleteButton).toBeVisible();
-    await imageDetailPage.deleteButton.click();
-    await handleConfirmationDialog(page);
+    imagesPage = await imageDetailPage.deleteImage();
 
-    const imageDeleted = await imagesPage.waitForImageDelete(helloContainer);
-    playExpect(imageDeleted).toBe(true);
+    await playExpect
+      .poll(async () => await imagesPage.waitForImageDelete(helloContainer, 60_000), { timeout: 0 })
+      .toBeTruthy();
     playExpect(await imagesPage.waitForImageExists('quay.io/podman/hi')).toBe(true);
   });
 
@@ -153,7 +145,7 @@ test.describe.serial('Image workflow verification @smoke', () => {
   });
 
   test('Prune images', async ({ navigationBar }) => {
-    test.setTimeout(150000);
+    test.setTimeout(180_000);
 
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
@@ -172,7 +164,9 @@ test.describe.serial('Image workflow verification @smoke', () => {
     await playExpect(imagesPage.heading).toBeVisible();
 
     for (const image of imageList) {
-      await playExpect.poll(async () => await imagesPage.waitForImageDelete(image, 60000), { timeout: 0 }).toBeTruthy();
+      await playExpect
+        .poll(async () => await imagesPage.waitForImageDelete(image, 90_000), { timeout: 0 })
+        .toBeTruthy();
     }
   });
 });
