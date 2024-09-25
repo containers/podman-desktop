@@ -12,18 +12,11 @@ With Podman Desktop, you can configure a Docker-compatible environment to run yo
 
 As a developer, you can:
 
-- Set the Docker compatibility mode to emulate a Docker API socket connection to the `var/run/docker.sock` default path.
+- Check the socket mapping status along with socket details, such as client name, Docker version, and OS/Arch.
 - Use all Docker commands with Podman. For example, you can use the `podman run` command in place of `docker run` command to start a container.
-- Use Docker Compose commands with Podman. For example, you can use the `podman compose up` command in place of `docker compose up` command to start your Docker application. You can place your Docker Compose file in a _/var/compose/_ directory so that Podman can access it.
-- Use third-party tools, such as Maven or Testcontainers with the Podman engine without any reconfiguration. These tools can connect to the default Podman socket.
-- Set a custom socket path. The default socket path is accessible to any user of the machine. By changing the path, you can restrict access to the socket and secure your Podman configuration.
-- Restore the Docker socket mapping to bind the Podman socket under the Docker socket path. For example, you might face a scenario where Podman does not emulate the default socket path and shows a warning to restore the Docker socket mapping in the UI.
-
-:::note
-
-The Docker compatibility mode is enabled by default. However, you can customize the settings, if required.
-
-:::
+- Use Docker Compose commands with Podman by installing and setting up the [Compose extension](/docs/compose). For example, you can use the `podman compose up` command in place of `docker compose up` command to start your Docker application. You can place your Docker Compose file in a _/var/compose/_ directory so that Podman can access it. If the Compose CLI is not installed, you get the install option in the **Docker Compatibility** settings.
+- Use third-party Docker tools, such as Maven or Testcontainers with the Podman engine without any reconfiguration. These tools connect to the default Podman socket. By default, third-party Docker tool compatibility is enabled on macOS.
+- Select and use a Docker-compatible socket context. You can also view the socket details, such as name and socket path.
 
 #### Prerequisites
 
@@ -32,15 +25,18 @@ The Docker compatibility mode is enabled by default. However, you can customize 
 #### Procedure
 
 1. Go to **Settings > Docker Compatibility**.
-2. Customize Docker preferences settings:
-   - **Docker compatibility mode for Podman**: When enabled, Podman handles all CLI requests coming to the system Docker host.
-   - **Docker CLI emulation with Podman**: When enabled, you can run Docker commands.
-   - **Docker Compose compatibility**: When enabled, you can run Docker Compose commands.
-3. Customize socket mapping settings:
-   - Check the status of the Docker-compatible socket whether it is active.
-   - Select a custom socket path, if required.
-   - Click the **Restore** button to restore the default socket mapping configuration.
+2. **Socket Mapping Status** setting: View the socket mapping status to check whether the socket is reachable.
+3. **Third-Party Docker Tool Compatibility** setting: Customize the setting, if needed. When enabled, you can use third-party Docker tools with Podman.
+
+   :::note
+
+   This setting is available if you use Podman Desktop on macOS.
+
+   :::
+
+4. **Podman Compose CLI Support** setting: Check whether the Podman Compose CLI is supported. If not, use the **Install** icon to install and set up the Podman CLI.
+5. **Docker CLI Context** setting: Select a socket context to work with from the dropdown list.
 
 #### Verification
 
-- Run `podman` or `podman compose up` commands for your Docker workload to check if they run fine.
+- Run `podman` or `podman compose` commands for your Docker workload to check if they run fine.
