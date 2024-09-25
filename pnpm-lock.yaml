@@ -642,8 +642,8 @@ importers:
         specifier: ^0.41.1
         version: 0.41.1(svelte@5.0.0-next.258)
       svelte-fa:
-        specifier: ^4.0.2
-        version: 4.0.2(svelte@5.0.0-next.258)
+        specifier: ^4.0.3
+        version: 4.0.3(svelte@5.0.0-next.258)
       svelte-steps:
         specifier: 2.4.1
         version: 2.4.1
@@ -687,8 +687,8 @@ importers:
         specifier: ^2.30.1
         version: 2.30.1
       svelte-fa:
-        specifier: ^4.0.2
-        version: 4.0.2(svelte@5.0.0-next.258)
+        specifier: ^4.0.3
+        version: 4.0.3(svelte@5.0.0-next.258)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.3.5
@@ -777,8 +777,8 @@ importers:
         specifier: ^9.11.1
         version: 9.11.1(jiti@1.21.6)
       svelte-fa:
-        specifier: ^4.0.2
-        version: 4.0.2(svelte@5.0.0-next.258)
+        specifier: ^4.0.3
+        version: 4.0.3(svelte@5.0.0-next.258)
     devDependencies:
       '@storybook/addon-essentials':
         specifier: ^8.3.2
@@ -10091,10 +10091,10 @@ packages:
       svelte:
         optional: true
 
-  svelte-fa@4.0.2:
-    resolution: {integrity: sha512-lza8Jfii6jcpMQB73mBStONxaLfZsUS+rKJ/hH6WxsHUd+g68+oHIL9yQTk4a0uY9HQk78T/CPvQnED0msqJfg==}
+  svelte-fa@4.0.3:
+    resolution: {integrity: sha512-saZ8yACM0k9Aexey+2NXU1W0MBosU5lBsRgqFCJKM+Taw7d0HyimPaPAjmvY/Xkyi3UwEYL/Sdu1IZJv/p0Flw==}
     peerDependencies:
-      svelte: ^4.0.0
+      svelte: ^4.0.0 || ^5.0.0
 
   svelte-preprocess@5.1.4:
     resolution: {integrity: sha512-IvnbQ6D6Ao3Gg6ftiM5tdbR6aAETwjhHV+UKGf5bHGYR69RQvF1ho0JKPcbUON4vy4R7zom13jPjgdOWCQ5hDA==}
@@ -23353,7 +23353,7 @@ snapshots:
     optionalDependencies:
       svelte: 5.0.0-next.258
 
-  svelte-fa@4.0.2(svelte@5.0.0-next.258):
+  svelte-fa@4.0.3(svelte@5.0.0-next.258):
     dependencies:
       svelte: 5.0.0-next.258
 

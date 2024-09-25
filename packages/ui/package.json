@@ -132,7 +132,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "moment": "^2.30.1",
     "humanize-duration": "^3.32.1",
-    "svelte-fa": "^4.0.2"
+    "svelte-fa": "^4.0.3"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.3.5",
