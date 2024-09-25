@@ -21,9 +21,9 @@ let dialogOptions: OpenDialogOptions = {
     id="input-standard-{record.id}"
     name={record.id}
     bind:value={value}
-    on:change={(e: CustomEvent<string>) => {
+    onChange={(value: string) => {
       if (record.id) {
-        onChange(record.id, e.detail).catch((_: unknown) => (invalidEntry = true));
+        onChange(record.id, value).catch((_: unknown) => (invalidEntry = true));
       }
     }}
     readonly={record.readonly ?? true}

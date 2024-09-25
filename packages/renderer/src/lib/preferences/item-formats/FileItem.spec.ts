@@ -93,7 +93,7 @@ test('Ensure clicking on browse invokes openDialog with corresponding directory 
   });
 });
 
-test('Ensure the onChange is called if on:change is triggered', async () => {
+test('Ensure the onChange is called if the fileInput onChange is triggered', async () => {
   const filename = 'somefile';
   openDialogMock.mockResolvedValue([filename]);
 
