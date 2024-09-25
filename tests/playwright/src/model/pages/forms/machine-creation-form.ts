@@ -19,6 +19,8 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { isWindows } from '/@/utility/platform';
+
 import { BasePage } from '../base-page';
 
 export class MachineCreationForm extends BasePage {
@@ -57,16 +59,24 @@ export class MachineCreationForm extends BasePage {
 
   async setupAndCreateMachine(
     machineName: string,
-    isRootful: boolean,
-    enableUserNet: boolean,
-    startNow: boolean,
+    {
+      isRootful = true,
+      enableUserNet = false,
+      startNow = true,
+    }: {
+      isRootful?: boolean;
+      enableUserNet?: boolean;
+      startNow?: boolean;
+    } = {},
   ): Promise<void> {
     await playExpect(this.podmanMachineConfiguration).toBeVisible({ timeout: 10_000 });
     await this.podmanMachineName.clear();
     await this.podmanMachineName.fill(machineName);
 
     await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
-    await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
+    if (isWindows) {
+      await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
+    }
     await this.ensureCheckboxState(startNow, this.startNowCheckbox);
 
     await playExpect(this.createMachineButton).toBeEnabled();

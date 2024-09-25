@@ -39,7 +39,7 @@ export class CreateMachinePage extends BasePage {
     machineName: string,
     { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
-    await this.machineCreationForm.setupAndCreateMachine(machineName, isRootful, enableUserNet, startNow);
+    await this.machineCreationForm.setupAndCreateMachine(machineName, { isRootful, enableUserNet, startNow });
 
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
