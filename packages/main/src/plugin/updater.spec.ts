@@ -393,7 +393,7 @@ describe('expect update command to depends on context', async () => {
     });
   });
 
-  test('startup context', async () => {
+  test('status-bar-entry context', async () => {
     const mListener = await getUpdateListener();
 
     // Call the `update` command listener

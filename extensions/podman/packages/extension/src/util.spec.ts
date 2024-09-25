@@ -143,7 +143,7 @@ test('expect applehv provider with applehv label', async () => {
   expect(provider).equals(VMTYPE.APPLEHV);
 });
 
-test('expect provider name with provider different from libkrun and applehv', async () => {
+test('expect wsl name with provider wsl label', async () => {
   const provider = getProviderByLabel(VMTYPE.WSL);
   expect(provider).equals(VMTYPE.WSL);
 });

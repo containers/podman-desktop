@@ -60,7 +60,7 @@ test('Ensure placeholder is correctly used', async () => {
   expect((input as HTMLInputElement).placeholder).toBe(record.placeholder);
 });
 
-test('Ensure HTMLInputElement', async () => {
+test('Ensure HTMLInputElement readonly', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
     title: 'record',

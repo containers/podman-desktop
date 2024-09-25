@@ -78,7 +78,7 @@ test('Expect to see the checkbox disabled / unable to press when readonly is pas
   expect(button).toBeDisabled();
 });
 
-test('Expect to see checkbox enabled', async () => {
+test('Expect to see checkbox disabled with default to false', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     title: 'my boolean property',
     id: 'myid',

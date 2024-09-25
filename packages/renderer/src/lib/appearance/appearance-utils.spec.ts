@@ -128,7 +128,7 @@ describe('getTheme', () => {
     expect(theme).toBe(customTheme);
   });
 
-  test('should return custom value even if os is dark', async () => {
+  test('should return custom value even if os is dark when matches found', async () => {
     (window as any).matchMedia = vi.fn().mockReturnValue({
       matches: false,
       addEventListener: vi.fn(),

@@ -605,7 +605,7 @@ test('should return deployment list if connection to cluster is ok', async () =>
   expect(list[0]?.metadata?.name).toEqual('deployment');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedDeployment reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -702,7 +702,7 @@ test('should return ingress list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('ingress');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedIngress reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -816,7 +816,7 @@ test('should return route list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('route');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (getNamespacedCustomObject reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -1004,7 +1004,7 @@ test('should return service list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('service');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedService reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),

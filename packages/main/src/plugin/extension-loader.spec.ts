@@ -761,7 +761,7 @@ test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
   expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
 });
 
-test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
+test('Verify sortExtensionsByDependencies(analyzedExtensions);', async () => {
   const extensionId1 = 'foo.extension1';
   const extensionId2 = 'foo.extension2';
   const extensionId3 = 'foo.extension3';

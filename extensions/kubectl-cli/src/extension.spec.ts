@@ -226,34 +226,6 @@ test('kubectl CLI tool not registered when version cannot be extracted from obje
   });
 });
 
-test('kubectl CLI tool not registered when version cannot be extracted from object', async () => {
-  const wrongJsonStdout = {
-    clientVersion: {
-      ...jsonStdout.clientVersion,
-    },
-  };
-  delete (wrongJsonStdout.clientVersion as any).gitVersion;
-  vi.mocked(extensionApi.process.exec).mockResolvedValue({
-    stderr: '',
-    stdout: JSON.stringify(wrongJsonStdout),
-    command: 'kubectl version --client=true -o=json',
-  });
-
-  const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'warn').mockImplementation((message: string) => {
-      log(message);
-      resolve();
-    });
-  });
-
-  await KubectlExtension.activate(extensionContext);
-
-  return deferred.then(() => {
-    expect(console.warn).toBeCalled();
-    expect(console.warn).toBeCalledWith(expect.stringContaining('Error: Cannot extract version from stdout'));
-  });
-});
-
 test('getStorageKubectlPath', async () => {
   // get current directory
   const currentDirectory = process.cwd();
