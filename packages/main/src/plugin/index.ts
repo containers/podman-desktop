@@ -1144,6 +1144,58 @@ export class PluginSystem {
       },
     );
 
+    const providerRegistryShellInProviderSendCallback = new Map<
+      number,
+      { write: (param: string) => void; resize: (w: number, h: number) => void }
+    >();
+    this.ipcHandle(
+      'provider-registry:shellInProvider',
+      async (
+        _listener,
+        provider: ProviderInfo,
+        onDataId: number,
+      ): Promise<number> => {
+        // provide the data content to the remote side
+        const shellInProviderInvocation = await providerRegistry.shellInProvider(
+          provider,
+          (content: Buffer) => {
+            this.getWebContentsSender().send('provider-registry:shellInProvider-onData', onDataId, content);
+          },
+          (error: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProvider-onError', onDataId, error);
+          },
+          () => {
+            this.getWebContentsSender().send('provider-registry:shellInProvider-onEnd', onDataId);
+            // delete the callback
+            providerRegistryShellInProviderSendCallback.delete(onDataId);
+          },
+        );
+        // store the callback
+        providerRegistryShellInProviderSendCallback.set(onDataId, shellInProviderInvocation);
+        return onDataId;
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderSend',
+      async (_listener, onDataId: number, content: string): Promise<void> => {
+        const callback = providerRegistryShellInProviderSendCallback.get(onDataId);
+        if (callback) {
+          callback.write(content);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderResize',
+      async (_listener, onDataId: number, width: number, height: number): Promise<void> => {
+        const callback = providerRegistryShellInProviderSendCallback.get(onDataId);
+        if (callback) {
+          callback.resize(width, height);
+        }
+      },
+    );
+
     const containerProviderRegistryAttachContainerSendCallback = new Map<number, (param: string) => void>();
     this.ipcHandle(
       'container-provider-registry:attachContainer',

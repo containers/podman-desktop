@@ -615,6 +615,65 @@ export function initExposure(): void {
     },
   );
 
+  // callbacks for shellInProvider
+  let onDataCallbacksShellInProviderId = 0;
+  const onDataCallbacksShellInProvider = new Map<
+    number,
+    { onData: (data: Buffer) => void; onError: (error: string) => void; onEnd: () => void }
+  >();
+  contextBridge.exposeInMainWorld(
+    'shellInProvider',
+    async (
+      provider: ProviderInfo,
+      onData: (data: Buffer) => void,
+      onError: (error: string) => void,
+      onEnd: () => void,
+    ): Promise<number> => {
+      onDataCallbacksShellInProviderId++;
+      onDataCallbacksShellInProvider.set(onDataCallbacksShellInProviderId, { onData, onError, onEnd });
+      return ipcInvoke('provider-registry:shellInProvider', provider, onDataCallbacksShellInProviderId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('shellInProviderSend', async (dataId: number, content: Buffer): Promise<void> => {
+    return ipcInvoke('provider-registry:shellInProviderSend', dataId, content);
+  });
+
+  contextBridge.exposeInMainWorld('shellInProviderResize', async (dataId: number, width: number, height: number) => {
+    return ipcInvoke('provider-registry:shellInProviderResize', dataId, width, height);
+  });
+
+  ipcRenderer.on(
+    'provider-registry:shellInProvider-onData',
+    (_, onDataCallbacksShellInProviderId: number, data: Buffer) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+      if (callback) {
+        callback.onData(data);
+      }
+    },
+  );
+  ipcRenderer.on(
+    'provider-registry:shellInProvider-onError',
+    (_, onDataCallbacksShellInProviderId: number, error: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+      if (callback) {
+        callback.onError(error);
+      }
+    },
+  );
+
+  ipcRenderer.on('provider-registry:shellInProvider-onEnd', (_, onDataCallbacksShellInProviderId: number) => {
+    // grab callback from the map
+    const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+    if (callback) {
+      callback.onEnd();
+      // remove callback from the map
+      onDataCallbacksShellInProvider.delete(onDataCallbacksShellInProviderId);
+    }
+  });
+
   // callbacks for attachContainer
   let onDataCallbacksAttachContainerId = 0;
   const onDataCallbacksAttachContainer = new Map<

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faEdit, faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlay, faRotateRight, faStop, faTrash, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { Buffer } from 'buffer';
 import { router } from 'tinro';
 
@@ -184,15 +184,16 @@ function getLoggerHandler(
             leftPosition="left-[0.12rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('delete')}
-          <div class="mr-2 text-sm">
-            <LoadingIconButton
-              clickAction={() => deleteConnectionProvider(provider, connection)}
-              action="delete"
-              icon={faTrash}
-              state={connectionStatus}
-              leftPosition="left-[0.15rem]" />
-          </div>
+          <LoadingIconButton
+            clickAction={() => deleteConnectionProvider(provider, connection)}
+            action="delete"
+            icon={faTrash}
+            state={connectionStatus}
+            leftPosition="left-[0.15rem]" />
         {/if}
+        <div class="mr-2 text-sm">
+          <slot name="advancedActions" />
+        </div>
       </div>
     </div>
   {/if}
