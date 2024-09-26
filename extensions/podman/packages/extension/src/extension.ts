@@ -256,7 +256,7 @@ export async function updateMachines(
     let machineInfo: ContainerEngineInfo | undefined = undefined;
     if (running) {
       try {
-        machineInfo = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
+        machineInfo = await extensionApi.containerEngine.info(`podman.${machine.Name}`);
       } catch (err: unknown) {
         console.warn(` Can't get machine ${machine.Name} resource usage error ${err}`);
       }
