@@ -8,34 +8,36 @@ tags: [podman-desktop, managing-resources, managing-kubernetes-resources]
 
 # Managing your application resources
 
-This tutorial covers the following tasks that you can perform to manage your application resources visually:
+This tutorial covers the tasks that you can perform to manage the following resources visually:
 
-- Managing containers and pods
-- Managing images
-- Managing volumes
-- Managing Kubernetes objects
-- Managing other resources
+- Containers and pods
+- Images
+- Volumes
+- Kubernetes objects
+- Other resources, such as Podman machines, clusters, and CLI tools
 
 Several useful actions are available in the UI to make resource management easy.
 
 ## Before you begin
 
-- [Installed Podman Desktop application](/docs/installation).
-- [A Podman machine](/docs/podman/creating-a-podman-machine).
+Make sure you have:
+
+- [Installed Podman Desktop](/docs/installation).
+- [A running Podman machine](/docs/podman/creating-a-podman-machine).
 - [A valid Kubernetes context and connection](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context) to manage Kubernetes resources.
 
 ## Managing containers and pods
 
-Based on your needs, perform any of the following actions after navigating to the component page.
+Based on your needs, perform any of the following actions after navigating to the component page:
 
 **_Common actions for containers and pods_**
 
 ![common actions](img/common-actions.png)
 
 1. Search a container or pod using the search box.
-2. Use the **Start** icon to start a container or pod.
-3. Use the **Stop** icon to stop a container or pod.
-4. Use the **Delete** icon to delete a container or pod.
+2. Start a container or pod using the **Start** icon.
+3. Stop a container or pod using the **Stop** icon.
+4. Delete a container or pod using the **Delete** icon.
 
    :::note
 
@@ -55,18 +57,18 @@ Based on your needs, perform any of the following actions after navigating to th
 
 8. Use the **Prune** button to remove all unused containers or pods from the Podman engine.
 
-**_Actions specific to containers_**
+**_Container-specific actions_**
 
 ![container actions](img/container-actions.png)
 
-1. Use the **Create** button to create a container using a container or docker file or from an existing image.
-2. Use the **Create Pod** button after selecting containers to create a pod.
+1. Use the **Create** button to create a container with a container or docker file or from an existing image.
+2. Create a pod with selected containers using the **Create Pod** button.
 3. Use the overflow menu to:
 
    - Open and view logs.
-   - Kubernetes action: Generate and view configuration for a Kubernetes container.
-   - Kubernetes action: Deploy a container to a Kubernetes cluster.
-   - Kubernetes action: Open a browser to check the cluster status.
+   - _Kubernetes action_: Generate and view configuration for a Kubernetes container.
+   - _Kubernetes action_: Deploy a container to a Kubernetes cluster.
+   - _Kubernetes action_: Open a browser to check the cluster status.
    - Open a terminal to interact with the container.
    - Restart your container.
    - Export a container to your local machine.
@@ -77,38 +79,39 @@ Based on your needs, perform any of the following actions after navigating to th
 
    :::
 
-**_Actions specific to pods_**
+**_Pod-specific actions_**
 
 ![pod actions](img/pods-actions.png)
 
 1. View the status of each container by hovering over it in the _CONTAINERS_ column. The status can be `Running`, `Created`, `Exited`, or `Waiting`.
-2. Use **Play Kubernetes YAML** to create a pod from a Kubernetes YAML file.
+2. Create a pod from a Kubernetes YAML file using the **Play Kubernetes YAML** button.
 3. Use the overflow menu to:
-   - Kubernetes action: Generate and view configuration for a Kubernetes pod.
-   - Kubernetes action: Deploy a pod to a Kubernetes cluster.
+   - _Kubernetes action_: Generate and view configuration for a Kubernetes pod.
+   - _Kubernetes action_: Deploy a pod to a Kubernetes cluster.
    - Restart your pod.
 
 ## Managing images
 
-Perform any of the following actions after navigating to the component page.
+Perform any of the following actions after navigating to the component page:
 
 ![image actions](img/image-actions.png)
 
 1. Search an image using the search box.
-2. Use the **Run** icon to create a container from the image.
-3. Use the **Delete** icon to delete an image.
+2. Create a container from the image using the **Run** icon.
+3. Delete an image using the **Delete** icon.
 
    :::note
 
    - You cannot delete an image if it is being used in any containers. In such cases, you must delete the container and then delete the image.
    - By selecting multiple images, you can delete or save them in a single step.
-     :::
+
+   :::
 
 4. Use the overflow menu to:
 
    - Push an image to a configured registry.
    - Edit the image name and tag.
-   - View history of the image to view the commands that were used to create each layer within an image.
+   - View history to check the commands that created each layer of the image.
    - Save an image to your local machine.
    - Push an image to a cluster, such as a Kind or Developer Sandbox cluster.
 
@@ -121,7 +124,7 @@ Perform any of the following actions after navigating to the component page.
 
 ## Managing volumes
 
-Perform any of the following actions after navigating to the component page.
+Perform any of the following actions after navigating to the component page:
 
 ![volume actions](img/volume-actions.png)
 
@@ -138,19 +141,19 @@ Perform any of the following actions after navigating to the component page.
 3. Click the name of the volume to view its summary.
 4. Access other useful actions:
 
-- Use the **Prune** button to remove unused volumes from the Podman engine.
-- Click **Gather volume sizes** to determine the size used for volumes.
-- Click the **Create** button to create a volume.
+   - Use the **Prune** button to remove unused volumes from the Podman engine.
+   - Click **Gather volume sizes** to determine the size used for volumes.
+   - Click the **Create** button to create a volume.
 
 ## Managing Kubernetes objects
 
-Perform any of the following actions after navigating to the component page.
+Perform any of the following actions after navigating to the component page:
 
 ![object actions](img/object-actions.png)
 
 1. Search for objects using the search box.
-2. Use the **Delete** icon to delete an object.
-3. Use the **Apply YAML** button to create an object.
+2. Delete an object using the **Delete** icon.
+3. Create an object using the **Apply YAML** button.
 4. Click the name of the object to:
    - View its summary
    - View its Kubernetes configuration
@@ -181,7 +184,7 @@ On the **Settings > Resources** page, perform any of the following actions:
 
 **_Managing your CLI tools_**
 
-If you have installed a CLI tool extension, you can set up the CLI tool and upgrade to its latest version directly from the UI.
+If you have installed a CLI tool extension, you can set up the CLI tool and upgrade to its latest version from the UI.
 
 - On the **Settings > Resources** page, click **Setup** to download the CLI tool and install it system wide.
 
