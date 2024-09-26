@@ -149,6 +149,11 @@
           "scope": "ContainerProviderConnectionFactory",
           "description": "Image Path (Optional)"
         },
+        "podman.factory.machine.image-uri": {
+          "type": "string",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Image URL or fully qualified registry in the form of docker://registry/repo/image:version (Optional)"
+        },
         "podman.factory.machine.rootful": {
           "type": "boolean",
           "default": true,

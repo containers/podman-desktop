@@ -2010,6 +2010,12 @@ export async function createMachine(
     parameters.push('--image-path');
     parameters.push(params['podman.factory.machine.image-path']);
     telemetryRecords.imagePath = 'custom';
+  } else if (params['podman.factory.machine.image-uri']) {
+    parameters.push('--image-path');
+    parameters.push(params['podman.factory.machine.image-uri']);
+    telemetryRecords.imagePath = params['podman.factory.machine.image-uri'].startsWith('http')
+      ? 'custom-url'
+      : 'custom-registry';
   } else if (isMac() || isWindows()) {
     // check if we have an embedded asset for the image path for macOS or Windows
     let suffix = '';
