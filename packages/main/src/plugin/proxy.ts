@@ -20,10 +20,12 @@ import type { Event, ProxySettings } from '@podman-desktop/api';
 import { ProxyAgent } from 'undici';
 
 import type { Certificates } from '/@/plugin/certificates.js';
+import { ProxyState } from '/@api/proxy.js';
 
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
+import { getProxySettingsFromSystem } from './proxy-system.js';
 
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
@@ -55,7 +57,7 @@ function asURL(url: any): URL {
  */
 export class Proxy {
   private proxySettings: ProxySettings | undefined;
-  private proxyState = false;
+  private proxyState: ProxyState = ProxyState.PROXY_SYSTEM;
 
   private readonly _onDidUpdateProxy = new Emitter<ProxySettings>();
   public readonly onDidUpdateProxy: Event<ProxySettings> = this._onDidUpdateProxy.event;
@@ -93,9 +95,12 @@ export class Proxy {
           hidden: true,
         },
         ['proxy.enabled']: {
-          description: 'Toggle to enable',
-          type: 'string',
-          default: false,
+          description: 'Configure proxy',
+          type: 'number',
+          maximum: 2,
+          minimum: 0,
+          placeholder: 'System(0)/Manual(1)/Disabled(2)',
+          default: 0,
           hidden: true,
         },
       },
@@ -104,47 +109,65 @@ export class Proxy {
     this.configurationRegistry.registerConfigurations([proxyConfigurationNode]);
 
     // be notified when configuration is updated
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key.startsWith('proxy')) {
-        this.updateFromConfiguration();
+        await this.updateFromConfiguration();
       }
     });
 
     // read initial value
-    this.updateFromConfiguration();
+    await this.updateFromConfiguration();
     this.overrideFetch();
   }
 
-  updateFromConfiguration(): void {
+  async updateFromConfiguration(): Promise<void> {
     // read value from the configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    const httpProxy = proxyConfiguration.get<string>('http');
-    const httpsProxy = proxyConfiguration.get<string>('https');
-    const noProxy = proxyConfiguration.get<string>('no');
-    const isEnabled = proxyConfiguration.get<boolean>('enabled') ?? false;
-
-    this.proxySettings = {
-      httpProxy: ensureURL(httpProxy),
-      httpsProxy: ensureURL(httpsProxy),
-      noProxy,
-    };
-    this.proxyState = isEnabled;
+    const isEnabled = proxyConfiguration.get<unknown>('enabled');
+    let proxyState: ProxyState = ProxyState.PROXY_SYSTEM;
+    if (typeof isEnabled === 'boolean') {
+      proxyState = isEnabled ? ProxyState.PROXY_MANUAL : ProxyState.PROXY_SYSTEM;
+    } else if (typeof isEnabled === 'number') {
+      proxyState = isEnabled as ProxyState;
+    }
+    this.proxyState = proxyState;
+    if (this.proxyState === ProxyState.PROXY_MANUAL) {
+      const httpProxy = ensureURL(proxyConfiguration.get<string>('http'));
+      const httpsProxy = ensureURL(proxyConfiguration.get<string>('https'));
+      const noProxy = proxyConfiguration.get<string>('no');
+      this.proxySettings = {
+        httpProxy,
+        httpsProxy,
+        noProxy,
+      };
+    } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
+      this.proxySettings = await getProxySettingsFromSystem(this);
+    } else {
+      this.proxySettings = {} as ProxySettings;
+    }
   }
 
   async setProxy(proxy: ProxySettings): Promise<void> {
-    proxy.httpProxy = ensureURL(proxy.httpProxy);
-    proxy.httpsProxy = ensureURL(proxy.httpsProxy);
-    // notify
-    this._onDidUpdateProxy.fire(proxy);
-
-    // update
-    this.proxySettings = proxy;
+    let newProxy: ProxySettings | undefined = proxy;
+    if (this.proxyState === ProxyState.PROXY_MANUAL) {
+      newProxy.httpProxy = ensureURL(newProxy.httpProxy);
+      newProxy.httpsProxy = ensureURL(newProxy.httpsProxy);
+    } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
+      newProxy = await getProxySettingsFromSystem(this);
+    }
 
     // update configuration
-    const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    await proxyConfiguration.update('http', proxy.httpProxy);
-    await proxyConfiguration.update('https', proxy.httpsProxy);
-    await proxyConfiguration.update('no', proxy.noProxy);
+    if (newProxy) {
+      // update
+      this.proxySettings = newProxy;
+
+      // notify
+      this._onDidUpdateProxy.fire(newProxy);
+      const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
+      await proxyConfiguration.update('http', newProxy.httpProxy);
+      await proxyConfiguration.update('https', newProxy.httpsProxy);
+      await proxyConfiguration.update('no', newProxy.noProxy);
+    }
   }
 
   get proxy(): ProxySettings | undefined {
@@ -152,10 +175,10 @@ export class Proxy {
   }
 
   isEnabled(): boolean {
-    return this.proxyState;
+    return this.proxyState !== ProxyState.PROXY_DISABLED && this.proxySettings !== undefined;
   }
 
-  setState(state: boolean): void {
+  setState(state: ProxyState): void {
     this.proxyState = state;
 
     // update configuration
@@ -165,7 +188,11 @@ export class Proxy {
     });
 
     // notify
-    this._onDidStateChange.fire(this.proxyState);
+    this._onDidStateChange.fire(this.isEnabled());
+  }
+
+  getState(): ProxyState {
+    return this.proxyState;
   }
 
   private overrideFetch(): void {

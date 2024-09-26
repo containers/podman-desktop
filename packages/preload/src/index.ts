@@ -78,6 +78,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info';
+import type { ProxyState } from '/@api/proxy';
 import type { PullEvent } from '/@api/pull-event';
 import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
@@ -748,10 +749,10 @@ export function initExposure(): void {
     return ipcInvoke('proxy:getSettings');
   });
 
-  contextBridge.exposeInMainWorld('isProxyEnabled', async (): Promise<boolean> => {
-    return ipcInvoke('proxy:isEnabled');
+  contextBridge.exposeInMainWorld('getProxyState', async (): Promise<ProxyState> => {
+    return ipcInvoke('proxy:getState');
   });
-  contextBridge.exposeInMainWorld('setProxyState', async (state: boolean): Promise<void> => {
+  contextBridge.exposeInMainWorld('setProxyState', async (state: ProxyState): Promise<void> => {
     return ipcInvoke('proxy:setState', state);
   });
 

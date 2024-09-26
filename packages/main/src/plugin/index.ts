@@ -98,6 +98,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info.js';
+import type { ProxyState } from '/@api/proxy.js';
 import type { PullEvent } from '/@api/pull-event.js';
 import type { ViewInfoUI } from '/@api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
@@ -1920,16 +1921,19 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: boolean): Promise<void> => {
-      return proxy.setState(state);
-    });
+    this.ipcHandle(
+      'proxy:setState',
+      async (_listener: Electron.IpcMainInvokeEvent, state: ProxyState): Promise<void> => {
+        return proxy.setState(state);
+      },
+    );
 
     this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
       return proxy.proxy;
     });
 
-    this.ipcHandle('proxy:isEnabled', async (): Promise<boolean> => {
-      return proxy.isEnabled();
+    this.ipcHandle('proxy:getState', async (): Promise<ProxyState> => {
+      return proxy.getState();
     });
 
     this.ipcHandle(

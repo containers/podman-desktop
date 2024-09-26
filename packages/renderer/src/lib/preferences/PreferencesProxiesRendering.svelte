@@ -4,21 +4,23 @@ import type { ProxySettings } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
-import SlideToggle from '../ui/SlideToggle.svelte';
+import { ProxyState } from '/@api/proxy';
+
 import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
 let proxySettings: ProxySettings;
-let proxyState: boolean;
+let proxyState: ProxyState;
 let httpProxyError: string | undefined;
 let httpsProxyError: string | undefined;
 
 onMount(async () => {
   proxySettings = await window.getProxySettings();
-  proxyState = await window.isProxyEnabled();
+  proxyState = await window.getProxyState();
 });
 
 async function updateProxySettings() {
+  await window.setProxyState(proxyState);
   await window.updateProxySettings(proxySettings);
 
   // loop over all providers and container connections to see if there are any running engines
@@ -43,10 +45,6 @@ async function updateProxySettings() {
   });
 }
 
-async function updateProxyState(state: boolean) {
-  await window.setProxyState(state);
-}
-
 function validate(event: any) {
   if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
     const error = validateProxyAddress(event.target.value);
@@ -63,19 +61,29 @@ function validate(event: any) {
   <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <SlideToggle id="toggle-proxy" bind:checked={proxyState} on:checked={event => updateProxyState(event.detail)}
-      >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</SlideToggle>
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer"
+      >Proxy configuration
+      <select
+        class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+        id="toggle-proxy"
+        bind:value={proxyState}>
+        <option value={ProxyState.PROXY_SYSTEM}>System</option>
+        <option value={ProxyState.PROXY_MANUAL}>Manual</option>
+        <option value={ProxyState.PROXY_DISABLED}>Disabled</option>
+      </select>
+    </label>
 
     {#if proxySettings}
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Web Proxy (HTTP):</label>
+          class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
-          disabled={!proxyState}
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
           bind:value={proxySettings.httpProxy}
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
@@ -87,12 +95,13 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Secure Web Proxy (HTTPS):</label>
+          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
-          disabled={!proxyState}
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
           bind:value={proxySettings.httpsProxy}
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
@@ -104,20 +113,19 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Bypass proxy settings for these hosts and domains:</label>
+          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"
-          disabled={!proxyState}
+          disabled={proxyState !== ProxyState.PROXY_MANUAL}
           bind:value={proxySettings.noProxy}
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click={() => updateProxySettings()} disabled={!proxyState} class="w-full" icon={faPen}>
-          Update
-        </Button>
+        <Button on:click={updateProxySettings} class="w-full" icon={faPen}>Update</Button>
       </div>
     {/if}
   </div>
