@@ -24,7 +24,7 @@ Before going through this tutorial, familiarize yourself with the usage of the f
 1. **Catalog**: Helps in downloading or importing a model.
 2. **Services**: Helps in creating an inference server that runs in a container to serve a large language model (LLM) using an OpenAI-compatible API. After creating a service, you can access its details and generate its client code in any programming languages to integrate your application.
 3. **Playgrounds**: Helps in experimenting with model parameters and accuracy to identify the best model and parameters for your use case. Each playground denotes a customized environment to experiment with a model.
-4. **Recipes Catalog**: Helps in accessing a catalog of recipes, such as chatbot, audio-to-text, code generation, and summarizer. Each recipe denotes an AI application catering to a specific use case. You can use a recipe to start an AI application. You can also clone a recipe to your local machine for editing purposes.
+4. **Recipes Catalog**: Helps in accessing a catalog of recipes, such as ChatBot, audio-to-text, code generation, and summarizer. Each recipe denotes an AI application catering to a specific use case. You can use a recipe to start an AI application. You can also clone a recipe to your local machine for editing purposes.
 5. **Running**: Helps in accessing all running AI applications.
 
 This tutorial focuses on running a ChatBot AI application.
@@ -134,7 +134,7 @@ Perform this task only if you want to experiment with the model before using it 
 5. Click **Start ChatBot recipe**. This step might take some time to pull the recipe, copy the model to your Podman machine, start the inference server, load configurations, and create the application.
    ![starting a chatbot recipe](img/starting-a-chatbot-recipe.png)
 
-6. Click **Open details**.
+6. Click **Open details** after the processing completes.
    ![open-recipe-details](img/open-recipe-details.png)
 
 7. View the running AI application in the Running tab.
