@@ -10,12 +10,19 @@ export let value: string | undefined = undefined;
 export let options: OpenDialogOptions;
 export let readonly: boolean = false;
 export let required: boolean = false;
+export let onChange: (value: string) => void = () => {};
 
 async function openDialog() {
   const result = await window.openDialog(options);
   if (result?.[0]) {
     value = result[0];
+    onChange(value);
   }
+}
+
+function onInput(event: Event): void {
+  const inputEvent = event as Event & { target: HTMLInputElement };
+  onChange(inputEvent.target.value);
 }
 </script>
 
@@ -25,7 +32,7 @@ async function openDialog() {
     name={name}
     class={$$props.class || ''}
     bind:value={value}
-    on:input
+    on:input={onInput}
     on:keypress
     placeholder={placeholder}
     readonly={readonly}
