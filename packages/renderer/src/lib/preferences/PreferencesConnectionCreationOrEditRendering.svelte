@@ -240,9 +240,6 @@ function internalSetConfigurationValue(id: string, modified: boolean, value: str
       item.modified = modified;
       item.value = value;
     }
-
-    item.modified = modified;
-    item.value = value;
   } else {
     configurationValues.set(id, { modified, value });
   }

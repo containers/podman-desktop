@@ -2195,7 +2195,7 @@ export async function handleCompatibilityModeSetting(): Promise<void> {
   }
 }
 
-function updateWSLHyperVEnabledValue(value: boolean): void {
+export function updateWSLHyperVEnabledValue(value: boolean): void {
   if (wslAndHypervEnabled !== value) {
     wslAndHypervEnabled = value;
     extensionApi.context.setValue(WSL_HYPERV_ENABLED_KEY, value);
