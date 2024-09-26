@@ -58,6 +58,7 @@ import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
+import { ContextsInformers } from './contexts-informers.js';
 import type { ContextInternalState, ContextState } from './contexts-states.js';
 import { ContextsStates, isSecondaryResourceName } from './contexts-states.js';
 import {
@@ -141,6 +142,7 @@ interface SetStateAndDispatchOptions {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
+  private informers = new ContextsInformers();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 
@@ -261,13 +263,14 @@ export class ContextsManager {
     // We also remove the state of the current context if it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
     // We also delete informers for non-current contexts wif we are checking only current context
     let removed = false;
-    for (const name of this.states.getContextsNames()) {
+    for (const name of this.informers.getContextsNames()) {
       if (
         !this.kubeConfig.contexts.find(c => c.name === name) ||
         (contextChanged && name === this.currentContext?.name) ||
         (checkOnlyCurrentContext && name !== this.currentContext?.name)
       ) {
         await this.states.dispose(name);
+        await this.informers.dispose(name);
         removed = true;
       }
     }
@@ -278,10 +281,10 @@ export class ContextsManager {
       if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
         continue;
       }
-      if (!this.states.hasContext(context.name)) {
+      if (!this.informers.hasContext(context.name)) {
         const kubeContext: KubeContext = this.getKubeContext(context);
         const informers = this.createKubeContextInformers(kubeContext);
-        this.states.setInformers(context.name, informers);
+        this.informers.setInformers(context.name, informers);
         added.push(context.name);
       }
     }
@@ -291,7 +294,8 @@ export class ContextsManager {
       const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext?.name);
       for (const ctx of nonCurrentContexts) {
         const contextName = ctx.name;
-        await this.states.disposeSecondaryInformers(contextName);
+        await this.informers.disposeSecondaryInformers(contextName);
+        await this.states.disposeSecondaryStates(contextName);
       }
 
       // Restart informers for secondary resources if watchers are subscribing for this resource
@@ -312,9 +316,10 @@ export class ContextsManager {
         if (added.includes(context.name)) continue;
         if (!this.compareContexts(context.name, this.kubeConfig, previousKubeConfig)) {
           await this.states.dispose(context.name);
+          await this.informers.dispose(context.name);
           const kubeContext: KubeContext = this.getKubeContext(context);
           const informers = this.createKubeContextInformers(kubeContext);
-          this.states.setInformers(context.name, informers);
+          this.informers.setInformers(context.name, informers);
         }
       }
     }
@@ -387,7 +392,7 @@ export class ContextsManager {
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
         return;
     }
-    this.states.setResourceInformer(contextName, resourceName, informer);
+    this.informers.setResourceInformer(contextName, resourceName, informer);
   }
 
   private getKubeContext(context: Context): KubeContext {
@@ -1026,7 +1031,7 @@ export class ContextsManager {
     if (!this.currentContext?.name) {
       return [];
     }
-    if (this.states.hasInformer(this.currentContext.name, resourceName)) {
+    if (this.informers.hasInformer(this.currentContext.name, resourceName)) {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
