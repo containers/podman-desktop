@@ -48,34 +48,6 @@ export function isSecondaryResourceName(value: string): value is SecondaryResour
 
 export class ContextsStates {
   private state = new Map<string, ContextState>();
-  private informers = new Map<string, ContextInternalState>();
-
-  hasContext(name: string): boolean {
-    return this.informers.has(name);
-  }
-
-  hasInformer(context: string, resourceName: ResourceName): boolean {
-    const informers = this.informers.get(context);
-    return !!informers?.get(resourceName);
-  }
-
-  setInformers(name: string, informers: ContextInternalState | undefined): void {
-    if (informers) {
-      this.informers.set(name, informers);
-    }
-  }
-
-  setResourceInformer(contextName: string, resourceName: ResourceName, informer: Informer<KubernetesObject>): void {
-    const informers = this.informers.get(contextName);
-    if (!informers) {
-      throw new Error(`watchers for context ${contextName} not found`);
-    }
-    informers.set(resourceName, informer);
-  }
-
-  getContextsNames(): Iterable<string> {
-    return this.informers.keys();
-  }
 
   getContextsGeneralState(): Map<string, ContextGeneralState> {
     const result = new Map<string, ContextGeneralState>();
@@ -164,29 +136,14 @@ export class ContextsStates {
   }
 
   async dispose(name: string): Promise<void> {
-    const informers = this.informers.get(name);
-    if (informers) {
-      for (const informer of informers.values()) {
-        await informer.stop();
-      }
-    }
-    this.informers.delete(name);
     this.state.delete(name);
   }
 
-  async disposeSecondaryInformers(contextName: string): Promise<void> {
-    const informers = this.informers.get(contextName);
-    if (informers) {
-      for (const [resourceName, informer] of informers) {
-        if (isSecondaryResourceName(resourceName)) {
-          await informer?.stop();
-          // We clear the informer and the local state
-          informers.delete(resourceName);
-          const state = this.state.get(contextName);
-          if (state) {
-            state.resources[resourceName] = [];
-          }
-        }
+  async disposeSecondaryStates(contextName: string): Promise<void> {
+    const states = this.state.get(contextName);
+    if (states) {
+      for (const resourceName of secondaryResources) {
+        states.resources[resourceName] = [];
       }
     }
   }
