@@ -619,6 +619,7 @@ export function initExposure(): void {
     },
   );
 
+<<<<<<< HEAD
   // callbacks for shellInProviderConnection
   let onDataCallbacksShellInProviderConnectionId = 0;
   const onDataCallbacksShellInProviderConnection = new Map<
@@ -672,22 +673,65 @@ export function initExposure(): void {
     (_, onDataCallbacksShellInProviderConnectionId: number, data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+=======
+  // callbacks for shellInProvider
+  let onDataCallbacksShellInProviderId = 0;
+  const onDataCallbacksShellInProvider = new Map<
+    number,
+    { onData: (data: Buffer) => void; onError: (error: string) => void; onEnd: () => void }
+  >();
+  contextBridge.exposeInMainWorld(
+    'shellInProvider',
+    async (
+      provider: ProviderInfo,
+      onData: (data: Buffer) => void,
+      onError: (error: string) => void,
+      onEnd: () => void,
+    ): Promise<number> => {
+      onDataCallbacksShellInProviderId++;
+      onDataCallbacksShellInProvider.set(onDataCallbacksShellInProviderId, { onData, onError, onEnd });
+      return ipcInvoke('provider-registry:shellInProvider', provider, onDataCallbacksShellInProviderId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('shellInProviderSend', async (dataId: number, content: Buffer): Promise<void> => {
+    return ipcInvoke('provider-registry:shellInProviderSend', dataId, content);
+  });
+
+  contextBridge.exposeInMainWorld('shellInProviderResize', async (dataId: number, width: number, height: number) => {
+    return ipcInvoke('provider-registry:shellInProviderResize', dataId, width, height);
+  });
+
+  ipcRenderer.on(
+    'provider-registry:shellInProvider-onData',
+    (_, onDataCallbacksShellInProviderId: number, data: Buffer) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+>>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)
       if (callback) {
         callback.onData(data);
       }
     },
   );
   ipcRenderer.on(
+<<<<<<< HEAD
     'provider-registry:shellInProviderConnection-onError',
     (_, onDataCallbacksShellInProviderConnectionId: number, error: string) => {
       // grab callback from the map
       const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+=======
+    'provider-registry:shellInProvider-onError',
+    (_, onDataCallbacksShellInProviderId: number, error: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+>>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)
       if (callback) {
         callback.onError(error);
       }
     },
   );
 
+<<<<<<< HEAD
   ipcRenderer.on(
     'provider-registry:shellInProviderConnection-onEnd',
     (_, onDataCallbacksShellInProviderConnectionId: number) => {
@@ -700,6 +744,17 @@ export function initExposure(): void {
       }
     },
   );
+=======
+  ipcRenderer.on('provider-registry:shellInProvider-onEnd', (_, onDataCallbacksShellInProviderId: number) => {
+    // grab callback from the map
+    const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+    if (callback) {
+      callback.onEnd();
+      // remove callback from the map
+      onDataCallbacksShellInProvider.delete(onDataCallbacksShellInProviderId);
+    }
+  });
+>>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)
 
   // callbacks for attachContainer
   let onDataCallbacksAttachContainerId = 0;
