@@ -27,7 +27,7 @@ import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import App from './App.svelte';
-import { navigationRegistry } from './stores/navigation/navigation-registry';
+import { navigationRegistry, type NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
   DashboardPage: vi.fn(),
@@ -151,6 +151,7 @@ test('opens submenu when a `submenu` menu is opened', async () => {
       get counter() {
         return 0;
       },
+      items: [{} as NavigationRegistryEntry],
     },
   ]);
   render(App);
@@ -168,7 +169,7 @@ test('do not display kubernetes empty screen if current context', async () => {
   expect(mocks.DeploymentsList).toHaveBeenCalled();
 });
 
-test('displays kubernetes empty screen if no current context', async () => {
+test('displays kubernetes empty screen if no current context, without Kubernetes menu', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
     reachable: false,
     error: NO_CURRENT_CONTEXT_ERROR,
@@ -180,4 +181,5 @@ test('displays kubernetes empty screen if no current context', async () => {
   await tick();
   expect(mocks.KubernetesEmptyPage).toHaveBeenCalled();
   expect(mocks.DeploymentsList).not.toHaveBeenCalled();
+  expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
 });
