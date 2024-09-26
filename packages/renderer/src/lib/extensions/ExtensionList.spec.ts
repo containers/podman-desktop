@@ -125,14 +125,14 @@ test('Expect to see empty screen on extension page only', async () => {
 
   render(ExtensionList, { searchTerm: 'A' });
 
-  let title = screen.queryByText("No extensions matching 'A' found");
+  let title = screen.queryByText('No extensions matching \'A\' found');
   expect(title).toBeInTheDocument();
 
   // click on the catalog
   const catalogTab = screen.getByRole('button', { name: 'Catalog' });
   await fireEvent.click(catalogTab);
 
-  title = screen.queryByText("No extensions matching 'A' found");
+  title = screen.queryByText('No extensions matching \'A\' found');
   expect(title).not.toBeInTheDocument();
 });
 
@@ -142,14 +142,14 @@ test('Expect to see empty screen on catalog page only', async () => {
 
   render(ExtensionList, { searchTerm: 'A' });
 
-  let title = screen.queryByText("No extensions matching 'A' found");
+  let title = screen.queryByText('No extensions matching \'A\' found');
   expect(title).not.toBeInTheDocument();
 
   // click on the catalog
   const catalogTab = screen.getByRole('button', { name: 'Catalog' });
   await fireEvent.click(catalogTab);
 
-  title = screen.queryByText("No extensions matching 'A' found");
+  title = screen.queryByText('No extensions matching \'A\' found');
   expect(title).toBeInTheDocument();
 });
 
@@ -159,13 +159,13 @@ test('Expect to see empty screens on both pages', async () => {
 
   render(ExtensionList, { searchTerm: 'foo' });
 
-  let title = screen.getByText("No extensions matching 'foo' found");
+  let title = screen.getByText('No extensions matching \'foo\' found');
   expect(title).toBeInTheDocument();
 
   // click on the catalog
   const catalogTab = screen.getByRole('button', { name: 'Catalog' });
   await fireEvent.click(catalogTab);
 
-  title = screen.getByText("No extensions matching 'foo' found");
+  title = screen.getByText('No extensions matching \'foo\' found');
   expect(title).toBeInTheDocument();
 });
