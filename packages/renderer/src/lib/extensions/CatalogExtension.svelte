@@ -8,8 +8,11 @@ import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.sve
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 
 export let catalogExtensionUI: CatalogExtensionInfoUI;
+export let oninstall: (extensionId: string) => void = () => {};
+export let ondetails: (extensionId: string) => void = () => {};
 
 function openExtensionDetails() {
+  ondetails(catalogExtensionUI.id);
   router.goto(`/extensions/details/${catalogExtensionUI.id}/`);
 }
 </script>
@@ -56,7 +59,7 @@ function openExtensionDetails() {
         </div>
       {:else if catalogExtensionUI.fetchable}
         <div class="flex flex-1 justify-items-end w-18 flex-col items-end place-content-center">
-          <FeaturedExtensionDownload extension={catalogExtensionUI} />
+          <FeaturedExtensionDownload oninstall={oninstall} extension={catalogExtensionUI} />
         </div>
       {/if}
     </div>
