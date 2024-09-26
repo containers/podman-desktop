@@ -19,6 +19,11 @@ async function openDialog() {
     onChange(value);
   }
 }
+
+function onInput(event: Event): void {
+  const inputEvent = event as Event & { target: HTMLInputElement };
+  onChange(inputEvent.target.value);
+}
 </script>
 
 <div class="flex flex-row grow space-x-1.5">
@@ -27,7 +32,7 @@ async function openDialog() {
     name={name}
     class={$$props.class || ''}
     bind:value={value}
-    on:input
+    on:input={onInput}
     on:keypress
     placeholder={placeholder}
     readonly={readonly}

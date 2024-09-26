@@ -61,3 +61,42 @@ test('Expect onChange function called with new value when selecting via file dia
 
   expect(onChangeMock).toHaveBeenCalledWith(filename);
 });
+
+test('Expect onChange function called if user types', async () => {
+  const filename = 'somefile';
+  const onChangeMock = vi.fn();
+  render(FileInput, { options: { title: 'title' }, onChange: onChangeMock });
+
+  const browseButton = screen.getByRole('button');
+  expect(browseButton).toBeInTheDocument();
+  await userEvent.click(browseButton);
+
+  expect(openDialogMock).toHaveBeenCalled();
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+
+  await userEvent.type(input, filename);
+
+  expect(onChangeMock).toHaveBeenCalledWith(filename);
+});
+
+test('Expect onChange function called if user paste content', async () => {
+  const filename = 'somefile';
+  const onChangeMock = vi.fn();
+  render(FileInput, { options: { title: 'title' }, onChange: onChangeMock });
+
+  const browseButton = screen.getByRole('button');
+  expect(browseButton).toBeInTheDocument();
+  await userEvent.click(browseButton);
+
+  expect(openDialogMock).toHaveBeenCalled();
+
+  const input = screen.getByRole('textbox');
+  expect(input).toBeInTheDocument();
+
+  await userEvent.click(input);
+  await userEvent.paste(filename);
+
+  expect(onChangeMock).toHaveBeenCalledWith(filename);
+});
