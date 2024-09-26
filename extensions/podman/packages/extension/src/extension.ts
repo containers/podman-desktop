@@ -58,6 +58,7 @@ import {
 } from './util';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { WslHelper } from './wsl-helper';
+import { PodmanMachineStream } from './podman-machine-stream';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -828,6 +829,9 @@ export async function registerProviderFor(
     vmType: machineInfo.vmType,
     vmTypeDisplayName: getProviderLabel(machineInfo.vmType),
   };
+
+  // const machineStream = new PodmanMachineStream(machineInfo);
+  // machineStream.createStream("ls -al");
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines
   // so a machine is not distinguishable from another one.

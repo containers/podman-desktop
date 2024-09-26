@@ -1,7 +1,7 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faGear, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
-import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
