@@ -128,6 +128,7 @@ import { ContributionManager } from './contribution-manager.js';
 import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import { Directories } from './directories.js';
+import { DockerCompatibility } from './docker/docker-compatibility.js';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
 import type {
@@ -494,6 +495,9 @@ export class PluginSystem {
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
+
+    const dockerCompatibility = new DockerCompatibility(configurationRegistry);
+    dockerCompatibility.init();
 
     const messageBox = new MessageBox(apiSender);
 
