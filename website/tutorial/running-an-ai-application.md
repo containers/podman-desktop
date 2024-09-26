@@ -8,7 +8,7 @@ tags: [podman-desktop, running-an-ai-application]
 
 # Running an AI application
 
-This tutorial covers the following end-to-end tasks required to run and validate an Artificial Intelligence (AI) application on your local machine:
+This tutorial covers the following end-to-end tasks required to run and verify an Artificial Intelligence (AI) application on your local machine:
 
 - Installing the extension
 - Downloading a model
@@ -111,7 +111,7 @@ Perform this task only if you want to experiment with the model before using it 
    2. Click the **Edit system prompt** icon to add a system prompt and save it.
       ![edit system prompt icon](img/edit-system-prompt-icon.png)
 
-   3. Enter your question in the prompt box and validate the answer.
+   3. Enter your question in the prompt box and analyze the accuracy of the answer.
       ![defining a system prompt](img/defining-a-system-prompt.png)
 
 ## Running a recipe: ChatBot AI application
@@ -149,5 +149,5 @@ Perform this task only if you want to experiment with the model before using it 
 2. Click the **Open AI App** icon to open the ChatBot application locally in a browser.
    ![opening the AI application](img/open-ai-application.png)
 
-3. Enter your question in the chat box and analyze accuracy of the answer.
+3. Enter your question in the chat box and analyze the accuracy of the answer.
    ![interacted with chatbot application](img/interacted-with-chatbot-application.png)
