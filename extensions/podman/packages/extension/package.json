@@ -119,7 +119,7 @@
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
           "description": "CPU(s)",
-          "when": "podman.podmanMachineCpuSupported"
+          "when": "podman.podmanMachineCpuSupported && !podman.isCreateWSLOptionSelected"
         },
         "podman.factory.machine.memory": {
           "type": "number",
@@ -130,7 +130,7 @@
           "scope": "ContainerProviderConnectionFactory",
           "step": 500000000,
           "description": "Memory",
-          "when": "podman.podmanMachineMemorySupported"
+          "when": "podman.podmanMachineMemorySupported && !podman.isCreateWSLOptionSelected"
         },
         "podman.factory.machine.diskSize": {
           "type": "number",
@@ -141,7 +141,7 @@
           "step": 500000000,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Disk size",
-          "when": "podman.podmanMachineDiskSupported"
+          "when": "podman.podmanMachineDiskSupported && !podman.isCreateWSLOptionSelected"
         },
         "podman.factory.machine.image-path": {
           "type": "string",
@@ -173,6 +173,17 @@
           "scope": "ContainerProviderConnectionFactory",
           "description": "Provider Type",
           "when": "podman.isLibkrunSupported"
+        },
+        "podman.factory.machine.win.provider": {
+          "type": "string",
+          "default": "wsl",
+          "enum": [
+            "wsl",
+            "hyperv"
+          ],
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Provider Type",
+          "when": "podman.wslHypervEnabled"
         },
         "podman.factory.machine.now": {
           "type": "boolean",
