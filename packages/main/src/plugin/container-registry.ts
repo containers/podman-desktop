@@ -297,9 +297,7 @@ export class ContainerProviderRegistry {
   }
 
   registerContainerConnection(
-    provider: containerDesktopAPI.Provider,
-    containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
-    providerRegistry: ProviderRegistry,
+provider: containerDesktopAPI.Provider, containerProviderConnection: containerDesktopAPI.ContainerProviderConnection, providerRegistry: ProviderRegistry,
   ): Disposable {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
