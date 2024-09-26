@@ -128,7 +128,7 @@ describe('PullImage', () => {
     expect(button).toBeEnabled();
   });
 
-  test('Expect that valid entry enables button', async () => {
+  test('Expect that valid entry enables button after user input', async () => {
     setup();
     render(PullImage);
 

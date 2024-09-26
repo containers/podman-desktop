@@ -1603,10 +1603,6 @@ describe('buildImage', () => {
     await verifyBuildImage({ cachefrom: 'quay.io/ubi9/ubi' });
   });
 
-  test('verify buildImage receives correct args on non-Windows OS with cachefrom', async () => {
-    await verifyBuildImage({ cachefrom: 'quay.io/ubi9/ubi' });
-  });
-
   test('verify buildImage receives correct args on non-Windows OS with pull', async () => {
     await verifyBuildImage({ pull: 'quay.io/ubi9/ubi' });
   });

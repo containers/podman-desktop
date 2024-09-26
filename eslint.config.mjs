@@ -145,6 +145,7 @@ export default [
   {
     rules: {
       'vitest/no-import-node-test': 'error',
+      'vitest/no-identical-title': 'error',
       eqeqeq: 'error',
       'prefer-promise-reject-errors': 'error',
       semi: ['error', 'always'],

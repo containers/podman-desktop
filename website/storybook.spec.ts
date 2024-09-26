@@ -128,17 +128,6 @@ describe('StorybookSidebarBuilder', () => {
     }).toThrowError('missing entries in storybook index');
   });
 
-  test('missing entries should an error', () => {
-    const builder = new StorybookSidebarBuilder();
-    expect(() => {
-      builder
-        .fromStorybookIndex({
-          v: 5,
-        })
-        .build();
-    }).toThrowError('missing entries in storybook index');
-  });
-
   test('no entries should return an empty array', () => {
     const builder = new StorybookSidebarBuilder();
     const result = builder

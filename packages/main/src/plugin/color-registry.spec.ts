@@ -532,7 +532,7 @@ describe('registerExtensionThemes', () => {
     ).toThrowError('Missing id property in theme. Extension foo.bar');
   });
 
-  test('invalid theme (missing id) should throw error', async () => {
+  test('invalid theme should throw error', async () => {
     expect(() =>
       colorRegistry.registerExtensionThemes(fakeExtension, [{ id: 'foo' }] as unknown as RawThemeContribution[]),
     ).toThrowError('Missing parent property in theme. Extension foo.bar');
