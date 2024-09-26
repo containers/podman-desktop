@@ -675,6 +675,7 @@ declare module '@podman-desktop/api' {
     updateStatus(status: ProviderStatus): void;
     onDidUpdateStatus: Event<ProviderStatus>;
 
+    shellAccess?: ProviderConnectionShellAccess;
     // version may not be defined
     readonly version: string | undefined;
     updateVersion(version: string): void;
@@ -787,6 +788,17 @@ declare module '@podman-desktop/api' {
   export interface ProviderContainerConnection {
     providerId: string;
     connection: ContainerProviderConnection;
+  }
+
+  export interface ProviderConnectionShellAccess {
+    onData: Event<ProviderConnectionShellAccessData>;
+    write(data: unknown): void;
+    onError(): void;
+    enEnd(): void;
+  }
+
+  export interface ProviderConnectionShellAccessData {
+    data: unknown;
   }
 
   /**
