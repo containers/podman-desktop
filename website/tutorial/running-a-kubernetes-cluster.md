@@ -28,10 +28,11 @@ Make sure you have:
 ## Installing the extension
 
 1. Go to **Extensions > Catalog**.
-2. Click the **Install** icon to install the Minikube extension.
+2. Find the Minikube extension using the search box.
+3. Click the **Install** icon.
    ![install the extension](img/install-icon.png)
 
-3. Select the **Installed** tab to check the Minikube extension is active.
+4. Select the **Installed** tab to check the Minikube extension is active.
    ![extension enabled](img/extension-enabled.png)
 
 ## Installing CLI on your local machine

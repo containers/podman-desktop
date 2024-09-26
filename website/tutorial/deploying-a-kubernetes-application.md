@@ -107,13 +107,13 @@ This YAML configuration creates a service named `my-nginx` to expose the Nginx d
 
 ## Verifying the service: port forwarding
 
-1. Use the `kubectl port-forward` command to forward a local port to the service:
+1. Use the `kubectl port-forward` command to forward a local port to the service. The following example uses the local port `20000`.
 
 ```sh
 $ kubectl port-forward service/my-nginx 20000:80
 ```
 
 2. Open a web browser.
-3. Enter the local host address, that is, _http://localhost:20000_.
+3. Enter the local host address, for example, _http://localhost:20000_.
 4. View the Nginx welcome page.
    ![welcome page](img/welcome-page.png)
