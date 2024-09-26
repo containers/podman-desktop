@@ -28,7 +28,12 @@ import { createNavigationKubernetesPersistentVolumeEntry } from './kubernetes/na
 import { createNavigationKubernetesServicesEntry } from './kubernetes/navigation-registry-k8s-services.svelte';
 import type { NavigationRegistryEntry } from './navigation-registry';
 
+// All the items for the menu
 let kubernetesNavigationGroupItems: NavigationRegistryEntry[] = $state([]);
+// Is there a Kubernetes context?
+let context = $state(true);
+// the items being returned to the caller, depending on the existence of a context
+const displayedItems = $derived(context ? kubernetesNavigationGroupItems : []);
 
 export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   const newItems: NavigationRegistryEntry[] = [];
@@ -41,7 +46,7 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   kubernetesNavigationGroupItems = newItems;
 
   kubernetesCurrentContextState.subscribe(value => {
-    kubernetesNavigationGroupItems = value.error === NO_CURRENT_CONTEXT_ERROR ? [] : newItems;
+    context = value.error !== NO_CURRENT_CONTEXT_ERROR;
   });
 
   const mainGroupEntry: NavigationRegistryEntry = {
@@ -54,7 +59,7 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
       return 0;
     },
     get items() {
-      return kubernetesNavigationGroupItems;
+      return displayedItems;
     },
   };
 
