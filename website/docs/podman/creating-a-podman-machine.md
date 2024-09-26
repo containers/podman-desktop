@@ -39,9 +39,9 @@ Consider creating a custom Podman machine to:
       Select the disk size.
    1. **Image path (Optional)**:
       Provide a bootable image using one of the following options:
-      - **File**: Use the option to select an image, such as `podman-machine.aarch64.applehv.raw.zst` from your local machine.
-      - **Url**: Use the option to copy an image URL and paste it in this field. For example, `https://github.com/containers/podman/releases/download/v5.2.2/podman-machine.x86_64.applehv.raw.zst`.
-      - **Fully Qualified Registry**: Use the option to enter a registry path. For example, `docker://quay.io/podman/machine-os:5.2`.
+      - **File**: Select an image, such as `podman-machine.aarch64.applehv.raw.zst` from your local machine.
+      - **Url**: Copy an image URL from the [Podman releases page](https://github.com/containers/podman/releases) and paste it in this field.
+      - **Fully Qualified Registry**: Enter a registry path. For example, `quay.io/podman/machine-os`.
    1. **Machine with root privileges**:
       Enable to use the rootful connection by default.
       Required to use Kind on Windows.
