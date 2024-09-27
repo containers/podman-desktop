@@ -2015,11 +2015,15 @@ export async function createMachine(
     parameters.push(params['podman.factory.machine.image-path']);
     telemetryRecords.imagePath = 'custom';
   } else if (params['podman.factory.machine.image-uri']) {
+    const imageUri = params['podman.factory.machine.image-uri'].trim();
     parameters.push('--image-path');
-    parameters.push(`docker://${params['podman.factory.machine.image-uri']}`);
-    telemetryRecords.imagePath = params['podman.factory.machine.image-uri'].startsWith('http')
-      ? 'custom-url'
-      : 'custom-registry';
+    if (imageUri.startsWith('https://') || imageUri.startsWith('http://')) {
+      parameters.push(imageUri);
+      telemetryRecords.imagePath = 'custom-url';
+    } else {
+      parameters.push(`docker://${imageUri}`);
+      telemetryRecords.imagePath = 'custom-registry';
+    }
   } else if (isMac() || isWindows()) {
     // check if we have an embedded asset for the image path for macOS or Windows
     let suffix = '';
