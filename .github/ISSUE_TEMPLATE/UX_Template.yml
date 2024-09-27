@@ -52,7 +52,7 @@ body:
       description: Who is the primary engineer the design team can speak with about this issue?
 
   - type: textarea
-    id: Deadlne
+    id: Deadline
     attributes:
       label: Deadline for request
       description: When do you need this?  If this is for an event, please let us know the date of the evnt and any lead time you need to get materials produced.
