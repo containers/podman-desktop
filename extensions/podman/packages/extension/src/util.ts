@@ -65,7 +65,7 @@ export function getAssetsFolder(): string {
     return path.resolve(__dirname, '..', 'assets');
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'assets');
+    return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'packages', 'extension', 'assets');
   }
 }
 
