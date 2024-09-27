@@ -93,6 +93,26 @@ export function isSecondaryResourceName(value: string): value is SecondaryResour
   return secondaryResources.includes(value as SecondaryResourceName);
 }
 
+/**
+ * ContextsStates is responsible for sending through apiSender or retrieve the state of the different Kubernetes contexts.
+ *
+ * The caller can use:
+ * - `setStateAndDispatch` to update the state of a specific context and dispatch it,
+ * - `dispatch` to dispatch the current state of a specific context.
+ *
+ * Different events are sent, depending on the options passed to these methods:
+ * - `kubernetes-contexts-checking-state-update`: A map containing a CheckingState value for each Kubernetes context
+ * - `kubernetes-contexts-general-state-update`: A map containing a ContextGeneralState (checking state, connectivity error, is the context reachable, number of primary resources - pods and deployments)
+ *   for each Kubernetes context
+ * - `kubernetes-current-context-general-state-update`: the ContextGeneralState for the current context only
+ * - `kubernetes-current-context-${resname}-update` (resname in pods, deployments, services, routes, etc): the details of the Kubernetes resources of a specific kind for the current context only
+ *
+ * Methods are available to get these information synchronously:
+ * - `getContextsCheckingState`: data in event `kubernetes-contexts-checking-state-update`
+ * - `getContextsGeneralState`: data in event `kubernetes-contexts-general-state-update`
+ * - `getCurrentContextGeneralState`: data in event `kubernetes-current-context-general-state-update`
+ * - `getContextResources`: data in event `kubernetes-current-context-${resname}-update`
+ */
 export class ContextsStates {
   private state = new Map<string, ContextState>();
 
@@ -201,6 +221,7 @@ export class ContextsStates {
     update(val);
   }
 
+  // dispatch using apiSender different information about the Kubernetes contexts
   dispatch(options: DispatchOptions): void {
     if (options.checkingState) {
       this.dispatchCheckingState(this.getContextsCheckingState());
