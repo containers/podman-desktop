@@ -2016,7 +2016,7 @@ export async function createMachine(
     telemetryRecords.imagePath = 'custom';
   } else if (params['podman.factory.machine.image-uri']) {
     parameters.push('--image-path');
-    parameters.push(params['podman.factory.machine.image-uri']);
+    parameters.push(`docker://${params['podman.factory.machine.image-uri']}`);
     telemetryRecords.imagePath = params['podman.factory.machine.image-uri'].startsWith('http')
       ? 'custom-url'
       : 'custom-registry';

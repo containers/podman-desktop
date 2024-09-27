@@ -429,7 +429,7 @@ test('verify create command called with correct image-path values with registry'
       '--disk-size',
       '232',
       '--image-path',
-      'registry/repo/image:version',
+      'docker://registry/repo/image:version',
       '--rootful',
     ],
     {
