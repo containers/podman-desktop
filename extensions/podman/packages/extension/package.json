@@ -152,7 +152,8 @@
         "podman.factory.machine.image-uri": {
           "type": "string",
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Image URL or fully qualified registry in the form of docker://registry/repo/image:version (Optional)"
+          "description": "Image URL or image reference (Optional)",
+          "placeholder": "Use 'quay.io/podman/machine-os:version' for image reference"
         },
         "podman.factory.machine.rootful": {
           "type": "boolean",
