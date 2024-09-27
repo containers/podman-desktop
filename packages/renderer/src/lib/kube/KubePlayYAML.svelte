@@ -196,6 +196,8 @@ function goBackToPodsPage(): void {
           hidden={providerConnections.length === 0}
           class:border-2={defaultContextName}
           class="rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
+          aria-label="Podman Container Engine Runtime"
+          aria-pressed={userChoice === 'podman' ? 'true' : 'false'}
           class:border-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
           class:border-[var(--pd-content-card-border)]={userChoice !== 'podman'}
           on:click={() => {
@@ -239,8 +241,8 @@ function goBackToPodsPage(): void {
         <button
           hidden={!defaultContextName}
           class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-          class:border-[var(--pd-content-card-border-selected)]={userChoice === 'kubernetes'}
-          class:border-[var(--pd-content-card-border)]={userChoice !== 'kubernetes'}
+          aria-label="Kubernetes Cluster Runtime"
+          aria-pressed={userChoice === 'kubernetes' ? 'true' : 'false'}
           on:click={() => {
             userChoice = 'kubernetes';
           }}>
@@ -270,6 +272,7 @@ function goBackToPodsPage(): void {
               <Input
                 disabled={userChoice === 'podman'}
                 bind:value={defaultContextName}
+                aria-label="Default Kubernetes Context"
                 name="defaultContextName"
                 id="defaultContextName"
                 readonly
@@ -288,6 +291,7 @@ function goBackToPodsPage(): void {
               <select
                 disabled={userChoice === 'podman'}
                 class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+                aria-label="Kubernetes Namespace"
                 name="namespaceChoice"
                 bind:value={currentNamespace}>
                 {#each allNamespaces.items as namespace}

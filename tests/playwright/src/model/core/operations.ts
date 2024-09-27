@@ -22,3 +22,8 @@ export enum ResourceElementActions {
   Stop = 'Stop',
   Delete = 'Delete',
 }
+
+export enum PlayYamlRuntime {
+  Kubernetes,
+  Podman,
+}
