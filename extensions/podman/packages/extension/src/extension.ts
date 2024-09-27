@@ -1970,6 +1970,9 @@ export async function createMachine(
   if (params['podman.factory.machine.provider']) {
     provider = getProviderByLabel(params['podman.factory.machine.provider']);
     telemetryRecords.provider = provider;
+  } else if (params['podman.factory.machine.win.provider']) {
+    provider = params['podman.factory.machine.win.provider'];
+    telemetryRecords.provider = provider;
   }
 
   // cpus
