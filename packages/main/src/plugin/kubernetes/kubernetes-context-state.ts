@@ -226,8 +226,8 @@ export class ContextsManager {
         (contextChanged && name === this.currentContext?.name) ||
         (checkOnlyCurrentContext && name !== this.currentContext?.name)
       ) {
-        await this.states.disposeContext(name);
-        await this.informers.dispose(name);
+        await this.states.deleteContextState(name);
+        await this.informers.deleteContextInformers(name);
         removed = true;
       }
     }
@@ -272,8 +272,8 @@ export class ContextsManager {
       for (const context of this.kubeConfig.contexts) {
         if (added.includes(context.name)) continue;
         if (!this.compareContexts(context.name, this.kubeConfig, previousKubeConfig)) {
-          await this.states.disposeContext(context.name);
-          await this.informers.dispose(context.name);
+          await this.states.deleteContextState(context.name);
+          await this.informers.deleteContextInformers(context.name);
           const kubeContext: KubeContext = this.getKubeContext(context);
           const informers = this.createKubeContextInformers(kubeContext);
           this.informers.setInformers(context.name, informers);

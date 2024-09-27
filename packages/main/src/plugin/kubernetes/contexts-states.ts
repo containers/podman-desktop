@@ -277,7 +277,7 @@ export class ContextsStates {
     }
   }
 
-  async disposeContext(name: string): Promise<void> {
+  async deleteContextState(name: string): Promise<void> {
     this.state.delete(name);
   }
 
