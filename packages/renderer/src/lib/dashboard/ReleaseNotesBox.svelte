@@ -19,6 +19,14 @@ window.events?.receive('show-release-notes', () => {
   showBanner = true;
 });
 
+function openReleaseNotes() {
+  window.podmanDesktopOpenReleaseNotes('current');
+}
+
+function updatePodmanDesktop() {
+  window.updatePodmanDesktop();
+}
+
 async function getInfoFromNotes() {
   let curVersionSplit = currentVersion.split('.', 2);
   const urlVersionFormat = curVersionSplit.join('.');
@@ -36,7 +44,7 @@ async function getInfoFromNotes() {
   }
 }
 
-function onclose() {
+function onClose() {
   window.updateConfigurationValue(`releaseNotesBanner.show`, currentVersion);
   showBanner = false;
 }
@@ -65,16 +73,15 @@ onMount(async () => {
           <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl ml-2">
             {title}
           </p>
-          <CloseButton on:click={() => onclose()} />
+          <CloseButton on:click={onClose} />
         </div>
         <div
           class="text-[var(--pd-content-card-text)] trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
           <Markdown markdown={summary}></Markdown>
         </div>
         <div class="flex flex-row justify-end items-center gap-3 mt-2">
-          <Link on:click={() => window.podmanDesktopOpenReleaseNotes('current')}>Learn more</Link>
-          <Button on:click={() => window.updatePodmanDesktop()} hidden={!updateAvilable} icon={faCircleArrowUp}
-            >Update</Button>
+          <Link on:click={openReleaseNotes}>Learn more</Link>
+          <Button on:click={updatePodmanDesktop} hidden={!updateAvilable} icon={faCircleArrowUp}>Update</Button>
         </div>
         <div class="flex justify-end items-center text-[var(--pd-content-card-light-title)] mt-2">
           Podman Desktop v{currentVersion}
@@ -88,7 +95,7 @@ onMount(async () => {
           Release notes are currently unavailable, please check again later or try this
           <a href={notesURL} class="text-[var(--pd-link)]">link</a>
         </p>
-        <CloseButton on:click={() => onclose()} />
+        <CloseButton on:click={onClose} />
       </div>
     </div>
   {/if}
