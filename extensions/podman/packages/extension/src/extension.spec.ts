@@ -350,45 +350,6 @@ test('verify create command called with correct values', async () => {
   );
 });
 
-test('verify create command called with correct values', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
-  });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-path': 'path',
-    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
-    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
-    'podman.factory.machine.provider': LIBKRUN_LABEL,
-  });
-  expect(spyExecPromise).toBeCalledWith(
-    podmanCli.getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
-    {
-      logger: undefined,
-      token: undefined,
-      env: {
-        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
-      },
-    },
-  );
-
-  // wait a call on telemetryLogger.logUsage
-  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  expect(telemetryLogger.logUsage).toBeCalledWith(
-    'podman.machine.init',
-    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
-  );
-});
-
 test('verify create command called with correct image-path values with image URL', async () => {
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementationOnce(() => {
@@ -451,7 +412,7 @@ test('verify create command called with correct image-path values with registry'
 
   await extension.createMachine({
     'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-uri': 'docker://registry/repo/image:version',
+    'podman.factory.machine.image-uri': 'registry/repo/image:version',
     'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
     'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
     'podman.factory.machine.provider': LIBKRUN_LABEL,
@@ -468,7 +429,87 @@ test('verify create command called with correct image-path values with registry'
       '--disk-size',
       '232',
       '--image-path',
-      'docker://registry/repo/image:version',
+      'registry/repo/image:version',
+      '--rootful',
+    ],
+    {
+      logger: undefined,
+      token: undefined,
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
+      },
+    },
+  );
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.init',
+    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-registry' }),
+  );
+});
+
+test('verify create command fails when both image-path and image-uri fields are filled', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementationOnce(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  let error: Error | undefined;
+
+  try {
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.image-uri': 'registry/repo/image:version',
+      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+      'podman.factory.machine.provider': LIBKRUN_LABEL,
+    });
+  } catch (validationError) {
+    error = validationError as Error;
+  }
+  expect(error).toBeDefined();
+  expect((error as Error).message).toBe(
+    `'Image Path' and 'Image URI' are both filled. Please fill only one or leave both fields empty.`,
+  );
+});
+
+test('verify create command called with correct image-path values with registry', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementationOnce(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-uri': 'registry/repo/image:version',
+    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  });
+  expect(spyExecPromise).toBeCalledWith(
+    podmanCli.getPodmanCli(),
+    [
+      'machine',
+      'init',
+      '--cpus',
+      '2',
+      '--memory',
+      '999',
+      '--disk-size',
+      '232',
+      '--image-path',
+      'registry/repo/image:version',
       '--rootful',
     ],
     {

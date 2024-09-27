@@ -1960,6 +1960,10 @@ export async function createMachine(
   logger?: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
 ): Promise<void> {
+  if (params['podman.factory.machine.image-uri'] && params['podman.factory.machine.image-path']) {
+    throw new Error(`'Image Path' and 'Image URI' are both filled. Please fill only one or leave both fields empty.`);
+  }
+
   const parameters = [];
   parameters.push('machine');
   parameters.push('init');
