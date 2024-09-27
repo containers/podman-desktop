@@ -32,21 +32,18 @@ export class PlayKubeYamlPage extends BasePage {
   readonly kubernetesRuntimeButton: Locator;
   readonly kubernetesContext: Locator;
   readonly kubernetesNamespaces: Locator;
-  readonly kubernetesButtonCentre: Locator;
-  readonly podmanButtonCentre: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Create pods from a Kubernetes YAML file' });
     this.yamlPathInput = page.getByPlaceholder('Select a .yaml file to play');
     this.podmanRuntimeButton = page.getByRole('button', { name: 'Podman Container Engine Runtime' });
-    this.podmanButtonCentre = this.podmanRuntimeButton.getByRole('region', { name: 'Podman Button Centre' });
-    this.kubernetesRuntimeButton = page.getByRole('button', { name: 'Kubernetes Cluster Runtime' });
-    this.kubernetesButtonCentre = this.kubernetesRuntimeButton.getByRole('region', {
-      name: 'Kubernetes Button Centre',
-    });
+    this.kubernetesRuntimeButton = page.getByRole('button', { name: 'Kubernetes Cluster Runtime', exact: true });
     this.kubernetesContext = this.kubernetesRuntimeButton.getByLabel('Default Kubernetes Context');
-    this.kubernetesNamespaces = this.kubernetesRuntimeButton.getByRole('combobox', { name: 'Kubernetes Namespace' });
+    this.kubernetesNamespaces = this.kubernetesRuntimeButton.getByRole('combobox', {
+      name: 'Kubernetes Namespace',
+      exact: true,
+    });
     this.playButton = page.getByRole('button', { name: 'Play' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
   }
@@ -68,7 +65,7 @@ export class PlayKubeYamlPage extends BasePage {
     switch (runtime) {
       case PlayYamlRuntime.Kubernetes:
         await playExpect(this.kubernetesRuntimeButton).toBeVisible();
-        await this.kubernetesButtonCentre.click();
+        await this.kubernetesRuntimeButton.click();
         await playExpect(this.kubernetesRuntimeButton).toHaveAttribute('aria-pressed', 'true');
 
         await playExpect(this.kubernetesContext).toBeVisible();

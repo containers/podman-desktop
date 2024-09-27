@@ -60,9 +60,5 @@ export const test = base.extend<TestFixtures & FixtureOptions>({
     const statusBar = new StatusBar(page);
     await use(statusBar);
   },
-  kubernetesBar: async ({ navigationBar }, use) => {
-    const kubernetesBar = await navigationBar.openKubernetes();
-    await use(kubernetesBar);
-  },
 });
 export { expect } from '@playwright/test';

@@ -203,7 +203,7 @@ function goBackToPodsPage(): void {
           on:click={() => {
             userChoice = 'podman';
           }}>
-          <div class="flex flex-row align-middle items-center" role="region" aria-label="Podman Button Centre">
+          <div class="flex flex-row align-middle items-center">
             <div
               class="text-2xl"
               class:text-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
@@ -246,7 +246,7 @@ function goBackToPodsPage(): void {
           on:click={() => {
             userChoice = 'kubernetes';
           }}>
-          <div class="flex flex-row align-middle items-center" role="region" aria-label="Kubernetes Button Centre">
+          <div class="flex flex-row align-middle items-center">
             <div
               class="text-2xl"
               class:text-[var(--pd-content-card-border-selected)]={userChoice === 'kubernetes'}

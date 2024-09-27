@@ -74,7 +74,8 @@ test.describe('Kubernetes resources End-to-End test', () => {
     !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
     'Tests suite should not run on Linux platform',
   );
-  test('Kubernetes Nodes test', async ({ kubernetesBar }) => {
+  test('Kubernetes Nodes test', async ({ navigationBar }) => {
+    const kubernetesBar = await navigationBar.openKubernetes();
     const nodesPage = await kubernetesBar.openTabPage(KubernetesResources.Nodes);
     await playExpect(nodesPage.heading).toBeVisible();
     await playExpect(nodesPage.getResourceRowByName(KIND_NODE)).toBeVisible();
@@ -86,7 +87,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       .toEqual(KubernetesResourceState.Running);
   });
   test.describe.serial('PVC lifecycle test', () => {
-    test('Create a new PVC resource', async ({ navigationBar, kubernetesBar }) => {
+    test('Create a new PVC resource', async ({ navigationBar }) => {
       const podsPage = await navigationBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
@@ -98,7 +99,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
         kubernetesNamespace: KUBERNETES_NAMESPACE,
       });
 
-      await navigationBar.openKubernetes();
+      const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
       await playExpect(pvcsPage.heading).toBeVisible();
       await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).toBeVisible();
@@ -108,7 +109,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
         .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
         .toEqual(KubernetesResourceState.Starting);
     });
-    test('Bind the PVC to a pod', async ({ navigationBar, kubernetesBar }) => {
+    test('Bind the PVC to a pod', async ({ navigationBar }) => {
       const podsPage = await navigationBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
@@ -120,7 +121,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
         kubernetesNamespace: KUBERNETES_NAMESPACE,
       });
 
-      await navigationBar.openKubernetes();
+      const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
       const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
       await playExpect(pvcDetails.heading).toBeVisible();
@@ -128,9 +129,9 @@ test.describe('Kubernetes resources End-to-End test', () => {
         .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
         .toEqual(KubernetesResourceState.Running);
     });
-    test('Delete the PVC resource', async ({ page, navigationBar, kubernetesBar }) => {
+    test('Delete the PVC resource', async ({ page, navigationBar }) => {
       await deletePod(page, POD_NAME);
-      await navigationBar.openKubernetes();
+      const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
       await pvcsPage.deleteKubernetesResource(PVC_NAME);
       await handleConfirmationDialog(page);
