@@ -20,7 +20,7 @@ import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 import { describe, expect, test } from 'vitest';
 
 import { ContextsInformers } from './contexts-informers.js';
-import { FakeInformer } from './kubernetes-context-state.spec.js';
+import { FakeInformer } from './fake-informer.js';
 
 describe('ContextsInformers tests', () => {
   test('hasInformer should check if informer exists for context', () => {
