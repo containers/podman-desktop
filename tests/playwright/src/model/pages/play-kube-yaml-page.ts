@@ -64,7 +64,7 @@ export class PlayKubeYamlPage extends BasePage {
 
     switch (runtime) {
       case PlayYamlRuntime.Kubernetes:
-        await playExpect(this.kubernetesRuntimeButton).toBeVisible();
+        await playExpect(this.kubernetesRuntimeButton).toBeEnabled();
         await this.kubernetesRuntimeButton.locator('..').click();
         await playExpect(this.kubernetesRuntimeButton).toHaveAttribute('aria-pressed', 'true');
 
