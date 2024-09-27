@@ -223,6 +223,8 @@ async function handleValidComponent() {
       console.warn(String(err));
     }
   }
+  const auditErrors = connectionAuditResult?.records?.filter(record => record.type === 'error');
+  isValid = auditErrors !== undefined && auditErrors.length === 0;
 }
 
 function internalSetConfigurationValue(id: string, modified: boolean, value: string | boolean | number) {
