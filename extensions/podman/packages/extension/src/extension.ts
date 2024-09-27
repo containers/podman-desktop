@@ -1261,7 +1261,7 @@ async function exec(args: string[], options?: PodmanRunOptions): Promise<extensi
   return execPodman(args, options?.connection?.connection.vmTypeDisplayName, options);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<PodmanExtensionApi> {
+export async function _activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   initExtensionContext(extensionContext);
 
   initTelemetryLogger();
@@ -1673,7 +1673,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const podmanRemoteConnections = new PodmanRemoteConnections(extensionContext, provider);
   podmanRemoteConnections.start();
+}
 
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<PodmanExtensionApi> {
+  _activate(extensionContext).catch(console.error);
   return {
     exec,
   };
