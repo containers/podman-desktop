@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 7
 title: Running an AI application
 description: Running an AI application using the UI.
 keywords: [podman desktop, podman, AI application]
@@ -40,7 +40,7 @@ Make sure you have:
 
 ## Installing the extension
 
-1. Go to **extensions > Catalog**.
+1. Go to **Extensions > Catalog**.
 2. Find the Podman AI Lab extension using the search box.
 3. Click the **Install** icon to install the extension.
    ![install the extension](img/downloading-ai-lab-ext.png)
@@ -103,7 +103,7 @@ Perform this task only if you want to experiment with the model before using it 
 6. View the newly created playground on the same page.
    ![newly created playground](img/newly-created-playground.png)
 
-7. Click the name of the playground to edit the model settings:
+7. Click the name of the playground to edit the model settings for experiment:
 
    1. Edit the value of the model parameters.
       ![editing model parameters](img/editing-model-parameters.png)
