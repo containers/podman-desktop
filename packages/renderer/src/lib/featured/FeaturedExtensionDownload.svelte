@@ -11,6 +11,7 @@ export let extension: {
   displayName: string;
   fetchable: boolean;
 };
+export let oninstall: (extensionId: string) => void = () => {};
 
 let installInProgress = false;
 
@@ -20,6 +21,7 @@ let errorInstall = '';
 let percentage = '0%';
 
 async function installExtension() {
+  oninstall(extension.id);
   errorInstall = '';
   console.log('User asked to install the extension with the following properties', extension);
   logs = [];

@@ -14,6 +14,8 @@ export let category: string | undefined = undefined;
 export let keywords: string[] = [];
 export let title = 'Available extensions';
 export let showEmptyScreen: boolean = true;
+export let oninstall: (extensionId: string) => void = () => {};
+export let ondetails: (extensionId: string) => void = () => {};
 
 // show installed extensions
 export let showInstalled: boolean = true;
@@ -52,5 +54,10 @@ const catalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
 </script>
 
 <div class="flex bg-[var(--pd-content-bg)] text-left">
-  <CatalogExtensionList title={title} showEmptyScreen={showEmptyScreen} catalogExtensions={$catalogExtensions} />
+  <CatalogExtensionList
+    oninstall={oninstall}
+    ondetails={ondetails}
+    title={title}
+    showEmptyScreen={showEmptyScreen}
+    catalogExtensions={$catalogExtensions} />
 </div>
