@@ -25,8 +25,8 @@ import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kub
 
 import type { ApiSenderType } from '../api.js';
 import type { ContextsStates } from './contexts-states.js';
-import { FakeInformer, informerStopMock } from './fake-informer.js';
 import { ContextsManager } from './kubernetes-context-state.js';
+import { informerStopMock, TestInformer } from './test-informer.js';
 
 const PODS_NS1 = 1;
 const PODS_NS2 = 2;
@@ -35,7 +35,7 @@ const DEPLOYMENTS_NS1 = 4;
 const DEPLOYMENTS_NS2 = 5;
 const DEPLOYMENTS_DEFAULT = 6;
 
-class ContextsManagerTest extends ContextsManager {
+class TestContextsManager extends ContextsManager {
   getStates(): ContextsStates {
     return this.states;
   }
@@ -49,8 +49,8 @@ function fakeMakeInformer(
 ): kubeclient.Informer<kubeclient.KubernetesObject> & kubeclient.ObjectCache<kubeclient.KubernetesObject> {
   let connectResult: Error | undefined;
 
-  const buildFakeInformer = (quantity: number): FakeInformer =>
-    new FakeInformer(kubeconfig.currentContext, path, quantity, connectResult, [], []);
+  const buildFakeInformer = (quantity: number): TestInformer =>
+    new TestInformer(kubeconfig.currentContext, path, quantity, connectResult, [], []);
 
   switch (kubeconfig.currentContext) {
     case 'context1':
@@ -116,14 +116,14 @@ afterEach(() => {
 });
 
 describe('update', async () => {
-  let client: ContextsManagerTest;
+  let client: TestContextsManager;
 
   afterEach(() => {
     client?.dispose();
   });
   test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -335,7 +335,7 @@ describe('update', async () => {
 
   test('should check current context if contexts are > 10', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -386,7 +386,7 @@ describe('update', async () => {
 
   test('should write logs when connection fails', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     kubeConfig.loadFromOptions({
       clusters: [
@@ -427,9 +427,9 @@ describe('update', async () => {
         const connectResult = undefined;
         switch (path) {
           case '/api/v1/namespaces/ns1/pods':
-            return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+            return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
           case '/apis/apps/v1/namespaces/ns1/deployments':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -444,10 +444,10 @@ describe('update', async () => {
               [],
             );
         }
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -536,9 +536,9 @@ describe('update', async () => {
         const connectResult = undefined;
         switch (path) {
           case '/api/v1/namespaces/ns1/pods':
-            return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+            return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
           case '/apis/apps/v1/namespaces/ns1/deployments':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -563,10 +563,10 @@ describe('update', async () => {
               [],
             );
         }
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -659,9 +659,9 @@ describe('update', async () => {
         const connectResult = undefined;
         switch (path) {
           case '/api/v1/namespaces/ns1/pods':
-            return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+            return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
           case '/apis/apps/v1/namespaces/ns1/deployments':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -686,10 +686,10 @@ describe('update', async () => {
               [],
             );
         }
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -787,7 +787,7 @@ describe('update', async () => {
         const connectResult = undefined;
         switch (path) {
           case '/api/v1/namespaces/ns1/pods':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -802,12 +802,12 @@ describe('update', async () => {
               ],
             );
           case '/apis/apps/v1/namespaces/ns1/deployments':
-            return new FakeInformer(kubeconfig.currentContext, path, 2, connectResult, [], []);
+            return new TestInformer(kubeconfig.currentContext, path, 2, connectResult, [], []);
         }
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -890,7 +890,7 @@ describe('update', async () => {
   });
 
   test('createKubeContextInformers should receive initialized kubeContext', async () => {
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const createKubeContextInformersMock = vi
       .spyOn(client, 'createKubeContextInformers')
       .mockImplementation((_context: KubeContext) => {
@@ -979,12 +979,12 @@ describe('update', async () => {
           const connectResult = undefined;
           switch (path) {
             case informerPath:
-              return new FakeInformer(kubeconfig.currentContext, path, 1, connectResult, [], []);
+              return new TestInformer(kubeconfig.currentContext, path, 1, connectResult, [], []);
           }
-          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+          return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
       const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
       const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -1052,7 +1052,7 @@ describe('update', async () => {
           const connectResult = undefined;
           switch (path) {
             case informerPath:
-              return new FakeInformer(
+              return new TestInformer(
                 kubeconfig.currentContext,
                 path,
                 0,
@@ -1082,10 +1082,10 @@ describe('update', async () => {
                 [],
               );
           }
-          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+          return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
       const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
       const kubeConfig = new kubeclient.KubeConfig();
@@ -1151,12 +1151,12 @@ describe('update', async () => {
           const connectResult = undefined;
           switch (path) {
             case informerPath:
-              return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+              return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
           }
-          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+          return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const kubeConfig = new kubeclient.KubeConfig();
       const config = {
         clusters: [
@@ -1205,10 +1205,10 @@ describe('update', async () => {
           path: string,
           _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
         ) => {
-          return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+          return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const kubeConfig = new kubeclient.KubeConfig();
       const config = {
         clusters: [
@@ -1255,10 +1255,10 @@ describe('update', async () => {
           path: string,
           _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
         ) => {
-          return new FakeInformer(kubeconfig.currentContext, path, 1, undefined, [], []);
+          return new TestInformer(kubeconfig.currentContext, path, 1, undefined, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const kubeConfig = new kubeclient.KubeConfig();
       const config = {
         clusters: [
@@ -1327,10 +1327,10 @@ describe('update', async () => {
         path: string,
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
-        return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -1419,10 +1419,10 @@ describe('update', async () => {
         path: string,
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
-        return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -1509,7 +1509,7 @@ describe('update', async () => {
         const connectResult = undefined;
         switch (path) {
           case '/apis/networking.k8s.io/v1/namespaces/ns1/ingresses':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -1524,7 +1524,7 @@ describe('update', async () => {
               [],
             );
           case '/api/v1/namespaces/ns1/services':
-            return new FakeInformer(
+            return new TestInformer(
               kubeconfig.currentContext,
               path,
               0,
@@ -1539,10 +1539,10 @@ describe('update', async () => {
               [],
             );
         }
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
@@ -1598,10 +1598,10 @@ describe('update', async () => {
         path: string,
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
-        return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -1695,10 +1695,10 @@ describe('update', async () => {
         path: string,
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
-        return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -1990,10 +1990,10 @@ describe('update', async () => {
           path: string,
           _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
         ) => {
-          return new FakeInformer('context2', path, 0, undefined, [], []);
+          return new TestInformer('context2', path, 0, undefined, [], []);
         },
       );
-      client = new ContextsManagerTest(apiSender);
+      client = new TestContextsManager(apiSender);
       const kubeConfig = new kubeclient.KubeConfig();
 
       kubeConfig.loadFromOptions(initialConfig);
@@ -2052,10 +2052,10 @@ describe('update', async () => {
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
         const connectResult = new Error('err');
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
-    client = new ContextsManagerTest(apiSender);
+    client = new TestContextsManager(apiSender);
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -2106,7 +2106,7 @@ describe('isContextInKubeconfig', () => {
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
         const connectResult = new Error('err');
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
     const kubeConfig = new kubeclient.KubeConfig();
@@ -2245,7 +2245,7 @@ describe('isContextChanged with currentContext', () => {
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
         const connectResult = new Error('err');
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
     const kubeConfig = new kubeclient.KubeConfig();
@@ -2498,7 +2498,7 @@ describe('isContextChanged with no context', () => {
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
         const connectResult = new Error('err');
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
     kubeConfig = new kubeclient.KubeConfig();
@@ -2530,7 +2530,7 @@ describe('isContextChanged', () => {
         _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
       ) => {
         const connectResult = new Error('err');
-        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       },
     );
     kubeConfig = new kubeclient.KubeConfig();

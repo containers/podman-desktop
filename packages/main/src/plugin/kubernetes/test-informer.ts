@@ -33,7 +33,7 @@ interface InformerErrorEvent {
 
 export const informerStopMock = vi.fn();
 
-export class FakeInformer {
+export class TestInformer {
   private onCb: Map<string, ObjectCallback<KubernetesObject>>;
   private offCb: Map<string, ObjectCallback<KubernetesObject>>;
   private onErrorCb: Map<string, ErrorCallback>;

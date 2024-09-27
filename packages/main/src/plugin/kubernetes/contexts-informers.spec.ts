@@ -20,14 +20,14 @@ import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 import { describe, expect, test } from 'vitest';
 
 import { ContextsInformers } from './contexts-informers.js';
-import { FakeInformer } from './fake-informer.js';
+import { TestInformer } from './test-informer.js';
 
 describe('ContextsInformers tests', () => {
   test('hasInformer should check if informer exists for context', () => {
     const client = new ContextsInformers();
     client.setInformers(
       'context1',
-      new Map([['pods', new FakeInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
     );
     expect(client.hasInformer('context1', 'pods')).toBeTruthy();
     expect(client.hasInformer('context1', 'deployments')).toBeFalsy();
@@ -39,11 +39,11 @@ describe('ContextsInformers tests', () => {
     const client = new ContextsInformers();
     client.setInformers(
       'context1',
-      new Map([['pods', new FakeInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
     );
     client.setInformers(
       'context2',
-      new Map([['pods', new FakeInformer('context2', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([['pods', new TestInformer('context2', '/path/to/resource', 0, undefined, [], [])]]),
     );
     expect(Array.from(client.getContextsNames())).toEqual(['context1', 'context2']);
   });
