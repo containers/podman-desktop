@@ -19,7 +19,6 @@
 import type { Page } from '@playwright/test';
 import { test as base } from '@playwright/test';
 
-import type { KubernetesBar } from '../model/pages/kubernetes-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { StatusBar } from '../model/workbench/status-bar';
@@ -32,7 +31,6 @@ export type TestFixtures = {
   welcomePage: WelcomePage;
   page: Page;
   statusBar: StatusBar;
-  kubernetesBar: KubernetesBar;
 };
 
 export type FixtureOptions = {
