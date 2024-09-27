@@ -43,4 +43,6 @@ Before going through each tutorial, get yourself familiarize with the key UI com
 ## List of tutorials
 
 - [Running a pod using a container or docker file](/tutorial/running-a-pod-using-a-container-docker-file)
+- [Running a Kubernetes cluster](/tutorial/running-a-kubernetes-cluster)
+- [Deploying a Kubernetes application](/tutorial/deploying-a-kubernetes-application)
 - [Managing your application resources](/tutorial/managing-your-application-resources)
