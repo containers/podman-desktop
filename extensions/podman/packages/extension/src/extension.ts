@@ -1991,7 +1991,9 @@ export async function createMachine(
   if (params['podman.factory.machine.memory']) {
     parameters.push('--memory');
     const memoryAsMiB = +params['podman.factory.machine.memory'] / (1024 * 1024);
-    parameters.push(Math.floor(memoryAsMiB).toString());
+    // Hyper-V requires VMs to have memory in 2 MB increments. So we round it
+    const roundedMemoryMiB = Math.floor((memoryAsMiB + 1) / 2) * 2;
+    parameters.push(roundedMemoryMiB.toString());
     telemetryRecords.memory = params['podman.factory.machine.memory'];
   }
 

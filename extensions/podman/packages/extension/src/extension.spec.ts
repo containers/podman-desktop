@@ -329,7 +329,7 @@ test('verify create command called with correct values', async () => {
   });
   expect(spyExecPromise).toBeCalledWith(
     podmanCli.getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
+    ['machine', 'init', '--cpus', '2', '--memory', '1000', '--disk-size', '232', '--image-path', 'path', '--rootful'],
     {
       logger: undefined,
       token: undefined,
@@ -372,7 +372,7 @@ test('verify create command called with correct values with user mode networking
     '--cpus',
     '2',
     '--memory',
-    '999',
+    '1000',
     '--disk-size',
     '232',
     '--image-path',
@@ -418,7 +418,7 @@ test('verify create command called with now flag if start machine after creation
     '--cpus',
     '2',
     '--memory',
-    '999',
+    '1000',
     '--disk-size',
     '232',
     '--image-path',
