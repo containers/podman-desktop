@@ -334,16 +334,29 @@ describe.each([
     expect(showLogsButton).toBeInTheDocument();
   });
 
-  test(`Expect ${label} button to be disabled if itemsAudit returns errors`, async () => {
+  test(`Expect ${label} button to be disabled if itemsAudit returns errors or enabled otherwise`, async () => {
     const callback = vi.fn();
-    vi.spyOn(window as any, 'auditConnectionParameters').mockResolvedValue({
-      records: [
-        {
-          type: 'error',
-          record: 'error message',
-        },
-      ],
-    });
+    let auditSpy = vi.spyOn(window as any, 'auditConnectionParameters');
+    if (!connectionInfo) {
+      auditSpy = vi.spyOn(window as any, 'auditConnectionParameters').mockImplementationOnce(() => ({ records: [] }));
+    }
+    auditSpy = auditSpy
+      .mockImplementationOnce(() => ({
+        records: [
+          {
+            type: 'error',
+            record: 'error message',
+          },
+        ],
+      }))
+      .mockImplementationOnce(() => ({
+        records: [
+          {
+            type: 'info',
+            record: 'info message',
+          },
+        ],
+      }));
     // eslint-disable-next-line @typescript-eslint/await-thenable
     render(PreferencesConnectionCreationOrEditRendering, {
       properties: [
@@ -365,11 +378,16 @@ describe.each([
     });
     await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
     const inputElement = screen.queryByRole('textbox', { name: 'test.factoryProperty' });
-    await fireEvent.change(inputElement as Element, { target: { value: '1' } });
+    expect(inputElement).toBeDefined();
+    await fireEvent.input(inputElement!, { target: { value: '1' } });
     await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalled());
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
     await vi.waitFor(() => expect(createButton).toBeDisabled());
+
+    await fireEvent.input(inputElement as Element, { target: { value: '2' } });
+    await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalledTimes(2));
+    await vi.waitFor(() => expect(createButton).toBeEnabled());
   });
 });
 
