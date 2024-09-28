@@ -215,7 +215,9 @@ async function handleValidComponent() {
   }
 
   try {
-    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+    const auditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+    isValid = auditResult?.records?.filter(record => record.type === 'error')?.length === 0;
+    connectionAuditResult = auditResult;
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.warn(err.message);
@@ -223,8 +225,6 @@ async function handleValidComponent() {
       console.warn(String(err));
     }
   }
-  const auditErrors = connectionAuditResult?.records?.filter(record => record.type === 'error');
-  isValid = auditErrors !== undefined && auditErrors.length === 0;
 }
 
 function internalSetConfigurationValue(id: string, modified: boolean, value: string | boolean | number) {

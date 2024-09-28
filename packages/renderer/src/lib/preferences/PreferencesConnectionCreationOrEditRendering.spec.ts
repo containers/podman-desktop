@@ -333,6 +333,44 @@ describe.each([
     const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
     expect(showLogsButton).toBeInTheDocument();
   });
+
+  test(`Expect ${label} button to be disabled if itemsAudit returns errors`, async () => {
+    const callback = vi.fn();
+    vi.spyOn(window as any, 'auditConnectionParameters').mockResolvedValue({
+      records: [
+        {
+          type: 'error',
+          record: 'error message',
+        },
+      ],
+    });
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    render(PreferencesConnectionCreationOrEditRendering, {
+      properties: [
+        {
+          title: 'FactoryProperty',
+          parentId: '',
+          scope: 'ContainerProviderConnectionFactory',
+          id: 'test.factoryProperty',
+          type: 'number',
+          description: 'test.factoryProperty',
+        },
+      ],
+      providerInfo,
+      connectionInfo,
+      propertyScope,
+      callback,
+      pageIsLoading: false,
+      taskId,
+    });
+    await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
+    const inputElement = screen.queryByRole('textbox', { name: 'test.factoryProperty' });
+    await fireEvent.change(inputElement as Element, { target: { value: '1' } });
+    await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalled());
+    const createButton = screen.getByRole('button', { name: `${label}` });
+    expect(createButton).toBeInTheDocument();
+    await vi.waitFor(() => expect(createButton).toBeDisabled());
+  });
 });
 
 test(`Expect create with unchecked and checked checkboxes`, async () => {
