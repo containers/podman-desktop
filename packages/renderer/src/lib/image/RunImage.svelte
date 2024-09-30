@@ -6,7 +6,7 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { array2String } from '/@/lib/string/string.js';
-import type { ContainerCreateOptions, Device, HostConfig } from '/@api/container-info';
+import type { ContainerCreateOptions, DeviceMapping, HostConfig } from '/@api/container-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 
@@ -336,7 +336,7 @@ async function startContainer() {
   const Tty = useTty;
   const OpenStdin = useInteractive;
 
-  let Devices: Device[] | undefined = devices
+  let Devices: DeviceMapping[] | undefined = devices
     .filter(d => d.host)
     .map(d => ({
       PathOnHost: d.host,

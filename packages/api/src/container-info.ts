@@ -89,7 +89,7 @@ interface MountSettings {
 
 type MountConfig = MountSettings[];
 
-export interface Device {
+export interface DeviceMapping {
   CgroupPermissions: string;
   PathInContainer: string;
   PathOnHost: string;
@@ -111,7 +111,7 @@ export interface HostConfig {
   ExtraHosts?: string[];
   NetworkMode?: string;
   Mounts?: MountConfig;
-  Devices?: Device[];
+  Devices?: DeviceMapping[];
 }
 
 export interface HealthConfig {
