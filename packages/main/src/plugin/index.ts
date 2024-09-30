@@ -181,6 +181,7 @@ import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { ViewRegistry } from './view-registry.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
+import { ShellDimensions } from '@podman-desktop/api';
 
 // workaround for ESM
 const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
@@ -1144,38 +1145,40 @@ export class PluginSystem {
       },
     );
 
-    const providerRegistryShellInProviderSendCallback = new Map<
+    const providerRegistryShellInProviderConnectionSendCallback = new Map<
       number,
-      { write: (param: string) => void; resize: (w: number, h: number) => void }
+      { write: (param: string) => void; setWindow: (w: number, h: number) => void }
     >();
     this.ipcHandle(
-      'provider-registry:shellInProvider',
-      async (_listener, provider: ProviderInfo, onDataId: number): Promise<number> => {
+      'provider-registry:shellInProviderConnection',
+      async (_listener, internalProviderId: string, connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo, setWindow: ShellDimensions, onDataId: number): Promise<number> => {
         // provide the data content to the remote side
-        const shellInProviderInvocation = await providerRegistry.shellInProvider(
-          provider,
-          (content: Buffer) => {
-            this.getWebContentsSender().send('provider-registry:shellInProvider-onData', onDataId, content);
+        const shellInProviderConnectionInvocation = await providerRegistry.shellInProviderConnection(
+          internalProviderId,
+          connectionInfo,
+          (content: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onData', onDataId, content);
           },
           (error: string) => {
-            this.getWebContentsSender().send('provider-registry:shellInProvider-onError', onDataId, error);
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onError', onDataId, error);
           },
           () => {
-            this.getWebContentsSender().send('provider-registry:shellInProvider-onEnd', onDataId);
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onEnd', onDataId);
             // delete the callback
-            providerRegistryShellInProviderSendCallback.delete(onDataId);
+            providerRegistryShellInProviderConnectionSendCallback.delete(onDataId);
           },
+          setWindow,
         );
         // store the callback
-        providerRegistryShellInProviderSendCallback.set(onDataId, shellInProviderInvocation);
+        providerRegistryShellInProviderConnectionSendCallback.set(onDataId, shellInProviderConnectionInvocation);
         return onDataId;
       },
     );
 
     this.ipcHandle(
-      'provider-registry:shellInProviderSend',
+      'provider-registry:shellInProviderConnectionSend',
       async (_listener, onDataId: number, content: string): Promise<void> => {
-        const callback = providerRegistryShellInProviderSendCallback.get(onDataId);
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
         if (callback) {
           callback.write(content);
         }
@@ -1183,11 +1186,11 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-      'provider-registry:shellInProviderResize',
+      'provider-registry:shellInProviderConnectionSetWindow',
       async (_listener, onDataId: number, width: number, height: number): Promise<void> => {
-        const callback = providerRegistryShellInProviderSendCallback.get(onDataId);
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
         if (callback) {
-          callback.resize(width, height);
+          callback.setWindow(width, height);
         }
       },
     );

@@ -828,8 +828,12 @@ export async function registerProviderFor(
   };
 
   if (provider.shellAccess) {
+    // TODO shellAccess should have callbacks 
+    console.error("provider.shellAccess != undefined")
     const machineStream = new PodmanMachineStream(machineInfo);
     machineStream.createStream(provider.shellAccess);
+  } else {
+    console.error("provider.shellAccess == undefined")
   }
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines

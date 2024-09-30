@@ -792,9 +792,14 @@ declare module '@podman-desktop/api' {
 
   export interface ProviderConnectionShellAccess {
     onData: Event<ProviderConnectionShellAccessData>;
-    write(data: string): void;
     onError(error: string): void;
     onEnd(): void;
+    setWindow: ShellDimensions;
+  }
+
+  export interface ShellDimensions {
+    w: number;
+    h: number;
   }
 
   export interface ProviderConnectionShellAccessData {

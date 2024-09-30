@@ -28,6 +28,7 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
+  ProviderConnectionShellAccessData,
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
@@ -40,6 +41,7 @@ import type {
   ProviderUpdate,
   RegisterContainerConnectionEvent,
   RegisterKubernetesConnectionEvent,
+  ShellDimensions,
   UnregisterContainerConnectionEvent,
   UnregisterKubernetesConnectionEvent,
   UpdateContainerConnectionEvent,
@@ -1265,20 +1267,26 @@ export class ProviderRegistry {
     });
   }
 
-  async shellInProvider(
-    provider: ProviderInfo,
+  async shellInProviderConnection(
+    internalProviderId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
     onData: (data: string) => void,
     onError: (error: string) => void,
     onEnd: () => void,
+    setWindow: ShellDimensions,
   ) {
-    console.error('shellInProvider');
+    let connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+    console.error(connection.name);
 
+    // TODO add to connection shellAccess callbacks
+
+    // TODO callbacks setWindow using ssh2 lib and write callbacks
     return {
       write: (param: string): void => {
         execStream.write(param);
       },
-      resize: (w: number, h: number): void => {
-        exec.resize({ w, h })
+      setWindow: (w: number, h: number): void => {
+        exec.setWindow({ w, h })
       },
     };
   }
