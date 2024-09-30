@@ -620,7 +620,7 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
-    const imageFiles = new ImageFilesRegistry(apiSender);
+    const imageFiles = new ImageFilesRegistry(apiSender, configurationRegistry, context);
 
     const troubleshooting = new Troubleshooting();
 
