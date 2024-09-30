@@ -6,7 +6,7 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { array2String } from '/@/lib/string/string.js';
-import type { ContainerCreateOptions, HostConfig } from '/@api/container-info';
+import type { ContainerCreateOptions, DeviceMapping, HostConfig } from '/@api/container-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 
@@ -50,6 +50,9 @@ let environmentVariables: { key: string; value: string }[] = [{ key: '', value: 
 let environmentFiles: string[] = [''];
 let volumeMounts: { source: string; target: string }[] = [{ source: '', target: '' }];
 let hostContainerPortMappings: { hostPort: PortInfo; containerPort: string }[] = [];
+let devices: { host: string; container: string; read: boolean; write: boolean; mknod: boolean }[] = [
+  { host: '', container: '', read: false, write: false, mknod: false },
+];
 
 let invalidName = false;
 let invalidPorts = false;
@@ -332,6 +335,19 @@ async function startContainer() {
   const ReadonlyRootfs = readOnly;
   const Tty = useTty;
   const OpenStdin = useInteractive;
+
+  let Devices: DeviceMapping[] | undefined = devices
+    .filter(d => d.host)
+    .map(d => ({
+      PathOnHost: d.host,
+      PathInContainer: d.container !== '' ? d.container : d.host,
+      CgroupPermissions:
+        !d.read && !d.write && !d.mknod ? 'rwm' : `${d.read ? 'r' : ''}${d.write ? 'w' : ''}${d.mknod ? 'm' : ''}`,
+    }));
+  if (Devices.length === 0) {
+    Devices = undefined;
+  }
+
   const HostConfig: HostConfig = {
     Binds,
     AutoRemove: autoRemove,
@@ -343,6 +359,7 @@ async function startContainer() {
     CapAdd,
     CapDrop,
     NetworkMode,
+    Devices,
   };
 
   const Dns = dnsServers.filter(dns => dns);
@@ -538,6 +555,14 @@ function addExtraHost() {
 
 function deleteExtraHost(index: number) {
   extraHosts = extraHosts.filter((_, i) => i !== index);
+}
+
+function addDevice() {
+  devices = [...devices, { host: '', container: '', read: false, write: false, mknod: false }];
+}
+
+function deleteDevice(index: number) {
+  devices = devices.filter((_, i) => i !== index);
 }
 
 // called when user change the container's name
@@ -850,6 +875,43 @@ const envDialogOptions: OpenDialogOptions = {
                   class="w-24 p-2"
                   disabled={restartPolicyName !== 'on-failure'} />
               </div>
+
+              <!-- devices -->
+              <label
+                for="modalDevices"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Devices:</label>
+              <!-- Display the list of existing devices -->
+              {#each devices as device, index}
+                <div class="flex flex-row justify-center items-center w-full py-1">
+                  <Input
+                    bind:value={device.host}
+                    placeholder="Host Device"
+                    class="w-full"
+                    aria-label="device.host.{index}" />
+                  <Input
+                    bind:value={device.container}
+                    placeholder="Container Device (leave blank for same as host device)"
+                    class="ml-2"
+                    aria-label="device.container.{index}" />
+                  <div class="flex flew-row space-x-4 ml-2 text-sm">
+                    <Checkbox bind:checked={device.read} title="Read">Read</Checkbox>
+                    <Checkbox bind:checked={device.write} title="Write">Write</Checkbox>
+                    <Checkbox bind:checked={device.mknod} title="Mknod">Mknod</Checkbox>
+                  </div>
+                  <Button
+                    type="link"
+                    hidden={index === devices.length - 1}
+                    aria-label="Delete device at index {index}"
+                    on:click={() => deleteDevice(index)}
+                    icon={faMinusCircle} />
+                  <Button
+                    type="link"
+                    hidden={index < devices.length - 1}
+                    aria-label="Add device after index {index}"
+                    on:click={addDevice}
+                    icon={faPlusCircle} />
+                </div>
+              {/each}
             </div>
           </Route>
 

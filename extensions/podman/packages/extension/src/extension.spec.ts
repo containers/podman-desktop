@@ -329,7 +329,7 @@ test('verify create command called with correct values', async () => {
   });
   expect(spyExecPromise).toBeCalledWith(
     podmanCli.getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
+    ['machine', 'init', '--cpus', '2', '--memory', '1000', '--disk-size', '232', '--image-path', 'path', '--rootful'],
     {
       logger: undefined,
       token: undefined,
@@ -372,7 +372,7 @@ test('verify create command called with correct values with user mode networking
     '--cpus',
     '2',
     '--memory',
-    '999',
+    '1000',
     '--disk-size',
     '232',
     '--image-path',
@@ -418,7 +418,7 @@ test('verify create command called with now flag if start machine after creation
     '--cpus',
     '2',
     '--memory',
-    '999',
+    '1000',
     '--disk-size',
     '232',
     '--image-path',
@@ -2027,24 +2027,25 @@ describe('calcPodmanMachineSetting', () => {
 
   test('setValue to true if OS is MacOS', async () => {
     vi.mocked(isWindows).mockReturnValue(false);
-    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    await extension.calcPodmanMachineSetting();
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
   });
   test('setValue to true if OS is Windows and uses HyperV - set env variable', async () => {
     vi.mocked(isWindows).mockReturnValue(true);
-    process.env.CONTAINERS_MACHINE_PROVIDER = 'hyperv';
-    vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(false);
-    await extension.calcPodmanMachineSetting(podmanConfiguration);
-    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
-    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
-    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
-  });
-  test('setValue to true if OS is Windows and uses HyperV - set by config file', async () => {
-    vi.mocked(isWindows).mockReturnValue(true);
-    vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(true);
-    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
+      return new Promise<extensionApi.RunResult>(resolve => {
+        if (command === 'powershell.exe') {
+          resolve({
+            stdout: args?.[0] === '@(Get-Service vmms).Status' ? 'Running' : 'True',
+            stderr: '',
+            command: 'command',
+          });
+        }
+      });
+    });
+    await extension.calcPodmanMachineSetting();
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
@@ -2053,7 +2054,7 @@ describe('calcPodmanMachineSetting', () => {
     vi.mocked(isWindows).mockReturnValue(true);
     process.env.CONTAINERS_MACHINE_PROVIDER = 'wsl';
     vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(false);
-    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    await extension.calcPodmanMachineSetting();
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, false);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, false);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, false);
@@ -2618,4 +2619,19 @@ test('getJSONMachineList should get machines from hyperv and wsl if both are ena
   await extension.getJSONMachineList();
   expect(execPodmanSpy).toHaveBeenNthCalledWith(1, ['machine', 'list', '--format', 'json'], 'wsl');
   expect(execPodmanSpy).toHaveBeenNthCalledWith(2, ['machine', 'list', '--format', 'json'], 'hyperv');
+});
+
+describe('updateWSLHyperVEnabledValue', () => {
+  beforeEach(() => {
+    extension.updateWSLHyperVEnabledValue(true);
+    vi.resetAllMocks();
+  });
+  test('setValue should be called if new value is different than wslAndHypervEnabled', async () => {
+    extension.updateWSLHyperVEnabledValue(false);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.WSL_HYPERV_ENABLED_KEY, false);
+  });
+  test('setValue should not be called if new value is equal to wslAndHypervEnabled', async () => {
+    extension.updateWSLHyperVEnabledValue(true);
+    expect(extensionApi.context.setValue).not.toBeCalled();
+  });
 });

@@ -496,4 +496,64 @@ describe('RunImage', () => {
     const button = screen.getByRole('button', { name: 'Start Container' });
     expect((button as HTMLButtonElement).disabled).toBeTruthy();
   });
+
+  test('Expect able to play with devices', async () => {
+    await createRunImage('', []);
+
+    const link1 = screen.getByRole('link', { name: 'Advanced' });
+    await fireEvent.click(link1);
+
+    // set the input field for the path
+    const deviceHostInput = screen.getByRole('textbox', { name: 'device.host.0' });
+
+    // set the value
+    await userEvent.type(deviceHostInput, '/dev/tty0');
+
+    // add a new element
+    const addDeviceButton = screen.getByRole('button', { name: 'Add device after index 0' });
+    await fireEvent.click(addDeviceButton);
+
+    // again (should be 3 now)
+    await fireEvent.click(addDeviceButton);
+
+    // now set the input for fields 2 and 3
+    const deviceHostInput2 = screen.getByRole('textbox', { name: 'device.host.1' });
+    await userEvent.type(deviceHostInput2, '/dev/tty1');
+
+    const deviceHostInput3 = screen.getByRole('textbox', { name: 'device.host.2' });
+    await userEvent.type(deviceHostInput3, '/dev/tty2');
+    const deviceContainerInput3 = screen.getByRole('textbox', { name: 'device.container.2' });
+    await userEvent.type(deviceContainerInput3, '/dev/ttyOnContainer2');
+
+    // delete the entry 2
+    const deleteDeviceButton = screen.getByRole('button', { name: 'Delete device at index 1' });
+    await fireEvent.click(deleteDeviceButton);
+
+    // now click on start
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    // should have item 1 and item 3 as we deleted item 2
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({
+        HostConfig: expect.objectContaining({
+          Devices: [
+            {
+              CgroupPermissions: 'rwm',
+              PathOnHost: '/dev/tty0',
+              PathInContainer: '/dev/tty0',
+            },
+            {
+              CgroupPermissions: 'rwm',
+              PathOnHost: '/dev/tty2',
+              PathInContainer: '/dev/ttyOnContainer2',
+            },
+          ],
+        }),
+      }),
+    );
+  });
 });
