@@ -50,7 +50,11 @@ beforeEach(() => {
     Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
   );
   (window.events as unknown) = {
-    receive: vi.fn(),
+    receive: vi.fn().mockImplementation(() => {
+      return {
+        dispose: vi.fn(),
+      };
+    }),
   };
 });
 
