@@ -2715,4 +2715,20 @@ export class ContainerProviderRegistry {
       return Promise.reject(errors);
     }
   }
+
+  async resolveShortnameImage(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    shortName: string,
+  ): Promise<string | undefined> {
+    const provider = this.getMatchingContainerProvider(providerContainerConnectionInfo);
+    try {
+      if (provider.libpodApi) {
+        return await provider.libpodApi.resolveShortnameImage(shortName);
+      } else {
+        return shortName;
+      }
+    } catch (e) {
+      console.log('problem :(');
+    }
+  }
 }

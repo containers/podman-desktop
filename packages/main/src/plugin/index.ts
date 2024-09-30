@@ -1038,6 +1038,16 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:resolveShortnameImage',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        shortName: string,
+      ): Promise<string | undefined> => {
+        return containerProviderRegistry.resolveShortnameImage(providerContainerConnectionInfo, shortName);
+      },
+    );
+    this.ipcHandle(
       'container-provider-registry:pullImage',
       async (
         _listener,

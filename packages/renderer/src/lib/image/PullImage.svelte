@@ -30,6 +30,10 @@ $: providerConnections = $providerInfos
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
+$: selectedProviderConnection
+  ? console.log(window.resolveShortnameImage(selectedProviderConnection, imageToPull ?? ''))
+  : '';
+
 let selectedProviderConnection: ProviderContainerConnectionInfo | undefined;
 
 const lineNumberPerId = new Map<string, number>();

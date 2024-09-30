@@ -364,6 +364,7 @@ export interface LibPod {
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
   removePod(podId: string, options?: PodRemoveOptions): Promise<void>;
+  resolveShortnameImage(shortname: string): Promise<string>;
   restartPod(podId: string): Promise<void>;
   generateKube(names: string[]): Promise<string>;
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
@@ -966,6 +967,29 @@ export class LibpodDockerode {
         options: {},
       };
 
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    prototypeOfDockerode.resolveShortnameImage = function (shortname: string): Promise<unknown> {
+      const optsf = {
+        path: `libpod/images/${shortname}/resolve`,
+        method: 'GET',
+        options: {},
+        abortSignal: undefined,
+        isStream: true,
+        statusCodes: {
+          204: true,
+          400: 'bad parameter',
+          500: 'server error',
+        },
+      };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {
