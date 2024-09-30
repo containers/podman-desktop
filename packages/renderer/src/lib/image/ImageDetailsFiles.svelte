@@ -65,9 +65,6 @@ onDestroy(() => {
   </div>
 {:else if imageLayers}
   <div class="flex flex-col w-full h-full p-8 pr-0 text-[var(--pd-content-text)] bg-[var(--pd-content-bg)]">
-    <div class="pr-4">
-      <slot name="header-info" />
-    </div>
     <div class="mb-2 flex flex-row pr-12 pb-2">
       <span class="grow">Layers</span>
       <span><Checkbox bind:checked={showLayerOnly}>Show layer only</Checkbox></span>
