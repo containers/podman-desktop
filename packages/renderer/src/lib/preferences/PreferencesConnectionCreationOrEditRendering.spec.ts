@@ -236,7 +236,7 @@ describe.each([
       // keep reference
       providedKeyLogger = keyLogger;
     });
-
+    (window as any).getCancellableTokenSource.mockReturnValue(Date.now());
     render(PreferencesConnectionCreationOrEditRendering, {
       properties,
       providerInfo,
