@@ -111,6 +111,7 @@ import type { ExtensionBanner, RecommendedRegistry } from '../../main/src/plugin
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import { Deferred } from './util/deferred';
+import { ShellDimensions } from '@podman-desktop/api';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -620,6 +621,7 @@ export function initExposure(): void {
   );
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   // callbacks for shellInProviderConnection
   let onDataCallbacksShellInProviderConnectionId = 0;
   const onDataCallbacksShellInProviderConnection = new Map<
@@ -677,43 +679,55 @@ export function initExposure(): void {
   // callbacks for shellInProvider
   let onDataCallbacksShellInProviderId = 0;
   const onDataCallbacksShellInProvider = new Map<
+=======
+  // callbacks for shellInProviderConnection
+  let onDataCallbacksShellInProviderConnectionId = 0;
+  const onDataCallbacksShellInProviderConnection = new Map<
+>>>>>>> 8f7ab419b (feat: allow to ssh to podman virtual machine)
     number,
-    { onData: (data: Buffer) => void; onError: (error: string) => void; onEnd: () => void }
+    { onData: (data: string) => void; onError: (error: string) => void; onEnd: () => void }
   >();
   contextBridge.exposeInMainWorld(
-    'shellInProvider',
+    'shellInProviderConnection',
     async (
-      provider: ProviderInfo,
-      onData: (data: Buffer) => void,
+      internalProviderId: string,
+      connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      onData: (data: string) => void,
       onError: (error: string) => void,
       onEnd: () => void,
+      setWindow: ShellDimensions,
     ): Promise<number> => {
-      onDataCallbacksShellInProviderId++;
-      onDataCallbacksShellInProvider.set(onDataCallbacksShellInProviderId, { onData, onError, onEnd });
-      return ipcInvoke('provider-registry:shellInProvider', provider, onDataCallbacksShellInProviderId);
+      onDataCallbacksShellInProviderConnectionId++;
+      onDataCallbacksShellInProviderConnection.set(onDataCallbacksShellInProviderConnectionId, { onData, onError, onEnd });
+      return ipcInvoke('provider-registry:shellInProviderConnection', internalProviderId, connectionInfo, setWindow, onDataCallbacksShellInProviderConnectionId);
     },
   );
 
-  contextBridge.exposeInMainWorld('shellInProviderSend', async (dataId: number, content: Buffer): Promise<void> => {
-    return ipcInvoke('provider-registry:shellInProviderSend', dataId, content);
+  contextBridge.exposeInMainWorld('shellInProviderConnectionSend', async (dataId: number, content: string): Promise<void> => {
+    return ipcInvoke('provider-registry:shellInProviderConnectionSend', dataId, content);
   });
 
-  contextBridge.exposeInMainWorld('shellInProviderResize', async (dataId: number, width: number, height: number) => {
-    return ipcInvoke('provider-registry:shellInProviderResize', dataId, width, height);
+  contextBridge.exposeInMainWorld('shellInProviderConnectionSetWindow', async (dataId: number, width: number, height: number) => {
+    return ipcInvoke('provider-registry:shellInProviderConnectionSetWindow', dataId, width, height);
   });
 
   ipcRenderer.on(
-    'provider-registry:shellInProvider-onData',
-    (_, onDataCallbacksShellInProviderId: number, data: Buffer) => {
+    'provider-registry:shellInProviderConnection-onData',
+    (_, onDataCallbacksShellInProviderConnectionId: number, data: string) => {
       // grab callback from the map
+<<<<<<< HEAD
       const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
 >>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)
+=======
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+>>>>>>> 8f7ab419b (feat: allow to ssh to podman virtual machine)
       if (callback) {
         callback.onData(data);
       }
     },
   );
   ipcRenderer.on(
+<<<<<<< HEAD
 <<<<<<< HEAD
     'provider-registry:shellInProviderConnection-onError',
     (_, onDataCallbacksShellInProviderConnectionId: number, error: string) => {
@@ -725,12 +739,19 @@ export function initExposure(): void {
       // grab callback from the map
       const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
 >>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)
+=======
+    'provider-registry:shellInProviderConnection-onError',
+    (_, onDataCallbacksShellInProviderConnectionId: number, error: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+>>>>>>> 8f7ab419b (feat: allow to ssh to podman virtual machine)
       if (callback) {
         callback.onError(error);
       }
     },
   );
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   ipcRenderer.on(
     'provider-registry:shellInProviderConnection-onEnd',
@@ -746,12 +767,15 @@ export function initExposure(): void {
   );
 =======
   ipcRenderer.on('provider-registry:shellInProvider-onEnd', (_, onDataCallbacksShellInProviderId: number) => {
+=======
+  ipcRenderer.on('provider-registry:shellInProviderConnection-onEnd', (_, onDataCallbacksShellInProviderConnectionId: number) => {
+>>>>>>> 8f7ab419b (feat: allow to ssh to podman virtual machine)
     // grab callback from the map
-    const callback = onDataCallbacksShellInProvider.get(onDataCallbacksShellInProviderId);
+    const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
     if (callback) {
       callback.onEnd();
       // remove callback from the map
-      onDataCallbacksShellInProvider.delete(onDataCallbacksShellInProviderId);
+      onDataCallbacksShellInProviderConnection.delete(onDataCallbacksShellInProviderConnectionId);
     }
   });
 >>>>>>> 3dbb14c0c (feat: allow to ssh to podman virtual machine)

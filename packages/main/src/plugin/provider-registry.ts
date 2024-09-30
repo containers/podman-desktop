@@ -28,9 +28,13 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
+<<<<<<< HEAD
   ProviderConnectionShellAccess,
   ProviderConnectionShellAccessSession,
   ProviderConnectionShellDimensions,
+=======
+  ProviderConnectionShellAccessData,
+>>>>>>> 8f7ab419b (feat: allow to ssh to podman virtual machine)
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
@@ -43,6 +47,7 @@ import type {
   ProviderUpdate,
   RegisterContainerConnectionEvent,
   RegisterKubernetesConnectionEvent,
+  ShellDimensions,
   UnregisterContainerConnectionEvent,
   UnregisterKubernetesConnectionEvent,
   UpdateContainerConnectionEvent,
