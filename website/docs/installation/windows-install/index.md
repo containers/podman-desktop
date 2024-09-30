@@ -145,7 +145,7 @@ time="2023-05-09T21:16:08+03:00" level=debug msg="Using Podman machine with `hyp
 Full example then could looks like this, open powershell with admin provileges:
 
 ```
-PS C:\Windows\system32> $env:ACONTAINERS_MACHINE_PROVIDER = 'hyperv'
+PS C:\Windows\system32> $env:CONTAINERS_MACHINE_PROVIDER = 'hyperv'
 PS C:\Windows\system32> $env:CONTAINERS_MACHINE_PROVIDER
 hyperv
 
