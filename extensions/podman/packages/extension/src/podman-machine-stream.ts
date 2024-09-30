@@ -37,28 +37,20 @@ export class PodmanMachineStream {
   }
 
   createStream(shellAccess: ProviderConnectionShellAccess) {
-    this.#client
-      .on('ready', () => {
-        console.log('Client :: ready');
-
-        this.#client.shell((err, stream) => {
-          if (err) shellAccess.onError(err.message);
-
-          stream
-            .on('close', () => {
-              console.log('Stream :: close');
-              this.#client.end();
-              shellAccess.onEnd();
-            })
-            .on('data', (data: string) => {
-              console.log('Out: ' + data);
-              shellAccess.onData(() => data);
-            });
-          stream.write(shellAccess.write);
-          stream.end();
+    this.#client.on('ready', () => {
+      console.log('Client :: ready');
+      this.#client.shell((err, stream) => {
+        if (err) throw err;
+        stream.on('close', () => {
+          console.log('Stream :: close');
+          this.#client.end();
+        }).on('data', (data:string) => {
+          console.log('OUTPUT: ' + data);
         });
-      })
-      .connect({
+        stream.write('ls -l\n');
+        stream.end('exit\n');
+      });
+    }).connect({
         host: this.#host,
         port: this.#port,
         username: this.#username,
