@@ -90,14 +90,17 @@ export class PullImagePage extends BasePage {
   async refineSearchResults(stringToAppend: string, resultsExpected = true): Promise<string[]> {
     return await test.step(`Refine search results by appending: ${stringToAppend}`, async () => {
       await this.imageNameInput.pressSequentially(stringToAppend, { delay: 10 });
+      const searchString = await this.imageNameInput.inputValue();
 
       if (resultsExpected) {
         await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+        await playExpect
+          .poll(async () => await this.getFirstSearchResultInstantly(), { timeout: 10_000 })
+          .toContain(searchString);
       } else {
         await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
       }
 
-      const searchString = await this.imageNameInput.inputValue();
       return await this.getAllSearchResultsInstantly(searchString);
     });
   }
