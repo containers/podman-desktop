@@ -13,11 +13,11 @@ import ImageDetailsFilesLayers from './ImageDetailsFilesLayers.svelte';
 
 let { imageInfo }: { imageInfo: ImageInfo | undefined } = $props();
 
-let imageLayers: ImageFilesystemLayers | undefined = $state();
-let selectedLayer: ImageFilesystemLayerUI | undefined = $state();
-let loading: boolean = $state(false);
-let error: string = $state('');
-let showLayerOnly: boolean = $state(false);
+let imageLayers = $state<ImageFilesystemLayers>();
+let selectedLayer = $state<ImageFilesystemLayerUI>();
+let loading = $state<boolean>(false);
+let error = $state<string>('');
+let showLayerOnly = $state<boolean>(false);
 
 let filesProvidersUnsubscribe: Unsubscriber;
 let filesProvider: ImageFilesInfo;
