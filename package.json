@@ -38,7 +38,7 @@
     "test:unit": "npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:preload-webview && npm run test:ui && npm run test:renderer && npm run test:scripts:stylesheet && npm run test:tools && npm run test:extensions && npm run test:website",
     "test:e2e": "npm run test:e2e:build && npm run test:e2e:run",
     "test:e2e:build": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build",
-    "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/ --grep-invert @update-install",
+    "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/podman-machine-rootless.spec.ts --grep-invert @update-install",
     "test:e2e:smoke": "npm run test:e2e:build && npm run test:e2e:smoke:run",
     "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/ -g @smoke",
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",

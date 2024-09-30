@@ -27,6 +27,8 @@ const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 
 test.beforeAll(async ({ runner, welcomePage }) => {
   runner.setVideoAndTraceName('podman-rootless-machine-e2e');
+  const env: { [key: string]: string } = process.env as { [key: string]: string };
+  env.KEEP_VIDEOS_ON_PASS = 'true';
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
   await welcomePage.handleWelcomePage(true);
