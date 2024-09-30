@@ -220,7 +220,9 @@ async function handleValidComponent() {
   }
 
   try {
-    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+    const auditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+    isValid = auditResult.records.filter(record => record.type === 'error').length === 0;
+    connectionAuditResult = auditResult;
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.warn(err.message);

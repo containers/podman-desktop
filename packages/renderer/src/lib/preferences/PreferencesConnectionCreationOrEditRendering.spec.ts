@@ -236,7 +236,7 @@ describe.each([
       // keep reference
       providedKeyLogger = keyLogger;
     });
-
+    (window as any).getCancellableTokenSource.mockReturnValue(Date.now());
     render(PreferencesConnectionCreationOrEditRendering, {
       properties,
       providerInfo,
@@ -332,6 +332,62 @@ describe.each([
     await fireEvent.click(createButton);
     const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
     expect(showLogsButton).toBeInTheDocument();
+  });
+
+  test(`Expect ${label} button to be disabled if itemsAudit returns errors or enabled otherwise`, async () => {
+    const callback = vi.fn();
+    let auditSpy = vi.spyOn(window as any, 'auditConnectionParameters');
+    if (!connectionInfo) {
+      auditSpy = vi.spyOn(window as any, 'auditConnectionParameters').mockImplementationOnce(() => ({ records: [] }));
+    }
+    auditSpy = auditSpy
+      .mockImplementationOnce(() => ({
+        records: [
+          {
+            type: 'error',
+            record: 'error message',
+          },
+        ],
+      }))
+      .mockImplementationOnce(() => ({
+        records: [
+          {
+            type: 'info',
+            record: 'info message',
+          },
+        ],
+      }));
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    render(PreferencesConnectionCreationOrEditRendering, {
+      properties: [
+        {
+          title: 'FactoryProperty',
+          parentId: '',
+          scope: 'ContainerProviderConnectionFactory',
+          id: 'test.factoryProperty',
+          type: 'number',
+          description: 'test.factoryProperty',
+        },
+      ],
+      providerInfo,
+      connectionInfo,
+      propertyScope,
+      callback,
+      pageIsLoading: false,
+      taskId,
+    });
+    await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
+    const inputElement = screen.queryByRole('textbox', { name: 'test.factoryProperty' });
+    expect(inputElement).toBeDefined();
+    await fireEvent.input(inputElement!, { target: { value: '1' } });
+    await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalled());
+    const createButton = screen.getByRole('button', { name: `${label}` });
+    expect(createButton).toBeInTheDocument();
+    await vi.waitFor(() => expect(createButton).toBeDisabled());
+
+    await fireEvent.input(inputElement as Element, { target: { value: '2' } });
+    await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalledTimes(2));
+    await vi.waitFor(() => expect(createButton).toBeEnabled());
   });
 });
 
