@@ -56,6 +56,10 @@
       "types": "./dist/alert/ErrorMessage.svelte.d.ts",
       "svelte": "./dist/alert/ErrorMessage.svelte"
     },
+    "./Dropdown": {
+      "types": "./dist/dropdown/Dropdown.svelte.d.ts",
+      "svelte": "./dist/dropdown/Dropdown.svelte"
+    },
     "./DropdownMenu": {
       "types": "./dist/dropdownMenu/index.d.ts",
       "svelte": "./dist/dropdownMenu/index.js"
