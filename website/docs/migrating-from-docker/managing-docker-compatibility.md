@@ -45,7 +45,7 @@ As a developer, you can:
 4. **Docker CLI Context** setting: Select a socket context to work with from the dropdown list.
 
 </TabItem>
-   <TabItem value="macOS" label="macOS (Silicon)" className="markdown">
+   <TabItem value="macOS" label="macOS" className="markdown">
 
 #### Procedure
 
