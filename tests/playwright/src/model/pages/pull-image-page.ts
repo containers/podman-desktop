@@ -58,36 +58,87 @@ export class PullImagePage extends BasePage {
     });
   }
 
-  async getAllSearchResultsFor(imageName: string, searchForVersion: boolean, imageTag = ''): Promise<string[]> {
+  async getAllSearchResultsFor(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string[]> {
     return await test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
-      if (!imageName || imageName.length === 0) {
-        throw new Error('Image name is invalid');
-      }
+      const searchString = await this.handleFormAndResultSearchString(
+        imageName,
+        searchForVersion,
+        imageTag,
+        resultsExpected,
+      );
+      return await this.getAllSearchResultsInstantly(searchString);
+    });
+  }
 
-      let searchString;
+  async getFirstSearchResultFor(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string> {
+    return await test.step(`Get first search result for ${imageName}:${imageTag}`, async () => {
+      await this.handleFormAndResultSearchString(imageName, searchForVersion, imageTag, resultsExpected);
+      return await this.getFirstSearchResultInstantly();
+    });
+  }
 
-      if (searchForVersion) {
-        searchString = `${imageName}:${imageTag}`;
+  async refineSearchResults(stringToAppend: string, resultsExpected = true): Promise<string[]> {
+    return await test.step(`Refine search results by appending: ${stringToAppend}`, async () => {
+      await this.imageNameInput.pressSequentially(stringToAppend, { delay: 10 });
+      const searchString = await this.imageNameInput.inputValue();
+
+      if (resultsExpected) {
+        await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+        await playExpect
+          .poll(async () => await this.getFirstSearchResultInstantly(), { timeout: 10_000 })
+          .toContain(searchString);
       } else {
-        searchString = imageName;
+        await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
       }
 
-      await this.imageNameInput.fill(searchString);
-      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+      return await this.getAllSearchResultsInstantly(searchString);
+    });
+  }
 
+  async getAllSearchResultsInstantly(searchString: string): Promise<string[]> {
+    return await test.step(`Get search results instantly for ${searchString}`, async () => {
       const resultList: string[] = [];
       const resultRows = await this.getAllResultButtonLocators(searchString);
       for (const row of resultRows) {
         const result = await row.innerText();
         resultList.push(result);
       }
-
+      console.log(`Found ${resultList.length} results for ${searchString}`);
       return resultList;
+    });
+  }
+
+  async getFirstSearchResultInstantly(): Promise<string> {
+    return await test.step(`Get first search result from the results table`, async () => {
+      const resultRow = this.getFirstResultButtonLocator();
+      return await resultRow.innerText();
     });
   }
 
   async pullImageFromSearchResults(pattern: string, timeout = 60_000): Promise<ImagesPage> {
     return await test.step(`Pull image from search results: ${pattern}`, async () => {
+      await this.selectValueFromSearchResults(pattern);
+      await playExpect(this.pullImageButton).toBeEnabled();
+      await this.pullImageButton.click();
+
+      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
+      await this.doneButton.click();
+      return new ImagesPage(this.page);
+    });
+  }
+
+  async selectValueFromSearchResults(pattern: string): Promise<void> {
+    await test.step(`Select value from search results: ${pattern}`, async () => {
       const getExactButtonLocator = this.searchResultsTable.getByRole('button', { name: pattern, exact: true }).first();
 
       await getExactButtonLocator.scrollIntoViewIfNeeded();
@@ -97,12 +148,6 @@ export class PullImagePage extends BasePage {
       await getExactButtonLocator.click();
 
       await playExpect(this.imageNameInput).toHaveValue(pattern);
-      await playExpect(this.pullImageButton).toBeEnabled();
-      await this.pullImageButton.click();
-
-      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
-      await this.doneButton.click();
-      return new ImagesPage(this.page);
     });
   }
 
@@ -116,5 +161,38 @@ export class PullImagePage extends BasePage {
 
   private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
     return this.searchResultsTable.getByRole('button', { name: pattern }).all();
+  }
+
+  private getFirstResultButtonLocator(): Locator {
+    return this.searchResultsTable.getByRole('button').first();
+  }
+
+  private async handleFormAndResultSearchString(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string> {
+    if (!imageName || imageName.length === 0) {
+      throw new Error('Image name is invalid');
+    }
+
+    let searchString;
+
+    if (searchForVersion) {
+      searchString = `${imageName}:${imageTag}`;
+    } else {
+      searchString = imageName;
+    }
+
+    await this.clearImageSearch();
+    await this.imageNameInput.fill(searchString);
+
+    if (resultsExpected) {
+      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+    } else {
+      await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
+    }
+    return searchString;
   }
 }
