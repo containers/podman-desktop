@@ -1,0 +1,51 @@
+name: UX Request
+description: UX Request Form
+labels: [UX/UI Issue, Graphic design]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a UX request, please search for existing issues.
+
+        ---
+
+  - type: textarea
+    id: UX-description
+    attributes:
+      label: UX Description
+      description: Describe the request
+    validations:
+      required: true
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Request type
+      description: "What type of request is this?"
+      options:
+        - "A logo design"
+        - "An icon"
+        - "An infographic/chart"
+        - "A template or design for printed materials"
+        - "Swag design"
+        - "Graphic design not covered by the above"
+        - "UX analysis/suggestions for improvement"
+        - "User research"
+        - "User testing"
+        - "Application mockups/designs"
+        - "Website mockups/designs"
+        - "Something else UX-related"
+      
+
+  - type: textarea
+    id: Contacts
+    attributes:
+      label: Primary Contact
+      description: Who is the contact the design team can speak with about this issue?
+
+  - type: textarea
+    id: Deadline
+    attributes:
+      label: Deadline for request
+      description: When do you need this?  If this is for an event, please let us know the date of the event and any lead time you need to get materials produced.
