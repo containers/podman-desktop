@@ -893,9 +893,11 @@ const envDialogOptions: OpenDialogOptions = {
                     placeholder="Container Device (leave blank for same as host device)"
                     class="ml-2"
                     aria-label="device.container.{index}" />
-                  <Checkbox bind:checked={device.read} title="Read" class="ml-2">Read</Checkbox>
-                  <Checkbox bind:checked={device.write} title="Write" class="ml-2">Write</Checkbox>
-                  <Checkbox bind:checked={device.mknod} title="Mknod" class="ml-2">Mknod</Checkbox>
+                  <div class="flex flew-row space-x-4 ml-2 text-sm">
+                    <Checkbox bind:checked={device.read} title="Read">Read</Checkbox>
+                    <Checkbox bind:checked={device.write} title="Write">Write</Checkbox>
+                    <Checkbox bind:checked={device.mknod} title="Mknod">Mknod</Checkbox>
+                  </div>
                   <Button
                     type="link"
                     hidden={index === devices.length - 1}
