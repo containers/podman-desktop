@@ -58,7 +58,12 @@ export class PullImagePage extends BasePage {
     });
   }
 
-  async getAllSearchResultsFor(imageName: string, searchForVersion: boolean, imageTag = ''): Promise<string[]> {
+  async getAllSearchResultsFor(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string[]> {
     return await test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
       if (!imageName || imageName.length === 0) {
         throw new Error('Image name is invalid');
@@ -72,16 +77,43 @@ export class PullImagePage extends BasePage {
         searchString = imageName;
       }
 
+      await this.clearImageSearch();
       await this.imageNameInput.fill(searchString);
-      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
 
+      if (resultsExpected) {
+        await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+      } else {
+        await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
+      }
+
+      return await this.getSearchResultsInstantly(searchString);
+    });
+  }
+
+  async refineSearchResults(stringToAppend: string, resultsExpected = true): Promise<string[]> {
+    return await test.step(`Refine search results by appending: ${stringToAppend}`, async () => {
+      await this.imageNameInput.pressSequentially(stringToAppend, { delay: 10 });
+
+      if (resultsExpected) {
+        await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+      } else {
+        await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
+      }
+
+      const searchString = `${await this.imageNameInput.inputValue()}`;
+      return await this.getSearchResultsInstantly(searchString);
+    });
+  }
+
+  async getSearchResultsInstantly(searchString: string): Promise<string[]> {
+    return await test.step(`Get search results instantly for ${searchString}`, async () => {
       const resultList: string[] = [];
       const resultRows = await this.getAllResultButtonLocators(searchString);
       for (const row of resultRows) {
         const result = await row.innerText();
         resultList.push(result);
       }
-
+      console.log(`Found ${resultList.length} results for ${searchString}`);
       return resultList;
     });
   }
