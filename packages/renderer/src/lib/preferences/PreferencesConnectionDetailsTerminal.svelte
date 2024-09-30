@@ -39,7 +39,7 @@ $effect(() => {
 });
 
 async function restartTerminal() {
-  await executeShellIntoProvider();
+  await executeShellIntoProviderConnection();
   window.dispatchEvent(new Event('resize'));
 }
 
@@ -49,31 +49,31 @@ router.subscribe(route => {
 });
 
 // update terminal when receiving data
-function receiveDataCallback(data: Buffer) {
-  shellTerminal.write(data.toString());
+function receiveDataCallback(data: string) {
+  shellTerminal.write(data);
 }
 
 function receiveEndCallback() {
   // need to reopen a new terminal
   window
-    .shellInProvider(provider, receiveDataCallback, () => {}, receiveEndCallback)
+    .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback, {w: 200, h:100})
     .then(id => {
       sendCallbackId = id;
 
       shellTerminal?.onData(data => {
-        window.shellInProviderSend(id, data);
+        window.shellInProviderConnectionSend(id, data);
       });
     });
 }
 
 // call exec command
-async function executeShellIntoProvider() {
+async function executeShellIntoProviderConnection() {
   // grab logs of the provider
-  const callbackId = await window.shellInProvider(provider, receiveDataCallback, () => {}, receiveEndCallback);
-  await window.shellInProviderResize(callbackId, shellTerminal.cols, shellTerminal.rows);
+  const callbackId = await window.shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback, {w: 200, h:100});
+  await window.shellInProviderConnectionSetWindow(callbackId, shellTerminal.cols, shellTerminal.rows);
   // pass data from xterm to provider
   shellTerminal?.onData(data => {
-    window.shellInProviderSend(callbackId, data);
+    window.shellInProviderConnectionSend(callbackId, data);
   });
 
   // store it
@@ -124,7 +124,7 @@ async function refreshTerminal() {
     if (currentRouterPath === `/providers/${provider.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
-        window.shellInProviderResize(sendCallbackId, shellTerminal.cols, shellTerminal.rows);
+        window.shellInProviderConnectionSetWindow(sendCallbackId, shellTerminal.cols, shellTerminal.rows);
       }
     }
   });
@@ -132,7 +132,7 @@ async function refreshTerminal() {
 }
 onMount(async () => {
   await refreshTerminal();
-  await executeShellIntoProvider();
+  await executeShellIntoProviderConnection();
 });
 
 onDestroy(() => {
