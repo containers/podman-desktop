@@ -792,13 +792,13 @@ declare module '@podman-desktop/api' {
 
   export interface ProviderConnectionShellAccess {
     onData: Event<ProviderConnectionShellAccessData>;
-    write(data: unknown): void;
-    onError(): void;
-    enEnd(): void;
+    write(data: string): void;
+    onError(error: string): void;
+    onEnd(): void;
   }
 
   export interface ProviderConnectionShellAccessData {
-    data: unknown;
+    data: string;
   }
 
   /**

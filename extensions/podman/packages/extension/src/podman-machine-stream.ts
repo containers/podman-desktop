@@ -16,57 +16,53 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Client } from "ssh2";
-import { MachineInfo } from "./extension";
+import { Client } from 'ssh2';
+import { MachineInfo } from './extension';
 import * as fs from 'fs';
-import { Stream } from "stream";
-import { ProviderConnectionShellAccess } from "@podman-desktop/api";
+import { ProviderConnectionShellAccess } from '@podman-desktop/api';
 
-export class PodmanMachineStream { 
-    #host: string;
-    #port: number;
-    #username: string;
-    #privateKey: string;
-    #client: Client;
+export class PodmanMachineStream {
+  #host: string;
+  #port: number;
+  #username: string;
+  #privateKey: string;
+  #client: Client;
 
-    constructor(
-        private podmanMachine: MachineInfo
-    ) {
-        this.#host = "localhost",
-        this.#port = podmanMachine.port,
-        this.#username = podmanMachine.remoteUsername,
-        this.#privateKey = podmanMachine.identityPath
-        this.#client = new Client();
-    };
+  constructor(private readonly podmanMachine: MachineInfo) {
+    this.#host = 'localhost';
+    this.#port = podmanMachine.port;
+    this.#username = podmanMachine.remoteUsername;
+    this.#privateKey = podmanMachine.identityPath;
+    this.#client = new Client();
+  }
 
-    // createStream(shellAccess: ProviderConnectionShellAccess) {
-    createStream(a: string) {
-        // console.error("createStream, shellAccess: ", shellAccess)
-        this.#client.on('ready', () => {
-
+  createStream(shellAccess: ProviderConnectionShellAccess) {
+    this.#client
+      .on('ready', () => {
         console.log('Client :: ready');
-        
-        this.#client.shell((err, stream) => {
-            // if (err) shellAccess.onError();
 
-            stream.on('close', () => {
-                console.log('Stream :: close');
-                this.#client.end();
-                // shellAccess.onEnd();
-            }).on('data', (data:Stream) => {
-                console.log('Out: ' + data);
-                // shellAccess.onData(data);
-                console.log(a);
+        this.#client.shell((err, stream) => {
+          if (err) shellAccess.onError(err.message);
+
+          stream
+            .on('close', () => {
+              console.log('Stream :: close');
+              this.#client.end();
+              shellAccess.onEnd();
+            })
+            .on('data', (data: string) => {
+              console.log('Out: ' + data);
+              shellAccess.onData(() => data);
             });
-                stream.write("In: "+a+ "\n");
-                // stream.write(shellAccess.write);
-                stream.end();
+          stream.write(shellAccess.write);
+          stream.end();
         });
-        }).connect({
+      })
+      .connect({
         host: this.#host,
         port: this.#port,
         username: this.#username,
-        privateKey: fs.readFileSync(this.#privateKey)
-        });
-    };
+        privateKey: fs.readFileSync(this.#privateKey),
+      });
+  }
 }
