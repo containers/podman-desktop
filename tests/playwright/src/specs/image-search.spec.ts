@@ -59,4 +59,15 @@ test.describe.serial('Image search verification @smoke', () => {
     searchResults = await pullImagePage.refineSearchResults('3.13');
     playExpect(searchResults.length).toBe(4);
   });
+
+  test.fail('First search result needs to be the most relevant', async ({ navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const pullImagePage = await imagesPage.openPullImage();
+    await playExpect(pullImagePage.heading).toBeVisible();
+
+    const searchResults = await pullImagePage.getFirstSearchResultFor('quay.io/podman', false);
+    playExpect(searchResults).toContain('quay.io/podman');
+  });
 });

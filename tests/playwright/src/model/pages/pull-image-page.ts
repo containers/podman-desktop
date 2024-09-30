@@ -65,28 +65,25 @@ export class PullImagePage extends BasePage {
     resultsExpected = true,
   ): Promise<string[]> {
     return await test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
-      if (!imageName || imageName.length === 0) {
-        throw new Error('Image name is invalid');
-      }
+      const searchString = await this.handleFormAndResultSearchString(
+        imageName,
+        searchForVersion,
+        imageTag,
+        resultsExpected,
+      );
+      return await this.getAllSearchResultsInstantly(searchString);
+    });
+  }
 
-      let searchString;
-
-      if (searchForVersion) {
-        searchString = `${imageName}:${imageTag}`;
-      } else {
-        searchString = imageName;
-      }
-
-      await this.clearImageSearch();
-      await this.imageNameInput.fill(searchString);
-
-      if (resultsExpected) {
-        await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
-      } else {
-        await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
-      }
-
-      return await this.getSearchResultsInstantly(searchString);
+  async getFirstSearchResultFor(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string> {
+    return await test.step(`Get first search result for ${imageName}:${imageTag}`, async () => {
+      await this.handleFormAndResultSearchString(imageName, searchForVersion, imageTag, resultsExpected);
+      return await this.getFirstSearchResultInstantly();
     });
   }
 
@@ -101,11 +98,11 @@ export class PullImagePage extends BasePage {
       }
 
       const searchString = await this.imageNameInput.inputValue();
-      return await this.getSearchResultsInstantly(searchString);
+      return await this.getAllSearchResultsInstantly(searchString);
     });
   }
 
-  async getSearchResultsInstantly(searchString: string): Promise<string[]> {
+  async getAllSearchResultsInstantly(searchString: string): Promise<string[]> {
     return await test.step(`Get search results instantly for ${searchString}`, async () => {
       const resultList: string[] = [];
       const resultRows = await this.getAllResultButtonLocators(searchString);
@@ -115,6 +112,13 @@ export class PullImagePage extends BasePage {
       }
       console.log(`Found ${resultList.length} results for ${searchString}`);
       return resultList;
+    });
+  }
+
+  async getFirstSearchResultInstantly(): Promise<string> {
+    return await test.step(`Get first search result from the results table`, async () => {
+      const resultRow = this.getFirstResultButtonLocator();
+      return await resultRow.innerText();
     });
   }
 
@@ -148,5 +152,38 @@ export class PullImagePage extends BasePage {
 
   private getAllResultButtonLocators(pattern: string): Promise<Locator[]> {
     return this.searchResultsTable.getByRole('button', { name: pattern }).all();
+  }
+
+  private getFirstResultButtonLocator(): Locator {
+    return this.searchResultsTable.getByRole('button').first();
+  }
+
+  private async handleFormAndResultSearchString(
+    imageName: string,
+    searchForVersion: boolean,
+    imageTag = '',
+    resultsExpected = true,
+  ): Promise<string> {
+    if (!imageName || imageName.length === 0) {
+      throw new Error('Image name is invalid');
+    }
+
+    let searchString;
+
+    if (searchForVersion) {
+      searchString = `${imageName}:${imageTag}`;
+    } else {
+      searchString = imageName;
+    }
+
+    await this.clearImageSearch();
+    await this.imageNameInput.fill(searchString);
+
+    if (resultsExpected) {
+      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+    } else {
+      await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
+    }
+    return searchString;
   }
 }
