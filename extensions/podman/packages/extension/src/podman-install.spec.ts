@@ -605,9 +605,46 @@ test('expect winWSL2 command to be registered as disposable', async () => {
 });
 
 describe('HyperV', () => {
-  test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
+  beforeEach(() => {
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+      get: () => '',
+      has: vi.fn(),
+      update: vi.fn(),
+    });
+    vi.clearAllMocks();
+  });
+
+  test('expect HyperV preflight check return failure result if podman is older than 5.2.0', async () => {
+    let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.1.0',
+          stderr: '',
+          command: 'command',
+        });
+      }
       throw new Error();
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('Hyper-V is only supported with podman version >= 5.2.0.');
+  });
+
+  test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.2.0',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
     });
 
     const hyperVCheck = new HyperVCheck();
@@ -621,12 +658,21 @@ describe('HyperV', () => {
   });
 
   test('expect HyperV preflight check return failure result if non admin user', async () => {
+    let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      return Promise.resolve({
-        stdout: 'False',
-        stderr: '',
-        command: 'command',
-      });
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.2.0',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        return Promise.resolve({
+          stdout: 'False',
+          stderr: '',
+          command: 'command',
+        });
+      }
     });
 
     const hyperVCheck = new HyperVCheck();
@@ -642,9 +688,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return failure result if Podman Desktop is not run with elevated privileges', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 1) {
+      if (index++ <= 1) {
         return Promise.resolve({
-          stdout: 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -665,9 +711,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return failure result if HyperV not installed', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ <= 1) {
+      if (index++ <= 2) {
         return Promise.resolve({
-          stdout: 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -689,9 +735,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return failure result if HyperV not running', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ <= 2) {
+      if (index++ <= 3) {
         return Promise.resolve({
-          stdout: 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -713,9 +759,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return OK', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 4) {
+      if (index++ <= 4) {
         return Promise.resolve({
-          stdout: index === 4 ? 'Running' : 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : index === 5 ? 'Running' : 'True',
           stderr: '',
           command: 'command',
         });

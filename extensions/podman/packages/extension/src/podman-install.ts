@@ -21,7 +21,7 @@ import * as path from 'node:path';
 import { promisify } from 'node:util';
 
 import * as extensionApi from '@podman-desktop/api';
-import { compare } from 'compare-versions';
+import { compare, compareVersions } from 'compare-versions';
 
 import { BaseCheck, OrCheck, SequenceCheck } from './base-check';
 import { getDetectionChecks } from './detection-checks';
@@ -821,8 +821,14 @@ export class WSLVersionCheck extends BaseCheck {
 
 export class HyperVCheck extends WindowsCheck {
   title = 'Hyper-V installed';
+  PODMAN_MINIMUM_VERSION_FOR_HYPERV = '5.2.0';
 
   async execute(): Promise<extensionApi.CheckResult> {
+    if (!(await this.isPodmanVersionSupported())) {
+      return this.createFailureResult({
+        description: `Hyper-V is only supported with podman version >= ${this.PODMAN_MINIMUM_VERSION_FOR_HYPERV}.`,
+      });
+    }
     if (!(await this.isUserAdmin())) {
       return this.createFailureResult({
         description: 'You must have administrative rights to run Hyper-V Podman machines',
@@ -859,6 +865,14 @@ export class HyperVCheck extends WindowsCheck {
       });
     }
     return this.createSuccessfulResult();
+  }
+
+  private async isPodmanVersionSupported(): Promise<boolean> {
+    const installedPodman = await getPodmanInstallation();
+    if (installedPodman?.version) {
+      return compareVersions(installedPodman?.version, this.PODMAN_MINIMUM_VERSION_FOR_HYPERV) >= 0;
+    }
+    return false;
   }
 
   private async isPodmanDesktopElevated(): Promise<boolean> {
