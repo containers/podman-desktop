@@ -830,8 +830,10 @@ export async function registerProviderFor(
     vmTypeDisplayName: getProviderLabel(machineInfo.vmType),
   };
 
-  // const machineStream = new PodmanMachineStream(machineInfo);
-  // machineStream.createStream("ls -al");
+  if (provider.shellAccess) {
+    const machineStream = new PodmanMachineStream(machineInfo);
+    machineStream.createStream(provider.shellAccess);
+  }
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines
   // so a machine is not distinguishable from another one.

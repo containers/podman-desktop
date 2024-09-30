@@ -51,23 +51,17 @@ providerInfos.subscribe(providers => {
 });
 
 export function registerTerminal(terminal: ProviderContainerConnectionInfo) {
-    console.error("registerTerminal: ", terminal)
   providerTerminals.update(terminals => {
     // remove old instance(s) of terminal if exists
-    terminals = terminals.filter(
-      term => !(terminal.name === term.name),
-    );
+    terminals = terminals.filter(term => !(terminal.name === term.name));
     terminals.push(terminal);
-    console.error("terminals: ", terminals)
     return terminals;
   });
 }
 
-export function getExistingTerminal(
-  provider: ProviderInfo
-): ProviderContainerConnectionInfo | undefined {
+export function getExistingTerminal(provider: ProviderInfo): ProviderContainerConnectionInfo | undefined {
   const terminals = get(providerTerminals);
-  console.error("terminals: ", terminals, "provider: ", provider)
-  // console.error("getExistingTerminal: ", terminals.find(terminal => provider.containerConnections.find(connection => connection.name === terminal.name)))
-  return terminals.find(terminal => provider.containerConnections.find(connection => connection.name === terminal.name));
+  return terminals.find(terminal =>
+    provider.containerConnections.find(connection => connection.name === terminal.name),
+  );
 }
