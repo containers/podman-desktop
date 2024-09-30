@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
@@ -22,6 +22,9 @@ let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
+let shortnameImages: string[] = [];
+let podmanFQN = '';
+let usePodmanFQN = false;
 
 export let imageToPull: string | undefined = undefined;
 
@@ -30,14 +33,21 @@ $: providerConnections = $providerInfos
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
-$: selectedProviderConnection
-  ? console.log(window.resolveShortnameImage(selectedProviderConnection, imageToPull ?? ''))
-  : '';
-
 let selectedProviderConnection: ProviderContainerConnectionInfo | undefined;
 
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
+
+async function resolveShortname(): Promise<void> {
+  if (selectedProviderConnection && imageToPull && !imageToPull.includes('/')) {
+    shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
+  }
+  if (!shortnameImages.find(name => name.includes('docker.io'))) {
+    podmanFQN = shortnameImages[0];
+  } else {
+    podmanFQN = '';
+  }
+}
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
@@ -81,20 +91,6 @@ function callback(event: PullEvent) {
 }
 
 async function pullImage() {
-  //  option 1
-  if (imageToPull?.split('/').length === 1) {
-    const result = await window.showMessageBox({
-      title: 'Warning',
-      message: 'Shortname images will be pulled from Docker Hub',
-      buttons: ['Continue', 'Cancel'],
-    });
-
-    if (result.response === 1) {
-      return;
-    }
-  }
-  // option 1
-
   if (!selectedProviderConnection) {
     pullError = 'No current provider connection';
     return;
@@ -209,12 +205,12 @@ async function searchImages(value: string): Promise<string[]> {
     <div class="w-full">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      <!-- option 2 -->
-      <div class="flex flex-row mb-2 items-center text-[var(--pd-card-text)] text-sm">
-        <Fa size="1.1x" class="flex text-amber-400 mr-2" icon={faTriangleExclamation} />
-        Shortname images will be pulled from Docker Hub
-      </div>
-      <!-- option 2 -->
+      {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
+        <div class="flex flex-row mb-2 items-center text-[var(--pd-card-text)] text-sm">
+          <Fa size="1.1x" class="flex text-amber-400 mr-2" icon={faTriangleExclamation} />
+          Shortname images will be pulled from Docker Hub
+        </div>
+      {/if}
       <Typeahead
         id="imageName"
         name="imageName"
@@ -222,11 +218,16 @@ async function searchImages(value: string): Promise<string[]> {
         searchFunction={searchImages}
         onChange={(s: string) => {
           validateImageName(s);
+          resolveShortname();
         }}
         onEnter={pullImage}
         disabled={pullFinished || pullInProgress}
         required
         initialFocus />
+      {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
+        <Checkbox class="pt-2" bind:checked={usePodmanFQN} title="Use Podman FQN" disabled={podmanFQN === ''}
+          >Use Podman FQN for shortname image</Checkbox>
+      {/if}
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}

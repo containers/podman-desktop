@@ -1043,7 +1043,7 @@ export class PluginSystem {
         _listener,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
         shortName: string,
-      ): Promise<string | undefined> => {
+      ): Promise<string[]> => {
         return containerProviderRegistry.resolveShortnameImage(providerContainerConnectionInfo, shortName);
       },
     );

@@ -387,10 +387,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'resolveShortnameImage',
-    async (
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-      shortName: string,
-    ): Promise<string | undefined> => {
+    async (providerContainerConnectionInfo: ProviderContainerConnectionInfo, shortName: string): Promise<string[]> => {
       return ipcInvoke('container-provider-registry:resolveShortnameImage', providerContainerConnectionInfo, shortName);
     },
   );

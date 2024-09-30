@@ -2719,16 +2719,13 @@ export class ContainerProviderRegistry {
   async resolveShortnameImage(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
     shortName: string,
-  ): Promise<string | undefined> {
+  ): Promise<string[]> {
     const provider = this.getMatchingContainerProvider(providerContainerConnectionInfo);
-    try {
-      if (provider.libpodApi) {
-        return await provider.libpodApi.resolveShortnameImage(shortName);
-      } else {
-        return shortName;
-      }
-    } catch (e) {
-      console.log('problem :(');
+    if (provider.libpodApi) {
+      const response = await provider.libpodApi.resolveShortnameImage(shortName);
+      return response.Names[0] ? response.Names : [shortName];
+    } else {
+      return [shortName];
     }
   }
 }
