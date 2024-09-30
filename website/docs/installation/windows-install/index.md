@@ -153,7 +153,7 @@ hyperv
 # [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','hyperv')
 # [System.Environment]::GetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER)
 
-podman machin init
+podman machine init
 podman machine start
 ```
 
