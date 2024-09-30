@@ -1150,11 +1150,7 @@ export class PluginSystem {
     >();
     this.ipcHandle(
       'provider-registry:shellInProvider',
-      async (
-        _listener,
-        provider: ProviderInfo,
-        onDataId: number,
-      ): Promise<number> => {
+      async (_listener, provider: ProviderInfo, onDataId: number): Promise<number> => {
         // provide the data content to the remote side
         const shellInProviderInvocation = await providerRegistry.shellInProvider(
           provider,

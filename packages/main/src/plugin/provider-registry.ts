@@ -1267,25 +1267,18 @@ export class ProviderRegistry {
 
   async shellInProvider(
     provider: ProviderInfo,
-    onData: (data: Buffer) => void,
+    onData: (data: string) => void,
     onError: (error: string) => void,
     onEnd: () => void,
   ) {
-    console.error("shellInProvider");
+    console.error('shellInProvider');
 
     return {
       write: (param: string): void => {
         execStream.write(param);
       },
       resize: (w: number, h: number): void => {
-        exec.resize({ w, h }).catch((err: unknown) => {
-          // the resize call sets the size correctly and returns status code 201, but dockerode
-          // interprets it as an error
-          if ((err as { statusCode: number }).statusCode !== 201) {
-            // ignore status code 201
-            throw err;
-          }
-        });
+        exec.resize({ w, h })
       },
     };
   }

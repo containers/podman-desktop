@@ -69,12 +69,7 @@ function receiveEndCallback() {
 // call exec command
 async function executeShellIntoProvider() {
   // grab logs of the provider
-  const callbackId = await window.shellInProvider(
-    provider,
-    receiveDataCallback,
-    () => {},
-    receiveEndCallback,
-  );
+  const callbackId = await window.shellInProvider(provider, receiveDataCallback, () => {}, receiveEndCallback);
   await window.shellInProviderResize(callbackId, shellTerminal.cols, shellTerminal.rows);
   // pass data from xterm to provider
   shellTerminal?.onData(data => {
