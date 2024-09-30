@@ -2600,7 +2600,7 @@ declare module '@podman-desktop/api' {
     Options?: { [key: string]: string };
   }
 
-  interface Device {
+  interface DeviceMapping {
     CgroupPermissions: string;
     PathInContainer: string;
     PathOnHost: string;
@@ -2659,7 +2659,7 @@ declare module '@podman-desktop/api' {
     CpuQuota?: number;
     CpusetCpus?: string;
     CpusetMems?: string;
-    Devices?: Device[];
+    Devices?: DeviceMapping[];
     DeviceCgroupRules?: string[];
     DeviceRequests?: DeviceRequest[];
     DiskQuota?: number;
