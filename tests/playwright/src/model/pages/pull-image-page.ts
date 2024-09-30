@@ -124,6 +124,18 @@ export class PullImagePage extends BasePage {
 
   async pullImageFromSearchResults(pattern: string, timeout = 60_000): Promise<ImagesPage> {
     return await test.step(`Pull image from search results: ${pattern}`, async () => {
+      await this.selectValueFromSearchResults(pattern);
+      await playExpect(this.pullImageButton).toBeEnabled();
+      await this.pullImageButton.click();
+
+      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
+      await this.doneButton.click();
+      return new ImagesPage(this.page);
+    });
+  }
+
+  async selectValueFromSearchResults(pattern: string): Promise<void> {
+    await test.step(`Select value from search results: ${pattern}`, async () => {
       const getExactButtonLocator = this.searchResultsTable.getByRole('button', { name: pattern, exact: true }).first();
 
       await getExactButtonLocator.scrollIntoViewIfNeeded();
@@ -133,12 +145,6 @@ export class PullImagePage extends BasePage {
       await getExactButtonLocator.click();
 
       await playExpect(this.imageNameInput).toHaveValue(pattern);
-      await playExpect(this.pullImageButton).toBeEnabled();
-      await this.pullImageButton.click();
-
-      await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
-      await this.doneButton.click();
-      return new ImagesPage(this.page);
     });
   }
 

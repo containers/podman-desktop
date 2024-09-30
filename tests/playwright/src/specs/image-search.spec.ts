@@ -20,6 +20,8 @@ import { expect as playExpect, test } from '../utility/fixtures';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const imageToSearch = 'ghcr.io/linuxcontainers/alpine';
+const httpdImage = 'docker.io/httpd';
+const httpdTag = '2-alpine';
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('image-search');
@@ -32,7 +34,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Image search verification @smoke', () => {
+test.describe('Image search verification @smoke', () => {
   test('Search for image and then clear field', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
@@ -70,5 +72,23 @@ test.describe.serial('Image search verification @smoke', () => {
 
     const searchResults = await pullImagePage.getFirstSearchResultFor('quay.io/podman', false);
     playExpect(searchResults).toContain('quay.io/podman');
+  });
+
+  test(`Search for ${httpdImage} after using intermediate steps`, async ({ navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const pullImagePage = await imagesPage.openPullImage();
+    await playExpect(pullImagePage.heading).toBeVisible();
+
+    let searchResults = await pullImagePage.getAllSearchResultsFor('htt', false);
+    playExpect(searchResults.length).toBeGreaterThan(0);
+
+    searchResults = await pullImagePage.refineSearchResults('pd');
+    playExpect(searchResults.length).toBeGreaterThan(0);
+
+    await pullImagePage.selectValueFromSearchResults(httpdImage);
+    searchResults = await pullImagePage.getAllSearchResultsFor(httpdImage, true, httpdTag);
+    playExpect(searchResults.length).toBeGreaterThan(0);
   });
 });
