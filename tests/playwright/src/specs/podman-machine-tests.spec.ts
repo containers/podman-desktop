@@ -31,7 +31,10 @@ const ROOTLESS_PODMAN_MACHINE_VISIBLE = 'podman-machine-rootless';
 const ROOTLESS_PODMAN_MACHINE = 'Podman Machine rootless';
 const RESOURCE_NAME = 'podman';
 
-test.skip(isLinux, 'Tests suite should not run on Linux platform');
+test.skip(
+  isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
+  'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
+);
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('podman-machine-tests');
