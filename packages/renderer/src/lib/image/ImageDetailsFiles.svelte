@@ -11,16 +11,17 @@ import FilesystemLayerView from './FilesystemLayerView.svelte';
 import { type ImageFilesystemLayerUI, toImageFilesystemLayerUIs } from './imageDetailsFiles';
 import ImageDetailsFilesLayers from './ImageDetailsFilesLayers.svelte';
 
-export let imageInfo: ImageInfo | undefined;
+let { imageInfo }: { imageInfo: ImageInfo | undefined } = $props();
 
-let imageLayers: ImageFilesystemLayers | undefined;
+let imageLayers: ImageFilesystemLayers | undefined = $state();
+let selectedLayer: ImageFilesystemLayerUI | undefined = $state();
+let loading: boolean = $state(false);
+let error: string = $state('');
+let showLayerOnly: boolean = $state(false);
+
 let filesProvidersUnsubscribe: Unsubscriber;
 let filesProvider: ImageFilesInfo;
-let selectedLayer: ImageFilesystemLayerUI;
-let showLayerOnly: boolean;
-let loading: boolean;
 let cancellableTokenId: number = 0;
-let error: string = '';
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
