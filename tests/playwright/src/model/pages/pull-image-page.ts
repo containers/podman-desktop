@@ -100,7 +100,7 @@ export class PullImagePage extends BasePage {
         await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
       }
 
-      const searchString = `${await this.imageNameInput.inputValue()}`;
+      const searchString = await this.imageNameInput.inputValue();
       return await this.getSearchResultsInstantly(searchString);
     });
   }
