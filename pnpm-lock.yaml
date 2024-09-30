@@ -645,8 +645,8 @@ importers:
         specifier: 5.0.0-next.259
         version: 5.0.0-next.259
       svelte-check:
-        specifier: ^4.0.3
-        version: 4.0.3(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
+        specifier: ^4.0.4
+        version: 4.0.4(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
       svelte-eslint-parser:
         specifier: ^0.41.1
         version: 0.41.1(svelte@5.0.0-next.259)
@@ -742,8 +742,8 @@ importers:
         specifier: 5.0.0-next.259
         version: 5.0.0-next.259
       svelte-check:
-        specifier: ^4.0.3
-        version: 4.0.3(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
+        specifier: ^4.0.4
+        version: 4.0.4(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
       svelte-eslint-parser:
         specifier: ^0.41.1
         version: 0.41.1(svelte@5.0.0-next.259)
@@ -856,8 +856,8 @@ importers:
         specifier: 5.0.0-next.259
         version: 5.0.0-next.259
       svelte-check:
-        specifier: ^4.0.3
-        version: 4.0.3(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
+        specifier: ^4.0.4
+        version: 4.0.4(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2)
       tailwindcss:
         specifier: ^3.4.13
         version: 3.4.13
@@ -10104,8 +10104,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte-check@4.0.3:
-    resolution: {integrity: sha512-V2eqOEuNrPi1jGf307opR1JZ+ITP6/7R8ALKSw4Uw3NWp6GfA+fe7tYtEvZc7QHCavYKBizCK4JFwYjbuPCeXQ==}
+  svelte-check@4.0.4:
+    resolution: {integrity: sha512-AcHWIPuZb1mh/jKoIrww0ebBPpAvwWd1bfXCnwC2dx4OkydNMaiG//+Xnry91RJMHFH7CiE+6Y2p332DRIaOXQ==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -23378,7 +23378,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.0.3(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2):
+  svelte-check@4.0.4(picomatch@2.3.1)(svelte@5.0.0-next.259)(typescript@5.6.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 4.0.1
