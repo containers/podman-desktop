@@ -23,6 +23,7 @@ import '@testing-library/jest-dom/vitest';
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
@@ -32,6 +33,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provid
 import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
+const resolveShortnameImageMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -47,6 +49,7 @@ beforeAll(() => {
     addListener: vi.fn(),
   });
   (window as any).pullImage = pullImageMock;
+  (window as any).resolveShortnameImage = resolveShortnameImageMock.mockResolvedValue(['docker.io/test1']);
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -260,4 +263,56 @@ describe('PullImage', () => {
     expect(proposal).toBeInTheDocument();
     expect(proposal).toBeEnabled();
   });
+});
+
+test('Expect no docker.io shortname to use Podman FQN', async () => {
+  resolveShortnameImageMock.mockResolvedValue(['someregistry/test1']);
+  setup();
+  render(PullImage);
+
+  const textbox = screen.getByRole('textbox', { name: 'Image to Pull' });
+  await userEvent.click(textbox);
+  await userEvent.paste('test1');
+
+  expect(resolveShortnameImageMock).toBeCalled();
+  await tick();
+  const FQNButton = screen.getByRole('checkbox', { name: 'Use Podman FQN' });
+
+  await userEvent.click(FQNButton);
+  const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+  await userEvent.click(pullImagebutton);
+
+  const imageName = pullImageMock.mock.calls[0][1];
+  expect(imageName).toBe('someregistry/test1');
+});
+
+test('Expect no docker.io shortname to not use Podman FQN', async () => {
+  resolveShortnameImageMock.mockResolvedValue(['someregistry/test1', 'docker.io/test1']);
+  setup();
+  render(PullImage);
+
+  const textbox = screen.getByRole('textbox', { name: 'Image to Pull' });
+  await userEvent.click(textbox);
+  await userEvent.paste('test1');
+
+  expect(resolveShortnameImageMock).toBeCalled();
+  await tick();
+  expect(screen.queryByRole('checkbox', { name: 'Use Podman FQN' })).not.toBeInTheDocument();
+
+  const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+  await userEvent.click(pullImagebutton);
+
+  const imageName = pullImageMock.mock.calls[0][1];
+  expect(imageName).toBe('test1');
+});
+
+test('Expect not to check not shortname images', async () => {
+  setup();
+  render(PullImage);
+
+  const textbox = screen.getByRole('textbox', { name: 'Image to Pull' });
+  await userEvent.click(textbox);
+  await userEvent.paste('test1/');
+
+  expect(resolveShortnameImageMock).not.toBeCalled();
 });

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Checkbox, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
@@ -39,13 +39,23 @@ const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
 
 async function resolveShortname(): Promise<void> {
-  if (selectedProviderConnection && imageToPull && !imageToPull.includes('/')) {
-    shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
-  }
-  if (!shortnameImages.find(name => name.includes('docker.io'))) {
-    podmanFQN = shortnameImages[0];
-  } else {
-    podmanFQN = '';
+  if (selectedProviderConnection && selectedProviderConnection.type === 'podman') {
+    if (imageToPull && !imageToPull.includes('/')) {
+      shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
+      // not a shortname
+    } else {
+      podmanFQN = '';
+      shortnameImages = [];
+      usePodmanFQN = false;
+    }
+    // checks if there is no FQN that is from dokcer hub
+    if (!shortnameImages.find(name => name.includes('docker.io'))) {
+      podmanFQN = shortnameImages[0];
+    } else {
+      podmanFQN = '';
+      shortnameImages = [];
+      usePodmanFQN = false;
+    }
   }
 }
 
@@ -111,7 +121,11 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    if (usePodmanFQN && podmanFQN) {
+      await window.pullImage(selectedProviderConnection, podmanFQN.trim(), callback);
+    } else {
+      await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    }
     pullInProgress = false;
     pullFinished = true;
   } catch (error: any) {
@@ -205,25 +219,28 @@ async function searchImages(value: string): Promise<string[]> {
     <div class="w-full">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
-        <div class="flex flex-row mb-2 items-center text-[var(--pd-card-text)] text-sm">
-          <Fa size="1.1x" class="flex text-amber-400 mr-2" icon={faTriangleExclamation} />
-          Shortname images will be pulled from Docker Hub
-        </div>
-      {/if}
-      <Typeahead
-        id="imageName"
-        name="imageName"
-        placeholder="Image name"
-        searchFunction={searchImages}
-        onChange={(s: string) => {
-          validateImageName(s);
-          resolveShortname();
-        }}
-        onEnter={pullImage}
-        disabled={pullFinished || pullInProgress}
-        required
-        initialFocus />
+      <div class="flex flex-col">
+        <Typeahead
+          id="imageName"
+          name="imageName"
+          placeholder="Image name"
+          searchFunction={searchImages}
+          onChange={(s: string) => {
+            validateImageName(s);
+            resolveShortname();
+          }}
+          onEnter={pullImage}
+          disabled={pullFinished || pullInProgress}
+          required
+          initialFocus />
+        {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
+          <div class="absolute mt-2 ml-[-18px] self-start">
+            <Tooltip tip="Shortname images will be pulled from Docker Hub" topRight>
+              <Fa id="shortname-warning" size="1.1x" class="text-amber-400" icon={faTriangleExclamation} />
+            </Tooltip>
+          </div>
+        {/if}
+      </div>
       {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
         <Checkbox class="pt-2" bind:checked={usePodmanFQN} title="Use Podman FQN" disabled={podmanFQN === ''}
           >Use Podman FQN for shortname image</Checkbox>

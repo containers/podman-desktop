@@ -5308,3 +5308,73 @@ describe('extractContainerEnvironment', () => {
     expect(env['SERVER_ARGS']).toBe('--host-config=host-secondary.xml --foo-=bar');
   });
 });
+
+test('resolve Podman image shortname to FQN', async () => {
+  const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
+  nock('http://localhost')
+    .get('/v5.0.0/libpod/images/shortname/resolve')
+    .reply(200, { Names: ['someregistry/shortname', 'docker.io/shortname', 'quay.io/shortname'] });
+
+  const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const libpod = new LibpodDockerode();
+  libpod.enhancePrototypeWithLibPod();
+
+  const internalContainerProviderMock = {
+    name: 'podman',
+    id: 'podman1',
+    api: dockerAPI,
+    libpodApi: dockerAPI,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalContainerProviderMock);
+
+  getMatchingContainerProviderMock.mockReturnValue(internalContainerProviderMock);
+
+  let imagesNames = await containerRegistry.resolveShortnameImage(
+    {} as unknown as ProviderContainerConnectionInfo,
+    'shortname',
+  );
+  expect(imagesNames.length).toBe(3);
+  expect(imagesNames[0]).toBe('someregistry/shortname');
+  expect(imagesNames[1]).toBe('docker.io/shortname');
+  expect(imagesNames[2]).toBe('quay.io/shortname');
+
+  nock('http://localhost').get('/v5.0.0/libpod/images/shortname/resolve').reply(200, { Names: [] });
+  imagesNames = await containerRegistry.resolveShortnameImage(
+    {} as unknown as ProviderContainerConnectionInfo,
+    'shortname',
+  );
+  expect(imagesNames.length).toBe(1);
+  expect(imagesNames[0]).toBe('shortname');
+});
+
+test('resolve Dokcer image shortname to FQN', async () => {
+  const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
+  const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const libpod = new LibpodDockerode();
+  libpod.enhancePrototypeWithLibPod();
+
+  const internalContainerProviderMock = {
+    name: 'docker1',
+    id: 'docker1',
+    api: dockerAPI,
+    connection: {
+      type: 'docker',
+    },
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('docker1', internalContainerProviderMock);
+
+  getMatchingContainerProviderMock.mockReturnValue(internalContainerProviderMock);
+  const imagesNames = await containerRegistry.resolveShortnameImage(
+    {} as unknown as ProviderContainerConnectionInfo,
+    'shortname',
+  );
+  expect(imagesNames.length).toBe(1);
+  expect(imagesNames[0]).toBe('shortname');
+});
