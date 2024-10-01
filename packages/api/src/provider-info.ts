@@ -19,7 +19,6 @@
 import type {
   Link,
   ProviderCleanupAction,
-  ProviderConnectionShellAccess,
   ProviderConnectionStatus,
   ProviderDetectionCheck,
   ProviderImages,

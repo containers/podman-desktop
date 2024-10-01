@@ -674,7 +674,6 @@ declare module '@podman-desktop/api' {
     updateStatus(status: ProviderStatus): void;
     onDidUpdateStatus: Event<ProviderStatus>;
 
-    shellAccess?: ProviderConnectionShellAccess;
     // version may not be defined
     readonly version: string | undefined;
     updateVersion(version: string): void;
@@ -793,7 +792,7 @@ declare module '@podman-desktop/api' {
     onData: Event<ProviderConnectionShellAccessData>;
     onError(error: string): void;
     onEnd(): void;
-    setWindow: ShellDimensions;
+    // setWindow: ShellDimensions;
   }
 
   export interface ShellDimensions {
