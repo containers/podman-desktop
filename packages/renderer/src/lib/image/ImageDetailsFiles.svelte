@@ -25,61 +25,55 @@ let filesProvider: ImageFilesInfo | undefined = undefined;
 let cancellableTokenId: number = 0;
 let askFetchLayers: boolean = true;
 
-function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
+function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>): void {
   selectedLayer = event.detail;
 }
 
-function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo) {
-  loading = true;
-  window.getCancellableTokenSource().then(token => {
-    cancellableTokenId = token;
-    window
-      .imageGetFilesystemLayers(provider.id, img, cancellableTokenId)
-      .then(layers => {
-        imageLayers = layers;
-      })
-      .catch((err: unknown) => {
-        error = String(err);
-      })
-      .finally(() => {
-        loading = false;
-      });
-  });
+async function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo): Promise<void> {
+  try {
+    loading = true;
+    cancellableTokenId = await window.getCancellableTokenSource();
+    const layers = await window.imageGetFilesystemLayers(provider.id, img, cancellableTokenId);
+    imageLayers = layers;
+  } catch (err: unknown) {
+    error = String(err);
+  } finally {
+    loading = false;
+  }
+}
+
+async function onFetchLayers(): Promise<void> {
+  showFetchButton = false;
+  if (filesProvider !== undefined && imageInfo !== undefined) {
+    await fetchImageLayers(filesProvider, imageInfo);
+  }
 }
 
 onMount(async () => {
-  window
-    .getConfigurationValue<boolean>('userConfirmation.fetchImageFiles')
-    .then(value => {
-      if (value !== undefined) {
-        askFetchLayers = value;
-      }
-    })
-    .finally(() => {
-      filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
-        if (providers.length === 1 && imageInfo) {
-          filesProvider = providers[0];
-          if (askFetchLayers) {
-            showFetchButton = true;
-          } else {
-            fetchImageLayers(filesProvider, imageInfo);
-          }
+  try {
+    const value = await window.getConfigurationValue<boolean>('userConfirmation.fetchImageFiles');
+    if (value !== undefined) {
+      askFetchLayers = value;
+    }
+  } finally {
+    // we do this after trying to get the configuration, to be sure we are using the right configuration
+    filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
+      if (providers.length === 1 && imageInfo) {
+        filesProvider = providers[0];
+        if (askFetchLayers) {
+          showFetchButton = true;
+        } else {
+          fetchImageLayers(filesProvider, imageInfo);
         }
-      });
+      }
     });
+  }
 });
 
 onDestroy(() => {
   window.cancelToken(cancellableTokenId);
   filesProvidersUnsubscribe?.();
 });
-
-function onFetchLayers() {
-  showFetchButton = false;
-  if (filesProvider !== undefined && imageInfo !== undefined) {
-    fetchImageLayers(filesProvider, imageInfo);
-  }
-}
 </script>
 
 {#if loading}
