@@ -35,8 +35,8 @@ beforeAll(() => {
 });
 
 test('should register a configuration', async () => {
-  const appearanceInit = new DockerCompatibility(configurationRegistry);
-  appearanceInit.init();
+  const dockerCompatibility = new DockerCompatibility(configurationRegistry);
+  dockerCompatibility.init();
 
   expect(configurationRegistry.registerConfigurations).toBeCalled();
   const configurationNode = vi.mocked(configurationRegistry.registerConfigurations).mock.calls[0]?.[0][0];

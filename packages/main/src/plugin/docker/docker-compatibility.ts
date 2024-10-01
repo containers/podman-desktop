@@ -30,7 +30,7 @@ export class DockerCompatibility {
   }
 
   init(): void {
-    const appearanceConfiguration: IConfigurationNode = {
+    const dockerCompatibilityConfiguration: IConfigurationNode = {
       id: 'preferences.experimental.dockerCompatibility',
       title: 'Experimental (Docker Compatibility)',
       type: 'object',
@@ -44,6 +44,6 @@ export class DockerCompatibility {
       },
     };
 
-    this.#configurationRegistry.registerConfigurations([appearanceConfiguration]);
+    this.#configurationRegistry.registerConfigurations([dockerCompatibilityConfiguration]);
   }
 }
