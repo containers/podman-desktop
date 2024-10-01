@@ -265,7 +265,7 @@ describe('PullImage', () => {
   });
 });
 
-test('Expect no docker.io shortname to use Podman FQN', async () => {
+test('Expect if no docker.io shortname to use Podman FQN', async () => {
   resolveShortnameImageMock.mockResolvedValue(['someregistry/test1']);
   setup();
   render(PullImage);
@@ -286,7 +286,26 @@ test('Expect no docker.io shortname to use Podman FQN', async () => {
   expect(imageName).toBe('someregistry/test1');
 });
 
-test('Expect no docker.io shortname to not use Podman FQN', async () => {
+test('Expect if no docker.io shortname but checkbox not checked to use docker hub', async () => {
+  resolveShortnameImageMock.mockResolvedValue(['someregistry/test1']);
+  setup();
+  render(PullImage);
+
+  const textbox = screen.getByRole('textbox', { name: 'Image to Pull' });
+  await userEvent.click(textbox);
+  await userEvent.paste('test1');
+
+  expect(resolveShortnameImageMock).toBeCalled();
+  await tick();
+
+  const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+  await userEvent.click(pullImagebutton);
+
+  const imageName = pullImageMock.mock.calls[0][1];
+  expect(imageName).toBe('docker.io/test1');
+});
+
+test('Expect if docker.io shortname exists to not use Podman FQN', async () => {
   resolveShortnameImageMock.mockResolvedValue(['someregistry/test1', 'docker.io/test1']);
   setup();
   render(PullImage);

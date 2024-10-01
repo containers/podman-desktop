@@ -121,8 +121,10 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    if (usePodmanFQN && podmanFQN) {
-      await window.pullImage(selectedProviderConnection, podmanFQN.trim(), callback);
+    if (podmanFQN) {
+      usePodmanFQN
+        ? await window.pullImage(selectedProviderConnection, podmanFQN.trim(), callback)
+        : await window.pullImage(selectedProviderConnection, `docker.io/${imageToPull.trim()}`, callback);
     } else {
       await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
     }
