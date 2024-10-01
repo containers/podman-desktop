@@ -1272,44 +1272,20 @@ export class ProviderRegistry {
     onData: (data: string) => void,
     onError: (error: string) => void,
     onEnd: () => void,
-    setWindow: ShellDimensions, 
   ) {
-    // const provider = this.getMatchingProvider(internalProviderId);
 
-    // // find the correct container connection index
-    // const containerConnectionIndex = provider.containerConnections.findIndex(
-    //   connection =>
-    //     connection.endpoint.socketPath === providerConnectionInfo.endpoint.socketPath &&
-    //     connection.name === providerConnectionInfo.name,
-    // );
-
-    // // update the containerConnections with updated containerConnection with shellAccess
-    // if (containerConnectionIndex != -1) {
-    //   const containerConnection = {...this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo), shellAccess: {onData, onError, onEnd, setWindow}};
-    //   // if (this.isProviderContainerConnection(providerConnectionInfo)) 
-    //   provider.containerConnections.splice(containerConnectionIndex, 1, containerConnection);
-    // }
-
-    // // OR
-
-    // const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
-    // if (this.isProviderContainerConnection(providerConnectionInfo)) {
-      
-    //   const event = {...containerConnection, connection: {...containerConnection.connection, shellAccess: {onData, onError, onEnd, setWindow}}};
-    //   this._onBeforeDidUpdateContainerConnection.fire(event);
-    //   this._onDidUpdateContainerConnection.fire(event);
-    //   this._onAfterDidUpdateContainerConnection.fire(event);
-    // } 
+    const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+    if (this.isContainerConnection(containerConnection)) {
+      const shellAccess = containerConnection.shellAccess;
+      shellAccess?.onData(data => {onData(data.data)}); 
+    }
     
-
     // TODO add to connection shellAccess callbacks
 
     // TODO callbacks setWindow using ssh2 lib and write callbacks
     return {
-      write: (param: string): void => onData
-      setWindow: (w: number, h: number): void => {
-        exec.setWindow({ w, h })
-      },
+      write: () =>{},
+      setWindow: () => {},
     };
   }
 }
