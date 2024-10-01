@@ -821,12 +821,12 @@ export class WSLVersionCheck extends BaseCheck {
 
 export class HyperVCheck extends WindowsCheck {
   title = 'Hyper-V installed';
-  PODMAN_MINIMUM_VERSION_FOR_HYPERV = '5.2.0';
+  static readonly PODMAN_MINIMUM_VERSION_FOR_HYPERV = '5.2.0';
 
   async execute(): Promise<extensionApi.CheckResult> {
     if (!(await this.isPodmanVersionSupported())) {
       return this.createFailureResult({
-        description: `Hyper-V is only supported with podman version >= ${this.PODMAN_MINIMUM_VERSION_FOR_HYPERV}.`,
+        description: `Hyper-V is only supported with podman version >= ${HyperVCheck.PODMAN_MINIMUM_VERSION_FOR_HYPERV}.`,
       });
     }
     if (!(await this.isUserAdmin())) {
@@ -870,7 +870,7 @@ export class HyperVCheck extends WindowsCheck {
   private async isPodmanVersionSupported(): Promise<boolean> {
     const installedPodman = await getPodmanInstallation();
     if (installedPodman?.version) {
-      return compareVersions(installedPodman?.version, this.PODMAN_MINIMUM_VERSION_FOR_HYPERV) >= 0;
+      return compareVersions(installedPodman?.version, HyperVCheck.PODMAN_MINIMUM_VERSION_FOR_HYPERV) >= 0;
     }
     return false;
   }

@@ -2036,8 +2036,11 @@ describe('calcPodmanMachineSetting', () => {
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
   });
-  test('setValue to true if OS is Windows and uses HyperV - set env variable', async () => {
+  test('setValue to true if OS is Windows and uses HyperV', async () => {
     vi.mocked(isWindows).mockReturnValue(true);
+    vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
+      version: '5.2.1',
+    });
     vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
       return new Promise<extensionApi.RunResult>(resolve => {
         if (command === 'powershell.exe') {
