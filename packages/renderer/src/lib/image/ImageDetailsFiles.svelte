@@ -11,16 +11,17 @@ import FilesystemLayerView from './FilesystemLayerView.svelte';
 import { type ImageFilesystemLayerUI, toImageFilesystemLayerUIs } from './imageDetailsFiles';
 import ImageDetailsFilesLayers from './ImageDetailsFilesLayers.svelte';
 
-export let imageInfo: ImageInfo | undefined;
+let { imageInfo }: { imageInfo: ImageInfo | undefined } = $props();
 
-let imageLayers: ImageFilesystemLayers | undefined;
+let imageLayers = $state<ImageFilesystemLayers>();
+let selectedLayer = $state<ImageFilesystemLayerUI>();
+let loading = $state<boolean>(false);
+let error = $state<string>('');
+let showLayerOnly = $state<boolean>(false);
+
 let filesProvidersUnsubscribe: Unsubscriber;
 let filesProvider: ImageFilesInfo;
-let selectedLayer: ImageFilesystemLayerUI;
-let showLayerOnly: boolean;
-let loading: boolean;
 let cancellableTokenId: number = 0;
-let error: string = '';
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
@@ -65,9 +66,6 @@ onDestroy(() => {
   </div>
 {:else if imageLayers}
   <div class="flex flex-col w-full h-full p-8 pr-0 text-[var(--pd-content-text)] bg-[var(--pd-content-bg)]">
-    <div class="pr-4">
-      <slot name="header-info" />
-    </div>
     <div class="mb-2 flex flex-row pr-12 pb-2">
       <span class="grow">Layers</span>
       <span><Checkbox bind:checked={showLayerOnly}>Show layer only</Checkbox></span>
