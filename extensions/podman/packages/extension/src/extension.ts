@@ -1695,16 +1695,24 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
 async function connectionAuditor(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
   const records: extensionApi.AuditRecord[] = [];
-  const auditResult = {
-    records: records,
-  };
+
+  if (items['podman.factory.machine.image-uri'] && items['podman.factory.machine.image-path']) {
+    records.push({
+      type: 'error',
+      record: `'Image Path' and 'Image URI are both filled'. Please fill only one or leave both fields empty.`,
+    });
+  }
+
   const winProvider = items['podman.factory.machine.win.provider'];
   const isWSL = winProvider === 'wsl';
   if (createWSLMachineOptionSelected !== isWSL) {
     createWSLMachineOptionSelected = isWSL;
     extensionApi.context.setValue(CREATE_WSL_MACHINE_OPTION_SELECTED_KEY, createWSLMachineOptionSelected);
   }
-  return auditResult;
+
+  return {
+    records,
+  };
 }
 
 export async function calcPodmanMachineSetting(): Promise<void> {
