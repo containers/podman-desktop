@@ -22,7 +22,7 @@ import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
+import type { ContainerEngineInfo, ContainerProviderConnection, ProviderConnectionShellAccess, RunError } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
@@ -813,12 +813,15 @@ export async function registerProviderFor(
     };
   }
 
+  const shellAccessProvider = new PodmanMachineStream(machineInfo);
+  shellAccessProvider.init();
+
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: machineInfo.name,
     displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
-    shellAccess: provider.shellAccess,
+    shellAccess: shellAccessProvider,
     lifecycle,
     endpoint: {
       socketPath,
@@ -826,15 +829,6 @@ export async function registerProviderFor(
     vmType: machineInfo.vmType,
     vmTypeDisplayName: getProviderLabel(machineInfo.vmType),
   };
-
-  if (provider.shellAccess) {
-    // TODO shellAccess should have callbacks 
-    console.error("provider.shellAccess != undefined")
-    const machineStream = new PodmanMachineStream(machineInfo);
-    machineStream.createStream(provider.shellAccess);
-  } else {
-    console.error("provider.shellAccess == undefined")
-  }
 
   // Since Podman 4.5, machines are using the same path for all sockets of machines
   // so a machine is not distinguishable from another one.
