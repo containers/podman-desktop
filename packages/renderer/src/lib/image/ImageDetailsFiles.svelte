@@ -86,7 +86,7 @@ function onFetchLayers() {
   <div class="p-4">Layers are being loaded. This can take a while for large images, please wait...</div>
 {/if}
 {#if showFetchButton}
-  <div class="p-4"><Button on:click={onFetchLayers}>Fetch Layers</Button></div>
+  <div aria-label="fetch" class="p-4"><Button on:click={onFetchLayers}>Fetch Layers</Button></div>
 {/if}
 {#if error}
   <div class="p-4 text-[var(--pd-state-error)]">
