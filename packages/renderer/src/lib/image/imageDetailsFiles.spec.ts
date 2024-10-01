@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { ImageFilesystemLayer } from '@podman-desktop/api';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -185,16 +185,19 @@ describe('ImageDetailsFiles component', () => {
   const imageGetFilesystemLayersMock = vi.fn();
   const cancelTokenMock = vi.fn();
   const getCancellableTokenSourceMock = vi.fn();
+  const getConfigurationValueMock = vi.fn();
 
   beforeAll(() => {
     (window as any).imageGetFilesystemLayers = imageGetFilesystemLayersMock;
     (window as any).cancelToken = cancelTokenMock;
-    (window as any).window.getCancellableTokenSource = getCancellableTokenSourceMock;
+    (window as any).getCancellableTokenSource = getCancellableTokenSourceMock;
+    (window as any).getConfigurationValue = getConfigurationValueMock;
   });
 
   beforeEach(() => {
     vi.resetAllMocks();
     imageFilesProviders.set([]);
+    getConfigurationValueMock.mockResolvedValue(false);
   });
 
   test.each([
@@ -296,8 +299,6 @@ describe('ImageDetailsFiles component', () => {
       imageInfo,
     });
     imageFilesProviders.set([{ id: 'provider1', label: 'Provider 1' }]);
-    await tick();
-    await tick();
-    screen.getByText('Error: an error');
+    waitFor(() => screen.getByText('Error: an error'));
   });
 });

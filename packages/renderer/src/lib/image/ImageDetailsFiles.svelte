@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ImageFilesystemLayers, ImageInfo } from '@podman-desktop/api';
-import { Checkbox } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -18,48 +18,76 @@ let selectedLayer = $state<ImageFilesystemLayerUI>();
 let loading = $state<boolean>(false);
 let error = $state<string>('');
 let showLayerOnly = $state<boolean>(false);
+let showFetchButton = $state<boolean>(false);
 
 let filesProvidersUnsubscribe: Unsubscriber;
-let filesProvider: ImageFilesInfo;
+let filesProvider: ImageFilesInfo | undefined = undefined;
 let cancellableTokenId: number = 0;
+let askFetchLayers: boolean = true;
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
 }
 
-onMount(async () => {
-  filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
-    if (providers.length === 1 && imageInfo) {
-      filesProvider = providers[0];
-      loading = true;
-      window.getCancellableTokenSource().then(token => {
-        cancellableTokenId = token;
-        window
-          .imageGetFilesystemLayers(filesProvider.id, imageInfo, cancellableTokenId)
-          .then(layers => {
-            imageLayers = layers;
-          })
-          .catch((err: unknown) => {
-            error = String(err);
-          })
-          .finally(() => {
-            loading = false;
-          });
+function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo) {
+  loading = true;
+  window.getCancellableTokenSource().then(token => {
+    cancellableTokenId = token;
+    window
+      .imageGetFilesystemLayers(provider.id, img, cancellableTokenId)
+      .then(layers => {
+        imageLayers = layers;
+      })
+      .catch((err: unknown) => {
+        error = String(err);
+      })
+      .finally(() => {
+        loading = false;
       });
-    }
   });
+}
+
+onMount(async () => {
+  window
+    .getConfigurationValue<boolean>('userConfirmation.fetchImageFiles')
+    .then(value => {
+      if (value !== undefined) {
+        askFetchLayers = value;
+      }
+    })
+    .finally(() => {
+      filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
+        if (providers.length === 1 && imageInfo) {
+          filesProvider = providers[0];
+          if (askFetchLayers) {
+            showFetchButton = true;
+          } else {
+            fetchImageLayers(filesProvider, imageInfo);
+          }
+        }
+      });
+    });
 });
 
 onDestroy(() => {
   window.cancelToken(cancellableTokenId);
   filesProvidersUnsubscribe?.();
 });
+
+function onFetchLayers() {
+  showFetchButton = false;
+  if (filesProvider !== undefined && imageInfo !== undefined) {
+    fetchImageLayers(filesProvider, imageInfo);
+  }
+}
 </script>
 
 {#if loading}
   <div class="p-4">Layers are being loaded. This can take a while for large images, please wait...</div>
 {/if}
-
+{#if showFetchButton}
+  <div class="p-4"><Button on:click={onFetchLayers}>Fetch Layers</Button></div>
+{/if}
 {#if error}
   <div class="p-4 text-[var(--pd-state-error)]">
     {error}
