@@ -33,8 +33,7 @@ async function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo): Promi
   try {
     loading = true;
     cancellableTokenId = await window.getCancellableTokenSource();
-    const layers = await window.imageGetFilesystemLayers(provider.id, img, cancellableTokenId);
-    imageLayers = layers;
+    imageLayers = await window.imageGetFilesystemLayers(provider.id, img, cancellableTokenId);
   } catch (err: unknown) {
     error = String(err);
   } finally {
