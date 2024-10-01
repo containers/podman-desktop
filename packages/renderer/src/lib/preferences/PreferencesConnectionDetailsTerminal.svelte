@@ -51,6 +51,7 @@ router.subscribe(route => {
 // update terminal when receiving data
 function receiveDataCallback(data: string) {
   shellTerminal.write(data);
+  console.error("Frontend: " + data)
 }
 
 function receiveEndCallback() {
