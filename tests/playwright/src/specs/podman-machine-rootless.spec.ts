@@ -27,8 +27,6 @@ const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
 
 test.beforeAll(async ({ runner, welcomePage }) => {
   runner.setVideoAndTraceName('podman-rootless-machine-e2e');
-  const env: { [key: string]: string } = process.env as { [key: string]: string };
-  env.KEEP_VIDEOS_ON_PASS = 'true';
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
   await welcomePage.handleWelcomePage(true);
@@ -52,6 +50,9 @@ test.describe('Rootless Podman machine Verification', () => {
 
     const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
     await playExpect(machineBox.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
+
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
   test('Clean up rootless machine', async ({ page }) => {
     test.setTimeout(150_000);
