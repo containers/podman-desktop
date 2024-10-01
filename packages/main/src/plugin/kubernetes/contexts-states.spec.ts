@@ -15,9 +15,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '../api.js';
 import { ContextsStates, isSecondaryResourceName } from './contexts-states.js';
+
+const apiSenderSendMock = vi.fn();
+const apiSender: ApiSenderType = {
+  send: apiSenderSendMock,
+  receive: vi.fn(),
+};
 
 describe('ContextsStates tests', () => {
   test('isSecondaryResourceName', () => {
@@ -26,7 +33,7 @@ describe('ContextsStates tests', () => {
   });
 
   test('isReachable', () => {
-    const client = new ContextsStates();
+    const client = new ContextsStates(apiSender);
     client.safeSetState('context1', state => (state.reachable = true));
 
     expect(client.isReachable('context1')).toBeTruthy();
@@ -35,7 +42,7 @@ describe('ContextsStates tests', () => {
   });
 
   test('state', () => {
-    const states = new ContextsStates();
+    const states = new ContextsStates(apiSender);
     expect(states.getContextsGeneralState()).toStrictEqual(new Map());
     expect(states.getContextsCheckingState()).toStrictEqual(new Map());
     expect(states.getCurrentContextGeneralState('ctx1')).toStrictEqual({
