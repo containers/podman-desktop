@@ -19,7 +19,7 @@
 import { Client } from 'ssh2';
 import { MachineInfo } from './extension';
 import * as fs from 'fs';
-import { ProviderConnectionShellAccess } from '@podman-desktop/api';
+import { EventEmitter, ProviderConnectionShellAccess, ProviderConnectionShellAccessData, Event } from '@podman-desktop/api';
 
 export class PodmanMachineStream {
   #host: string;
@@ -36,18 +36,34 @@ export class PodmanMachineStream {
     this.#client = new Client();
   }
 
-  createStream(shellAccess: ProviderConnectionShellAccess) {
+  onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
+  onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event
+
+  onEnd () {
+
+  }
+
+  onError() {
+
+  }
+
+  init() {
     this.#client.on('ready', () => {
-      console.log('Client :: ready');
       this.#client.shell((err, stream) => {
-        if (err) throw err;
+        if (err) {
+          // shellAccess.onError;
+        };
+
         stream.on('close', () => {
-          console.log('Stream :: close');
+          // shellAccess.onEnd;
           this.#client.end();
-        }).on('data', (data:string) => {
-          console.log('OUTPUT: ' + data);
+
+        }).on('data', (data:Buffer) => {
+          console.log(data.toString('utf-8')); 
+          this.onDataEmit.fire({data: data.toString('utf-8')});
         });
-        stream.write('ls -l\n');
+
+        stream.write('ls -al\n');
         stream.end('exit\n');
       });
     }).connect({
