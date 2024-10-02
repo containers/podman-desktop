@@ -10,10 +10,14 @@ let notesAvailable = false;
 let updateAvilable = false;
 let notesURL: string;
 let currentVersion: string;
-let title: string = '';
-let summary: string = '';
-let imageUrl: string = '';
-let imageAlt: string = '';
+let notesInfo: NotesInfo | undefined;
+
+interface NotesInfo {
+  image: string;
+  blog: string;
+  title: string;
+  summary: string;
+}
 
 const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () => {
   showBanner = true;
@@ -28,20 +32,12 @@ function updatePodmanDesktop() {
 }
 
 async function getInfoFromNotes() {
-  let curVersionSplit = currentVersion.split('.', 2);
-  const urlVersionFormat = curVersionSplit.join('.');
-  notesURL = `https://podman-desktop.io/release-notes/${urlVersionFormat}.json`;
-  const response = await fetch(notesURL);
-  if (!response.ok) {
-    notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${currentVersion}`;
-  } else {
-    notesAvailable = true;
-    let notesInfo = await response.json();
-    imageUrl = notesInfo.image ? notesInfo.image : '';
-    imageAlt = imageUrl ? `Podman Desktop ${urlVersionFormat} release image` : '';
-    title = notesInfo.title ? notesInfo.title : '';
-    summary = notesInfo.summary ? notesInfo.summary : '';
+  let getNotes = await window.podmanDesktopGetReleaseNotes();
+  notesAvailable = getNotes.releaseNotesAvailable;
+  if (notesAvailable) {
+    notesInfo = getNotes.notes;
   }
+  notesURL = getNotes.notesURL;
 }
 
 function onClose() {
@@ -69,23 +65,25 @@ onDestroy(async () => {
 {#if showBanner}
   {#if notesAvailable}
     <div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-row flex-nowrap h-[200px] items-center">
-      {#if imageUrl}
+      {#if notesInfo?.image}
         <img
-          src={imageUrl}
+          src={notesInfo.image}
           class="max-h-[100%] w-auto max-w-[20%] object-contain rounded-md self-start"
-          alt={imageAlt} />
+          alt={`Podman Desktop ${currentVersion} release image`} />
       {/if}
       <div class="flex flex-col flex-1 h-100% self-start">
         <div class="flex flex-row items-center justify-between">
           <p class="text-[var(--pd-content-card-header-text)] font-bold text-xl ml-2">
-            {title}
+            {notesInfo?.title ?? ''}
           </p>
           <CloseButton on:click={onClose} />
         </div>
-        <div
-          class="text-[var(--pd-content-card-text)] trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
-          <Markdown markdown={summary}></Markdown>
-        </div>
+        {#if notesInfo?.summary}
+          <div
+            class="text-[var(--pd-content-card-text)] trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
+            <Markdown markdown={notesInfo?.summary}></Markdown>
+          </div>
+        {/if}
         <div class="flex flex-row justify-end items-center gap-3 mt-2">
           <Link on:click={openReleaseNotes}>Learn more</Link>
           <Button on:click={updatePodmanDesktop} hidden={!updateAvilable} icon={faCircleArrowUp}>Update</Button>

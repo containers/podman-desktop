@@ -67,6 +67,11 @@ vi.mock('https', () => ({
   },
 }));
 
+vi.mock('../../../../package.json', () => ({
+  homepage: 'appHomepage',
+  repository: 'appRepo',
+}));
+
 const messageBoxMock = {
   showMessageBox: vi.fn(),
 } as unknown as MessageBox;
@@ -574,9 +579,9 @@ test('open release notes from podman-desktop.io', async () => {
   updater.init();
 
   await updater.openReleaseNotes('current');
-  expect(shell.openExternal).toBeCalledWith('https://podman-desktop.io/blog/podman-desktop-release-1.1');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
   await updater.openReleaseNotes('latest');
-  expect(shell.openExternal).toBeCalledWith('https://podman-desktop.io/blog/podman-desktop-release-1.2');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.2');
 });
 
 test('open release notes from GitHub', async () => {
@@ -600,7 +605,34 @@ test('open release notes from GitHub', async () => {
   updater.init();
 
   await updater.openReleaseNotes('current');
-  expect(shell.openExternal).toBeCalledWith('https://github.com/containers/podman-desktop/releases/tag/v0.20.0');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.20.0');
   await updater.openReleaseNotes('latest');
-  expect(shell.openExternal).toBeCalledWith('https://github.com/containers/podman-desktop/releases/tag/v0.21.0');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.21.0');
+});
+
+test('get release notes', async () => {
+  const fetchJSONMock = vi.fn().mockResolvedValue({ data: 'some data' });
+  vi.spyOn(global, 'fetch').mockImplementation(() =>
+    Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
+  );
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+
+  updater.init();
+  let releaseNotes = await updater.getReleaseNotes();
+  expect(fetch).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: true, notes: { data: 'some data' } });
+
+  vi.spyOn(global, 'fetch').mockImplementation(() =>
+    Promise.resolve({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response),
+  );
+  releaseNotes = await updater.getReleaseNotes();
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notes: `appRepo/releases/tag/v1.1.0` });
 });

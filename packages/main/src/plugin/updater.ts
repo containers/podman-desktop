@@ -36,6 +36,7 @@ import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 
+import { homepage, repository } from '../../../../package.json';
 import type { TaskManager } from './tasks/task-manager.js';
 
 /**
@@ -71,13 +72,32 @@ export class Updater {
       version = this.#nextVersion?.substring(1) ?? '';
     }
     const urlVersionFormat = version.split('.', 2).join('.');
-    let notesURL = `https://podman-desktop.io/blog/podman-desktop-release-${urlVersionFormat}`;
+    let notesURL = `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`;
     https.get(notesURL, res => {
       if (res.statusCode !== 200) {
-        notesURL = `https://github.com/containers/podman-desktop/releases/tag/v${version}`;
+        notesURL = `${repository}/releases/tag/v${version}`;
+        console.log(notesURL);
       }
       shell.openExternal(notesURL).catch(console.error);
     });
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async getReleaseNotes(): Promise<{ releaseNotesAvailable: boolean; notesURL: string; notes?: any }> {
+    const version = app.getVersion();
+    const urlVersionFormat = version.split('.', 2).join('.');
+
+    const notesURL = `${homepage}/release-notes/${urlVersionFormat}.json`;
+    const response = await fetch(notesURL);
+    if (!response.ok) {
+      return { releaseNotesAvailable: false, notesURL: `${repository}/releases/tag/v${version}` };
+    } else {
+      const notesInfo = await response.json();
+      return {
+        releaseNotesAvailable: true,
+        notesURL: `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`,
+        notes: notesInfo,
+      };
+    }
   }
 
   /**
