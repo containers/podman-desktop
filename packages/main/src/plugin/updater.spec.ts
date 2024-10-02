@@ -627,12 +627,16 @@ test('get release notes', async () => {
 
   updater.init();
   let releaseNotes = await updater.getReleaseNotes();
-  expect(fetch).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
-  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: true, notes: { data: 'some data' } });
+  expect(fetch).toBeCalledWith('appHomepage/release-notes/1.1.json');
+  expect(releaseNotes).toStrictEqual({
+    releaseNotesAvailable: true,
+    notesURL: 'appHomepage/blog/podman-desktop-release-1.1',
+    notes: { data: 'some data' },
+  });
 
   vi.spyOn(global, 'fetch').mockImplementation(() =>
     Promise.resolve({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response),
   );
   releaseNotes = await updater.getReleaseNotes();
-  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notes: `appRepo/releases/tag/v1.1.0` });
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: `appRepo/releases/tag/v1.1.0` });
 });

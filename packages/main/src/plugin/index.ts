@@ -1344,9 +1344,9 @@ export class PluginSystem {
       await podmanDesktopUpdater.openReleaseNotes(version);
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.ipcHandle(
       'app:get-release-notes',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (): Promise<{ releaseNotesAvailable: boolean; notesURL: string; notes?: any }> => {
         return podmanDesktopUpdater.getReleaseNotes();
       },
