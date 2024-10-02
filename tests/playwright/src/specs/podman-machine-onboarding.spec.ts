@@ -27,7 +27,7 @@ import { ResourceConnectionCardPage } from '../model/pages/resource-connection-c
 import { ResourcesPage } from '../model/pages/resources-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { deletePodmanMachine } from '../utility/operations';
+import { createPodmanMachineFromCLI, deletePodmanMachine } from '../utility/operations';
 import { isLinux, isMac } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -70,7 +70,12 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner }) => {
-  test.setTimeout(120000);
+  test.setTimeout(120_000);
+
+  if (test.info().status === 'failed') {
+    await createPodmanMachineFromCLI();
+  }
+
   await runner.close();
 });
 

@@ -20,7 +20,7 @@ import { ResourceElementState } from '../model/core/states';
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
+import { createPodmanMachineFromCLI, deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
 import { isLinux } from '../utility/platform';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
@@ -38,10 +38,16 @@ test.beforeAll(async ({ runner, welcomePage }) => {
 });
 
 test.afterAll(async ({ runner }) => {
+  test.setTimeout(120_000);
+
+  if (test.info().status === 'failed') {
+    await createPodmanMachineFromCLI();
+  }
+
   await runner.close();
 });
 
-test.describe('Rootless Podman machine Verification', () => {
+test.describe.serial('Rootless Podman machine Verification', () => {
   test('Create a rootless machine', async ({ page, navigationBar }) => {
     test.setTimeout(200_000);
 
@@ -58,6 +64,7 @@ test.describe('Rootless Podman machine Verification', () => {
     await handleConfirmationDialog(page, 'Podman', true, 'Yes');
     await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
+
   test('Clean up rootless machine', async ({ page }) => {
     test.setTimeout(150_000);
     await deletePodmanMachine(page, PODMAN_MACHINE_NAME);

@@ -379,3 +379,10 @@ export async function deleteKindCluster(
       .toBeTruthy();
   });
 }
+
+export async function createPodmanMachineFromCLI(): Promise<void> {
+  await test.step('Create Podman machine from CLI', async () => {
+    // eslint-disable-next-line sonarjs/no-os-command-from-path
+    execSync('podman machine init --rootful --now');
+  });
+}
