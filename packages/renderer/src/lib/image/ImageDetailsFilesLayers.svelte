@@ -26,11 +26,9 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
     class:bg-[var(--pd-content-card-bg)]={layer.id !== currentLayerId}
     class:bg-[var(--pd-content-card-selected-bg)]={layer.id === currentLayerId}>
     <div>
+      <div class="text-sm opacity-70">{new ImageUtils().getHumanSize(layer.sizeInArchive)} &bull; {layer.id}</div>
       <ImageDetailsFilesExpandableCommand command={layer.createdBy} />
-      <div class="text-sm opacity-70">{layer.id}</div>
       <div class="text-sm opacity-70">
-        <span>on disk: {new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
-        <span> | </span>
         <span>contribute to FS: {signedHumanSize(layer.sizeInContainer)}</span>
         <span> | </span>
         <span>total FS: {new ImageUtils().getHumanSize(layer.stackTree.size)}</span>

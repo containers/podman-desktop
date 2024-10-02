@@ -56,12 +56,10 @@ test('render', async () => {
   render(ImageDetailsFilesLayers, { layers });
   const rows = screen.getAllByRole('row');
   expect(rows.length).toBe(2);
-  within(rows[0]).getByText('layer1');
-  within(rows[0]).getByText('on disk: 1 kB');
+  within(rows[0]).getByText('1 kB • layer1');
   within(rows[0]).getByText('contribute to FS: +900 B');
   within(rows[0]).getByText('total FS: 2 kB');
-  within(rows[1]).getByText('layer2');
-  within(rows[1]).getByText('on disk: 0 B');
+  within(rows[1]).getByText('0 B • layer2');
   within(rows[1]).getByText('contribute to FS: -300 B');
   within(rows[1]).getByText('total FS: 1.7 kB');
 });
