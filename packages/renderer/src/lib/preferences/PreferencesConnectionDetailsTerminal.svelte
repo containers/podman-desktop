@@ -52,11 +52,11 @@ router.subscribe(route => {
 // update terminal when receiving data
 function receiveDataCallback(data: string) {
   shellTerminal.write(data);
-  console.error("Frontend: " + data)
 }
 
 function receiveEndCallback() {
   // need to reopen a new terminal
+  console.error('end');
   window
     .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
     .then(id => {
@@ -65,6 +65,10 @@ function receiveEndCallback() {
         window.shellInProviderConnectionSend(id, data);
       });
     });
+}
+
+function receiveErrorCallback(error: string) {
+  console.error(error);
 }
 
 // call exec command
