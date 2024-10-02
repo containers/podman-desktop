@@ -35,7 +35,7 @@ export class RegistriesPage extends SettingsPage {
 
   constructor(page: Page) {
     super(page, 'Registries');
-    this.heading = page.getByText('Registries');
+    this.heading = page.getByRole('heading').and(page.getByText('Registries', { exact: true }));
     this.addRegistryButton = page.getByRole('button', { name: 'Add registry' });
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
     this.addRegistryDialog = page.getByRole('dialog', { name: 'Add Registry' });

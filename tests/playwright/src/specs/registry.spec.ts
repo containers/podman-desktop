@@ -43,7 +43,9 @@ test.describe.serial('Registries handling verification', () => {
     const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
+    await playExpect(registryPage.heading).toBeVisible({ timeout: 10_000 });
     await playExpect(registryPage.addRegistryButton).toBeEnabled();
+    await playExpect(registryPage.registriesTable).toBeVisible({ timeout: 10_000 });
 
     const defaultRegistries = ['Docker Hub', 'Red Hat Quay', 'GitHub', 'Google Container Registry'];
     for (const registryName of defaultRegistries) {
