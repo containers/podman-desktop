@@ -382,7 +382,14 @@ export async function deleteKindCluster(
 
 export async function createPodmanMachineFromCLI(): Promise<void> {
   await test.step('Create Podman machine from CLI', async () => {
-    // eslint-disable-next-line sonarjs/no-os-command-from-path
-    execSync('podman machine init --rootful --now');
+    try {
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      execSync('podman machine init --rootful --now');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('VM already exists')) {
+        console.log(`Podman machine already exists, skipping creation.`);
+        return;
+      }
+    }
   });
 }
