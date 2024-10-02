@@ -19,12 +19,12 @@
 import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 import { describe, expect, test } from 'vitest';
 
-import { ContextsInformers } from './contexts-informers.js';
+import { ContextsInformersRegistry } from './contexts-informers-registry.js';
 import { TestInformer } from './test-informer.js';
 
 describe('ContextsInformers tests', () => {
   test('hasInformer should check if informer exists for context', () => {
-    const client = new ContextsInformers();
+    const client = new ContextsInformersRegistry();
     client.setInformers(
       'context1',
       new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
@@ -36,7 +36,7 @@ describe('ContextsInformers tests', () => {
   });
 
   test('getContextsNames should return the names of contexts as array', () => {
-    const client = new ContextsInformers();
+    const client = new ContextsInformersRegistry();
     client.setInformers(
       'context1',
       new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
@@ -49,7 +49,7 @@ describe('ContextsInformers tests', () => {
   });
 
   test('informers registry', () => {
-    const states = new ContextsInformers();
+    const states = new ContextsInformersRegistry();
     expect(states.hasContext('ctx1')).toBeFalsy();
     expect(states.hasInformer('ctx1', 'services')).toBeFalsy();
     expect(states.getContextsNames()).toMatchObject({});

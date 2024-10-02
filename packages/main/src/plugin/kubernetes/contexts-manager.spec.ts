@@ -24,8 +24,8 @@ import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
-import type { ContextsStates } from './contexts-states.js';
-import { ContextsManager } from './kubernetes-context-state.js';
+import { ContextsManager } from './contexts-manager.js';
+import type { ContextsStatesRegistry } from './contexts-states-registry.js';
 import { informerStopMock, TestInformer } from './test-informer.js';
 
 const PODS_NS1 = 1;
@@ -36,7 +36,7 @@ const DEPLOYMENTS_NS2 = 5;
 const DEPLOYMENTS_DEFAULT = 6;
 
 class TestContextsManager extends ContextsManager {
-  getStates(): ContextsStates {
+  getStates(): ContextsStatesRegistry {
     return this.states;
   }
 }
@@ -92,7 +92,7 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
 });
 
 // Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
-vi.mock('./kubernetes-context-state-constants.js', () => {
+vi.mock('./contexts-constants.js', () => {
   return {
     connectTimeout: 1,
     backoffInitialValue: 10000,
