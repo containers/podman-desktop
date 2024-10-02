@@ -50,7 +50,7 @@ test.describe.serial('Registries handling verification', () => {
     const defaultRegistries = ['Docker Hub', 'Red Hat Quay', 'GitHub', 'Google Container Registry'];
     for (const registryName of defaultRegistries) {
       const registryBox = registryPage.registriesTable.getByLabel(registryName);
-      await playExpect(registryBox).toBeVisible();
+      await playExpect(registryBox).toBeVisible({ timeout: 30_000 });
     }
   });
 

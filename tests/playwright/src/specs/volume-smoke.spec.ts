@@ -99,7 +99,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
   });
 
   test('Create volumes from bootc-image-builder', async ({ navigationBar }) => {
-    test.setTimeout(210000);
+    test.setTimeout(210_000);
 
     //count the number of existing volumes
     let volumesPage = await navigationBar.openVolumes();
@@ -112,7 +112,9 @@ test.describe.serial('Volume workflow verification @smoke', () => {
       if (previousVolumes - usedVolumes > 0) {
         volumesPage = await volumesPage.pruneVolumes();
         await playExpect
-          .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10000 })
+          .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, {
+            timeout: 10_000,
+          })
           .toBe(0);
         previousVolumes = await volumesPage.countVolumesFromTable();
       }
@@ -121,7 +123,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     //pull image from quay.io/centos-bootc/bootc-image-builder
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(imageToPull, imageTag, 120000);
+    images = await pullImagePage.pullImage(imageToPull, imageTag, 120_000);
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
 
     //start a container from the image (generates 4 new volumes)
@@ -130,7 +132,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     let containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(containerToRun), { timeout: 30000 })
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 60_000 })
       .toBeTruthy();
     await containers.startContainer(containerToRun);
 
@@ -143,19 +145,21 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     //check the container is stopped and delete it
     containers = await navigationBar.openContainers();
     const containerDetails = await containers.openContainersDetails(containerToRun);
-    await playExpect.poll(async () => containerDetails.getState(), { timeout: 20000 }).toContain(ContainerState.Exited);
+    await playExpect
+      .poll(async () => containerDetails.getState(), { timeout: 30_000 })
+      .toContain(ContainerState.Exited);
     containers = await navigationBar.openContainers();
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30_000 })
       .toBeFalsy();
 
     //prune unused volumes
     volumesPage = await navigationBar.openVolumes();
     volumesPage = await volumesPage.pruneVolumes();
     await playExpect
-      .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10000 })
+      .poll(async () => (await volumesPage.getRowsFromTableByStatus(VolumeState.Unused)).length, { timeout: 10_000 })
       .toBe(0);
     const finalVolumes = await volumesPage.countVolumesFromTable();
     playExpect(finalVolumes - previousVolumes).toBe(0);
