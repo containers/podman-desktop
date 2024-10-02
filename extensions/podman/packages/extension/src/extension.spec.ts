@@ -15,8 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-function-return-type */
 
+import type * as proc from 'node:child_process';
 import * as fs from 'node:fs';
 import { arch } from 'node:os';
 
@@ -192,12 +193,7 @@ vi.mock('@podman-desktop/api', async () => {
     provider: {
       onDidRegisterContainerConnection: vi.fn(),
       onDidUnregisterContainerConnection: vi.fn(),
-      createProvider: (): extensionApi.Provider =>
-        ({
-          updateWarnings: vi.fn(),
-          onDidUpdateVersion: vi.fn(),
-          registerAutostart: vi.fn(),
-        }) as unknown as extensionApi.Provider,
+      createProvider: (): extensionApi.Provider => provider,
     },
     registry: {
       registerRegistryProvider: vi.fn(),
@@ -216,6 +212,10 @@ vi.mock('@podman-desktop/api', async () => {
       showInformationMessage: vi.fn(),
       showWarningMessage: vi.fn(),
       showNotification: vi.fn(),
+      createStatusBarItem: () => ({
+        show: vi.fn(),
+        dispose: vi.fn(),
+      }),
     },
     context: {
       setValue: vi.fn(),
@@ -234,6 +234,24 @@ vi.mock('@podman-desktop/api', async () => {
     },
     Disposable: {
       from: vi.fn(),
+      create: vi.fn(),
+    },
+    fs: {
+      createFileSystemWatcher: vi.fn(),
+    },
+  };
+});
+
+vi.mock('node:child_process', async () => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const childProcessActual = await vi.importActual<typeof import('node:child_process')>('node:child_process');
+  return {
+    ...childProcessActual,
+    env: vi.fn(),
+    spawn: () => {
+      return {
+        on: vi.fn(),
+      } as unknown as proc.ChildProcess;
     },
   };
 });
@@ -347,6 +365,108 @@ test('verify create command called with correct values', async () => {
   expect(telemetryLogger.logUsage).toBeCalledWith(
     'podman.machine.init',
     expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
+  );
+});
+
+test('verify create command called with correct image-path values with image URL', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementationOnce(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-uri': 'https://host/file',
+    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  });
+  expect(spyExecPromise).toBeCalledWith(
+    podmanCli.getPodmanCli(),
+    [
+      'machine',
+      'init',
+      '--cpus',
+      '2',
+      '--memory',
+      '1000',
+      '--disk-size',
+      '232',
+      '--image-path',
+      'https://host/file',
+      '--rootful',
+    ],
+    {
+      logger: undefined,
+      token: undefined,
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
+      },
+    },
+  );
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.init',
+    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-url' }),
+  );
+});
+
+test('verify create command called with correct image-path values with registry', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementationOnce(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-uri': 'registry/repo/image:version',
+    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  });
+  expect(spyExecPromise).toBeCalledWith(
+    podmanCli.getPodmanCli(),
+    [
+      'machine',
+      'init',
+      '--cpus',
+      '2',
+      '--memory',
+      '1000',
+      '--disk-size',
+      '232',
+      '--image-path',
+      'docker://registry/repo/image:version',
+      '--rootful',
+    ],
+    {
+      logger: undefined,
+      token: undefined,
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
+      },
+    },
+  );
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.init',
+    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-registry' }),
   );
 });
 
@@ -2360,6 +2480,80 @@ test('activate function returns an api implementation', async () => {
   const api = await extension.activate(contextMock);
   expect(api).toBeDefined();
   expect(typeof api.exec).toBe('function');
+});
+
+function mockExtensionForAuditTests() {
+  vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
+    hasUpdate: false,
+  } as unknown as UpdateCheck);
+  const contextMock = {
+    subscriptions: [],
+    secrets: {
+      delete: vi.fn(),
+      get: vi.fn(),
+      onDidChange: vi.fn(),
+      store: vi.fn(),
+    },
+  } as unknown as extensionApi.ExtensionContext;
+  vi.spyOn(provider, 'setContainerProviderConnectionFactory');
+  return contextMock;
+}
+
+async function testAudit(path: string, uri: string, condition: typeof expect | typeof expect.not): Promise<void> {
+  const contextMock = mockExtensionForAuditTests();
+  let auditorInstance: extensionApi.Auditor | undefined;
+  vi.mocked(provider.setContainerProviderConnectionFactory).mockImplementation(
+    (options: extensionApi.ContainerProviderConnectionFactory, auditor: extensionApi.Auditor | undefined) => {
+      auditorInstance = auditor;
+      return {
+        dispose: () => {},
+      };
+    },
+  );
+  await extension.activate(contextMock);
+  expect(vi.mocked(provider.setContainerProviderConnectionFactory)).toBeCalled();
+  expect(auditorInstance).toBeDefined();
+  const auditRecords: extensionApi.AuditResult = await auditorInstance!.auditItems({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.image-path': path,
+    'podman.factory.machine.image-uri': uri,
+    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  });
+  expect(auditRecords.records).toEqual(condition.arrayContaining([expect.objectContaining({ type: 'error' })]));
+}
+
+describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %s', os => {
+  beforeEach(() => {
+    vi.mocked(util.isMac).mockReturnValue(os === 'mac');
+    vi.mocked(util.isWindows).mockReturnValue(os === 'windows');
+    vi.mocked(util.isLinux).mockReturnValue(os === 'linux');
+  });
+  if (os === 'linux') {
+    test('is not used', async () => {
+      const orExistsSync = fs.existsSync;
+      vi.spyOn(fs, 'existsSync').mockImplementation((path: fs.PathLike) => {
+        if (path.toString().endsWith('/podman/podman.sock')) {
+          console.log('========>', path);
+          return true;
+        }
+        return orExistsSync(path);
+      });
+      await extension.activate(mockExtensionForAuditTests());
+      expect(vi.mocked(provider.setContainerProviderConnectionFactory)).not.toBeCalled();
+    });
+    return;
+  }
+  test(`reports error for image path and uri is used at the same time`, async () => {
+    await testAudit('path', 'registry/repo/image:version', expect);
+  });
+  test(`reports no error for image path only is used`, async () => {
+    await testAudit('path', '', expect.not);
+  });
+  test(`reports no error for image uri only is used`, async () => {
+    await testAudit('', 'uri', expect.not);
+  });
 });
 
 test('isHypervEnabled should return false if it is not windows', async () => {
