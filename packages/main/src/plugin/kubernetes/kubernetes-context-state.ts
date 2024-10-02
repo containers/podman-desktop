@@ -58,7 +58,7 @@ import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
-import { ContextsInformers } from './contexts-informers.js';
+import { ContextsInformersRegistry } from './contexts-informers-registry.js';
 import type { ContextInternalState } from './contexts-states.js';
 import { ContextsStates, dispatchAllResources, isSecondaryResourceName } from './contexts-states.js';
 import {
@@ -101,7 +101,7 @@ interface CreateInformerOptions<T> {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   protected states: ContextsStates;
-  private informers = new ContextsInformers();
+  private informers = new ContextsInformersRegistry();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 

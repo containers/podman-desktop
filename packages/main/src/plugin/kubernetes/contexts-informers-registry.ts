@@ -23,7 +23,7 @@ import type { ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ContextInternalState } from './contexts-states.js';
 import { isSecondaryResourceName } from './contexts-states.js';
 
-export class ContextsInformers {
+export class ContextsInformersRegistry {
   private informers = new Map<string, ContextInternalState>();
 
   hasContext(name: string): boolean {
