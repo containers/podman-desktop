@@ -20,3 +20,25 @@ export enum ExperimentalSettings {
   SectionName = 'dockerCompatibility',
   Enabled = 'enabled',
 }
+
+export type DockerSocketServerInfoType = 'podman' | 'docker' | 'unknown';
+
+export interface DockerSocketMappingStatusInfo {
+  status: 'running' | 'unreachable';
+  connectionInfo?: {
+    provider: {
+      id: string;
+      name: string;
+    };
+    link: string;
+    name: string;
+    displayName: string;
+  };
+  serverInfo?: {
+    type: DockerSocketServerInfoType;
+    serverVersion: string;
+    operatingSystem: string;
+    osType: string;
+    architecture: string;
+  };
+}
