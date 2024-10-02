@@ -20,19 +20,36 @@ import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 
 import { providerInfos } from './providers';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
+// keep data of a terminal bound to a provider
+export interface TerminalOfProvider {
+  // engine id of the provider
+  providerInternalId: string;
+
+  // connection socket
+  connectionSocket: string;
+
+  // connection name
+  connectionName: string;
+
+  // id of the callbacks
+  callbackId?: number;
+
+  // for history of the terminal
+  terminal: string;
+}
 
 /**
  * Defines the store used to have terminals inside providers
  */
-export const providerTerminals: Writable<ProviderContainerConnectionInfo[]> = writable([]);
+export const providerTerminals: Writable<TerminalOfProvider[]> = writable([]);
 
 providerInfos.subscribe(providers => {
   // search if we have a matching provider from the list of terminals
   const terminals = get(providerTerminals);
-  const toRemove: ProviderContainerConnectionInfo[] = [];
+  const toRemove: TerminalOfProvider[] = [];
   terminals.forEach(terminal => {
-    const found = providers.find(provider => provider.name === terminal.name && provider.stream);
+    const found = providers.find(provider => provider.name === terminal.connectionName);
     if (!found) {
       toRemove.push(terminal);
     }
@@ -50,18 +67,23 @@ providerInfos.subscribe(providers => {
   });
 });
 
-export function registerTerminal(terminal: ProviderContainerConnectionInfo) {
+export function registerTerminal(terminal: TerminalOfProvider) {
   providerTerminals.update(terminals => {
     // remove old instance(s) of terminal if exists
-    terminals = terminals.filter(term => !(terminal.name === term.name));
+    terminals = terminals.filter(
+      term => !(terminal.connectionName === term.connectionName && term.connectionSocket === terminal.connectionSocket),
+    );
     terminals.push(terminal);
     return terminals;
   });
 }
 
-export function getExistingTerminal(provider: ProviderInfo): ProviderContainerConnectionInfo | undefined {
+export function getExistingTerminal(
+  connectionName: string,
+  connectionSocketPath: string,
+): TerminalOfProvider | undefined {
   const terminals = get(providerTerminals);
-  return terminals.find(terminal =>
-    provider.containerConnections.find(connection => connection.name === terminal.name),
+  return terminals.find(
+    terminal => terminal.connectionName === connectionName && terminal.connectionSocket === connectionSocketPath,
   );
 }

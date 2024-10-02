@@ -1,18 +1,20 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
 
+import type { ShellDimensions } from '@podman-desktop/api';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import { Terminal } from '@xterm/xterm';
-
-import NoLogIcon from '../ui/NoLogIcon.svelte';
-import { SerializeAddon } from '@xterm/addon-serialize';
-import { getExistingTerminal, registerTerminal } from '/@/stores/provider-terminal-store';
-import { onDestroy, onMount } from 'svelte';
 import { FitAddon } from '@xterm/addon-fit';
-import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { SerializeAddon } from '@xterm/addon-serialize';
+import { Terminal } from '@xterm/xterm';
+import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
+
+import { getExistingTerminal, registerTerminal } from '/@/stores/provider-terminal-store';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
+import NoLogIcon from '../ui/NoLogIcon.svelte';
 
 interface ProviderDetailsTerminalProps {
   provider: ProviderInfo;
@@ -32,7 +34,7 @@ let providerState = $state(provider);
 
 $effect(() => {
   providerState = provider;
-  if (lastState === 'starting' && providerState.status === 'started') {
+  if (lastState === 'starting' && providerState.status === 'ready') {
     restartTerminal();
   }
   lastState = provider.status;
@@ -51,13 +53,19 @@ router.subscribe(route => {
 // update terminal when receiving data
 function receiveDataCallback(data: string) {
   shellTerminal.write(data);
-  console.error("Frontend: " + data)
 }
 
 function receiveEndCallback() {
   // need to reopen a new terminal
+  console.error('end');
   window
-    .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback, {w: 200, h:100})
+    .shellInProviderConnection(
+      provider.internalId,
+      connectionInfo,
+      receiveDataCallback,
+      receiveErrorCallback,
+      receiveEndCallback,
+    )
     .then(id => {
       sendCallbackId = id;
 
@@ -67,11 +75,27 @@ function receiveEndCallback() {
     });
 }
 
+function receiveErrorCallback(error: string) {
+  console.error(error);
+}
+
 // call exec command
 async function executeShellIntoProviderConnection() {
   // grab logs of the provider
-  const callbackId = await window.shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback, {w: 200, h:100});
-  await window.shellInProviderConnectionSetWindow(callbackId, shellTerminal.cols, shellTerminal.rows);
+  const callbackId = await window.shellInProviderConnection(
+    provider.internalId,
+    connectionInfo,
+    receiveDataCallback,
+    receiveErrorCallback,
+    receiveEndCallback,
+  );
+
+  const dimensions: ShellDimensions = {
+    rows: shellTerminal.rows,
+    cols: shellTerminal.cols,
+  };
+
+  await window.shellInProviderConnectionSetWindow(callbackId, dimensions);
   // pass data from xterm to provider
   shellTerminal?.onData(data => {
     window.shellInProviderConnectionSend(callbackId, data);
@@ -97,8 +121,7 @@ async function refreshTerminal() {
   );
 
   // get terminal if any
-  const existingTerminal = getExistingTerminal(provider);
-
+  const existingTerminal = getExistingTerminal(connectionInfo.name, connectionInfo.endpoint.socketPath);
   shellTerminal = new Terminal({
     fontSize,
     lineHeight,
@@ -110,7 +133,7 @@ async function refreshTerminal() {
       fontSize,
       lineHeight,
     };
-    shellTerminal.write(existingTerminal.name);
+    shellTerminal.write(existingTerminal.terminal);
   }
 
   const fitAddon = new FitAddon();
@@ -125,7 +148,11 @@ async function refreshTerminal() {
     if (currentRouterPath === `/providers/${provider.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
-        window.shellInProviderConnectionSetWindow(sendCallbackId, shellTerminal.cols, shellTerminal.rows);
+        const dimensions: ShellDimensions = {
+          rows: shellTerminal.rows,
+          cols: shellTerminal.cols,
+        };
+        window.shellInProviderConnectionSetWindow(sendCallbackId, dimensions);
       }
     }
   });
@@ -140,16 +167,22 @@ onDestroy(() => {
   terminalContent = serializeAddon.serialize();
   if (!provider) return;
   // register terminal for reusing it
-  registerTerminal(connectionInfo);
+  registerTerminal({
+    providerInternalId: provider.internalId,
+    connectionSocket: connectionInfo.endpoint.socketPath,
+    connectionName: connectionInfo.name,
+    callbackId: sendCallbackId,
+    terminal: terminalContent,
+  });
   serializeAddon?.dispose();
   shellTerminal?.dispose();
 });
 </script>
 
-<div class="h-full" bind:this={terminalXtermDiv} class:hidden={provider.status !== 'started'}></div>
+<div class="h-full" bind:this={terminalXtermDiv} class:hidden={provider.status !== 'ready'}></div>
 
 <EmptyScreen
-  hidden={provider.status === 'started'}
+  hidden={provider.status === 'ready'}
   icon={NoLogIcon}
   title="No Terminal"
   message="Provider is not running" />

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faEdit, faPlay, faRotateRight, faStop, faTrash, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Buffer } from 'buffer';
 import { router } from 'tinro';
 
