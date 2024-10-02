@@ -78,7 +78,7 @@ import { Emitter } from '../events/emitter.js';
 import type { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
 import { Uri } from '../types/uri.js';
-import { ContextsManager } from './kubernetes-context-state.js';
+import { ContextsManager } from './contexts-manager.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {

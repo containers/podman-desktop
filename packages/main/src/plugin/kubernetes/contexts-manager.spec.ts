@@ -24,8 +24,8 @@ import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
+import { ContextsManager } from './contexts-manager.js';
 import type { ContextsStatesRegistry } from './contexts-states-registry.js';
-import { ContextsManager } from './kubernetes-context-state.js';
 import { informerStopMock, TestInformer } from './test-informer.js';
 
 const PODS_NS1 = 1;
