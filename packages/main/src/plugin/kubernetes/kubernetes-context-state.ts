@@ -59,8 +59,8 @@ import type { V1Route } from '/@api/openshift-types.js';
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
-import type { ContextInternalState } from './contexts-states.js';
-import { ContextsStates, dispatchAllResources, isSecondaryResourceName } from './contexts-states.js';
+import type { ContextInternalState } from './contexts-states-registry.js';
+import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
 import {
   backoffInitialValue,
   backoffJitter,
@@ -100,7 +100,7 @@ interface CreateInformerOptions<T> {
 // manages the state of the different kube contexts
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
-  protected states: ContextsStates;
+  protected states: ContextsStatesRegistry;
   private informers = new ContextsInformersRegistry();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
@@ -111,7 +111,7 @@ export class ContextsManager {
   private disposed = false;
 
   constructor(readonly apiSender: ApiSenderType) {
-    this.states = new ContextsStates(apiSender);
+    this.states = new ContextsStatesRegistry(apiSender);
   }
 
   setConnectionTimers(

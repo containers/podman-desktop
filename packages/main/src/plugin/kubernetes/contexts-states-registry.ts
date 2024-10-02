@@ -113,7 +113,7 @@ export function isSecondaryResourceName(value: string): value is SecondaryResour
  * - `getCurrentContextGeneralState`: data in event `kubernetes-current-context-general-state-update`
  * - `getContextResources`: data in event `kubernetes-current-context-${resname}-update`
  */
-export class ContextsStates {
+export class ContextsStatesRegistry {
   private state = new Map<string, ContextState>();
 
   private dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;

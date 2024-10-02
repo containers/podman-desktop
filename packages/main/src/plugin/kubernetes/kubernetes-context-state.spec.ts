@@ -24,7 +24,7 @@ import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
-import type { ContextsStates } from './contexts-states.js';
+import type { ContextsStatesRegistry } from './contexts-states-registry.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import { informerStopMock, TestInformer } from './test-informer.js';
 
@@ -36,7 +36,7 @@ const DEPLOYMENTS_NS2 = 5;
 const DEPLOYMENTS_DEFAULT = 6;
 
 class TestContextsManager extends ContextsManager {
-  getStates(): ContextsStates {
+  getStates(): ContextsStatesRegistry {
     return this.states;
   }
 }
