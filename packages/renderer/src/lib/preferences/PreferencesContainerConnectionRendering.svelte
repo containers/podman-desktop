@@ -26,7 +26,6 @@ import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetails
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 import type { IConnectionRestart, IConnectionStatus } from './Util';
 import { getProviderConnectionName } from './Util';
-import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
