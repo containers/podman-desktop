@@ -15,15 +15,20 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as os from 'node:os';
 
 import { ResourceElementState } from '../model/core/states';
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
+import { isLinux } from '../utility/platform';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
+
+test.skip(
+  isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
+  'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
+);
 
 test.beforeAll(async ({ runner, welcomePage }) => {
   runner.setVideoAndTraceName('podman-rootless-machine-e2e');
@@ -36,7 +41,6 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.skip(os.platform() === 'linux', 'Runs only on Windows and Mac');
 test.describe('Rootless Podman machine Verification', () => {
   test('Create a rootless machine', async ({ page, navigationBar }) => {
     test.setTimeout(200_000);
@@ -50,6 +54,9 @@ test.describe('Rootless Podman machine Verification', () => {
 
     const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
     await playExpect(machineBox.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
+
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
   });
   test('Clean up rootless machine', async ({ page }) => {
     test.setTimeout(150_000);

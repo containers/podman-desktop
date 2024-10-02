@@ -65,7 +65,7 @@ export class ContextsInformers {
     }
   }
 
-  async dispose(name: string): Promise<void> {
+  async deleteContextInformers(name: string): Promise<void> {
     const informers = this.informers.get(name);
     if (informers) {
       for (const informer of informers.values()) {

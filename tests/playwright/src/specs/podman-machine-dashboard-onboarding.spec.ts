@@ -23,7 +23,10 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 
-test.skip(isLinux || process.env.TEST_PODMAN_MACHINE !== 'true', 'Tests suite should not run on Linux platform');
+test.skip(
+  isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
+  'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
+);
 
 test.skip(
   isMac,
