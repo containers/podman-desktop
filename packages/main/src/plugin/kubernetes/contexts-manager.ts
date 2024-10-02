@@ -58,15 +58,10 @@ import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
+import { backoffInitialValue, backoffJitter, backoffLimit, connectTimeout } from './contexts-constants.js';
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
 import type { ContextInternalState } from './contexts-states-registry.js';
 import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
-import {
-  backoffInitialValue,
-  backoffJitter,
-  backoffLimit,
-  connectTimeout,
-} from './kubernetes-context-state-constants.js';
 import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 
 // If the number of contexts in the kubeconfig file is greater than this number,

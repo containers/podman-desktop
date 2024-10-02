@@ -27,7 +27,7 @@ import type {
 import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
-import { dispatchTimeout } from './kubernetes-context-state-constants.js';
+import { dispatchTimeout } from './contexts-constants.js';
 
 // ContextInternalState stores informers for a kube context
 export type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;

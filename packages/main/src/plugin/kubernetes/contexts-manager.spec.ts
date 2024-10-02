@@ -92,7 +92,7 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
 });
 
 // Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
-vi.mock('./kubernetes-context-state-constants.js', () => {
+vi.mock('./contexts-constants.js', () => {
   return {
     connectTimeout: 1,
     backoffInitialValue: 10000,
