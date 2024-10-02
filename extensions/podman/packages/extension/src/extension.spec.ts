@@ -17,7 +17,7 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-function-return-type */
 
-import * as process from 'node:child_process';
+import type * as proc from 'node:child_process';
 import * as fs from 'node:fs';
 import { arch } from 'node:os';
 
@@ -251,7 +251,7 @@ vi.mock('node:child_process', async () => {
     spawn: () => {
       return {
         on: vi.fn(),
-      } as unknown as process.ChildProcess;
+      } as unknown as proc.ChildProcess;
     },
   };
 });
