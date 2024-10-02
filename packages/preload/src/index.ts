@@ -110,7 +110,6 @@ import type { ExtensionBanner, RecommendedRegistry } from '../../main/src/plugin
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import { Deferred } from './util/deferred';
-import { ShellDimensions } from '@podman-desktop/api';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -633,7 +632,6 @@ export function initExposure(): void {
       onData: (data: string) => void,
       onError: (error: string) => void,
       onEnd: () => void,
-      setWindow: ShellDimensions,
     ): Promise<number> => {
       onDataCallbacksShellInProviderConnectionId++;
       onDataCallbacksShellInProviderConnection.set(onDataCallbacksShellInProviderConnectionId, {

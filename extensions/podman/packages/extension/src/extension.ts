@@ -22,7 +22,7 @@ import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import type { ContainerEngineInfo, ContainerProviderConnection, ProviderConnectionShellAccess, RunError } from '@podman-desktop/api';
+import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
@@ -39,6 +39,7 @@ import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { HyperVCheck, PodmanInstall, WSL2Check, WSLVersionCheck } from './podman-install';
+import { PodmanMachineStream } from './podman-machine-stream';
 import { PodmanRemoteConnections } from './podman-remote-connections';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
@@ -57,7 +58,6 @@ import {
 } from './util';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { WslHelper } from './wsl-helper';
-import { PodmanMachineStream } from './podman-machine-stream';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -814,7 +814,6 @@ export async function registerProviderFor(
   }
 
   const shellAccessProvider = new PodmanMachineStream(machineInfo);
-  shellAccessProvider.init();
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: machineInfo.name,
