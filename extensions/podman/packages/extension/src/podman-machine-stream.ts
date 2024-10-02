@@ -16,10 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+
+import type {
+  Event,
+  ProviderConnectionShellAccessData,
+  ProviderConnectionShellAccessError,
+  ShellDimensions,
+} from '@podman-desktop/api';
+import { EventEmitter } from '@podman-desktop/api';
+import type { ClientChannel } from 'ssh2';
 import { Client } from 'ssh2';
-import { MachineInfo } from './extension';
-import * as fs from 'fs';
-import { EventEmitter, ProviderConnectionShellAccess, ProviderConnectionShellAccessData, Event } from '@podman-desktop/api';
+
+import type { MachineInfo } from './extension';
 
 export class PodmanMachineStream {
   #host: string;
@@ -27,6 +36,8 @@ export class PodmanMachineStream {
   #username: string;
   #privateKey: string;
   #client: Client;
+  #stream: ClientChannel | undefined;
+  #connected: boolean = false;
 
   constructor(private readonly podmanMachine: MachineInfo) {
     this.#host = 'localhost';
@@ -37,36 +48,57 @@ export class PodmanMachineStream {
   }
 
   onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
-  onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event
+  onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event;
 
-  onEnd () {
+  onErrorEmit = new EventEmitter<ProviderConnectionShellAccessError>();
+  onError: Event<ProviderConnectionShellAccessError> = this.onErrorEmit.event;
 
+  onEndEmit = new EventEmitter<void>();
+  onEnd: Event<void> = this.onEndEmit.event;
+
+  write(data: string): void {
+    if (this.#stream) {
+      this.#stream.write(data);
+    }
   }
 
-  onError() {
-
+  setWindow(dimensions: ShellDimensions): void {
+    if (this.#stream) {
+      // rows and cols override width and height when rows and cols are non-zero.
+      this.#stream.setWindow(dimensions.rows, dimensions.cols, 0, 0);
+    }
   }
 
-  init() {
-    this.#client.on('ready', () => {
-      this.#client.shell((err, stream) => {
-        if (err) {
-          // shellAccess.onError;
-        };
+  startConnection(): void {
+    // To avoid strating multiple SSH connections
+    if (this.#connected) {
+      return;
+    }
 
-        stream.on('close', () => {
-          // shellAccess.onEnd;
-          this.#client.end();
+    this.#client
+      .on('ready', () => {
+        this.#client.shell((err, stream) => {
+          if (err) {
+            this.onErrorEmit.fire({ error: err.message });
+            return;
+          }
 
-        }).on('data', (data:Buffer) => {
-          console.log(data.toString('utf-8')); 
-          this.onDataEmit.fire({data: data.toString('utf-8')});
+          this.#connected = true;
+          this.#stream = stream;
+
+          stream
+            .on('close', () => {
+              this.#connected = false;
+              this.onEndEmit.fire();
+              this.#client.end();
+            })
+            .on('data', (data: Buffer) => {
+              console.log(data.toString('utf-8'));
+              this.onDataEmit.fire({ data: data.toString('utf-8') });
+            });
         });
-
-        stream.write('ls -al\n');
-        stream.end('exit\n');
-      });
-    }).connect({
+      })
+      .connect({
         host: this.#host,
         port: this.#port,
         username: this.#username,

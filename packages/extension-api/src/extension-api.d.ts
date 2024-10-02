@@ -789,22 +789,6 @@ declare module '@podman-desktop/api' {
     connection: ContainerProviderConnection;
   }
 
-  export interface ProviderConnectionShellAccess {
-    onData: Event<ProviderConnectionShellAccessData>;
-    onError(error: string): void;
-    onEnd(): void;
-    // setWindow: ShellDimensions;
-  }
-
-  export interface ShellDimensions {
-    w: number;
-    h: number;
-  }
-
-  export interface ProviderConnectionShellAccessData {
-    data: string;
-  }
-
   /**
    * Callback for openning shell session
    */
