@@ -22,10 +22,10 @@ import { getTabUrl, isTabSelected } from '../ui/Util';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
+import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 import type { IConnectionRestart, IConnectionStatus } from './Util';
 import { getProviderConnectionName } from './Util';
-import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;

@@ -110,7 +110,6 @@ import type { ExtensionBanner, RecommendedRegistry } from '../../main/src/plugin
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import { Deferred } from './util/deferred';
-import { ShellDimensions } from '@podman-desktop/api';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -630,21 +629,35 @@ export function initExposure(): void {
       onData: (data: string) => void,
       onError: (error: string) => void,
       onEnd: () => void,
-      setWindow: ShellDimensions,
     ): Promise<number> => {
       onDataCallbacksShellInProviderConnectionId++;
-      onDataCallbacksShellInProviderConnection.set(onDataCallbacksShellInProviderConnectionId, { onData, onError, onEnd });
-      return ipcInvoke('provider-registry:shellInProviderConnection', internalProviderId, connectionInfo, setWindow, onDataCallbacksShellInProviderConnectionId);
+      onDataCallbacksShellInProviderConnection.set(onDataCallbacksShellInProviderConnectionId, {
+        onData,
+        onError,
+        onEnd,
+      });
+      return ipcInvoke(
+        'provider-registry:shellInProviderConnection',
+        internalProviderId,
+        connectionInfo,
+        onDataCallbacksShellInProviderConnectionId,
+      );
     },
   );
 
-  contextBridge.exposeInMainWorld('shellInProviderConnectionSend', async (dataId: number, content: string): Promise<void> => {
-    return ipcInvoke('provider-registry:shellInProviderConnectionSend', dataId, content);
-  });
+  contextBridge.exposeInMainWorld(
+    'shellInProviderConnectionSend',
+    async (dataId: number, content: string): Promise<void> => {
+      return ipcInvoke('provider-registry:shellInProviderConnectionSend', dataId, content);
+    },
+  );
 
-  contextBridge.exposeInMainWorld('shellInProviderConnectionSetWindow', async (dataId: number, width: number, height: number) => {
-    return ipcInvoke('provider-registry:shellInProviderConnectionSetWindow', dataId, width, height);
-  });
+  contextBridge.exposeInMainWorld(
+    'shellInProviderConnectionSetWindow',
+    async (dataId: number, dimensions: containerDesktopAPI.ShellDimensions) => {
+      return ipcInvoke('provider-registry:shellInProviderConnectionSetWindow', dataId, dimensions);
+    },
+  );
 
   ipcRenderer.on(
     'provider-registry:shellInProviderConnection-onData',
@@ -667,15 +680,18 @@ export function initExposure(): void {
     },
   );
 
-  ipcRenderer.on('provider-registry:shellInProviderConnection-onEnd', (_, onDataCallbacksShellInProviderConnectionId: number) => {
-    // grab callback from the map
-    const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
-    if (callback) {
-      callback.onEnd();
-      // remove callback from the map
-      onDataCallbacksShellInProviderConnection.delete(onDataCallbacksShellInProviderConnectionId);
-    }
-  });
+  ipcRenderer.on(
+    'provider-registry:shellInProviderConnection-onEnd',
+    (_, onDataCallbacksShellInProviderConnectionId: number) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+      if (callback) {
+        callback.onEnd();
+        // remove callback from the map
+        onDataCallbacksShellInProviderConnection.delete(onDataCallbacksShellInProviderConnectionId);
+      }
+    },
+  );
 
   // callbacks for attachContainer
   let onDataCallbacksAttachContainerId = 0;

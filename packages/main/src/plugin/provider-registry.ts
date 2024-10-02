@@ -28,6 +28,7 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
+  ProviderConnectionShellAccess,
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
@@ -1272,20 +1273,32 @@ export class ProviderRegistry {
     onData: (data: string) => void,
     onError: (error: string) => void,
     onEnd: () => void,
-  ) {
-
+  ): Promise<{ write: (param: string) => void; setWindow: (dimensions: ShellDimensions) => void }> {
     const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+    let shellAccess: ProviderConnectionShellAccess | undefined;
     if (this.isContainerConnection(containerConnection)) {
-      const shellAccess = containerConnection.shellAccess;
-      shellAccess?.onData(data => {onData(data.data)}); 
+      shellAccess = containerConnection.shellAccess;
+      shellAccess?.onData(data => {
+        onData(data.data);
+      });
+      shellAccess?.onError(error => {
+        onError(error.error);
+      });
+      shellAccess?.onEnd(onEnd);
+      shellAccess?.startConnection();
     }
-    
-    // TODO add to connection shellAccess callbacks
 
-    // TODO callbacks setWindow using ssh2 lib and write callbacks
     return {
-      write: () =>{},
-      setWindow: () => {},
+      write: (data: string): void => {
+        if (shellAccess) {
+          shellAccess.write(data);
+        }
+      },
+      setWindow: (dimension: ShellDimensions): void => {
+        if (shellAccess) {
+          shellAccess.setWindow(dimension);
+        }
+      },
     };
   }
 }

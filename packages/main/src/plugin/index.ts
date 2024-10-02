@@ -181,7 +181,6 @@ import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { ViewRegistry } from './view-registry.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
-import { ShellDimensions } from '@podman-desktop/api';
 
 // workaround for ESM
 const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
@@ -1147,11 +1146,16 @@ export class PluginSystem {
 
     const providerRegistryShellInProviderConnectionSendCallback = new Map<
       number,
-      { write: (param: string) => void; setWindow: (w: number, h: number) => void }
+      { write: (param: string) => void; setWindow: (dimensions: containerDesktopAPI.ShellDimensions) => void }
     >();
     this.ipcHandle(
       'provider-registry:shellInProviderConnection',
-      async (_listener, internalProviderId: string, connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo, setWindow: ShellDimensions, onDataId: number): Promise<number> => {
+      async (
+        _listener,
+        internalProviderId: string,
+        connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        onDataId: number,
+      ): Promise<number> => {
         // provide the data content to the remote side
         const shellInProviderConnectionInvocation = await providerRegistry.shellInProviderConnection(
           internalProviderId,
@@ -1167,7 +1171,6 @@ export class PluginSystem {
             // delete the callback
             providerRegistryShellInProviderConnectionSendCallback.delete(onDataId);
           },
-          setWindow,
         );
         // store the callback
         providerRegistryShellInProviderConnectionSendCallback.set(onDataId, shellInProviderConnectionInvocation);
@@ -1187,10 +1190,10 @@ export class PluginSystem {
 
     this.ipcHandle(
       'provider-registry:shellInProviderConnectionSetWindow',
-      async (_listener, onDataId: number, width: number, height: number): Promise<void> => {
+      async (_listener, onDataId: number, dimensions: containerDesktopAPI.ShellDimensions): Promise<void> => {
         const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
         if (callback) {
-          callback.setWindow(width, height);
+          callback.setWindow(dimensions);
         }
       },
     );
