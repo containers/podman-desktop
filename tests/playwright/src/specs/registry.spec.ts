@@ -38,7 +38,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe('Registries handling verification', () => {
+test.describe.serial('Registries handling verification', () => {
   test('Check Registries page components and presence of default registries', async ({ navigationBar }) => {
     const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);

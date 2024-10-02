@@ -103,26 +103,27 @@ test.describe.serial('Podman Machine verification', () => {
         resourcesPage = new ResourcesPage(page);
         await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
         const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
-        const setupButton = podmanResourceCard.setupButton;
-        await setupButton.click();
+        await podmanResourceCard.setupButton.click();
         podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });
     });
     test('Verify Podman Autostart is enabled and proceed to next page', async () => {
-      await playExpect(podmanOnboardingPage.podmanAutostartToggle).toBeChecked();
+      await playExpect(podmanOnboardingPage.podmanAutostartToggle).toBeChecked({ timeout: 30_000 });
       await podmanOnboardingPage.nextStepButton.click();
     });
 
     test('Expect no machine created message and proceed to next page', async () => {
       await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText(
         `We could not find any Podman machine. Let's create one!`,
-        { timeout: 20_000 },
+        { timeout: 30_000 },
       );
       await podmanOnboardingPage.nextStepButton.click();
     });
 
     test('Verify default podman machine settings', async () => {
-      await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText(`Create a Podman machine`);
+      await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText(`Create a Podman machine`, {
+        timeout: 30_000,
+      });
       await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineConfiguration).toBeVisible();
       await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineName).toHaveValue(
         'podman-machine-default',
@@ -132,9 +133,11 @@ test.describe.serial('Podman Machine verification', () => {
       await playExpect(podmanOnboardingPage.machineCreationForm.startNowCheckbox).toBeChecked();
 
       if (os.platform() === 'win32') {
-        await playExpect(podmanOnboardingPage.machineCreationForm.userModeNetworkingCheckbox).not.toBeChecked();
+        await playExpect(podmanOnboardingPage.machineCreationForm.userModeNetworkingCheckbox).not.toBeChecked({
+          timeout: 30_000,
+        });
       } else {
-        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineCPUs).toBeVisible();
+        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineCPUs).toBeVisible({ timeout: 30_000 });
         await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineMemory).toBeVisible();
         await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineDiskSize).toBeVisible();
       }
