@@ -2842,3 +2842,70 @@ describe('updateWSLHyperVEnabledValue', () => {
     expect(extensionApi.context.setValue).not.toBeCalled();
   });
 });
+
+describe('connectionAuditor', () => {
+  test('check if podman.isCreateWSLOptionSelected is set to true if podman.factory.machine.win.provider = wsl', async () => {
+    // be sure isCreateWSLOptionSelected is set to false
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'hyperv',
+    });
+
+    // verify isCreateWSLOptionSelected is set to true
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'wsl',
+    });
+    expect(extensionApi.context.setValue).toHaveBeenLastCalledWith(
+      extension.CREATE_WSL_MACHINE_OPTION_SELECTED_KEY,
+      true,
+    );
+  });
+  test('check if podman.isCreateWSLOptionSelected is set to true if podman.factory.machine.win.provider is undefined but wsl is enabled', async () => {
+    // be sure isCreateWSLOptionSelected is set to false
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'hyperv',
+    });
+
+    // verify isCreateWSLOptionSelected is set to true
+    extension.setWSLEnabled(true);
+
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': undefined,
+    });
+    expect(extensionApi.context.setValue).toHaveBeenLastCalledWith(
+      extension.CREATE_WSL_MACHINE_OPTION_SELECTED_KEY,
+      true,
+    );
+  });
+  test('check if podman.isCreateWSLOptionSelected is set to false if podman.factory.machine.win.provider = hyperv', async () => {
+    // be sure isCreateWSLOptionSelected is set to true
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'wsl',
+    });
+
+    // verify isCreateWSLOptionSelected is set to false
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'hyperv',
+    });
+    expect(extensionApi.context.setValue).toHaveBeenLastCalledWith(
+      extension.CREATE_WSL_MACHINE_OPTION_SELECTED_KEY,
+      false,
+    );
+  });
+  test('check if podman.isCreateWSLOptionSelected is set to false if podman.factory.machine.win.provider is undefined and wsl is NOT enabled', async () => {
+    // be sure isCreateWSLOptionSelected is set to true
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': 'wsl',
+    });
+
+    // verify isCreateWSLOptionSelected is set to false
+    extension.setWSLEnabled(false);
+
+    await extension.connectionAuditor({
+      'podman.factory.machine.win.provider': undefined,
+    });
+    expect(extensionApi.context.setValue).toHaveBeenLastCalledWith(
+      extension.CREATE_WSL_MACHINE_OPTION_SELECTED_KEY,
+      false,
+    );
+  });
+});

@@ -99,6 +99,7 @@ const podmanInfoHelper = new PodmanInfoHelper();
 
 let createWSLMachineOptionSelected = false;
 let wslAndHypervEnabled = false;
+let wslEnabled = false;
 
 let shouldNotifySetup = true;
 const setupPodmanNotification: extensionApi.NotificationOptions = {
@@ -1281,7 +1282,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionApi.context.setValue(START_NOW_MACHINE_INIT_SUPPORTED_KEY, isStartNowAtMachineInitSupported(version));
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
     extensionApi.context.setValue(PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY, isLibkrunSupported(version));
-    const wslHypervEnabled = (await isWSLEnabled()) && (await isHyperVEnabled());
+    wslEnabled = await isWSLEnabled();
+    const wslHypervEnabled = wslEnabled && (await isHyperVEnabled());
     updateWSLHyperVEnabledValue(wslHypervEnabled);
     isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
@@ -1693,7 +1695,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   };
 }
 
-async function connectionAuditor(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
+export async function connectionAuditor(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
   const records: extensionApi.AuditRecord[] = [];
 
   if (items['podman.factory.machine.image-uri'] && items['podman.factory.machine.image-path']) {
@@ -1704,7 +1706,9 @@ async function connectionAuditor(items: extensionApi.AuditRequestItems): Promise
   }
 
   const winProvider = items['podman.factory.machine.win.provider'];
-  const isWSL = winProvider === 'wsl';
+  // set createWSLMachineOptionSelected if the user actively selected wsl from the list in the UI, or
+  // if the list is not visible (so only one provider is active) and the provider is wsl
+  const isWSL = winProvider === 'wsl' || (winProvider === undefined && wslEnabled);
   if (createWSLMachineOptionSelected !== isWSL) {
     createWSLMachineOptionSelected = isWSL;
     extensionApi.context.setValue(CREATE_WSL_MACHINE_OPTION_SELECTED_KEY, createWSLMachineOptionSelected);
@@ -1780,12 +1784,14 @@ export async function getJSONMachineList(): Promise<MachineJSONListOutput> {
     containerMachineProviders.push(...['applehv', 'libkrun']);
   }
 
-  let wslEnabled = false;
   let hypervEnabled = false;
   if (await isWSLEnabled()) {
     wslEnabled = true;
     containerMachineProviders.push('wsl');
+  } else {
+    wslEnabled = false;
   }
+
   if (await isHyperVEnabled()) {
     hypervEnabled = true;
     containerMachineProviders.push('hyperv');
@@ -1856,6 +1862,11 @@ const PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT = '5.2.0-rc1';
 // Checks if libkrun is supported. Only Mac platform allows this parameter to be tuned
 export function isLibkrunSupported(podmanVersion: string): boolean {
   return isMac() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT) >= 0;
+}
+
+// Set wslEnabled. Used for testing purposes
+export function setWSLEnabled(enabled: boolean): void {
+  wslEnabled = enabled;
 }
 
 export async function isWSLEnabled(): Promise<boolean> {
