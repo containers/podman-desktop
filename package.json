@@ -154,7 +154,7 @@
     "eslint-plugin-sonarjs": "^2.0.2",
     "eslint-plugin-unicorn": "^55.0.0",
     "fzstd": "^0.1.1",
-    "globals": "^15.9.0",
+    "globals": "^15.10.0",
     "husky": "^9.1.6",
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.10",
