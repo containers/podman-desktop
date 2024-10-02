@@ -27,13 +27,23 @@ export interface ImageFilesystemLayerUI extends ImageFilesystemLayer {
   layerTree: FilesystemTree<ImageFile>;
   // The sum of the sizes of all the files in the layer
   sizeInArchive: number;
-  // The size of the files in the final filesystem
-  sizeInContainer: number;
+  // The number of added/modified/removed files and the sizes of related changes
+  addedCount: number;
+  modifiedCount: number;
+  removedCount: number;
+  addedSize: number;
+  modifiedSize: number;
+  removedSize: number;
 }
 
 export function toImageFilesystemLayerUIs(layers: ImageFilesystemLayer[]): ImageFilesystemLayerUI[] {
   const result: ImageFilesystemLayerUI[] = [];
-  let containerSizePreviousLayer = 0;
+  let addedCountPreviousLayer = 0;
+  let modifiedCountPreviousLayer = 0;
+  let removedCountPreviousLayer = 0;
+  let addedSizePreviousLayer = 0;
+  let modifiedSizePreviousLayer = 0;
+  let removedSizePreviousLayer = 0;
   const stackTree = new FilesystemTree<ImageFile>('');
   for (const layer of layers) {
     const layerTree = new FilesystemTree<ImageFile>('');
@@ -47,18 +57,28 @@ export function toImageFilesystemLayerUIs(layers: ImageFilesystemLayer[]): Image
       layerTree.addWhiteout(`${opaqueWhiteout}/*`);
     }
     for (const file of layer.files ?? []) {
-      stackTree.addPath(file.path, file, file.size);
-      layerTree.addPath(file.path, file, file.size);
+      stackTree.addPath(file.path, file, file.size, file.type === 'directory');
+      layerTree.addPath(file.path, file, file.size, file.type === 'directory');
       sizeInArchive += file.size;
     }
     result.push({
       stackTree: stackTree.copy(),
       layerTree,
       ...layer,
-      sizeInContainer: stackTree.size - containerSizePreviousLayer,
       sizeInArchive,
+      addedCount: stackTree.addedCount - addedCountPreviousLayer,
+      modifiedCount: stackTree.modifiedCount - modifiedCountPreviousLayer,
+      removedCount: stackTree.removedCount - removedCountPreviousLayer,
+      addedSize: stackTree.addedSize - addedSizePreviousLayer,
+      modifiedSize: stackTree.modifiedSize - modifiedSizePreviousLayer,
+      removedSize: stackTree.removedSize - removedSizePreviousLayer,
     });
-    containerSizePreviousLayer = stackTree.size;
+    addedCountPreviousLayer = stackTree.addedCount;
+    modifiedCountPreviousLayer = stackTree.modifiedCount;
+    removedCountPreviousLayer = stackTree.removedCount;
+    addedSizePreviousLayer = stackTree.addedSize;
+    modifiedSizePreviousLayer = stackTree.modifiedSize;
+    removedSizePreviousLayer = stackTree.removedSize;
   }
   return result;
 }

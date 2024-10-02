@@ -15,9 +15,27 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
   currentLayerId = layer.id;
   dispatch('selected', layer);
 }
+
+function getSizesText(layer: ImageFilesystemLayerUI): string {
+  let parts: string[] = [];
+  if (layer.addedCount) {
+    parts.push(`${layer.addedCount} added (${signedHumanSize(layer.addedSize)})`);
+  }
+  if (layer.modifiedCount) {
+    parts.push(`${layer.modifiedCount} modified (${signedHumanSize(layer.modifiedSize)})`);
+  }
+  if (layer.removedCount) {
+    parts.push(`${layer.removedCount} removed (${signedHumanSize(layer.removedSize)})`);
+  }
+  if (!parts.length) {
+    return '';
+  }
+  return `files: ${parts.join(' • ')}`;
+}
 </script>
 
 {#each layers as layer}
+  {@const sizesText = getSizesText(layer)}
   <button
     on:click={() => onLayerSelected(layer)}
     role="row"
@@ -29,9 +47,7 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
       <div class="text-sm opacity-70">{new ImageUtils().getHumanSize(layer.sizeInArchive)} &bull; {layer.id}</div>
       <ImageDetailsFilesExpandableCommand command={layer.createdBy} />
       <div class="text-sm opacity-70">
-        <span>contribute to FS: {signedHumanSize(layer.sizeInContainer)}</span>
-        <span> | </span>
-        <span>total FS: {new ImageUtils().getHumanSize(layer.stackTree.size)}</span>
+        {sizesText}
       </div>
     </div>
   </button>
