@@ -182,7 +182,6 @@ import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { ViewRegistry } from './view-registry.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
-import { ShellDimensions } from '@podman-desktop/api';
 
 // workaround for ESM
 const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
@@ -1186,7 +1185,6 @@ export class PluginSystem {
             // delete the callback
             providerRegistryShellInProviderConnectionSendCallback.delete(onDataId);
           },
-          setWindow,
         );
         // store the callback
         providerRegistryShellInProviderConnectionSendCallback.set(onDataId, shellInProviderConnectionInvocation);
