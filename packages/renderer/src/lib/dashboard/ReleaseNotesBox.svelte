@@ -3,6 +3,8 @@ import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { Button, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 
+import type { ReleaseNotes } from '/@api/release-notes-info';
+
 import Markdown from '../markdown/Markdown.svelte';
 
 let showBanner = false;
@@ -10,13 +12,7 @@ let notesAvailable = false;
 let updateAvilable = false;
 let notesURL: string;
 let currentVersion: string;
-let notesInfo: NotesInfo | undefined;
-interface NotesInfo {
-  image: string;
-  blog: string;
-  title: string;
-  summary: string;
-}
+let notesInfo: ReleaseNotes | undefined;
 const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () => {
   showBanner = true;
 });
