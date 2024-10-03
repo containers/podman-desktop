@@ -21,7 +21,7 @@ const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () 
   showBanner = true;
 });
 function openReleaseNotes() {
-  window.podmanDesktopOpenReleaseNotes('current');
+  window.openExternal(notesURL);
 }
 function updatePodmanDesktop() {
   window.updatePodmanDesktop();
@@ -88,7 +88,7 @@ onDestroy(async () => {
         <p class="text-[var(--pd-content-card-header-text)] font-bold text-lg w-full items-center">
           Release notes are currently unavailable, please check again later
           {#if notesURL}
-            or try this <a href={notesURL} class="text-[var(--pd-link)]">link</a>
+            or try this <Link on:click={openReleaseNotes}>link</Link>
           {/if}
         </p>
         <CloseButton on:click={onClose} />

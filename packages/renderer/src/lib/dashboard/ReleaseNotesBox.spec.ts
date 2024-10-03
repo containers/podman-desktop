@@ -27,7 +27,7 @@ import ReleaseNotesBox from './ReleaseNotesBox.svelte';
 
 const podmanDesktopUpdateAvailableMock = vi.fn();
 const getPodmanDesktopVersionMock = vi.fn();
-const podmanDesktopOpenReleaseNotesMock = vi.fn();
+const openExternalMock = vi.fn();
 const updatePodmanDesktopMock = vi.fn();
 const updateConfigurationValueMock = vi.fn();
 const getConfigurationValueMock = vi.fn();
@@ -38,7 +38,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   (window as any).podmanDesktopUpdateAvailable = podmanDesktopUpdateAvailableMock.mockResolvedValue(false);
   (window as any).getPodmanDesktopVersion = getPodmanDesktopVersionMock.mockResolvedValue('1.1.0');
-  (window as any).podmanDesktopOpenReleaseNotes = podmanDesktopOpenReleaseNotesMock;
+  (window as any).openExternal = openExternalMock;
   (window as any).podmanDesktopGetReleaseNotes = podmanDesktopGetReleaseNotesMock.mockResolvedValue({
     releaseNotesAvailable: true,
     notesURL: `appHomepage/blog/podman-desktop-release-1.1`,
