@@ -76,6 +76,7 @@ import type {
 import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
+import type { DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
@@ -496,7 +497,7 @@ export class PluginSystem {
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
-    const dockerCompatibility = new DockerCompatibility(configurationRegistry);
+    const dockerCompatibility = new DockerCompatibility(configurationRegistry, providerRegistry);
     dockerCompatibility.init();
 
     const messageBox = new MessageBox(apiSender);
@@ -2693,6 +2694,13 @@ export class PluginSystem {
     this.ipcHandle(
       'context:collectAllValues',
       async (): Promise<Record<string, unknown>> => context.collectAllValues(),
+    );
+
+    this.ipcHandle(
+      'docker-compatibility:getSystemDockerSocketMappingStatus',
+      async (): Promise<DockerSocketMappingStatusInfo> => {
+        return dockerCompatibility.getSystemDockerSocketMappingStatus();
+      },
     );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
