@@ -39,7 +39,7 @@ export class VolumesPage extends MainPage {
   }
 
   async openCreateVolumePage(volumeName: string): Promise<CreateVolumePage> {
-    return await test.step('Open Create Volume Page', async () => {
+    return test.step('Open Create Volume Page', async () => {
       const row = await this.getVolumeRowByName(volumeName);
       if (row !== undefined) {
         throw Error('Volume is already created');
@@ -52,7 +52,7 @@ export class VolumesPage extends MainPage {
   }
 
   async openVolumeDetails(volumeName: string): Promise<VolumeDetailsPage> {
-    return await test.step('Open Volume Details Page', async () => {
+    return test.step('Open Volume Details Page', async () => {
       const volumeRow = await this.getVolumeRowByName(volumeName);
       if (volumeRow === undefined) {
         throw Error(`Volume: ${volumeName} does not exist`);
@@ -65,7 +65,7 @@ export class VolumesPage extends MainPage {
   }
 
   async deleteVolume(volumeName: string): Promise<VolumesPage> {
-    return await test.step('Delete Volume', async () => {
+    return test.step('Delete Volume', async () => {
       const volumeRow = await this.getVolumeRowByName(volumeName);
       if (volumeRow === undefined) {
         throw Error(`Volume: ${volumeName} does not exist`);
@@ -84,7 +84,7 @@ export class VolumesPage extends MainPage {
   }
 
   protected async volumeExists(name: string): Promise<boolean> {
-    return await test.step(`Check if volume ${name} exists`, async () => {
+    return test.step(`Check if volume ${name} exists`, async () => {
       const result = await this.getVolumeRowByName(name);
       return result !== undefined;
     });
@@ -99,7 +99,7 @@ export class VolumesPage extends MainPage {
   }
 
   async waitForVolumeExists(name: string, timeout = 30_000): Promise<boolean> {
-    return await test.step(`Wait for volume ${name} to exist`, async () => {
+    return test.step(`Wait for volume ${name} to exist`, async () => {
       if (!name) {
         throw Error('Volume name is not provided');
       }
@@ -109,7 +109,7 @@ export class VolumesPage extends MainPage {
   }
 
   async waitForVolumeDelete(name: string, timeout = 30_000): Promise<boolean> {
-    return await test.step(`Wait for volume ${name} to be deleted`, async () => {
+    return test.step(`Wait for volume ${name} to be deleted`, async () => {
       if (!name) {
         throw Error('Volume name is not provided');
       }
@@ -119,7 +119,7 @@ export class VolumesPage extends MainPage {
   }
 
   async pruneVolumes(): Promise<VolumesPage> {
-    return await test.step('Prune Volumes', async () => {
+    return test.step('Prune Volumes', async () => {
       await playExpect(this.pruneVolumesButton).toBeEnabled();
       await this.pruneVolumesButton.click();
       await handleConfirmationDialog(this.page, 'Prune');
