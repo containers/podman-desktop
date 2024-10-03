@@ -1,6 +1,7 @@
 <script lang="ts">
 import SettingsPage from '../SettingsPage.svelte';
 import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDockerCompatibilitySocketMappingStatus.svelte';
+import PreferencesDockerCompatibilityDockerContext from './PreferencesDockerCompatibilityDockerContext.svelte';
 </script>
 
 <SettingsPage title="Docker compatibility">
@@ -12,6 +13,12 @@ import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDock
     <div class="container" role="list">
       Docker Preferences
       <PreferencesDockerCompatibilitySocketMappingStatus />
+    </div>
+  </div>
+  <div class="flex flex-col space-y-4">
+    <div class="container" role="list">
+      Docker CLI Context
+      <PreferencesDockerCompatibilityDockerContext />
     </div>
   </div>
 </SettingsPage>
