@@ -57,7 +57,6 @@ function receiveDataCallback(data: string) {
 
 function receiveEndCallback() {
   // need to reopen a new terminal
-  console.error('end');
   window
     .shellInProviderConnection(
       provider.internalId,
@@ -70,6 +69,7 @@ function receiveEndCallback() {
       sendCallbackId = id;
 
       shellTerminal?.onData(data => {
+        console.error("1.1")
         window.shellInProviderConnectionSend(id, data);
       });
     });
@@ -81,6 +81,10 @@ function receiveErrorCallback(error: string) {
 
 // call exec command
 async function executeShellIntoProviderConnection() {
+  if (provider.status !== 'ready') {
+    return;
+  }
+
   // grab logs of the provider
   const callbackId = await window.shellInProviderConnection(
     provider.internalId,
@@ -98,6 +102,7 @@ async function executeShellIntoProviderConnection() {
   await window.shellInProviderConnectionSetWindow(callbackId, dimensions);
   // pass data from xterm to provider
   shellTerminal?.onData(data => {
+    console.error("1")
     window.shellInProviderConnectionSend(callbackId, data);
   });
 
@@ -165,7 +170,6 @@ onMount(async () => {
 
 onDestroy(() => {
   terminalContent = serializeAddon.serialize();
-  if (!provider) return;
   // register terminal for reusing it
   registerTerminal({
     providerInternalId: provider.internalId,
@@ -179,7 +183,7 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full" bind:this={terminalXtermDiv} class:hidden={provider.status !== 'ready'}></div>
+<div class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv} class:hidden={provider.status !== 'ready'}></div>
 
 <EmptyScreen
   hidden={provider.status === 'ready'}

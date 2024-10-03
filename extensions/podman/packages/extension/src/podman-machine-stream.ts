@@ -112,6 +112,8 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
               this.onDataEmit.fire({ data: data });
             });
         });
+      }).on('error', err => {
+        this.onErrorEmit.fire({ error: err.message });
       })
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
