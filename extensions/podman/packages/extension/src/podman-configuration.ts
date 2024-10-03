@@ -44,6 +44,7 @@ export class PodmanConfiguration {
 
     // in case of proxy being enabled or disabled we need to update the containers.conf file
     extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
+      // eslint-disable-next-line sonarjs/no-selector-parameter
       if (enabled) {
         const updatedProxySettings = extensionApi.proxy.getProxySettings();
         await this.updateProxySettings(updatedProxySettings);
