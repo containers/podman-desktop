@@ -89,7 +89,7 @@ export class Updater {
     const notesURL = `${homepage}/release-notes/${urlVersionFormat}.json`;
     let response = await fetch(notesURL);
     if (!response.ok) {
-      response = await fetch(`${repository}/releases/tag/v1.12.0`);
+      response = await fetch(`${repository}/releases/tag/v${version}`);
       if (response.ok) {
         return { releaseNotesAvailable: false, notesURL: `${repository}/releases/tag/v${version}` };
       } else {
