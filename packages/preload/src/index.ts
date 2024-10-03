@@ -1619,7 +1619,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'sendShowQuickPickValues',
-    async (quickPickId: number, selectedIndexes: number[]): Promise<void> => {
+    async (quickPickId: number, selectedIndexes: number[] | undefined): Promise<void> => {
       return ipcInvoke('showQuickPick:values', quickPickId, selectedIndexes);
     },
   );

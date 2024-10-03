@@ -1669,9 +1669,12 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('showQuickPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
-      return inputQuickPickRegistry.onQuickPickValuesSelected(id, indexes);
-    });
+    this.ipcHandle(
+      'showQuickPick:values',
+      async (_listener, id: number, indexes: number[] | undefined): Promise<void> => {
+        return inputQuickPickRegistry.onQuickPickValuesSelected(id, indexes);
+      },
+    );
 
     this.ipcHandle(
       'showInputBox:validate',
