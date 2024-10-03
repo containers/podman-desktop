@@ -35,6 +35,7 @@ import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.j
 import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 
 import { homepage, repository } from '../../../../package.json';
 import type { TaskManager } from './tasks/task-manager.js';
@@ -85,12 +86,7 @@ export class Updater {
   public async getReleaseNotes(): Promise<{
     releaseNotesAvailable: boolean;
     notesURL: string;
-    notes?: {
-      image: string;
-      blog: string;
-      title: string;
-      summary: string;
-    };
+    notes?: ReleaseNotesInfo;
   }> {
     const version = app.getVersion();
     const urlVersionFormat = version.split('.', 2).join('.');

@@ -100,6 +100,7 @@ import type {
 } from '/@api/provider-info.js';
 import type { ProxyState } from '/@api/proxy.js';
 import type { PullEvent } from '/@api/pull-event.js';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 import type { ViewInfoUI } from '/@api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
@@ -1345,12 +1346,7 @@ export class PluginSystem {
       async (): Promise<{
         releaseNotesAvailable: boolean;
         notesURL: string;
-        notes?: {
-          image: string;
-          blog: string;
-          title: string;
-          summary: string;
-        };
+        notes?: ReleaseNotesInfo;
       }> => {
         return podmanDesktopUpdater.getReleaseNotes();
       },

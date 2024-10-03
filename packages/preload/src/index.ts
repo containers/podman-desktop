@@ -80,6 +80,7 @@ import type {
 } from '/@api/provider-info';
 import type { ProxyState } from '/@api/proxy';
 import type { PullEvent } from '/@api/pull-event';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info';
 import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
@@ -1170,12 +1171,7 @@ export function initExposure(): void {
     async (): Promise<{
       releaseNotesAvailable: boolean;
       notesURL: string;
-      notes?: {
-        image: string;
-        blog: string;
-        title: string;
-        summary: string;
-      };
+      notes?: ReleaseNotesInfo;
     }> => {
       return ipcInvoke('app:get-release-notes');
     },
