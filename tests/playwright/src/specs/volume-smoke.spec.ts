@@ -46,7 +46,7 @@ test.describe.serial('Volume workflow verification @smoke', () => {
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
     volumesPage = await createVolumePage.createVolume(volumeName);
     await playExpect
-      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), { timeout: 15_000 })
+      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), { timeout: 25_000 })
       .toBeTruthy();
   });
 

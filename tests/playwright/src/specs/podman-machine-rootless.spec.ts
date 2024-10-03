@@ -16,25 +16,32 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ResourceElementState } from '../model/core/states';
 import { CreateMachinePage } from '../model/pages/create-machine-page';
+import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
+import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { createPodmanMachineFromCLI, deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
 import { isLinux } from '../utility/platform';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
+const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
+const DEFAULT_PODMAN_MACHINE_VISIBLE = 'podman-machine-default';
+const RESOURCE_NAME = 'podman';
+const ROOTLESS_PODMAN_MACHINE = 'Podman Machine rootless';
 
 test.skip(
   isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
   'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
 );
 
-test.beforeAll(async ({ runner, welcomePage }) => {
+test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('podman-rootless-machine-e2e');
   process.env.KEEP_TRACES_ON_PASS = 'true';
 
   await welcomePage.handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner }) => {
@@ -48,18 +55,90 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('Rootless Podman machine Verification', () => {
+  test('Check data for available Podman Machine and stop machine', async ({ page, navigationBar }) => {
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(
+      page,
+      RESOURCE_NAME,
+      DEFAULT_PODMAN_MACHINE_VISIBLE,
+    );
+
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible({ timeout: 10_000 });
+    await resourcesPodmanConnections.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+  });
+
   test('Create a rootless machine', async ({ page, navigationBar }) => {
     test.setTimeout(200_000);
 
-    await navigationBar.openSettings();
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
     const podmanResources = new ResourceConnectionCardPage(page, 'podman');
     await podmanResources.createButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
-    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, { isRootful: false, setAsDefault: false });
+    const resourcePage = await createMachinePage.createMachine(PODMAN_MACHINE_NAME, {
+      isRootful: false,
+      setAsDefault: false,
+      startNow: false,
+    });
 
+    await playExpect(resourcePage.heading).toBeVisible();
     const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
-    await playExpect(machineBox.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
+
+    await playExpect(machineBox.resourceElementDetailsButton).toBeVisible({ timeout: 30_000 });
+    await machineBox.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
+    await playExpect(podmanMachineDetails.podmanMachineName).toBeVisible({ timeout: 30_000 });
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF');
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+  });
+
+  test('Restart default podman machine', async ({ page, navigationBar }) => {
+    const dashboard = await navigationBar.openDashboard();
+    await playExpect(dashboard.heading).toBeVisible();
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(
+      page,
+      RESOURCE_NAME,
+      DEFAULT_PODMAN_MACHINE_VISIBLE,
+    );
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
+    await resourcesPodmanConnections.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
 
     await handleConfirmationDialog(page, 'Podman', true, 'Yes');
     await handleConfirmationDialog(page, 'Podman', true, 'OK');

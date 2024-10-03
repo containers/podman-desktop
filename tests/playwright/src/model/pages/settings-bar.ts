@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { type Locator, type Page, test } from '@playwright/test';
 
 import type { SettingsPage } from './settings-page';
 
@@ -44,9 +44,12 @@ export class SettingsBar {
   }
 
   public async openTabPage<T extends SettingsPage>(type: new (page: Page) => T): Promise<T> {
-    const desiredPage = new type(this.page);
-    await (await desiredPage.getTab()).click();
-    return desiredPage;
+    return test.step(`Open ${type.name} tab from Settings`, async () => {
+      const desiredPage = new type(this.page);
+      const tab = await desiredPage.getTab();
+      await tab.click();
+      return desiredPage;
+    });
   }
 
   public getSettingsNavBarTabLocator(name: string): Locator {

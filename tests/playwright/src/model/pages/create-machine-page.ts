@@ -44,7 +44,7 @@ export class CreateMachinePage extends BasePage {
     const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 60_000 });
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 120_000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
 
     try {
@@ -53,6 +53,7 @@ export class CreateMachinePage extends BasePage {
       console.log('No handling dialog displayed', error);
     }
 
+    await playExpect(goBackToResourcesButton).toBeEnabled();
     await goBackToResourcesButton.click();
     return new ResourcesPage(this.page);
   }
