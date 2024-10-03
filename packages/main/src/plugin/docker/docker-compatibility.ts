@@ -21,12 +21,17 @@ import { promises } from 'node:fs';
 import Dockerode from 'dockerode';
 
 import { isMac, isWindows } from '/@/util.js';
-import type { DockerSocketMappingStatusInfo, DockerSocketServerInfoType } from '/@api/docker-compatibility-info.js';
+import type {
+  DockerContextInfo,
+  DockerSocketMappingStatusInfo,
+  DockerSocketServerInfoType,
+} from '/@api/docker-compatibility-info.js';
 import { ExperimentalSettings } from '/@api/docker-compatibility-info.js';
 
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import type { LibPod } from '../dockerode/libpod-dockerode.js';
 import type { ProviderRegistry } from '../provider-registry.js';
+import { DockerContextHandler } from './docker-context-handler.js';
 
 export class DockerCompatibility {
   static readonly WINDOWS_NPIPE = '//./pipe/docker_engine';
@@ -38,9 +43,12 @@ export class DockerCompatibility {
 
   #providerRegistry: ProviderRegistry;
 
+  #dockerContextHandler: DockerContextHandler;
+
   constructor(configurationRegistry: ConfigurationRegistry, providerRegistry: ProviderRegistry) {
     this.#configurationRegistry = configurationRegistry;
     this.#providerRegistry = providerRegistry;
+    this.#dockerContextHandler = new DockerContextHandler();
   }
 
   init(): void {
@@ -170,5 +178,13 @@ export class DockerCompatibility {
       // in that case, need to return the status as not reachable
       return { status: 'unreachable' };
     }
+  }
+
+  async listDockerContexts(): Promise<DockerContextInfo[]> {
+    return this.#dockerContextHandler.listContexts();
+  }
+
+  async switchDockerContext(contextName: string): Promise<void> {
+    return this.#dockerContextHandler.switchContext(contextName);
   }
 }

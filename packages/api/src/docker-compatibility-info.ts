@@ -42,3 +42,16 @@ export interface DockerSocketMappingStatusInfo {
     architecture: string;
   };
 }
+
+export interface DockerContextInfo {
+  name: string;
+  isCurrentContext: boolean;
+  metadata: {
+    description: string;
+  };
+  endpoints: {
+    docker: {
+      host: string;
+    };
+  };
+}
