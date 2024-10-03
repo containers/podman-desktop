@@ -577,7 +577,8 @@ export class PluginSystem {
       configurationRegistry,
       statusBarRegistry,
       commandRegistry,
-      taskManager, apiSender,
+      taskManager,
+      apiSender,
     );
     podmanDesktopUpdater.init();
 
