@@ -28,6 +28,8 @@ import type {
 import type { ImageFilesExtensionInfo, ImageFilesInfo } from '/@api/image-files-info.js';
 
 import type { ApiSenderType } from './api.js';
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import type { Context } from './context/context.js';
 import { ImageFilesImpl } from './image-files-impl.js';
 
 export interface ImageFilesProviderWithMetadata {
@@ -42,7 +44,27 @@ export class ImageFilesRegistry {
     ImageFilesProviderWithMetadata
   >();
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private configurationRegistry: IConfigurationRegistry,
+    private context: Context,
+  ) {
+    this.context.setValue('imageFiles.hasProvider', false);
+    const imagesFilesConfiguration: IConfigurationNode = {
+      id: 'preferences.userConfirmation',
+      title: 'Image Files',
+      type: 'object',
+      properties: {
+        ['userConfirmation.fetchImageFiles']: {
+          description: 'Ask before fetching image layers when entering the Files tab',
+          type: 'boolean',
+          default: true,
+          when: 'imageFiles.hasProvider',
+        },
+      },
+    };
+    this.configurationRegistry.registerConfigurations([imagesFilesConfiguration]);
+  }
 
   create(
     extensionInfo: ImageFilesExtensionInfo,
@@ -67,12 +89,14 @@ export class ImageFilesRegistry {
       label,
       provider,
     });
+    this.context.setValue('imageFiles.hasProvider', true);
     this.apiSender.send('image-files-provider-update', { id });
     return new ImageFilesImpl(id, this);
   }
 
   disposeImageFiles(provider: ImageFilesImpl): void {
     this._imageFilesProviders.delete(provider.id);
+    this.context.setValue('imageFiles.hasProvider', this._imageFilesProviders.values.length > 0);
     this.apiSender.send('image-files-provider-remove', { id: provider.id });
   }
 
