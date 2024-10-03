@@ -81,8 +81,17 @@ export class Updater {
       shell.openExternal(notesURL).catch(console.error);
     });
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async getReleaseNotes(): Promise<{ releaseNotesAvailable: boolean; notesURL: string; notes?: any }> {
+
+  public async getReleaseNotes(): Promise<{
+    releaseNotesAvailable: boolean;
+    notesURL: string;
+    notes?: {
+      image: string;
+      blog: string;
+      title: string;
+      summary: string;
+    };
+  }> {
     const version = app.getVersion();
     const urlVersionFormat = version.split('.', 2).join('.');
 

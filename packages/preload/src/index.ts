@@ -1167,8 +1167,16 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'podmanDesktopGetReleaseNotes',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (): Promise<{ releaseNotesAvailable: boolean; notesURL: string; notes?: any }> => {
+    async (): Promise<{
+      releaseNotesAvailable: boolean;
+      notesURL: string;
+      notes?: {
+        image: string;
+        blog: string;
+        title: string;
+        summary: string;
+      };
+    }> => {
       return ipcInvoke('app:get-release-notes');
     },
   );

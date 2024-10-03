@@ -1342,8 +1342,16 @@ export class PluginSystem {
 
     this.ipcHandle(
       'app:get-release-notes',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (): Promise<{ releaseNotesAvailable: boolean; notesURL: string; notes?: any }> => {
+      async (): Promise<{
+        releaseNotesAvailable: boolean;
+        notesURL: string;
+        notes?: {
+          image: string;
+          blog: string;
+          title: string;
+          summary: string;
+        };
+      }> => {
         return podmanDesktopUpdater.getReleaseNotes();
       },
     );
