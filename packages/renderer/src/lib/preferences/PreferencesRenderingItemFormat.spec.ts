@@ -246,8 +246,8 @@ test('Expect a select when record is type string and has enum values', async () 
   await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
-  expect(input instanceof HTMLSelectElement).toBe(true);
-  expect((input as HTMLSelectElement).name).toBe('record');
+  expect(input.children[0]).toHaveAttribute('name', 'record');
+  expect(input).toHaveTextContent('first');
 });
 
 test('Expect enum to have the givenValue selected', async () => {
@@ -262,9 +262,8 @@ test('Expect enum to have the givenValue selected', async () => {
   await awaitRender(record, { givenValue: 'second' });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
-  expect(input instanceof HTMLSelectElement).toBe(true);
-  expect((input as HTMLSelectElement).name).toBe('record');
-  expect((input as HTMLSelectElement).value).toBe('second');
+  expect(input.children[0]).toHaveAttribute('name', 'record');
+  expect(input).toHaveTextContent('second');
 });
 
 test('Expect a text input when record is type string', async () => {

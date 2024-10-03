@@ -40,9 +40,7 @@ test('Enum without default', async () => {
   render(EnumItem, { record });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
-
-  expect(input instanceof HTMLSelectElement).toBe(true);
-  expect((input as HTMLSelectElement).selectedIndex).toBe(0);
+  expect(input).toHaveTextContent('hello');
 });
 
 test('Enum with default', async () => {
@@ -58,9 +56,5 @@ test('Enum with default', async () => {
   render(EnumItem, { record, value: record.default });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
-
-  expect(input instanceof HTMLSelectElement).toBe(true);
-  expect((input as HTMLSelectElement).selectedIndex).toBe(1);
-  expect((input as HTMLSelectElement).selectedOptions.length).toBe(1);
-  expect((input as HTMLSelectElement).selectedOptions[0].text).toBe('world');
+  expect(input).toHaveTextContent('world');
 });
