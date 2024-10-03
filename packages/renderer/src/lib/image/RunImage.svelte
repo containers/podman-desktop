@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import type { OpenDialogOptions } from '@podman-desktop/api';
-import { Button, Checkbox, ErrorMessage, Input, Tab } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Input, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -849,16 +849,13 @@ const envDialogOptions: OpenDialogOptions = {
                 class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-card-text)]">
                 <span class="text-sm w-28 inline-block align-middle whitespace-nowrap">Policy name:</span>
 
-                <select
-                  class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm"
-                  name="restartPolicyName"
-                  bind:value={restartPolicyName}>
+                <Dropdown class="w-full" name="restartPolicyName" bind:value={restartPolicyName}>
                   <option value="">No restart</option>
                   <option value="no">Do not restart automatically</option>
                   <option value="always">Always restart</option>
                   <option value="unless-stopped">Restart only if user has not manually stopped</option>
                   <option value="on-failure">Restart only if exit code is non-zero</option>
-                </select>
+                </Dropdown>
               </div>
 
               <div
@@ -1075,17 +1072,14 @@ const envDialogOptions: OpenDialogOptions = {
                 class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-card-text)]">
                 <span class="text-sm w-28 inline-block align-middle whitespace-nowrap">Mode:</span>
 
-                <select
-                  class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm"
-                  name="providerChoice"
-                  bind:value={networkingMode}>
+                <Dropdown class="w-full" name="providerChoice" bind:value={networkingMode}>
                   <option value="bridge">Creates a network stack on the default bridge (default)</option>
                   <option value="none">No networking</option>
                   <option value="host">Use the host networking stack</option>
                   <option value="choice-container">Use another container networking stack</option>
                   <!-- display only if there is at least one network-->
                   <option value="choice-network">User-defined network</option>
-                </select>
+                </Dropdown>
               </div>
 
               {#if networkingMode === 'choice-network'}
@@ -1093,8 +1087,8 @@ const envDialogOptions: OpenDialogOptions = {
                   <span
                     class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Network:</span>
-                  <select
-                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+                  <Dropdown
+                    class="w-full"
                     disabled={networkingMode !== 'choice-network'}
                     name="networkingModeUserNetwork"
                     bind:value={networkingModeUserNetwork}>
@@ -1102,7 +1096,7 @@ const envDialogOptions: OpenDialogOptions = {
                       <option value={network.Id}
                         >{network.Name} (used by {Object.keys(network.Containers ?? {}).length} containers)</option>
                     {/each}
-                  </select>
+                  </Dropdown>
                 </div>
               {/if}
               {#if networkingMode === 'choice-container'}
@@ -1110,15 +1104,15 @@ const envDialogOptions: OpenDialogOptions = {
                   <span
                     class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Container:</span>
-                  <select
-                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+                  <Dropdown
+                    class="w-full"
                     disabled={networkingMode !== 'choice-container'}
                     name="networkingModeUserContainer"
                     bind:value={networkingModeUserContainer}>
                     {#each engineContainers as container}
                       <option value={container.id}>{container.name} ({container.shortId})</option>
                     {/each}
-                  </select>
+                  </Dropdown>
                 </div>
               {/if}
             </div>
