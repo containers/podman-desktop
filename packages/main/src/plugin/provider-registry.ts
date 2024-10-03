@@ -1280,7 +1280,6 @@ export class ProviderRegistry {
       if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status == "started") {
         shellAccess = containerConnection.shellAccess;
         shellAccess?.onData(data => {
-          console.error("2: ", data)
           onData(data.data);
         });
         shellAccess?.onError(error => {
@@ -1293,7 +1292,6 @@ export class ProviderRegistry {
       return {
         write: (data: string): void => {
           if (shellAccess) {
-            console.log("2.1: ", data)
             shellAccess.write(data);
           }
         },
