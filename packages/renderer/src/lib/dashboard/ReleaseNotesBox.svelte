@@ -27,7 +27,7 @@ function updatePodmanDesktop() {
 
 async function getInfoFromNotes() {
   const releaseNotes = await window.podmanDesktopGetReleaseNotes();
-  notesInfo = releaseNotes?.notes;
+  notesInfo = releaseNotes.notes;
   notesAvailable = notesInfo !== undefined;
   notesURL = releaseNotes.notesURL;
 }
