@@ -60,7 +60,7 @@ test('expect banner to be visible', async () => {
   render(ReleaseNotesBox);
   await tick();
   expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show');
-  expect(podmanDesktopGetReleaseNotesMock).toBeCalled();
+  await waitFor(() => expect(podmanDesktopGetReleaseNotesMock).toBeCalled());
   await tick();
   expect(screen.getByText(responseJSON.title)).toBeInTheDocument();
   expect(screen.getAllByText(responseJSON.summary)[0]).toBeInTheDocument();
@@ -77,8 +77,8 @@ test('expect no release notes available', async () => {
   render(ReleaseNotesBox);
   await waitFor(() => expect(podmanDesktopGetReleaseNotesMock).toBeCalled());
   await tick();
-  expect(screen.queryByText(responsJSON.title)).not.toBeInTheDocument();
-  expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.title)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
   expect(screen.queryByRole('img')).not.toBeInTheDocument();
   expect(
     screen.getByText('Release notes are currently unavailable, please check again later or try this'),
@@ -110,6 +110,6 @@ test('expect clicking on close button to not show banner anymore', async () => {
   await userEvent.click(closeButton);
   await tick();
   expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show', '1.1.0');
-  expect(screen.queryByText(responsJSON.title)).not.toBeInTheDocument();
-  expect(screen.queryByText(responsJSON.summary)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.title)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
 });
