@@ -1,6 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 
+import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';
+
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { statusBarEntries } from '../../stores/statusbar';
 import StatusBarItem from './StatusBarItem.svelte';
@@ -60,5 +62,6 @@ onMount(async () => {
     {#each rightEntries as entry}
       <StatusBarItem entry={entry} />
     {/each}
+    <TaskIndicator />
   </div>
 </div>
