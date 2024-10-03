@@ -18,11 +18,13 @@
 
 import type { NotificationOptions } from '@podman-desktop/api';
 
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import { NotificationImpl } from '/@/plugin/tasks/notification-impl.js';
 import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
 import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
 import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo.js';
+import { ExperimentalTasksSettings } from '/@api/tasks-preferences.js';
 
 import type { ApiSenderType } from '../api.js';
 import type { CommandRegistry } from '../command-registry.js';
@@ -37,6 +39,7 @@ export class TaskManager {
     private apiSender: ApiSenderType,
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
+    private configurationRegistry: ConfigurationRegistry,
   ) {}
 
   public init(): void {
@@ -47,6 +50,21 @@ export class TaskManager {
       this.apiSender.send('toggle-task-manager', '');
       this.setStatusBarEntry(false);
     });
+
+    this.configurationRegistry.registerConfigurations([
+      {
+        id: 'preferences.experimental.tasks',
+        title: 'Tasks preference',
+        type: 'object',
+        properties: {
+          [`${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.StatusBar}`]: {
+            description: 'Enable the running tasks to be displayed in the status bar',
+            type: 'boolean',
+            default: false,
+          },
+        },
+      },
+    ]);
   }
 
   private setStatusBarEntry(highlight: boolean): void {

@@ -2,13 +2,16 @@
 import { onMount } from 'svelte';
 
 import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';
+import { statusBarEntries } from '/@/stores/statusbar';
+import { ExperimentalTasksSettings } from '/@api/tasks-preferences';
 
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
-import { statusBarEntries } from '../../stores/statusbar';
 import StatusBarItem from './StatusBarItem.svelte';
 
-let leftEntries: StatusBarEntry[] = [];
-let rightEntries: StatusBarEntry[] = [];
+let leftEntries: StatusBarEntry[] = $state([]);
+let rightEntries: StatusBarEntry[] = $state([]);
+
+let experimentalTaskStatusBar: boolean = $state(false);
 
 onMount(async () => {
   statusBarEntries.subscribe(value => {
@@ -46,6 +49,11 @@ onMount(async () => {
         return descriptor.entry;
       });
   });
+
+  experimentalTaskStatusBar =
+    (await window.getConfigurationValue<boolean>(
+      `${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.StatusBar}`,
+    )) ?? false;
 });
 </script>
 
@@ -62,6 +70,8 @@ onMount(async () => {
     {#each rightEntries as entry}
       <StatusBarItem entry={entry} />
     {/each}
-    <TaskIndicator />
+    {#if experimentalTaskStatusBar}
+      <TaskIndicator />
+    {/if}
   </div>
 </div>
