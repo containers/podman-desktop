@@ -54,15 +54,20 @@ test.afterAll(async ({ runner, page }) => {
 test.describe.serial('Pulling image from authenticated registry workflow verification', () => {
   test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible({ timeout: 10_000 });
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);
     const errorAlert = page.getByLabel('Error Message Content');
 
     const pullImagePage = await imagesPage.openPullImage();
-    await pullImagePage.imageNameInput.fill(fullImageTitle);
+    await playExpect(pullImagePage.heading).toBeVisible({ timeout: 10_000 });
+
+    await pullImagePage.imageNameInput.pressSequentially(fullImageTitle, { delay: 25 });
+    await playExpect(pullImagePage.imageNameInput).toHaveValue(fullImageTitle);
+    await playExpect(pullImagePage.pullImageButton).toBeEnabled();
     await pullImagePage.pullImageButton.click();
 
-    await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
+    await playExpect(errorAlert).toBeVisible({ timeout: 10_000 });
     await playExpect(errorAlert).toContainText('Error while pulling image from');
     await playExpect(errorAlert).toContainText(fullImageTitle);
     await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
