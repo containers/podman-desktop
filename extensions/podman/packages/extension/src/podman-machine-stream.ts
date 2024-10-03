@@ -71,10 +71,11 @@ export class PodmanMachineStream {
 
   startConnection(): void {
     // To avoid strating multiple SSH connections
-    if (this.#connected) {
+    if (this.#connected || this.#stream) {
       return;
     }
 
+    console.error("Starting connection")
     this.#client
       .on('ready', () => {
         this.#client.shell((err, stream) => {
@@ -97,6 +98,8 @@ export class PodmanMachineStream {
               this.onDataEmit.fire({ data: data.toString('utf-8') });
             });
         });
+      }).on('error', err => {
+        this.onErrorEmit.fire({ error: err.message });
       })
       .connect({
         host: this.#host,

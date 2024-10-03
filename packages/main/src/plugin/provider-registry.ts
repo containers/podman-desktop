@@ -1274,31 +1274,38 @@ export class ProviderRegistry {
     onError: (error: string) => void,
     onEnd: () => void,
   ): Promise<{ write: (param: string) => void; setWindow: (dimensions: ShellDimensions) => void }> {
-    const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
-    let shellAccess: ProviderConnectionShellAccess | undefined;
-    if (this.isContainerConnection(containerConnection)) {
-      shellAccess = containerConnection.shellAccess;
-      shellAccess?.onData(data => {
-        onData(data.data);
-      });
-      shellAccess?.onError(error => {
-        onError(error.error);
-      });
-      shellAccess?.onEnd(onEnd);
-      shellAccess?.startConnection();
-    }
+    try {
+      const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+      let shellAccess: ProviderConnectionShellAccess | undefined;
+      if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status == "started") {
+        shellAccess = containerConnection.shellAccess;
+        shellAccess?.onData(data => {
+          console.error("2: ", data)
+          onData(data.data);
+        });
+        shellAccess?.onError(error => {
+          onError(error.error);
+        });
+        shellAccess?.onEnd(onEnd);
+        shellAccess?.startConnection();
+      }
 
-    return {
-      write: (data: string): void => {
-        if (shellAccess) {
-          shellAccess.write(data);
-        }
-      },
-      setWindow: (dimension: ShellDimensions): void => {
-        if (shellAccess) {
-          shellAccess.setWindow(dimension);
-        }
-      },
-    };
+      return {
+        write: (data: string): void => {
+          if (shellAccess) {
+            console.log("2.1: ", data)
+            shellAccess.write(data);
+          }
+        },
+        setWindow: (dimension: ShellDimensions): void => {
+          if (shellAccess) {
+            shellAccess.setWindow(dimension);
+          }
+        },
+      };
+    } catch (error) {
+      this.telemetryService.track('shellInProviderConnection.error', error);
+      throw error;
+    }
   }
 }
