@@ -1,6 +1,9 @@
 <script context="module" lang="ts">
 import { Dropdown } from '@podman-desktop/ui-svelte';
 import { type Args, defineMeta, setTemplate, type StoryContext } from '@storybook/addon-svelte-csf';
+import { fn } from '@storybook/test';
+
+const onChangeFn = fn().mockName('onchange');
 
 /**
  * These are the stories for the `Dropdown` component.
@@ -15,20 +18,14 @@ const { Story } = defineMeta({
       description: 'Initial value shown in the dropdown',
       defaultValue: '',
     },
+    onchange: onChangeFn,
     disabled: {
       control: 'boolean',
       description: 'Set the dropdown as being disabled',
       defaultValue: false,
     },
-    id: {
-      control: 'text',
-      description: 'Id of the dropdown',
-      defaultValue: undefined,
-    },
-    name: {
-      control: 'text',
-      description: 'Name of the dropdown',
-      defaultValue: undefined,
+    options: {
+      description: 'Dropdown items',
     },
   },
 });
@@ -51,7 +48,7 @@ setTemplate(template);
 <Story
   name="Basic"
   args={{
-    value: 'Basic dropdown',
+    value: 'Initial value',
   }} />
 
 <Story

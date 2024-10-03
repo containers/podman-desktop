@@ -1,29 +1,48 @@
 <script lang="ts">
 import { faCaretDown, faCheck } from '@fortawesome/free-solid-svg-icons';
+import type { Snippet } from 'svelte';
 import Fa from 'svelte-fa';
 
-export let id: string | undefined = undefined;
-export let name: string | undefined = undefined;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let value: any = '';
-export let disabled: boolean = false;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let onInput: (val: any) => void = () => {};
-
 interface Option {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
+  value: unknown;
   label: string;
 }
 
-let opened: boolean = false;
-let selectLabel: string = '';
-let options: Option[] = [];
-let highlightIndex: number = -1;
-let pageStep: number = 10;
+let {
+  id,
+  name,
+  value = $bindable(),
+  disabled,
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  onChange = () => {},
+  options = [],
+  class: className = '',
+  ariaInvalid = false,
+  ariaLabel = '',
+  children = undefined,
+}: {
+  id?: string;
+  name?: string;
+  value?: unknown;
+  disabled?: boolean;
+  onChange?: (val: unknown) => void;
+  options?: Option[];
+  class?: string;
+  ariaInvalid?: boolean | 'grammar' | 'spelling';
+  ariaLabel?: string;
+  children?: Snippet;
+} = $props();
+
+let opened: boolean = $state(false);
+let selectLabel: string = $state('');
+let highlightIndex: number = $state(-1);
 let comp: HTMLElement;
 
-$: selectLabel = options.find(o => o.value === value)?.label ?? value;
+const pageStep: number = 10;
+
+$effect(() => {
+  selectLabel = options.find(o => o.value === value)?.label ?? (typeof value === 'string' ? (value as string) : '');
+});
 
 function onKeyDown(e: KeyboardEvent): void {
   switch (e.key) {
@@ -105,9 +124,8 @@ function onEnter(i: number): void {
   highlightIndex = i;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function onSelect(e: Event, newValue: any): void {
-  onInput(newValue);
+function onSelect(e: Event, newValue: unknown): void {
+  onChange(newValue);
   value = newValue;
   close();
   e.preventDefault();
@@ -132,7 +150,9 @@ function close(): void {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildOptions(node: HTMLSelectElement): any {
-  options = [...node.options].map(o => ({ value: o.value, label: o.textContent ?? '' }));
+  if (options?.length === 0) {
+    options = [...node.options].map(o => ({ value: o.value, label: o.textContent ?? '' }));
+  }
   return {
     destroy(): void {
       options = [];
@@ -150,8 +170,7 @@ function onWindowClick(e: Event): void {
 <svelte:window on:click={onWindowClick} />
 
 <div
-  class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent min-w-24 relative {$$props.class ||
-    ''}"
+  class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent min-w-24 relative {className}"
   class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]={!disabled}
   class:focus-within:bg-[var(--pd-input-field-focused-bg)]={!disabled}
   class:focus-within:rounded-md={!disabled}
@@ -159,8 +178,8 @@ function onWindowClick(e: Event): void {
   class:border-b-[var(--pd-input-field-stroke)]={!disabled}
   class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled}
   class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}
-  aria-invalid={$$props['aria-invalid']}
-  aria-label={$$props['aria-label']}
+  aria-label={ariaLabel}
+  aria-invalid={ariaInvalid}
   bind:this={comp}>
   <button
     class="flex flex-row w-full outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] items-center text-start"
@@ -172,8 +191,8 @@ function onWindowClick(e: Event): void {
     disabled={disabled}
     id={id}
     name={name}
-    on:click={toggleOpen}
-    on:keydown={onKeyDown}>
+    onclick={toggleOpen}
+    onkeydown={onKeyDown}>
     <span class="grow">{selectLabel}</span>
     <div
       class:text-[var(--pd-input-field-stroke)]={!disabled}
@@ -188,9 +207,9 @@ function onWindowClick(e: Event): void {
       class="absolute top-full right-0 z-10 w-full max-h-80 rounded-md bg-[var(--pd-dropdown-bg)] border-[var(--pd-input-field-hover-stroke)] border-[1px] overflow-y-auto whitespace-nowrap">
       {#each options as option, i}
         <button
-          on:keydown={onKeyDown}
-          on:mouseenter={(): void => onEnter(i)}
-          on:click={(e): void => onSelect(e, option.value)}
+          onkeydown={onKeyDown}
+          onmouseenter={(): void => onEnter(i)}
+          onclick={(e): void => onSelect(e, option.value)}
           class="flex flex-row w-full select-none px-2 py-1 items-center text-start"
           class:autofocus={i === 0}
           class:bg-[var(--pd-dropdown-item-hover-bg)]={highlightIndex === i}
@@ -205,6 +224,6 @@ function onWindowClick(e: Event): void {
   {/if}
 
   <select use:buildOptions class="hidden" bind:value={value}>
-    <slot />
+    {@render children?.()}
   </select>
 </div>
