@@ -37,8 +37,8 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 
-import type { ApiSenderType } from './api.js';
 import { homepage, repository } from '../../../../package.json';
+import type { ApiSenderType } from './api.js';
 import type { TaskManager } from './tasks/task-manager.js';
 
 /**
@@ -163,7 +163,7 @@ export class Updater {
       });
       if (result.response === 0) {
         await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
-        console.log(`this.apiSender.send('show-release-notes');`);
+        this.apiSender.send('show-release-notes');
       }
     });
   }
@@ -217,7 +217,7 @@ export class Updater {
       if (result.response === 3) {
         this.updateConfigurationValue('never');
       } else if (result.response === 1) {
-        console.log('await this.openReleaseNotes(updateVersion)');
+        await this.openReleaseNotes(updateVersion);
       } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
