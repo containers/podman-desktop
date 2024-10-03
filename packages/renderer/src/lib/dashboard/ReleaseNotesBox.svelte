@@ -94,8 +94,10 @@ onDestroy(async () => {
     <div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 flex-col flex-nowrap h-auto items-center">
       <div class="flex flex-row items-center justify-between w-full">
         <p class="text-[var(--pd-content-card-header-text)] font-bold text-lg w-full items-center">
-          Release notes are currently unavailable, please check again later or try this
-          <a href={notesURL} class="text-[var(--pd-link)]">link</a>
+          Release notes are currently unavailable, please check again later
+          {#if notesURL}
+            or try this <a href={notesURL} class="text-[var(--pd-link)]">link</a>
+          {/if}
         </p>
         <CloseButton on:click={onClose} />
       </div>

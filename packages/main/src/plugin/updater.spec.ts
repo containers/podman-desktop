@@ -634,9 +634,17 @@ test('get release notes', async () => {
     notes: { data: 'some data' },
   });
 
-  vi.spyOn(global, 'fetch').mockImplementation(() =>
-    Promise.resolve({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response),
-  );
+  vi.spyOn(global, 'fetch')
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response)
+    .mockResolvedValueOnce({ ok: true, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response);
+
   releaseNotes = await updater.getReleaseNotes();
   expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: `appRepo/releases/tag/v1.1.0` });
+
+  vi.spyOn(global, 'fetch')
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response)
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response);
+
+  releaseNotes = await updater.getReleaseNotes();
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: '' });
 });

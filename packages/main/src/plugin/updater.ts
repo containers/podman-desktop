@@ -87,9 +87,14 @@ export class Updater {
     const urlVersionFormat = version.split('.', 2).join('.');
 
     const notesURL = `${homepage}/release-notes/${urlVersionFormat}.json`;
-    const response = await fetch(notesURL);
+    let response = await fetch(notesURL);
     if (!response.ok) {
-      return { releaseNotesAvailable: false, notesURL: `${repository}/releases/tag/v${version}` };
+      response = await fetch(`${repository}/releases/tag/v1.12.0`);
+      if (response.ok) {
+        return { releaseNotesAvailable: false, notesURL: `${repository}/releases/tag/v${version}` };
+      } else {
+        return { releaseNotesAvailable: false, notesURL: '' };
+      }
     } else {
       const notesInfo = await response.json();
       return {
