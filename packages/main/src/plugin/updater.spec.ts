@@ -590,6 +590,7 @@ test('open release notes from podman-desktop.io', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
 
   vi.mocked(shell.openExternal).mockResolvedValue();
@@ -617,6 +618,7 @@ test('open release notes from GitHub', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
   vi.mocked(shell.openExternal).mockResolvedValue();
   updater.init();
@@ -640,6 +642,7 @@ test('get release notes', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
 
   updater.init();
