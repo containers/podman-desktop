@@ -69,7 +69,6 @@ function receiveEndCallback() {
       sendCallbackId = id;
 
       shellTerminal?.onData(data => {
-        console.error("1.1")
         window.shellInProviderConnectionSend(id, data);
       });
     });
@@ -102,7 +101,6 @@ async function executeShellIntoProviderConnection() {
   await window.shellInProviderConnectionSetWindow(callbackId, dimensions);
   // pass data from xterm to provider
   shellTerminal?.onData(data => {
-    console.error("1")
     window.shellInProviderConnectionSend(callbackId, data);
   });
 
