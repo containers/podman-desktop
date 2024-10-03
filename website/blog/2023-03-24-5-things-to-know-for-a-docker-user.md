@@ -43,7 +43,7 @@ On Windows the socket compatibility mode is always enabled by default. On macOS,
 
 That is not an issue because you can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper) that will setup the compatibility mode.
 
-For example if you use [`TestContainers`](https://www.testcontainers.org/) in your Java project, you can use the compatibility mode to ensure that the tool will use Podman instead of Docker.
+For example if you use [`Testcontainers`](https://www.testcontainers.com/) in your Java project, you can use the compatibility mode to ensure that the tool will use Podman instead of Docker.
 
 ### CLI compatibility
 
