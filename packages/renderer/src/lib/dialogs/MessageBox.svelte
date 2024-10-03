@@ -97,6 +97,7 @@ function onClose() {
 }
 
 function getButtonType(b: boolean): ButtonType {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (b) {
     return 'primary';
   } else {

@@ -30,8 +30,8 @@ onMount(async () => {
   commandRegistry.init();
 });
 
-function clickSettings(b: boolean) {
-  if (b) {
+function handleClick(): void {
+  if (meta.url.startsWith('/preferences')) {
     exitSettingsCallback();
   } else {
     handleNavigation({ page: NavigationPage.RESOURCES });
@@ -73,11 +73,7 @@ function clickSettings(b: boolean) {
     </NavItem>
   </div>
 
-  <NavItem
-    href="/preferences"
-    tooltip="Settings"
-    bind:meta={meta}
-    onClick={() => clickSettings(meta.url.startsWith('/preferences'))}>
+  <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
   </NavItem>
 </nav>
