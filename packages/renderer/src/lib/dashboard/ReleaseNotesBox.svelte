@@ -16,22 +16,27 @@ let notesInfo: ReleaseNotes | undefined;
 const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () => {
   showBanner = true;
 });
+
 function openReleaseNotes() {
   window.openExternal(notesURL);
 }
+
 function updatePodmanDesktop() {
   window.updatePodmanDesktop();
 }
+
 async function getInfoFromNotes() {
   const releaseNotes = await window.podmanDesktopGetReleaseNotes();
-  notesAvailable = releaseNotes.releaseNotesAvailable;
   notesInfo = releaseNotes?.notes;
+  notesAvailable = notesInfo !== undefined;
   notesURL = releaseNotes.notesURL;
 }
+
 async function onClose() {
   await window.updateConfigurationValue(`releaseNotesBanner.show`, currentVersion);
   showBanner = false;
 }
+
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
   showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show`)) !== currentVersion ? true : false;
@@ -42,6 +47,7 @@ onMount(async () => {
   }
   await getInfoFromNotes();
 });
+
 onDestroy(async () => {
   receiveShowReleaseNotes.dispose();
 });
