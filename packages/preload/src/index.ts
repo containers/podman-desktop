@@ -81,6 +81,7 @@ import type {
 } from '/@api/provider-info';
 import type { ProxyState } from '/@api/proxy';
 import type { PullEvent } from '/@api/pull-event';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info';
 import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
@@ -1157,6 +1158,18 @@ export function initExposure(): void {
       return ipcInvoke('status-bar:executeStatusBarEntryCommand', command, args);
     },
   );
+
+  contextBridge.exposeInMainWorld('updatePodmanDesktop', async (): Promise<void> => {
+    return ipcInvoke('app:update');
+  });
+
+  contextBridge.exposeInMainWorld('podmanDesktopUpdateAvailable', async (): Promise<boolean> => {
+    return ipcInvoke('app:update-available');
+  });
+
+  contextBridge.exposeInMainWorld('podmanDesktopGetReleaseNotes', async (): Promise<ReleaseNotesInfo> => {
+    return ipcInvoke('app:get-release-notes');
+  });
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');

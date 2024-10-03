@@ -101,6 +101,7 @@ import type {
 } from '/@api/provider-info.js';
 import type { ProxyState } from '/@api/proxy.js';
 import type { PullEvent } from '/@api/pull-event.js';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 import type { ViewInfoUI } from '/@api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
@@ -162,6 +163,7 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { ProviderRegistry } from './provider-registry.js';
 import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import { ReleaseNotesBannerInit } from './release-notes-banner-init.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
@@ -570,7 +572,14 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry, taskManager).init();
+    const podmanDesktopUpdater = new Updater(
+      messageBox,
+      configurationRegistry,
+      statusBarRegistry,
+      commandRegistry,
+      taskManager,
+    );
+    podmanDesktopUpdater.init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -590,6 +599,9 @@ export class PluginSystem {
 
     const confirmationConfiguration = new ConfirmationInit(configurationRegistry);
     confirmationConfiguration.init();
+
+    const releaseNotesBannerConfiguration = new ReleaseNotesBannerInit(configurationRegistry);
+    releaseNotesBannerConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
@@ -1325,6 +1337,18 @@ export class PluginSystem {
         await commandRegistry.executeCommand(command, args);
       },
     );
+
+    this.ipcHandle('app:update', async (): Promise<void> => {
+      await commandRegistry.executeCommand('update');
+    });
+
+    this.ipcHandle('app:update-available', async (): Promise<boolean> => {
+      return podmanDesktopUpdater.updateAvailable();
+    });
+
+    this.ipcHandle('app:get-release-notes', async (): Promise<ReleaseNotesInfo> => {
+      return podmanDesktopUpdater.getReleaseNotes();
+    });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();

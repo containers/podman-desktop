@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IncomingMessage } from 'node:http';
+
 import type { Configuration } from '@podman-desktop/api';
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -38,6 +40,9 @@ vi.mock('electron', () => ({
   app: {
     getVersion: vi.fn(),
   },
+  shell: {
+    openExternal: vi.fn(),
+  },
 }));
 
 vi.mock('electron-updater', () => ({
@@ -52,6 +57,19 @@ vi.mock('electron-updater', () => ({
 
 vi.mock('/@/util.js', () => ({
   isLinux: vi.fn(),
+}));
+
+const getStatusCodeMock = { statusCode: 200 } as IncomingMessage;
+
+vi.mock('https', () => ({
+  get: (_: string, callback: (_: IncomingMessage) => void): void => {
+    callback(getStatusCodeMock);
+  },
+}));
+
+vi.mock('../../../../package.json', () => ({
+  homepage: 'appHomepage',
+  repository: 'appRepo',
 }));
 
 const messageBoxMock = {
@@ -104,6 +122,7 @@ beforeEach(() => {
   vi.mocked(taskManagerMock.createTask).mockResolvedValue({
     progress: 0,
   } as unknown as Task);
+  console.error = vi.fn();
 });
 
 test('expect env PROD to be truthy', () => {
@@ -538,4 +557,94 @@ describe('download task and progress', async () => {
     // now call the progress with 50%
     downloadProgressCallback?.({ percent: 50 });
   });
+});
+
+test('open release notes from podman-desktop.io', async () => {
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.2.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+
+  vi.mocked(shell.openExternal).mockResolvedValue();
+  updater.init();
+
+  await updater.openReleaseNotes('current');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
+  await updater.openReleaseNotes('latest');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.2');
+});
+
+test('open release notes from GitHub', async () => {
+  vi.mocked(app.getVersion).mockReturnValue('0.20.0');
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '0.21.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  getStatusCodeMock.statusCode = 404;
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+  vi.mocked(shell.openExternal).mockResolvedValue();
+  updater.init();
+
+  await updater.openReleaseNotes('current');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.20.0');
+  await updater.openReleaseNotes('latest');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.21.0');
+});
+
+test('get release notes', async () => {
+  const fetchJSONMock = vi.fn().mockResolvedValue({ data: 'some data' });
+  vi.spyOn(global, 'fetch').mockImplementation(() =>
+    Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
+  );
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0');
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
+
+  updater.init();
+  let releaseNotes = await updater.getReleaseNotes();
+  expect(fetch).toBeCalledWith('appHomepage/release-notes/1.1.json');
+  expect(releaseNotes).toStrictEqual({
+    releaseNotesAvailable: true,
+    notesURL: 'appHomepage/blog/podman-desktop-release-1.1',
+    notes: { data: 'some data' },
+  });
+
+  vi.spyOn(global, 'fetch')
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response)
+    .mockResolvedValueOnce({ ok: true, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response);
+
+  releaseNotes = await updater.getReleaseNotes();
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: `appRepo/releases/tag/v1.1.0` });
+
+  vi.spyOn(global, 'fetch')
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response)
+    .mockResolvedValueOnce({ ok: false, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response);
+
+  releaseNotes = await updater.getReleaseNotes();
+  expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: '' });
 });
