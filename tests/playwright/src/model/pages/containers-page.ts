@@ -129,7 +129,7 @@ export class ContainersPage extends MainPage {
   }
 
   async openCreatePodPage(names: string[]): Promise<CreatePodsPage> {
-    for await (const containerName of names) {
+    for (const containerName of names) {
       const row = await this.getContainerRowByName(containerName);
       if (row === undefined) {
         throw Error('Container cannot be podified');

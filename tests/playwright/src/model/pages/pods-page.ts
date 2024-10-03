@@ -66,7 +66,7 @@ export class PodsPage extends MainPage {
   }
 
   async selectPod(names: string[]): Promise<void> {
-    for await (const containerName of names) {
+    for (const containerName of names) {
       const row = await this.getPodRowByName(containerName);
       if (row === undefined) {
         throw Error('Pod cannot be selected');
