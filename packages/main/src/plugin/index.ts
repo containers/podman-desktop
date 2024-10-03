@@ -1341,16 +1341,9 @@ export class PluginSystem {
       return podmanDesktopUpdater.updateAvailable();
     });
 
-    this.ipcHandle(
-      'app:get-release-notes',
-      async (): Promise<{
-        releaseNotesAvailable: boolean;
-        notesURL: string;
-        notes?: ReleaseNotesInfo;
-      }> => {
-        return podmanDesktopUpdater.getReleaseNotes();
-      },
-    );
+    this.ipcHandle('app:get-release-notes', async (): Promise<ReleaseNotesInfo> => {
+      return podmanDesktopUpdater.getReleaseNotes();
+    });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();

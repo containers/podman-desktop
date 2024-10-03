@@ -16,9 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ReleaseNotesInfo {
+export interface ReleaseNotes {
   image: string;
   blog: string;
   title: string;
   summary: string;
+}
+
+export interface ReleaseNotesInfo {
+  releaseNotesAvailable: boolean;
+  notesURL: string;
+  notes?: ReleaseNotes;
 }

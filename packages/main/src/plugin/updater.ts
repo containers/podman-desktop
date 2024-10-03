@@ -83,11 +83,7 @@ export class Updater {
     });
   }
 
-  public async getReleaseNotes(): Promise<{
-    releaseNotesAvailable: boolean;
-    notesURL: string;
-    notes?: ReleaseNotesInfo;
-  }> {
+  public async getReleaseNotes(): Promise<ReleaseNotesInfo> {
     const version = app.getVersion();
     const urlVersionFormat = version.split('.', 2).join('.');
 

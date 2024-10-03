@@ -1166,16 +1166,9 @@ export function initExposure(): void {
     return ipcInvoke('app:update-available');
   });
 
-  contextBridge.exposeInMainWorld(
-    'podmanDesktopGetReleaseNotes',
-    async (): Promise<{
-      releaseNotesAvailable: boolean;
-      notesURL: string;
-      notes?: ReleaseNotesInfo;
-    }> => {
-      return ipcInvoke('app:get-release-notes');
-    },
-  );
+  contextBridge.exposeInMainWorld('podmanDesktopGetReleaseNotes', async (): Promise<ReleaseNotesInfo> => {
+    return ipcInvoke('app:get-release-notes');
+  });
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');
