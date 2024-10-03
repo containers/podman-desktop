@@ -46,7 +46,8 @@ export class SettingsBar {
   public async openTabPage<T extends SettingsPage>(type: new (page: Page) => T): Promise<T> {
     return await test.step(`Open ${type.name} tab from Settings`, async () => {
       const desiredPage = new type(this.page);
-      await (await desiredPage.getTab()).click();
+      const tab = await desiredPage.getTab();
+      await tab.click();
       return desiredPage;
     });
   }
