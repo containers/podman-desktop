@@ -98,7 +98,7 @@ const podmanBinaryHelper = new PodmanBinaryLocationHelper();
 const podmanInfoHelper = new PodmanInfoHelper();
 
 let createWSLMachineOptionSelected = false;
-let wslAndHypervEnabled = false;
+let wslAndHypervEnabledContextValue = false;
 let wslEnabled = false;
 
 let shouldNotifySetup = true;
@@ -1283,8 +1283,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
     extensionApi.context.setValue(PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY, isLibkrunSupported(version));
     wslEnabled = await isWSLEnabled();
-    const wslHypervEnabled = wslEnabled && (await isHyperVEnabled());
-    updateWSLHyperVEnabledValue(wslHypervEnabled);
+    const isWslAndHyperEnabled = wslEnabled && (await isHyperVEnabled());
+    updateWSLHyperVEnabledContextValue(isWslAndHyperEnabled);
     isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
 
@@ -1797,7 +1797,7 @@ export async function getJSONMachineList(): Promise<MachineJSONListOutput> {
     containerMachineProviders.push('hyperv');
   }
   // update context "wsl-hyperv enabled" value
-  updateWSLHyperVEnabledValue(wslEnabled && hypervEnabled);
+  updateWSLHyperVEnabledContextValue(wslEnabled && hypervEnabled);
 
   if (containerMachineProviders.length === 0) {
     // in all other cases we set undefined so that it executes normally by using the default container provider
@@ -2229,9 +2229,9 @@ export async function handleCompatibilityModeSetting(): Promise<void> {
   }
 }
 
-export function updateWSLHyperVEnabledValue(value: boolean): void {
-  if (wslAndHypervEnabled !== value) {
-    wslAndHypervEnabled = value;
+export function updateWSLHyperVEnabledContextValue(value: boolean): void {
+  if (wslAndHypervEnabledContextValue !== value) {
+    wslAndHypervEnabledContextValue = value;
     extensionApi.context.setValue(WSL_HYPERV_ENABLED_KEY, value);
   }
 }

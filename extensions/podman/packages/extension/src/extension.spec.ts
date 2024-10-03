@@ -2830,15 +2830,15 @@ test('getJSONMachineList should get machines from hyperv and wsl if both are ena
 
 describe('updateWSLHyperVEnabledValue', () => {
   beforeEach(() => {
-    extension.updateWSLHyperVEnabledValue(true);
+    extension.updateWSLHyperVEnabledContextValue(true);
     vi.resetAllMocks();
   });
   test('setValue should be called if new value is different than wslAndHypervEnabled', async () => {
-    extension.updateWSLHyperVEnabledValue(false);
+    extension.updateWSLHyperVEnabledContextValue(false);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.WSL_HYPERV_ENABLED_KEY, false);
   });
   test('setValue should not be called if new value is equal to wslAndHypervEnabled', async () => {
-    extension.updateWSLHyperVEnabledValue(true);
+    extension.updateWSLHyperVEnabledContextValue(true);
     expect(extensionApi.context.setValue).not.toBeCalled();
   });
 });
