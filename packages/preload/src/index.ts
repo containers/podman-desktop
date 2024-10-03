@@ -56,6 +56,7 @@ import type {
 import type { ContainerInspectInfo } from '/@api/container-inspect-info';
 import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import type { ContributionInfo } from '/@api/contribution-info';
+import type { DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info';
 import type { ExtensionInfo } from '/@api/extension-info';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
@@ -2239,6 +2240,13 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('contextCollectAllValues', async (): Promise<Record<string, unknown>> => {
     return ipcInvoke('context:collectAllValues');
   });
+
+  contextBridge.exposeInMainWorld(
+    'getSystemDockerSocketMappingStatus',
+    async (): Promise<DockerSocketMappingStatusInfo> => {
+      return ipcInvoke('docker-compatibility:getSystemDockerSocketMappingStatus');
+    },
+  );
 }
 
 // expose methods
