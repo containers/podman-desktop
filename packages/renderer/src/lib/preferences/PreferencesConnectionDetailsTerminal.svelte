@@ -56,7 +56,6 @@ function receiveDataCallback(data: string) {
 
 function receiveEndCallback() {
   // need to reopen a new terminal
-  console.error('end');
   window
     .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
     .then(id => {
