@@ -86,10 +86,16 @@ export class DockerCompatibility {
     return path;
   }
 
+  /**
+   * Try to connect to the docker socket if on Linux or macOS or
+   * to the named pipe if on Windows.
+   * If the connection is successful, return the status as running.
+   * Also return some extra information about the server.
+   * If the socket path is an alias to a provider, return the connection information.
+   * If the connection is not successful, return the status as unreachable.
+   * @returns the status plus some extra information if the connection is successful
+   */
   async getSystemDockerSocketMappingStatus(): Promise<DockerSocketMappingStatusInfo> {
-    // first, try to connect to the docker socket if on Linux or macOS
-    // if the connection is successful, return @the status as running
-
     const socketPath = isWindows() ? DockerCompatibility.WINDOWS_NPIPE : DockerCompatibility.UNIX_SOCKET_PATH;
 
     const dockerode = new Dockerode({ socketPath });
@@ -130,7 +136,7 @@ export class DockerCompatibility {
         // search if we have a connection with the same socket path
         const foundConnection = currentConnections.find(c => c.connection.endpoint.socketPath === socketPath);
 
-        // provider is
+        // provider is the one that has the same id as the connection
         const allProviders = this.#providerRegistry.getProviderInfos();
         // search by provider id
         const provider = allProviders.find(p => p.id === foundConnection?.providerId);
