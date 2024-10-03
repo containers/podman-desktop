@@ -232,6 +232,12 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             <KubernetesEmptyPage />
           </Route>
         {:else}
+          <!-- Redirect /kubernetes to nodes if we end up on /kubernetes without a context error 
+           we use router.goto to preserve the navbar remembering the navigation location. 
+           TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
+          <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
+            {router.goto('/kubernetes/nodes')}
+          </Route>
           <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
             <NodesList />
           </Route>
