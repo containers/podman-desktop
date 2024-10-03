@@ -23,26 +23,23 @@ function updatePodmanDesktop() {
   window.updatePodmanDesktop();
 }
 async function getInfoFromNotes() {
-  let getNotes = await window.podmanDesktopGetReleaseNotes();
-  notesAvailable = getNotes.releaseNotesAvailable;
-  if (notesAvailable) {
-    notesInfo = getNotes.notes;
-  }
-  notesURL = getNotes.notesURL;
+  const releaseNotes = await window.podmanDesktopGetReleaseNotes();
+  notesAvailable = releaseNotes.releaseNotesAvailable;
+  notesInfo = releaseNotes?.notes;
+  notesURL = releaseNotes.notesURL;
 }
-function onClose() {
-  window.updateConfigurationValue(`releaseNotesBanner.show`, currentVersion);
+async function onClose() {
+  await window.updateConfigurationValue(`releaseNotesBanner.show`, currentVersion);
   showBanner = false;
 }
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
   showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show`)) !== currentVersion ? true : false;
-  window
-    .podmanDesktopUpdateAvailable()
-    .then(available => (updateAvilable = available))
-    .catch(() => {
-      console.log('Cannot check for update');
-    });
+  try {
+    updateAvilable = await window.podmanDesktopUpdateAvailable();
+  } catch (e) {
+    console.log('Cannot check for update');
+  }
   await getInfoFromNotes();
 });
 onDestroy(async () => {
@@ -68,7 +65,7 @@ onDestroy(async () => {
         </div>
         {#if notesInfo?.summary}
           <div
-            class="text-[var(--pd-content-card-text)] trunace text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
+            class="text-[var(--pd-content-card-text)] truncate text-ellipsis overflow-hidden whitespace-pre-line line-clamp-6">
             <Markdown markdown={notesInfo?.summary}></Markdown>
           </div>
         {/if}

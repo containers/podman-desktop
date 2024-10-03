@@ -32,7 +32,7 @@ const updatePodmanDesktopMock = vi.fn();
 const updateConfigurationValueMock = vi.fn();
 const getConfigurationValueMock = vi.fn();
 const podmanDesktopGetReleaseNotesMock = vi.fn();
-const responsJSON = { image: 'image1.png', title: 'Release 1.1', summary: 'some info about v1.1.0 release' };
+const responseJSON = { image: 'image1.png', title: 'Release 1.1', summary: 'some info about v1.1.0 release' };
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -42,7 +42,7 @@ beforeEach(() => {
   (window as any).podmanDesktopGetReleaseNotes = podmanDesktopGetReleaseNotesMock.mockResolvedValue({
     releaseNotesAvailable: true,
     notesURL: `appHomepage/blog/podman-desktop-release-1.1`,
-    notes: responsJSON,
+    notes: responseJSON,
   });
   (window as any).updatePodmanDesktop = updatePodmanDesktopMock;
   (window as any).updateConfigurationValue = updateConfigurationValueMock;
@@ -62,10 +62,10 @@ test('expect banner to be visible', async () => {
   expect(getConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show');
   expect(podmanDesktopGetReleaseNotesMock).toBeCalled();
   await tick();
-  expect(screen.getByText(responsJSON.title)).toBeInTheDocument();
-  expect(screen.getAllByText(responsJSON.summary)[0]).toBeInTheDocument();
+  expect(screen.getByText(responseJSON.title)).toBeInTheDocument();
+  expect(screen.getAllByText(responseJSON.summary)[0]).toBeInTheDocument();
   expect(screen.getByRole('img')).toBeInTheDocument();
-  expect(screen.getByRole('img')).toHaveAttribute('src', responsJSON.image);
+  expect(screen.getByRole('img')).toHaveAttribute('src', responseJSON.image);
 });
 
 test('expect no release notes available', async () => {
