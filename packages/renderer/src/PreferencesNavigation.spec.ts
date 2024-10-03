@@ -19,25 +19,35 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { beforeAll, expect, test } from 'vitest';
+import { tick } from 'svelte';
+import type { TinroRouteMeta } from 'tinro';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 
 // fake the window.events object
-beforeAll(() => {
-  (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    receive: (_channel: string, func: any) => {
-      func();
+beforeEach(() => {
+  vi.resetAllMocks();
+  Object.defineProperty(global, 'window', {
+    value: {
+      getConfigurationValue: vi.fn(),
+      events: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        receive: (_channel: string, func: any) => {
+          func();
+        },
+      },
     },
-  };
+    writable: true,
+  });
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
 });
 
 test('Test rendering of the preferences navigation bar and its items', () => {
   render(PreferencesNavigation, {
     meta: {
       url: '/',
-    },
+    } as unknown as TinroRouteMeta,
   });
 
   const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
@@ -52,4 +62,43 @@ test('Test rendering of the preferences navigation bar and its items', () => {
   const authentication = screen.getByRole('link', { name: 'Authentication' });
   expect(authentication).toBeVisible();
   // ToDo: adding configuration section/items mocks for preferences, issue #2966
+});
+
+test('Test rendering of the compatibility docker pag if config is available', async () => {
+  render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  // wait docker compatibility is being set
+  await tick();
+
+  // expect getConfigurationValue to be called
+  expect(window.getConfigurationValue).toBeCalledWith('dockerCompatibility.enabled');
+
+  const dockerCompatLink = screen.getByRole('link', { name: 'Docker Compatibility' });
+  expect(dockerCompatLink).toBeVisible();
+});
+
+test('Test rendering of the compatibility docker page is hidden if disabled', async () => {
+  // mock window.getConfigurationValue
+  vi.mocked(window.getConfigurationValue<boolean>).mockReset();
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(false);
+
+  render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  // wait docker compatibility is being set
+  await tick();
+
+  // expect getConfigurationValue to be called
+  expect(window.getConfigurationValue).toBeCalledWith('dockerCompatibility.enabled');
+
+  // should not be displayed
+  const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+  expect(dockerCompatLink).toBeNull();
 });

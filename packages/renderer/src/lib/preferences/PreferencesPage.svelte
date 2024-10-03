@@ -7,6 +7,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import Route from '../../Route.svelte';
 import { configurationProperties } from '../../stores/configurationProperties';
 import Onboarding from '../onboarding/Onboarding.svelte';
+import PreferencesDockerCompatibilityRendering from './docker-compat/PreferencesDockerCompatibilityRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
@@ -60,6 +61,9 @@ onMount(async () => {
   </Route>
   <Route path="/resources" breadcrumb="Resources" navigationHint="root">
     <PreferencesResourcesRendering />
+  </Route>
+  <Route path="/docker-compatibility" breadcrumb="Docker Compatibility">
+    <PreferencesDockerCompatibilityRendering />
   </Route>
   <Route path="/registries" breadcrumb="Registries">
     <PreferencesRegistriesEditing />

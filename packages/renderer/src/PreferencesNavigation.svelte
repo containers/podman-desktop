@@ -3,6 +3,8 @@ import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
+import { ExperimentalSettings } from '/@api/docker-compatibility-info';
+
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import { configurationProperties } from './stores/configurationProperties';
 
@@ -17,6 +19,8 @@ $: sectionExpanded = {};
 function sortItems(items: any): any[] {
   return items.sort((a: { title: string }, b: { title: any }) => a.title.localeCompare(b.title));
 }
+
+let dockerCompatibilityEnabled = false;
 
 onMount(async () => {
   configurationProperties.subscribe(value => {
@@ -36,6 +40,14 @@ onMount(async () => {
         }
         return map;
       }, new Map());
+
+    window
+      .getConfigurationValue<boolean>(`${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`)
+      .then(result => {
+        if (result) {
+          dockerCompatibilityEnabled = result;
+        }
+      });
   });
 });
 </script>
@@ -52,8 +64,10 @@ onMount(async () => {
     </div>
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
-    {#each [{ title: 'Resources', href: '/preferences/resources' }, { title: 'Proxy', href: '/preferences/proxies' }, { title: 'Registries', href: '/preferences/registries' }, { title: 'Authentication', href: '/preferences/authentication-providers' }, { title: 'CLI Tools', href: '/preferences/cli-tools' }, { title: 'Kubernetes', href: '/preferences/kubernetes-contexts' }] as navItem}
-      <SettingsNavItem title={navItem.title} href={navItem.href} selected={meta.url === navItem.href} />
+    {#each [{ title: 'Resources', href: '/preferences/resources', visible: true }, { title: 'Proxy', href: '/preferences/proxies', visible: true }, { title: 'Docker Compatibility', href: '/preferences/docker-compatibility', visible: dockerCompatibilityEnabled }, { title: 'Registries', href: '/preferences/registries', visible: true }, { title: 'Authentication', href: '/preferences/authentication-providers', visible: true }, { title: 'CLI Tools', href: '/preferences/cli-tools', visible: true }, { title: 'Kubernetes', href: '/preferences/kubernetes-contexts', visible: true }] as navItem}
+      {#if navItem.visible}
+        <SettingsNavItem title={navItem.title} href={navItem.href} selected={meta.url === navItem.href} />
+      {/if}
     {/each}
 
     <!-- Default configuration properties start -->
