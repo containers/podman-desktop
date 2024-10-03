@@ -45,7 +45,7 @@ const providerRegistry: ProviderRegistry = {
 export class TestDockerCompatibility extends DockerCompatibility {
   public override getTypeFromServerInfo(
     info: { OperatingSystem?: string },
-    podmanInfo: unknown,
+    podmanInfo?: unknown,
   ): DockerSocketServerInfoType {
     return super.getTypeFromServerInfo(info, podmanInfo);
   }
@@ -108,10 +108,7 @@ describe('getTypeFromServerInfo', async () => {
     const serverInfo = {
       OperatingSystem: 'Docker Desktop',
     };
-
-    const podmanInfo = {};
-
-    expect(dockerCompatibility.getTypeFromServerInfo(serverInfo, podmanInfo)).toBe('docker');
+    expect(dockerCompatibility.getTypeFromServerInfo(serverInfo)).toBe('docker');
   });
 
   test('check podman OS without podman info', async () => {
@@ -131,7 +128,9 @@ describe('getTypeFromServerInfo', async () => {
       OperatingSystem: 'foo',
     };
 
-    const podmanInfo = {};
+    const podmanInfo = {
+      ServerVersion: '1.0.0',
+    };
 
     expect(dockerCompatibility.getTypeFromServerInfo(serverInfo, podmanInfo)).toBe('podman');
   });
