@@ -379,6 +379,12 @@ export async function updateMachines(
         provider.updateStatus('installed');
       }
     } else {
+      /*
+       * The machine can have 3 states, based on `Starting` and `Running` fields:
+       * - !Running && !Starting -> configured
+       * -  Running &&  Starting -> starting
+       * -  Running && !Starting -> ready
+       */
       const atLeastOneMachineRunning = machines.some(machine => machine.Running && !machine.Starting);
       const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
       // if a machine is running it's started else it is ready
