@@ -19,6 +19,7 @@ $: selectedProviderConnection = $providerInfos
   .find(providerContainerConnection => providerContainerConnection.status === 'started');
 
 function getTitle(runningOnly: boolean, stoppedOnly: boolean): string {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (runningOnly) {
     return 'No running containers';
   } else if (stoppedOnly) {
@@ -28,6 +29,7 @@ function getTitle(runningOnly: boolean, stoppedOnly: boolean): string {
   }
 }
 function getMessageCommandLine(stoppedOnly: boolean): string {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (stoppedOnly) {
     return '';
   } else {
@@ -35,6 +37,7 @@ function getMessageCommandLine(stoppedOnly: boolean): string {
   }
 }
 function getMessageButton(stoppedOnly: boolean): string {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (stoppedOnly) {
     return '';
   } else {
@@ -42,6 +45,7 @@ function getMessageButton(stoppedOnly: boolean): string {
   }
 }
 function getCommandLine(stoppedOnly: boolean): string {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (stoppedOnly) {
     return '';
   } else {
