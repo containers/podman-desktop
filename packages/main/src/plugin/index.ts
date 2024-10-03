@@ -1340,10 +1340,6 @@ export class PluginSystem {
       return podmanDesktopUpdater.updateAvailable();
     });
 
-    this.ipcHandle('app:open-release-notes', async (_, version: string): Promise<void> => {
-      await podmanDesktopUpdater.openReleaseNotes(version);
-    });
-
     this.ipcHandle(
       'app:get-release-notes',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

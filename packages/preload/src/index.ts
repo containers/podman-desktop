@@ -1165,10 +1165,6 @@ export function initExposure(): void {
     return ipcInvoke('app:update-available');
   });
 
-  contextBridge.exposeInMainWorld('podmanDesktopOpenReleaseNotes', async (version: string): Promise<void> => {
-    return ipcInvoke('app:open-release-notes', version);
-  });
-
   contextBridge.exposeInMainWorld(
     'podmanDesktopGetReleaseNotes',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
