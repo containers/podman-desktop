@@ -61,7 +61,10 @@ export class DockerCompatibility {
     this.#configurationRegistry.registerConfigurations([dockerCompatibilityConfiguration]);
   }
 
-  protected getTypeFromServerInfo(info: { OperatingSystem?: string }, podmanInfo: unknown): DockerSocketServerInfoType {
+  protected getTypeFromServerInfo(
+    info: { OperatingSystem?: string },
+    podmanInfo?: unknown,
+  ): DockerSocketServerInfoType {
     if (info.OperatingSystem === 'Docker Desktop') {
       return 'docker';
     } else if (info.OperatingSystem === 'podman' || podmanInfo) {
