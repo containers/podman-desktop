@@ -250,9 +250,9 @@ export async function updateMachines(
     const running = machine?.Running === true;
     let status: extensionApi.ProviderConnectionStatus = running ? 'started' : 'stopped';
 
-    // update the status to starting if the machine is starting but not yet running
+    // update the status to starting if the machine is running but still starting
     const starting = machine?.Starting === true;
-    if (!running && starting) {
+    if (starting) {
       status = 'starting';
     }
 
