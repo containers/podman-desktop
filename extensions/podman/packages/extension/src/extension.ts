@@ -379,7 +379,7 @@ export async function updateMachines(
         provider.updateStatus('installed');
       }
     } else {
-      const atLeastOneMachineRunning = machines.some(machine => machine.Running);
+      const atLeastOneMachineRunning = machines.some(machine => machine.Running && !machine.Starting);
       const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
       // if a machine is running it's started else it is ready
       if (atLeastOneMachineRunning) {
