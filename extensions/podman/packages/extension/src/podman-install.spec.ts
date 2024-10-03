@@ -633,6 +633,21 @@ describe('HyperV', () => {
     expect(result.description).equal('Hyper-V is only supported with podman version >= 5.2.0.');
   });
 
+  test('expect HyperV preflight skips podman version check if installationPreflightMode is true', async () => {
+    const execSpy = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw new Error();
+    });
+
+    const hyperVCheck = new HyperVCheck(true);
+    const result = await hyperVCheck.execute();
+    // exec should only be called once inside the isUserAdmin function, if so the podman check has been skipped as expected
+    expect(execSpy).toBeCalledTimes(1);
+    expect(execSpy).toBeCalledWith('powershell.exe', [
+      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
+    ]);
+    expect(result.successful).toBeFalsy();
+  });
+
   test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
