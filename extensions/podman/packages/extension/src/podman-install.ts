@@ -460,7 +460,7 @@ export class WinInstaller extends BaseInstaller {
       new OrCheck(
         'Windows virtualization',
         new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check(this.extensionContext)]),
-        new HyperVCheck(),
+        new HyperVCheck(true),
       ),
     ];
   }
@@ -823,8 +823,13 @@ export class HyperVCheck extends WindowsCheck {
   title = 'Hyper-V installed';
   static readonly PODMAN_MINIMUM_VERSION_FOR_HYPERV = '5.2.0';
 
+  constructor(private installationPreflightMode: boolean = false) {
+    super();
+  }
+
   async execute(): Promise<extensionApi.CheckResult> {
-    if (!(await this.isPodmanVersionSupported())) {
+    // if the hyperv check is called as an installation preflight we skip the podman version check
+    if (!this.installationPreflightMode && !(await this.isPodmanVersionSupported())) {
       return this.createFailureResult({
         description: `Hyper-V is only supported with podman version >= ${HyperVCheck.PODMAN_MINIMUM_VERSION_FOR_HYPERV}.`,
       });
