@@ -77,7 +77,6 @@ export class Updater {
     https.get(notesURL, res => {
       if (res.statusCode !== 200) {
         notesURL = `${repository}/releases/tag/v${version}`;
-        console.log(notesURL);
       }
       shell.openExternal(notesURL).catch(console.error);
     });
