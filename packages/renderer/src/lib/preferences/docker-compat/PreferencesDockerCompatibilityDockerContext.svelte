@@ -38,7 +38,7 @@ $effect(() => {
 <div
   class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2 divide-x divide-[var(--pd-content-divider)] flex flex-col lg:flex-row">
   <div class="flex flex-row grow px-2 py-2 justify-between text-[color:var(--pd-invert-content-card-text)]">
-    <div class="flex flex-col">
+    <div class="flex flex-col w-full">
       <div class="flex flex-row items-center text-[color:var(--pd-invert-content-card-text)]">
         Docker Context
 
@@ -46,21 +46,21 @@ $effect(() => {
           <RefreshButton label="Refresh the context" onclick={refreshDockerContext} />
         </div>
       </div>
-      {#if dockerContexts.length === 0}
-        <div class="mt-2">No Docker context found</div>
-      {:else}
-        <div class="mt-2">
-          Display and select between your different Docker-compatible socket contexts.
-          <select
-            class="w-full p-2 outline-none bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
-            aria-label="Docker Context selection"
-            id="dockerContextChoice"
-            bind:value={selectedContext}>
-            {#each dockerContexts as dockerContext}
-              <option selected={dockerContext.isCurrentContext} value={dockerContext}
-                >{dockerContext.name} ({dockerContext.endpoints.docker.host})</option>
-            {/each}
-          </select>
+      {#if dockerContexts.length > 0}
+        <div class="mt-2 flex flex-row items-center">
+          <div class="text-sm">Select the active Docker CLI context:</div>
+          <div class="ml-2 grow">
+            <select
+              class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-b-[var(--pd-input-field-stroke)] border-b rounded-sm text-[var(--pd-content-text)]"
+              aria-label="Docker Context selection"
+              id="dockerContextChoice"
+              bind:value={selectedContext}>
+              {#each dockerContexts as dockerContext}
+                <option selected={dockerContext.isCurrentContext} value={dockerContext}
+                  >{dockerContext.name} ({dockerContext.endpoints.docker.host})</option>
+              {/each}
+            </select>
+          </div>
         </div>
       {/if}
     </div>
