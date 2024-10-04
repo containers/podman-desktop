@@ -27,6 +27,8 @@ import type { DockerContextInfo } from '/@api/docker-compatibility-info';
 
 import PreferencesDockerCompatibilityDockerContext from '././PreferencesDockerCompatibilityDockerContext.svelte';
 
+const UNIX_OR_MAC_HOST = 'unix:///var/run/docker.sock';
+
 const contextInfos = [
   {
     name: 'default',
@@ -34,7 +36,7 @@ const contextInfos = [
     metadata: { description: 'default context' },
     endpoints: {
       docker: {
-        host: 'unix:///var/run/docker.sock',
+        host: UNIX_OR_MAC_HOST,
       },
     },
   },
@@ -44,7 +46,7 @@ const contextInfos = [
     metadata: { description: 'podman context' },
     endpoints: {
       docker: {
-        host: 'unix:///var/podman.sock',
+        host: UNIX_OR_MAC_HOST,
       },
     },
   },
@@ -78,7 +80,7 @@ test('only default context', async () => {
       metadata: { description: 'default context' },
       endpoints: {
         docker: {
-          host: 'unix:///var/run/docker.sock',
+          host: UNIX_OR_MAC_HOST,
         },
       },
     },
@@ -90,7 +92,7 @@ test('only default context', async () => {
   await vi.waitFor(() => expect(getDockerContextsMock).toBeCalled());
   await tick();
 
-  expect(screen.getByText('default (unix:///var/run/docker.sock)')).toBeInTheDocument();
+  expect(screen.getByText(`default (${UNIX_OR_MAC_HOST})`)).toBeInTheDocument();
 });
 
 test('multiple contexts', async () => {
@@ -103,10 +105,10 @@ test('multiple contexts', async () => {
   await tick();
 
   // default should be there
-  expect(screen.getByText('default (unix:///var/run/docker.sock)')).toBeInTheDocument();
+  expect(screen.getByText(`default (${UNIX_OR_MAC_HOST})`)).toBeInTheDocument();
 
   // podman should be there
-  expect(screen.getByText('podman (unix:///var/podman.sock)')).toBeInTheDocument();
+  expect(screen.getByText(`podman (${UNIX_OR_MAC_HOST})`)).toBeInTheDocument();
 
   // get selected context from select component with id dockerContextChoice
   const select = screen.getByRole('combobox', { name: 'Docker Context selection' });
@@ -127,7 +129,7 @@ test('change context', async () => {
   expect(select).toBeInTheDocument();
 
   // find default option
-  const defaultOption = screen.getByRole('option', { name: 'default (unix:///var/run/docker.sock)' });
+  const defaultOption = screen.getByRole('option', { name: `default (${UNIX_OR_MAC_HOST})` });
   expect(defaultOption).toBeInTheDocument();
 
   // click on the select
