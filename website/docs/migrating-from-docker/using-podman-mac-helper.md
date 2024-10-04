@@ -12,7 +12,7 @@ Consider using `podman-mac-helper` to migrate transparently to Podman on macOS.
 
 - Continue using familiar Docker commands.
 - Take advantage of the benefits of Podman on macOS.
-- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.com/), communicate with Podman without reconfiguration.
 
 The `podman-mac-helper` tool provides a compatibility layer that allows you to use most Docker commands with Podman on macOS.
 The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket location.
@@ -55,7 +55,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
    $ curl -s --unix-socket /var/run/docker.sock "http://v1.41/info"  | jq -r .ServerVersion
    ```
 
-1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.com/), communicate with Podman without reconfiguration.
 
 1. (Optionally, if the `docker` CLI is installed) The docker CLI context is set to the default value `unix:///var/run/docker.sock`:
 

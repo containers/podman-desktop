@@ -12,7 +12,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
 - Continue using familiar Docker commands.
 - Take advantage of the benefits of Podman on macOS.
-- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.com/), communicate with Podman without reconfiguration.
 
 #### Prerequisites
 
