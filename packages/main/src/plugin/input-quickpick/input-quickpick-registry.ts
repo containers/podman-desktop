@@ -110,7 +110,7 @@ export class InputQuickPickRegistry {
   }
 
   // this method is called by the frontend when the user has selected a value in QuickPick
-  onQuickPickValuesSelected(id: number, indexes: number[] | undefined): void {
+  onQuickPickValuesSelected(id: number, indexes?: number[]): void {
     // get the callback
     const callback = this.callbacksQuickPicks.get(id);
 
