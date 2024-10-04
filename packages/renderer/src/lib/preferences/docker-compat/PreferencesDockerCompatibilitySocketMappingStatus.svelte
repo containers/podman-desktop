@@ -62,14 +62,14 @@ onMount(async () => {
           </Label>
         {/if}
       </div>
-      <div class="mt-2" role="status" aria-label="description of the status">
+      <div class="flex flex-col mt-2 text-sm" role="status" aria-label="description of the status">
         Status of the system {isLinux || isMac ? '/var/run/docker.sock socket' : ''}{isWindows
           ? '//./pipe/docker_engine'
           : ''}.
+        {#if dockerSocketMappingStatusInfo?.serverInfo?.type === 'podman'}
+          <div>Any docker commands using this socket are redirected to the Podman Engine instead</div>
+        {/if}
       </div>
-      {#if dockerSocketMappingStatusInfo?.serverInfo?.type === 'podman'}
-        <div>Any docker commands using this socket are redirected to the Podman Engine instead</div>
-      {/if}
     </div>
   </div>
 
