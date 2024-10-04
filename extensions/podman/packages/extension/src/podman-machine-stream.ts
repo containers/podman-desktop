@@ -35,7 +35,7 @@ export class PodmanMachineStream {
   #port: number;
   #username: string;
   #privateKey: string;
-  #client: Client;
+  #client: Client | undefined;
   #stream: ClientChannel | undefined;
   #connected: boolean = false;
 
@@ -44,7 +44,6 @@ export class PodmanMachineStream {
     this.#port = podmanMachine.port;
     this.#username = podmanMachine.remoteUsername;
     this.#privateKey = podmanMachine.identityPath;
-    this.#client = new Client();
   }
 
   onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
@@ -75,10 +74,11 @@ export class PodmanMachineStream {
       return;
     }
 
-    console.error("Starting connection")
+    this.#client = new Client();
+
     this.#client
       .on('ready', () => {
-        this.#client.shell((err, stream) => {
+        this.#client?.shell((err, stream) => {
           if (err) {
             this.onErrorEmit.fire({ error: err.message });
             return;
@@ -91,13 +91,15 @@ export class PodmanMachineStream {
             .on('close', () => {
               this.#connected = false;
               this.onEndEmit.fire();
-              this.#client.end();
+              this.#client?.end();
+              this.#client?.destroy();
             })
             .on('data', (data: string) => {
               this.onDataEmit.fire({ data: data });
             });
         });
-      }).on('error', err => {
+      })
+      .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
       })
       .connect({
