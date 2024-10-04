@@ -382,7 +382,7 @@ async function postActivate(
       releaseVersionToInstall = selected.tag.slice(1);
       return releaseVersionToInstall;
     },
-    doInstall: async () => {
+    doInstall: async (_logger) => {
       if (currentVersion) {
         throw new Error(`Cannot install ${kubectlCliName}. Version ${currentVersion} is already installed.`);
       }
