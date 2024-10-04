@@ -5,11 +5,10 @@ import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
+import Label from '/@/lib/ui/Label.svelte';
+import ProviderInfoCircle from '/@/lib/ui/ProviderInfoCircle.svelte';
+import RefreshButton from '/@/lib/ui/RefreshButton.svelte';
 import type { DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info';
-
-import Label from '../../ui/Label.svelte';
-import ProviderInfoCircle from '../../ui/ProviderInfoCircle.svelte';
-import RefreshButton from '../../ui/RefreshButton.svelte';
 
 let isMac = $state(false);
 let isWindows = $state(false);
@@ -63,7 +62,7 @@ onMount(async () => {
           </Label>
         {/if}
       </div>
-      <div class="mt-2">
+      <div class="mt-2" role="status" aria-label="description of the status">
         Status of the system {isLinux || isMac ? '/var/run/docker.sock socket' : ''}{isWindows
           ? '//./pipe/docker_engine'
           : ''}.
@@ -76,7 +75,10 @@ onMount(async () => {
 
   {#if dockerSocketMappingStatusInfo?.connectionInfo}
     {@const connectionInfo = dockerSocketMappingStatusInfo.connectionInfo}
-    <div class="flex flex-row grow divide-[var(--pd-content-divider)] m-2 p-2 max-w-64">
+    <div
+      class="flex flex-row grow divide-[var(--pd-content-divider)] m-2 p-2 max-w-64"
+      role="status"
+      aria-label="Connection information">
       <div class="flex flex-col grow">
         <div>Provided by {connectionInfo.provider.name}</div>
         <div class="font-thin text-xs">{connectionInfo.displayName}</div>
@@ -92,12 +94,24 @@ onMount(async () => {
       </Tooltip>
     </div>
   {:else if dockerSocketMappingStatusInfo?.serverInfo}
-    <div class="flex flex-row divide-[var(--pd-content-divider)] px-2 m-2 font-thin">
-      <div class="grid grid-cols-2 gap-x-1.5 gap-y-0.5">
-        {#each Array.from(Object.entries(dockerSocketMappingStatusInfo.serverInfo)) as entry}
-          <div class="capitalize">{entry[0]}:</div>
-          <div>{entry[1]}</div>
-        {/each}
+    <div
+      class="flex flex-row divide-[var(--pd-content-divider)] px-2 m-2 pl-8 justify-center"
+      role="status"
+      aria-label="Server information">
+      <div class="grid grid-cols-2 gap-x-8 gap-y-2">
+        <div>Server:</div>
+        <div>{dockerSocketMappingStatusInfo.serverInfo.type}</div>
+
+        <div>Version:</div>
+        <div>{dockerSocketMappingStatusInfo.serverInfo.serverVersion}</div>
+
+        <div>Operating System:</div>
+        <div>{dockerSocketMappingStatusInfo.serverInfo.operatingSystem}</div>
+
+        <div>OS/Arch:</div>
+        <div>
+          {dockerSocketMappingStatusInfo.serverInfo.osType}/{dockerSocketMappingStatusInfo.serverInfo.architecture}
+        </div>
       </div>
     </div>
   {/if}
