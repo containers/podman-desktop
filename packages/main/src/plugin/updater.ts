@@ -84,7 +84,20 @@ export class Updater {
   }
 
   public async getReleaseNotes(): Promise<ReleaseNotesInfo> {
-    const version = app.getVersion();
+    let version = app.getVersion();
+    if (import.meta.env.DEV && version.endsWith('-next')) {
+      // use the latest release version published on GitHub
+      const response = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
+      if (response.ok) {
+        const latestRelease = await response.json();
+        version = latestRelease.tag_name;
+        // remove the 'v' prefix from the version
+        if (version.startsWith('v')) {
+          version = version.substring(1);
+        }
+      }
+    }
+
     const urlVersionFormat = version.split('.', 2).join('.');
 
     const notesURL = `${homepage}/release-notes/${urlVersionFormat}.json`;
