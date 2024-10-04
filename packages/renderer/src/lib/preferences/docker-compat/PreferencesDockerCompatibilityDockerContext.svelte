@@ -1,7 +1,7 @@
 <script lang="ts">
-import { Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
+import RefreshButton from '/@/lib/ui/RefreshButton.svelte';
 import type { DockerContextInfo } from '/@api/docker-compatibility-info';
 
 let dockerContexts: DockerContextInfo[] = $state([]);
@@ -36,18 +36,14 @@ $effect(() => {
 </script>
 
 <div
-  class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2 divide-x divide-gray-900 flex flex-col lg:flex-row">
+  class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2 divide-x divide-[var(--pd-content-divider)] flex flex-col lg:flex-row">
   <div class="flex flex-row grow px-2 py-2 justify-between text-[color:var(--pd-invert-content-card-text)]">
     <div class="flex flex-col">
       <div class="flex flex-row items-center text-[color:var(--pd-invert-content-card-text)]">
         Docker Context
 
         <div class="mx-2">
-          <Tooltip tip="Refresh the context">
-            <button aria-label="refresh context" class="text-xs text-violet-500" onclick={() => refreshDockerContext()}>
-              <i class="fas fa-undo" aria-hidden="true"></i>
-            </button>
-          </Tooltip>
+          <RefreshButton label="Refresh the context" onclick={refreshDockerContext} />
         </div>
       </div>
       {#if dockerContexts.length === 0}
