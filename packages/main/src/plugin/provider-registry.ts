@@ -1277,7 +1277,7 @@ export class ProviderRegistry {
     try {
       const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
       let shellAccess: ProviderConnectionShellAccess | undefined;
-      if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status == "started") {
+      if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status === 'started') {
         shellAccess = containerConnection.shellAccess;
         shellAccess?.onData(data => {
           onData(data.data);
