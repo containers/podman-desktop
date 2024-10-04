@@ -42,3 +42,18 @@ export interface DockerSocketMappingStatusInfo {
     architecture: string;
   };
 }
+
+// handle the context information of the docker contexts
+// https://docs.docker.com/engine/manage-resources/contexts/
+export interface DockerContextInfo {
+  name: string;
+  isCurrentContext: boolean;
+  metadata: {
+    description: string;
+  };
+  endpoints: {
+    docker: {
+      host: string;
+    };
+  };
+}
