@@ -19,9 +19,20 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import PreferencesDockerCompatibilityRendering from './PreferencesDockerCompatibilityRendering.svelte';
+
+beforeAll(() => {
+  vi.resetAllMocks();
+  Object.defineProperty(global, 'window', {
+    value: {
+      getOsPlatform: vi.fn(),
+      getSystemDockerSocketMappingStatus: vi.fn(),
+    },
+    writable: true,
+  });
+});
 
 test('Expect title is displayed', async () => {
   render(PreferencesDockerCompatibilityRendering);
