@@ -335,57 +335,6 @@ async function postActivate(
   let releaseToInstall: KubectlGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
   let currentVersion = kubectl.version;
-
-  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerInstaller({
-    selectVersion: async () => {
-      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
-      releaseToInstall = selected;
-      releaseVersionToInstall = selected.tag.slice(1);
-      return releaseVersionToInstall;
-    },
-    doInstall: async _logger => {
-      if (currentVersion) {
-        throw new Error(`Cannot install ${kubectlCliName}. Version ${currentVersion} is already installed.`);
-      }
-      if (!releaseToInstall || !releaseVersionToInstall) {
-        throw new Error(`Cannot update ${kubectl.path}. No release selected.`);
-      }
-      // download, install system wide and update cli version
-      const binaryPath = await kubectlDownload.download(releaseToInstall);
-      await installBinaryToSystem(binaryPath, 'kubectl');
-      kubectlCliTool?.updateVersion({
-        version: releaseVersionToInstall,
-        installationSource: 'extension',
-      });
-      currentVersion = releaseVersionToInstall;
-      releaseVersionToInstall = undefined;
-      releaseToInstall = undefined;
-    },
-    doUninstall: async _logger => {
-      if (!currentVersion) {
-        throw new Error(`Cannot uninstall ${kubectlCliName}. No version detected.`);
-      }
-
-      // delete the executable stored in the storage folder
-      const storagePath = getStorageKubectlPath(extensionContext);
-      await deleteFile(storagePath);
-
-      // delete the executable in the system path
-      const systemPath = getSystemBinaryPath(kubectlCliName);
-      await deleteFile(systemPath);
-
-      // update the version to undefined
-      currentVersion = undefined;
-    },
-  });
-
-  extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
-
-  // if the tool has been installed by the user externally desktop, it cannot be updated
-  if (installationSource === 'external') {
-    return;
-  }
-
   // check if there is a new version to be installed and register the updater
   let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToUpdateTo: string | undefined;
@@ -424,6 +373,63 @@ async function postActivate(
       releaseToUpdateTo = undefined;
     },
   };
+  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerInstaller({
+    selectVersion: async () => {
+      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
+      releaseToInstall = selected;
+      releaseVersionToInstall = selected.tag.slice(1);
+      return releaseVersionToInstall;
+    },
+    doInstall: async () => {
+      if (currentVersion) {
+        throw new Error(`Cannot install ${kubectlCliName}. Version ${currentVersion} is already installed.`);
+      }
+      if (!releaseToInstall || !releaseVersionToInstall) {
+        throw new Error(`Cannot update ${kubectl.path}. No release selected.`);
+      }
+      // download, install system wide and update cli version
+      const binaryPath = await kubectlDownload.download(releaseToInstall);
+      await installBinaryToSystem(binaryPath, 'kubectl');
+      const destinationPath = getSystemBinaryPath('kubectl');
+      kubectlCliTool?.updateVersion({
+        version: releaseVersionToInstall,
+        installationSource: 'extension',
+        path: destinationPath,
+      });
+      currentVersion = releaseVersionToInstall;
+      if (releaseToInstall === latestAsset) {
+        delete update.version;
+      } else {
+        update.version = latestAsset.tag.slice(1);
+      }
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!currentVersion) {
+        throw new Error(`Cannot uninstall ${kubectlCliName}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = getStorageKubectlPath(extensionContext);
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(kubectlCliName);
+      await deleteFile(systemPath);
+
+      // update the version to undefined
+      currentVersion = undefined;
+    },
+  });
+
+  extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
+
+  // if the tool has been installed by the user externally desktop, it cannot be updated
+  if (installationSource === 'external') {
+    return;
+  }
+
   kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate(update);
 
   extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
