@@ -30,7 +30,7 @@ $effect(() => {
 
   // set the selected context
   window.switchDockerContext(selectedContext.name).catch((error: unknown) => {
-    console.error(`Failing to switch docket context to ${selectedContext?.name}`, error);
+    console.error(`Failing switching docker context to ${selectedContext?.name}`, error);
   });
 });
 </script>
