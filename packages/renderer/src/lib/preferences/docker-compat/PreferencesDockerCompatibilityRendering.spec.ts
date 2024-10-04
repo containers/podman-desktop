@@ -29,6 +29,7 @@ beforeAll(() => {
     value: {
       getOsPlatform: vi.fn(),
       getSystemDockerSocketMappingStatus: vi.fn(),
+      getDockerContexts: vi.fn().mockResolvedValue([]),
     },
     writable: true,
   });

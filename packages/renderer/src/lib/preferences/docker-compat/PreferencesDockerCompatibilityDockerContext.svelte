@@ -53,7 +53,7 @@ $effect(() => {
           Display and select between your different Docker-compatible socket contexts.
           <select
             class="w-full p-2 outline-none bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
-            name="Docker Context selection"
+            aria-label="Docker Context selection"
             id="dockerContextChoice"
             bind:value={selectedContext}>
             {#each dockerContexts as dockerContext}
