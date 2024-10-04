@@ -9,6 +9,7 @@ import type { DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-i
 
 import Label from '../../ui/Label.svelte';
 import ProviderInfoCircle from '../../ui/ProviderInfoCircle.svelte';
+import RefreshButton from '../../ui/RefreshButton.svelte';
 
 let isMac = $state(false);
 let isWindows = $state(false);
@@ -43,21 +44,14 @@ onMount(async () => {
 </script>
 
 <div
-  class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2 divide-x divide-gray-900 flex flex-col lg:flex-row">
+  class="bg-[var(--pd-invert-content-card-bg)] rounded-md m-2 divide-x divide-[var(--pd-content-divider)] flex flex-col lg:flex-row">
   <div class="flex flex-row grow px-2 py-2 justify-between text-[color:var(--pd-invert-content-card-text)]">
     <div class="flex flex-col">
       <div class="flex flex-row items-center text-[color:var(--pd-invert-content-card-text)]">
         System socket status
 
         <div class="mx-2">
-          <Tooltip tip="Refresh the status">
-            <button
-              aria-label="refresh status"
-              class="text-xs text-violet-500"
-              onclick={() => refreshSocketMappingStatus()}>
-              <i class="fas fa-undo" aria-hidden="true"></i>
-            </button>
-          </Tooltip>
+          <RefreshButton label="Refresh the status" onclick={refreshSocketMappingStatus} />
         </div>
         {#if dockerSocketMappingStatusInfo?.status === 'running' && dockerSocketMappingStatusInfo?.serverInfo}
           <Label name="{dockerSocketMappingStatusInfo.serverInfo.type} is listening">
@@ -74,22 +68,21 @@ onMount(async () => {
           ? '//./pipe/docker_engine'
           : ''}.
       </div>
+      {#if dockerSocketMappingStatusInfo?.serverInfo?.type === 'podman'}
+        <div>Any docker commands using this socket are redirected to the Podman Engine instead</div>
+      {/if}
     </div>
   </div>
 
   {#if dockerSocketMappingStatusInfo?.connectionInfo}
     {@const connectionInfo = dockerSocketMappingStatusInfo.connectionInfo}
-    <div class="flex flex-row grow divide-gray-900 p-2 max-w-64">
+    <div class="flex flex-row grow divide-[var(--pd-content-divider)] m-2 p-2 max-w-64">
       <div class="flex flex-col grow">
-        <div>Provided by {connectionInfo.provider.name} ({connectionInfo.displayName})</div>
-        {#if dockerSocketMappingStatusInfo.serverInfo?.type === 'podman'}
-          <div class="font-thin text-xs">
-            Any docker commands using this socket are redirected to the Podman Engine instead
-          </div>
-        {/if}
+        <div>Provided by {connectionInfo.provider.name}</div>
+        <div class="font-thin text-xs">{connectionInfo.displayName}</div>
       </div>
 
-      <Tooltip bottom tip="{connectionInfo.provider.name} details">
+      <Tooltip class="m-2" bottom tip="{connectionInfo.provider.name} details">
         <button
           aria-label="{connectionInfo.provider.name} details"
           type="button"
@@ -99,7 +92,7 @@ onMount(async () => {
       </Tooltip>
     </div>
   {:else if dockerSocketMappingStatusInfo?.serverInfo}
-    <div class="flex flex-row divide-gray-900 px-2 m-2 font-thin">
+    <div class="flex flex-row divide-[var(--pd-content-divider)] px-2 m-2 font-thin">
       <div class="grid grid-cols-2 gap-x-1.5 gap-y-0.5">
         {#each Array.from(Object.entries(dockerSocketMappingStatusInfo.serverInfo)) as entry}
           <div class="capitalize">{entry[0]}:</div>
