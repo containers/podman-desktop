@@ -22,7 +22,6 @@ import { InputQuickPickRegistry } from './input-quickpick-registry.js';
 
 let inputQuickPickRegistry: InputQuickPickRegistry;
 
-/* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   inputQuickPickRegistry = new InputQuickPickRegistry({
     send: vi.fn(),
@@ -32,6 +31,6 @@ beforeAll(() => {
 
 test('Expect no quick pick selection to resolve the promise as undefined', async () => {
   const result = inputQuickPickRegistry.showQuickPick(['a', 'b']);
-  inputQuickPickRegistry.onQuickPickValuesSelected(1, undefined);
+  inputQuickPickRegistry.onQuickPickValuesSelected(1);
   expect(await result).toBe(undefined);
 });
