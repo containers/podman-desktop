@@ -648,3 +648,38 @@ test('get release notes', async () => {
   releaseNotes = await updater.getReleaseNotes();
   expect(releaseNotes).toStrictEqual({ releaseNotesAvailable: false, notesURL: '' });
 });
+
+test('get release notes in dev mode', async () => {
+  const fetchJSONMock = vi.fn().mockResolvedValue({ data: 'some data' });
+  vi.spyOn(global, 'fetch').mockImplementation(() =>
+    Promise.resolve({ ok: true, json: fetchJSONMock } as unknown as Response),
+  );
+  vi.mocked(app.getVersion).mockReturnValue('1.1.0-next');
+
+  // use dev mode
+  vi.stubEnv('DEV', true);
+  try {
+    const updater = new Updater(
+      messageBoxMock,
+      configurationRegistryMock,
+      statusBarRegistryMock,
+      commandRegistryMock,
+      taskManagerMock,
+    );
+
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: fetchJSONMock.mockResolvedValue({ tag_name: 'v123' }),
+    } as unknown as Response);
+    /*.mockResolvedValueOnce({ ok: true, json: fetchJSONMock.mockResolvedValue({}) } as unknown as Response);*/
+
+    await updater.getReleaseNotes();
+    // check we tried to get latest release from github
+    expect(fetch).toBeCalledWith('https://api.github.com/repos/containers/podman-desktop/releases/latest');
+
+    // check we tried to get release notes from the 123 release
+    expect(fetch).toBeCalledWith('appHomepage/release-notes/123.json');
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
