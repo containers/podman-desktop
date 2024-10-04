@@ -1232,6 +1232,7 @@ test('ensure stopped machine reports stopped provider', async () => {
   await extension.updateMachines(provider, podmanConfiguration);
 
   expect(provider.updateStatus).toBeCalledWith('configured');
+  expect(extension.podmanMachinesStatuses.get('podman-machine-default')).toBe('stopped');
 });
 
 test('ensure running and starting machine reports starting provider', async () => {
@@ -1262,6 +1263,7 @@ test('ensure running and starting machine reports starting provider', async () =
   await extension.updateMachines(provider, podmanConfiguration);
 
   expect(provider.updateStatus).toBeCalledWith('starting');
+  expect(extension.podmanMachinesStatuses.get('podman-machine-default')).toBe('starting');
 });
 
 test('ensure running and not starting machine reports ready provider', async () => {
@@ -1292,6 +1294,7 @@ test('ensure running and not starting machine reports ready provider', async () 
   await extension.updateMachines(provider, podmanConfiguration);
 
   expect(provider.updateStatus).toBeCalledWith('ready');
+  expect(extension.podmanMachinesStatuses.get('podman-machine-default')).toBe('started');
 });
 
 test('ensure started machine reports configuration', async () => {

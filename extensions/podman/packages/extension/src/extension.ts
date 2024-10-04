@@ -76,7 +76,7 @@ let defaultConnectionNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
-const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+export const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
