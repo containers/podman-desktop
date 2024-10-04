@@ -60,7 +60,6 @@ export class DockerCompatibility {
         [DockerCompatibility.ENABLED_FULL_KEY]: {
           description: 'Enable the section for Docker compatibility.',
           type: 'boolean',
-          hidden: true,
           default: false,
         },
       },

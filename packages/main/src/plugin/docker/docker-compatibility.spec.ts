@@ -99,7 +99,7 @@ test('should register a configuration', async () => {
   expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]).toBeDefined();
   expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]?.type).toBe('boolean');
   expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]?.default).toBeFalsy();
-  expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]?.hidden).toBeTruthy();
+  expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]?.hidden).toBeFalsy();
 });
 
 describe('getTypeFromServerInfo', async () => {
