@@ -34,7 +34,7 @@ let providerState = $state(provider);
 
 $effect(() => {
   providerState = provider;
-  if (lastState === 'starting' && providerState.status === 'ready') {
+  if (lastState === 'starting' && (providerState.status === 'ready' || providerState.status === 'started')) {
     restartTerminal();
   }
   lastState = provider.status;
@@ -181,10 +181,14 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv} class:hidden={provider.status !== 'ready'}></div>
+<div
+  class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]"
+  bind:this={terminalXtermDiv}
+  class:hidden={!(provider.status === 'ready' || provider.status === 'started') || connectionInfo.status !== 'started'}>
+</div>
 
 <EmptyScreen
-  hidden={provider.status === 'ready'}
+  hidden={provider.status === 'ready' || provider.status === 'started'}
   icon={NoLogIcon}
   title="No Terminal"
   message="Provider is not running" />
