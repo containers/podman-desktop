@@ -227,7 +227,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   postActivate(extensionContext, kubectlDownload).catch((error: unknown) => {
-    console.error('Error activating extension', String(error));
+    console.error('Error activating extension', error);
   });
 }
 
