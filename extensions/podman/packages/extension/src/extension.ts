@@ -76,7 +76,7 @@ let defaultConnectionNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
-const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+export const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
@@ -251,9 +251,9 @@ export async function updateMachines(
     const running = machine?.Running === true;
     let status: extensionApi.ProviderConnectionStatus = running ? 'started' : 'stopped';
 
-    // update the status to starting if the machine is starting but not yet running
+    // update the status to starting if the machine is running but still starting
     const starting = machine?.Starting === true;
-    if (!running && starting) {
+    if (starting) {
       status = 'starting';
     }
 
@@ -380,7 +380,13 @@ export async function updateMachines(
         provider.updateStatus('installed');
       }
     } else {
-      const atLeastOneMachineRunning = machines.some(machine => machine.Running);
+      /*
+       * The machine can have 3 states, based on `Starting` and `Running` fields:
+       * - !Running && !Starting -> configured
+       * -  Running &&  Starting -> starting
+       * -  Running && !Starting -> ready
+       */
+      const atLeastOneMachineRunning = machines.some(machine => machine.Running && !machine.Starting);
       const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
       // if a machine is running it's started else it is ready
       if (atLeastOneMachineRunning) {
