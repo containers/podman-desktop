@@ -81,7 +81,7 @@ onDestroy(async () => {
         </div>
       </div>
     </div>
-  {:else}
+  {:else if notesURL}
     <div class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 flex-col flex-nowrap h-auto items-center">
       <div class="flex flex-row items-center justify-between w-full">
         <p class="text-[var(--pd-content-card-header-text)] font-bold text-lg w-full items-center">
