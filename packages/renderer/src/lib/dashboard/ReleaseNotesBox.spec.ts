@@ -113,3 +113,19 @@ test('expect clicking on close button to not show banner anymore', async () => {
   expect(screen.queryByText(responseJSON.title)).not.toBeInTheDocument();
   expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
 });
+
+test('expect no release notes widget if no notesUrl as well', async () => {
+  podmanDesktopGetReleaseNotesMock.mockResolvedValue({
+    releaseNotesAvailable: false,
+  });
+
+  render(ReleaseNotesBox);
+  await waitFor(() => expect(podmanDesktopGetReleaseNotesMock).toBeCalled());
+  await tick();
+  expect(screen.queryByText(responseJSON.title)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
+  expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Release notes are currently unavailable, please check again later or try this'),
+  ).not.toBeInTheDocument();
+});
