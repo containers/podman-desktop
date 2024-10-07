@@ -34,6 +34,7 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
 
+import type { ApiSenderType } from './api.js';
 import type { TaskManager } from './tasks/task-manager.js';
 
 vi.mock('electron', () => ({
@@ -101,6 +102,10 @@ const taskManagerMock = {
   updateTask: vi.fn(),
 } as unknown as TaskManager;
 
+const apiSenderMock = {
+  send: vi.fn(),
+} as unknown as ApiSenderType;
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.resetAllMocks();
@@ -136,6 +141,7 @@ test('expect init to provide a disposable', () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
   const disposable: unknown = updater.init();
   expect(disposable).toBeDefined();
@@ -149,6 +155,7 @@ test('expect init to register commands', () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
   expect(commandRegistryMock.registerCommand).toHaveBeenCalled();
 });
@@ -160,6 +167,7 @@ test('expect init to register configuration', () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
   expect(configurationRegistryMock.registerConfigurations).toHaveBeenCalled();
 });
@@ -190,6 +198,7 @@ test('expect update available entry to be displayed when expected', () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
 
   // listener should exist
@@ -227,6 +236,7 @@ test('expect default status entry to be displayed when no update available', () 
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
 
   // listener should exist
@@ -264,6 +274,7 @@ test('expect default status entry when error No published versions on GitHub', (
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
 
   // listener should exist
@@ -290,6 +301,7 @@ test('expect command update to be called when configuration value on startup', (
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
 
   // call the listener (which should be the private updateAvailableEntry method)
@@ -314,6 +326,7 @@ test('expect command update not to be called when configuration value on never',
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
 
   // call the listener (which should be the private updateAvailableEntry method)
@@ -325,7 +338,7 @@ test('expect command update not to be called when configuration value on never',
 
 test('clicking on "Update Never" should set the configuration value to never', async () => {
   vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
-    response: 2, // Update never
+    response: 3, // Update never
   });
 
   let mListener: (() => Promise<void>) | undefined;
@@ -342,6 +355,7 @@ test('clicking on "Update Never" should set the configuration value to never', a
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   ).init();
   expect(mListener).toBeDefined();
 
@@ -377,6 +391,7 @@ describe('expect update command to depends on context', async () => {
       statusBarRegistryMock,
       commandRegistryMock,
       taskManagerMock,
+      apiSenderMock,
     );
     updater.init();
 
@@ -404,7 +419,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'Remind me later', 'Do not show again'],
+      buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -420,7 +435,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 1,
-      buttons: ['Update now', 'Cancel'],
+      buttons: ['Update now', 'View release notes', 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -467,6 +482,7 @@ describe('download task and progress', async () => {
       statusBarRegistryMock,
       commandRegistryMock,
       taskManagerMock,
+      apiSenderMock,
     ).init();
 
     // callbacks should exist
@@ -537,6 +553,7 @@ describe('download task and progress', async () => {
       statusBarRegistryMock,
       commandRegistryMock,
       taskManagerMock,
+      apiSenderMock,
     ).init();
 
     // call the update command callback
@@ -573,6 +590,7 @@ test('open release notes from podman-desktop.io', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
 
   vi.mocked(shell.openExternal).mockResolvedValue();
@@ -600,6 +618,7 @@ test('open release notes from GitHub', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
   vi.mocked(shell.openExternal).mockResolvedValue();
   updater.init();
@@ -623,6 +642,7 @@ test('get release notes', async () => {
     statusBarRegistryMock,
     commandRegistryMock,
     taskManagerMock,
+    apiSenderMock,
   );
 
   updater.init();
