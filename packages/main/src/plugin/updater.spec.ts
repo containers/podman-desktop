@@ -418,7 +418,7 @@ describe('expect update command to depends on context', async () => {
     await mListener?.('startup');
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
-      cancelId: 1,
+      cancelId: 2,
       buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
@@ -434,7 +434,7 @@ describe('expect update command to depends on context', async () => {
     await mListener?.('status-bar-entry');
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
-      cancelId: 1,
+      cancelId: 2,
       buttons: ['Update now', 'View release notes', 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
@@ -685,6 +685,7 @@ test('get release notes in dev mode', async () => {
       statusBarRegistryMock,
       commandRegistryMock,
       taskManagerMock,
+      apiSenderMock,
     );
 
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
