@@ -16,12 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Locator } from '@playwright/test';
+
 import { CreateMachinePage } from '../model/pages/create-machine-page';
 import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { createPodmanMachineFromCLI, deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
+import {
+  createPodmanMachineFromCLI,
+  deletePodmanMachine,
+  deletePodmanMachineFromCLI,
+  handleConfirmationDialog,
+} from '../utility/operations';
 import { isLinux } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -30,6 +37,7 @@ const DEFAULT_PODMAN_MACHINE = 'Podman Machine';
 const DEFAULT_PODMAN_MACHINE_VISIBLE = 'podman-machine-default';
 const RESOURCE_NAME = 'podman';
 const ROOTLESS_PODMAN_MACHINE = 'Podman Machine rootless';
+let dialog: Locator;
 
 test.skip(
   isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
@@ -42,13 +50,22 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
+  dialog = page.getByRole('dialog', { name: 'Podman', exact: true });
 });
 
-test.afterAll(async ({ runner }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(120_000);
 
   if (test.info().status === 'failed') {
+    await deletePodmanMachineFromCLI(PODMAN_MACHINE_NAME);
     await createPodmanMachineFromCLI();
+  }
+
+  try {
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+  } catch (error) {
+    console.log('No handling dialog displayed', error);
   }
 
   await runner.close();
@@ -107,14 +124,16 @@ test.describe.serial('Rootless Podman machine Verification', () => {
 
     await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
     await podmanMachineDetails.podmanMachineStartButton.click();
-    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
 
+    await playExpect(dialog).toBeVisible({ timeout: 60_000 });
     await handleConfirmationDialog(page, 'Podman', true, 'Yes');
     await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+
     await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
     await podmanMachineDetails.podmanMachineStopButton.click();
-    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
   });
 
   test('Restart default podman machine', async ({ page, navigationBar }) => {
@@ -138,10 +157,12 @@ test.describe.serial('Rootless Podman machine Verification', () => {
 
     await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
     await podmanMachineDetails.podmanMachineStartButton.click();
-    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
 
+    await playExpect(dialog).toBeVisible({ timeout: 60_000 });
     await handleConfirmationDialog(page, 'Podman', true, 'Yes');
     await handleConfirmationDialog(page, 'Podman', true, 'OK');
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
   });
 
   test('Clean up rootless machine', async ({ page }) => {
