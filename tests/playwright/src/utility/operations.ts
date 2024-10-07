@@ -388,7 +388,6 @@ export async function createPodmanMachineFromCLI(): Promise<void> {
     } catch (error) {
       if (error instanceof Error && error.message.includes('VM already exists')) {
         console.log(`Podman machine already exists, skipping creation.`);
-        return;
       }
     }
 
