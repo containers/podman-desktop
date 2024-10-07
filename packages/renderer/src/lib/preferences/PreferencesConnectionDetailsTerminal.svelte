@@ -41,7 +41,7 @@ $effect(() => {
 
 async function restartTerminal() {
   await executeShellIntoProviderConnection();
-  window.dispatchEvent(new Event('resize'));
+  window.dispatchEvent(new Event('setWindow'));
 }
 
 // update current route scheme
