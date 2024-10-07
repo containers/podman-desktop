@@ -21,7 +21,12 @@ import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { createPodmanMachineFromCLI, deletePodmanMachine, handleConfirmationDialog } from '../utility/operations';
+import {
+  createPodmanMachineFromCLI,
+  deletePodmanMachine,
+  deletePodmanMachineFromCLI,
+  handleConfirmationDialog,
+} from '../utility/operations';
 import { isLinux } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
@@ -45,15 +50,16 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(120_000);
 
+  if (test.info().status === 'failed') {
+    await deletePodmanMachineFromCLI(ROOTLESS_PODMAN_MACHINE_VISIBLE);
+    await createPodmanMachineFromCLI();
+  }
+
   try {
     await handleConfirmationDialog(page, 'Podman', true, 'Yes');
     await handleConfirmationDialog(page, 'Podman', true, 'OK');
   } catch (error) {
     console.log('No handling dialog displayed', error);
-  }
-
-  if (test.info().status === 'failed') {
-    await createPodmanMachineFromCLI();
   }
 
   await runner.close();

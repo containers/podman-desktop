@@ -391,8 +391,25 @@ export async function createPodmanMachineFromCLI(): Promise<void> {
       }
     }
 
-    // eslint-disable-next-line sonarjs/no-os-command-from-path
-    execSync('podman machine start');
-    console.log('Default podman machine started');
+    try {
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      execSync('podman machine start');
+      console.log('Default podman machine started');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('VM already running')) {
+        console.log('Default podman machine already started, skipping start.');
+      }
+    }
   });
+}
+
+export async function deletePodmanMachineFromCLI(podmanMachineName: string): Promise<void> {
+  try {
+    // eslint-disable-next-line sonarjs/os-command
+    execSync(`podman machine rm ${podmanMachineName} -f`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('VM does not exist')) {
+      console.log(`Podman machine [${podmanMachineName}] does not exist, skipping deletion.`);
+    }
+  }
 }
