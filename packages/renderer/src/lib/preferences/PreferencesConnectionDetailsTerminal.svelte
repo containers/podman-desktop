@@ -1,7 +1,7 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
 
-import type { ShellDimensions } from '@podman-desktop/api';
+import type { ProviderConnectionStatus, ShellDimensions } from '@podman-desktop/api';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
@@ -29,20 +29,19 @@ let currentRouterPath: string;
 let sendCallbackId: number | undefined;
 let terminalContent: string = '';
 let serializeAddon: SerializeAddon;
-let lastState = $state<string>('');
-let providerState = $state(provider);
+let lastState = $state<ProviderConnectionStatus>('stopped');
 
 $effect(() => {
-  providerState = provider;
-  if (lastState === 'starting' && (providerState.status === 'ready' || providerState.status === 'started')) {
+  const connectionStatus = connectionInfo.status;
+  if (lastState === 'stopped' && connectionStatus === 'started') {
     restartTerminal();
   }
-  lastState = provider.status;
+  lastState = connectionStatus;
 });
 
 async function restartTerminal() {
   await executeShellIntoProviderConnection();
-  window.dispatchEvent(new Event('resize'));
+  window.dispatchEvent(new Event('setWindow'));
 }
 
 // update current route scheme
@@ -80,7 +79,7 @@ function receiveErrorCallback(error: string) {
 
 // call exec command
 async function executeShellIntoProviderConnection() {
-  if (provider.status !== 'ready') {
+  if (connectionInfo.status !== 'started') {
     return;
   }
 
@@ -184,11 +183,11 @@ onDestroy(() => {
 <div
   class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]"
   bind:this={terminalXtermDiv}
-  class:hidden={!(provider.status === 'ready' || provider.status === 'started') || connectionInfo.status !== 'started'}>
+  class:hidden={connectionInfo.status !== 'started'}>
 </div>
 
 <EmptyScreen
-  hidden={provider.status === 'ready' || provider.status === 'started'}
+  hidden={connectionInfo.status === 'started'}
   icon={NoLogIcon}
   title="No Terminal"
-  message="Provider is not running" />
+  message="Provider engine is not running" />
