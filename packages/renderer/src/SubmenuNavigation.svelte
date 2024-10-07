@@ -18,14 +18,14 @@ export let mini: boolean = false;
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-10">
       <p
-        class="text-2xl font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
+        class="{mini ? 'text-xl' : 'text-2xl'} font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
         {title}
       </p>
     </div>
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto text-sm" style="margin-bottom:auto">
     {#each items ?? [] as item}
-      <SettingsNavItem title={item.tooltip} href={item.link} selected={meta.url.startsWith(item.link)}
+      <SettingsNavItem title={item.tooltip} href={item.link} selected={meta.url.startsWith(item.link)} mini={mini}
       ></SettingsNavItem>
     {/each}
   </div>

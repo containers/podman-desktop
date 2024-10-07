@@ -34,12 +34,12 @@ module.exports = {
       width: {
         leftnavbar: '48px',
         leftsidebar: '225px',
-        minileftsidebar: '150px',
+        minileftsidebar: '170px',
       },
       minWidth: {
         leftnavbar: '48px',
         leftsidebar: '225px',
-        minileftsidebar: '150px',
+        minileftsidebar: '170px',
       },
     },
     fontSize: {
