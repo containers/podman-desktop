@@ -54,11 +54,11 @@ export class TaskManager {
     this.configurationRegistry.registerConfigurations([
       {
         id: 'preferences.experimental.tasks',
-        title: 'Tasks preference',
+        title: 'Tasks',
         type: 'object',
         properties: {
           [`${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.StatusBar}`]: {
-            description: 'Enable the running tasks to be displayed in the status bar',
+            description: 'Show running tasks in the status bar',
             type: 'boolean',
             default: false,
           },
