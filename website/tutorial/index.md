@@ -45,5 +45,6 @@ Before going through each tutorial, familiarize yourself with the key UI compone
 - [Running a pod using a container or docker file](/tutorial/running-a-pod-using-a-container-docker-file)
 - [Running a Kubernetes cluster](/tutorial/running-a-kubernetes-cluster)
 - [Deploying a Kubernetes application](/tutorial/deploying-a-kubernetes-application)
+- [Interacting with a database server](/tutorial/interacting-with-a-database-server)
 - [Managing your application resources](/tutorial/managing-your-application-resources)
 - [Running an AI application](/tutorial/running-an-ai-application)
