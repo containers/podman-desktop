@@ -42,8 +42,15 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
   await waitForPodmanMachineStartup(page);
 });
 
-test.afterAll(async ({ runner }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(120_000);
+
+  try {
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+  } catch (error) {
+    console.log('No handling dialog displayed', error);
+  }
 
   if (test.info().status === 'failed') {
     await createPodmanMachineFromCLI();
