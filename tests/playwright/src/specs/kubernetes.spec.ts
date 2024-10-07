@@ -20,7 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { PlayYamlRuntime } from '../model/core/operations';
-import { KubernetesResourceState } from '../model/core/states';
+import { KubernetesResourceState, PodState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
 import { expect as playExpect, test } from '../utility/fixtures';
 import {
@@ -38,7 +38,10 @@ const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT = `kind-${CLUSTER_NAME}`;
 const KUBERNETES_NAMESPACE = 'default';
 const PVC_NAME = 'my-pvc';
-const POD_NAME = 'pod-pvc';
+const PVC_POD_NAME = 'pod-pvc';
+const CONFIGMAP_NAME = 'my-configmap';
+const SECRET_NAME = 'my-secret';
+const SECRETS_POD_NAME = 'pod-configmap-secret';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,7 +117,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${POD_NAME}.yaml`);
+      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_POD_NAME}.yaml`);
       await playYamlPage.playYaml(yamlFilePath, {
         runtime: PlayYamlRuntime.Kubernetes,
         kubernetesContext: KUBERNETES_CONTEXT,
@@ -130,12 +133,94 @@ test.describe('Kubernetes resources End-to-End test', () => {
         .toEqual(KubernetesResourceState.Running);
     });
     test('Delete the PVC resource', async ({ page, navigationBar }) => {
-      await deletePod(page, POD_NAME);
+      await deletePod(page, PVC_POD_NAME);
       const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
       await pvcsPage.deleteKubernetesResource(PVC_NAME);
       await handleConfirmationDialog(page);
       await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).not.toBeVisible();
+    });
+  });
+  test.describe.serial('ConfigMaps and Secrets lyfecycle test', () => {
+    test('Create ConfigMap and Secret resources', async ({ navigationBar }) => {
+      const podsPage = await navigationBar.openPods();
+      await playExpect(podsPage.heading).toBeVisible();
+      const playYamlPage = await podsPage.openPlayKubeYaml();
+      await playExpect(playYamlPage.heading).toBeVisible();
+      const configmapYamlFilePath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'resources',
+        'kubernetes',
+        `${CONFIGMAP_NAME}.yaml`,
+      );
+      await playYamlPage.playYaml(configmapYamlFilePath, {
+        runtime: PlayYamlRuntime.Kubernetes,
+        kubernetesContext: KUBERNETES_CONTEXT,
+        kubernetesNamespace: KUBERNETES_NAMESPACE,
+      });
+
+      await playExpect(podsPage.heading).toBeVisible();
+      await podsPage.openPlayKubeYaml();
+      const secretYamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
+      await playYamlPage.playYaml(secretYamlFilePath, {
+        runtime: PlayYamlRuntime.Kubernetes,
+        kubernetesContext: KUBERNETES_CONTEXT,
+        kubernetesNamespace: KUBERNETES_NAMESPACE,
+      });
+
+      const kubernetesBar = await navigationBar.openKubernetes();
+      const configmapSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
+      await playExpect(configmapSecretsPage.heading).toBeVisible();
+      await playExpect(configmapSecretsPage.getResourceRowByName(CONFIGMAP_NAME)).toBeVisible();
+      const configmapDetails = await configmapSecretsPage.openResourceDetails(
+        CONFIGMAP_NAME,
+        KubernetesResources.ConfigMapsSecrets,
+      );
+      await playExpect(configmapDetails.heading).toBeVisible();
+      await playExpect
+        .poll(async () => configmapDetails.getState(), { timeout: 40_000 })
+        .toEqual(KubernetesResourceState.Running);
+
+      await configmapDetails.backLink.click();
+      await playExpect(configmapSecretsPage.heading).toBeVisible();
+      const secretDetails = await configmapSecretsPage.openResourceDetails(
+        SECRET_NAME,
+        KubernetesResources.ConfigMapsSecrets,
+      );
+      await playExpect(secretDetails.heading).toBeVisible();
+      await playExpect
+        .poll(async () => secretDetails.getState(), { timeout: 40_000 })
+        .toEqual(KubernetesResourceState.Running);
+    });
+    test('Pod that uses ConfigMap and Secret resources should be running', async ({ navigationBar }) => {
+      const podsPage = await navigationBar.openPods();
+      await playExpect(podsPage.heading).toBeVisible();
+      const playYamlPage = await podsPage.openPlayKubeYaml();
+      await playExpect(playYamlPage.heading).toBeVisible();
+      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRETS_POD_NAME}.yaml`);
+      await playYamlPage.playYaml(yamlFilePath, {
+        runtime: PlayYamlRuntime.Kubernetes,
+        kubernetesContext: KUBERNETES_CONTEXT,
+        kubernetesNamespace: KUBERNETES_NAMESPACE,
+      });
+
+      await playExpect(podsPage.heading).toBeVisible();
+      await playExpect.poll(async () => podsPage.getPodRowByName(SECRETS_POD_NAME)).toBeTruthy();
+      const podsDetailsPage = await podsPage.openPodDetails(SECRETS_POD_NAME);
+      await playExpect(podsDetailsPage.heading).toBeVisible();
+      await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 40_000 }).toEqual(PodState.Running);
+    });
+    test('Delete the ConfigMap and Secret resources', async ({ page, navigationBar }) => {
+      const kubernetesBar = await navigationBar.openKubernetes();
+      const configmapsSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
+      await configmapsSecretsPage.deleteKubernetesResource(SECRET_NAME);
+      await handleConfirmationDialog(page);
+      await configmapsSecretsPage.deleteKubernetesResource(CONFIGMAP_NAME);
+      await handleConfirmationDialog(page);
+      await playExpect(configmapsSecretsPage.getResourceRowByName(SECRET_NAME)).not.toBeVisible();
+      await playExpect(configmapsSecretsPage.getResourceRowByName(CONFIGMAP_NAME)).not.toBeVisible();
     });
   });
 });
