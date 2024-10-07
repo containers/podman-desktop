@@ -4,3 +4,4 @@ metadata:
   name: my-configmap
 data:
   configmap-username: test-configmap
+  

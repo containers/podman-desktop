@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Config
-clusters: []
-users: []
-contexts: []
-preferences: {}
-current-context: ''
