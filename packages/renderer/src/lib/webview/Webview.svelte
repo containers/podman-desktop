@@ -29,7 +29,7 @@ const notifyNewWebwievState = () => {
 
 $: webviewInfo && notifyNewWebwievState();
 // webview HTML element used to communicate
-let webviewElement: HTMLWebViewElement | undefined;
+let webviewElement: HTMLElement | undefined;
 
 // function to notify webview when messages are coming
 const postMessageToWebview = (webviewEvent: unknown) => {
