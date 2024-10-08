@@ -243,6 +243,8 @@ function goBackToPodsPage(): void {
           class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
           aria-label="Kubernetes Cluster Runtime"
           aria-pressed={userChoice === 'kubernetes' ? 'true' : 'false'}
+          class:border-[var(--pd-content-card-border-selected)]={userChoice === 'kubernetes'}
+          class:border-[var(--pd-content-card-border)]={userChoice !== 'kubernetes'}
           on:click={() => {
             userChoice = 'kubernetes';
           }}>
