@@ -340,9 +340,15 @@ async function postActivate(
   // check if there is a new version to be installed and register the updater
   let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToUpdateTo: string | undefined;
-  const latestAsset = await kubectlDownload.getLatestVersionAsset();
+  let latestAsset: KubectlGithubReleaseArtifactMetadata | undefined;
+  try {
+    latestAsset = await kubectlDownload.getLatestVersionAsset();
+  } catch (error: unknown) {
+    console.error('Error when downloading kubectl CLI latest release information.', String(error));
+  }
+
   const update = {
-    version: latestAsset.tag.slice(1) !== kubectlCliTool.version ? latestAsset.tag.slice(1) : undefined,
+    version: latestAsset?.tag.slice(1) !== kubectlCliTool.version ? latestAsset?.tag.slice(1) : undefined,
     selectVersion: async (): Promise<string> => {
       const selected = await kubectlDownload.promptUserForVersion(currentVersion);
       releaseToUpdateTo = selected;
@@ -369,7 +375,7 @@ async function postActivate(
       if (releaseToUpdateTo === latestAsset) {
         delete update.version;
       } else {
-        update.version = latestAsset.tag.slice(1);
+        update.version = latestAsset?.tag.slice(1);
       }
       releaseVersionToUpdateTo = undefined;
       releaseToUpdateTo = undefined;
