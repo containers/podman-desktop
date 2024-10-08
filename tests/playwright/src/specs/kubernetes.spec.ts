@@ -141,8 +141,8 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).not.toBeVisible();
     });
   });
-  test.describe.serial('ConfigMaps and Secrets lyfecycle test', () => {
-    test('Create ConfigMap and Secret resources', async ({ navigationBar }) => {
+  test.describe.serial('ConfigMaps and Secrets lifecycle test', () => {
+    test('Create ConfigMap resource', async ({ navigationBar }) => {
       const podsPage = await navigationBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
@@ -161,15 +161,6 @@ test.describe('Kubernetes resources End-to-End test', () => {
         kubernetesNamespace: KUBERNETES_NAMESPACE,
       });
 
-      await playExpect(podsPage.heading).toBeVisible();
-      await podsPage.openPlayKubeYaml();
-      const secretYamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
-      await playYamlPage.playYaml(secretYamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
-
       const kubernetesBar = await navigationBar.openKubernetes();
       const configmapSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
       await playExpect(configmapSecretsPage.heading).toBeVisible();
@@ -182,9 +173,23 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect
         .poll(async () => configmapDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Running);
+    });
+    test('Create Secret resource', async ({ navigationBar }) => {
+      const podsPage = await navigationBar.openPods();
+      await playExpect(podsPage.heading).toBeVisible();
+      const playYamlPage = await podsPage.openPlayKubeYaml();
+      await playExpect(playYamlPage.heading).toBeVisible();
+      const secretYamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
+      await playYamlPage.playYaml(secretYamlFilePath, {
+        runtime: PlayYamlRuntime.Kubernetes,
+        kubernetesContext: KUBERNETES_CONTEXT,
+        kubernetesNamespace: KUBERNETES_NAMESPACE,
+      });
 
-      await configmapDetails.backLink.click();
+      const kubernetesBar = await navigationBar.openKubernetes();
+      const configmapSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
       await playExpect(configmapSecretsPage.heading).toBeVisible();
+      await playExpect(configmapSecretsPage.getResourceRowByName(SECRET_NAME)).toBeVisible();
       const secretDetails = await configmapSecretsPage.openResourceDetails(
         SECRET_NAME,
         KubernetesResources.ConfigMapsSecrets,
@@ -194,7 +199,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
         .poll(async () => secretDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Running);
     });
-    test('Pod that uses ConfigMap and Secret resources should be running', async ({ navigationBar }) => {
+    test('Can load config and secrets via env. var in pod', async ({ navigationBar }) => {
       const podsPage = await navigationBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
