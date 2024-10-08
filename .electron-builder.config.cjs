@@ -65,8 +65,6 @@ async function addElectronFuses(context) {
   });
 }
 
-const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
-
 /**
  * @type {import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -81,6 +79,7 @@ const config = {
   buildDependenciesFromSource: false,
   npmRebuild: false,
   beforePack: async context => {
+    const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
     context.packager.config.extraResources = DEFAULT_ASSETS;
 
     // universal build, add both pkg files
