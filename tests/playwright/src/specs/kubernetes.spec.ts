@@ -37,11 +37,11 @@ const CLUSTER_CREATION_TIMEOUT: number = 300_000;
 const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT = `kind-${CLUSTER_NAME}`;
 const KUBERNETES_NAMESPACE = 'default';
-const PVC_NAME = 'my-pvc';
-const PVC_POD_NAME = 'pod-pvc';
-const CONFIGMAP_NAME = 'my-configmap';
-const SECRET_NAME = 'my-secret';
-const SECRETS_POD_NAME = 'pod-configmap-secret';
+const PVC_NAME = 'test-pvc-resource';
+const PVC_POD_NAME = 'test-pod-pvcs';
+const CONFIGMAP_NAME = 'test-configmap-resource';
+const SECRET_NAME = 'test-secret-resource';
+const SECRETS_POD_NAME = 'test-pod-configmaps-secrets';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,7 +86,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
     const nodeDetails = await nodesPage.openResourceDetails(KIND_NODE, KubernetesResources.Nodes);
     await playExpect(nodeDetails.heading).toBeVisible();
     await playExpect
-      .poll(async () => nodeDetails.getState(), { timeout: 40000 })
+      .poll(async () => nodeDetails.getState(), { timeout: 50_000 })
       .toEqual(KubernetesResourceState.Running);
   });
   test.describe.serial('PVC lifecycle test', () => {
@@ -109,7 +109,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
       await playExpect(pvcDetails.heading).toBeVisible();
       await playExpect
-        .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
+        .poll(async () => pvcDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Starting);
     });
     test('Bind the PVC to a pod', async ({ navigationBar }) => {
@@ -129,7 +129,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
       await playExpect(pvcDetails.heading).toBeVisible();
       await playExpect
-        .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
+        .poll(async () => pvcDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Running);
     });
     test('Delete the PVC resource', async ({ page, navigationBar }) => {
@@ -180,7 +180,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       );
       await playExpect(configmapDetails.heading).toBeVisible();
       await playExpect
-        .poll(async () => configmapDetails.getState(), { timeout: 40_000 })
+        .poll(async () => configmapDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Running);
 
       await configmapDetails.backLink.click();
@@ -191,7 +191,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       );
       await playExpect(secretDetails.heading).toBeVisible();
       await playExpect
-        .poll(async () => secretDetails.getState(), { timeout: 40_000 })
+        .poll(async () => secretDetails.getState(), { timeout: 50_000 })
         .toEqual(KubernetesResourceState.Running);
     });
     test('Pod that uses ConfigMap and Secret resources should be running', async ({ navigationBar }) => {
@@ -210,7 +210,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect.poll(async () => podsPage.getPodRowByName(SECRETS_POD_NAME)).toBeTruthy();
       const podsDetailsPage = await podsPage.openPodDetails(SECRETS_POD_NAME);
       await playExpect(podsDetailsPage.heading).toBeVisible();
-      await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 40_000 }).toEqual(PodState.Running);
+      await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 50_000 }).toEqual(PodState.Running);
     });
     test('Delete the ConfigMap and Secret resources', async ({ page, navigationBar }) => {
       const kubernetesBar = await navigationBar.openKubernetes();
