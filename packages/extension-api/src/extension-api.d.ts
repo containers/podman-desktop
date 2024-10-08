@@ -795,6 +795,7 @@ declare module '@podman-desktop/api' {
     onEnd: Event<void>;
     write(data: string): void;
     startConnection(): void;
+    stopConnection(): void;
     setWindow(dimensions: ShellDimensions): void;
   }
 

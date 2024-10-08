@@ -1279,6 +1279,8 @@ export class ProviderRegistry {
       let shellAccess: ProviderConnectionShellAccess | undefined;
       if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status === 'started') {
         shellAccess = containerConnection.shellAccess;
+        // Removes listeners and deletes client if exist
+        shellAccess?.stopConnection();
         shellAccess?.onData(data => {
           onData(data.data);
         });
