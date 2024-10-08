@@ -68,6 +68,15 @@ export class PodmanMachineStream {
     }
   }
 
+  stopConnection(): void {
+    this.#connected = false;
+    this.#client?.end();
+    this.#client?.destroy();
+    this.onDataEmit.dispose();
+    this.onErrorEmit.dispose();
+    this.onEndEmit.dispose();
+  }
+
   startConnection(): void {
     // To avoid strating multiple SSH connections
     if (this.#connected) {
@@ -89,18 +98,19 @@ export class PodmanMachineStream {
 
           stream
             .on('close', () => {
-              this.#connected = false;
               this.onEndEmit.fire();
-              this.#client?.end();
-              this.#client?.destroy();
+              this.stopConnection();
+              return;
             })
             .on('data', (data: string) => {
+              console.error(data.toString());
               this.onDataEmit.fire({ data: data });
             });
         });
       })
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
+        return;
       })
       .connect({
         host: this.#host,

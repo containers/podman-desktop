@@ -65,6 +65,8 @@ providerInfos.subscribe(providers => {
       return terminals;
     });
   });
+  console.log('terminals: ', terminals);
+  console.log('toRemove: ', toRemove);
 });
 
 export function registerTerminal(terminal: TerminalOfProvider) {
@@ -74,6 +76,8 @@ export function registerTerminal(terminal: TerminalOfProvider) {
       term => !(terminal.connectionName === term.connectionName && term.connectionSocket === terminal.connectionSocket),
     );
     terminals.push(terminal);
+    console.log('terminal: ', terminal);
+    console.log('terminals: ', terminals);
     return terminals;
   });
 }
@@ -83,6 +87,13 @@ export function getExistingTerminal(
   connectionSocketPath: string,
 ): TerminalOfProvider | undefined {
   const terminals = get(providerTerminals);
+  console.log('terminals: ', terminals);
+  console.log(
+    'find: ',
+    terminals.find(
+      terminal => terminal.connectionName === connectionName && terminal.connectionSocket === connectionSocketPath,
+    ),
+  );
   return terminals.find(
     terminal => terminal.connectionName === connectionName && terminal.connectionSocket === connectionSocketPath,
   );

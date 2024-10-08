@@ -146,7 +146,7 @@ async function refreshTerminal() {
   shellTerminal.open(terminalXtermDiv);
 
   // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
+  window.addEventListener('setWindow', () => {
     if (currentRouterPath === `/providers/${provider.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
