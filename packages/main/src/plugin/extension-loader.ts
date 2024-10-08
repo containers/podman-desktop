@@ -1381,6 +1381,9 @@ export class ExtensionLoader {
     };
 
     const navigation: typeof containerDesktopAPI.navigation = {
+      navigateToDashboard: async (): Promise<void> => {
+        await this.navigationManager.navigateToDashboard();
+      },
       navigateToContainers: async (): Promise<void> => {
         await this.navigationManager.navigateToContainers();
       },

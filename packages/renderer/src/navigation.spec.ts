@@ -36,6 +36,12 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
+test(`Test navigationHandle for ${NavigationPage.DASHBOARD}`, () => {
+  handleNavigation({ page: NavigationPage.DASHBOARD });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/');
+});
+
 test(`Test navigationHandle for ${NavigationPage.CONTAINERS}`, () => {
   handleNavigation({ page: NavigationPage.CONTAINERS });
 
