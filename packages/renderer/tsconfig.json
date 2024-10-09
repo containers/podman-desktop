@@ -29,6 +29,7 @@
     "types/**/*.d.ts",
     "../../types/**/*.d.ts",
     "../preload/exposedInMainWorld.d.ts",
-    "../api/src/**/*.ts"
+    "../api/src/**/*.ts",
+    "./vite.tests.setup.js"
   ]
 }
