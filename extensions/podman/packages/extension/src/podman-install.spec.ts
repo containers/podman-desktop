@@ -1077,3 +1077,144 @@ describe('performUpdate', () => {
     expect(extensionApi.env.openExternal).toHaveBeenCalled();
   });
 });
+
+describe('MacOSInstaller', () => {
+  test('call installer if universal installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being true only for universal
+    vi.spyOn(fs, 'existsSync').mockImplementation(path => {
+      return path.toString().includes('universal');
+    });
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await promiseArg(progress, token);
+
+    await promiseResult;
+
+    // check we've called the execution of the universal installer
+    expect(vi.mocked(extensionApi.process.exec)).toBeCalledWith(
+      'open',
+      expect.arrayContaining([expect.stringContaining('podman-installer-macos-universal')]),
+    );
+  });
+
+  test('call specific arch installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being true only if not universal binary
+    vi.spyOn(fs, 'existsSync').mockImplementation(path => {
+      return !path.toString().includes('universal');
+    });
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await promiseArg(progress, token);
+
+    await promiseResult;
+
+    // check we've called the execution of the universal installer
+    const pkgArch = process.arch === 'arm64' ? 'aarch64' : 'amd64';
+    expect(vi.mocked(extensionApi.process.exec)).toBeCalledWith(
+      'open',
+      expect.arrayContaining([expect.stringContaining(`podman-installer-macos-${pkgArch}`)]),
+    );
+  });
+
+  test('check error if no installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being always false (we never find installers)
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await expect(promiseArg(progress, token)).rejects.toThrow(`Can't find Podman package`);
+    expect(promiseResult).toBeDefined();
+  });
+});
