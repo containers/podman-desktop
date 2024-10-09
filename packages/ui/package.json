@@ -153,7 +153,7 @@
     "svelte-eslint-parser": "^0.41.1",
     "tailwindcss": "^3.4.13",
     "tslib": "^2.7.0",
-    "typescript": "^5.6.2",
+    "typescript": "^5.6.3",
     "vite": "^5.4.8",
     "vitest": "^2.1.2"
   }
