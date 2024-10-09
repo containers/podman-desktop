@@ -52,7 +52,7 @@
     "tailwindcss": "^3.4.13",
     "typedoc": "^0.26.8",
     "typedoc-plugin-markdown": "^4.2.9",
-    "typescript": "^5.6.2",
+    "typescript": "^5.6.3",
     "vitest": "^2.1.2"
   },
   "browserslist": {
