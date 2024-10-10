@@ -39,23 +39,24 @@ const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
 
 async function resolveShortname(): Promise<void> {
-  if (selectedProviderConnection && selectedProviderConnection.type === 'podman') {
-    if (imageToPull && !imageToPull.includes('/')) {
-      shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
-      // not a shortname
-    } else {
-      podmanFQN = '';
-      shortnameImages = [];
-      usePodmanFQN = false;
-    }
-    // checks if there is no FQN that is from dokcer hub
-    if (!shortnameImages.find(name => name.includes('docker.io'))) {
-      podmanFQN = shortnameImages[0];
-    } else {
-      podmanFQN = '';
-      shortnameImages = [];
-      usePodmanFQN = false;
-    }
+  if (!selectedProviderConnection || selectedProviderConnection.type !== 'podman') {
+    return;
+  }
+  if (imageToPull && !imageToPull.includes('/')) {
+    shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
+    // not a shortname
+  } else {
+    podmanFQN = '';
+    shortnameImages = [];
+    usePodmanFQN = false;
+  }
+  // checks if there is no FQN that is from dokcer hub
+  if (!shortnameImages.find(name => name.includes('docker.io'))) {
+    podmanFQN = shortnameImages[0];
+  } else {
+    podmanFQN = '';
+    shortnameImages = [];
+    usePodmanFQN = false;
   }
 }
 
