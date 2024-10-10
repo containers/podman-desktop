@@ -16,4 +16,4 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-HTMLCanvasElement.prototype.getContext = () => {};
+import 'vitest-canvas-mock';
