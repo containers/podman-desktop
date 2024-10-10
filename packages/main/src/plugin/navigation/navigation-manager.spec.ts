@@ -110,6 +110,14 @@ test('check navigateToWebview', async () => {
   });
 });
 
+test('check navigateToDashboard', async () => {
+  await navigationManager.navigateToDashboard();
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.DASHBOARD,
+  });
+});
+
 test('check navigateToResources', async () => {
   await navigationManager.navigateToResources();
 

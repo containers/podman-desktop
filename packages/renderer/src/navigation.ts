@@ -36,6 +36,9 @@ export type NavigationHint = 'root' | 'details' | 'tab';
 
 export const handleNavigation = (request: InferredNavigationRequest<NavigationPage>) => {
   switch (request.page) {
+    case NavigationPage.DASHBOARD:
+      router.goto('/');
+      break;
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
