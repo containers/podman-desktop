@@ -452,17 +452,33 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   let releaseToUpdateTo: KindGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToUpdateTo: string | undefined;
 
-  kindCli.registerUpdate({
-    selectVersion: async () => {
+  let latestAsset: KindGithubReleaseArtifactMetadata | undefined;
+  try {
+    latestAsset = await installer.getLatestVersionAsset();
+  } catch (error: unknown) {
+    console.error('Error when downloading kind CLI latest release information.', error);
+  }
+
+  const latestVersion = latestAsset?.tag ? removeVersionPrefix(latestAsset.tag) : undefined;
+
+  const update = {
+    version: latestVersion !== kindCli.version ? latestVersion : undefined,
+    selectVersion: async (): Promise<string> => {
       const selected = await installer.promptUserForVersion(binaryVersion);
       releaseToUpdateTo = selected;
       releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
       return releaseVersionToUpdateTo;
     },
-    doUpdate: async _logger => {
+    doUpdate: async (): Promise<void> => {
       if (!binaryVersion || !binaryPath) {
         throw new Error(`Cannot update ${KIND_CLI_NAME}. No cli tool installed.`);
       }
+
+      if (!releaseToUpdateTo && latestAsset) {
+        releaseToUpdateTo = latestAsset;
+        releaseVersionToUpdateTo = latestVersion;
+      }
+
       if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
         throw new Error(`Cannot update ${binaryPath} version ${binaryVersion}. No release selected.`);
       }
@@ -478,12 +494,19 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       kindCli?.updateVersion({
         version: releaseVersionToUpdateTo,
         installationSource: 'extension',
+        path: installer.getKindCliStoragePath(),
       });
       binaryVersion = releaseVersionToUpdateTo;
-      releaseVersionToInstall = undefined;
-      releaseToInstall = undefined;
+      if (releaseVersionToUpdateTo === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
+      releaseVersionToUpdateTo = undefined;
+      releaseToUpdateTo = undefined;
     },
-  });
+  };
+  kindCli.registerUpdate(update);
 }
 
 async function deleteFile(filePath: string): Promise<void> {
