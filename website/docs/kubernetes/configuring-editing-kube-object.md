@@ -45,7 +45,9 @@ spec:
 #### Procedure: Creating an object
 
 1. In the Kubernetes explorer, click one of the options to open the respective object page.
+
    ![kube objects](img/kube-objects.png)
+
 2. Click the **Apply YAML** button and select an object configuration file. A confirmation notification opens.
    ![configuring a node](img/example-config-node.png)
 3. Click **Ok**.
