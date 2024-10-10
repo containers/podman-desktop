@@ -20,6 +20,7 @@ import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import CloseButton from './button/CloseButton.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
+import Dropdown from './dropdown/Dropdown.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
@@ -49,6 +50,7 @@ export {
   Checkbox,
   CloseButton,
   DetailsPage,
+  Dropdown,
   DropdownMenu,
   EmptyScreen,
   ErrorMessage,
