@@ -677,6 +677,9 @@ importers:
       vitest:
         specifier: ^2.1.2
         version: 2.1.2(@types/node@20.16.11)(jsdom@25.0.1)(terser@5.31.6)
+      vitest-canvas-mock:
+        specifier: ^0.3.3
+        version: 0.3.3(vitest@2.1.2(@types/node@20.16.11)(jsdom@25.0.1)(terser@5.31.6))
       yaml:
         specifier: ^2.5.1
         version: 2.5.1
@@ -5149,6 +5152,9 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
+  cssfontparser@1.2.1:
+    resolution: {integrity: sha512-6tun4LoZnj7VN6YeegOVb67KBX/7JJsqvj+pv3ZA7F878/eN33AbGa5b/S/wXxS/tcp8nc40xRUrsPlxIyNUPg==}
+
   cssnano-preset-advanced@6.1.2:
     resolution: {integrity: sha512-Nhao7eD8ph2DoHolEzQs5CfRpiEP0xa1HBdnFZ82kvqdmbwVBUr2r1QuQ4t1pi+D1ZpqpcO4T+wy/7RxzJ/WPQ==}
     engines: {node: ^14 || ^16 || >=18.0}
@@ -7361,6 +7367,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  jest-canvas-mock@2.5.2:
+    resolution: {integrity: sha512-vgnpPupjOL6+L5oJXzxTxFrlGEIbHdZqFU+LFNdtLxZ3lRDCl17FlTMM7IatoRQkrcyOTMlDinjUguqmQ6bR2A==}
+
   jest-util@29.7.0:
     resolution: {integrity: sha512-z6EbKajIpqGKU56y5KBUgy1dt1ihhQJgWzUlZHArA/+X2ad7Cb5iF+AK1EWVL/Bo7Rz9uurpqw6SiBCefUbCGA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -8246,6 +8255,9 @@ packages:
 
   monaco-editor@0.52.0:
     resolution: {integrity: sha512-OeWhNpABLCeTqubfqLMXGsqf6OmPU6pHM85kF3dhy6kq5hnhuVS1p3VrEW/XhWHc71P2tHyS5JFySD8mgs1crw==}
+
+  moo-color@1.0.3:
+    resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
 
   mri@1.1.4:
     resolution: {integrity: sha512-6y7IjGPm8AzlvoUrwAaw1tLnUBudaS3752vcd8JtrpGGQn+rXIe63LFVHm/YMwtqAuh+LJPCFdlLYPWM1nYn6w==}
@@ -10779,6 +10791,11 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
+
+  vitest-canvas-mock@0.3.3:
+    resolution: {integrity: sha512-3P968tYBpqYyzzOaVtqnmYjqbe13576/fkjbDEJSfQAkHtC5/UjuRHOhFEN/ZV5HVZIkaROBUWgazDKJ+Ibw+Q==}
+    peerDependencies:
+      vitest: '*'
 
   vitest@2.1.2:
     resolution: {integrity: sha512-veNjLizOMkRrJ6xxb+pvxN6/QAWg95mzcRjtmkepXdN87FNfxAss9RKe2far/G9cQpipfgP2taqg0KiWsquj8A==}
@@ -16603,6 +16620,8 @@ snapshots:
 
   cssesc@3.0.0: {}
 
+  cssfontparser@1.2.1: {}
+
   cssnano-preset-advanced@6.1.2(postcss@8.4.47):
     dependencies:
       autoprefixer: 10.4.20(postcss@8.4.47)
@@ -19369,6 +19388,11 @@ snapshots:
       filelist: 1.0.4
       minimatch: 3.1.2
 
+  jest-canvas-mock@2.5.2:
+    dependencies:
+      cssfontparser: 1.2.1
+      moo-color: 1.0.3
+
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
@@ -20654,6 +20678,10 @@ snapshots:
   moment@2.30.1: {}
 
   monaco-editor@0.52.0: {}
+
+  moo-color@1.0.3:
+    dependencies:
+      color-name: 1.1.4
 
   mri@1.1.4: {}
 
@@ -23498,6 +23526,11 @@ snapshots:
   vitefu@1.0.2(vite@5.4.8(@types/node@20.16.11)(terser@5.31.6)):
     optionalDependencies:
       vite: 5.4.8(@types/node@20.16.11)(terser@5.31.6)
+
+  vitest-canvas-mock@0.3.3(vitest@2.1.2(@types/node@20.16.11)(jsdom@25.0.1)(terser@5.31.6)):
+    dependencies:
+      jest-canvas-mock: 2.5.2
+      vitest: 2.1.2(@types/node@20.16.11)(jsdom@25.0.1)(terser@5.31.6)
 
   vitest@2.1.2(@types/node@20.16.11)(jsdom@25.0.1)(terser@5.31.6):
     dependencies:

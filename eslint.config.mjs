@@ -61,6 +61,7 @@ export default [
       '**/exposedIn*.d.ts',
       '*.config.*js',
       '**/*.config.*js',
+      '**/*.tests.setup.*js',
       '**/dist/**/*',
       '**/test-resources',
       '**/__mocks__/',

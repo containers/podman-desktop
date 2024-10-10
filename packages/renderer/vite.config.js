@@ -52,6 +52,7 @@ export default defineConfig({
       inline: ['moment'],
     },
     ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+    setupFiles: ['./vite.tests.setup.js'],
   },
   base: '',
   server: {
