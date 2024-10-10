@@ -224,7 +224,7 @@ export class Updater {
         title: 'Update Available now',
         message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${this.#currentVersion}?`,
         buttons: buttons,
-        cancelId: 1,
+        cancelId: 2,
       });
       if (result.response === 3) {
         this.updateConfigurationValue('never');

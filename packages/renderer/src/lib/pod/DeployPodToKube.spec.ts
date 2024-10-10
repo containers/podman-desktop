@@ -29,6 +29,8 @@ import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
+
 import DeployPodToKube from './DeployPodToKube.svelte';
 
 const generatePodmanKubeMock = vi.fn();
@@ -560,4 +562,38 @@ test('Should display Open pod button after successful deployment', async () => {
 
   await fireEvent.click(openPodButton);
   expect(router.goto).toHaveBeenCalledWith(`/pods/kubernetes/foobar%2Fapi-fake-cluster.com%3A6443/default/logs`);
+});
+
+test('Done button should go back to previous page', async () => {
+  await waitFor(() => kubernetesGetCurrentContextNameMock.mockResolvedValue('default'));
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  await waitFor(() =>
+    kubernetesCreatePodMock.mockResolvedValue({
+      metadata: { name: 'foobar/api-fake-cluster.com:6443', namespace: 'default' },
+    }),
+  );
+  await waitFor(() =>
+    kubernetesReadNamespacedPodMock.mockResolvedValue({
+      metadata: { name: 'foobar/api-fake-cluster.com:6443' },
+      status: {
+        phase: 'Running',
+      },
+    }),
+  );
+
+  vi.useFakeTimers();
+  await fireEvent.click(createButton);
+  await vi.runAllTimersAsync();
+
+  const doneButton = screen.getByRole('button', { name: 'Done' });
+  expect(doneButton).toBeInTheDocument();
+  expect(doneButton).toBeEnabled();
+
+  lastPage.set({ name: 'perious page', path: '/last' });
+  await fireEvent.click(doneButton);
+  expect(router.goto).toHaveBeenCalledWith(`/last`);
 });

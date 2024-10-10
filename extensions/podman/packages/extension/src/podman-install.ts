@@ -512,24 +512,37 @@ class MacOSInstaller extends BaseInstaller {
         getAssetsFolder(),
         `podman-installer-macos-${pkgArch}-v${getBundledPodmanVersion()}.pkg`,
       );
+      const existsPkg = fs.existsSync(pkgPath);
+
+      const pkgUniversalPath = path.resolve(
+        getAssetsFolder(),
+        `podman-installer-macos-universal-v${getBundledPodmanVersion()}.pkg`,
+      );
+      const existsUniversalPkg = fs.existsSync(pkgUniversalPath);
+
+      let pkgToInstall;
+      if (existsPkg) {
+        pkgToInstall = pkgPath;
+      } else if (existsUniversalPkg) {
+        pkgToInstall = pkgUniversalPath;
+      } else {
+        throw new Error(`Can't find Podman package! Path: ${pkgPath} or ${pkgUniversalPath} doesn't exists.`);
+      }
+
       try {
-        if (fs.existsSync(pkgPath)) {
-          try {
-            await extensionApi.process.exec('open', [pkgPath, '-W']);
-          } catch (err) {
-            throw new Error((err as extensionApi.RunError).stderr);
-          }
-          progress.report({ increment: 80 });
-          // we cannot rely on exit code, as installer could be closed and it return '0' exit code
-          // so just check that podman bin file exist.
-          if (fs.existsSync('/opt/podman/bin/podman')) {
-            extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
-            return true;
-          } else {
-            return false;
-          }
+        try {
+          await extensionApi.process.exec('open', [pkgToInstall, '-W']);
+        } catch (err) {
+          throw new Error((err as extensionApi.RunError).stderr);
+        }
+        progress.report({ increment: 80 });
+        // we cannot rely on exit code, as installer could be closed and it return '0' exit code
+        // so just check that podman bin file exist.
+        if (fs.existsSync('/opt/podman/bin/podman')) {
+          extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
+          return true;
         } else {
-          throw new Error(`Can't find Podman package! Path: ${pkgPath} doesn't exists.`);
+          return false;
         }
       } catch (err) {
         console.error('Error during install!');

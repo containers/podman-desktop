@@ -1315,6 +1315,17 @@ export class KubernetesClient {
           //
           // See: https://github.com/kubernetes/kubernetes/issues/97423
           if (action === 'apply') {
+            // When patching a resource, we do not need certain metadata fields to be present such as resourceVersion, uid, selfLink, and creationTimestamp
+            // these cause conflicts when patching a resource since client.patch will serialize these fields and the server will reject the request
+            // this change is due to changes on how client.patch / client.create works with the latest serialization changes in:
+            // https://github.com/kubernetes-client/javascript/pull/1695 with regards to date.
+            // we also remove resourceVersion so we may apply multiple edits to the same resource without having to entirely retrieve and reload the YAML
+            // from the server before applying.
+            delete spec.metadata?.resourceVersion;
+            delete spec.metadata?.uid;
+            delete spec.metadata?.selfLink;
+            delete spec.metadata?.creationTimestamp;
+
             const response = await client.patch(
               spec,
               undefined /* pretty */,

@@ -7,6 +7,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import { lastPage } from '/@/stores/breadcrumb';
 import type { V1Route } from '/@api/openshift-types';
 
 import MonacoEditor from '../editor/MonacoEditor.svelte';
@@ -134,7 +135,7 @@ onDestroy(() => {
 });
 
 function goBackToHistory(): void {
-  window.history.go(-1);
+  router.goto($lastPage.path);
 }
 
 function openPodDetails(): void {
