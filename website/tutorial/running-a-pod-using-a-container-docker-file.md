@@ -110,8 +110,8 @@ CMD ["node", "app.js"]
 8. Check the **Container Details** page for information, such as summary, logs, YAML code, and to access the terminal.
    ![container details page](img/container-details-page.png)
 
-9. Click the close icon on the right hand side of the page.
-10. View the newly created container on the **Containers** page
+9. Click the **close** icon on the right hand side of the page.
+10. View the newly created container on the **Containers** page.
 
 ## Creating and running a pod
 
