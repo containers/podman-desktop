@@ -20,9 +20,9 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import * as toml from '@ltd/j-toml';
 import type { ProxySettings } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
+import * as toml from 'smol-toml';
 
 import { isLinux, isMac, isWindows } from './util';
 
@@ -134,22 +134,22 @@ export class PodmanConfiguration {
   async updateRosettaSetting(useRosetta: boolean): Promise<void> {
     // Initalize an empty configuration file for us to use
     const containersConfContent = {
-      containers: toml.Section({}),
-      engine: toml.Section({
+      containers: {},
+      engine: {
         env: [] as string[],
-      }),
-      machine: toml.Section({}),
-      network: toml.Section({}),
-      secrets: toml.Section({}),
-      configmaps: toml.Section({}),
+      },
+      machine: {},
+      network: {},
+      secrets: {},
+      configmaps: {},
     };
 
     // If the file does NOT exist and useRosetta is being set as false, we will have to create the file and write rosetta = false
     if (!useRosetta && !fs.existsSync(this.getContainersFileLocation())) {
-      containersConfContent['machine'] = toml.Section({
+      containersConfContent['machine'] = {
         rosetta: false as boolean,
-      });
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      };
+      const content = toml.stringify(containersConfContent);
       await fs.promises.writeFile(this.getContainersFileLocation(), content);
     } else if (fs.existsSync(this.getContainersFileLocation())) {
       // Read the file
@@ -179,14 +179,14 @@ export class PodmanConfiguration {
         delete containersConfContent['machine']['rosetta'];
       } else if (!useRosetta && containersConfContent['machine']) {
         // If rosetta key does not exist, we need to add it
-        containersConfContent['machine'] = toml.Section({
+        containersConfContent['machine'] = {
           ...containersConfContent['machine'], // MAKE SURE we copy over the previous configuration
           rosetta: false as boolean,
-        });
+        };
       }
 
       // Write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      const content = toml.stringify(containersConfContent);
       await fs.promises.writeFile(this.getContainersFileLocation(), content);
     }
   }
@@ -194,14 +194,14 @@ export class PodmanConfiguration {
   async updateProxySettings(proxySettings: ProxySettings | undefined): Promise<void> {
     // create empty config file
     const containersConfContent = {
-      containers: toml.Section({}),
-      engine: toml.Section({
+      containers: {},
+      engine: {
         env: [] as string[],
-      }),
-      machine: toml.Section({}),
-      network: toml.Section({}),
-      secrets: toml.Section({}),
-      configmaps: toml.Section({}),
+      },
+      machine: {},
+      network: {},
+      secrets: {},
+      configmaps: {},
     };
 
     if (!fs.existsSync(this.getContainersFileLocation())) {
@@ -216,7 +216,7 @@ export class PodmanConfiguration {
       }
 
       // write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      const content = toml.stringify(containersConfContent);
       await fs.promises.writeFile(this.getContainersFileLocation(), content);
     } else {
       // read the content of the file
@@ -299,7 +299,7 @@ export class PodmanConfiguration {
 
       containersConfContent['engine'].env = engineEnv;
       // write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      const content = toml.stringify(containersConfContent);
       await fs.promises.writeFile(this.getContainersFileLocation(), content);
     }
   }
