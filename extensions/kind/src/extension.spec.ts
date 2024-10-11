@@ -383,6 +383,7 @@ test('update updatable version should update version', async () => {
   expect(installBinaryToSystemMock).toHaveBeenCalledWith('storage-path', 'kind');
   expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
     installationSource: 'extension',
+    path: 'storage-path',
     version: '1.0.0',
   });
 });
