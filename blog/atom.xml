@@ -2,12 +2,123 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://podman-desktop.io/blog</id>
     <title>Podman Desktop Blog</title>
-    <updated>2024-08-08T00:00:00.000Z</updated>
+    <updated>2024-10-07T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://podman-desktop.io/blog"/>
     <subtitle>Podman Desktop Blog</subtitle>
     <icon>https://podman-desktop.io/img/favicon.ico</icon>
     <rights>Copyright © 2024 Podman Desktop</rights>
+    <entry>
+        <title type="html"><![CDATA[Podman Desktop 1.13 Release]]></title>
+        <id>https://podman-desktop.io/blog/podman-desktop-release-1.13</id>
+        <link href="https://podman-desktop.io/blog/podman-desktop-release-1.13"/>
+        <updated>2024-10-07T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Podman Desktop 1.13 has been released!]]></summary>
+        <content type="html"><![CDATA[<p>Podman Desktop 1.13 Release! 🎉</p>
+<p><img decoding="async" loading="lazy" alt="podman-desktop-hero-1.13" src="https://podman-desktop.io/assets/images/banner-6aa0dbeecbf574fe8e500857a663542b.png" width="1196" height="825" class="img_SS3x"></p>
+<p>Podman Desktop 1.13 is now available. <a href="https://podman-desktop.io/downloads">Click here to download it</a>!</p>
+<p>This release includes:</p>
+<ul>
+<li><strong>Hyper-V support</strong>: You can now create and manage Hyper-V Podman machines directly from Podman Desktop.</li>
+<li><strong>Search image feature</strong>: Search for an image from Podman Desktop.</li>
+<li><strong>Updated empty state pages</strong>: Start your journey in the containers, images, pods, and Kubernetes pages with a click of a button</li>
+<li><strong>New Kubernetes navigation</strong>: All Kubernetes related pages have been moved to a separate sub menu for easier and less crowded navigation.</li>
+<li><strong>Image Layer explorer extension</strong>: With this new extension, you can explore the various layers of images.</li>
+<li><strong>Experimental Docker compatibility mode page</strong>: You can now try out our experimental Docker compatibility mode page.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="release-details">Release Details<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#release-details" class="hash-link" aria-label="Direct link to Release Details" title="Direct link to Release Details">​</a></h2>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="hyper-v-support">Hyper-V support<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#hyper-v-support" class="hash-link" aria-label="Direct link to Hyper-V support" title="Direct link to Hyper-V support">​</a></h3>
+<p>Podman Desktop is now supporting the creation and modification of Hyper-V based Podman machines on Windows directly from the app.
+When creating a Podman machine in Windows, if both Hyper-V and WSL are enabled, you can choose either one of them as the provider from the dropdown menu.</p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="search-image-feature">Search image feature<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#search-image-feature" class="hash-link" aria-label="Direct link to Search image feature" title="Direct link to Search image feature">​</a></h3>
+<p>As you type, a list of likely images is now shown to help you find the right one and reduce typing. If you would like to search for a specific tag, just add : to the name.</p>
+<p><img decoding="async" loading="lazy" alt="search image" src="https://podman-desktop.io/assets/images/search_image-381c8623c02b590d6cf55616a217c72c.png" width="984" height="624" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="updated-empty-state-pages">Updated empty state pages<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#updated-empty-state-pages" class="hash-link" aria-label="Direct link to Updated empty state pages" title="Direct link to Updated empty state pages">​</a></h3>
+<p>We have updated the empty state pages for images, containers, pods, and Kubernetes. You can now pull your first image, create your first container or pod, all with only one click.</p>
+<p><img decoding="async" loading="lazy" alt="images empty page" src="https://podman-desktop.io/assets/images/images_empty_page-390a1c3da42242887e82c42e42b54060.png" width="984" height="624" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="new-kubernetes-navigation">New Kubernetes navigation<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#new-kubernetes-navigation" class="hash-link" aria-label="Direct link to New Kubernetes navigation" title="Direct link to New Kubernetes navigation">​</a></h3>
+<p>As we grew our Kubernetes section and added new Kubernetes related pages, the navigation was becoming a bit crowded. For a better user experience, this release includes a new Kubernetes submenu with all the relevant pages in it.</p>
+<p><img decoding="async" loading="lazy" alt="Kubernetes menu" src="https://podman-desktop.io/assets/images/kubernetes_menu-24ed50e6fd8ddf48919520143f093438.png" width="984" height="624" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="image-layer-explorer-extension">Image layer explorer extension<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#image-layer-explorer-extension" class="hash-link" aria-label="Direct link to Image layer explorer extension" title="Direct link to Image layer explorer extension">​</a></h3>
+<p>You can now see each layer of any image you have in Podman Desktop using the <code>Image Layers Explorer</code> extension from the extensions catalog. After downloading the extension, choose any image from the available image list, go to the <code>Files</code> tab in the <code>Image Details</code> page, click on <code>Fetch Layers</code>, and start exploring.</p>
+<p><img decoding="async" loading="lazy" alt="Layer explorer" src="https://podman-desktop.io/assets/images/layer_explorer-a2a7ed3ef117bc8679855045e31416cd.png" width="984" height="624" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="docker-compatibility-mode-page">Docker compatibility mode page<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#docker-compatibility-mode-page" class="hash-link" aria-label="Direct link to Docker compatibility mode page" title="Direct link to Docker compatibility mode page">​</a></h3>
+<p>Try out our new experimental Docker compatibility page where you can view information about the Docker compatibility mode.
+Go to Settings -&gt; Preferences, and enable the option in the <code>Experimental (Docker Compatibility)</code> section. You'll then see the Docker compatibility page show up in the Settings menu.</p>
+<p><img decoding="async" loading="lazy" alt="Docker compatibility page" src="https://podman-desktop.io/assets/images/docker_comp_page-65f23988fc94abc069ebbb773414eacb.png" width="984" height="624" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="additional-changes">Additional changes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#additional-changes" class="hash-link" aria-label="Direct link to Additional changes" title="Direct link to Additional changes">​</a></h3>
+<ul>
+<li>You can now control the zoom level of Podman Desktop in the Preferences page</li>
+<li>When reopening Podman Desktop, the window will open in the same position it was closed</li>
+<li>You can now see a summary of the release notes on the top of the Dashboard page</li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="other-notable-enhancements">Other Notable Enhancements<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#other-notable-enhancements" class="hash-link" aria-label="Direct link to Other Notable Enhancements" title="Direct link to Other Notable Enhancements">​</a></h2>
+<ul>
+<li>chore: light mode for welcome page by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8401" target="_blank" rel="noopener noreferrer">#8401</a></li>
+<li>chore: light icon support by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8359" target="_blank" rel="noopener noreferrer">#8359</a></li>
+<li>chore: light mode for deploy pod to kube status by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8395" target="_blank" rel="noopener noreferrer">#8395</a></li>
+<li>chore: update the list of guides to include ai lab by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/8422" target="_blank" rel="noopener noreferrer">#8422</a></li>
+<li>chore: allow windows titlebar icons change color dynamicaly by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/8677" target="_blank" rel="noopener noreferrer">#8677</a></li>
+<li>chore: publish prereleases to another repository by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8732" target="_blank" rel="noopener noreferrer">#8732</a></li>
+<li>chore: generate summary of release notes with JSON format to the website by @SoniaSandler in <a href="https://github.com/containers/podman-desktop/pull/8790" target="_blank" rel="noopener noreferrer">#8790</a></li>
+<li>chore: add release notes to dashboard page - renderer by @SoniaSandler in <a href="https://github.com/containers/podman-desktop/pull/9190" target="_blank" rel="noopener noreferrer">#9190</a></li>
+<li>feat: allow to upgrade/downgrade cli tool by @lstocchi in <a href="https://github.com/containers/podman-desktop/pull/8513" target="_blank" rel="noopener noreferrer">#8513</a></li>
+<li>feat: remember window position and size of Podman Desktop window by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8511" target="_blank" rel="noopener noreferrer">#8511</a></li>
+<li>feat: support cli tool installer by @lstocchi in <a href="https://github.com/containers/podman-desktop/pull/8534" target="_blank" rel="noopener noreferrer">#8534</a></li>
+<li>feat: adding open release note to update confirmation dialog by @axel7083 in <a href="https://github.com/containers/podman-desktop/pull/8585" target="_blank" rel="noopener noreferrer">#8585</a></li>
+<li>feat(configuration): allow to define the value of step for Input widget by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8700" target="_blank" rel="noopener noreferrer">#8700</a></li>
+<li>feat: allow to set a zoom level by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8747" target="_blank" rel="noopener noreferrer">#8747</a></li>
+<li>feat: add preflights check for HyperV by @jeffmaury in <a href="https://github.com/containers/podman-desktop/pull/8821" target="_blank" rel="noopener noreferrer">#8821</a></li>
+<li>feat(renderer): enhance feedback form with github star link by @axel7083 in <a href="https://github.com/containers/podman-desktop/pull/8800" target="_blank" rel="noopener noreferrer">#8800</a></li>
+<li>feat: add Preference to ask before fetching image layers by @feloy in <a href="https://github.com/containers/podman-desktop/pull/9146" target="_blank" rel="noopener noreferrer">#9146</a></li>
+<li>feat: bring docker compatibility page if flag is enabled by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/9183" target="_blank" rel="noopener noreferrer">#9183</a></li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="notable-bug-fixes">Notable Bug Fixes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#notable-bug-fixes" class="hash-link" aria-label="Direct link to Notable Bug Fixes" title="Direct link to Notable Bug Fixes">​</a></h2>
+<ul>
+<li>fix: support light theme for auth provider in 'Logged In' state by @dgolovin in <a href="https://github.com/containers/podman-desktop/pull/8380" target="_blank" rel="noopener noreferrer">#8380</a></li>
+<li>fix: update webview urls on change by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8456" target="_blank" rel="noopener noreferrer">#8456</a></li>
+<li>fix: storybook svelte 5 by @axel7083 in <a href="https://github.com/containers/podman-desktop/pull/8495" target="_blank" rel="noopener noreferrer">#8495</a></li>
+<li>fix: duplicated_indeterminate_progress_bar by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/8238" target="_blank" rel="noopener noreferrer">#8238</a></li>
+<li>fix: select first element of quickpick by @feloy in <a href="https://github.com/containers/podman-desktop/pull/8591" target="_blank" rel="noopener noreferrer">#8591</a></li>
+<li>fix(Tasks): task lifecycle managed in main by @axel7083 in <a href="https://github.com/containers/podman-desktop/pull/8144" target="_blank" rel="noopener noreferrer">#8144</a></li>
+<li>fix: zoom level resets on window change after navigation by @dgolovin in <a href="https://github.com/containers/podman-desktop/pull/8489" target="_blank" rel="noopener noreferrer">#8489</a></li>
+<li>fix: rename untagged image by @axel7083 in <a href="https://github.com/containers/podman-desktop/pull/8614" target="_blank" rel="noopener noreferrer">#8614</a></li>
+<li>fix: number widget should accept float value for number type by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8685" target="_blank" rel="noopener noreferrer">#8685</a></li>
+<li>fix: Fixed width of widget for inc/dec numbers by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/8741" target="_blank" rel="noopener noreferrer">#8741</a></li>
+<li>fix: input boxes are still using dark theme when PD is in light mode by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/8549" target="_blank" rel="noopener noreferrer">#8549</a></li>
+<li>fix: update native theme directly on config change by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8485" target="_blank" rel="noopener noreferrer">#8485</a></li>
+<li>fix: floating precision when adding numbers by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8793" target="_blank" rel="noopener noreferrer">#8793</a></li>
+<li>fix: track external changes when displaying configuration values by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8795" target="_blank" rel="noopener noreferrer">#8795</a></li>
+<li>fix: configure certificates for secure proxy by @jeffmaury in <a href="https://github.com/containers/podman-desktop/pull/8704" target="_blank" rel="noopener noreferrer">#8704</a></li>
+<li>fix: make terminal work after stopping and starting a container by @SoniaSandler in <a href="https://github.com/containers/podman-desktop/pull/8657" target="_blank" rel="noopener noreferrer">#8657</a></li>
+<li>fix: use docker.io registry credentials for index.docker.io images by @feloy in <a href="https://github.com/containers/podman-desktop/pull/8892" target="_blank" rel="noopener noreferrer">#8892</a></li>
+<li>fix: apply light theme on preflight checks box by @benoitf in <a href="https://github.com/containers/podman-desktop/pull/8991" target="_blank" rel="noopener noreferrer">#8991</a></li>
+<li>fix: reflecting light and dark theme by AuditMessageBox by @gastoner in <a href="https://github.com/containers/podman-desktop/pull/9040" target="_blank" rel="noopener noreferrer">#9040</a></li>
+<li>fix: update input colors by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/9094" target="_blank" rel="noopener noreferrer">#9094</a></li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="community-thank-you">Community Thank You<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#community-thank-you" class="hash-link" aria-label="Direct link to Community Thank You" title="Direct link to Community Thank You">​</a></h2>
+<p>🎉 We’d like to say a big thank you to everyone who helped to make 🦭 Podman Desktop even better. In this
+release we received pull requests from the following new people:</p>
+<ul>
+<li><a href="https://github.com/jingyuwa" target="_blank" rel="noopener noreferrer">jingyuwa</a> in <a href="https://github.com/containers/podman-desktop/pull/8455" target="_blank" rel="noopener noreferrer">#8455 - doc: add section for using podman-desktop with Hyper-V</a></li>
+<li><a href="https://github.com/AshvG" target="_blank" rel="noopener noreferrer">AshvG</a> in <a href="https://github.com/containers/podman-desktop/pull/9131" target="_blank" rel="noopener noreferrer">#9131 - docs: fix two typos on windows-install documentation</a></li>
+<li><a href="https://github.com/eddumelendez" target="_blank" rel="noopener noreferrer">eddumelendez</a> in <a href="https://github.com/containers/podman-desktop/pull/9193" target="_blank" rel="noopener noreferrer">#9193 - fix: Testcontainers name</a></li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="final-notes">Final notes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.13#final-notes" class="hash-link" aria-label="Direct link to Final notes" title="Direct link to Final notes">​</a></h2>
+<p>The complete list of issues fixed in this release is available <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A1.13.0" target="_blank" rel="noopener noreferrer">here</a>.</p>
+<p>Get the latest release from the <a href="https://podman-desktop.io/downloads">Downloads</a> section of the website and boost your development journey with Podman Desktop. Additionally, visit the <a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer">GitHub repository</a> and see how you can help us make Podman Desktop better.</p>]]></content>
+        <author>
+            <name>Sonia Sandler</name>
+            <uri>https://github.com/SoniaSandler</uri>
+        </author>
+        <category label="podman-desktop" term="podman-desktop"/>
+        <category label="release" term="release"/>
+        <category label="podman" term="podman"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Podman Desktop 1.12 Release]]></title>
         <id>https://podman-desktop.io/blog/podman-desktop-release-1.12</id>
@@ -2663,282 +2774,6 @@ We can now embed links and other formatting in preferences, and extensions can u
         </author>
         <category label="podman-desktop" term="podman-desktop"/>
         <category label="release" term="release"/>
-        <category label="kubernetes" term="kubernetes"/>
-        <category label="kind" term="kind"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Setting up and running a Kubernetes cluster locally with Podman Desktop]]></title>
-        <id>https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop</id>
-        <link href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop"/>
-        <updated>2023-04-19T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Setting up and running a Kubernetes cluster locally with Podman Desktop]]></summary>
-        <content type="html"><![CDATA[<p>In this blog post you will learn to use Podman Desktop to run the <a href="https://kubernetes.io/docs/tutorials/stateless-application/guestbook/" target="_blank" rel="noopener noreferrer">Kubernetes documentation example: Deploying PHP Guestbook application with Redis</a>.</p>
-<p>On the agenda:</p>
-<ol>
-<li>Installing Podman Desktop.</li>
-<li>Installing and initializing your container engine: Podman.</li>
-<li>Installing and starting your local Kubernetes provider: Kind.</li>
-<li>Starting the Redis leader.</li>
-<li>Starting and scaling the Redis followers.</li>
-<li>Starting and exposing the Guestbook frontend.</li>
-</ol>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="installing-podman-desktop">Installing Podman Desktop<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#installing-podman-desktop" class="hash-link" aria-label="Direct link to Installing Podman Desktop" title="Direct link to Installing Podman Desktop">​</a></h2>
-<p>You need Podman Desktop.</p>
-<ol>
-<li>Go to <a href="https://podman-desktop.io/docs/installation">Podman Desktop installation documentation</a>.</li>
-<li>Click on your platform name: <a href="https://podman-desktop.io/docs/installation/windows-install">Windows</a>, <a href="https://podman-desktop.io/docs/installation/macos-install">macOS</a>, or <a href="https://podman-desktop.io/docs/installation/linux-install">Linux</a>.</li>
-<li>Follow the instructions. Stick to the default installation method.</li>
-<li>Start <strong>Podman Desktop</strong>.</li>
-</ol>
-<p>At this point, you have a graphical user interface to:</p>
-<ul>
-<li>Install Podman and Kind.</li>
-<li>Control and work with your container engines and Kubernetes clusters.</li>
-<li>Run your application on your container engine and migrate it to Kubernetes.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="installing-and-initializing-your-container-engine-podman">Installing and initializing your container engine: Podman<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#installing-and-initializing-your-container-engine-podman" class="hash-link" aria-label="Direct link to Installing and initializing your container engine: Podman" title="Direct link to Installing and initializing your container engine: Podman">​</a></h2>
-<p>Podman Desktop can control various container engines, such as:</p>
-<ul>
-<li>Docker</li>
-<li>Lima</li>
-<li>Podman</li>
-</ul>
-<p>Consider installing the Podman container engine for:</p>
-<ul>
-<li>Added security</li>
-<li>No daemon</li>
-<li>Open source</li>
-</ul>
-<p>Containers are a Linux technology.</p>
-<ul>
-<li>On Linux, you can install Podman natively.
-See: <a href="https://podman.io/docs/installation#installing-on-linux" target="_blank" rel="noopener noreferrer">Installing Podman on Linux</a>.</li>
-<li>On macOS and Windows, Podman requires to run in a Linux virtual machine: the Podman machine.
-Use Podman Desktop to install Podman and initialize your Podman machine:</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure">Procedure<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#procedure" class="hash-link" aria-label="Direct link to Procedure" title="Direct link to Procedure">​</a></h4>
-<ol>
-<li>Open Podman Desktop <strong>Dashboard</strong></li>
-<li>The <strong>Dashboard</strong> displays <em>Podman Desktop was not able to find an installation of Podman</em>.</li>
-<li>Click on <strong>Install</strong>.</li>
-<li>Podman Desktop checks the prerequisites to install Podman Engine. When necessary, follow the instructions to install prerequisites.</li>
-<li>Podman displays the dialog: <em>Podman is not installed on this system, would you like to install Podman?</em>. Click on <strong>Yes</strong> to install Podman.</li>
-<li>Click on <strong>Initialize and start</strong>.</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification">Verification<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#verification" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
-<ul>
-<li>
-<p>The <strong>Dashboard</strong> displays <em>Podman is running</em>.</p>
-<p><img decoding="async" loading="lazy" alt="Podman is running" src="https://podman-desktop.io/assets/images/podman-is-running-745db8684c4d0240922a5aeb63e517d3.png" width="611" height="219" class="img_SS3x"></p>
-</li>
-</ul>
-<p>At this point, you can start working with containers.</p>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="installing-and-starting-your-local-kubernetes-provider-kind">Installing and starting your local Kubernetes provider: Kind<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#installing-and-starting-your-local-kubernetes-provider-kind" class="hash-link" aria-label="Direct link to Installing and starting your local Kubernetes provider: Kind" title="Direct link to Installing and starting your local Kubernetes provider: Kind">​</a></h2>
-<p>You want to deploy your application to a local Kubernetes cluster.</p>
-<p>Podman Desktop can help you run Kind-powered local Kubernetes clusters on a container engine, such as Podman.</p>
-<p>Podman Desktop helps you <a href="https://podman-desktop.io/docs/kind/installing">installing the <code>kind</code> CLI</a>:</p>
-<ol>
-<li>
-<p>In the status bar, click on <strong>Kind</strong>, and follow the prompts.</p>
-</li>
-<li>
-<p>When the <code>kind</code> CLI is available, the status bar does not display <strong>Kind</strong>.</p>
-</li>
-<li>
-<p>On Windows, <a href="https://podman-desktop.io/docs/kind/configuring-podman-for-kind-on-windows">configure Podman in rootful mode</a></p>
-<div class="language-shell-session codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-shell-session codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token command shell-symbol important">$</span><span class="token command"> </span><span class="token command bash language-bash">podman system connection default podman-machine-default-root</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
-</li>
-<li>
-<p>Go to <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Resources</strong></p>
-</li>
-<li>
-<p>In the <strong><img src="https://podman-desktop.io/img/podman-icon.png" alt="Podman icon" style="height:1.5em;display:inline"> Podman</strong> tile, click on the <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="repeat" class="svg-inline--fa fa-repeat fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96l160 0 0 32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32l0 32L160 64C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96l-160 0 0-32c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6l0-32 160 0c88.4 0 160-71.6 160-160z"></path></svg></strong> icon to restart the Podman container engine.</p>
-</li>
-<li>
-<p>In the <strong><img src="https://podman-desktop.io/img/kind-icon.png" alt="Kind icon" style="height:1.5em;display:inline"> Kind</strong> tile, click on the <strong>Create new</strong> button.</p>
-<ol>
-<li><strong>Name</strong>: enter <code>kind-cluster</code>.</li>
-<li><strong>Provider Type</strong>: select <code>podman</code>.</li>
-<li><strong>HTTP Port</strong>: select <code>9090</code>.</li>
-<li><strong>HTTPS Port</strong>: select <code>9443</code>.</li>
-<li><strong>Setup an ingress controller</strong>: <code>Enabled</code></li>
-<li>Click the <strong>Create</strong> button.
-<img decoding="async" loading="lazy" alt="Create a Kind cluster screen" src="https://podman-desktop.io/assets/images/create-a-kind-cluster-341ca1312e2e05d63d82a93726825a05.png" width="793" height="711" class="img_SS3x"></li>
-</ol>
-</li>
-<li>
-<p>After successful creation, click on the <strong>Go back to resources</strong> button</p>
-</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification-1">Verification<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#verification-1" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
-<ol>
-<li>
-<p>In <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Resources</strong> your Kind cluster is running/</p>
-<p><img decoding="async" loading="lazy" alt="Kind cluster is running" src="https://podman-desktop.io/assets/images/kind-cluster-is-running-e721d473aa52100d8179cbb3d06e0ef9.png" width="452" height="189" class="img_SS3x"></p>
-</li>
-<li>
-<p>In the <strong>Podman Desktop</strong> tray, open the <strong>Kubernetes</strong> menu: you can set the context to your Kind cluster: <code>kind-kind-cluster</code>.</p>
-<p><img decoding="async" loading="lazy" alt="Kind cluster Kubernetes context in the tray" src="https://podman-desktop.io/assets/images/kind-cluster-context-in-the-tray-5bb9338bb1437bbcf79bf50dd401400e.png" width="273" height="309" class="img_SS3x"></p>
-<p>At this point, you can start working with containers, and your local Kubernetes cluster.</p>
-</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="additional-resources">Additional resources<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#additional-resources" class="hash-link" aria-label="Direct link to Additional resources" title="Direct link to Additional resources">​</a></h4>
-<ul>
-<li><a href="https://podman-desktop.io/docs/kind/creating-a-kind-cluster">Creating a local Kind-powered Kubernetes cluster</a></li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="starting-the-redis-leader">Starting the Redis leader<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#starting-the-redis-leader" class="hash-link" aria-label="Direct link to Starting the Redis leader" title="Direct link to Starting the Redis leader">​</a></h2>
-<p>The Guestbook application uses Redis to store its data.</p>
-<p>With Podman Desktop, you can prepare the Redis leader image and container on your local container engine, and deploy the results to a Kubernetes pod and service.
-This is functionally equal to the <code>redis-leader</code> deployment that the Kubernetes example propose.</p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure-1">Procedure<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#procedure-1" class="hash-link" aria-label="Direct link to Procedure" title="Direct link to Procedure">​</a></h4>
-<ol>
-<li>
-<p>Open <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Images &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-arrow-down" class="svg-inline--fa fa-circle-arrow-down fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM127 297c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l71 71L232 120c0-13.3 10.7-24 24-24s24 10.7 24 24l0 214.1 71-71c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L273 409c-9.4 9.4-24.6 9.4-33.9 0L127 297z"></path></svg> Pull an image</strong>.</p>
-<ol>
-<li><strong>Image to Pull</strong>: enter <code>docker.io/redis:6.0.5</code></li>
-<li>Click <strong>Pull image</strong> to pull the image to your container engine local image registry.</li>
-<li>Click <strong>Done</strong> to get back to the images list.</li>
-</ol>
-</li>
-<li>
-<p><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search images</strong>: enter <code>redis:6.0.5</code> to find the image.</p>
-</li>
-<li>
-<p>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg></strong> to open the <strong>Create a container from image</strong> dialog.</p>
-<ol>
-<li><strong>Container name</strong>: enter <code>leader</code>,</li>
-<li><strong>Local port for <code>6379/tcp</code></strong>: <code>6379</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg> Start Container</strong> to start the container in your container engine.</li>
-</ol>
-</li>
-<li>
-<p><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search containers</strong>: enter <code>leader</code> to find the running container.</p>
-</li>
-<li>
-<p>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="stop" class="svg-inline--fa fa-stop fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"></path></svg></strong> to stop the container, and leave the <code>6379</code> port available for the Redis follower container.</p>
-</li>
-<li>
-<p>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" class="svg-inline--fa fa-ellipsis-vertical fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512"><path fill="currentColor" d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"></path></svg> &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy to Kubernetes</strong> to open the <strong>Deploy generated pod to Kubernetes</strong> screen.</p>
-<ol>
-<li><strong>Pod Name</strong>: enter <code>redis-leader</code>.</li>
-<li><strong>Use Kubernetes Services</strong>: select <strong>Replace <code>hostPort</code> exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use <code>hostPort</code>.</strong></li>
-<li><strong>Expose service locally using Kubernetes Ingress</strong>: deselect <strong>Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: <code>http://localhost:9090</code>. Requirements: your cluster has an ingress controller`</strong>.</li>
-<li><strong>Kubernetes namespaces</strong>: select <code>default</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy</strong>.
-<img decoding="async" loading="lazy" alt="Deploy generated leader pod to Kubernetes screen" src="https://podman-desktop.io/assets/images/deploy-generated-leader-pod-to-kubernetes-e812812296742ec54cd822d0ba969c28.png" width="1292" height="968" class="img_SS3x"></li>
-<li>Wait for the pod to reach the state: <strong>Phase: Running</strong>.</li>
-<li>Click <strong>Done</strong>.</li>
-</ol>
-</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification-2">Verification<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#verification-2" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
-<ul>
-<li>
-<p>The <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cubes" class="svg-inline--fa fa-cubes fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></svg> Pods</strong> screen lists the running <code>redis-leader</code> pod.</p>
-<p><img decoding="async" loading="lazy" alt="leader pod is running" src="https://podman-desktop.io/assets/images/leader-pod-is-running-a8caa174a15c06b287dff81b08041f7c.png" width="684" height="231" class="img_SS3x"></p>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="starting-the-redis-followers">Starting the Redis followers<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#starting-the-redis-followers" class="hash-link" aria-label="Direct link to Starting the Redis followers" title="Direct link to Starting the Redis followers">​</a></h2>
-<p>Although the Redis leader is a single Pod, you can make it highly available and meet traffic demands by adding a few Redis followers, or replicas.</p>
-<p><strong>With Podman Desktop, you can prepare the Redis follower image and container on your local container engine, and deploy the results to Kubernetes pods and services.</strong>
-This is functionally equal to the <code>redis-follower</code> deployment that the Kubernetes example propose.</p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure-2">Procedure<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#procedure-2" class="hash-link" aria-label="Direct link to Procedure" title="Direct link to Procedure">​</a></h4>
-<ol>
-<li>Open <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Images &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-arrow-down" class="svg-inline--fa fa-circle-arrow-down fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM127 297c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l71 71L232 120c0-13.3 10.7-24 24-24s24 10.7 24 24l0 214.1 71-71c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L273 409c-9.4 9.4-24.6 9.4-33.9 0L127 297z"></path></svg> Pull an image</strong>.<!-- -->
-<ol>
-<li><strong>Image to Pull</strong>: enter <code>gcr.io/google_samples/gb-redis-follower:v2</code></li>
-<li>Click <strong>Pull image</strong> to pull the image to your container engine local image registry.</li>
-<li>Click <strong>Done</strong> to get back to the images list.</li>
-</ol>
-</li>
-<li><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search images</strong>: enter <code>gb-redis-follower:v2</code> to find the image.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg></strong> to open the <strong>Create a container from image</strong> dialog.<!-- -->
-<ol>
-<li><strong>Container name</strong>: enter <code>follower</code>,</li>
-<li><strong>Local port for <code>6379/tcp</code></strong>: <code>6379</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg> Start Container</strong> to start the container in your container engine.</li>
-</ol>
-</li>
-<li><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search containers</strong>: enter <code>follower</code> to find the running container.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="stop" class="svg-inline--fa fa-stop fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"></path></svg></strong> to stop the container: you do not need it to run in the container engine.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" class="svg-inline--fa fa-ellipsis-vertical fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512"><path fill="currentColor" d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"></path></svg> &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy to Kubernetes</strong> to open the <strong>Deploy generated pod to Kubernetes</strong> screen.<!-- -->
-<ol>
-<li><strong>Pod Name</strong>: enter <code>redis-follower</code>.</li>
-<li><strong>Use Kubernetes Services</strong>: select <strong>Replace <code>hostPort</code> exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use <code>hostPort</code>.</strong></li>
-<li><strong>Expose service locally using Kubernetes Ingress</strong>: deselect <strong>Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: <code>http://localhost:9090</code>. Requirements: your cluster has an ingress controller`</strong>.</li>
-<li><strong>Kubernetes namespaces</strong>: select <code>default</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy</strong>.
-<img decoding="async" loading="lazy" alt="Deploy generated follower pod to Kubernetes screen" src="https://podman-desktop.io/assets/images/deploy-generated-follower-pod-to-kubernetes-dd643e002a1dbf69e29ef7863f0774d8.png" width="1292" height="968" class="img_SS3x"></li>
-<li>Wait for the pod to reach the state: <strong>Phase: Running</strong>.</li>
-<li>Click <strong>Done</strong>.</li>
-</ol>
-</li>
-<li>To add replicas, repeat the last step with another <strong>Pod Name</strong> value.</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification-3">Verification<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#verification-3" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
-<ul>
-<li>
-<p>The <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cubes" class="svg-inline--fa fa-cubes fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></svg> Pods</strong> screen lists the running <code>redis-follower</code> pods.</p>
-<p><img decoding="async" loading="lazy" alt="follower pods are running" src="https://podman-desktop.io/assets/images/follower-pods-are-running-be90e0689f30209b0694469405ecd6a9.png" width="668" height="286" class="img_SS3x"></p>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="starting-the-default-frontend">Starting the default frontend<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#starting-the-default-frontend" class="hash-link" aria-label="Direct link to Starting the default frontend" title="Direct link to Starting the default frontend">​</a></h2>
-<p>Now that you have the Redis storage of your Guestbook up and running, start the Guestbook web servers.
-Like the Redis followers, deploy the frontend using Kubernetes pods and services.</p>
-<p>The Guestbook app uses a PHP frontend.
-It is configured to communicate with either the Redis follower or leader Services, depending on whether the request is a read or a write.
-The frontend exposes a JSON interface, and serves a jQuery-Ajax-based UX.</p>
-<p>With Podman Desktop, you can prepare the Guestbook frontend image and container on your local container engine, and deploy the results to Kubernetes pods and services.
-This is functionally equal to the <code>frontend</code> deployment that the Kubernetes example propose.</p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure-3">Procedure<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#procedure-3" class="hash-link" aria-label="Direct link to Procedure" title="Direct link to Procedure">​</a></h4>
-<ol>
-<li>Open <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Images &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-arrow-down" class="svg-inline--fa fa-circle-arrow-down fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM127 297c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l71 71L232 120c0-13.3 10.7-24 24-24s24 10.7 24 24l0 214.1 71-71c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L273 409c-9.4 9.4-24.6 9.4-33.9 0L127 297z"></path></svg> Pull an image</strong>.<!-- -->
-<ol>
-<li><strong>Image to Pull</strong>: enter <code>gcr.io/google_samples/gb-frontend:v5</code></li>
-<li>Click <strong>Pull image</strong> to pull the image to your container engine local image registry.</li>
-<li>Wait for the pull to complete.</li>
-<li>Click <strong>Done</strong> to get back to the images list.</li>
-</ol>
-</li>
-<li><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search images</strong>: enter <code>gb-frontend:v5</code> to find the image.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg></strong> to open the <strong>Create a container from image</strong> dialog.<!-- -->
-<ol>
-<li><strong>Container name</strong>: enter <code>frontend</code>,</li>
-<li><strong>Local port for <code>80/tcp</code></strong>: <code>9000</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg> Start Container</strong> to start the container in your container engine.</li>
-</ol>
-</li>
-<li><strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cloud" class="svg-inline--fa fa-cloud fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144l368 0c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"></path></svg> Search containers</strong>: enter <code>frontend</code> to find the running container.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="stop" class="svg-inline--fa fa-stop fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"></path></svg></strong> to stop the container: you do not need it to run in the container engine.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" class="svg-inline--fa fa-ellipsis-vertical fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512"><path fill="currentColor" d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"></path></svg> &gt; <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy to Kubernetes</strong> to open the <strong>Deploy generated pod to Kubernetes</strong> screen.<!-- -->
-<ol>
-<li><strong>Pod Name</strong>: enter <code>frontend</code>.</li>
-<li><strong>Use Kubernetes Services</strong>: select <strong>Replace <code>hostPort</code> exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use <code>hostPort</code>.</strong></li>
-<li><strong>Expose service locally using Kubernetes Ingress</strong>: select <strong>Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: <code>http://localhost:9090</code>. Requirements: your cluster has an ingress controller`</strong>.</li>
-<li><strong>Kubernetes namespaces</strong>: select <code>default</code>.</li>
-<li>Click <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rocket" class="svg-inline--fa fa-rocket fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8L24 288c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7 .2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3l82.3 0c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2l0 82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1 .2s-12.1-12.2-12.1-20.9l0-107.2c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4 .5-31.8-7.8zM384 168a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"></path></svg> Deploy</strong>.
-<img decoding="async" loading="lazy" alt="Deploy generated frontend pod to Kubernetes screen" src="https://podman-desktop.io/assets/images/deploy-generated-frontend-pod-to-kubernetes-cf7e13dbd73427575b2cf583e223df38.png" width="1292" height="968" class="img_SS3x"></li>
-<li>Wait for the pod to reach the state: <strong>Phase: Running</strong>.</li>
-<li>Click <strong>Done</strong>.</li>
-</ol>
-</li>
-</ol>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification-4">Verification<a href="https://podman-desktop.io/blog/running-a-local-kubernetes-cluster-with-podman-desktop#verification-4" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
-<ol>
-<li>
-<p>The <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cubes" class="svg-inline--fa fa-cubes fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></svg> Pods</strong> screen lists the running <code>frontend</code> pod.</p>
-<p><img decoding="async" loading="lazy" alt="frontend pod is running" src="https://podman-desktop.io/assets/images/frontend-pod-is-running-f6f55d91d200f35629788d3c550ae463.png" width="674" height="222" class="img_SS3x"></p>
-</li>
-<li>
-<p>Go to <code>http://localhost:9090</code>: the Guestbook application is running.</p>
-</li>
-</ol>]]></content>
-        <author>
-            <name>Fabrice Flore-Thebault</name>
-            <uri>https://github.com/themr0c</uri>
-        </author>
-        <category label="podman-desktop" term="podman-desktop"/>
-        <category label="story" term="story"/>
         <category label="kubernetes" term="kubernetes"/>
         <category label="kind" term="kind"/>
     </entry>
