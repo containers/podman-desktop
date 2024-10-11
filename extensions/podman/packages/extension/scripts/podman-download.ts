@@ -117,6 +117,14 @@ export class PodmanDownload {
     return this.#shaCheck;
   }
 
+  protected getArtifactsToDownload(): {
+    version: string;
+    downloadName: string;
+    artifactName: string;
+  }[] {
+    return this.#artifactsToDownload;
+  }
+
   async downloadBinaries(): Promise<void> {
     // fetch binaries in case of AirGap
     await this.downloadAirGapBinaries();
