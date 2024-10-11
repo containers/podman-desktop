@@ -23,11 +23,7 @@
         "lima.type": {
           "type": "string",
           "default": "podman",
-          "enum": [
-            "podman",
-            "docker",
-            "kubernetes"
-          ],
+          "enum": ["podman", "docker", "kubernetes"],
           "description": "Engine type (requires restart of extension)"
         },
         "lima.name": {

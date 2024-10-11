@@ -7,11 +7,7 @@
     "access": "public"
   },
   "main": "dist/index.js",
-  "files": [
-    "dist",
-    "!dist/specs/*",
-    "!dist/setupFiles/extended-hooks.*"
-  ],
+  "files": ["dist", "!dist/specs/*", "!dist/setupFiles/extended-hooks.*"],
   "license": "Apache-2.0",
   "scripts": {
     "build": "vite build",

@@ -86,56 +86,57 @@ test.describe('Kubernetes resources End-to-End test', () => {
       .poll(async () => nodeDetails.getState(), { timeout: 40000 })
       .toEqual(KubernetesResourceState.Running);
   });
-  test.describe.serial('PVC lifecycle test', () => {
-    test('Create a new PVC resource', async ({ navigationBar }) => {
-      const podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_NAME}.yaml`);
-      await playYamlPage.playYaml(yamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+  test.describe
+    .serial('PVC lifecycle test', () => {
+      test('Create a new PVC resource', async ({ navigationBar }) => {
+        const podsPage = await navigationBar.openPods();
+        await playExpect(podsPage.heading).toBeVisible();
+        const playYamlPage = await podsPage.openPlayKubeYaml();
+        await playExpect(playYamlPage.heading).toBeVisible();
+        const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_NAME}.yaml`);
+        await playYamlPage.playYaml(yamlFilePath, {
+          runtime: PlayYamlRuntime.Kubernetes,
+          kubernetesContext: KUBERNETES_CONTEXT,
+          kubernetesNamespace: KUBERNETES_NAMESPACE,
+        });
 
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
-      await playExpect(pvcsPage.heading).toBeVisible();
-      await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).toBeVisible();
-      const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
-      await playExpect(pvcDetails.heading).toBeVisible();
-      await playExpect
-        .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
-        .toEqual(KubernetesResourceState.Starting);
-    });
-    test('Bind the PVC to a pod', async ({ navigationBar }) => {
-      const podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${POD_NAME}.yaml`);
-      await playYamlPage.playYaml(yamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
+        const kubernetesBar = await navigationBar.openKubernetes();
+        const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
+        await playExpect(pvcsPage.heading).toBeVisible();
+        await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).toBeVisible();
+        const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
+        await playExpect(pvcDetails.heading).toBeVisible();
+        await playExpect
+          .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
+          .toEqual(KubernetesResourceState.Starting);
       });
+      test('Bind the PVC to a pod', async ({ navigationBar }) => {
+        const podsPage = await navigationBar.openPods();
+        await playExpect(podsPage.heading).toBeVisible();
+        const playYamlPage = await podsPage.openPlayKubeYaml();
+        await playExpect(playYamlPage.heading).toBeVisible();
+        const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${POD_NAME}.yaml`);
+        await playYamlPage.playYaml(yamlFilePath, {
+          runtime: PlayYamlRuntime.Kubernetes,
+          kubernetesContext: KUBERNETES_CONTEXT,
+          kubernetesNamespace: KUBERNETES_NAMESPACE,
+        });
 
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
-      const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
-      await playExpect(pvcDetails.heading).toBeVisible();
-      await playExpect
-        .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
-        .toEqual(KubernetesResourceState.Running);
+        const kubernetesBar = await navigationBar.openKubernetes();
+        const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
+        const pvcDetails = await pvcsPage.openResourceDetails(PVC_NAME, KubernetesResources.PVCs);
+        await playExpect(pvcDetails.heading).toBeVisible();
+        await playExpect
+          .poll(async () => pvcDetails.getState(), { timeout: 40_000 })
+          .toEqual(KubernetesResourceState.Running);
+      });
+      test('Delete the PVC resource', async ({ page, navigationBar }) => {
+        await deletePod(page, POD_NAME);
+        const kubernetesBar = await navigationBar.openKubernetes();
+        const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
+        await pvcsPage.deleteKubernetesResource(PVC_NAME);
+        await handleConfirmationDialog(page);
+        await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).not.toBeVisible();
+      });
     });
-    test('Delete the PVC resource', async ({ page, navigationBar }) => {
-      await deletePod(page, POD_NAME);
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
-      await pvcsPage.deleteKubernetesResource(PVC_NAME);
-      await handleConfirmationDialog(page);
-      await playExpect(pvcsPage.getResourceRowByName(PVC_NAME)).not.toBeVisible();
-    });
-  });
 });

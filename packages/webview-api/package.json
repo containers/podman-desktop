@@ -7,9 +7,7 @@
   },
   "license": "Apache-2.0",
   "types": "./src/webview-api.d.ts",
-  "files": [
-    "src"
-  ],
+  "files": ["src"],
   "scripts": {
     "prepare": "",
     "clean": "rimraf lib *.tsbuildinfo",

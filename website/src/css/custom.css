@@ -13,8 +13,7 @@
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: normal;
-  src:
-    url('../../static/fonts/montserrat-v25-latin-regular.woff2') format('woff2'),
+  src: url('../../static/fonts/montserrat-v25-latin-regular.woff2') format('woff2'),
     url('../../static/fonts/montserrat-v25-latin-regular.woff') format('woff'),
     url('../../static/fonts/montserrat-v25-latin-regular.ttf') format('truetype');
 }
