@@ -56,7 +56,7 @@ export function testConfig() {
       '**/node_modules/**',
       '**/dist/**',
       '**/.{idea,git,cache,output,temp,cdix}/**',
-      '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,prettier,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',
+      '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',
     ],
   };
 }

@@ -141,8 +141,8 @@
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "watch": "vite build -w",
-    "format:check": "prettier --check \"**/*.ts\" \"scripts/*.js\"",
-    "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
+    "format:check": "biome format",
+    "format:fix": "biome format --write"
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",

@@ -1,0 +1,49 @@
+{
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 120,
+    "attributePosition": "auto"
+  },
+  "files": {
+    "maxSize": 1600000,
+    "ignore": [
+      "**/builtin/*.cdix/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/packages/ui/.svelte-kit/**",
+      "**/exposedIn*.d.ts",
+      "website/.docusaurus/**",
+      "website/api/**",
+      "website/build/**",
+      "website/src/pages/storybook/sidebar.cjs",
+      "website/static/release-notes/**",
+      "website-argos/screenshots/**",
+      "storybook/.storybook/themes.css",
+      "storybook/storybook-static/**"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "asNeeded",
+      "bracketSameLine": true,
+      "attributePosition": "auto",
+      "quoteStyle": "single"
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentWidth": 2
+    }
+  },
+  "css": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "linter": {
+    "enabled": true
+  },
+  "organizeImports": {
+    "enabled": false
+  }
+}
