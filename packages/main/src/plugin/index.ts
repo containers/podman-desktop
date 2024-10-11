@@ -472,7 +472,7 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
-    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
     taskManager.init();
 
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
