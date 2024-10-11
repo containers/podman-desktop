@@ -18,7 +18,7 @@
 
 import { setupServer, SetupServerApi } from 'msw/node';
 import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
-import { Podman5DownloadMachineOS, PodmanDownload, ShaCheck } from './podman-download';
+import { DiskType, Podman5DownloadMachineOS, PodmanDownload, ShaCheck } from './podman-download';
 import * as podman5JSON from '../src/podman5.json';
 import { Readable, Writable } from 'node:stream';
 import { WritableStream } from 'stream/web';
@@ -441,7 +441,12 @@ describe('Podman5DownloadMachineOS', () => {
     server = setupServer(...handlers);
     server.listen({ onUnhandledRequest: 'error' });
 
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory', false);
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
+      '1.0-fake',
+      shaCheck,
+      '/fake-directory',
+      DiskType.Applehv,
+    );
 
     vi.spyOn(podman5DownloadMachineOS, 'pipe').mockResolvedValue();
 
@@ -641,15 +646,25 @@ describe('Podman5DownloadMachineOS', () => {
     server = setupServer(...handlers);
     server.listen({ onUnhandledRequest: 'error' });
 
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory', true);
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
+      '1.0-fake',
+      shaCheck,
+      '/fake-directory',
+      DiskType.WSL,
+    );
 
     vi.spyOn(podman5DownloadMachineOS, 'pipe').mockResolvedValue();
 
     await podman5DownloadMachineOS.download();
   });
 
-  test('check pipe method', async () => {
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory', false);
+  test('check pipe method on Mac', async () => {
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
+      '1.0-fake',
+      shaCheck,
+      '/fake-directory',
+      DiskType.Applehv,
+    );
 
     const myStream = Readable.from('Hello, World!');
 
@@ -667,7 +682,12 @@ describe('Podman5DownloadMachineOS', () => {
   });
 
   test('check pipe method on Windows', async () => {
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory', true);
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
+      '1.0-fake',
+      shaCheck,
+      '/fake-directory',
+      DiskType.WSL,
+    );
 
     const myStream = Readable.from('Hello, World!');
 
