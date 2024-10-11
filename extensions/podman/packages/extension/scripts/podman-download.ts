@@ -22,6 +22,11 @@ import { hashFile } from 'hasha';
 import { fileURLToPath } from 'node:url';
 import { Writable } from 'node:stream';
 
+export enum DiskType {
+  WSL = 'wsl',
+  Applehv = 'applehv',
+}
+
 // to make this file a module
 export class PodmanDownload {
   #podmanVersion: string;
@@ -100,12 +105,12 @@ export class PodmanDownload {
     // grab only first 2 digits from the version
     const majorMinorVersion = podmanJSON.version.split('.').slice(0, 2).join('.');
 
-    const wsl = this.#platform === 'win32';
+    const diskType = this.#platform === 'win32' ? DiskType.WSL : DiskType.Applehv;
     this.#podman5DownloadMachineOS = new Podman5DownloadMachineOS(
       majorMinorVersion,
       this.#shaCheck,
       this.#assetsFolder,
-      wsl,
+      diskType,
     );
   }
 
@@ -151,18 +156,21 @@ export class Podman5DownloadMachineOS {
   #version: string;
   #shaCheck: ShaCheck;
   #assetsFolder: string;
-  #wsl: boolean = false;
+  #diskType: DiskType;
+  #githubProjectName: string;
 
   constructor(
     readonly version: string,
     readonly shaCheck: ShaCheck,
     readonly assetsFolder: string,
-    readonly wsl: boolean,
+    readonly diskType: DiskType,
   ) {
-    this.#wsl = wsl;
+    this.#diskType = diskType;
     this.#version = version;
     this.#shaCheck = shaCheck;
     this.#assetsFolder = assetsFolder;
+    // Windows uses WSL => machine-os-wsl ; MacOS uses Applehv => machine-os
+    this.#githubProjectName = diskType === DiskType.WSL ? 'machine-os-wsl' : 'machine-os';
   }
 
   async getManifest(manifestUrl: string): Promise<any> {
@@ -207,7 +215,7 @@ export class Podman5DownloadMachineOS {
     filename: string,
     layer: { digest: string; size: number },
   ): Promise<void> {
-    const blobURL = `https://quay.io/v2/podman/machine-os${this.#wsl ? '-wsl' : ''}/blobs/${layer.digest}`;
+    const blobURL = `https://quay.io/v2/podman/${this.#githubProjectName}/blobs/${layer.digest}`;
 
     const blobResponse = await fetch(blobURL);
     const total = layer.size;
@@ -249,7 +257,7 @@ export class Podman5DownloadMachineOS {
   // For macOS, need to grab images from quay.io/podman/machine-os repository
   // For Windos, need to grab images from quay.io/podman/machine-os-wsl repository
   async download(): Promise<void> {
-    const manifestUrl = `https://quay.io/v2/podman/machine-os${this.#wsl ? '-wsl' : ''}/manifests/${this.#version}`;
+    const manifestUrl = `https://quay.io/v2/podman/${this.#githubProjectName}/manifests/${this.#version}`;
 
     // get first level of manifests
     const rootManifest = await this.getManifest(manifestUrl);
@@ -266,7 +274,8 @@ export class Podman5DownloadMachineOS {
       const annotations = manifest.annotations;
       return (
         annotations &&
-        ((this.#wsl && annotations.disktype === 'wsl') || (!this.#wsl && annotations.disktype === 'applehv'))
+        ((this.#diskType === DiskType.WSL && annotations.disktype === 'wsl') ||
+          (this.#diskType === DiskType.Applehv && annotations.disktype === 'applehv'))
       );
     });
 
@@ -284,10 +293,10 @@ export class Podman5DownloadMachineOS {
 
     // now get the zstd entry from the arch manifest
     const amd64ZstdManifest = await this.getManifest(
-      `https://quay.io/v2/podman/machine-os${this.#wsl ? '-wsl' : ''}/manifests/${amd64Manifest.digest}`,
+      `https://quay.io/v2/podman/${this.#githubProjectName}/manifests/${amd64Manifest.digest}`,
     );
     const arm64ZstdManifest = await this.getManifest(
-      `https://quay.io/v2/podman/machine-os${this.#wsl ? '-wsl' : ''}/manifests/${arm64Manifest.digest}`,
+      `https://quay.io/v2/podman/${this.#githubProjectName}/manifests/${arm64Manifest.digest}`,
     );
 
     // download the zstd layers
