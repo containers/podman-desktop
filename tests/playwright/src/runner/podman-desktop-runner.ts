@@ -161,9 +161,7 @@ export class Runner {
   }
 
   public async getBrowserWindowState(): Promise<WindowState> {
-    return await (
-      await this.getBrowserWindow()
-    ).evaluate((mainWindow): Promise<WindowState> => {
+    return await (await this.getBrowserWindow()).evaluate((mainWindow): Promise<WindowState> => {
       const getState = (): { isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean } => {
         return {
           isVisible: mainWindow.isVisible(),

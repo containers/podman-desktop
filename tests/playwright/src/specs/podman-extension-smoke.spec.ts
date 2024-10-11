@@ -44,21 +44,22 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Verification of Podman extension @smoke', () => {
-  test('Podman is enabled and present', async () => {
-    await verifyPodmanExtensionStatus(true);
+test.describe
+  .serial('Verification of Podman extension @smoke', () => {
+    test('Podman is enabled and present', async () => {
+      await verifyPodmanExtensionStatus(true);
+    });
+    test('Podman extension can be disabled from Podman Extension Page', async () => {
+      const podmanExtensionPage = await openExtensionsPodmanPage();
+      await podmanExtensionPage.disableExtension();
+      await verifyPodmanExtensionStatus(false);
+    });
+    test('Podman extension can be re-enabled from Extension Page', async () => {
+      const podmanExtensionPage = await openExtensionsPodmanPage(); // enable the extension
+      await podmanExtensionPage.enableExtension();
+      await verifyPodmanExtensionStatus(true);
+    });
   });
-  test('Podman extension can be disabled from Podman Extension Page', async () => {
-    const podmanExtensionPage = await openExtensionsPodmanPage();
-    await podmanExtensionPage.disableExtension();
-    await verifyPodmanExtensionStatus(false);
-  });
-  test('Podman extension can be re-enabled from Extension Page', async () => {
-    const podmanExtensionPage = await openExtensionsPodmanPage(); // enable the extension
-    await podmanExtensionPage.enableExtension();
-    await verifyPodmanExtensionStatus(true);
-  });
-});
 
 async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();

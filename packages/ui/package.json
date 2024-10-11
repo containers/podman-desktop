@@ -11,10 +11,7 @@
     "svelte:check": "svelte-check --tsconfig ./tsconfig.json",
     "publish:next": "pnpm publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
-  "files": [
-    "dist",
-    "!dist/**/*.spec.*"
-  ],
+  "files": ["dist", "!dist/**/*.spec.*"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

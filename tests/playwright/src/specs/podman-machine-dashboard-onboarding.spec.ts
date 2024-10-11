@@ -57,19 +57,20 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial(`Podman machine onboarding from Dashboard`, () => {
-  test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
-    test.setTimeout(320000);
+test.describe
+  .serial(`Podman machine onboarding from Dashboard`, () => {
+    test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
+      test.setTimeout(320000);
 
-    console.log('Starting PD dashboard test');
-    const dashboardPage = await navigationBar.openDashboard();
-    await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
-    await dashboardPage.podmanInitilizeAndStartButton.click();
-    await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
-  });
+      console.log('Starting PD dashboard test');
+      const dashboardPage = await navigationBar.openDashboard();
+      await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
+      await dashboardPage.podmanInitilizeAndStartButton.click();
+      await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
+    });
 
-  test('Clean Up Podman Machine', async ({ page }) => {
-    test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
-    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    test('Clean Up Podman Machine', async ({ page }) => {
+      test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
+      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    });
   });
-});
