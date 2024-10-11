@@ -385,62 +385,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // if we do not have anything installed, let's add it to the status bar
   let releaseToInstall: KindGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
-  kindCli.registerInstaller({
-    selectVersion: async () => {
-      const selected = await installer.promptUserForVersion();
-      releaseToInstall = selected;
-      releaseVersionToInstall = removeVersionPrefix(selected.tag);
-      return releaseVersionToInstall;
-    },
-    doInstall: async _logger => {
-      if (binaryVersion ?? binaryPath) {
-        throw new Error(
-          `Cannot install ${KIND_CLI_NAME}. Version ${binaryVersion} in ${binaryPath} is already installed.`,
-        );
-      }
-      if (!releaseToInstall || !releaseVersionToInstall) {
-        throw new Error(`Cannot install ${KIND_CLI_NAME}. No release selected.`);
-      }
-
-      // download, install system wide and update cli version
-      await installer.download(releaseToInstall);
-      const cliPath = installer.getKindCliStoragePath();
-
-      try {
-        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
-      } catch (err: unknown) {
-        console.log(`${KIND_CLI_NAME} not installed system-wide. Error: ${String(err)}`);
-      }
-
-      kindCli?.updateVersion({
-        version: releaseVersionToInstall,
-        installationSource: 'extension',
-      });
-      binaryVersion = releaseVersionToInstall;
-      binaryPath = cliPath;
-      kindPath = cliPath;
-      releaseVersionToInstall = undefined;
-      releaseToInstall = undefined;
-    },
-    doUninstall: async _logger => {
-      if (!binaryVersion) {
-        throw new Error(`Cannot uninstall ${KIND_CLI_NAME}. No version detected.`);
-      }
-
-      // delete the executable stored in the storage folder
-      const storagePath = installer.getKindCliStoragePath();
-      await deleteFile(storagePath);
-
-      // delete the executable in the system path
-      const systemPath = getSystemBinaryPath(KIND_CLI_NAME);
-      await deleteFile(systemPath);
-
-      // update the version and path to undefined
-      binaryVersion = undefined;
-      binaryPath = undefined;
-      kindPath = undefined;
-    },
-  });
 
   extensionContext.subscriptions.push(kindCli);
 
@@ -494,11 +438,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       kindCli?.updateVersion({
         version: releaseVersionToUpdateTo,
         installationSource: 'extension',
-        path: installer.getKindCliStoragePath(),
+        path: cliPath,
       });
       binaryVersion = releaseVersionToUpdateTo;
       if (releaseVersionToUpdateTo === latestVersion) {
-        delete update.version;
+        update.version = undefined;
       } else {
         update.version = latestVersion;
       }
@@ -507,6 +451,68 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   };
   kindCli.registerUpdate(update);
+  kindCli.registerInstaller({
+    selectVersion: async () => {
+      const selected = await installer.promptUserForVersion();
+      releaseToInstall = selected;
+      releaseVersionToInstall = removeVersionPrefix(selected.tag);
+      return releaseVersionToInstall;
+    },
+    doInstall: async _logger => {
+      if (binaryVersion ?? binaryPath) {
+        throw new Error(
+          `Cannot install ${KIND_CLI_NAME}. Version ${binaryVersion} in ${binaryPath} is already installed.`,
+        );
+      }
+      if (!releaseToInstall || !releaseVersionToInstall) {
+        throw new Error(`Cannot install ${KIND_CLI_NAME}. No release selected.`);
+      }
+
+      // download, install system wide and update cli version
+      await installer.download(releaseToInstall);
+      const cliPath = installer.getKindCliStoragePath();
+
+      try {
+        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      } catch (err: unknown) {
+        console.log(`${KIND_CLI_NAME} not installed system-wide. Error: ${String(err)}`);
+      }
+
+      kindCli?.updateVersion({
+        version: releaseVersionToInstall,
+        path: cliPath,
+        installationSource: 'extension',
+      });
+      binaryVersion = releaseVersionToInstall;
+      binaryPath = cliPath;
+      kindPath = cliPath;
+      if (releaseVersionToInstall === latestVersion) {
+        update.version = undefined;
+      } else {
+        update.version = latestVersion;
+      }
+      releaseVersionToInstall = undefined;
+      releaseToInstall = undefined;
+    },
+    doUninstall: async _logger => {
+      if (!binaryVersion) {
+        throw new Error(`Cannot uninstall ${KIND_CLI_NAME}. No version detected.`);
+      }
+
+      // delete the executable stored in the storage folder
+      const storagePath = installer.getKindCliStoragePath();
+      await deleteFile(storagePath);
+
+      // delete the executable in the system path
+      const systemPath = getSystemBinaryPath(KIND_CLI_NAME);
+      await deleteFile(systemPath);
+
+      // update the version and path to undefined
+      binaryVersion = undefined;
+      binaryPath = undefined;
+      kindPath = undefined;
+    },
+  });
 }
 
 async function deleteFile(filePath: string): Promise<void> {

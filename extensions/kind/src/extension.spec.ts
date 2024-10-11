@@ -95,6 +95,8 @@ vi.mock('./kind-installer', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, 'log').mockImplementation(vi.fn());
+  vi.spyOn(console, 'error').mockImplementation(vi.fn());
   vi.mocked(podmanDesktopApi.cli.createCliTool).mockReturnValue({
     displayName: 'test',
     dispose: vi.fn(),
@@ -487,6 +489,7 @@ test('after selecting the version to be installed it should download kind', asyn
   expect(installBinaryToSystemMock).toHaveBeenCalledWith('storage-path', 'kind');
   expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
     installationSource: 'extension',
+    path: 'storage-path',
     version: '1.0.0',
   });
 });
@@ -527,6 +530,7 @@ test('if installing system wide fails, it should not throw', async () => {
   expect(installBinaryToSystemMock).toHaveBeenCalledWith('storage-path', 'kind');
   expect(cliToolMock.updateVersion).toHaveBeenCalledWith({
     installationSource: 'extension',
+    path: 'storage-path',
     version: '1.0.0',
   });
 });
