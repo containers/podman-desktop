@@ -53,6 +53,13 @@ Make sure you have:
    ![starting a container](img/starting-a-postgresql-container.png)
 1. View the successful operation notification in the _Tty_ tab of the _Container Details_ page.
    ![sql server started](img/postgresql-server-started.png)
+
+   :::note
+
+   You can also check the _Logs_ tab for the same notification.
+
+   :::
+
 1. Click the **close** icon on the right hand side of the page.
 1. Click **Containers** in the left navigation pane.
 1. View the newly created PostgreSQL server container on the page.
