@@ -142,7 +142,9 @@ test.describe.serial('Podman Machine verification', () => {
           timeout: 30_000,
         });
       } else {
-        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineCPUs).toBeVisible({ timeout: 30_000 });
+        await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineCPUs).toBeVisible({
+          timeout: 30_000,
+        });
         await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineMemory).toBeVisible();
         await playExpect(podmanOnboardingPage.machineCreationForm.podmanMachineDiskSize).toBeVisible();
       }
