@@ -65,7 +65,7 @@ export class Runner {
     this._running = false;
     this._runnerOptions = runnerOptions;
     this._profile = this._runnerOptions._profile;
-    this._testOutput = join('tests', 'playwright', 'output', this._profile);
+    this._testOutput = join(this._runnerOptions._customOutputFolder, this._profile);
     this._customFolder = join(this._testOutput, this._runnerOptions._customFolder);
     this._videoAndTraceName = undefined;
 
