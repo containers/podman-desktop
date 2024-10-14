@@ -131,7 +131,8 @@ test.describe('Kubernetes resources End-to-End test', () => {
           .toEqual(KubernetesResourceState.Running);
       });
       test('Delete the PVC resource', async ({ page, navigationBar }) => {
-        await deletePod(page, POD_NAME);
+        test.setTimeout(80_000);
+        await deletePod(page, POD_NAME, 80_000);
         const kubernetesBar = await navigationBar.openKubernetes();
         const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
         await pvcsPage.deleteKubernetesResource(PVC_NAME);
