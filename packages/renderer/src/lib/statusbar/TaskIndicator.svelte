@@ -23,14 +23,16 @@ function toggleTaskManager(): void {
 </script>
 
 {#if runningTasks.length > 0}
-  <Tooltip top tip={title}>
-    <button aria-label="Toggle Task Manager" onclick={toggleTaskManager}>
-      <div class="flex items-center gap-x-2">
-        <span role="status" class="max-w-32 text-ellipsis overflow-hidden whitespace-nowrap">{title}</span>
-        {#if (progress ?? 0) >= 0}
-          <ProgressBar height="h-1" width="w-20" progress={progress} />
-        {/if}
-      </div>
-    </button>
-  </Tooltip>
+  <div class="flex items-center">
+    <Tooltip top tip={title}>
+      <button aria-label="Toggle Task Manager" onclick={toggleTaskManager}>
+        <div class="flex items-center gap-x-2">
+          <span role="status" class="max-w-32 text-ellipsis overflow-hidden whitespace-nowrap">{title}</span>
+          {#if (progress ?? 0) >= 0}
+            <ProgressBar height="h-1" width="w-20" progress={progress} />
+          {/if}
+        </div>
+      </button>
+    </Tooltip>
+  </div>
 {/if}
