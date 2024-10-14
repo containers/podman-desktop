@@ -27,7 +27,7 @@ let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
-const performUpdate = process.env.UPDATE_PODMAN_DESKTOP !== undefined && process.env.UPDATE_PODMAN_DESKTOP === 'true';
+const performUpdate = process.env.UPDATE_PODMAN_DESKTOP === 'true';
 
 test.skip(isLinux, 'Update is not supported on Linux');
 
@@ -44,27 +44,21 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Podman Desktop Update Update installation offering @update-install', () => {
-  console.log(`process.env.UPDATE_PODMAN_DESKTOP: ${process.env.UPDATE_PODMAN_DESKTOP}`);
-  console.log(`performUpdate: ${performUpdate}`);
-  if (!performUpdate) {
-    console.log('Perform Update gonna be skipped...');
-  } else {
-    console.log('Perform Update gonna run...');
-  }
-  test('Update is offered automatically on startup', async ({ welcomePage }) => {
-    await playExpect(updateAvailableDialog).toBeVisible();
-    const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
-    await playExpect(updateNowButton).toBeVisible();
-    const doNotshowButton = updateAvailableDialog.getByRole('button', { name: 'Do not show again' });
-    await playExpect(doNotshowButton).toBeVisible();
-    const cancelButton = updateAvailableDialog.getByRole('button', { name: 'Cancel' });
-    await playExpect(cancelButton).toBeVisible();
-    await cancelButton.click();
-    await playExpect(updateAvailableDialog).not.toBeVisible();
-    // handle welcome page now
-    await welcomePage.handleWelcomePage(true);
-  });
+test.describe
+  .serial('Podman Desktop Update Update installation offering @update-install', () => {
+    test('Update is offered automatically on startup', async ({ welcomePage }) => {
+      await playExpect(updateAvailableDialog).toBeVisible();
+      const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
+      await playExpect(updateNowButton).toBeVisible();
+      const doNotshowButton = updateAvailableDialog.getByRole('button', { name: 'Do not show again' });
+      await playExpect(doNotshowButton).toBeVisible();
+      const cancelButton = updateAvailableDialog.getByRole('button', { name: 'Cancel' });
+      await playExpect(cancelButton).toBeVisible();
+      await cancelButton.click();
+      await playExpect(updateAvailableDialog).not.toBeVisible();
+      // handle welcome page now
+      await welcomePage.handleWelcomePage(true);
+    });
 
     test('Version button is visible', async () => {
       await playExpect(sBar.content).toBeVisible();
@@ -78,7 +72,7 @@ test.describe.serial('Podman Desktop Update Update installation offering @update
     });
   });
 test.describe
-  .serial('Podman Desktop Update installation can be performed', () => {
+  .serial('Podman Desktop Update installation can be performed @update-install', () => {
     test.skip(!performUpdate, 'Update test does not run as UPDATE_PODMAN_DESKTOP env. var. is not set');
     test('Update can be initiated', async () => {
       await sBar.updateButtonTitle.click();
