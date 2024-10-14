@@ -1005,8 +1005,8 @@ importers:
         specifier: ^2.4.4
         version: 2.4.4
       '@argos-ci/playwright':
-        specifier: ^3.6.3
-        version: 3.6.3
+        specifier: ^3.7.0
+        version: 3.7.0
       '@playwright/test':
         specifier: 1.48.0
         version: 1.48.0
@@ -1102,6 +1102,10 @@ packages:
     resolution: {integrity: sha512-WlA/AqREpCteZJmJYLjGEi5v4cx3+Cx3/audR6aj6wJ959oMpKX5N/auI8M2DJI1xUqiE7/RIwYkojrYz6AwEg==}
     engines: {node: '>=18.0.0'}
 
+  '@argos-ci/api-client@0.6.0':
+    resolution: {integrity: sha512-m8ARJOfdOzyML8bFjTwPNAhGrLD5WaEvYS5g0qoHFD+6Za7Cz3d2mTDoXJX/h3T5aeVZ4WLK+ac0/F6jttd/sQ==}
+    engines: {node: '>=18.0.0'}
+
   '@argos-ci/browser@2.1.4':
     resolution: {integrity: sha512-GursnbWL01wN92hRgEsa0c55ih9Sp6qGeYIXFWP4o42FDzm98LbxIy2e1WS+ezP+gBwsSBEMBTGcGCSSmVzacg==}
     engines: {node: '>=18.0.0'}
@@ -1115,8 +1119,12 @@ packages:
     resolution: {integrity: sha512-qEtHje4bZgqDd1XhjTya8NV+pHdtzPuR/sYAyyX53hb9PycfUj3TCZ1u5HfSGGeuFb3D7ctWuo5N7whXugFY8g==}
     engines: {node: '>=18.0.0'}
 
-  '@argos-ci/playwright@3.6.3':
-    resolution: {integrity: sha512-txapNLuNC/3ZTdjTmeLFldel2gk+JpQ73XFkjyYbGcSgk3b9wg9tYiOVdAbWyefT/uzjBZe7D9CzMSqxmxZ2ng==}
+  '@argos-ci/core@2.9.0':
+    resolution: {integrity: sha512-EVo8Twd/At3r2z/ruycI+czMIJT88K5TrcUyrNH3osdV5eF9Vcp2wp+u9VVbBYTTTfLywIJ30v/ucb662CoUfg==}
+    engines: {node: '>=18.0.0'}
+
+  '@argos-ci/playwright@3.7.0':
+    resolution: {integrity: sha512-SvfQfLPLbRgmJuhztaeMOS8UDhPPUVXe4FAmmoMTv5FLMKptIYLF15vShP2Uc3NbuzL/QRf0bsoPFErIdW97Sg==}
     engines: {node: '>=18.0.0'}
 
   '@argos-ci/util@2.1.1':
@@ -11293,6 +11301,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@argos-ci/api-client@0.6.0':
+    dependencies:
+      debug: 4.3.7
+      openapi-fetch: 0.11.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@argos-ci/browser@2.1.4': {}
 
   '@argos-ci/cli@2.4.4':
@@ -11317,10 +11332,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@argos-ci/playwright@3.6.3':
+  '@argos-ci/core@2.9.0':
+    dependencies:
+      '@argos-ci/api-client': 0.6.0
+      '@argos-ci/util': 2.1.1
+      axios: 1.7.5(debug@4.3.7)
+      convict: 6.2.4
+      debug: 4.3.7
+      fast-glob: 3.3.2
+      sharp: 0.33.5
+      tmp: 0.2.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@argos-ci/playwright@3.7.0':
     dependencies:
       '@argos-ci/browser': 2.1.4
-      '@argos-ci/core': 2.8.2
+      '@argos-ci/core': 2.9.0
       '@argos-ci/util': 2.1.1
       chalk: 5.3.0
       debug: 4.3.7
@@ -15258,6 +15286,14 @@ snapshots:
       magic-string: 0.30.11
     optionalDependencies:
       vite: 5.4.8(@types/node@20.16.11)(terser@5.31.6)
+
+  '@vitest/mocker@2.1.2(@vitest/spy@2.1.2)(vite@5.4.8(@types/node@20.16.2)(terser@5.31.6))':
+    dependencies:
+      '@vitest/spy': 2.1.2
+      estree-walker: 3.0.3
+      magic-string: 0.30.11
+    optionalDependencies:
+      vite: 5.4.8(@types/node@20.16.2)(terser@5.31.6)
 
   '@vitest/pretty-format@2.0.5':
     dependencies:
@@ -23644,7 +23680,7 @@ snapshots:
   vitest@2.1.2(@types/node@20.16.2)(jsdom@25.0.1)(terser@5.31.6):
     dependencies:
       '@vitest/expect': 2.1.2
-      '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.8(@types/node@20.16.11)(terser@5.31.6))
+      '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.8(@types/node@20.16.2)(terser@5.31.6))
       '@vitest/pretty-format': 2.1.2
       '@vitest/runner': 2.1.2
       '@vitest/snapshot': 2.1.2
