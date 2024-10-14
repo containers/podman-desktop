@@ -37,7 +37,7 @@ export class ImagesPage extends MainPage {
   readonly addArchiveButton: Locator;
   readonly confirmLoadImagesButton: Locator;
   readonly deleteAllUnusedImagesCheckbox: Locator;
-  readonly bottomAdditionalActions: Locator;
+
   readonly deleteAllSelectedButton: Locator;
 
   constructor(page: Page) {
@@ -69,10 +69,6 @@ export class ImagesPage extends MainPage {
     });
     this.deleteAllUnusedImagesCheckbox = this.page.getByRole('checkbox', {
       name: 'Toggle all',
-      exact: true,
-    });
-    this.bottomAdditionalActions = this.page.getByRole('group', {
-      name: 'bottomAdditionalActions',
       exact: true,
     });
     this.deleteAllSelectedButton = this.bottomAdditionalActions.getByRole('button', { name: 'Delete' });
