@@ -37,7 +37,6 @@ export class ImagesPage extends MainPage {
   readonly addArchiveButton: Locator;
   readonly confirmLoadImagesButton: Locator;
   readonly deleteAllUnusedImagesCheckbox: Locator;
-
   readonly deleteAllSelectedButton: Locator;
 
   constructor(page: Page) {
