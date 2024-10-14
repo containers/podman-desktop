@@ -422,16 +422,11 @@ describe('Podman5DownloadMachineOS', () => {
         'content-disposition': 'attachment; filename=foo.raw.std',
       });
 
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
-      '1.0-fake',
-      shaCheck,
-      '/fake-directory',
-      DiskType.Applehv,
-    );
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 
     vi.spyOn(podman5DownloadMachineOS, 'pipe').mockResolvedValue();
 
-    await podman5DownloadMachineOS.download();
+    await podman5DownloadMachineOS.setAndDownload('darwin');
   });
 
   test('download all the files and perform checks on Windows', async () => {
@@ -614,25 +609,15 @@ describe('Podman5DownloadMachineOS', () => {
         'content-disposition': 'attachment; filename=foo.raw.std',
       });
 
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
-      '1.0-fake',
-      shaCheck,
-      '/fake-directory',
-      DiskType.WSL,
-    );
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 
     vi.spyOn(podman5DownloadMachineOS, 'pipe').mockResolvedValue();
 
-    await podman5DownloadMachineOS.download();
+    await podman5DownloadMachineOS.setAndDownload('win32');
   });
 
   test('check pipe method on Mac', async () => {
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
-      '1.0-fake',
-      shaCheck,
-      '/fake-directory',
-      DiskType.Applehv,
-    );
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 
     const myStream = Readable.from('Hello, World!');
 
@@ -650,12 +635,7 @@ describe('Podman5DownloadMachineOS', () => {
   });
 
   test('check pipe method on Windows', async () => {
-    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS(
-      '1.0-fake',
-      shaCheck,
-      '/fake-directory',
-      DiskType.WSL,
-    );
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 
     const myStream = Readable.from('Hello, World!');
 
