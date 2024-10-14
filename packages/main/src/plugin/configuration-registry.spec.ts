@@ -276,17 +276,13 @@ test('addConfigurationEnum with a previous default value', async () => {
 
 describe('should be notified when a configuration is updated', async () => {
   test('expect correct properties', async () => {
-    let called = false;
-    let updatedProperties: string[] = [];
-    configurationRegistry.onDidUpdateConfiguration(e => {
-      called = true;
-      updatedProperties = e.properties;
-    });
+    const listener = vi.fn();
+    configurationRegistry.onDidUpdateConfiguration(listener);
     const config = configurationRegistry.getConfiguration('my.fake.property', 'myValue');
     await config.update('myKey', 'myValue');
 
-    expect(called).toBeTruthy();
-    expect(updatedProperties).toEqual(['myKey']);
+    expect(listener).toBeTruthy();
+    expect(listener).toBeCalledWith({ properties: ['myKey'] });
     expect(config.get('myKey')).toBe('myValue');
   });
 });
