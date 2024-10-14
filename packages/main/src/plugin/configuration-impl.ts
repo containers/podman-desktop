@@ -32,7 +32,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
 
   constructor(
     private apiSender: ApiSenderType,
-    private updateCallback: (scope: containerDesktopAPI.ConfigurationScope) => void,
+    protected updateCallback: (sectionName: string, scope: containerDesktopAPI.ConfigurationScope) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private configurationValues: Map<string, any>,
     private globalSection?: string,
@@ -88,7 +88,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
       this.apiSender.send('configuration-changed');
     }
     // call only for default scope to save
-    this.updateCallback(this.scope);
+    this.updateCallback(section, this.scope);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

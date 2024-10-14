@@ -355,10 +355,12 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     section?: string,
     scope?: containerDesktopAPI.ConfigurationScope,
   ): containerDesktopAPI.Configuration {
-    const callback = (scope: containerDesktopAPI.ConfigurationScope): void => {
+    const callback = (sectionName: string, scope: containerDesktopAPI.ConfigurationScope): void => {
       if (scope === CONFIGURATION_DEFAULT_SCOPE) {
         this.saveDefault();
       }
+      // perform notification in case of the update
+      this._onDidUpdateConfiguration.fire({ properties: [sectionName] });
     };
     return new ConfigurationImpl(this.apiSender, callback, this.configurationValues, section, scope);
   }
