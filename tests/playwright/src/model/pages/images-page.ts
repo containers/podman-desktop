@@ -228,4 +228,19 @@ export class ImagesPage extends MainPage {
       await handleConfirmationDialog(this.page);
     });
   }
+
+  async getCountOfImagesByStatus(status: string): Promise<number> {
+    return await test.step(`Get count from ${this.title} for images with status: ${status}`, async () => {
+      const currentRows = await this.getAllTableRows();
+      let count = 0;
+      if (currentRows.length < 2) return 0;
+
+      for (let rowNum = 1; rowNum < currentRows.length; rowNum++) {
+        //skip header
+        const statusCount = await currentRows[rowNum].getByRole('status').getByTitle(status, { exact: true }).count();
+        if (statusCount > 0) ++count;
+      }
+      return count;
+    });
+  }
 }
