@@ -104,13 +104,10 @@ export class PodmanDownload {
 
     // grab only first 2 digits from the version
     const majorMinorVersion = podmanJSON.version.split('.').slice(0, 2).join('.');
-
-    const diskType = this.#platform === 'win32' ? DiskType.WSL : DiskType.Applehv;
     this.#podman5DownloadMachineOS = new Podman5DownloadMachineOS(
       majorMinorVersion,
       this.#shaCheck,
       this.#assetsFolder,
-      diskType,
     );
   }
 
@@ -140,8 +137,7 @@ export class PodmanDownload {
       return;
     }
 
-    // download the podman 5 machines OS
-    await this.#podman5DownloadMachineOS?.download();
+    await this.#podman5DownloadMachineOS?.setAndDownload(this.#platform);
   }
 }
 
@@ -156,21 +152,16 @@ export class Podman5DownloadMachineOS {
   #version: string;
   #shaCheck: ShaCheck;
   #assetsFolder: string;
-  #diskType: DiskType;
   #ociRegistryProjectLink: string;
 
   constructor(
     readonly version: string,
     readonly shaCheck: ShaCheck,
     readonly assetsFolder: string,
-    readonly diskType: DiskType,
   ) {
-    this.#diskType = diskType;
     this.#version = version;
     this.#shaCheck = shaCheck;
     this.#assetsFolder = assetsFolder;
-    // Windows uses WSL => machine-os-wsl ; MacOS uses Applehv => machine-os
-    this.#ociRegistryProjectLink = `https://quay.io/v2/podman/${diskType === DiskType.WSL ? 'machine-os-wsl' : 'machine-os'}`;
   }
 
   async getManifest(manifestUrl: string): Promise<any> {
@@ -254,9 +245,21 @@ export class Podman5DownloadMachineOS {
     }
   }
 
-  // For macOS, need to grab images from quay.io/podman/machine-os repository
-  // For Windos, need to grab images from quay.io/podman/machine-os-wsl repository
-  async download(): Promise<void> {
+  async setAndDownload(platform: string): Promise<void> {
+    this.#ociRegistryProjectLink = 'https://quay.io/v2/podman/machine-os';
+    // download the podman 5 machines OS
+    if (platform === 'win32') {
+      // Here add downloading of HyperV
+      this.#ociRegistryProjectLink = 'https://quay.io/v2/podman/machine-os-wsl';
+      await this.download(DiskType.WSL);
+    } else {
+      await this.download(DiskType.Applehv);
+    }
+  }
+
+  // For Windows WSL, need to grab images from quay.io/podman/machine-os-wsl repository
+  // Otherwise grab images from quay.io/podman/machine-os repository
+  async download(diskType: DiskType): Promise<void> {
     const manifestUrl = `${this.#ociRegistryProjectLink}/manifests/${this.#version}`;
 
     // get first level of manifests
@@ -274,8 +277,8 @@ export class Podman5DownloadMachineOS {
       const annotations = manifest.annotations;
       return (
         annotations &&
-        ((this.#diskType === DiskType.WSL && annotations.disktype === 'wsl') ||
-          (this.#diskType === DiskType.Applehv && annotations.disktype === 'applehv'))
+        ((diskType === DiskType.WSL && annotations.disktype === 'wsl') ||
+          (diskType === DiskType.Applehv && annotations.disktype === 'applehv'))
       );
     });
 
