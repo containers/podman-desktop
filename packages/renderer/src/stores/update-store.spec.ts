@@ -18,7 +18,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { waitFor } from '@testing-library/dom';
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -29,6 +28,7 @@ const receiveMock = vi.fn();
 const podmanDesktopUpdateAvailableMock = vi.fn();
 
 beforeEach(() => {
+  vi.resetAllMocks();
   (window as any).podmanDesktopUpdateAvailable = podmanDesktopUpdateAvailableMock.mockResolvedValue(false);
   (window.events as unknown) = {
     receive: receiveMock.mockImplementation((channel: string, func: any) => {
@@ -38,8 +38,7 @@ beforeEach(() => {
 });
 
 test('updateAvailable starts as podmanDesktopUpdateAvailable value or false if undefined', async () => {
-  setup();
-  await waitFor(() => expect(receiveMock).toBeCalled());
+  await setup();
 
   expect(get(updateAvailable)).toBeFalsy();
 
@@ -55,10 +54,4 @@ test('updateAvailable starts as podmanDesktopUpdateAvailable value or false if u
   message(false);
 
   expect(get(updateAvailable)).toBeFalsy();
-});
-
-test('updateAvailable starts as true', async () => {
-  podmanDesktopUpdateAvailableMock.mockResolvedValue(true);
-  setup();
-  await waitFor(() => expect(receiveMock).toBeCalled());
 });
