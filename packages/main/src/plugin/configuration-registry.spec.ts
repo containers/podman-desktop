@@ -273,3 +273,20 @@ test('addConfigurationEnum with a previous default value', async () => {
   const val = configurationRegistry.getConfiguration('my.fake')?.get<string>('enum.property');
   expect(val).toEqual('myValue1');
 });
+
+describe('should be notified when a configuration is updated', async () => {
+  test('expect correct properties', async () => {
+    let called = false;
+    let updatedProperties: string[] = [];
+    configurationRegistry.onDidUpdateConfiguration(e => {
+      called = true;
+      updatedProperties = e.properties;
+    });
+    const config = configurationRegistry.getConfiguration('my.fake.property', 'myValue');
+    await config.update('myKey', 'myValue');
+
+    expect(called).toBeTruthy();
+    expect(updatedProperties).toEqual(['myKey']);
+    expect(config.get('myKey')).toBe('myValue');
+  });
+});
