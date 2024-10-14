@@ -548,7 +548,7 @@ describe('Podman5DownloadMachineOS', () => {
           digest: 'sha256:c7bbce32d96c44b0db6e05a3f78fa4cb11f578c7d18cec49d23a7d6b40843a05',
           size: 11009,
           platform: {
-            architecture: 'x86_644',
+            architecture: 'x86_64',
             os: 'linux',
           },
         },
