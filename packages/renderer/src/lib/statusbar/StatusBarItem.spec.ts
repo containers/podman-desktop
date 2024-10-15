@@ -17,11 +17,22 @@
  ***********************************************************************/
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { iconClass } from './StatusBarItem';
 import StatusBarItem from './StatusBarItem.svelte';
+
+beforeAll(() => {
+  Object.defineProperty(window, 'executeStatusBarEntryCommand', {
+    value: vi.fn(),
+  });
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('check iconClass with font awesome icons', () => {
   const statusBarEntry: StatusBarEntry = {
@@ -77,4 +88,54 @@ test('expect dot rendered', () => {
 
   const dot = screen.getByRole('status');
   expect(dot).toBeDefined();
+});
+
+test('expect click on the item with command/args', async () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    command: 'my.command',
+    commandArgs: ['arg1', 'arg2'],
+  };
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  /// get the item and click on it
+  const item = screen.getByRole('button');
+  await userEvent.click(item);
+
+  // check we've called executeStatusBarEntryCommand
+  expect(window.executeStatusBarEntryCommand).toHaveBeenCalledWith('my.command', ['arg1', 'arg2']);
+});
+
+test('expect click on the item with command but proxy args', async () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    command: 'my.command',
+  };
+
+  // here we don't have real args, but we are faking a proxy object
+  const obj1 = {
+    toJSON(): string {
+      return 'arg1';
+    },
+  };
+  const obj2 = {
+    toJSON(): string {
+      return 'arg2';
+    },
+  };
+  const targetArray = [obj1, obj2];
+
+  statusBarEntry.commandArgs = targetArray;
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  /// get the item and click on it
+  const item = screen.getByRole('button');
+  await userEvent.click(item);
+
+  // check we've called executeStatusBarEntryCommand but not with uncloneable objects, but with their values
+  expect(window.executeStatusBarEntryCommand).toHaveBeenCalledWith('my.command', ['arg1', 'arg2']);
 });
