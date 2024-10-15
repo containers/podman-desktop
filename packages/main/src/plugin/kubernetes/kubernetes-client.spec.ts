@@ -605,7 +605,7 @@ test('should return deployment list if connection to cluster is ok', async () =>
   expect(list[0]?.metadata?.name).toEqual('deployment');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedDeployment reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -702,7 +702,7 @@ test('should return ingress list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('ingress');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedIngress reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -816,7 +816,7 @@ test('should return route list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('route');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (getNamespacedCustomObject reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -1004,7 +1004,7 @@ test('should return service list if connection to cluster is ok', async () => {
   expect(list[0]?.metadata?.name).toEqual('service');
 });
 
-test('should throw error if cannot call the cluster', async () => {
+test('should throw error if cannot call the cluster (readNamespacedService reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
@@ -2406,4 +2406,104 @@ test('Should throw an error if unable to restart controlled pod', async () => {
   client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: false, controllerType: undefined });
 
   await expect(client.restartPod('test-pod')).rejects.toThrow('unable to restart controlled pod');
+});
+
+test('test sync resources was called', async () => {
+  const client = createTestClient('default');
+  const context = 'test-context';
+  const namespace = 'default';
+  const manifests: KubernetesObject[] = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'test-pod',
+      },
+    },
+  ];
+
+  const mockedPatch = vi.fn();
+
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn(),
+    create: vi.fn(),
+    patch: mockedPatch,
+  });
+
+  // Call the syncResources method with 'create' action
+  await client.syncResources(context, manifests, 'apply', namespace);
+
+  // Expect patch method to have been called
+  expect(mockedPatch).toHaveBeenCalled();
+
+  // We expect it to have been called with the same object, but with a few "extra" fiels such as last-applied-configuration
+  expect(mockedPatch).toHaveBeenCalledWith(
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        annotations: {
+          // eslint-disable-next-line no-useless-escape
+          'kubectl.kubernetes.io/last-applied-configuration': `{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"name\":\"test-pod\",\"annotations\":{}}}`,
+        },
+        name: 'test-pod',
+        namespace: 'default',
+      },
+    },
+    undefined,
+    undefined,
+    'podman-desktop',
+  );
+});
+
+test('test sync resources was called with no resourceVersion, uid, selfLink, or creationTimestamp being passed through', async () => {
+  const client = createTestClient('default');
+  const context = 'test-context';
+  const namespace = 'default';
+  const manifests: KubernetesObject[] = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'test-pod',
+        resourceVersion: '123',
+        uid: 'uid123',
+        selfLink: '/api/v1/namespaces/default/pods/test-pod',
+        creationTimestamp: new Date(42),
+      },
+    },
+  ];
+
+  const mockedPatch = vi.fn();
+
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn(),
+    create: vi.fn(),
+    patch: mockedPatch,
+  });
+
+  // Call the syncResources method with 'create' action
+  await client.syncResources(context, manifests, 'apply', namespace);
+
+  // Expect patch method to have been called
+  expect(mockedPatch).toHaveBeenCalled();
+
+  // Expect it to be called with NO resourceVersion, uid, selfLink, or creationTimestamp in the metadata, however, it is okay to have it in 'last-applied-configuration'
+  expect(mockedPatch).toHaveBeenCalledWith(
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        annotations: {
+          // eslint-disable-next-line no-useless-escape
+          'kubectl.kubernetes.io/last-applied-configuration': `{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"name\":\"test-pod\",\"resourceVersion\":\"123\",\"uid\":\"uid123\",\"selfLink\":\"/api/v1/namespaces/default/pods/test-pod\",\"creationTimestamp\":\"1970-01-01T00:00:00.042Z\",\"annotations\":{}}}`,
+        },
+        name: 'test-pod',
+        namespace: 'default',
+      },
+    },
+    undefined,
+    undefined,
+    'podman-desktop',
+  );
 });

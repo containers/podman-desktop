@@ -34,6 +34,7 @@ import svelte from 'eslint-plugin-svelte';
 import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import fileProgress from 'eslint-plugin-file-progress';
+import vitest from '@vitest/eslint-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,6 +61,7 @@ export default [
       '**/exposedIn*.d.ts',
       '*.config.*js',
       '**/*.config.*js',
+      '**/*.tests.setup.*js',
       '**/dist/**/*',
       '**/test-resources',
       '**/__mocks__/',
@@ -99,6 +101,7 @@ export default [
       'no-null': fixupPluginRules(noNull),
       'redundant-undefined': fixupPluginRules(redundantUndefined),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
+      vitest,
     },
     settings: {
       'import/resolver': {
@@ -142,6 +145,8 @@ export default [
   },
   {
     rules: {
+      'vitest/no-import-node-test': 'error',
+      'vitest/no-identical-title': 'error',
       eqeqeq: 'error',
       'prefer-promise-reject-errors': 'error',
       semi: ['error', 'always'],

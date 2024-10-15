@@ -56,6 +56,7 @@ import type {
 import type { ContainerInspectInfo } from '/@api/container-inspect-info';
 import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import type { ContributionInfo } from '/@api/contribution-info';
+import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info';
 import type { ExtensionInfo } from '/@api/extension-info';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
@@ -78,7 +79,9 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info';
+import type { ProxyState } from '/@api/proxy';
 import type { PullEvent } from '/@api/pull-event';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info';
 import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
@@ -381,6 +384,13 @@ export function initExposure(): void {
       providerContainerConnectionInfo: ProviderContainerConnectionInfo,
     ): Promise<{ Id: string; Names: string[] }[]> => {
       return ipcInvoke('container-provider-registry:listContainersFromEngine', providerContainerConnectionInfo);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'resolveShortnameImage',
+    async (providerContainerConnectionInfo: ProviderContainerConnectionInfo, shortName: string): Promise<string[]> => {
+      return ipcInvoke('container-provider-registry:resolveShortnameImage', providerContainerConnectionInfo, shortName);
     },
   );
 
@@ -748,10 +758,10 @@ export function initExposure(): void {
     return ipcInvoke('proxy:getSettings');
   });
 
-  contextBridge.exposeInMainWorld('isProxyEnabled', async (): Promise<boolean> => {
-    return ipcInvoke('proxy:isEnabled');
+  contextBridge.exposeInMainWorld('getProxyState', async (): Promise<ProxyState> => {
+    return ipcInvoke('proxy:getState');
   });
-  contextBridge.exposeInMainWorld('setProxyState', async (state: boolean): Promise<void> => {
+  contextBridge.exposeInMainWorld('setProxyState', async (state: ProxyState): Promise<void> => {
     return ipcInvoke('proxy:setState', state);
   });
 
@@ -1155,6 +1165,18 @@ export function initExposure(): void {
       return ipcInvoke('status-bar:executeStatusBarEntryCommand', command, args);
     },
   );
+
+  contextBridge.exposeInMainWorld('updatePodmanDesktop', async (): Promise<void> => {
+    return ipcInvoke('app:update');
+  });
+
+  contextBridge.exposeInMainWorld('podmanDesktopUpdateAvailable', async (): Promise<boolean> => {
+    return ipcInvoke('app:update-available');
+  });
+
+  contextBridge.exposeInMainWorld('podmanDesktopGetReleaseNotes', async (): Promise<ReleaseNotesInfo> => {
+    return ipcInvoke('app:get-release-notes');
+  });
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');
@@ -1604,7 +1626,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'sendShowQuickPickValues',
-    async (quickPickId: number, selectedIndexes: number[]): Promise<void> => {
+    async (quickPickId: number, selectedIndexes?: number[]): Promise<void> => {
       return ipcInvoke('showQuickPick:values', quickPickId, selectedIndexes);
     },
   );
@@ -2237,6 +2259,21 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('contextCollectAllValues', async (): Promise<Record<string, unknown>> => {
     return ipcInvoke('context:collectAllValues');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'getSystemDockerSocketMappingStatus',
+    async (): Promise<DockerSocketMappingStatusInfo> => {
+      return ipcInvoke('docker-compatibility:getSystemDockerSocketMappingStatus');
+    },
+  );
+
+  contextBridge.exposeInMainWorld('getDockerContexts', async (): Promise<DockerContextInfo[]> => {
+    return ipcInvoke('docker-compatibility:listDockerContexts');
+  });
+
+  contextBridge.exposeInMainWorld('switchDockerContext', async (contextName: string): Promise<DockerContextInfo[]> => {
+    return ipcInvoke('docker-compatibility:switchDockerContext', contextName);
   });
 }
 

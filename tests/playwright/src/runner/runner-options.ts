@@ -19,6 +19,7 @@
 export class RunnerOptions {
   public readonly _profile: string;
   public readonly _customFolder: string;
+  public readonly _customOutputFolder: string;
   public readonly _openDevTools: string;
   public readonly _autoUpdate: boolean;
   public readonly _autoCheckUpdates: boolean;
@@ -30,6 +31,7 @@ export class RunnerOptions {
   constructor({
     profile = '',
     customFolder = 'podman-desktop',
+    customOutputFolder = 'tests/playwright/output/',
     openDevTools = 'none',
     autoUpdate = true,
     autoCheckUpdates = true,
@@ -40,6 +42,7 @@ export class RunnerOptions {
   }: {
     profile?: string;
     customFolder?: string;
+    customOutputFolder?: string;
     openDevTools?: string;
     autoUpdate?: boolean;
     autoCheckUpdates?: boolean;
@@ -50,6 +53,7 @@ export class RunnerOptions {
   } = {}) {
     this._profile = profile;
     this._customFolder = customFolder;
+    this._customOutputFolder = customOutputFolder;
     this._openDevTools = openDevTools;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdates = autoCheckUpdates;

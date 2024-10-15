@@ -7,6 +7,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import { lastPage } from '/@/stores/breadcrumb';
 import type { V1Route } from '/@api/openshift-types';
 
 import MonacoEditor from '../editor/MonacoEditor.svelte';
@@ -134,7 +135,7 @@ onDestroy(() => {
 });
 
 function goBackToHistory(): void {
-  window.history.go(-1);
+  router.goto($lastPage.path);
 }
 
 function openPodDetails(): void {
@@ -557,7 +558,7 @@ function updateKubeResult() {
             </div>
           {/if}
         </div>
-        <div class="text-[var(--pd-content-card-text)]">
+        <div class="text-[var(--pd-content-card-text)]" role="region" aria-label="Pod Deployment Status Info">
           {#if createdPod.metadata?.name}
             <p class="pt-2">Name: {createdPod.metadata.name}</p>
           {/if}

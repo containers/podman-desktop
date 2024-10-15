@@ -10,7 +10,7 @@ tags: [podman-desktop, tutorial]
 
 These tutorials cover end-to-end tasks that you must perform to accomplish a goal while working with the Podman Desktop application. Each task is a procedure that contains a sequence of steps to follow.
 
-Before going through each tutorial, get yourself familiarize with the key UI components of the Podman Desktop application:
+Before going through each tutorial, familiarize yourself with the key UI components of the Podman Desktop application:
 
 ![UI components](img/podman-desktop-ui-components.png)
 
@@ -43,3 +43,8 @@ Before going through each tutorial, get yourself familiarize with the key UI com
 ## List of tutorials
 
 - [Running a pod using a container or docker file](/tutorial/running-a-pod-using-a-container-docker-file)
+- [Running a Kubernetes cluster](/tutorial/running-a-kubernetes-cluster)
+- [Deploying a Kubernetes application](/tutorial/deploying-a-kubernetes-application)
+- [Interacting with a database server](/tutorial/interacting-with-a-database-server)
+- [Managing your application resources](/tutorial/managing-your-application-resources)
+- [Running an AI application](/tutorial/running-an-ai-application)

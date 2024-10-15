@@ -76,159 +76,175 @@ const extentionTypes = [
 ];
 
 for (const { extensionName, extensionType } of extentionTypes) {
-  test.describe.serial(`Extension installation for ${extensionType} @smoke`, () => {
-    test.beforeAll(async () => {
-      await _startup(extensionName);
-    });
-    test.afterAll(async () => {
-      await pdRunner.close();
-    });
-
-    test('Initialize extension type', async () => {
-      initializeLocators(extensionType);
-      await navigationBar.openExtensions();
-    });
-
-    test('Install extension through Extensions Catalog', async () => {
-      test.skip(extensionType === OPENSHIFT_CHECKER);
-      test.setTimeout(200000);
-
-      const extensionsPage = new ExtensionsPage(page);
-
-      await extensionsPage.openCatalogTab();
-      const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
-      await playExpect(extensionCatalog.parent).toBeVisible();
-
-      await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
-      await extensionCatalog.install(180000);
-
-      await extensionsPage.openInstalledTab();
-      await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-    });
-
-    test('Install extension from OCI Image', async () => {
-      test.skip(extensionType !== OPENSHIFT_CHECKER);
-      test.setTimeout(200000);
-
-      const extensionsPage = new ExtensionsPage(page);
-
-      await extensionsPage.installExtensionFromOCIImage(ociImageUrl);
-      await extensionsPage.openCatalogTab();
-      const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
-      await playExpect(extensionCatalog.parent).toBeVisible();
-      await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeTruthy();
-
-      await extensionsPage.openInstalledTab();
-      await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-    });
-
-    test.describe.serial('Extension verification after installation', () => {
-      test('Extension details can be opened', async () => {
-        const extensionsPage = await navigationBar.openExtensions();
-
-        const extensionDetailsPage = await extensionsPage.openExtensionDetails(
-          extensionName,
-          extensionLabel,
-          extensionType,
-        );
-        await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
+  test.describe
+    .serial(`Extension installation for ${extensionType} @smoke`, () => {
+      test.beforeAll(async () => {
+        await _startup(extensionName);
+      });
+      test.afterAll(async () => {
+        await pdRunner.close();
       });
 
-      test('Extension is active and there are not errors', async () => {
-        const extensionsPage = await navigationBar.openExtensions();
-        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
-        await playExpect(extensionPage.heading).toBeVisible();
-        await playExpect(extensionPage.status).toHaveText(ACTIVE);
-        // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
-        const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
-        // we would like to propagate the error's stack trace into test failure message
-        let stackTrace = '';
-        if ((await errorTab.count()) > 0) {
-          stackTrace = await errorTab.innerText();
-        }
-        await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
+      test('Initialize extension type', async () => {
+        initializeLocators(extensionType);
+        await navigationBar.openExtensions();
       });
 
-      test.describe.serial('Extension can be disabled and reenabled', () => {
-        test('Disable extension and verify Dashboard and Resources components if present', async () => {
-          const extensionsPage = await navigationBar.openExtensions();
-          const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+      test('Install extension through Extensions Catalog', async () => {
+        test.skip(extensionType === OPENSHIFT_CHECKER);
+        test.setTimeout(200000);
 
-          await extensionPage.disableExtension();
-          await playExpect(extensionPage.status).toHaveText(DISABLED);
+        const extensionsPage = new ExtensionsPage(page);
 
-          // check that dashboard card provider is hidden/shown
-          if (extensionDashboardProvider && extensionDashboardStatus) {
-            await goToDashboard();
-            await playExpect(extensionDashboardProvider).toBeHidden();
-          }
+        await extensionsPage.openCatalogTab();
+        const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
+        await playExpect(extensionCatalog.parent).toBeVisible();
 
-          // check that thr provider card is on Resources Page
-          if (resourceLabel) {
-            const settingsBar = await goToSettings();
-            const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-            const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-              name: resourceLabel,
-            });
-            await playExpect(extensionResourceBox).toBeHidden();
-          }
-        });
+        await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
+        await extensionCatalog.install(180000);
 
-        test('Enable extension and verify Dashboard and Resources components', async () => {
-          const extensionsPage = await navigationBar.openExtensions();
-          const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
+        await extensionsPage.openInstalledTab();
+        await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
+      });
 
-          await extensionPage.enableExtension();
-          await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
+      test('Install extension from OCI Image', async () => {
+        test.skip(extensionType !== OPENSHIFT_CHECKER);
+        test.setTimeout(200000);
 
-          // check that dashboard card provider is hidden/shown
-          if (extensionDashboardProvider && extensionDashboardStatus) {
-            await goToDashboard();
-            await playExpect(extensionDashboardProvider).toBeVisible();
-            await playExpect(extensionDashboardStatus).toBeVisible();
-            if (extensionType === 'Red Hat OpenShift Sandbox') {
-              await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
-            } else {
-              await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+        const extensionsPage = new ExtensionsPage(page);
+
+        await extensionsPage.installExtensionFromOCIImage(ociImageUrl);
+        await extensionsPage.openCatalogTab();
+        const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
+        await playExpect(extensionCatalog.parent).toBeVisible();
+        await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeTruthy();
+
+        await extensionsPage.openInstalledTab();
+        await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
+      });
+
+      test.describe
+        .serial('Extension verification after installation', () => {
+          test('Extension details can be opened', async () => {
+            const extensionsPage = await navigationBar.openExtensions();
+
+            const extensionDetailsPage = await extensionsPage.openExtensionDetails(
+              extensionName,
+              extensionLabel,
+              extensionType,
+            );
+            await playExpect(extensionDetailsPage.status).toBeVisible({ timeout: 15000 });
+          });
+
+          test('Extension is active and there are not errors', async () => {
+            const extensionsPage = await navigationBar.openExtensions();
+            const extensionPage = await extensionsPage.openExtensionDetails(
+              extensionName,
+              extensionLabel,
+              extensionType,
+            );
+            await playExpect(extensionPage.heading).toBeVisible();
+            await playExpect(extensionPage.status).toHaveText(ACTIVE);
+            // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
+            const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
+            // we would like to propagate the error's stack trace into test failure message
+            let stackTrace = '';
+            if ((await errorTab.count()) > 0) {
+              stackTrace = await errorTab.innerText();
             }
-          }
+            await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
+          });
 
-          // check that thr provider card is on Resources Page
-          if (resourceLabel) {
-            const settingsBar = await goToSettings();
-            const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-            const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-              name: resourceLabel,
+          test.describe
+            .serial('Extension can be disabled and reenabled', () => {
+              test('Disable extension and verify Dashboard and Resources components if present', async () => {
+                const extensionsPage = await navigationBar.openExtensions();
+                const extensionPage = await extensionsPage.openExtensionDetails(
+                  extensionName,
+                  extensionLabel,
+                  extensionType,
+                );
+
+                await extensionPage.disableExtension();
+                await playExpect(extensionPage.status).toHaveText(DISABLED);
+
+                // check that dashboard card provider is hidden/shown
+                if (extensionDashboardProvider && extensionDashboardStatus) {
+                  await goToDashboard();
+                  await playExpect(extensionDashboardProvider).toBeHidden();
+                }
+
+                // check that thr provider card is on Resources Page
+                if (resourceLabel) {
+                  const settingsBar = await goToSettings();
+                  const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+                  const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+                    name: resourceLabel,
+                  });
+                  await playExpect(extensionResourceBox).toBeHidden();
+                }
+              });
+
+              test('Enable extension and verify Dashboard and Resources components', async () => {
+                const extensionsPage = await navigationBar.openExtensions();
+                const extensionPage = await extensionsPage.openExtensionDetails(
+                  extensionName,
+                  extensionLabel,
+                  extensionType,
+                );
+
+                await extensionPage.enableExtension();
+                await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
+
+                // check that dashboard card provider is hidden/shown
+                if (extensionDashboardProvider && extensionDashboardStatus) {
+                  await goToDashboard();
+                  await playExpect(extensionDashboardProvider).toBeVisible();
+                  await playExpect(extensionDashboardStatus).toBeVisible();
+                  if (extensionType === 'Red Hat OpenShift Sandbox') {
+                    await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
+                  } else {
+                    await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+                  }
+                }
+
+                // check that thr provider card is on Resources Page
+                if (resourceLabel) {
+                  const settingsBar = await goToSettings();
+                  const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+                  const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+                    name: resourceLabel,
+                  });
+                  await playExpect(extensionResourceBox).toBeVisible();
+                }
+              });
             });
-            await playExpect(extensionResourceBox).toBeVisible();
-          }
         });
-      });
+
+      test.describe
+        .serial('Remove extension and verify UI', () => {
+          test('Remove extension and verify components', async () => {
+            let extensionsPage = await navigationBar.openExtensions();
+
+            const extensionDetails = await extensionsPage.openExtensionDetails(
+              extensionName,
+              extensionLabel,
+              extensionType,
+            );
+
+            await extensionDetails.disableExtension();
+            await extensionDetails.removeExtension();
+
+            // now if deleted from extension details, the page details still there, just different
+            await playExpect(extensionDetails.status).toHaveText(DOWNLOADABLE);
+            await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
+
+            await goToDashboard();
+            extensionsPage = await navigationBar.openExtensions();
+            playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
+          });
+        });
     });
-
-    test.describe.serial('Remove extension and verify UI', () => {
-      test('Remove extension and verify components', async () => {
-        let extensionsPage = await navigationBar.openExtensions();
-
-        const extensionDetails = await extensionsPage.openExtensionDetails(
-          extensionName,
-          extensionLabel,
-          extensionType,
-        );
-
-        await extensionDetails.disableExtension();
-        await extensionDetails.removeExtension();
-
-        // now if deleted from extension details, the page details still there, just different
-        await playExpect(extensionDetails.status).toHaveText(DOWNLOADABLE);
-        await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
-
-        await goToDashboard();
-        extensionsPage = await navigationBar.openExtensions();
-        playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
-      });
-    });
-  });
 }
 
 function initializeLocators(extensionType: string): void {

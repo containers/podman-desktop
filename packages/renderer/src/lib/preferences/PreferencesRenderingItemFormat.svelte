@@ -150,7 +150,10 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     <ErrorMessage error="{invalidText}." icon={true} class="mr-2" />
   {/if}
   {#if record.type === 'boolean'}
-    <BooleanItem record={record} checked={!!recordValue} onChange={onChange} />
+    <BooleanItem
+      record={record}
+      checked={typeof givenValue === 'boolean' ? givenValue : !!recordValue}
+      onChange={onChange} />
   {:else if record.type === 'number' || record.type === 'integer'}
     {#if enableSlider && typeof record.maximum === 'number'}
       <SliderItem
@@ -166,11 +169,17 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     {/if}
   {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
     {#if record.format === 'file' || record.format === 'folder'}
-      <FileItem record={record} value={recordValue ?? ''} onChange={onChange} />
+      <FileItem
+        record={record}
+        value={typeof givenValue === 'string' ? givenValue : (recordValue ?? '')}
+        onChange={onChange} />
     {:else if record.enum && record.enum.length > 0}
-      <EnumItem record={record} value={recordValue} onChange={onChange} />
+      <EnumItem record={record} value={typeof givenValue === 'string' ? givenValue : recordValue} onChange={onChange} />
     {:else}
-      <StringItem record={record} value={recordValue} onChange={onChange} />
+      <StringItem
+        record={record}
+        value={typeof givenValue === 'string' ? givenValue : recordValue}
+        onChange={onChange} />
     {/if}
   {:else if record.type === 'markdown'}
     <div class="text-sm">

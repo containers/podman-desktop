@@ -15,7 +15,7 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
 
 - Continue using familiar Docker commands.
 - Take advantage of the benefits of Podman.
-- Your tools, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Your tools, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.com/), communicate with Podman without reconfiguration.
 
 #### Prerequisites
 
@@ -101,4 +101,4 @@ $ export DOCKER_HOST=unix://<your_podman_socket_location>
 
 #### Verification
 
-- Your tools using the `DOCKER_HOST` environment variable, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Your tools using the `DOCKER_HOST` environment variable, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.com/), communicate with Podman without reconfiguration.

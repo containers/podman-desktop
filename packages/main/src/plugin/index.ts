@@ -76,6 +76,7 @@ import type {
 import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
+import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
@@ -98,7 +99,9 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info.js';
+import type { ProxyState } from '/@api/proxy.js';
 import type { PullEvent } from '/@api/pull-event.js';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 import type { ViewInfoUI } from '/@api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
@@ -127,6 +130,7 @@ import { ContributionManager } from './contribution-manager.js';
 import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import { Directories } from './directories.js';
+import { DockerCompatibility } from './docker/docker-compatibility.js';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
 import type {
@@ -159,6 +163,7 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { ProviderRegistry } from './provider-registry.js';
 import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import { ReleaseNotesBannerInit } from './release-notes-banner-init.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
@@ -467,7 +472,7 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
-    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
     taskManager.init();
 
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
@@ -493,6 +498,9 @@ export class PluginSystem {
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
+
+    const dockerCompatibility = new DockerCompatibility(configurationRegistry, providerRegistry);
+    dockerCompatibility.init();
 
     const messageBox = new MessageBox(apiSender);
 
@@ -564,7 +572,15 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry, taskManager).init();
+    const podmanDesktopUpdater = new Updater(
+      messageBox,
+      configurationRegistry,
+      statusBarRegistry,
+      commandRegistry,
+      taskManager,
+      apiSender,
+    );
+    podmanDesktopUpdater.init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -584,6 +600,9 @@ export class PluginSystem {
 
     const confirmationConfiguration = new ConfirmationInit(configurationRegistry);
     confirmationConfiguration.init();
+
+    const releaseNotesBannerConfiguration = new ReleaseNotesBannerInit(configurationRegistry);
+    releaseNotesBannerConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
@@ -615,7 +634,7 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
-    const imageFiles = new ImageFilesRegistry(apiSender);
+    const imageFiles = new ImageFilesRegistry(apiSender, configurationRegistry, context);
 
     const troubleshooting = new Troubleshooting();
 
@@ -1037,6 +1056,16 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:resolveShortnameImage',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        shortName: string,
+      ): Promise<string[]> => {
+        return containerProviderRegistry.resolveShortnameImage(providerContainerConnectionInfo, shortName);
+      },
+    );
+    this.ipcHandle(
       'container-provider-registry:pullImage',
       async (
         _listener,
@@ -1319,6 +1348,18 @@ export class PluginSystem {
         await commandRegistry.executeCommand(command, args);
       },
     );
+
+    this.ipcHandle('app:update', async (): Promise<void> => {
+      await commandRegistry.executeCommand('update');
+    });
+
+    this.ipcHandle('app:update-available', async (): Promise<boolean> => {
+      return podmanDesktopUpdater.updateAvailable();
+    });
+
+    this.ipcHandle('app:get-release-notes', async (): Promise<ReleaseNotesInfo> => {
+      return podmanDesktopUpdater.getReleaseNotes();
+    });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
@@ -1638,9 +1679,12 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('showQuickPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
-      return inputQuickPickRegistry.onQuickPickValuesSelected(id, indexes);
-    });
+    this.ipcHandle(
+      'showQuickPick:values',
+      async (_listener, id: number, indexes: number[] | undefined): Promise<void> => {
+        return inputQuickPickRegistry.onQuickPickValuesSelected(id, indexes);
+      },
+    );
 
     this.ipcHandle(
       'showInputBox:validate',
@@ -1920,16 +1964,19 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: boolean): Promise<void> => {
-      return proxy.setState(state);
-    });
+    this.ipcHandle(
+      'proxy:setState',
+      async (_listener: Electron.IpcMainInvokeEvent, state: ProxyState): Promise<void> => {
+        return proxy.setState(state);
+      },
+    );
 
     this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
       return proxy.proxy;
     });
 
-    this.ipcHandle('proxy:isEnabled', async (): Promise<boolean> => {
-      return proxy.isEnabled();
+    this.ipcHandle('proxy:getState', async (): Promise<ProxyState> => {
+      return proxy.getState();
     });
 
     this.ipcHandle(
@@ -2685,6 +2732,24 @@ export class PluginSystem {
     this.ipcHandle(
       'context:collectAllValues',
       async (): Promise<Record<string, unknown>> => context.collectAllValues(),
+    );
+
+    this.ipcHandle(
+      'docker-compatibility:getSystemDockerSocketMappingStatus',
+      async (): Promise<DockerSocketMappingStatusInfo> => {
+        return dockerCompatibility.getSystemDockerSocketMappingStatus();
+      },
+    );
+
+    this.ipcHandle('docker-compatibility:listDockerContexts', async (): Promise<DockerContextInfo[]> => {
+      return dockerCompatibility.listDockerContexts();
+    });
+
+    this.ipcHandle(
+      'docker-compatibility:switchDockerContext',
+      async (_listener, dockerContextName: string): Promise<void> => {
+        return dockerCompatibility.switchDockerContext(dockerContextName);
+      },
     );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

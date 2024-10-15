@@ -17,7 +17,9 @@
      * of JS in `.svelte` files.
      */
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "types": ["@testing-library/jest-dom"]
   },
+
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "../../types/**/*.d.ts"]
 }

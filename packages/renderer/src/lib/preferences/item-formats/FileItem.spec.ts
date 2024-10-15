@@ -26,6 +26,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import FileItem from './FileItem.svelte';
 
 const openDialogMock = vi.fn();
+
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).openDialog = openDialogMock;
@@ -90,4 +91,28 @@ test('Ensure clicking on browse invokes openDialog with corresponding directory 
     title: 'Select record-description',
     selectors: ['openDirectory'],
   });
+});
+
+test('Ensure the onChange is called if the fileInput onChange is triggered', async () => {
+  const filename = 'somefile';
+  openDialogMock.mockResolvedValue([filename]);
+
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    format: 'file',
+  };
+
+  const onChangeMock = vi.fn().mockResolvedValue('');
+  render(FileItem, { record, value: '', onChange: onChangeMock });
+  const browseButton = screen.getByRole('button');
+  expect(browseButton).toBeInTheDocument();
+  await userEvent.click(browseButton);
+
+  expect(openDialogMock).toHaveBeenCalled();
+
+  expect(onChangeMock).toHaveBeenCalled();
 });

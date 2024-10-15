@@ -117,7 +117,7 @@ describe('title', () => {
     expect(title).toBeNull();
   });
 
-  test('title should not be visible by default', async () => {
+  test('title should be visible when displayTitle is true', async () => {
     render(FeaturedExtension, {
       featuredExtension: fetchableFeaturedExtension,
       displayTitle: true,

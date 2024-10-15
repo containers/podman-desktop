@@ -17,7 +17,9 @@
  ***********************************************************************/
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
+import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
+import { kubernetesCurrentContextState } from '../kubernetes-contexts-state';
 import { createNavigationKubernetesConfigMapSecretsEntry } from './kubernetes/navigation-registry-k8s-configmap-secrets.svelte';
 import { createNavigationKubernetesDeploymentsEntry } from './kubernetes/navigation-registry-k8s-deployments.svelte';
 import { createNavigationKubernetesIngressesRoutesEntry } from './kubernetes/navigation-registry-k8s-ingresses-routes.svelte';
@@ -26,7 +28,12 @@ import { createNavigationKubernetesPersistentVolumeEntry } from './kubernetes/na
 import { createNavigationKubernetesServicesEntry } from './kubernetes/navigation-registry-k8s-services.svelte';
 import type { NavigationRegistryEntry } from './navigation-registry';
 
+// All the items for the menu
 let kubernetesNavigationGroupItems: NavigationRegistryEntry[] = $state([]);
+// Is there a Kubernetes context?
+let context = $state(true);
+// the items being returned to the caller, depending on the existence of a context
+const displayedItems = $derived(context ? kubernetesNavigationGroupItems : []);
 
 export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   const newItems: NavigationRegistryEntry[] = [];
@@ -38,6 +45,10 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   newItems.push(createNavigationKubernetesConfigMapSecretsEntry());
   kubernetesNavigationGroupItems = newItems;
 
+  kubernetesCurrentContextState.subscribe(value => {
+    context = value.error !== NO_CURRENT_CONTEXT_ERROR;
+  });
+
   const mainGroupEntry: NavigationRegistryEntry = {
     name: 'Kubernetes',
     icon: { iconComponent: KubeIcon },
@@ -48,7 +59,7 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
       return 0;
     },
     get items() {
-      return kubernetesNavigationGroupItems;
+      return displayedItems;
     },
   };
 

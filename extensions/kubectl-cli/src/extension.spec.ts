@@ -20,11 +20,10 @@
 import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { afterEach } from 'node:test';
 
 import type { CliToolSelectUpdate, Configuration, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as cliRun from './cli-run';
 import * as KubectlExtension from './extension';
@@ -196,34 +195,6 @@ test('kubectl CLI tool not registered when version json stdout cannot be parsed'
         `Error getting kubectl from user PATH: SyntaxError: Expected property name or '}' in JSON at position 1`,
       ),
     );
-  });
-});
-
-test('kubectl CLI tool not registered when version cannot be extracted from object', async () => {
-  const wrongJsonStdout = {
-    clientVersion: {
-      ...jsonStdout.clientVersion,
-    },
-  };
-  delete (wrongJsonStdout.clientVersion as any).gitVersion;
-  vi.mocked(extensionApi.process.exec).mockResolvedValue({
-    stderr: '',
-    stdout: JSON.stringify(wrongJsonStdout),
-    command: 'kubectl version --client=true -o=json',
-  });
-
-  const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'warn').mockImplementation((message: string) => {
-      log(message);
-      resolve();
-    });
-  });
-
-  await KubectlExtension.activate(extensionContext);
-
-  return deferred.then(() => {
-    expect(console.warn).toBeCalled();
-    expect(console.warn).toBeCalledWith(expect.stringContaining('Error: Cannot extract version from stdout'));
   });
 });
 

@@ -18,17 +18,24 @@
 
 import { render, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
+import { readable } from 'svelte/store';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
+
 import App from './App.svelte';
-import { navigationRegistry } from './stores/navigation/navigation-registry';
+import { navigationRegistry, type NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
   DashboardPage: vi.fn(),
   RunImage: vi.fn(),
   ImagesList: vi.fn(),
   SubmenuNavigation: vi.fn(),
+  KubernetesEmptyPage: vi.fn(),
+  DeploymentsList: vi.fn(),
 }));
 
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
@@ -60,6 +67,18 @@ vi.mock('./SubmenuNavigation.svelte', () => ({
   default: mocks.SubmenuNavigation,
 }));
 
+vi.mock('./lib/kube/KubernetesEmptyPage.svelte', () => ({
+  default: mocks.KubernetesEmptyPage,
+}));
+
+vi.mock('./lib/deployments/DeploymentsList.svelte', () => ({
+  default: mocks.DeploymentsList,
+}));
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {};
+});
+
 const dispatchEventMock = vi.fn();
 const messages = new Map<string, (args: any) => void>();
 
@@ -72,6 +91,12 @@ beforeEach(() => {
     }),
   };
   (window as any).dispatchEvent = dispatchEventMock;
+  (window.getConfigurationValue as unknown) = vi.fn();
+  vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
+    reachable: false,
+    error: 'initializing',
+    resources: { pods: 0, deployments: 0 },
+  } as ContextGeneralState);
 });
 
 test('test /image/run/* route', async () => {
@@ -127,6 +152,7 @@ test('opens submenu when a `submenu` menu is opened', async () => {
       get counter() {
         return 0;
       },
+      items: [{} as NavigationRegistryEntry],
     },
   ]);
   render(App);
@@ -134,4 +160,27 @@ test('opens submenu when a `submenu` menu is opened', async () => {
   router.goto('/tosubmenu');
   await tick();
   expect(mocks.SubmenuNavigation).toHaveBeenCalled();
+});
+
+test('do not display kubernetes empty screen if current context', async () => {
+  render(App);
+  router.goto('/kubernetes/deployments');
+  await tick();
+  expect(mocks.KubernetesEmptyPage).not.toHaveBeenCalled();
+  expect(mocks.DeploymentsList).toHaveBeenCalled();
+});
+
+test('displays kubernetes empty screen if no current context, without Kubernetes menu', async () => {
+  vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
+    reachable: false,
+    error: NO_CURRENT_CONTEXT_ERROR,
+    resources: { pods: 0, deployments: 0 },
+  } as ContextGeneralState);
+
+  render(App);
+  router.goto('/kubernetes/deployments');
+  await tick();
+  expect(mocks.KubernetesEmptyPage).toHaveBeenCalled();
+  expect(mocks.DeploymentsList).not.toHaveBeenCalled();
+  expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
 });

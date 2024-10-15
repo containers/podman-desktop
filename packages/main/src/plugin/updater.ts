@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app } from 'electron';
+import * as https from 'node:https';
+
+import { app, shell } from 'electron';
 import {
   autoUpdater,
   type ProgressInfo,
@@ -33,7 +35,10 @@ import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.j
 import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
+import type { ReleaseNotesInfo } from '/@api/release-notes-info.js';
 
+import { homepage, repository } from '../../../../package.json';
+import type { ApiSenderType } from './api.js';
 import type { TaskManager } from './tasks/task-manager.js';
 
 /**
@@ -55,11 +60,64 @@ export class Updater {
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
     private taskManager: TaskManager,
+    private apiSender: ApiSenderType,
   ) {
     this.#currentVersion = `v${app.getVersion()}`;
     this.#updateInProgress = false;
     this.#updateAlreadyDownloaded = false;
     this.#updateCheckResult = undefined;
+  }
+
+  public async openReleaseNotes(version: string): Promise<void> {
+    if (version === 'current') {
+      version = app.getVersion();
+    } else if (version === 'latest') {
+      version = this.#nextVersion?.substring(1) ?? '';
+    }
+    const urlVersionFormat = version.split('.', 2).join('.');
+    let notesURL = `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`;
+    https.get(notesURL, res => {
+      if (res.statusCode !== 200) {
+        notesURL = `${repository}/releases/tag/v${version}`;
+      }
+      shell.openExternal(notesURL).catch(console.error);
+    });
+  }
+
+  public async getReleaseNotes(): Promise<ReleaseNotesInfo> {
+    let version = app.getVersion();
+    if (import.meta.env.DEV && version.endsWith('-next')) {
+      // use the latest release version published on GitHub
+      const response = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
+      if (response.ok) {
+        const latestRelease = await response.json();
+        version = latestRelease.tag_name;
+        // remove the 'v' prefix from the version
+        if (version.startsWith('v')) {
+          version = version.substring(1);
+        }
+      }
+    }
+
+    const urlVersionFormat = version.split('.', 2).join('.');
+
+    const notesURL = `${homepage}/release-notes/${urlVersionFormat}.json`;
+    let response = await fetch(notesURL);
+    if (!response.ok) {
+      response = await fetch(`${repository}/releases/tag/v${version}`);
+      if (response.ok) {
+        return { releaseNotesAvailable: false, notesURL: `${repository}/releases/tag/v${version}` };
+      } else {
+        return { releaseNotesAvailable: false, notesURL: '' };
+      }
+    } else {
+      const notesInfo = await response.json();
+      return {
+        releaseNotesAvailable: true,
+        notesURL: `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`,
+        notes: notesInfo,
+      };
+    }
   }
 
   /**
@@ -99,27 +157,32 @@ export class Updater {
     );
   }
 
-  /**
-   * Registers commands related to version and update.
-   */
-  private registerCommands(): void {
+  private registerDefaultCommands(): void {
     // Show a "No update available" only for macOS and Windows users and on production builds
     let detailMessage: string;
     if (!isLinux() && import.meta.env.PROD) {
       detailMessage = 'No update available';
     }
-
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
     this.commandRegistry.registerCommand('version', async () => {
-      await this.messageBox.showMessageBox({
+      const result = await this.messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
+        buttons: ['View release notes'],
       });
+      if (result.response === 0) {
+        await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
+        this.apiSender.send('show-release-notes');
+      }
     });
-
+  }
+  /**
+   * Registers commands related to version and update.
+   */
+  private registerCommands(): void {
     // Update will create a standard "autoUpdater" dialog / update process
     this.commandRegistry.registerCommand('update', async (context?: 'startup' | 'status-bar-entry') => {
       if (this.#updateAlreadyDownloaded) {
@@ -151,9 +214,9 @@ export class Updater {
 
       let buttons: string[];
       if (context === 'startup') {
-        buttons = ['Update now', 'Remind me later', 'Do not show again'];
+        buttons = ['Update now', 'View release notes', 'Remind me later', 'Do not show again'];
       } else {
-        buttons = ['Update now', 'Cancel'];
+        buttons = ['Update now', 'View release notes', 'Cancel'];
       }
 
       const result = await this.messageBox.showMessageBox({
@@ -161,10 +224,12 @@ export class Updater {
         title: 'Update Available now',
         message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${this.#currentVersion}?`,
         buttons: buttons,
-        cancelId: 1,
+        cancelId: 2,
       });
-      if (result.response === 2) {
+      if (result.response === 3) {
         this.updateConfigurationValue('never');
+      } else if (result.response === 1) {
+        await this.openReleaseNotes(updateVersion);
       } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
@@ -344,6 +409,8 @@ export class Updater {
   public init(): Disposable {
     // disable auto download
     autoUpdater.autoDownload = false;
+
+    this.registerDefaultCommands();
 
     // Only check on production builds for Windows and macOS users
     if (!import.meta.env.PROD || isLinux()) {

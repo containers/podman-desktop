@@ -7,11 +7,7 @@
     "access": "public"
   },
   "main": "dist/index.js",
-  "files": [
-    "dist",
-    "!dist/specs/*",
-    "!dist/setupFiles/extended-hooks.*"
-  ],
+  "files": ["dist", "!dist/specs/*", "!dist/setupFiles/extended-hooks.*"],
   "license": "Apache-2.0",
   "scripts": {
     "build": "vite build",
@@ -20,10 +16,10 @@
     "publish:next": "pnpm publish --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "devDependencies": {
-    "@playwright/test": "1.47.2",
+    "@playwright/test": "1.48.0",
     "@types/node": "^20",
-    "electron": "32.1.2",
-    "typescript": "^5.6.2",
-    "vitest": "^2.0.5"
+    "electron": "32.2.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.2"
   }
 }

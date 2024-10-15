@@ -24,15 +24,17 @@ import { DetailsPage } from './details-page';
 export class KubernetesResourceDetailsPage extends DetailsPage {
   readonly applyChangesButton: Locator;
   readonly revertChagesButton: Locator;
+  readonly deleteButton: Locator;
 
   static readonly SUMMARY_TAB = 'Summary';
   static readonly INSPECT_TAB = 'Inspect';
   static readonly KUBE_TAB = 'Kube';
 
-  constructor(page: Page, name: string) {
-    super(page, name);
+  constructor(page: Page, title: string) {
+    super(page, title);
     this.applyChangesButton = this.tabContent.getByRole('button', { name: 'Apply changes to cluster' });
     this.revertChagesButton = this.tabContent.getByRole('button', { name: 'Revert Changes' });
+    this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete', exact: false });
   }
 
   async getState(): Promise<string> {

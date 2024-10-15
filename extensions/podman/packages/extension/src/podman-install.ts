@@ -21,7 +21,7 @@ import * as path from 'node:path';
 import { promisify } from 'node:util';
 
 import * as extensionApi from '@podman-desktop/api';
-import { compare } from 'compare-versions';
+import { compare, compareVersions } from 'compare-versions';
 
 import { BaseCheck, OrCheck, SequenceCheck } from './base-check';
 import { getDetectionChecks } from './detection-checks';
@@ -460,7 +460,7 @@ export class WinInstaller extends BaseInstaller {
       new OrCheck(
         'Windows virtualization',
         new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check(this.extensionContext)]),
-        new HyperVCheck(),
+        new HyperVCheck(true),
       ),
     ];
   }
@@ -512,24 +512,37 @@ class MacOSInstaller extends BaseInstaller {
         getAssetsFolder(),
         `podman-installer-macos-${pkgArch}-v${getBundledPodmanVersion()}.pkg`,
       );
+      const existsPkg = fs.existsSync(pkgPath);
+
+      const pkgUniversalPath = path.resolve(
+        getAssetsFolder(),
+        `podman-installer-macos-universal-v${getBundledPodmanVersion()}.pkg`,
+      );
+      const existsUniversalPkg = fs.existsSync(pkgUniversalPath);
+
+      let pkgToInstall;
+      if (existsPkg) {
+        pkgToInstall = pkgPath;
+      } else if (existsUniversalPkg) {
+        pkgToInstall = pkgUniversalPath;
+      } else {
+        throw new Error(`Can't find Podman package! Path: ${pkgPath} or ${pkgUniversalPath} doesn't exists.`);
+      }
+
       try {
-        if (fs.existsSync(pkgPath)) {
-          try {
-            await extensionApi.process.exec('open', [pkgPath, '-W']);
-          } catch (err) {
-            throw new Error((err as extensionApi.RunError).stderr);
-          }
-          progress.report({ increment: 80 });
-          // we cannot rely on exit code, as installer could be closed and it return '0' exit code
-          // so just check that podman bin file exist.
-          if (fs.existsSync('/opt/podman/bin/podman')) {
-            extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
-            return true;
-          } else {
-            return false;
-          }
+        try {
+          await extensionApi.process.exec('open', [pkgToInstall, '-W']);
+        } catch (err) {
+          throw new Error((err as extensionApi.RunError).stderr);
+        }
+        progress.report({ increment: 80 });
+        // we cannot rely on exit code, as installer could be closed and it return '0' exit code
+        // so just check that podman bin file exist.
+        if (fs.existsSync('/opt/podman/bin/podman')) {
+          extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
+          return true;
         } else {
-          throw new Error(`Can't find Podman package! Path: ${pkgPath} doesn't exists.`);
+          return false;
         }
       } catch (err) {
         console.error('Error during install!');
@@ -668,19 +681,21 @@ export class WSL2Check extends WindowsCheck {
   title = 'WSL2 Installed';
   installWSLCommandId = 'podman.onboarding.installWSL';
 
-  constructor(private extensionContext: extensionApi.ExtensionContext) {
+  constructor(private extensionContext?: extensionApi.ExtensionContext) {
     super();
   }
 
   async init(): Promise<void> {
-    const wslCommand = extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
-      const installSucceeded = await this.installWSL();
-      if (installSucceeded) {
-        // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
-        await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
-      }
-    });
-    this.extensionContext.subscriptions.push(wslCommand);
+    if (this.extensionContext) {
+      const wslCommand = extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+        const installSucceeded = await this.installWSL();
+        if (installSucceeded) {
+          // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
+          await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
+        }
+      });
+      this.extensionContext.subscriptions.push(wslCommand);
+    }
   }
 
   async execute(): Promise<extensionApi.CheckResult> {
@@ -819,8 +834,19 @@ export class WSLVersionCheck extends BaseCheck {
 
 export class HyperVCheck extends WindowsCheck {
   title = 'Hyper-V installed';
+  static readonly PODMAN_MINIMUM_VERSION_FOR_HYPERV = '5.2.0';
+
+  constructor(private installationPreflightMode: boolean = false) {
+    super();
+  }
 
   async execute(): Promise<extensionApi.CheckResult> {
+    // if the hyperv check is called as an installation preflight we skip the podman version check
+    if (!this.installationPreflightMode && !(await this.isPodmanVersionSupported())) {
+      return this.createFailureResult({
+        description: `Hyper-V is only supported with podman version >= ${HyperVCheck.PODMAN_MINIMUM_VERSION_FOR_HYPERV}.`,
+      });
+    }
     if (!(await this.isUserAdmin())) {
       return this.createFailureResult({
         description: 'You must have administrative rights to run Hyper-V Podman machines',
@@ -829,6 +855,11 @@ export class HyperVCheck extends WindowsCheck {
           url: 'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
           title: 'Hyper-V Manual Installation Steps',
         },
+      });
+    }
+    if (!(await this.isPodmanDesktopElevated())) {
+      return this.createFailureResult({
+        description: 'You must run Podman Desktop with administrative rights to run Hyper-V Podman machines.',
       });
     }
     if (!(await this.isHyperVinstalled())) {
@@ -852,6 +883,25 @@ export class HyperVCheck extends WindowsCheck {
       });
     }
     return this.createSuccessfulResult();
+  }
+
+  private async isPodmanVersionSupported(): Promise<boolean> {
+    const installedPodman = await getPodmanInstallation();
+    if (installedPodman?.version) {
+      return compareVersions(installedPodman?.version, HyperVCheck.PODMAN_MINIMUM_VERSION_FOR_HYPERV) >= 0;
+    }
+    return false;
+  }
+
+  private async isPodmanDesktopElevated(): Promise<boolean> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
+        '(New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
+      ]);
+      return res.trim() === 'True';
+    } catch (err: unknown) {
+      return false;
+    }
   }
 
   private async isHyperVinstalled(): Promise<boolean> {

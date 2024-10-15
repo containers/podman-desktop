@@ -13,8 +13,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "format:check": "prettier --cache --check '**/*.{md,js}' 'src/**/*.{css,ts,tsx}'",
-    "format:fix": "prettier --cache --write '**/*.{md,js}' 'src/**/*.{css,ts,tsx}'",
+    "format:check": "biome format",
+    "format:fix": "biome format --write",
     "markdownlint:check": "markdownlint-cli2 --config ../.markdownlint.yaml \"**/*.md\" \"#node_modules\"",
     "markdownlint:fix": "markdownlint-cli2-fix --config ../.markdownlint.yaml \"**/*.md\" \"#node_modules\"",
     "vale": "vale sync && vale --config ../.vale.ini .",
@@ -50,21 +50,13 @@
     "markdownlint-cli2": "^0.14.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
-    "typedoc": "^0.26.7",
-    "typedoc-plugin-markdown": "^4.2.8",
-    "typescript": "^5.6.2",
-    "vitest": "^2.0.5"
+    "typedoc": "^0.26.8",
+    "typedoc-plugin-markdown": "^4.2.9",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.2"
   },
   "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.5%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   }
 }

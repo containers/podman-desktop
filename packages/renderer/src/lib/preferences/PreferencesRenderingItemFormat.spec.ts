@@ -78,7 +78,7 @@ test('Expect to see the checkbox disabled / unable to press when readonly is pas
   expect(button).toBeDisabled();
 });
 
-test('Expect to see checkbox enabled', async () => {
+test('Expect to see checkbox disabled with default to false', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     title: 'my boolean property',
     id: 'myid',
@@ -107,6 +107,21 @@ test('Expect a checkbox when record is type boolean', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('checkbox');
   expect((input as HTMLInputElement).name).toBe('record');
+});
+
+test('Expect to see checkbox checked if givenValue is true', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my boolean property',
+    id: 'myid',
+    parentId: '',
+    type: 'boolean',
+    default: false,
+  };
+  // remove display name
+  await awaitRender(record, { givenValue: true });
+  const button = screen.getByRole('checkbox');
+  expect(button).toBeInTheDocument();
+  expect(button).toBeChecked();
 });
 
 test('Expect a slider when record and its maximum are type number and enableSlider is true', async () => {
@@ -201,6 +216,24 @@ test('Expect a fileinput when record is type string and format folder', async ()
   expect(input).toBeInTheDocument();
 });
 
+test('Expect a fileinput to be populated if the givenValue is defined', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    placeholder: 'Example: text',
+    description: 'record-description',
+    type: 'string',
+    format: 'folder',
+  };
+  await awaitRender(record, { givenValue: 'filename' });
+  const readOnlyInput = screen.getByLabelText('record-description');
+  expect(readOnlyInput).toBeInTheDocument();
+  expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
+  expect((readOnlyInput as HTMLInputElement).value).equals('filename');
+  const input = screen.getByLabelText('browse');
+  expect(input).toBeInTheDocument();
+});
+
 test('Expect a select when record is type string and has enum values', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
@@ -215,6 +248,23 @@ test('Expect a select when record is type string and has enum values', async () 
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLSelectElement).toBe(true);
   expect((input as HTMLSelectElement).name).toBe('record');
+});
+
+test('Expect enum to have the givenValue selected', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    enum: ['first', 'second'],
+  };
+  await awaitRender(record, { givenValue: 'second' });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLSelectElement).toBe(true);
+  expect((input as HTMLSelectElement).name).toBe('record');
+  expect((input as HTMLSelectElement).value).toBe('second');
 });
 
 test('Expect a text input when record is type string', async () => {
@@ -233,6 +283,24 @@ test('Expect a text input when record is type string', async () => {
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLSelectElement).name).toBe('record');
   expect((input as HTMLInputElement).placeholder).toBe(record.placeholder);
+});
+
+test('Expect a text input filled with givenValue when defined', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    placeholder: 'Example: text',
+    type: 'string',
+  };
+  await awaitRender(record, { givenValue: 'fake' });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLSelectElement).name).toBe('record');
+  expect((input as HTMLInputElement).value).equals('fake');
 });
 
 test('Expect tooltip text shows info when input is less than minimum', async () => {

@@ -226,11 +226,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
-  setTimeout(() => {
-    postActivate(extensionContext, kubectlDownload).catch((error: unknown) => {
-      console.error('Error activating extension', error);
-    });
-  }, 0);
+  postActivate(extensionContext, kubectlDownload).catch((error: unknown) => {
+    console.error('Error activating extension', error);
+  });
 }
 
 interface CliFinder {
@@ -337,7 +335,50 @@ async function postActivate(
   let releaseToInstall: KubectlGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
   let currentVersion = kubectl.version;
+  // check if there is a new version to be installed and register the updater
+  let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToUpdateTo: string | undefined;
+  let latestAsset: KubectlGithubReleaseArtifactMetadata | undefined;
+  try {
+    latestAsset = await kubectlDownload.getLatestVersionAsset();
+  } catch (error: unknown) {
+    console.error('Error when downloading kubectl CLI latest release information.', String(error));
+  }
 
+  const update = {
+    version: latestAsset?.tag.slice(1) !== kubectlCliTool.version ? latestAsset?.tag.slice(1) : undefined,
+    selectVersion: async (): Promise<string> => {
+      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
+      releaseToUpdateTo = selected;
+      releaseVersionToUpdateTo = selected.tag.slice(1);
+      return releaseVersionToUpdateTo;
+    },
+    doUpdate: async (): Promise<void> => {
+      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
+        if (latestAsset) {
+          releaseToUpdateTo = latestAsset;
+          releaseVersionToUpdateTo = latestAsset.tag.slice(1);
+        } else {
+          throw new Error(`Cannot update ${path}. No release selected.`);
+        }
+      }
+      // download, install system wide and update cli version
+      const binaryPath = await kubectlDownload.download(releaseToUpdateTo);
+      await installBinaryToSystem(binaryPath, 'kubectl');
+      kubectlCliTool?.updateVersion({
+        version: releaseVersionToUpdateTo,
+        installationSource: 'extension',
+      });
+      currentVersion = releaseVersionToUpdateTo;
+      if (releaseToUpdateTo === latestAsset) {
+        delete update.version;
+      } else {
+        update.version = latestAsset?.tag.slice(1);
+      }
+      releaseVersionToUpdateTo = undefined;
+      releaseToUpdateTo = undefined;
+    },
+  };
   kubectlCliToolUpdaterDisposable = kubectlCliTool.registerInstaller({
     selectVersion: async () => {
       const selected = await kubectlDownload.promptUserForVersion(currentVersion);
@@ -388,33 +429,7 @@ async function postActivate(
     return;
   }
 
-  // check if there is a new version to be installed and register the updater
-  let releaseToUpdateTo: KubectlGithubReleaseArtifactMetadata | undefined;
-  let releaseVersionToUpdateTo: string | undefined;
-
-  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
-    selectVersion: async () => {
-      const selected = await kubectlDownload.promptUserForVersion(currentVersion);
-      releaseToUpdateTo = selected;
-      releaseVersionToUpdateTo = selected.tag.slice(1);
-      return releaseVersionToUpdateTo;
-    },
-    doUpdate: async _logger => {
-      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
-        throw new Error(`Cannot update ${path}. No release selected.`);
-      }
-      // download, install system wide and update cli version
-      const binaryPath = await kubectlDownload.download(releaseToUpdateTo);
-      await installBinaryToSystem(binaryPath, 'kubectl');
-      kubectlCliTool?.updateVersion({
-        version: releaseVersionToUpdateTo,
-        installationSource: 'extension',
-      });
-      currentVersion = releaseVersionToUpdateTo;
-      releaseVersionToUpdateTo = undefined;
-      releaseToUpdateTo = undefined;
-    },
-  });
+  kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate(update);
 
   extensionContext.subscriptions.push(kubectlCliToolUpdaterDisposable);
 }

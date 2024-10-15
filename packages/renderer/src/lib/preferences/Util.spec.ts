@@ -70,7 +70,7 @@ test('write array with mixed values', () => {
   expect(xtermMock.write).toBeCalledWith(expect.stringContaining('ok'));
 });
 
-test('write array of array object', () => {
+test('write empty array of array object should not call write', () => {
   writeToTerminal(xtermMock, [], 'test');
   // no error reported
   expect(xtermMock.write).not.toBeCalled();

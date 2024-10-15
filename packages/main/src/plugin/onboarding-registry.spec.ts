@@ -131,7 +131,7 @@ describe('an OnboardingRegistry instance exists', () => {
     expect(onboarding?.status).toBe('completed');
   });
 
-  test('Should throw if no onboarding for that extension', async () => {
+  test('updateStepState should throw if no onboarding for that extension', async () => {
     expect(() => onboardingRegistry.updateStepState('completed', 'unknown', stepId)).toThrowError(
       'No onboarding for extension unknown',
     );
@@ -167,7 +167,7 @@ describe('an OnboardingRegistry instance exists', () => {
     expect('test' in context.collectAllValues()).toBe(false);
   });
 
-  test('Should throw if no onboarding for that extension', async () => {
+  test('resetOnboarding should throw if no onboarding for that extension', async () => {
     expect(() => onboardingRegistry.resetOnboarding(['unknown'])).toThrowError(
       'No onboarding found for extensions unknown',
     );

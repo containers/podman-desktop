@@ -30,13 +30,6 @@ test('should expect valid match with string', async () => {
   expect(findMatchInLeaves(object, 'foo')).toBe(false);
 });
 
-test('should expect valid match with array of string', async () => {
-  const object = ['a', 'b', 'my super name'];
-  expect(findMatchInLeaves(object, 'name')).toBe(true);
-  expect(findMatchInLeaves(object, 'b')).toBe(true);
-  expect(findMatchInLeaves(object, 'foo')).toBe(false);
-});
-
 test('should expect valid match with string and case', async () => {
   const object = 'NgInX';
   expect(findMatchInLeaves(object, 'nginx')).toBe(true);

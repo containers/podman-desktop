@@ -18,11 +18,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageFile } from '@podman-desktop/api';
 import { render, screen, within } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { FilesystemTree } from './filesystem-tree';
 import type { ImageFilesystemLayerUI } from './imageDetailsFiles';
 import { signedHumanSize } from './ImageDetailsFilesLayers';
 import ImageDetailsFilesLayers from './ImageDetailsFilesLayers.svelte';
@@ -38,30 +36,26 @@ test('render', async () => {
       id: 'layer1',
       createdBy: 'creator',
       sizeInArchive: 1000,
-      sizeInContainer: 900,
-      stackTree: {
-        size: 2000,
-      } as unknown as FilesystemTree<ImageFile>,
+      addedCount: 5,
+      addedSize: 1000,
     } as unknown as ImageFilesystemLayerUI,
     {
       id: 'layer2',
       createdBy: 'creator',
+      addedCount: 1,
+      addedSize: 10,
       sizeInArchive: 0,
-      sizeInContainer: -300,
-      stackTree: {
-        size: 1700,
-      } as unknown as FilesystemTree<ImageFile>,
+      modifiedCount: 1,
+      modifiedSize: -5,
+      removedCount: 2,
+      removedSize: -7,
     } as unknown as ImageFilesystemLayerUI,
   ];
   render(ImageDetailsFilesLayers, { layers });
   const rows = screen.getAllByRole('row');
   expect(rows.length).toBe(2);
-  within(rows[0]).getByText('layer1');
-  within(rows[0]).getByText('on disk: 1 kB');
-  within(rows[0]).getByText('contribute to FS: +900 B');
-  within(rows[0]).getByText('total FS: 2 kB');
-  within(rows[1]).getByText('layer2');
-  within(rows[1]).getByText('on disk: 0 B');
-  within(rows[1]).getByText('contribute to FS: -300 B');
-  within(rows[1]).getByText('total FS: 1.7 kB');
+  within(rows[0]).getByText('1 kB • layer1');
+  within(rows[0]).getByText('files: 5 added (+1 kB)');
+  within(rows[1]).getByText('0 B • layer2');
+  within(rows[1]).getByText('files: 1 added (+10 B) • 1 modified (-5 B) • 2 removed (-7 B)');
 });

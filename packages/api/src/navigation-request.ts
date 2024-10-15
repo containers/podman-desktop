@@ -20,6 +20,7 @@ import type { NavigationPage } from './navigation-page.js';
 
 // Define the type mapping for parameters
 export interface NavigationParameters {
+  [NavigationPage.DASHBOARD]: never;
   [NavigationPage.CONTAINERS]: never;
   [NavigationPage.CONTAINER]: { id: string };
   [NavigationPage.CONTAINER_EXPORT]: { id: string };

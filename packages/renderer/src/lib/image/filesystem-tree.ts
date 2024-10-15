@@ -19,25 +19,27 @@
 export class FilesystemNode<T> {
   name: string;
   data?: T;
+  isDirectory: boolean;
   children: Map<string, FilesystemNode<T>>;
   size: number;
   hidden: boolean;
 
-  constructor(name: string) {
+  constructor(name: string, isDirectory: boolean) {
     this.name = name;
     this.children = new Map<string, FilesystemNode<T>>();
     this.size = 0;
     this.hidden = false;
+    this.isDirectory = isDirectory;
   }
 
-  addChild(name: string): FilesystemNode<T> {
-    const child = new FilesystemNode<T>(name);
+  addChild(name: string, isDirectory: boolean): FilesystemNode<T> {
+    const child = new FilesystemNode<T>(name, isDirectory);
     this.children.set(name, child);
     return child;
   }
 
   copy(): FilesystemNode<T> {
-    const result = new FilesystemNode<T>(this.name);
+    const result = new FilesystemNode<T>(this.name, this.isDirectory);
     result.data = this.data;
     result.size = this.size;
     result.hidden = this.hidden;
@@ -53,16 +55,42 @@ export class FilesystemTree<T> {
   root: FilesystemNode<T>;
   size: number;
 
+  // The number of added/modified/removed files
+  addedCount: number;
+  modifiedCount: number;
+  removedCount: number;
+
+  addedSize: number;
+  modifiedSize: number;
+  removedSize: number;
+
   constructor(name: string) {
     this.name = name;
-    this.root = new FilesystemNode<T>('/');
+    this.root = new FilesystemNode<T>('/', true);
     this.size = 0;
+
+    this.addedCount = 0;
+    this.modifiedCount = 0;
+    this.removedCount = 0;
+
+    this.addedSize = 0;
+    this.modifiedSize = 0;
+    this.removedSize = 0;
   }
 
-  addPath(path: string, entry: T, size: number): FilesystemTree<T> {
+  addPath(path: string, entry: T, size: number, isDirectory: boolean): FilesystemTree<T> {
     const currentSize = this.currentSize(path);
     // If we add an already existing directory, we replace its size with its current one
     // so we do not overwrite it (being the size of all its descendants)
+    if (currentSize && !this.isDirectory(path)) {
+      this.modifiedCount++;
+      this.modifiedSize += size - currentSize;
+    } else if (!this.isDirectory(path)) {
+      this.addedCount++;
+      this.addedSize += size;
+    } else if (this.isDirectory(path)) {
+      this.modifiedCount++;
+    }
     if (currentSize && this.isDirectory(path)) {
       size = currentSize;
     }
@@ -78,7 +106,7 @@ export class FilesystemTree<T> {
       if (next) {
         node = next;
       } else {
-        node = node.addChild(part);
+        node = node.addChild(part, isDirectory);
       }
       node.size += size - (currentSize ?? 0);
     }
@@ -127,6 +155,8 @@ export class FilesystemTree<T> {
       // the path is not found, return now
       return this;
     }
+    this.removedCount++;
+    this.removedSize -= currentSize;
     this.size -= currentSize;
     const parts = path.split('/');
     let node = this.root;
@@ -161,7 +191,7 @@ export class FilesystemTree<T> {
       if (next) {
         node = next;
       } else {
-        node = node.addChild(part);
+        node = node.addChild(part, false);
       }
       node.size -= currentSize ?? 0;
     }
@@ -203,7 +233,7 @@ export class FilesystemTree<T> {
         return false;
       }
     }
-    return node.children.size > 0;
+    return node.children.size > 0 || node.isDirectory;
   }
 
   copy(): FilesystemTree<T> {

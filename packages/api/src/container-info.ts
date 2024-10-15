@@ -89,6 +89,12 @@ interface MountSettings {
 
 type MountConfig = MountSettings[];
 
+export interface DeviceMapping {
+  CgroupPermissions: string;
+  PathInContainer: string;
+  PathOnHost: string;
+}
+
 export interface HostConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PortBindings?: any;
@@ -105,6 +111,7 @@ export interface HostConfig {
   ExtraHosts?: string[];
   NetworkMode?: string;
   Mounts?: MountConfig;
+  Devices?: DeviceMapping[];
 }
 
 export interface HealthConfig {

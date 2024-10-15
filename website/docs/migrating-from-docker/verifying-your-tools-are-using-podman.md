@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 title: Verifying your tools are using Podman
 description: Verify that your tools are using Podman rather than Docker.
 keywords: [podman desktop, podman, containers, migrating, docker]

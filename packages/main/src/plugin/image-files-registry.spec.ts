@@ -16,8 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach } from 'node:test';
-
 import type {
   CancellationToken,
   ImageFile,
@@ -26,17 +24,27 @@ import type {
   ImageInfo,
   ProviderResult,
 } from '@podman-desktop/api';
-import { beforeEach, expect, suite, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, suite, test, vi } from 'vitest';
 
 import type { ImageFilesExtensionInfo } from '/@api/image-files-info.js';
 
 import type { ApiSenderType } from './api.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { Context } from './context/context.js';
 import { ImageFilesRegistry } from './image-files-registry.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
   receive: vi.fn(),
 };
+
+const configurationRegistryMock = {
+  registerConfigurations: vi.fn(),
+} as unknown as ConfigurationRegistry;
+
+const contextMock = {
+  setValue: vi.fn(),
+} as unknown as Context;
 
 const extensionInfo: ImageFilesExtensionInfo = {
   id: 'ext-publisher.ext-name',
@@ -46,7 +54,7 @@ const extensionInfo: ImageFilesExtensionInfo = {
 let imageFiles: ImageFilesRegistry;
 suite('image files module', () => {
   beforeEach(() => {
-    imageFiles = new ImageFilesRegistry(apiSender);
+    imageFiles = new ImageFilesRegistry(apiSender, configurationRegistryMock, contextMock);
   });
 
   afterEach(() => {

@@ -18,10 +18,9 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { beforeEach } from 'node:test';
 
 import * as extensionApi from '@podman-desktop/api';
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ComposeGithubReleaseArtifactMetadata, ComposeGitHubReleases } from './compose-github-releases';
 import { ComposeDownload } from './download';

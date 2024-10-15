@@ -294,6 +294,10 @@ const config = {
               '/docs/extensions/write/adding-icons',
             ],
           },
+          {
+            to: '/',
+            from: '/core-values',
+          },
         ],
       },
     ],

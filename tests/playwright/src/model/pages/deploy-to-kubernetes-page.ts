@@ -31,6 +31,7 @@ export class DeployToKubernetesPage extends BasePage {
   readonly restrictedContextCheckbox: Locator;
   readonly createIngressCheckbox: Locator;
   readonly selectPortCombobox: Locator;
+  readonly deploymentStatus: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -44,6 +45,7 @@ export class DeployToKubernetesPage extends BasePage {
     this.restrictedContextCheckbox = this.content.getByRole('checkbox', { name: 'Use restricted security context' });
     this.createIngressCheckbox = this.content.getByRole('checkbox', { name: 'Create Ingress' });
     this.selectPortCombobox = this.content.getByRole('combobox', { name: 'Select a Port' });
+    this.deploymentStatus = this.content.getByRole('region', { name: 'Pod Deployment Status Info' });
   }
 
   public async deployPod(
@@ -56,7 +58,7 @@ export class DeployToKubernetesPage extends BasePage {
     }: DeployPodOptions = {},
     context: string,
     namespace: string = 'default',
-    timeout: number = 80000,
+    timeout: number = 100_000,
   ): Promise<void> {
     await playExpect(this.podName).toBeVisible();
     await this.podName.clear();
@@ -107,6 +109,8 @@ export class DeployToKubernetesPage extends BasePage {
 
     await playExpect(this.deployButton).toBeEnabled();
     await this.deployButton.click();
+    await playExpect(this.deploymentStatus).toBeVisible();
+    await this.deploymentStatus.scrollIntoViewIfNeeded();
     await playExpect(this.doneButton).toBeVisible({ timeout: timeout });
   }
 

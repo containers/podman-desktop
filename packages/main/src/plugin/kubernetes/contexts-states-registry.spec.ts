@@ -15,48 +15,25 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Informer, KubernetesObject } from '@kubernetes/client-node';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { ContextsStates, isSecondaryResourceName } from './contexts-states.js';
-import { FakeInformer } from './kubernetes-context-state.spec.js';
+import type { ApiSenderType } from '../api.js';
+import { ContextsStatesRegistry, isSecondaryResourceName } from './contexts-states-registry.js';
+
+const apiSenderSendMock = vi.fn();
+const apiSender: ApiSenderType = {
+  send: apiSenderSendMock,
+  receive: vi.fn(),
+};
 
 describe('ContextsStates tests', () => {
-  test('hasInformer should check if informer exists for context', () => {
-    const client = new ContextsStates();
-    client.setInformers(
-      'context1',
-      new Map([['pods', new FakeInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
-    );
-    expect(client.hasInformer('context1', 'pods')).toBeTruthy();
-    expect(client.hasInformer('context1', 'deployments')).toBeFalsy();
-    expect(client.hasInformer('context2', 'pods')).toBeFalsy();
-    expect(client.hasInformer('context2', 'deployments')).toBeFalsy();
-  });
-
-  test('getContextsNames should return the names of contexts as array', () => {
-    const client = new ContextsStates();
-    client.setInformers(
-      'context1',
-      new Map([['pods', new FakeInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
-    );
-    client.setInformers(
-      'context2',
-      new Map([['pods', new FakeInformer('context2', '/path/to/resource', 0, undefined, [], [])]]),
-    );
-    expect(Array.from(client.getContextsNames())).toEqual(['context1', 'context2']);
+  test('isSecondaryResourceName', () => {
+    expect(isSecondaryResourceName('pods')).toBeFalsy();
+    expect(isSecondaryResourceName('services')).toBeTruthy();
   });
 
   test('isReachable', () => {
-    const client = new ContextsStates();
-    client.setInformers(
-      'context1',
-      new Map([['pods', new FakeInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
-    );
-    client.setInformers(
-      'context2',
-      new Map([['pods', new FakeInformer('context2', '/path/to/resource', 0, undefined, [], [])]]),
-    );
+    const client = new ContextsStatesRegistry(apiSender);
     client.safeSetState('context1', state => (state.reachable = true));
 
     expect(client.isReachable('context1')).toBeTruthy();
@@ -64,41 +41,8 @@ describe('ContextsStates tests', () => {
     expect(client.isReachable('context3')).toBeFalsy();
   });
 
-  test('isSecondaryResourceName', () => {
-    expect(isSecondaryResourceName('pods')).toBeFalsy();
-    expect(isSecondaryResourceName('services')).toBeTruthy();
-  });
-
-  test('informers registry', () => {
-    const states = new ContextsStates();
-    expect(states.hasContext('ctx1')).toBeFalsy();
-    expect(states.hasInformer('ctx1', 'services')).toBeFalsy();
-    expect(states.getContextsNames()).toMatchObject({});
-
-    states.setInformers('ctx1', new Map());
-    expect(states.hasContext('ctx1')).toBeTruthy();
-    expect(states.hasInformer('ctx1', 'services')).toBeFalsy();
-    expect(states.hasInformer('ctx1', 'pods')).toBeFalsy();
-
-    const informersWithService = new Map();
-    informersWithService.set('services', {} as Informer<KubernetesObject>);
-    states.setInformers('ctx1', informersWithService);
-    expect(states.hasContext('ctx1')).toBeTruthy();
-    expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
-    expect(states.hasInformer('ctx1', 'pods')).toBeFalsy();
-
-    states.setResourceInformer('ctx1', 'pods', {} as Informer<KubernetesObject>);
-    expect(states.hasContext('ctx1')).toBeTruthy();
-    expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
-    expect(states.hasInformer('ctx1', 'pods')).toBeTruthy();
-
-    expect(() => states.setResourceInformer('ctx2', 'pods', {} as Informer<KubernetesObject>)).toThrow(
-      'watchers for context ctx2 not found',
-    );
-  });
-
   test('state', () => {
-    const states = new ContextsStates();
+    const states = new ContextsStatesRegistry(apiSender);
     expect(states.getContextsGeneralState()).toStrictEqual(new Map());
     expect(states.getContextsCheckingState()).toStrictEqual(new Map());
     expect(states.getCurrentContextGeneralState('ctx1')).toStrictEqual({

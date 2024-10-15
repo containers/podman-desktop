@@ -196,3 +196,33 @@ test('expect done button is there at the end and redirects to pods', async () =>
 
   expect(router.goto).toHaveBeenCalledWith(`/pods`);
 });
+
+test('expect runtime boxes have the correct selection borders', async () => {
+  (window as any).playKube = vi.fn().mockResolvedValue({
+    Pods: [],
+  });
+
+  setup();
+  render(KubePlayYAML, {});
+
+  // check the current borders
+  const podmanOption = screen.getByText('Podman container engine');
+  expect(podmanOption).toBeInTheDocument();
+  expect(podmanOption.parentElement?.parentElement).toHaveClass('border-[var(--pd-content-card-border-selected)]');
+  expect(podmanOption.parentElement?.parentElement).not.toHaveClass('border-[var(--pd-content-card-border)]');
+
+  const kubeOption = screen.getByText('Kubernetes cluster');
+  expect(kubeOption).toBeInTheDocument();
+  expect(kubeOption.parentElement?.parentElement).not.toHaveClass('border-[var(--pd-content-card-border-selected)]');
+  expect(kubeOption.parentElement?.parentElement).toHaveClass('border-[var(--pd-content-card-border)]');
+
+  // now switch selection to Kubernetes
+  await userEvent.click(kubeOption);
+
+  // and expect opposite selection borders
+  expect(podmanOption.parentElement?.parentElement).not.toHaveClass('border-[var(--pd-content-card-border-selected)]');
+  expect(podmanOption.parentElement?.parentElement).toHaveClass('border-[var(--pd-content-card-border)]');
+
+  expect(kubeOption.parentElement?.parentElement).toHaveClass('border-[var(--pd-content-card-border-selected)]');
+  expect(kubeOption.parentElement?.parentElement).not.toHaveClass('border-[var(--pd-content-card-border)]');
+});

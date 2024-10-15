@@ -27,6 +27,7 @@ import Typeahead from './Typeahead.svelte';
 window.HTMLElement.prototype.scrollIntoView = function () {};
 
 function assertIsListVisible(visible: boolean): void {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (visible) {
     const list = screen.getByRole('row');
     expect(list).toBeDefined();

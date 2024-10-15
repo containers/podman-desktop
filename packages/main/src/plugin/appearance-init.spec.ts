@@ -108,7 +108,7 @@ test('Expect native theme to be set to system', async () => {
   expect(nativeTheme.themeSource).toEqual('system');
 });
 
-test('Expect native theme to be set to system', async () => {
+test('Expect unknown theme to be set to system', async () => {
   const appearanceInit: AppearanceInit = new AppearanceInit(configurationRegistry);
   appearanceInit.updateNativeTheme('unknown');
 

@@ -20,11 +20,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { beforeEach } from 'node:test';
-
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { CliToolInfo } from '/@api/cli-tool-info';
 

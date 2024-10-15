@@ -131,7 +131,7 @@ const onClose = () => {
     return;
   }
   if (mode === 'QuickPick') {
-    window.sendShowQuickPickValues(currentId, []);
+    window.sendShowQuickPickValues(currentId);
   } else if (mode === 'InputBox') {
     window.sendShowInputBoxValue(currentId, undefined, undefined);
   }

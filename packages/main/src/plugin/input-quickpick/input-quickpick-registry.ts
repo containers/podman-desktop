@@ -110,13 +110,16 @@ export class InputQuickPickRegistry {
   }
 
   // this method is called by the frontend when the user has selected a value in QuickPick
-  onQuickPickValuesSelected(id: number, indexes: number[]): void {
+  onQuickPickValuesSelected(id: number, indexes?: number[]): void {
     // get the callback
     const callback = this.callbacksQuickPicks.get(id);
 
     // if there is a callback
     if (callback) {
-      if (callback.options?.canPickMany) {
+      if (!indexes) {
+        // no selection
+        callback.deferred.resolve(undefined);
+      } else if (callback.options?.canPickMany) {
         const allItems = indexes.map(index => callback.items[index]);
         // resolve the promise
         callback.deferred.resolve(allItems);

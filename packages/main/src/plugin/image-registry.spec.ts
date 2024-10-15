@@ -852,21 +852,6 @@ test('getAuthconfigForServer returns the expected authconfig', async () => {
   expect(config?.serveraddress).toBe('my-podman-desktop-fake-registry.io');
 });
 
-test('getAuthconfigForServer returns the expected authconfig', async () => {
-  imageRegistry.registerRegistry({
-    serverUrl: 'my-podman-desktop-fake-registry.io',
-    username: 'foo',
-    secret: 'my-secret',
-    source: 'podman-desktop',
-  });
-  const config = imageRegistry.getAuthconfigForServer('my-podman-desktop-fake-registry.io');
-
-  expect(config).toBeDefined();
-  expect(config?.username).toBe('foo');
-  expect(config?.password).toBe('my-secret');
-  expect(config?.serveraddress).toBe('my-podman-desktop-fake-registry.io');
-});
-
 test('getAuthconfigForServer returns docker.io authconfig when server is index.docker.io', async () => {
   imageRegistry.registerRegistry({
     serverUrl: 'docker.io',

@@ -2,7 +2,7 @@
   "name": "kubectl-cli",
   "displayName": "kubectl CLI",
   "description": "Install and update kubectl CLI Tools without leaving Podman Desktop",
-  "version": "1.13.0-next",
+  "version": "1.14.0-next",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
@@ -38,9 +38,7 @@
           "label": "Check kubectl",
           "title": "Checking for kubectl installation",
           "command": "kubectl.onboarding.checkDownloadedCommand",
-          "completionEvents": [
-            "onCommand:kubectl.onboarding.checkDownloadedCommand"
-          ]
+          "completionEvents": ["onCommand:kubectl.onboarding.checkDownloadedCommand"]
         },
         {
           "id": "welcomeDownloadView",
@@ -67,9 +65,7 @@
           "description": "Downloading the binary.\n\nOnce downloaded, the next step will install kubectl system-wide.",
           "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "command": "kubectl.onboarding.downloadCommand",
-          "completionEvents": [
-            "onCommand:kubectl.onboarding.downloadCommand"
-          ]
+          "completionEvents": ["onCommand:kubectl.onboarding.downloadCommand"]
         },
         {
           "id": "downloadFailure",
@@ -95,9 +91,7 @@
           "description": "Installing the binary system-wide.\n\n You may be prompted for elevated system privileges.",
           "when": "!kubectl.isKubectlInstalledSystemWide && !kubectl.isKubectlInstalledSystemWide",
           "command": "kubectl.onboarding.installSystemWideCommand",
-          "completionEvents": [
-            "onCommand:kubectl.onboarding.installSystemWideCommand"
-          ]
+          "completionEvents": ["onCommand:kubectl.onboarding.installSystemWideCommand"]
         },
         {
           "id": "installSystemWideFailure",
@@ -127,10 +121,7 @@
         "kubectl.binary.installKubectlSystemWide": {
           "type": "boolean",
           "default": false,
-          "scope": [
-            "DEFAULT",
-            "Onboarding"
-          ],
+          "scope": ["DEFAULT", "Onboarding"],
           "hidden": true,
           "description": "Install system-wide instead of just your user directory, so kubectl can be accessed on the command line. Note: You may be prompted for elevated system privileges when enabling this."
         }
@@ -141,8 +132,8 @@
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "watch": "vite build -w",
-    "format:check": "prettier --check \"**/*.ts\" \"scripts/*.js\"",
-    "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
+    "format:check": "biome format",
+    "format:fix": "biome format --write"
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",
@@ -156,7 +147,7 @@
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.7",
-    "vitest": "^2.0.5"
+    "vite": "^5.4.8",
+    "vitest": "^2.1.2"
   }
 }

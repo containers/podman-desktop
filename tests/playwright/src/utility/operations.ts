@@ -127,7 +127,7 @@ export async function deleteRegistry(page: Page, name: string, failIfNotExist = 
   });
 }
 
-export async function deletePod(page: Page, name: string): Promise<void> {
+export async function deletePod(page: Page, name: string, timeout: number = 50_000): Promise<void> {
   await test.step(`Delete pod ${name}`, async () => {
     const navigationBar = new NavigationBar(page);
     const pods = await navigationBar.openPods();
@@ -148,7 +148,7 @@ export async function deletePod(page: Page, name: string): Promise<void> {
           async () => {
             return !!(await pods.getPodRowByName(name));
           },
-          { timeout: 50_000 },
+          { timeout: timeout },
         );
       } catch (error) {
         if (!(error as Error).message.includes('Page is empty')) {
@@ -378,4 +378,38 @@ export async function deleteKindCluster(
       .poll(async () => await volumePage.waitForVolumeDelete(volumeName), { timeout: 20000 })
       .toBeTruthy();
   });
+}
+
+export async function createPodmanMachineFromCLI(): Promise<void> {
+  await test.step('Create Podman machine from CLI', async () => {
+    try {
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      execSync('podman machine init --rootful');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('VM already exists')) {
+        console.log(`Podman machine already exists, skipping creation.`);
+      }
+    }
+
+    try {
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      execSync('podman machine start');
+      console.log('Default podman machine started');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('VM already running')) {
+        console.log('Default podman machine already started, skipping start.');
+      }
+    }
+  });
+}
+
+export async function deletePodmanMachineFromCLI(podmanMachineName: string): Promise<void> {
+  try {
+    // eslint-disable-next-line sonarjs/os-command
+    execSync(`podman machine rm ${podmanMachineName} -f`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('VM does not exist')) {
+      console.log(`Podman machine [${podmanMachineName}] does not exist, skipping deletion.`);
+    }
+  }
 }

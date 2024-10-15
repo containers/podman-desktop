@@ -36,16 +36,41 @@ export class ImagesPage extends MainPage {
   readonly loadImagesFromTarButton: Locator;
   readonly addArchiveButton: Locator;
   readonly confirmLoadImagesButton: Locator;
+  readonly deleteAllUnusedImagesCheckbox: Locator;
+  readonly deleteAllSelectedButton: Locator;
 
   constructor(page: Page) {
     super(page, 'images');
-    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull', exact: true });
-    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune', exact: true });
-    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build', exact: true });
-    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes', exact: true });
+    this.pullImageButton = this.additionalActions.getByRole('button', {
+      name: 'Pull',
+      exact: true,
+    });
+    this.pruneImagesButton = this.additionalActions.getByRole('button', {
+      name: 'Prune',
+      exact: true,
+    });
+    this.buildImageButton = this.additionalActions.getByRole('button', {
+      name: 'Build',
+      exact: true,
+    });
+    this.pruneConfirmationButton = this.page.getByRole('button', {
+      name: 'Yes',
+      exact: true,
+    });
     this.loadImagesFromTarButton = this.additionalActions.getByLabel('Load Images', { exact: true });
-    this.addArchiveButton = this.page.getByRole('button', { name: 'Add archive', exact: true });
-    this.confirmLoadImagesButton = this.page.getByRole('button', { name: 'Load Images', exact: true });
+    this.addArchiveButton = this.page.getByRole('button', {
+      name: 'Add archive',
+      exact: true,
+    });
+    this.confirmLoadImagesButton = this.page.getByRole('button', {
+      name: 'Load Images',
+      exact: true,
+    });
+    this.deleteAllUnusedImagesCheckbox = this.page.getByRole('checkbox', {
+      name: 'Toggle all',
+      exact: true,
+    });
+    this.deleteAllSelectedButton = this.bottomAdditionalActions.getByRole('button', { name: 'Delete' });
   }
 
   async openPullImage(): Promise<PullImagePage> {
@@ -128,14 +153,18 @@ export class ImagesPage extends MainPage {
 
   async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
     return await test.step(`Wait for image: ${name} to exist`, async () => {
-      await waitUntil(async () => await this.imageExists(name), { timeout: timeout });
+      await waitUntil(async () => await this.imageExists(name), {
+        timeout: timeout,
+      });
       return true;
     });
   }
 
   async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
     return await test.step(`Wait for image: ${name} to be deleted`, async () => {
-      await waitWhile(async () => await this.imageExists(name), { timeout: timeout });
+      await waitWhile(async () => await this.imageExists(name), {
+        timeout: timeout,
+      });
       return true;
     });
   }
@@ -161,5 +190,52 @@ export class ImagesPage extends MainPage {
     await playExpect(this.confirmLoadImagesButton).toBeEnabled();
     await this.confirmLoadImagesButton.click();
     return this;
+  }
+
+  async markAllUnusedImages(): Promise<boolean> {
+    return await test.step('Mark all unused images', async () => {
+      if (!(await this.deleteAllUnusedImagesCheckbox.isVisible())) {
+        console.log('No images available on the page');
+        return false;
+      }
+
+      if (!(await this.deleteAllUnusedImagesCheckbox.isEnabled())) {
+        console.log('No unused images available on the page');
+        return false;
+      }
+
+      await playExpect(this.deleteAllUnusedImagesCheckbox).not.toBeChecked();
+      await this.deleteAllUnusedImagesCheckbox.locator('..').click();
+      await playExpect(this.deleteAllUnusedImagesCheckbox).toBeChecked();
+      return true;
+    });
+  }
+
+  async deleteAllUnusedImages(): Promise<void> {
+    return await test.step('Delete all unused images', async () => {
+      if (!(await this.markAllUnusedImages())) {
+        console.log('No images available to delete');
+        return;
+      }
+
+      await playExpect(this.deleteAllSelectedButton).toBeEnabled();
+      await this.deleteAllSelectedButton.click();
+      await handleConfirmationDialog(this.page);
+    });
+  }
+
+  async getCountOfImagesByStatus(status: string): Promise<number> {
+    return await test.step(`Get count from ${this.title} for images with status: ${status}`, async () => {
+      const currentRows = await this.getAllTableRows();
+      let count = 0;
+      if (currentRows.length < 2) return 0;
+
+      for (let rowNum = 1; rowNum < currentRows.length; rowNum++) {
+        //skip header
+        const statusCount = await currentRows[rowNum].getByRole('status').getByTitle(status, { exact: true }).count();
+        if (statusCount > 0) ++count;
+      }
+      return count;
+    });
   }
 }

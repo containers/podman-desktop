@@ -17,13 +17,16 @@
  ***********************************************************************/
 
 import { expect as playExpect, test } from '../utility/fixtures';
-import { deletePodmanMachine } from '../utility/operations';
+import { createPodmanMachineFromCLI, deletePodmanMachine } from '../utility/operations';
 import { isLinux, isMac } from '../utility/platform';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const PODMAN_MACHINE_NAME: string = 'podman-machine-default';
 
-test.skip(isLinux || process.env.TEST_PODMAN_MACHINE !== 'true', 'Tests suite should not run on Linux platform');
+test.skip(
+  isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
+  'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
+);
 
 test.skip(
   isMac,
@@ -45,22 +48,29 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner }) => {
+  test.setTimeout(120_000);
+
+  if (test.info().status === 'failed') {
+    await createPodmanMachineFromCLI();
+  }
+
   await runner.close();
 });
 
-test.describe.serial(`Podman machine onboarding from Dashboard`, () => {
-  test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
-    test.setTimeout(320000);
+test.describe
+  .serial(`Podman machine onboarding from Dashboard`, () => {
+    test('Create Podman machine from Dashboard', async ({ navigationBar }) => {
+      test.setTimeout(320000);
 
-    console.log('Starting PD dashboard test');
-    const dashboardPage = await navigationBar.openDashboard();
-    await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
-    await dashboardPage.podmanInitilizeAndStartButton.click();
-    await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
-  });
+      console.log('Starting PD dashboard test');
+      const dashboardPage = await navigationBar.openDashboard();
+      await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
+      await dashboardPage.podmanInitilizeAndStartButton.click();
+      await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
+    });
 
-  test('Clean Up Podman Machine', async ({ page }) => {
-    test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
-    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    test('Clean Up Podman Machine', async ({ page }) => {
+      test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
+      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    });
   });
-});

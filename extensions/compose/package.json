@@ -2,7 +2,7 @@
   "name": "compose",
   "displayName": "Compose",
   "description": "Install Compose binary to work with Podman",
-  "version": "1.13.0-next",
+  "version": "1.14.0-next",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
@@ -38,9 +38,7 @@
           "label": "Check Compose",
           "title": "Checking for Compose installation",
           "command": "compose.onboarding.checkDownloadedCommand",
-          "completionEvents": [
-            "onCommand:compose.onboarding.checkDownloadedCommand"
-          ]
+          "completionEvents": ["onCommand:compose.onboarding.checkDownloadedCommand"]
         },
         {
           "id": "welcomeDownloadView",
@@ -73,9 +71,7 @@
           "description": "Downloading the binary.\n\nOnce downloaded, the next step will install Compose system-wide.",
           "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "command": "compose.onboarding.downloadCommand",
-          "completionEvents": [
-            "onCommand:compose.onboarding.downloadCommand"
-          ]
+          "completionEvents": ["onCommand:compose.onboarding.downloadCommand"]
         },
         {
           "id": "downloadFailure",
@@ -101,9 +97,7 @@
           "description": "Installing the binary system-wide.\n\n You may be prompted for elevated system privileges.",
           "when": "!compose.isComposeInstalledSystemWide && !compose.isComposeInstalledSystemWide",
           "command": "compose.onboarding.installSystemWideCommand",
-          "completionEvents": [
-            "onCommand:compose.onboarding.installSystemWideCommand"
-          ]
+          "completionEvents": ["onCommand:compose.onboarding.installSystemWideCommand"]
         },
         {
           "id": "installSystemWideFailure",
@@ -133,10 +127,7 @@
         "compose.binary.installComposeSystemWide": {
           "type": "boolean",
           "default": false,
-          "scope": [
-            "DEFAULT",
-            "Onboarding"
-          ],
+          "scope": ["DEFAULT", "Onboarding"],
           "hidden": true,
           "description": "Install system-wide instead of just your user directory, so compose can be accessed on the command line. Note: You may be prompted for elevated system privileges when enabling this."
         }
@@ -159,7 +150,7 @@
     "@types/mustache": "^4.2.5",
     "adm-zip": "^0.5.16",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.7",
-    "vitest": "^2.0.5"
+    "vite": "^5.4.8",
+    "vitest": "^2.1.2"
   }
 }

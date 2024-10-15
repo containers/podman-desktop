@@ -605,9 +605,61 @@ test('expect winWSL2 command to be registered as disposable', async () => {
 });
 
 describe('HyperV', () => {
-  test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
+  beforeEach(() => {
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+      get: () => '',
+      has: vi.fn(),
+      update: vi.fn(),
+    });
+    vi.clearAllMocks();
+  });
+
+  test('expect HyperV preflight check return failure result if podman is older than 5.2.0', async () => {
+    let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.1.0',
+          stderr: '',
+          command: 'command',
+        });
+      }
       throw new Error();
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal('Hyper-V is only supported with podman version >= 5.2.0.');
+  });
+
+  test('expect HyperV preflight skips podman version check if installationPreflightMode is true', async () => {
+    const execSpy = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      throw new Error();
+    });
+
+    const hyperVCheck = new HyperVCheck(true);
+    const result = await hyperVCheck.execute();
+    // exec should only be called once inside the isUserAdmin function, if so the podman check has been skipped as expected
+    expect(execSpy).toBeCalledTimes(1);
+    expect(execSpy).toBeCalledWith('powershell.exe', [
+      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
+    ]);
+    expect(result.successful).toBeFalsy();
+  });
+
+  test('expect HyperV preflight check return failure result if it fails when checking admin user', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.2.0',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
     });
 
     const hyperVCheck = new HyperVCheck();
@@ -621,12 +673,21 @@ describe('HyperV', () => {
   });
 
   test('expect HyperV preflight check return failure result if non admin user', async () => {
+    let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      return Promise.resolve({
-        stdout: 'False',
-        stderr: '',
-        command: 'command',
-      });
+      if (index++ < 1) {
+        return Promise.resolve({
+          stdout: 'podman version 5.2.0',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        return Promise.resolve({
+          stdout: 'False',
+          stderr: '',
+          command: 'command',
+        });
+      }
     });
 
     const hyperVCheck = new HyperVCheck();
@@ -639,12 +700,35 @@ describe('HyperV', () => {
     expect(result.docLinks?.[0].title).equal('Hyper-V Manual Installation Steps');
   });
 
+  test('expect HyperV preflight check return failure result if Podman Desktop is not run with elevated privileges', async () => {
+    let index = 0;
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+      if (index++ <= 1) {
+        return Promise.resolve({
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
+          stderr: '',
+          command: 'command',
+        });
+      } else {
+        throw new Error();
+      }
+    });
+
+    const hyperVCheck = new HyperVCheck();
+    const result = await hyperVCheck.execute();
+    expect(result.successful).toBeFalsy();
+    expect(result.description).equal(
+      'You must run Podman Desktop with administrative rights to run Hyper-V Podman machines.',
+    );
+    expect(result.docLinks).toBeUndefined();
+  });
+
   test('expect HyperV preflight check return failure result if HyperV not installed', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ === 0) {
+      if (index++ <= 2) {
         return Promise.resolve({
-          stdout: 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -666,9 +750,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return failure result if HyperV not running', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 2) {
+      if (index++ <= 3) {
         return Promise.resolve({
-          stdout: 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -690,9 +774,9 @@ describe('HyperV', () => {
   test('expect HyperV preflight check return OK', async () => {
     let index = 0;
     vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
-      if (index++ < 3) {
+      if (index++ <= 4) {
         return Promise.resolve({
-          stdout: index === 3 ? 'Running' : 'True',
+          stdout: index === 1 ? 'podman version 5.2.0' : index === 5 ? 'Running' : 'True',
           stderr: '',
           command: 'command',
         });
@@ -991,5 +1075,146 @@ describe('performUpdate', () => {
 
     expect(extensionApi.Uri.parse).toHaveBeenCalledWith(releaseNotes.href);
     expect(extensionApi.env.openExternal).toHaveBeenCalled();
+  });
+});
+
+describe('MacOSInstaller', () => {
+  test('call installer if universal installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being true only for universal
+    vi.spyOn(fs, 'existsSync').mockImplementation(path => {
+      return path.toString().includes('universal');
+    });
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await promiseArg(progress, token);
+
+    await promiseResult;
+
+    // check we've called the execution of the universal installer
+    expect(vi.mocked(extensionApi.process.exec)).toBeCalledWith(
+      'open',
+      expect.arrayContaining([expect.stringContaining('podman-installer-macos-universal')]),
+    );
+  });
+
+  test('call specific arch installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being true only if not universal binary
+    vi.spyOn(fs, 'existsSync').mockImplementation(path => {
+      return !path.toString().includes('universal');
+    });
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await promiseArg(progress, token);
+
+    await promiseResult;
+
+    // check we've called the execution of the universal installer
+    const pkgArch = process.arch === 'arm64' ? 'aarch64' : 'amd64';
+    expect(vi.mocked(extensionApi.process.exec)).toBeCalledWith(
+      'open',
+      expect.arrayContaining([expect.stringContaining(`podman-installer-macos-${pkgArch}`)]),
+    );
+  });
+
+  test('check error if no installer is found', async () => {
+    // say we're using macOS
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    const installer = podmanInstall.getInstaller();
+
+    // mock existSync being always false (we never find installers)
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+
+    // check we have an installer
+    expect(installer).toBeDefined();
+
+    // mock extensionApi.window.withProgress
+    const withProgressMock = vi.mocked(extensionApi.window.withProgress);
+
+    // call install
+    const promiseResult = installer?.install();
+
+    // wait our mock is called
+    await vi.waitFor(() => expect(withProgressMock).toBeCalled());
+
+    // get the call's argument to the method
+    const methodArgs = withProgressMock.mock.calls[0];
+    const promiseArg = methodArgs[1];
+    expect(promiseArg).toBeDefined();
+
+    // call the parameter
+    const progress = {
+      report: vi.fn(),
+    };
+
+    const token = {
+      isCancellationRequested: false,
+    } as unknown as extensionApi.CancellationToken;
+
+    await expect(promiseArg(progress, token)).rejects.toThrow(`Can't find Podman package`);
+    expect(promiseResult).toBeDefined();
   });
 });

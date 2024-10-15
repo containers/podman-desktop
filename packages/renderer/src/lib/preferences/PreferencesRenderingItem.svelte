@@ -1,5 +1,6 @@
 <script lang="ts">
 import { getInitialValue } from '/@/lib/preferences/Util';
+import RefreshButton from '/@/lib/ui/RefreshButton.svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
@@ -70,12 +71,7 @@ $: resetToDefault = false;
       {recordUI.title}
       {#if showResetButton}
         <div class="ml-2">
-          <button
-            class="text-xs text-violet-500"
-            on:click={() => doResetToDefault()}
-            aria-label="Reset to default value">
-            <i class="fas fa-undo" aria-hidden="true"></i>
-          </button>
+          <RefreshButton label="Reset to default value" onclick={doResetToDefault} />
         </div>
       {/if}
     </div>

@@ -16,22 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import type { ComponentProps, SvelteComponent } from 'svelte';
+import type Svelte from 'svelte';
 import { expect, test } from 'vitest';
 
 import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
 import type { ProviderInfo } from '/@api/provider-info';
 
-type Constructor<T> = new (...args: any[]) => T;
+type SComponentType<C> = C extends Svelte.SvelteComponent ? Svelte.ComponentType<C> : C;
 
 type SvelteComponentOptions<C extends SvelteComponent> = ComponentProps<C> | { props: ComponentProps<C> };
 
 export function verifyStatus<C extends SvelteComponent>(
-  component: Constructor<C>,
+  component: SComponentType<C>,
   status: ProviderStatus,
   sameVersions: boolean,
 ): void {

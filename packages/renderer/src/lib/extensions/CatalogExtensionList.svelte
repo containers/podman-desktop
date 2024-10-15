@@ -8,6 +8,8 @@ import CatalogExtension from './CatalogExtension.svelte';
 export let catalogExtensions: CatalogExtensionInfoUI[];
 export let title: string = 'Available extensions';
 export let showEmptyScreen: boolean = true;
+export let oninstall: (extensionId: string) => void = () => {};
+export let ondetails: (extensionId: string) => void = () => {};
 
 async function fetchCatalog() {
   try {
@@ -47,8 +49,8 @@ async function fetchCatalog() {
       class="grid min-[920px]:grid-cols-2 min-[1180px]:grid-cols-3 gap-3"
       role="region"
       aria-label="Catalog Extensions">
-      {#each catalogExtensions as catalogExtension}
-        <CatalogExtension catalogExtensionUI={catalogExtension} />
+      {#each catalogExtensions as catalogExtension (catalogExtension.id)}
+        <CatalogExtension ondetails={ondetails} oninstall={oninstall} catalogExtensionUI={catalogExtension} />
       {/each}
     </div>
   </div>
