@@ -27,9 +27,9 @@ try {
   console.log('Cannot check for update');
 }
 
-export const updateAvailable = await setup();
+export const updateAvailable = setup();
 
-export async function setup(): Promise<Writable<boolean>> {
+export function setup(): Writable<boolean> {
   const store = writable(podmanDesktopUpdateAvailable);
 
   window.events?.receive('app-update-available', isUpdateAvailable => {
