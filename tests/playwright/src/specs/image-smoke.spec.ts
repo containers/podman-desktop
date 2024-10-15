@@ -166,7 +166,9 @@ test.describe
 
       for (const image of imageList) {
         await playExpect
-          .poll(async () => await imagesPage.waitForImageDelete(image, 180_000), { timeout: 0 })
+          .poll(async () => await imagesPage.waitForImageDelete(image, 180_000), {
+            timeout: 0,
+          })
           .toBeTruthy();
       }
     });
