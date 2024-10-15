@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -56,8 +57,9 @@ class TestFileBasedConfigStorage extends FileBasedConfigStorage {
 }
 
 describe('PreferenceFolderBasedStorage', () => {
+  const baseDirectory = `${process.cwd()}${path.sep}mock${path.sep}config${path.sep}directory`;
   const mockDirectories = {
-    getConfigurationDirectory: vi.fn().mockReturnValue('/mock/config/directory'),
+    getConfigurationDirectory: vi.fn().mockReturnValue(baseDirectory),
   } as unknown as Directories;
 
   test('should initialize storage correctly', async () => {
@@ -68,9 +70,9 @@ describe('PreferenceFolderBasedStorage', () => {
 
     await storage.initStorage();
 
-    expect(mkdirMock).toHaveBeenCalledWith('/mock/config/directory', { recursive: true });
-    expect(accessMock).toHaveBeenCalledWith('/mock/config/directory/port-forwards.json');
-    expect(writeFileMock).toHaveBeenCalledWith('/mock/config/directory/port-forwards.json', JSON.stringify([]));
+    expect(mkdirMock).toHaveBeenCalledWith(baseDirectory, { recursive: true });
+    expect(accessMock).toHaveBeenCalledWith(`${baseDirectory}${path.sep}port-forwards.json`);
+    expect(writeFileMock).toHaveBeenCalledWith(`${baseDirectory}${path.sep}port-forwards.json`, JSON.stringify([]));
   });
 
   test('should throw error if storage is already initialized', async () => {
@@ -85,7 +87,7 @@ describe('PreferenceFolderBasedStorage', () => {
     storage['initialized'] = true;
 
     const result = storage.getStoragePath();
-    expect(result).toBe('/mock/config/directory/port-forwards.json');
+    expect(result).toBe(`${baseDirectory}${path.sep}port-forwards.json`);
   });
 
   test('should throw error if storage is not initialized when getting path', () => {
@@ -110,8 +112,8 @@ describe('PreferenceFolderBasedStorage', () => {
     const accessMock = vi.spyOn(fs, 'access').mockRejectedValue(new Error('EACCES'));
 
     await expect(storage.initStorage()).rejects.toThrow('EACCES');
-    expect(mkdirMock).toHaveBeenCalledWith('/mock/config/directory', { recursive: true });
-    expect(accessMock).toHaveBeenCalledWith('/mock/config/directory/port-forwards.json');
+    expect(mkdirMock).toHaveBeenCalledWith(baseDirectory, { recursive: true });
+    expect(accessMock).toHaveBeenCalledWith(`${baseDirectory}${path.sep}port-forwards.json`);
   });
 
   test('should log and throw error if mkdir fails', async () => {
@@ -119,7 +121,7 @@ describe('PreferenceFolderBasedStorage', () => {
     const mkdirMock = vi.spyOn(fs, 'mkdir').mockRejectedValue(new Error('EACCES'));
 
     await expect(storage.initStorage()).rejects.toThrow('EACCES');
-    expect(mkdirMock).toHaveBeenCalledWith('/mock/config/directory', { recursive: true });
+    expect(mkdirMock).toHaveBeenCalledWith(baseDirectory, { recursive: true });
   });
 });
 

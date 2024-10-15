@@ -49,7 +49,7 @@ const mockAppsV1Api = {
 };
 
 const mockPortForward = {
-  portForward: vi.fn(),
+  portForward: vi.fn().mockResolvedValue(undefined),
 };
 
 vi.mock('@kubernetes/client-node', async () => {
@@ -323,9 +323,7 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should retrieve a pod resource', async () => {
-    mockCoreV1Api.readNamespacedPod.mockResolvedValue({
-      body: { metadata: { name: 'test-pod', namespace: 'default' } },
-    });
+    mockCoreV1Api.readNamespacedPod.mockResolvedValue({ metadata: { name: 'test-pod', namespace: 'default' } });
 
     const pod = await service.getPod('test-pod', 'default');
     expect(pod.metadata?.name).toBe('test-pod');
@@ -333,7 +331,7 @@ describe('PortForwardConnectionService', () => {
 
   test('should retrieve a deployment resource', async () => {
     mockAppsV1Api.readNamespacedDeployment.mockResolvedValue({
-      body: { metadata: { name: 'test-deployment', namespace: 'default' } },
+      metadata: { name: 'test-deployment', namespace: 'default' },
     });
 
     const deployment = await service.getDeployment('test-deployment', 'default');
@@ -341,9 +339,7 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should retrieve a service resource', async () => {
-    mockCoreV1Api.readNamespacedService.mockResolvedValue({
-      body: { metadata: { name: 'test-service', namespace: 'default' } },
-    });
+    mockCoreV1Api.readNamespacedService.mockResolvedValue({ metadata: { name: 'test-service', namespace: 'default' } });
 
     const serviceResource = await service.getService('test-service', 'default');
     expect(serviceResource.metadata?.name).toBe('test-service');
@@ -367,7 +363,7 @@ describe('PortForwardConnectionService', () => {
 
   test('should get forwarding setup from deployment', async () => {
     const podList = { items: [{ metadata: { name: 'test-pod' } }] };
-    mockCoreV1Api.listNamespacedPod.mockResolvedValue({ body: podList });
+    mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
 
     const deployment: V1Deployment = {
       apiVersion: 'apps/v1',
@@ -412,7 +408,7 @@ describe('PortForwardConnectionService', () => {
         { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
       ],
     };
-    mockCoreV1Api.listNamespacedPod.mockResolvedValue({ body: podList });
+    mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
 
     const _service: V1Service = {
       apiVersion: 'v1',
@@ -499,7 +495,7 @@ describe('PortForwardConnectionService', () => {
     const forward = { localPort: 3000, remotePort: 80 };
 
     mockCoreV1Api.listNamespacedPod.mockResolvedValueOnce({
-      body: { items: [pod] },
+      items: [pod],
     });
 
     const targetPort = service.getTargetPort(serviceResource, pod, forward.remotePort);
@@ -552,7 +548,7 @@ describe('PortForwardConnectionService', () => {
   describe('getWorkloadResource', () => {
     test('should retrieve a Pod resource', async () => {
       const pod = { metadata: { name: 'test-pod', namespace: 'default' } };
-      mockCoreV1Api.readNamespacedPod.mockResolvedValue({ body: pod });
+      mockCoreV1Api.readNamespacedPod.mockResolvedValue(pod);
 
       const resource = await service.getWorkloadResource(WorkloadKind.POD, 'test-pod', 'default');
       expect(resource).toEqual(pod);
@@ -560,7 +556,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Deployment resource', async () => {
       const deployment = { metadata: { name: 'test-deployment', namespace: 'default' } };
-      mockAppsV1Api.readNamespacedDeployment.mockResolvedValue({ body: deployment });
+      mockAppsV1Api.readNamespacedDeployment.mockResolvedValue(deployment);
 
       const resource = await service.getWorkloadResource(WorkloadKind.DEPLOYMENT, 'test-deployment', 'default');
       expect(resource).toEqual(deployment);
@@ -568,7 +564,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Service resource', async () => {
       const _service = { metadata: { name: 'test-service', namespace: 'default' } };
-      mockCoreV1Api.readNamespacedService.mockResolvedValue({ body: _service });
+      mockCoreV1Api.readNamespacedService.mockResolvedValue(_service);
 
       const resource = await service.getWorkloadResource(WorkloadKind.SERVICE, 'test-service', 'default');
       expect(resource).toEqual(_service);
@@ -624,7 +620,7 @@ describe('PortForwardConnectionService', () => {
       };
 
       const podList = { items: [{ metadata: { name: 'test-pod' } }] };
-      mockCoreV1Api.listNamespacedPod.mockResolvedValue({ body: podList });
+      mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
 
       const forward = { localPort: 3000, remotePort: 80 };
 
@@ -660,7 +656,7 @@ describe('PortForwardConnectionService', () => {
           { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
         ],
       };
-      mockCoreV1Api.listNamespacedPod.mockResolvedValue({ body: podList });
+      mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
 
       const forward = { localPort: 3000, remotePort: 80 };
 
@@ -703,7 +699,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce({ body: pod });
+      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
 
       const disposable1 = new MockDisposable();
       const disposable2 = new MockDisposable();
@@ -735,7 +731,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce({ body: pod });
+      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
 
       vi.spyOn(service, 'performForward').mockRejectedValueOnce(new Error('Failed to forward port'));
 
@@ -761,7 +757,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce({ body: pod });
+      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
 
       const disposable1 = new MockDisposable();
 
