@@ -35,7 +35,7 @@ vi.mock('/@/plugin/util/port.js');
 vi.mock('/@/plugin/directories.js');
 
 class TestKubernetesPortForwardServiceProvider extends KubernetesPortForwardServiceProvider {
-  public getKubeConfigKey(kubeConfig: KubeConfig): string {
+  public override getKubeConfigKey(kubeConfig: KubeConfig): string {
     return super.getKubeConfigKey(kubeConfig);
   }
 }

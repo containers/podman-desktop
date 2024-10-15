@@ -220,7 +220,7 @@ export class PortForwardConnectionService {
    */
   protected async getPod(name: string, namespace: string): Promise<V1Pod> {
     const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-    return (await coreV1Api.readNamespacedPod(name, namespace)).body;
+    return coreV1Api.readNamespacedPod({ name, namespace });
   }
 
   /**
@@ -232,7 +232,7 @@ export class PortForwardConnectionService {
    */
   protected async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
     const appsV1Api = this.kubeConfig.makeApiClient(AppsV1Api);
-    return (await appsV1Api.readNamespacedDeployment(name, namespace)).body;
+    return appsV1Api.readNamespacedDeployment({ name, namespace });
   }
 
   /**
@@ -244,7 +244,7 @@ export class PortForwardConnectionService {
    */
   protected async getService(name: string, namespace: string): Promise<V1Service> {
     const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-    return (await coreV1Api.readNamespacedService(name, namespace)).body;
+    return coreV1Api.readNamespacedService({ name, namespace });
   }
 
   /**
@@ -329,12 +329,10 @@ export class PortForwardConnectionService {
 
     const namespace = requireNonUndefined(deployment.metadata?.namespace, 'Found undefined namespace.');
     const matchLabels = requireNonUndefined(deployment.spec?.selector.matchLabels, 'Found undefined selector');
-    const selectorKey = Object.keys(matchLabels)[0];
+    const selectorKey = requireNonUndefined(Object.keys(matchLabels)[0]);
     const labelSelector = `${selectorKey}=${matchLabels[selectorKey]}`;
-    const podList = (
-      await coreV1Api.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, labelSelector)
-    ).body;
-    const podName = requireNonUndefined(podList.items[0].metadata?.name, 'Found undefined Pod name.');
+    const podList = await coreV1Api.listNamespacedPod({ namespace, labelSelector });
+    const podName = requireNonUndefined(podList.items[0]?.metadata?.name, 'Found undefined Pod name.');
 
     return {
       name: podName,
@@ -356,9 +354,7 @@ export class PortForwardConnectionService {
     const namespace = requireNonUndefined(service.metadata?.namespace, 'Found undefined namespace.');
     const selectorObj = requireNonUndefined(service.spec?.selector, 'Found undefined selector.');
     const labelSelector = this.toLabelSelector(selectorObj);
-    const podList = (
-      await coreV1Api.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, labelSelector)
-    ).body;
+    const podList = await coreV1Api.listNamespacedPod({ namespace, labelSelector });
     const pod = requireNonUndefined(podList.items[0], 'Found undefined Pod.');
     const podName = requireNonUndefined(pod.metadata?.name, 'Found undefined Pod name.');
     const targetRemotePort = this.getTargetPort(service, pod, forward.remotePort);

@@ -38,19 +38,19 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 class TestFileBasedConfigStorage extends FileBasedConfigStorage {
-  public async ensureStorageInitialized(): Promise<void> {
+  public override async ensureStorageInitialized(): Promise<void> {
     return super.ensureStorageInitialized();
   }
 
-  public _createForward(config: UserForwardConfig): void {
+  public override _createForward(config: UserForwardConfig): void {
     super._createForward(config);
   }
 
-  public _deleteForward(config: UserForwardConfig): void {
+  public override _deleteForward(config: UserForwardConfig): void {
     super._deleteForward(config);
   }
 
-  public _updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): void {
+  public override _updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): void {
     super._updateForward(config, newConfig);
   }
 }

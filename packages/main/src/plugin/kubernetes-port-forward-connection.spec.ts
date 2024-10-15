@@ -82,23 +82,23 @@ vi.mock('node:net', async () => {
 const originalFetchFn = global.fetch;
 
 class TestablePortForwardConnectionService extends PortForwardConnectionService {
-  public async performForward(forwardSetup: ForwardingSetup): Promise<IDisposable> {
+  public override async performForward(forwardSetup: ForwardingSetup): Promise<IDisposable> {
     return super.performForward(forwardSetup);
   }
 
-  public async getPod(name: string, namespace: string): Promise<V1Pod> {
+  public override async getPod(name: string, namespace: string): Promise<V1Pod> {
     return super.getPod(name, namespace);
   }
 
-  public async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
+  public override async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
     return super.getDeployment(name, namespace);
   }
 
-  public async getService(name: string, namespace: string): Promise<V1Service> {
+  public override async getService(name: string, namespace: string): Promise<V1Service> {
     return super.getService(name, namespace);
   }
 
-  public async getWorkloadResource(
+  public override async getWorkloadResource(
     kind: WorkloadKind,
     name: string,
     namespace: string,
@@ -106,19 +106,22 @@ class TestablePortForwardConnectionService extends PortForwardConnectionService 
     return super.getWorkloadResource(kind, name, namespace);
   }
 
-  public getForwardSetupFromPod(pod: V1Pod, forward: PortMapping): ForwardingSetup {
+  public override getForwardSetupFromPod(pod: V1Pod, forward: PortMapping): ForwardingSetup {
     return super.getForwardSetupFromPod(pod, forward);
   }
 
-  public async getForwardSetupFromDeployment(deployment: V1Deployment, forward: PortMapping): Promise<ForwardingSetup> {
+  public override async getForwardSetupFromDeployment(
+    deployment: V1Deployment,
+    forward: PortMapping,
+  ): Promise<ForwardingSetup> {
     return super.getForwardSetupFromDeployment(deployment, forward);
   }
 
-  public async getForwardSetupFromService(service: V1Service, forward: PortMapping): Promise<ForwardingSetup> {
+  public override async getForwardSetupFromService(service: V1Service, forward: PortMapping): Promise<ForwardingSetup> {
     return super.getForwardSetupFromService(service, forward);
   }
 
-  public onServerError(
+  public override onServerError(
     error: NodeJS.ErrnoException,
     reject: (reason?: Error) => void,
     forwardSetup: ForwardingSetup,
@@ -126,26 +129,26 @@ class TestablePortForwardConnectionService extends PortForwardConnectionService 
     super.onServerError(error, reject, forwardSetup);
   }
 
-  public isPodResource(resource: V1Pod | V1Deployment | V1Service): boolean {
+  public override isPodResource(resource: V1Pod | V1Deployment | V1Service): boolean {
     return super.isPodResource(resource);
   }
 
-  public isDeploymentResource(resource: V1Pod | V1Deployment | V1Service): boolean {
+  public override isDeploymentResource(resource: V1Pod | V1Deployment | V1Service): boolean {
     return super.isDeploymentResource(resource);
   }
 
-  public isServiceResource(resource: V1Pod | V1Deployment | V1Service): boolean {
+  public override isServiceResource(resource: V1Pod | V1Deployment | V1Service): boolean {
     return super.isServiceResource(resource);
   }
 
-  public async getForwardingSetup(
+  public override async getForwardingSetup(
     resource: V1Pod | V1Deployment | V1Service,
     forward: PortMapping,
   ): Promise<ForwardingSetup> {
     return super.getForwardingSetup(resource, forward);
   }
 
-  public async onServerListen(
+  public override async onServerListen(
     forwardSetup: ForwardingSetup,
     server: net.Server,
     resolve: (value: IDisposable) => void,
@@ -154,11 +157,11 @@ class TestablePortForwardConnectionService extends PortForwardConnectionService 
     return super.onServerListen(forwardSetup, server, resolve, reject);
   }
 
-  public createServer(forwardSetup: ForwardingSetup): net.Server {
+  public override createServer(forwardSetup: ForwardingSetup): net.Server {
     return super.createServer(forwardSetup);
   }
 
-  public getTargetPort(service: V1Service, pod: V1Pod, port: number): number {
+  public override getTargetPort(service: V1Service, pod: V1Pod, port: number): number {
     return super.getTargetPort(service, pod, port);
   }
 }
