@@ -100,17 +100,14 @@ export class PodmanMachineStream {
             .on('close', () => {
               this.onEndEmit.fire();
               this.stopConnection();
-              return;
             })
             .on('data', (data: string) => {
-              console.error(data.toString());
               this.onDataEmit.fire({ data: data });
             });
         });
       })
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
-        return;
       })
       .connect({
         host: this.#host,
