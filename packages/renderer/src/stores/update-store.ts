@@ -19,15 +19,17 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
+let podmanDesktopUpdateAvailable = false;
+
+try {
+  podmanDesktopUpdateAvailable = await window.podmanDesktopUpdateAvailable();
+} catch (e) {
+  console.log('Cannot check for update');
+}
+
 export const updateAvailable = await setup();
 
 export async function setup(): Promise<Writable<boolean>> {
-  let podmanDesktopUpdateAvailable = false;
-  try {
-    podmanDesktopUpdateAvailable = await window.podmanDesktopUpdateAvailable();
-  } catch (e) {
-    console.log('Cannot check for update');
-  }
   const store = writable(podmanDesktopUpdateAvailable);
 
   window.events?.receive('app-update-available', isUpdateAvailable => {
