@@ -5,7 +5,7 @@ import type { ProviderConnectionStatus, ShellDimensions } from '@podman-desktop/
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
-import { Terminal } from '@xterm/xterm';
+import { type IDisposable, Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -30,6 +30,7 @@ let sendCallbackId: number | undefined;
 let terminalContent: string = '';
 let serializeAddon: SerializeAddon;
 let lastState = $state<ProviderConnectionStatus>('stopped');
+let onDataDisposible: IDisposable;
 
 $effect(() => {
   const connectionStatus = connectionInfo.status;
@@ -57,24 +58,14 @@ function receiveDataCallback(data: string) {
 function receiveEndCallback() {
   // need to reopen a new terminal
   window
-    .shellInProviderConnection(
-      provider.internalId,
-      connectionInfo,
-      receiveDataCallback,
-      receiveErrorCallback,
-      receiveEndCallback,
-    )
+    .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
     .then(id => {
       sendCallbackId = id;
-
-      shellTerminal?.onData(data => {
+      onDataDisposible?.dispose();
+      onDataDisposible = shellTerminal?.onData((data: string) => {
         window.shellInProviderConnectionSend(id, data);
       });
     });
-}
-
-function receiveErrorCallback(error: string) {
-  console.error(error);
 }
 
 // call exec command
@@ -88,7 +79,7 @@ async function executeShellIntoProviderConnection() {
     provider.internalId,
     connectionInfo,
     receiveDataCallback,
-    receiveErrorCallback,
+    () => {},
     receiveEndCallback,
   );
 
@@ -99,7 +90,8 @@ async function executeShellIntoProviderConnection() {
 
   await window.shellInProviderConnectionSetWindow(callbackId, dimensions);
   // pass data from xterm to provider
-  shellTerminal?.onData(data => {
+  onDataDisposible?.dispose();
+  onDataDisposible = shellTerminal?.onData((data: string) => {
     window.shellInProviderConnectionSend(callbackId, data);
   });
 
@@ -135,7 +127,8 @@ async function refreshTerminal() {
       fontSize,
       lineHeight,
     };
-    shellTerminal.write(existingTerminal.terminal);
+    // \r\n for starting new terminal on next line
+    shellTerminal.write(existingTerminal.terminal + '\r\n');
   }
 
   const fitAddon = new FitAddon();
@@ -151,8 +144,8 @@ async function refreshTerminal() {
       fitAddon.fit();
       if (sendCallbackId) {
         const dimensions: ShellDimensions = {
-          rows: shellTerminal.rows,
-          cols: shellTerminal.cols,
+          rows: shellTerminal?.rows,
+          cols: shellTerminal?.cols,
         };
         window.shellInProviderConnectionSetWindow(sendCallbackId, dimensions);
       }
@@ -176,6 +169,7 @@ onDestroy(() => {
     terminal: terminalContent,
   });
   serializeAddon?.dispose();
+  onDataDisposible?.dispose();
   shellTerminal?.dispose();
 });
 </script>
