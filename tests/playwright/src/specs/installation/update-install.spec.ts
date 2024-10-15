@@ -76,11 +76,15 @@ test.describe
       await playExpect(sBar.versionButton).toBeVisible();
     });
 
-    test.fail('User initiated update option is available', async ({ page }) => {
-      await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
-      await sBar.updateButtonTitle.click();
-      await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
-    });
+    test.fail(
+      'User initiated update option is available. Test set to fail until https://github.com/containers/podman-desktop/issues/9378 is fixed',
+      {},
+      async ({ page }) => {
+        await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
+        await sBar.updateButtonTitle.click();
+        await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
+      },
+    );
   });
 test.describe
   .serial('Podman Desktop Update installation can be performed', () => {
