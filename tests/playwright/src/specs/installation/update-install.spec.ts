@@ -78,7 +78,6 @@ test.describe
 
     test.fail(
       'User initiated update option is available. Test set to fail until https://github.com/containers/podman-desktop/issues/9378 is fixed',
-      {},
       async ({ page }) => {
         await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
         await sBar.updateButtonTitle.click();
