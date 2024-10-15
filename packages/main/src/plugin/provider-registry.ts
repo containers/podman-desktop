@@ -46,7 +46,6 @@ import type {
   ProviderUpdate,
   RegisterContainerConnectionEvent,
   RegisterKubernetesConnectionEvent,
-  ShellDimensions,
   UnregisterContainerConnectionEvent,
   UnregisterKubernetesConnectionEvent,
   UpdateContainerConnectionEvent,
