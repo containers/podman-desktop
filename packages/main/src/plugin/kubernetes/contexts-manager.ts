@@ -391,7 +391,13 @@ export class ContextsManager {
           sendGeneral: true,
           currentContext: this.kubeConfig.currentContext,
           resources: { pods: true },
-          update: state => state.resources.pods.push(obj),
+          update: state => {
+            if (state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid).length) {
+              console.debug(`==> resource ${obj.metadata?.name} already added`);
+            }
+            state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.pods.push(obj);
+          },
         });
       },
       onUpdate: obj => {
