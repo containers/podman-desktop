@@ -100,7 +100,10 @@ vi.mock('./contexts-constants.js', () => {
   return {
     connectTimeout: 1,
     backoffInitialValue: 10000,
+    backoffMultiplier: 2.0,
+    backoffMultiplierCurrentContext: 1.2,
     backoffLimit: 1000,
+    backoffLimitCurrentContext: 1000,
     backoffJitter: 0,
     dispatchTimeout: 1,
   };
