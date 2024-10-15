@@ -58,7 +58,6 @@ export interface ProviderInfo {
   containerConnections: ProviderContainerConnectionInfo[];
   kubernetesConnections: ProviderKubernetesConnectionInfo[];
   status: ProviderStatus;
-  stream?: boolean;
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
