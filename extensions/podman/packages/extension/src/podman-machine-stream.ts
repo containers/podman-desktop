@@ -109,14 +109,12 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
               this.closeStream();
             })
             .on('data', (data: string) => {
-              console.error(data.toString());
               this.onDataEmit.fire({ data: data });
             });
         });
       })
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
-        return;
       })
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
