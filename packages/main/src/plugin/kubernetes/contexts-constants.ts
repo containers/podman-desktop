@@ -21,8 +21,14 @@
 export const connectTimeout = 1000;
 // initial delay between two connection attempts
 export const backoffInitialValue = 1000;
+// the backoff will be multiplied by this number every time
+export const backoffMultiplier = 2.0;
+// the backoff will be multiplied by this number every time for current context
+export const backoffMultiplierCurrentContext = 1.2;
 // maximum delay between two connection attempts
 export const backoffLimit = 60_000;
+// maximum delay between two connection attempts for current context
+export const backoffLimitCurrentContext = 10_000;
 // jitter to add to the delay between two connection attempts
 export const backoffJitter = 300;
 // the time to wait for any update on the data to dispatch before to send it
