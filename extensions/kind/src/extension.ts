@@ -470,10 +470,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
       // download, install system wide and update cli version
       await installer.download(releaseToInstall);
-      const cliPath = installer.getKindCliStoragePath();
+      let cliPath = installer.getKindCliStoragePath();
 
       try {
-        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+        cliPath = await installBinaryToSystem(cliPath, KIND_CLI_NAME);
       } catch (err: unknown) {
         console.log(`${KIND_CLI_NAME} not installed system-wide. Error: ${String(err)}`);
       }
