@@ -28,7 +28,6 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
-  ProviderConnectionShellAccess,
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
@@ -41,7 +40,6 @@ import type {
   ProviderUpdate,
   RegisterContainerConnectionEvent,
   RegisterKubernetesConnectionEvent,
-  ShellDimensions,
   UnregisterContainerConnectionEvent,
   UnregisterKubernetesConnectionEvent,
   UpdateContainerConnectionEvent,
@@ -1265,47 +1263,5 @@ export class ProviderRegistry {
       clearInterval(timer);
       this.apiSender.send('provider-change', {});
     });
-  }
-
-  async shellInProviderConnection(
-    internalProviderId: string,
-    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
-    onData: (data: string) => void,
-    onError: (error: string) => void,
-    onEnd: () => void,
-  ): Promise<{ write: (param: string) => void; setWindow: (dimensions: ShellDimensions) => void }> {
-    try {
-      const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
-      let shellAccess: ProviderConnectionShellAccess | undefined;
-      if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status === 'started') {
-        shellAccess = containerConnection.shellAccess;
-        // Removes listeners and deletes client if exist
-        shellAccess?.stopConnection();
-        shellAccess?.onData(data => {
-          onData(data.data);
-        });
-        shellAccess?.onError(error => {
-          onError(error.error);
-        });
-        shellAccess?.onEnd(onEnd);
-        shellAccess?.startConnection();
-      }
-
-      return {
-        write: (data: string): void => {
-          if (shellAccess) {
-            shellAccess.write(data);
-          }
-        },
-        setWindow: (dimension: ShellDimensions): void => {
-          if (shellAccess) {
-            shellAccess.setWindow(dimension);
-          }
-        },
-      };
-    } catch (error) {
-      this.telemetryService.track('shellInProviderConnection.error', error);
-      throw error;
-    }
   }
 }
