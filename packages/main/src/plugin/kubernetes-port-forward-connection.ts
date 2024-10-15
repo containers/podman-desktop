@@ -98,9 +98,8 @@ export class PortForwardConnectionService {
     const server = this.createServer(forwardSetup);
 
     return new Promise<IDisposable>((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      server.listen(forwardSetup.forward.localPort, 'localhost', async () => {
-        await this.onServerListen(forwardSetup, server, resolve, reject);
+      server.listen(forwardSetup.forward.localPort, 'localhost', () => {
+        this.onServerListen(forwardSetup, server, resolve, reject).catch(console.error);
       });
 
       server.on('error', (error: NodeJS.ErrnoException) => this.onServerError(error, reject, forwardSetup));
@@ -113,19 +112,19 @@ export class PortForwardConnectionService {
    * @returns The created server.
    */
   protected createServer(forwardSetup: ForwardingSetup): net.Server {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return net.createServer(async socket => {
+    return net.createServer(socket => {
       const kubernetesPortForward = new PortForward(this.kubeConfig);
-      await kubernetesPortForward.portForward(
-        forwardSetup.namespace,
-        forwardSetup.name,
-        [forwardSetup.forward.remotePort],
-        socket,
-        // eslint-disable-next-line no-null/no-null
-        null,
-        socket,
-        3,
-      );
+      kubernetesPortForward
+        .portForward(
+          forwardSetup.namespace,
+          forwardSetup.name,
+          [forwardSetup.forward.remotePort],
+          socket,
+          null,
+          socket,
+          3,
+        )
+        .catch(console.error);
     });
   }
 
