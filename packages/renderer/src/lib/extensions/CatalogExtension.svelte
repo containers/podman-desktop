@@ -18,13 +18,13 @@ function openExtensionDetails() {
 </script>
 
 <div
-  class="rounded-lg border border-[var(--pd-content-bg)] flex flex-col bg-[var(--pd-content-card-bg)] hover:border-dustypurple-500 min-h-32 max-h-32"
+  class="rounded-lg border border-[var(--pd-content-bg)] flex flex-col bg-[var(--pd-content-card-bg)] hover:border-[var(--pd-content-card-border-selected)] min-h-32 max-h-32"
   role="group"
   aria-label={catalogExtensionUI.displayName}>
   <!-- if featured need to display a top banner -->
 
   {#if catalogExtensionUI.isFeatured}
-    <div class="bg-dustypurple-500 rounded-t-md px-2 font-light text-sm min-h-6 flex flex-row items-center">
+    <div class="bg-[var(--pd-content-card-border-selected)] text-[var(--pd-invert-content-header-text)] rounded-t-md px-2 font-light text-sm min-h-6 flex flex-row items-center">
       Featured
     </div>
   {/if}
@@ -53,7 +53,7 @@ function openExtensionDetails() {
       </div>
 
       {#if catalogExtensionUI.isInstalled}
-        <div class="flex flex-1 text-dustypurple-700 p-1 justify-items-end flex-row place-content-end items-center">
+        <div class="flex flex-1 text-[var(--pd-invert-content-info-icon)] p-1 justify-items-end flex-row place-content-end items-center">
           <Fa class="ml-1.5 mr-2" size="1.1x" icon={faCheckCircle} />
           <div class="uppercase text-sm cursor-default">Already installed</div>
         </div>
