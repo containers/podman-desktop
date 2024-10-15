@@ -57,7 +57,7 @@ export class TestInformer {
     }
     if (this.connectResponse === undefined) {
       for (let i = 0; i < this.resourcesCount; i++) {
-        this.onCb.get('add')?.({ metadata: { uid: `${i}` } });
+        this.onCb.get('add')?.({ metadata: { uid: i.toString() } });
       }
       this.events.forEach(event => {
         setTimeout(() => {
