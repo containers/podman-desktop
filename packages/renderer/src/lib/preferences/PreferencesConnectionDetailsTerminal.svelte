@@ -5,7 +5,7 @@ import type { ProviderConnectionShellDimensions, ProviderConnectionStatus } from
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
-import { Terminal } from '@xterm/xterm';
+import { type IDisposable, Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -64,10 +64,6 @@ function receiveEndCallback() {
         window.shellInProviderConnectionSend(id, data);
       });
     });
-}
-
-function receiveErrorCallback(error: string) {
-  console.error(error);
 }
 
 // call exec command
@@ -129,7 +125,8 @@ async function refreshTerminal() {
       fontSize,
       lineHeight,
     };
-    shellTerminal.write(existingTerminal.terminal);
+    // \r\n for starting new terminal on next line
+    shellTerminal.write(existingTerminal.terminal + '\r\n');
   }
 
   const fitAddon = new FitAddon();
@@ -170,6 +167,7 @@ onDestroy(() => {
     terminal: terminalContent,
   });
   serializeAddon?.dispose();
+  onDataDisposible?.dispose();
   shellTerminal?.dispose();
 });
 </script>
