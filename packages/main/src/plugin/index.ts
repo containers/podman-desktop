@@ -1144,6 +1144,67 @@ export class PluginSystem {
       },
     );
 
+    const providerRegistryShellInProviderConnectionSendCallback = new Map<
+      number,
+      {
+        write: (param: string) => void;
+        resize: (dimensions: containerDesktopAPI.ProviderConnectionShellDimensions) => void;
+      }
+    >();
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnection',
+      async (
+        _listener,
+        internalProviderId: string,
+        connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        onDataId: number,
+      ): Promise<number> => {
+        // provide the data content to the remote side
+        const shellInProviderConnectionInvocation = await providerRegistry.shellInProviderConnection(
+          internalProviderId,
+          connectionInfo,
+          (content: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onData', onDataId, content);
+          },
+          (error: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onError', onDataId, error);
+          },
+          () => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onEnd', onDataId);
+            // delete the callback
+            providerRegistryShellInProviderConnectionSendCallback.delete(onDataId);
+          },
+        );
+        // store the callback
+        providerRegistryShellInProviderConnectionSendCallback.set(onDataId, shellInProviderConnectionInvocation);
+        return onDataId;
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionSend',
+      async (_listener, onDataId: number, content: string): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        if (callback) {
+          callback.write(content);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionResize',
+      async (
+        _listener,
+        onDataId: number,
+        dimensions: containerDesktopAPI.ProviderConnectionShellDimensions,
+      ): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        if (callback) {
+          callback.resize(dimensions);
+        }
+      },
+    );
+
     const containerProviderRegistryAttachContainerSendCallback = new Map<number, (param: string) => void>();
     this.ipcHandle(
       'container-provider-registry:attachContainer',
