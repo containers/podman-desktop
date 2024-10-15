@@ -18,27 +18,34 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { waitFor } from '@testing-library/dom';
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { setup, updateAvailable } from './update-store';
+import { updateAvailable, updateEventStore } from './update-store';
 
 const messages = new Map<string, any>();
 const receiveMock = vi.fn();
+const eventListenerMock = vi.fn();
 const podmanDesktopUpdateAvailableMock = vi.fn();
+const eventEmitter = {
+  receive: (message: string, callback: any): void => {
+    messages.set(message, callback);
+  },
+};
 
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).podmanDesktopUpdateAvailable = podmanDesktopUpdateAvailableMock.mockResolvedValue(false);
   (window.events as unknown) = {
-    receive: receiveMock.mockImplementation((channel: string, func: any) => {
-      messages.set(channel, func);
-    }),
+    receive: receiveMock.mockImplementation(eventEmitter.receive),
   };
+  (window as any).addEventListener = eventListenerMock.mockImplementation(eventEmitter.receive);
 });
 
 test('updateAvailable starts as podmanDesktopUpdateAvailable value or false if undefined', async () => {
-  await setup();
+  updateEventStore.setup();
+  messages.get('extensions-already-started')();
 
   expect(get(updateAvailable)).toBeFalsy();
 
@@ -49,9 +56,13 @@ test('updateAvailable starts as podmanDesktopUpdateAvailable value or false if u
 
   message(true);
 
+  await waitFor(() => expect(get(updateAvailable)).toBeTruthy());
+
   expect(get(updateAvailable)).toBeTruthy();
 
   message(false);
+
+  await waitFor(() => expect(get(updateAvailable)).toBeFalsy());
 
   expect(get(updateAvailable)).toBeFalsy();
 });

@@ -16,29 +16,41 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
-let podmanDesktopUpdateAvailable = false;
+import { EventStore } from './event-store';
 
-try {
-  podmanDesktopUpdateAvailable = await window.podmanDesktopUpdateAvailable();
-} catch (e) {
-  console.log('Cannot check for update');
+export const updateAvailable = writable(false);
+
+const windowEvents = ['app-update-available'];
+
+const windowListeners = ['extensions-already-started'];
+
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    const podmanDesktopUpdateAvailable = await window.podmanDesktopUpdateAvailable();
+    updateAvailable.set(podmanDesktopUpdateAvailable);
+  } else if ('app-update-available' === eventName) {
+    return true;
+  }
+  return false;
 }
 
-export const updateAvailable = setup();
+const isUpdateAvailable = (...args: unknown[]): Promise<boolean> => {
+  const eventArg = args.length > 0 ? args[0] : false;
+  if (typeof eventArg === 'boolean') {
+    return Promise.resolve(eventArg);
+  }
+  return Promise.resolve(false);
+};
 
-export function setup(): Writable<boolean> {
-  const store = writable(podmanDesktopUpdateAvailable);
+export const updateEventStore = new EventStore<boolean>(
+  'updater',
+  updateAvailable,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  isUpdateAvailable,
+);
 
-  window.events?.receive('app-update-available', isUpdateAvailable => {
-    if (isUpdateAvailable) {
-      updateAvailable.set(true);
-    } else {
-      updateAvailable.set(false);
-    }
-  });
-
-  return store;
-}
+updateEventStore.setup();
