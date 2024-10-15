@@ -393,6 +393,7 @@ declare module '@podman-desktop/api' {
     displayName?: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
+    shellAccess?: ProviderConnectionShellAccess;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     vmType?: string;
@@ -786,6 +787,40 @@ declare module '@podman-desktop/api' {
   export interface ProviderContainerConnection {
     providerId: string;
     connection: ContainerProviderConnection;
+  }
+
+  /**
+   * the callbacks of ssh shell in provider connection
+   */
+  export interface ProviderConnectionShellAccess {
+    onData: Event<ProviderConnectionShellAccessData>;
+    onError: Event<ProviderConnectionShellAccessError>;
+    onEnd: Event<void>;
+
+    // function used for writting to shell (e.g. `ls`)
+    write(data: string): void;
+
+    // function that starts the ssh connection to providers connection shell
+    startConnection(): void;
+
+    // function that stops running ssh connection
+    stopConnection(): void;
+
+    // function that sets window size of shell
+    setWindow(dimensions: ProviderConnectionShellDimensions): void;
+  }
+
+  export interface ProviderConnectionShellDimensions {
+    rows: number;
+    cols: number;
+  }
+
+  export interface ProviderConnectionShellAccessError {
+    error: string;
+  }
+
+  export interface ProviderConnectionShellAccessData {
+    data: string;
   }
 
   /**
