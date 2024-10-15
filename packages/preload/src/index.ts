@@ -615,6 +615,84 @@ export function initExposure(): void {
     },
   );
 
+  // callbacks for shellInProviderConnection
+  let onDataCallbacksShellInProviderConnectionId = 0;
+  const onDataCallbacksShellInProviderConnection = new Map<
+    number,
+    { onData: (data: string) => void; onError: (error: string) => void; onEnd: () => void }
+  >();
+  contextBridge.exposeInMainWorld(
+    'shellInProviderConnection',
+    async (
+      internalProviderId: string,
+      connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      onData: (data: string) => void,
+      onError: (error: string) => void,
+      onEnd: () => void,
+    ): Promise<number> => {
+      onDataCallbacksShellInProviderConnectionId++;
+      onDataCallbacksShellInProviderConnection.set(onDataCallbacksShellInProviderConnectionId, {
+        onData,
+        onError,
+        onEnd,
+      });
+      return ipcInvoke(
+        'provider-registry:shellInProviderConnection',
+        internalProviderId,
+        connectionInfo,
+        onDataCallbacksShellInProviderConnectionId,
+      );
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'shellInProviderConnectionSend',
+    async (dataId: number, content: string): Promise<void> => {
+      return ipcInvoke('provider-registry:shellInProviderConnectionSend', dataId, content);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'shellInProviderConnectionResize',
+    async (dataId: number, dimensions: containerDesktopAPI.ProviderConnectionShellDimensions) => {
+      return ipcInvoke('provider-registry:shellInProviderConnectionResize', dataId, dimensions);
+    },
+  );
+
+  ipcRenderer.on(
+    'provider-registry:shellInProviderConnection-onData',
+    (_, onDataCallbacksShellInProviderConnectionId: number, data: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+      if (callback) {
+        callback.onData(data);
+      }
+    },
+  );
+  ipcRenderer.on(
+    'provider-registry:shellInProviderConnection-onError',
+    (_, onDataCallbacksShellInProviderConnectionId: number, error: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+      if (callback) {
+        callback.onError(error);
+      }
+    },
+  );
+
+  ipcRenderer.on(
+    'provider-registry:shellInProviderConnection-onEnd',
+    (_, onDataCallbacksShellInProviderConnectionId: number) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInProviderConnection.get(onDataCallbacksShellInProviderConnectionId);
+      if (callback) {
+        callback.onEnd();
+        // remove callback from the map
+        onDataCallbacksShellInProviderConnection.delete(onDataCallbacksShellInProviderConnectionId);
+      }
+    },
+  );
+
   // callbacks for attachContainer
   let onDataCallbacksAttachContainerId = 0;
   const onDataCallbacksAttachContainer = new Map<
