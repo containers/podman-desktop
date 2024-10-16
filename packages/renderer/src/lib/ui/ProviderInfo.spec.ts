@@ -31,7 +31,7 @@ test('Expect podman is purple', async () => {
   const label = screen.getByText(provider);
   expect(label).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toBeInTheDocument();
-  expect(label.parentElement?.firstChild).toHaveClass('bg-purple-600');
+  expect(label.parentElement?.firstChild).toHaveClass('bg-[var(--pd-provider-podman)]');
 });
 
 test('Expect Podman (different case) is purple', async () => {
@@ -42,7 +42,7 @@ test('Expect Podman (different case) is purple', async () => {
   const label = screen.getByText(provider);
   expect(label).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toBeInTheDocument();
-  expect(label.parentElement?.firstChild).toHaveClass('bg-purple-600');
+  expect(label.parentElement?.firstChild).toHaveClass('bg-[var(--pd-provider-podman)]');
 });
 
 test('Expect docker is blue', async () => {
@@ -53,7 +53,7 @@ test('Expect docker is blue', async () => {
   const label = screen.getByText(provider);
   expect(label).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toBeInTheDocument();
-  expect(label.parentElement?.firstChild).toHaveClass('bg-sky-400');
+  expect(label.parentElement?.firstChild).toHaveClass('bg-[var(--pd-provider-docker)]');
 });
 
 test('Expect kubernetes is blue', async () => {
@@ -64,5 +64,5 @@ test('Expect kubernetes is blue', async () => {
   const label = screen.getByText(provider);
   expect(label).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toBeInTheDocument();
-  expect(label.parentElement?.firstChild).toHaveClass('bg-sky-600');
+  expect(label.parentElement?.firstChild).toHaveClass('bg-[var(--pd-provider-kubernetes)]');
 });

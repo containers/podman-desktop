@@ -95,7 +95,7 @@ describe('backgrounds', () => {
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
-    expect(card.classList).toContain('bg-charcoal-800');
+    expect(card.classList).toContain('bg-[var(--pd-modal-bg)]');
     expect(card.attributes.getNamedItem('style')?.value).toBeUndefined();
   });
 

@@ -259,6 +259,7 @@ export class ColorRegistry {
     this.initProgressBar();
     this.initBadge();
     this.initProviders();
+    this.initService();
   }
 
   protected initDefaults(): void {
@@ -1494,6 +1495,26 @@ export class ColorRegistry {
     this.registerColor(`${provider}unknown`, {
       dark: colorPalette.gray[900],
       light: colorPalette.gray[900],
+    });
+  }
+
+  protected initService(): void {
+    const service = 'service';
+    this.registerColor(`${service}ClusterIP`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${service}LoadBalancer`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${service}NodePort`, {
+      dark: colorPalette.fuschia[600],
+      light: colorPalette.fuschia[600],
+    });
+    this.registerColor(`${service}unknown`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[600],
     });
   }
 }
