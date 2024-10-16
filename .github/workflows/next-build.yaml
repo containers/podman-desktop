@@ -216,3 +216,10 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" tests/playwright/package.json
           cd tests/playwright && pnpm build && pnpm publish --tag next --no-git-checks --access public
+
+      - name: Publish Podman Extension API to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" extensions/podman/packages/api/package.json
+          cd extensions/podman/packages/api
+          pnpm publish --tag next --no-git-checks --access public
