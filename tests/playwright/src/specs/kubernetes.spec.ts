@@ -42,11 +42,22 @@ const PVC_POD_NAME = 'test-pod-pvcs';
 const CONFIGMAP_NAME = 'test-configmap-resource';
 const SECRET_NAME = 'test-secret-resource';
 const SECRETS_POD_NAME = 'test-pod-configmaps-secrets';
+const KUBERNETES_RUNTIME = {
+  runtime: PlayYamlRuntime.Kubernetes,
+  kubernetesContext: KUBERNETES_CONTEXT,
+  kubernetesNamespace: KUBERNETES_NAMESPACE,
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
+const PVC_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_NAME}.yaml`);
+const PVC_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_POD_NAME}.yaml`);
+const CONFIGMAP_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${CONFIGMAP_NAME}.yaml`);
+const SECRET_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
+const SECRET_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRETS_POD_NAME}.yaml`);
+
+const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   test.setTimeout(250000);
@@ -95,12 +106,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_NAME}.yaml`);
-      await playYamlPage.playYaml(yamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+      await playYamlPage.playYaml(PVC_YAML_PATH, KUBERNETES_RUNTIME);
 
       const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
@@ -117,12 +123,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_POD_NAME}.yaml`);
-      await playYamlPage.playYaml(yamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+      await playYamlPage.playYaml(PVC_POD_YAML_PATH, KUBERNETES_RUNTIME);
 
       const kubernetesBar = await navigationBar.openKubernetes();
       const pvcsPage = await kubernetesBar.openTabPage(KubernetesResources.PVCs);
@@ -147,19 +148,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const configmapYamlFilePath = path.resolve(
-        __dirname,
-        '..',
-        '..',
-        'resources',
-        'kubernetes',
-        `${CONFIGMAP_NAME}.yaml`,
-      );
-      await playYamlPage.playYaml(configmapYamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+      await playYamlPage.playYaml(CONFIGMAP_YAML_PATH, KUBERNETES_RUNTIME);
 
       const kubernetesBar = await navigationBar.openKubernetes();
       const configmapSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
@@ -179,12 +168,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const secretYamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
-      await playYamlPage.playYaml(secretYamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+      await playYamlPage.playYaml(SECRET_YAML_PATH, KUBERNETES_RUNTIME);
 
       const kubernetesBar = await navigationBar.openKubernetes();
       const configmapSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
@@ -204,12 +188,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect(podsPage.heading).toBeVisible();
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRETS_POD_NAME}.yaml`);
-      await playYamlPage.playYaml(yamlFilePath, {
-        runtime: PlayYamlRuntime.Kubernetes,
-        kubernetesContext: KUBERNETES_CONTEXT,
-        kubernetesNamespace: KUBERNETES_NAMESPACE,
-      });
+      await playYamlPage.playYaml(SECRET_POD_YAML_PATH, KUBERNETES_RUNTIME);
 
       await playExpect(podsPage.heading).toBeVisible();
       await playExpect.poll(async () => podsPage.getPodRowByName(SECRETS_POD_NAME)).toBeTruthy();
@@ -218,6 +197,7 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 50_000 }).toEqual(PodState.Running);
     });
     test('Delete the ConfigMap and Secret resources', async ({ page, navigationBar }) => {
+      await deletePod(page, SECRETS_POD_NAME);
       const kubernetesBar = await navigationBar.openKubernetes();
       const configmapsSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
       await configmapsSecretsPage.deleteKubernetesResource(SECRET_NAME);
