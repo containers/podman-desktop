@@ -44,7 +44,7 @@ export function getSystemBinaryPath(binaryName: string): string {
 }
 
 // Takes a binary path (e.g. /tmp/docker-compose) and installs it to the system. Renames it based on binaryName
-export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
+export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<string | undefined> {
   const system = process.platform;
 
   // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
@@ -91,6 +91,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     // Use admin prileges / ask for password for copying to /usr/local/bin
     await extensionApi.process.exec(command, args, { isAdmin: true });
     console.log(`Successfully installed '${binaryName}' binary.`);
+    return destinationPath;
   } catch (error) {
     console.error(`Failed to install '${binaryName}' binary: ${error}`);
     throw error;
