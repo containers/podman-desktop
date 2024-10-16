@@ -3,7 +3,7 @@
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import type { OpenDialogOptions } from '@podman-desktop/api';
-import { Button, Input } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, Input } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
@@ -329,21 +329,24 @@ async function abortBuild() {
         placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
         class="w-full"
         required />
-      {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-6 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Container Engine
-          <select
-            class="w-full p-2 outline-none bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+    </div>
+
+    {#if providerConnections.length > 1}
+      <div hidden={buildImageInfo?.buildRunning}>
+        <label for="providerChoice" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+          >Container engine</label>
+          <Dropdown
             name="providerChoice"
             id="providerChoice"
-            bind:value={selectedProvider}>
-            {#each providerConnections as providerConnection}
-              <option value={providerConnection}>{providerConnection.name}</option>
-            {/each}
-          </select>
-        </label>
-      {/if}
-    </div>
+            bind:value={selectedProvider}
+            options={providerConnections.map(providerConnection => ({
+              label: providerConnection.name,
+              value: providerConnection,
+            }))}>
+          </Dropdown>
+      </div>
+    {/if}
+
     <div hidden={buildImageInfo?.buildRunning}>
       <label for="inputKey" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Build arguments</label>

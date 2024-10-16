@@ -9,7 +9,7 @@ let providerUnsubscribe: Unsubscriber;
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import type { OpenDialogOptions } from '@podman-desktop/api';
-import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import { handleNavigation } from '/@/navigation';
@@ -221,17 +221,19 @@ function goBackToPodsPage(): void {
             {#if providerConnections.length > 1}
               <label
                 for="providerConnectionName"
-                class="py-6 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
-                >Container Engine
-                <select
-                  class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+                class="block mb-2 font-medium"
+                class:text-[var(--pd-content-card-header-text)]={userChoice === 'podman'}
+                class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'podman'}
+                >Container Engine</label>
+                <Dropdown
                   name="providerChoice"
-                  bind:value={selectedProvider}>
-                  {#each providerConnections as providerConnection}
-                    <option value={providerConnection}>{providerConnection.name}</option>
-                  {/each}
-                </select>
-              </label>
+                  bind:value={selectedProvider}
+                  disabled={userChoice === 'kubernetes'}
+                  options={providerConnections.map(providerConnection => ({
+                    label: providerConnection.name,
+                    value: providerConnection,
+                  }))}>
+                </Dropdown>
             {/if}
             {#if providerConnections.length === 1 && selectedProviderConnection}
               <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection.name} />
@@ -290,18 +292,16 @@ function goBackToPodsPage(): void {
                 class:text-[var(--pd-content-card-header-text)]={userChoice === 'kubernetes'}
                 class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'kubernetes'}
                 >Kubernetes namespace:</label>
-              <select
+              <Dropdown
                 disabled={userChoice === 'podman'}
-                class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-                aria-label="Kubernetes Namespace"
+                ariaLabel="Kubernetes Namespace"
                 name="namespaceChoice"
-                bind:value={currentNamespace}>
-                {#each allNamespaces.items as namespace}
-                  <option value={namespace.metadata?.name}>
-                    {namespace.metadata?.name}
-                  </option>
-                {/each}
-              </select>
+                bind:value={currentNamespace}
+                options={allNamespaces.items.map(namespace => ({
+                  label: namespace.metadata?.name ?? '',
+                  value: namespace.metadata?.name ?? '',
+                }))}>
+              </Dropdown>
             </div>
           {/if}
         </button>
