@@ -19,18 +19,18 @@
 import type { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { PortForwardConnectionService } from '/@/plugin/kubernetes-port-forward-connection.js';
-import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes-port-forward-model.js';
+import type { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
+import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import {
   KubernetesPortForwardService,
   KubernetesPortForwardServiceProvider,
-} from '/@/plugin/kubernetes-port-forward-service.js';
-import type { ConfigManagementService } from '/@/plugin/kubernetes-port-forward-storage.js';
+} from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
+import type { ConfigManagementService } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
 
-vi.mock('/@/plugin/kubernetes-port-forward-connection.js');
-vi.mock('/@/plugin/kubernetes-port-forward-storage.js');
-vi.mock('/@/plugin/kubernetes-port-forward-validation.js');
+vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-connection.js');
+vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-storage.js');
+vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-validation.js');
 vi.mock('/@/plugin/util/port.js');
 vi.mock('/@/plugin/directories.js');
 

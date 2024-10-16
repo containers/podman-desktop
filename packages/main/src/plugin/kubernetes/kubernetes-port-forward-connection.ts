@@ -20,9 +20,9 @@ import net from 'node:net';
 import type { KubeConfig, V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, PortForward } from '@kubernetes/client-node';
 
-import type { ForwardConfig, PortMapping } from '/@/plugin/kubernetes-port-forward-model.js';
-import { WorkloadKind } from '/@/plugin/kubernetes-port-forward-model.js';
-import type { ForwardConfigRequirements } from '/@/plugin/kubernetes-port-forward-validation.js';
+import type { ForwardConfig, PortMapping } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
+import { WorkloadKind } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
+import type { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { requireNonUndefined } from '/@/util.js';

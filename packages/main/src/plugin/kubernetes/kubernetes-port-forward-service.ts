@@ -18,14 +18,14 @@
 import type { KubeConfig } from '@kubernetes/client-node';
 
 import { Directories } from '/@/plugin/directories.js';
-import { PortForwardConnectionService } from '/@/plugin/kubernetes-port-forward-connection.js';
-import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes-port-forward-model.js';
+import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
+import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import {
   ConfigManagementService,
   FileBasedConfigStorage,
   PreferenceFolderBasedStorage,
-} from '/@/plugin/kubernetes-port-forward-storage.js';
-import { ForwardConfigRequirements } from '/@/plugin/kubernetes-port-forward-validation.js';
+} from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
+import { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
 import { isFreePort } from '/@/plugin/util/port.js';
 

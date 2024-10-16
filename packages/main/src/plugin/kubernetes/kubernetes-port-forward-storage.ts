@@ -19,7 +19,7 @@ import * as fs from 'node:fs/promises';
 import path from 'node:path';
 
 import type { Directories } from '/@/plugin/directories.js';
-import type { UserForwardConfig } from '/@/plugin/kubernetes-port-forward-model.js';
+import type { UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 
 /**
  * Interface for forward configuration storage.

@@ -30,8 +30,15 @@ import type fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 
-import { type ForwardingSetup, PortForwardConnectionService } from '/@/plugin/kubernetes-port-forward-connection.js';
-import { type ForwardConfig, type PortMapping, WorkloadKind } from '/@/plugin/kubernetes-port-forward-model.js';
+import {
+  type ForwardingSetup,
+  PortForwardConnectionService,
+} from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
+import {
+  type ForwardConfig,
+  type PortMapping,
+  WorkloadKind,
+} from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import { Disposable, type IDisposable } from '/@/plugin/types/disposable.js';
 
 const mockKubeConfig = {

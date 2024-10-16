@@ -18,8 +18,8 @@
 
 import { describe, expect, test, vi } from 'vitest';
 
-import { type ForwardConfig, WorkloadKind } from '/@/plugin/kubernetes-port-forward-model.js';
-import { ForwardConfigRequirements } from '/@/plugin/kubernetes-port-forward-validation.js';
+import { type ForwardConfig, WorkloadKind } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
+import { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
 
 describe('ForwardConfigRequirements', () => {
   const validConfig: ForwardConfig = {
