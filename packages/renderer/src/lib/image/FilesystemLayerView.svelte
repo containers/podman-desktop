@@ -77,7 +77,7 @@ function getLink(file: ImageFile | undefined): string {
       {/if}
     {:else}
       <div class={`${colorClass}`}>
-        <span style="margin-left: {margin}rem" class={`pl-4`}></span>
+        <span style="margin-left: {margin}rem" class="pl-4"></span>
         {label}<span class="text-[var(--pd-content-text)] opacity-70">{getLink(tree?.data)}</span>
       </div>
     {/if}
