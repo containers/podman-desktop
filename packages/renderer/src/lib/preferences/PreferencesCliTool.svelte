@@ -228,7 +228,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
       </div>
-      <div role="region" class="ml-3 mt-2 text-gray-300">
+      <div role="region" class="ml-3 mt-2 text-[var(--pd-invert-content-card-text)]">
         <div class="text-[var(--pd-invert-content-card-text)]">
           <Markdown markdown={cliTool.description} />
         </div>
@@ -289,8 +289,8 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
     </div>
   </div>
   {#if showError}
-    <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
-      <Fa icon={faCircleXmark} class="mr-1 text-red-500" />
+    <div class="flex flex-row items-center text-xs text-[var(--pd-state-error)] ml-[200px] mt-2">
+      <Fa icon={faCircleXmark} class="mr-1 text-[var(--pd-state-error)]" />
       <span>{errorMessage}</span>
       <Button
         type="link"

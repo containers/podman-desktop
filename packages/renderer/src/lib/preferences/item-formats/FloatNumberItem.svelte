@@ -69,8 +69,8 @@ function assertNumericValueIsValid(value: number): boolean {
 
 <div
   class="flex flex-row rounded-sm bg-[var(--pd-input-field-bg)] text-sm divide-x divide-[var(--pd-dropdown-divider)] w-24 border-b"
-  class:border-violet-500={!numberInputInvalid}
-  class:border-red-500={numberInputInvalid}>
+  class:border-[var(--pd-state-info)]={!numberInputInvalid}
+  class:border-[var(--pd-state-error)]={numberInputInvalid}>
   <Tooltip topRight tip={numberInputErrorMessage}>
     <input
       type="text"
