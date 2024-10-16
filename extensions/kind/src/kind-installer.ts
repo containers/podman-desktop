@@ -69,6 +69,14 @@ export class KindInstaller {
     this.assetNames.set(MACOS_ARM64_PLATFORM, MACOS_ARM64_ASSET_NAME);
   }
 
+  // Get the latest version of kubectl from GitHub Releases
+  // and return the artifact metadata
+  async getLatestVersionAsset(): Promise<KindGithubReleaseArtifactMetadata> {
+    const latestReleases = await this.grabLatestsReleasesMetadata();
+    // from biggest to smallest
+    return latestReleases[0];
+  }
+
   // Provides last 5 majors releases from GitHub using the GitHub API
   // return name, tag and id of the release
   async grabLatestsReleasesMetadata(): Promise<KindGithubReleaseArtifactMetadata[]> {

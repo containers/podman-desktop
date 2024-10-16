@@ -385,6 +385,72 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // if we do not have anything installed, let's add it to the status bar
   let releaseToInstall: KindGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
+
+  extensionContext.subscriptions.push(kindCli);
+
+  // if the tool has been installed by the user we do not register the updater/installer
+  if (installationSource === 'external') {
+    return;
+  }
+  // register the updater to allow users to upgrade/downgrade their cli
+  let releaseToUpdateTo: KindGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToUpdateTo: string | undefined;
+
+  let latestAsset: KindGithubReleaseArtifactMetadata | undefined;
+  try {
+    latestAsset = await installer.getLatestVersionAsset();
+  } catch (error: unknown) {
+    console.error('Error when downloading kind CLI latest release information.', error);
+  }
+
+  const latestVersion = latestAsset?.tag ? removeVersionPrefix(latestAsset.tag) : undefined;
+
+  const update = {
+    version: latestVersion !== kindCli.version ? latestVersion : undefined,
+    selectVersion: async (): Promise<string> => {
+      const selected = await installer.promptUserForVersion(binaryVersion);
+      releaseToUpdateTo = selected;
+      releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
+      return releaseVersionToUpdateTo;
+    },
+    doUpdate: async (): Promise<void> => {
+      if (!binaryVersion || !binaryPath) {
+        throw new Error(`Cannot update ${KIND_CLI_NAME}. No cli tool installed.`);
+      }
+
+      if (!releaseToUpdateTo && latestAsset) {
+        releaseToUpdateTo = latestAsset;
+        releaseVersionToUpdateTo = latestVersion;
+      }
+
+      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
+        throw new Error(`Cannot update ${binaryPath} version ${binaryVersion}. No release selected.`);
+      }
+
+      // download, install system wide and update cli version
+      await installer.download(releaseToUpdateTo);
+      let cliPath = installer.getKindCliStoragePath();
+      try {
+        cliPath = await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+      } catch (err: unknown) {
+        console.log(`${KIND_CLI_NAME} not updated system-wide. Error: ${String(err)}`);
+      }
+      kindCli?.updateVersion({
+        version: releaseVersionToUpdateTo,
+        installationSource: 'extension',
+        path: cliPath,
+      });
+      binaryVersion = releaseVersionToUpdateTo;
+      if (releaseVersionToUpdateTo === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
+      releaseVersionToUpdateTo = undefined;
+      releaseToUpdateTo = undefined;
+    },
+  };
+  kindCli.registerUpdate(update);
   kindCli.registerInstaller({
     selectVersion: async () => {
       const selected = await installer.promptUserForVersion();
@@ -404,21 +470,27 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
       // download, install system wide and update cli version
       await installer.download(releaseToInstall);
-      const cliPath = installer.getKindCliStoragePath();
+      let cliPath = installer.getKindCliStoragePath();
 
       try {
-        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
+        cliPath = await installBinaryToSystem(cliPath, KIND_CLI_NAME);
       } catch (err: unknown) {
         console.log(`${KIND_CLI_NAME} not installed system-wide. Error: ${String(err)}`);
       }
 
       kindCli?.updateVersion({
         version: releaseVersionToInstall,
+        path: cliPath,
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
       binaryPath = cliPath;
       kindPath = cliPath;
+      if (releaseVersionToInstall === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
     },
@@ -439,49 +511,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       binaryVersion = undefined;
       binaryPath = undefined;
       kindPath = undefined;
-    },
-  });
-
-  extensionContext.subscriptions.push(kindCli);
-
-  // if the tool has been installed by the user we do not register the updater/installer
-  if (installationSource === 'external') {
-    return;
-  }
-  // register the updater to allow users to upgrade/downgrade their cli
-  let releaseToUpdateTo: KindGithubReleaseArtifactMetadata | undefined;
-  let releaseVersionToUpdateTo: string | undefined;
-
-  kindCli.registerUpdate({
-    selectVersion: async () => {
-      const selected = await installer.promptUserForVersion(binaryVersion);
-      releaseToUpdateTo = selected;
-      releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
-      return releaseVersionToUpdateTo;
-    },
-    doUpdate: async _logger => {
-      if (!binaryVersion || !binaryPath) {
-        throw new Error(`Cannot update ${KIND_CLI_NAME}. No cli tool installed.`);
-      }
-      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
-        throw new Error(`Cannot update ${binaryPath} version ${binaryVersion}. No release selected.`);
-      }
-
-      // download, install system wide and update cli version
-      await installer.download(releaseToUpdateTo);
-      const cliPath = installer.getKindCliStoragePath();
-      try {
-        await installBinaryToSystem(cliPath, KIND_CLI_NAME);
-      } catch (err: unknown) {
-        console.log(`${KIND_CLI_NAME} not updated system-wide. Error: ${String(err)}`);
-      }
-      kindCli?.updateVersion({
-        version: releaseVersionToUpdateTo,
-        installationSource: 'extension',
-      });
-      binaryVersion = releaseVersionToUpdateTo;
-      releaseVersionToInstall = undefined;
-      releaseToInstall = undefined;
     },
   });
 }
