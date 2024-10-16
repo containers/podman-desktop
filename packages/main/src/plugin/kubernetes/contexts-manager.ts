@@ -89,8 +89,6 @@ interface CreateInformerOptions<T> {
   backoff: Backoff;
   // used to delay setting the context reachable after the 'connect' event
   connectionDelay: NodeJS.Timeout | undefined;
-  // set to true to cancel the retries
-  cancel?: boolean;
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -838,9 +836,6 @@ export class ContextsManager {
         return;
       }
       options.timer = setTimeout(() => {
-        if (options.cancel) {
-          return;
-        }
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
     });
@@ -862,7 +857,7 @@ export class ContextsManager {
     return {
       informer,
       cancel: (): void => {
-        options.cancel = true;
+        clearTimeout(options.timer);
       },
     };
   }
@@ -927,9 +922,6 @@ export class ContextsManager {
         return;
       }
       options.timer = setTimeout(() => {
-        if (options.cancel) {
-          return;
-        }
         // before restarting the failed informer we should check if the context is still present in the kubeconfig.
         // It is possible that if we start an informer on an old cluster it will keep failing without any chance to be stopped.
         // That happens bc, in the library, when executing the listFn
