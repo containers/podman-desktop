@@ -42,7 +42,7 @@ function handleSelectionChange(event: Event) {
   <div class="flex py-2 h-[40px]">
     <label
       for="input-standard-{pod.name}"
-      class="block w-auto text-sm font-medium whitespace-nowrap leading-6 text-gray-900 pl-2 pr-2">
+      class="block w-auto text-sm font-medium whitespace-nowrap leading-6 text-[var(--pd-content-text)] pl-2 pr-2">
       {#key key}
         {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
           Connected to:
@@ -56,7 +56,7 @@ function handleSelectionChange(event: Event) {
         <select
           on:change={handleSelectionChange}
           aria-labelledby="listbox-label"
-          class="block w-48 p-1 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="block w-48 p-1 outline-none text-sm bg-[var(--pd-content-card-bg)] rounded-sm text-[var(--pd-content-text)] placeholder-[var(--pd-content-text)]"
           name={pod.name}
           id="input-standard-{pod.name}">
           {#each pod.containers as container}
@@ -66,7 +66,7 @@ function handleSelectionChange(event: Event) {
       {:else}
         <span
           id="input-standard-{pod.name}"
-          class="block text-sm font-bold leading-6 text-gray-900"
+          class="block text-sm font-bold leading-6 text-[var(--pd-content-text)]"
           aria-labelledby="listbox-label">{currentContainerName}</span>
       {/if}
     </div>

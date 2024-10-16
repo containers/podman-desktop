@@ -29,7 +29,7 @@ onMount(async () => {
 <!-- Show the kube pod error if we're unable to retrieve the data correctly, but we still want to show the 
 basic pod information -->
 {#if getKubePodError}
-  <p class="text-red-500 font-medium">{getKubePodError}</p>
+  <p class="text-[var(--pd-state-error)] font-medium">{getKubePodError}</p>
 {/if}
 
 <!-- Load the Kubernetes information, pass in kubePod regardless if it's undefined

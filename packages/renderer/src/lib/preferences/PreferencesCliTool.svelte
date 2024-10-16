@@ -137,7 +137,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
   role="row"
   class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex flex-col"
   aria-label={cliTool.displayName}>
-  <div class="divide-x divide-gray-900 flex flex-row">
+  <div class="divide-x divide-[var(--pd-content-divider)] flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->
       <div class="min-w-[170px] max-w-[200px] h-full flex flex-col justify-between">
@@ -219,7 +219,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
       </div>
     </div>
     <!-- cli-tools columns -->
-    <div class="grow flex-column divide-gray-900 ml-2">
+    <div class="grow flex-column divide-[var(--pd-content-divider)] ml-2">
       <span class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]" aria-label="cli-display-name"
         >{cliTool.displayName}</span>
       <div

@@ -10,16 +10,16 @@ let color = $state('');
 $effect(() => {
   switch (type) {
     case 'podman':
-      color = 'bg-purple-600';
+      color = 'bg-[var(--pd-provider-podman)]';
       break;
     case 'docker':
-      color = 'bg-sky-400';
+      color = 'bg-[var(--pd-provider-docker)]';
       break;
     case 'kubernetes':
-      color = 'bg-sky-600';
+      color = 'bg-[var(--pd-provider-kubernetes)]';
       break;
     default:
-      color = 'bg-gray-900';
+      color = 'bg-[var(--pd-provider-unknown)]';
   }
 });
 </script>

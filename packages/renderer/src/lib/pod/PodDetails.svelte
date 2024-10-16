@@ -71,7 +71,7 @@ onMount(() => {
       </div>
       <PodActions pod={pod} detailed={true} on:update={() => (pod = pod)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-text-[var(--pd-content-text)]">
       <StateChange state={pod.status} />
     </div>
     <svelte:fragment slot="tabs">

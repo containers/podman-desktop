@@ -161,7 +161,7 @@ function onInstallationClick() {
               <button
                 class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
                   ? 'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)]'
-                  : 'bg-purple-700 text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
+                  : 'bg-[var(--pd-button-tertiary)] text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeOnlyMode;
                   installationOptionsMenuVisible = false;
@@ -174,7 +174,7 @@ function onInstallationClick() {
               <button
                 class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
                   ? 'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)]'
-                  : 'bg-purple-700 text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
+                  : 'bg-[var(--pd-button-tertiary)] text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeAndStartMode;
                   installationOptionsMenuVisible = false;

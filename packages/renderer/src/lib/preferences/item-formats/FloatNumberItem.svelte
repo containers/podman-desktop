@@ -68,13 +68,13 @@ function assertNumericValueIsValid(value: number): boolean {
 </script>
 
 <div
-  class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
+  class="flex flex-row rounded-sm bg-[var(--pd-input-field-bg)] text-sm divide-x divide-[var(--pd-dropdown-divider)] w-24 border-b"
   class:border-violet-500={!numberInputInvalid}
   class:border-red-500={numberInputInvalid}>
   <Tooltip topRight tip={numberInputErrorMessage}>
     <input
       type="text"
-      class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"
+      class="w-full px-2 outline-none focus:outline-none text-[var(--pd-input-field-focused-text)] text-sm py-0.5"
       name={record.id}
       bind:value={recordValue}
       on:keypress={event => onNumberInputKeyPress(event)}
