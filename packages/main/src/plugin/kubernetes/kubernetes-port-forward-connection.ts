@@ -17,9 +17,10 @@
  ***********************************************************************/
 import net from 'node:net';
 
-import type { KubeConfig, V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
-import { AppsV1Api, CoreV1Api, PortForward } from '@kubernetes/client-node';
+import type { V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
+import { PortForward } from '@kubernetes/client-node';
 
+import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import type { ForwardConfig, PortMapping } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import { WorkloadKind } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import type { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
@@ -48,7 +49,7 @@ export class PortForwardConnectionService {
    * @param configRequirementsChecker - Optional configuration requirements checker.
    */
   constructor(
-    protected kubeConfig: KubeConfig,
+    protected kubeClient: KubernetesClient,
     protected configRequirementsChecker?: ForwardConfigRequirements,
   ) {}
 
@@ -113,7 +114,7 @@ export class PortForwardConnectionService {
    */
   protected createServer(forwardSetup: ForwardingSetup): net.Server {
     return net.createServer(socket => {
-      const kubernetesPortForward = new PortForward(this.kubeConfig);
+      const kubernetesPortForward = new PortForward(this.kubeClient.getKubeConfig());
       kubernetesPortForward
         .portForward(
           forwardSetup.namespace,
@@ -219,8 +220,7 @@ export class PortForwardConnectionService {
    * @throws If the pod cannot be retrieved.
    */
   protected async getPod(name: string, namespace: string): Promise<V1Pod> {
-    const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-    return coreV1Api.readNamespacedPod({ name, namespace });
+    return this.kubeClient.readNamespacedPod(name, namespace);
   }
 
   /**
@@ -231,8 +231,7 @@ export class PortForwardConnectionService {
    * @throws If the deployment cannot be retrieved.
    */
   protected async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
-    const appsV1Api = this.kubeConfig.makeApiClient(AppsV1Api);
-    return appsV1Api.readNamespacedDeployment({ name, namespace });
+    return this.kubeClient.readNamespacedDeployment(name, namespace);
   }
 
   /**
@@ -243,8 +242,7 @@ export class PortForwardConnectionService {
    * @throws If the service cannot be retrieved.
    */
   protected async getService(name: string, namespace: string): Promise<V1Service> {
-    const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-    return coreV1Api.readNamespacedService({ name, namespace });
+    return this.kubeClient.readNamespacedService(name, namespace);
   }
 
   /**
@@ -325,13 +323,11 @@ export class PortForwardConnectionService {
     deployment: V1Deployment,
     forward: PortMapping,
   ): Promise<ForwardingSetup> {
-    const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-
     const namespace = requireNonUndefined(deployment.metadata?.namespace, 'Found undefined namespace.');
     const matchLabels = requireNonUndefined(deployment.spec?.selector.matchLabels, 'Found undefined selector');
     const selectorKey = requireNonUndefined(Object.keys(matchLabels)[0]);
     const labelSelector = `${selectorKey}=${matchLabels[selectorKey]}`;
-    const podList = await coreV1Api.listNamespacedPod({ namespace, labelSelector });
+    const podList = await this.kubeClient.listNamespacedPod(namespace, undefined, labelSelector);
     const podName = requireNonUndefined(podList.items[0]?.metadata?.name, 'Found undefined Pod name.');
 
     return {
@@ -349,12 +345,10 @@ export class PortForwardConnectionService {
    * @throws If the service namespace, selector, pod, or target port is undefined.
    */
   protected async getForwardSetupFromService(service: V1Service, forward: PortMapping): Promise<ForwardingSetup> {
-    const coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-
     const namespace = requireNonUndefined(service.metadata?.namespace, 'Found undefined namespace.');
     const selectorObj = requireNonUndefined(service.spec?.selector, 'Found undefined selector.');
     const labelSelector = this.toLabelSelector(selectorObj);
-    const podList = await coreV1Api.listNamespacedPod({ namespace, labelSelector });
+    const podList = await this.kubeClient.listNamespacedPod(namespace, undefined, labelSelector);
     const pod = requireNonUndefined(podList.items[0], 'Found undefined Pod.');
     const podName = requireNonUndefined(pod.metadata?.name, 'Found undefined Pod name.');
     const targetRemotePort = this.getTargetPort(service, pod, forward.remotePort);

@@ -18,18 +18,15 @@
 
 import net from 'node:net';
 
-import {
-  AppsV1Api,
-  CoreV1Api,
-  KubeConfig,
-  type V1Deployment,
-  type V1Pod,
-  type V1Service,
-} from '@kubernetes/client-node';
+import { AppsV1Api, CoreV1Api, type V1Deployment, type V1Pod, type V1Service } from '@kubernetes/client-node';
 import type fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import { FilesystemMonitoring } from '/@/plugin/filesystem-monitoring.js';
+import { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import {
   type ForwardingSetup,
   PortForwardConnectionService,
@@ -39,6 +36,7 @@ import {
   type PortMapping,
   WorkloadKind,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import { Disposable, type IDisposable } from '/@/plugin/types/disposable.js';
 
 const mockKubeConfig = {
@@ -58,6 +56,11 @@ const mockAppsV1Api = {
 const mockPortForward = {
   portForward: vi.fn().mockResolvedValue(undefined),
 };
+
+const apiSender: ApiSenderType = {} as unknown as ApiSenderType;
+const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
+const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
+const telemetry: Telemetry = {} as unknown as Telemetry;
 
 vi.mock('@kubernetes/client-node', async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -177,7 +180,9 @@ describe('PortForwardConnectionService', () => {
   let service: TestablePortForwardConnectionService;
 
   beforeEach(() => {
-    service = new TestablePortForwardConnectionService(new KubeConfig());
+    service = new TestablePortForwardConnectionService(
+      new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry),
+    );
     global.fetch = vi.fn();
     mockKubeConfig.makeApiClient.mockImplementation(api => {
       if (api === CoreV1Api) {
@@ -308,7 +313,9 @@ describe('PortForwardConnectionService', () => {
       },
     );
 
-    service = new TestablePortForwardConnectionService(new KubeConfig());
+    service = new TestablePortForwardConnectionService(
+      new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry),
+    );
 
     const createdServer = service.createServer(forwardSetup as never);
 

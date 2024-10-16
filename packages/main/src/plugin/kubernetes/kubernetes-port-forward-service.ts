@@ -18,6 +18,7 @@
 import type { KubeConfig } from '@kubernetes/client-node';
 
 import { Directories } from '/@/plugin/directories.js';
+import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
 import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import {
@@ -37,14 +38,14 @@ import { isFreePort } from '/@/plugin/util/port.js';
 export class KubernetesPortForwardServiceProvider {
   /**
    * Gets the port forward service for the given Kubernetes configuration.
-   * @param kubeConfig - The Kubernetes configuration.
+   * @param kubeClient the Kubernetes client
    * @returns The port forward service.
    */
-  getService(kubeConfig: KubeConfig): KubernetesPortForwardService {
-    const configKey = this.getKubeConfigKey(kubeConfig);
+  getService(kubeClient: KubernetesClient): KubernetesPortForwardService {
+    const configKey = this.getKubeConfigKey(kubeClient.getKubeConfig());
 
     const forwardingConnectionService = new PortForwardConnectionService(
-      kubeConfig,
+      kubeClient,
       new ForwardConfigRequirements(isFreePort),
     );
     const forwardConfigStorage = new FileBasedConfigStorage(
