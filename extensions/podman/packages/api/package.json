@@ -7,9 +7,7 @@
   },
   "license": "Apache-2.0",
   "types": "./src/podman-extension-api.d.ts",
-  "files": [
-    "src"
-  ],
+  "files": ["src"],
   "scripts": {
     "prepare": "",
     "clean": "rimraf lib *.tsbuildinfo",

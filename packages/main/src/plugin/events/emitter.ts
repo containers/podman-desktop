@@ -88,7 +88,7 @@ class CallbackList implements Iterable<Callback> {
     }
     const callbacks = this._callbacks.slice(0);
     const contexts = this._contexts?.slice(0);
-    // prettier-ignore
+    // biome-ignore format: off
     return callbacks
       .map(
         (callback, i) =>

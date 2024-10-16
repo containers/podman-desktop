@@ -46,7 +46,7 @@ export abstract class MainPage extends BasePage {
     this.search = this.mainPage.getByRole('region', { name: 'search' });
     this.content = this.mainPage.getByRole('region', { name: 'content' });
     this.additionalActions = this.header.getByRole('group', { name: 'additionalActions' });
-    this.bottomAdditionalActions = this.header.getByRole('group', { name: 'bottomAdditionalActions' });
+    this.bottomAdditionalActions = this.search.getByRole('group', { name: 'bottomAdditionalActions' });
     this.heading = this.header.getByRole('heading', { name: this.title });
     this.noContainerEngineHeading = this.content.getByRole('heading', { name: 'No Container Engine', exact: true });
     this.noImagesHeading = this.content.getByRole('heading', { name: `No ${this.title}`, exact: true });

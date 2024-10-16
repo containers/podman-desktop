@@ -312,6 +312,11 @@ export class ContextsManager {
   }
 
   startResourceInformer(contextName: string, resourceName: ResourceName): void {
+    // this function is called from many places, we cannot guarantee
+    // it is called only once, let's do nothing if the informer is already running
+    if (this.informers.hasInformer(contextName, resourceName)) {
+      return;
+    }
     const context = this.kubeConfig.contexts.find(c => c.name === contextName);
     if (!context) {
       throw new Error(`context ${contextName} not found`);
@@ -419,6 +424,13 @@ export class ContextsManager {
             state.checking = { state: 'waiting' };
             state.reachable = reachable;
             state.error = reachable ? undefined : state.error; // if reachable we remove error
+            if (reachable) {
+              for (const resourceName of secondaryResources) {
+                if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+                  this.startResourceInformer(this.kubeConfig.currentContext, resourceName);
+                }
+              }
+            }
           },
         });
       },

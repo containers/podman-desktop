@@ -1,5 +1,5 @@
-const {writeFile} = require('fs/promises');
-const {execSync} = require('child_process');
+const { writeFile } = require('fs/promises');
+const { execSync } = require('child_process');
 const electron = require('electron');
 const path = require('path');
 
@@ -12,7 +12,7 @@ const path = require('path');
  */
 function getVendors() {
   const output = execSync(`${electron} -p "JSON.stringify(process.versions)"`, {
-    env: {'ELECTRON_RUN_AS_NODE': '1'},
+    env: { ELECTRON_RUN_AS_NODE: '1' },
     encoding: 'utf-8',
   });
 
@@ -28,11 +28,16 @@ function updateVendors() {
   const browserslistrcPath = path.resolve(process.cwd(), '.browserslistrc');
 
   return Promise.all([
-    writeFile('./.electron-vendors.cache.json',
-      JSON.stringify({
-        chrome: chromeMajorVersion,
-        node: nodeMajorVersion,
-      }, null, 2) + '\n',
+    writeFile(
+      './.electron-vendors.cache.json',
+      JSON.stringify(
+        {
+          chrome: chromeMajorVersion,
+          node: nodeMajorVersion,
+        },
+        null,
+        2,
+      ) + '\n',
     ),
 
     writeFile(browserslistrcPath, `Chrome ${chromeMajorVersion}\n`, 'utf8'),

@@ -387,6 +387,13 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'resolveShortnameImage',
+    async (providerContainerConnectionInfo: ProviderContainerConnectionInfo, shortName: string): Promise<string[]> => {
+      return ipcInvoke('container-provider-registry:resolveShortnameImage', providerContainerConnectionInfo, shortName);
+    },
+  );
+
   let onDataCallbacksPullImageId = 0;
   const onDataCallbacksPullImage = new Map<number, (event: PullEvent) => void>();
   contextBridge.exposeInMainWorld(

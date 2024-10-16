@@ -127,7 +127,7 @@ export async function deleteRegistry(page: Page, name: string, failIfNotExist = 
   });
 }
 
-export async function deletePod(page: Page, name: string): Promise<void> {
+export async function deletePod(page: Page, name: string, timeout: number = 50_000): Promise<void> {
   await test.step(`Delete pod ${name}`, async () => {
     const navigationBar = new NavigationBar(page);
     const pods = await navigationBar.openPods();
@@ -148,7 +148,7 @@ export async function deletePod(page: Page, name: string): Promise<void> {
           async () => {
             return !!(await pods.getPodRowByName(name));
           },
-          { timeout: 50_000 },
+          { timeout: timeout },
         );
       } catch (error) {
         if (!(error as Error).message.includes('Page is empty')) {

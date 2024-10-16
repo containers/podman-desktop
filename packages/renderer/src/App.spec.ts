@@ -91,6 +91,7 @@ beforeEach(() => {
     }),
   };
   (window as any).dispatchEvent = dispatchEventMock;
+  (window.getConfigurationValue as unknown) = vi.fn();
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
     reachable: false,
     error: 'initializing',

@@ -24,10 +24,12 @@ async function executeCommand(entry: StatusBarEntry) {
   if (typeof entry.command === 'undefined') {
     return;
   }
+  const command = entry.command;
+  const commandArgs = entry.commandArgs;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await window.executeStatusBarEntryCommand(entry.command, entry.commandArgs);
+  // convert args to a plain object and not as proxy of arguments
+  const noProxyCommandArgs = commandArgs ? JSON.parse(JSON.stringify(commandArgs)) : undefined;
+  await window.executeStatusBarEntryCommand(command, noProxyCommandArgs);
 }
 </script>
 

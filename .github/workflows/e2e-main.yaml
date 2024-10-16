@@ -148,8 +148,6 @@ jobs:
           echo ("PODMAN_DESKTOP_BINARY=" + $path) >> $env:GITHUB_ENV
 
       - name: Run E2E Update test
-        env:
-          UPDATE_PODMAN_DESKTOP: true
         run: |
           echo "${{ env.PODMAN_DESKTOP_BINARY }}"
           pnpm test:e2e:update:run

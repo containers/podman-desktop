@@ -4674,6 +4674,8 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace navigation {
+    // Navigate to the Dashboard page
+    export function navigateToDashboard(): Promise<void>;
     // Navigate to the Containers page
     export function navigateToContainers(): Promise<void>;
     // Navigate to the Container page

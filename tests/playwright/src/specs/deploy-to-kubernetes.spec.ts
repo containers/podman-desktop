@@ -73,30 +73,31 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.describe.serial('Deploy a container to the Kind cluster', () => {
-  test('Pull an image and start a container', async ({ navigationBar }) => {
-    const imagesPage = await navigationBar.openImages();
-    const pullImagePage = await imagesPage.openPullImage();
-    await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
-    await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
-    const containersPage = await imagesPage.startContainerWithImage(
-      IMAGE_TO_PULL,
-      CONTAINER_NAME,
-      CONTAINER_START_PARAMS,
-    );
-    await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
-    const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
-    await playExpect(containerDetails.heading).toBeVisible();
-    await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
-  });
+test.describe
+  .serial('Deploy a container to the Kind cluster', () => {
+    test('Pull an image and start a container', async ({ navigationBar }) => {
+      const imagesPage = await navigationBar.openImages();
+      const pullImagePage = await imagesPage.openPullImage();
+      await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
+      await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
+      const containersPage = await imagesPage.startContainerWithImage(
+        IMAGE_TO_PULL,
+        CONTAINER_NAME,
+        CONTAINER_START_PARAMS,
+      );
+      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
+      const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
+      await playExpect(containerDetails.heading).toBeVisible();
+      await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
+    });
 
-  test('Deploy the container ', async ({ page, navigationBar }) => {
-    const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
-    await playExpect(containerDetailsPage.heading).toBeVisible();
-    const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
-    await deployToKubernetesPage.deployPod(CONTAINER_NAME, { useKubernetesServices: true }, KUBERNETES_CONTEXT);
+    test('Deploy the container ', async ({ page, navigationBar }) => {
+      const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
+      await playExpect(containerDetailsPage.heading).toBeVisible();
+      const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
+      await deployToKubernetesPage.deployPod(CONTAINER_NAME, { useKubernetesServices: true }, KUBERNETES_CONTEXT);
 
-    const podsPage = await navigationBar.openPods();
-    await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
+      const podsPage = await navigationBar.openPods();
+      await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
+    });
   });
-});

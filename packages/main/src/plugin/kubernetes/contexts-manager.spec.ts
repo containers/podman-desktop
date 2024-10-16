@@ -1498,6 +1498,169 @@ describe('update', async () => {
     );
   });
 
+  test('current context becoming reachable should start service informer on it if watchers have subscribed', async () => {
+    vi.useFakeTimers();
+    const makeInformerMock = vi.mocked(makeInformer);
+    makeInformerMock.mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        return new TestInformer(
+          kubeconfig.currentContext,
+          path,
+          0,
+          undefined,
+          [
+            {
+              delayMs: 100,
+              verb: 'add',
+              object: { metadata: { uid: '123' } },
+            },
+          ],
+          [
+            {
+              delayMs: 0,
+              error: 'an error',
+              verb: 'error',
+            },
+          ],
+        );
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+        {
+          name: 'context2',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+
+    makeInformerMock.mockClear();
+
+    client.registerGetCurrentContextResources('services');
+
+    // service informer is not started
+    expect(makeInformerMock).not.toHaveBeenCalled();
+
+    // wait for context to become reachable (receiving an add event)
+    vi.advanceTimersByTime(110);
+
+    // service informer is now started
+    expect(makeInformerMock).toHaveBeenCalled();
+    expect(makeInformerMock).toHaveBeenCalledWith(
+      expect.any(KubeConfig),
+      '/api/v1/namespaces/ns1/services',
+      expect.anything(),
+    );
+  });
+
+  test('current context becoming reachable should not start service informer on it if no watchers have subscribed', async () => {
+    vi.useFakeTimers();
+    const makeInformerMock = vi.mocked(makeInformer);
+    makeInformerMock.mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        return new TestInformer(
+          kubeconfig.currentContext,
+          path,
+          0,
+          undefined,
+          [
+            {
+              delayMs: 100,
+              verb: 'add',
+              object: { metadata: { uid: '123' } },
+            },
+          ],
+          [
+            {
+              delayMs: 0,
+              error: 'an error',
+              verb: 'error',
+            },
+          ],
+        );
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+        {
+          name: 'context2',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+
+    makeInformerMock.mockClear();
+
+    // service informer is not started
+    expect(makeInformerMock).not.toHaveBeenCalled();
+
+    // wait for context to become reachable (receiving an add event)
+    vi.advanceTimersByTime(110);
+
+    // service informer is still not started
+    expect(makeInformerMock).not.toHaveBeenCalled();
+  });
+
   test('should not ignore events sent a short time before', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
@@ -2567,10 +2730,11 @@ describe('isContextChanged', () => {
     client = new ContextsManager(apiSender);
     await client.update(kubeConfig);
   });
-  test('verify createInformer is called having kubeContext object initialized - services', () => {
+  test('verify createInformer is called having kubeContext object initialized - services, only once', () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     const serviceInformer = vi.spyOn(client, 'createServiceInformer');
     client.startResourceInformer('context', 'services');
+    expect(serviceInformer).toHaveBeenCalledOnce();
     expect(serviceInformer).toBeCalledWith(kubeConfig, 'ns', {
       name: 'context',
       cluster: 'cluster',
@@ -2581,11 +2745,14 @@ describe('isContextChanged', () => {
         server: 'server',
       },
     });
+    client.startResourceInformer('context', 'services');
+    expect(serviceInformer).toHaveBeenCalledOnce();
   });
   test('verify createInformer is called having kubeContext object initialized - nodes', () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     const nodeInformer = vi.spyOn(client, 'createNodeInformer');
     client.startResourceInformer('context', 'nodes');
+    expect(nodeInformer).toHaveBeenCalledOnce();
     expect(nodeInformer).toBeCalledWith(kubeConfig, 'ns', {
       name: 'context',
       cluster: 'cluster',
@@ -2596,11 +2763,14 @@ describe('isContextChanged', () => {
         server: 'server',
       },
     });
+    client.startResourceInformer('context', 'nodes');
+    expect(nodeInformer).toHaveBeenCalledOnce();
   });
   test('verify createInformer is called having kubeContext object initialized - ingress', () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     const ingressInformer = vi.spyOn(client, 'createIngressInformer');
     client.startResourceInformer('context', 'ingresses');
+    expect(ingressInformer).toHaveBeenCalledOnce();
     expect(ingressInformer).toBeCalledWith(kubeConfig, 'ns', {
       name: 'context',
       cluster: 'cluster',
@@ -2611,11 +2781,14 @@ describe('isContextChanged', () => {
         server: 'server',
       },
     });
+    client.startResourceInformer('context', 'ingresses');
+    expect(ingressInformer).toHaveBeenCalledOnce();
   });
   test('verify createInformer is called having kubeContext object initialized - routes', () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     const routeInformer = vi.spyOn(client, 'createRouteInformer');
     client.startResourceInformer('context', 'routes');
+    expect(routeInformer).toHaveBeenCalledOnce();
     expect(routeInformer).toBeCalledWith(kubeConfig, 'ns', {
       name: 'context',
       cluster: 'cluster',
@@ -2626,5 +2799,7 @@ describe('isContextChanged', () => {
         server: 'server',
       },
     });
+    client.startResourceInformer('context', 'routes');
+    expect(routeInformer).toHaveBeenCalledOnce();
   });
 });

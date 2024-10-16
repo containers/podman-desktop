@@ -23,10 +23,7 @@
         "kind.cluster.creation.provider": {
           "type": "string",
           "default": "podman",
-          "enum": [
-            "podman",
-            "docker"
-          ],
+          "enum": ["podman", "docker"],
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Provider Type"
         },
@@ -105,14 +102,14 @@
     "@octokit/rest": "^21.0.2",
     "@podman-desktop/api": "workspace:*",
     "mustache": "^4.2.0",
-    "yaml": "^2.5.1"
+    "yaml": "^2.6.0"
   },
   "devDependencies": {
     "adm-zip": "^0.5.16",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
     "tsx": "^4.19.1",
-    "vite": "^5.4.8",
+    "vite": "^5.4.9",
     "vitest": "^2.1.2"
   }
 }

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 export enum NavigationPage {
+  DASHBOARD = 'dashboard',
   CONTAINERS = 'containers',
   CONTAINER_EXPORT = 'container-export',
   CONTAINER = 'container',

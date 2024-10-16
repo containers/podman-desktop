@@ -1,8 +1,9 @@
 <script lang="ts">
-import { faArrowCircleDown, faCog } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { faArrowCircleDown, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { Button, Checkbox, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
+import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import type { ImageSearchOptions } from '/@api/image-registry';
@@ -21,6 +22,9 @@ let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
+let shortnameImages: string[] = [];
+let podmanFQN = '';
+let usePodmanFQN = false;
 
 export let imageToPull: string | undefined = undefined;
 
@@ -33,6 +37,28 @@ let selectedProviderConnection: ProviderContainerConnectionInfo | undefined;
 
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
+
+async function resolveShortname(): Promise<void> {
+  if (!selectedProviderConnection || selectedProviderConnection.type !== 'podman') {
+    return;
+  }
+  if (imageToPull && !imageToPull.includes('/')) {
+    shortnameImages = (await window.resolveShortnameImage(selectedProviderConnection, imageToPull)) ?? [];
+    // not a shortname
+  } else {
+    podmanFQN = '';
+    shortnameImages = [];
+    usePodmanFQN = false;
+  }
+  // checks if there is no FQN that is from dokcer hub
+  if (!shortnameImages.find(name => name.includes('docker.io'))) {
+    podmanFQN = shortnameImages[0];
+  } else {
+    podmanFQN = '';
+    shortnameImages = [];
+    usePodmanFQN = false;
+  }
+}
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
@@ -96,7 +122,13 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    if (podmanFQN) {
+      usePodmanFQN
+        ? await window.pullImage(selectedProviderConnection, podmanFQN.trim(), callback)
+        : await window.pullImage(selectedProviderConnection, `docker.io/${imageToPull.trim()}`, callback);
+    } else {
+      await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    }
     pullInProgress = false;
     pullFinished = true;
   } catch (error: any) {
@@ -190,18 +222,32 @@ async function searchImages(value: string): Promise<string[]> {
     <div class="w-full">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      <Typeahead
-        id="imageName"
-        name="imageName"
-        placeholder="Image name"
-        searchFunction={searchImages}
-        onChange={(s: string) => {
-          validateImageName(s);
-        }}
-        onEnter={pullImage}
-        disabled={pullFinished || pullInProgress}
-        required
-        initialFocus />
+      <div class="flex flex-col">
+        <Typeahead
+          id="imageName"
+          name="imageName"
+          placeholder="Image name"
+          searchFunction={searchImages}
+          onChange={(s: string) => {
+            validateImageName(s);
+            resolveShortname();
+          }}
+          onEnter={pullImage}
+          disabled={pullFinished || pullInProgress}
+          required
+          initialFocus />
+        {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
+          <div class="absolute mt-2 ml-[-18px] self-start">
+            <Tooltip tip="Shortname images will be pulled from Docker Hub" topRight>
+              <Fa id="shortname-warning" size="1.1x" class="text-amber-400" icon={faTriangleExclamation} />
+            </Tooltip>
+          </div>
+        {/if}
+      </div>
+      {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
+        <Checkbox class="pt-2" bind:checked={usePodmanFQN} title="Use Podman FQN" disabled={podmanFQN === ''}
+          >Use Podman FQN for shortname image</Checkbox>
+      {/if}
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}

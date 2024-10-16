@@ -472,7 +472,7 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
-    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
     taskManager.init();
 
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
@@ -1055,6 +1055,16 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle(
+      'container-provider-registry:resolveShortnameImage',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        shortName: string,
+      ): Promise<string[]> => {
+        return containerProviderRegistry.resolveShortnameImage(providerContainerConnectionInfo, shortName);
+      },
+    );
     this.ipcHandle(
       'container-provider-registry:pullImage',
       async (

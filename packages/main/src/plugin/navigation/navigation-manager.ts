@@ -108,6 +108,12 @@ export class NavigationManager {
     });
   }
 
+  async navigateToDashboard(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.DASHBOARD,
+    });
+  }
+
   async navigateToContainers(): Promise<void> {
     this.navigateTo({
       page: NavigationPage.CONTAINERS,
