@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 import { PlayYamlRuntime } from '../model/core/operations';
 import { KubernetesResourceState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
+import { KubernetesResourceDetailsPage } from '../model/pages/kubernetes-resource-details-page';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { createKindCluster, deleteKindCluster, ensureKindCliInstalled } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
@@ -32,11 +33,17 @@ const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT = `kind-${CLUSTER_NAME}`;
 const KUBERNETES_NAMESPACE = 'default';
 const DEPLOYMENT_NAME = 'test-deployment-resource';
+const KUBERNETS_RUNTIME = {
+  runtime: PlayYamlRuntime.Kubernetes,
+  kubernetesContext: KUBERNETES_CONTEXT,
+  kubernetesNamespace: KUBERNETES_NAMESPACE,
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const DEPLOYMENT_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${DEPLOYMENT_NAME}.yaml`);
 
-const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
+const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   test.setTimeout(250000);
@@ -73,12 +80,7 @@ test.describe('Kubernetes Edit YAML Feature E2E Test', () => {
     await playExpect(podsPage.heading).toBeVisible();
     const playYamlPage = await podsPage.openPlayKubeYaml();
     await playExpect(playYamlPage.heading).toBeVisible();
-    const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${DEPLOYMENT_NAME}.yaml`);
-    await playYamlPage.playYaml(yamlFilePath, {
-      runtime: PlayYamlRuntime.Kubernetes,
-      kubernetesContext: KUBERNETES_CONTEXT,
-      kubernetesNamespace: KUBERNETES_NAMESPACE,
-    });
+    await playYamlPage.playYaml(DEPLOYMENT_YAML_PATH, KUBERNETS_RUNTIME);
 
     const kubernetesBar = await navigationBar.openKubernetes();
     const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
@@ -120,5 +122,14 @@ test.describe('Kubernetes Edit YAML Feature E2E Test', () => {
     await playExpect
       .poll(async () => deploymentDetails.getState(), { timeout: 80_000 })
       .toEqual(KubernetesResourceState.Running);
+  });
+  test('Delete the Kubernetes deployment resource', async ({ page, navigationBar }) => {
+    const deploymentDetails = new KubernetesResourceDetailsPage(page, DEPLOYMENT_NAME);
+    await deploymentDetails.deleteButton.click();
+    // handleconf?
+    const kubernetesBar = await navigationBar.openKubernetes();
+    const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).not.toBeVisible();
   });
 });
