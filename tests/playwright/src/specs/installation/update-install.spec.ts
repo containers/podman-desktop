@@ -27,7 +27,6 @@ let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
-const performUpdate = process.env.UPDATE_PODMAN_DESKTOP ? process.env.UPDATE_PODMAN_DESKTOP : false;
 
 test.skip(isLinux, 'Update is not supported on Linux');
 
@@ -45,7 +44,7 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe
-  .serial('Podman Desktop Update Update installation offering @update-install', () => {
+  .serial('Podman Desktop Update installation @update-install', () => {
     test('Update is offered automatically on startup', async ({ welcomePage }) => {
       await playExpect(updateAvailableDialog).toBeVisible();
       const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
@@ -70,10 +69,7 @@ test.describe
       await sBar.updateButtonTitle.click();
       await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
     });
-  });
-test.describe
-  .serial('Podman Desktop Update installation can be performed', () => {
-    test.skip(!performUpdate, 'Update test does not run as UPDATE_PODMAN_DESKTOP env. var. is not set');
+
     test('Update can be initiated', async () => {
       await sBar.updateButtonTitle.click();
       await playExpect(updateAvailableDialog).toBeVisible();
