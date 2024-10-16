@@ -50,20 +50,6 @@ describe('KubernetesPortForwardServiceProvider', () => {
     mockKubeConfig = { currentContext: 'test-context' } as KubeConfig;
   });
 
-  test('should create and return a new service if not already cached', () => {
-    const service = provider.getService(mockKubeConfig);
-
-    expect(service).toBeInstanceOf(KubernetesPortForwardService);
-    expect(provider['_serviceMap'].get('test-context')).toBe(service);
-  });
-
-  test('should return cached service if already created', () => {
-    const service1 = provider.getService(mockKubeConfig);
-    const service2 = provider.getService(mockKubeConfig);
-
-    expect(service1).toBe(service2);
-  });
-
   test('should generate correct config key', () => {
     const key = provider.getKubeConfigKey(mockKubeConfig);
     expect(key).toBe('test-context');

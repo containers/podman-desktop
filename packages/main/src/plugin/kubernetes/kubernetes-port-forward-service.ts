@@ -35,8 +35,6 @@ import { isFreePort } from '/@/plugin/util/port.js';
  * @see KubernetesPortForwardServiceProvider.getService
  */
 export class KubernetesPortForwardServiceProvider {
-  protected _serviceMap = new Map<string, KubernetesPortForwardService>();
-
   /**
    * Gets the port forward service for the given Kubernetes configuration.
    * @param kubeConfig - The Kubernetes configuration.
@@ -44,9 +42,6 @@ export class KubernetesPortForwardServiceProvider {
    */
   getService(kubeConfig: KubeConfig): KubernetesPortForwardService {
     const configKey = this.getKubeConfigKey(kubeConfig);
-    if (this._serviceMap.has(configKey)) {
-      return this._serviceMap.get(configKey)!;
-    }
 
     const forwardingConnectionService = new PortForwardConnectionService(
       kubeConfig,
@@ -57,11 +52,7 @@ export class KubernetesPortForwardServiceProvider {
       configKey,
     );
     const configManagementService = new ConfigManagementService(forwardConfigStorage);
-    const portForwardService = new KubernetesPortForwardService(configManagementService, forwardingConnectionService);
-
-    this._serviceMap.set(configKey, portForwardService);
-
-    return portForwardService;
+    return new KubernetesPortForwardService(configManagementService, forwardingConnectionService);
   }
 
   /**
