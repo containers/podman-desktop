@@ -222,6 +222,4 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" extensions/podman/packages/api/package.json
           cd extensions/podman/packages/api
-          echo "Install latest @podman-desktop/api@${{ needs.tag.outputs.desktopVersion }}"
-          pnpm add @podman-desktop/api@${{ needs.tag.outputs.desktopVersion }}
-          pnpm publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          pnpm publish --tag next --no-git-checks --access public
