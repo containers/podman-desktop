@@ -109,7 +109,7 @@ test('expect getLatestVersionAsset to return the latest release from a list of r
   expect(result.tag).toEqual('v1.29.0-rc.1');
 });
 
-test('pick the 4th option option in the quickpickmenu and expect it to return the github release information', async () => {
+test('pick the 6th option option in the quickpickmenu and expect it to return the github release information', async () => {
   grabLatestsReleasesMetadataMock.mockImplementation(() => {
     return releases;
   });
@@ -122,7 +122,7 @@ test('pick the 4th option option in the quickpickmenu and expect it to return th
   const kubectlDownload = new KubectlDownload(extensionContext, kubectlGitHubReleasesMock, os);
   const result = await kubectlDownload.promptUserForVersion();
   expect(result).toBeDefined();
-  expect(result).toEqual(releases[3]); // "4th" option was picked
+  expect(result).toEqual(releases[5]); // "6th" option was picked
 });
 
 test('test download of kubectl passes and that mkdir and executable mocks are called', async () => {
