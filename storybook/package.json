@@ -43,7 +43,7 @@
     "storybook": "^8.2.9",
     "storybook-dark-mode": "^4.0.2",
     "svelte": "5.0.0-next.265",
-    "svelte-check": "^4.0.4",
+    "svelte-check": "^4.0.5",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.3",
     "vite": "^5.4.9",
