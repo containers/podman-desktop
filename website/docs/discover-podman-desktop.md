@@ -8,15 +8,15 @@ tags: [podman-desktop, discover-podman-desktop, features]
 
 # Discover Podman Desktop
 
-Podman Desktop is a developer tool that you can use to perform a wide range of basic and advanced tasks. From creating a container or pod to setting up a kubernetes cluster to integrating your local tools using extensions, Podman Desktop offers all these features to ease your daily development tasks. But, what makes Podman Desktop different from other similar community-driven tools?
+Podman Desktop is a developer tool that you can use to perform basic and advanced tasks. From creating a container or pod to setting up a kubernetes cluster to integrating your local tools using extensions, Podman Desktop offers all these features to ease your daily development tasks. But, what makes Podman Desktop different from other community-driven tools?
 
-The key differentiator is its intuitive UI interface that allows you to visualize your development environment. Be it the number of pods or Kubernetes clusters running or the number of deployments available or the number of services exposed, you can visualize your dev environment with a click.
+The key differentiator is its intuitive UI that allows you to visualize your development environment, such as the number of pods or Kubernetes clusters running or the number of services exposed.
 
-In addition, you have the option of running this tool on three different operating systems; macOS, Windows, and Linux. Podman Desktop runs your workloads on a Podman engine and therefore, provides you a Podman-native capabilities to interact with your applications. But, this does not mean you cannot run your Docker applications. You can use the Docker compatibility UI feature for a smooth transition to Podman Desktop.
+In addition, you can run this tool on three different operating systems; macOS, Windows, and Linux. Podman Desktop runs your workloads on a Podman engine and therefore, provides you Podman-native capabilities to interact with your applications. But, this does not mean you cannot run your Docker applications. You can use the Docker compatibility UI feature for a smooth transition to Podman Desktop.
 
 Let’s quickly explore this tool’s key functionalities.
 
-#### Manage containerized environment
+### Manage containerized environment
 
 ![containers](img/containers-component.png)
 
@@ -36,7 +36,7 @@ Access the **Containers** page in the UI to do the container-related tasks:
 
 For more details, refer to [Working with containers](/docs/containers).
 
-#### Podify your containers
+### Podify your containers
 
 ![pods](img/pods-component.png)
 
@@ -52,7 +52,7 @@ Access the **Pods** page in the UI to do the pod-related tasks:
 - View pods based on their status, whether they are running or stopped.
 - Remove all unused pods for efficient memory usage.
 
-#### Manage images
+### Manage images
 
 ![images](img/images-component.png)
 
@@ -69,7 +69,7 @@ Access the **Images** page in the UI to do the image-related tasks:
 - Push an image to a cluster internal registry.
 - Import images from your local machine into the container engine.
 
-#### Manage Kubernetes-based environment
+### Manage Kubernetes-based environment
 
 ![kubernetes](img/kubernetes-component.png)
 
@@ -82,7 +82,7 @@ Access the **Kubernetes** page in the UI to do the Kubernetes-related tasks:
 
 For more details, refer to [From containers to Kubernetes](/docs/kubernetes).
 
-#### Manage Docker compatibility
+### Manage Docker compatibility
 
 Docker compatibility is a way to configure an environment in which you can run your Docker applications, commands, and tools on a Podman engine without reconfiguration. It encompasses two stages. You first [import your saved containers](/docs/migrating-from-docker/importing-saved-containers) into Podman Desktop using CLI and then access the [Docker Compatibility settings](/docs/migrating-from-docker/managing-docker-compatibility) to:
 
@@ -93,7 +93,7 @@ Docker compatibility is a way to configure an environment in which you can run y
 
 On macOS, consider installing the [podman-mac-helper tool](/docs/migrating-from-docker/using-podman-mac-helper) to use Docker commands with a Podman engine.
 
-#### Integrate your tools using extensions
+### Integrate your tools using extensions
 
 ![extensions](img/extentions-component.png)
 
@@ -123,7 +123,7 @@ You can enable or disable an extension, if needed. You can also create your own 
 
 For more details, refer to [Extensions](/docs/extensions).
 
-#### Manage settings
+### Manage settings
 
 ![settings](img/settings.png)
 
