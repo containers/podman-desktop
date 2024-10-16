@@ -24,6 +24,7 @@ import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { CheckingState, ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
 import type { ApiSenderType } from '../api.js';
+import type { ContextsInformersRegistry } from './contexts-informers-registry.js';
 import { ContextsManager } from './contexts-manager.js';
 import type { ContextsStatesRegistry } from './contexts-states-registry.js';
 import { informerStopMock, TestInformer } from './test-informer.js';
@@ -38,6 +39,9 @@ const DEPLOYMENTS_DEFAULT = 6;
 class TestContextsManager extends ContextsManager {
   getStates(): ContextsStatesRegistry {
     return this.states;
+  }
+  getInformers(): ContextsInformersRegistry {
+    return this.informers;
   }
 }
 
@@ -931,6 +935,70 @@ describe('update', async () => {
       namespace: 'ns1',
       user: 'user1',
     });
+  });
+
+  test('informers should be cancellable', async () => {
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    client = new TestContextsManager(apiSender);
+
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = new Error('an err');
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+      },
+    );
+
+    const setStateAndDispatchMock = vi.spyOn(client.getStates(), 'setStateAndDispatch');
+    await client.update(kubeConfig);
+
+    // Initial check
+    vi.advanceTimersByTime(10);
+    expect(setStateAndDispatchMock).toHaveBeenCalled();
+    setStateAndDispatchMock.mockClear();
+
+    // No other check before next backoff tick
+    vi.advanceTimersByTime(9000);
+    expect(setStateAndDispatchMock).not.toHaveBeenCalled();
+    setStateAndDispatchMock.mockClear();
+
+    // Other check at next backoff tick
+    vi.advanceTimersByTime(2000);
+    expect(setStateAndDispatchMock).toHaveBeenCalled();
+    setStateAndDispatchMock.mockClear();
+
+    // Cancel the informers
+    await client.getInformers().deleteContextInformers('context1');
+
+    // No other checks
+    vi.advanceTimersByTime(200_000);
+    expect(setStateAndDispatchMock).not.toHaveBeenCalled();
   });
 
   const secondaryInformers = [

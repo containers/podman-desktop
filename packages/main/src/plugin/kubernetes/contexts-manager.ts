@@ -98,7 +98,7 @@ interface CreateInformerOptions<T> {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   protected states: ContextsStatesRegistry;
-  private informers = new ContextsInformersRegistry();
+  protected informers = new ContextsInformersRegistry();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 
