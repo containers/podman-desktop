@@ -263,4 +263,4 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" extensions/podman/packages/api/package.json
           cd extensions/podman/packages/api
-          pnpm build && pnpm publish --tag latest --no-git-checks --access public
+          pnpm publish --tag latest --no-git-checks --access public
