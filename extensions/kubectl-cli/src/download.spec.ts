@@ -109,7 +109,7 @@ test('expect getLatestVersionAsset to return the latest release from a list of r
   expect(result.tag).toEqual('v1.29.0-rc.1');
 });
 
-test('pick the 4th option option in the quickpickmenu and expect it to return the github release information', async () => {
+test('pick the 6th option option in the quickpickmenu and expect it to return the github release information', async () => {
   grabLatestsReleasesMetadataMock.mockImplementation(() => {
     return releases;
   });
