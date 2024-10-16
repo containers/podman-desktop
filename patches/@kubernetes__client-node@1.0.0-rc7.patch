@@ -1,0 +1,16 @@
+diff --git a/dist/cache.js b/dist/cache.js
+index 3f7f6d2942d046a375f01a6c5a49d8b5cad8e2a7..f36613e12c280266768f5e7575c0970c53f79bc9 100644
+--- a/dist/cache.js
++++ b/dist/cache.js
+@@ -138,6 +138,11 @@ class ListWatch {
+     }
+     watchHandler(phase, obj, watchObj) {
+         switch (phase) {
++            case 'ERROR':
++                if (obj.code === 410) {
++                    this.resourceVersion = '';
++                }
++                break;
+             case 'ADDED':
+             case 'MODIFIED':
+                 addOrUpdateObject(this.objects, obj, this.callbackCache[informer_1.ADD].slice(), this.callbackCache[informer_1.UPDATE].slice());
