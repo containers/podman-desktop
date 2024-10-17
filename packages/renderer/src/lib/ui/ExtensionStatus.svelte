@@ -12,55 +12,55 @@ const statusesStyle = new Map<string, ConnectionStatusStyle>([
   [
     'started',
     {
-      bgColor: 'bg-green-500',
-      txtColor: 'text-green-500',
+      bgColor: 'bg-[var(--pd-status-running)]',
+      txtColor: 'text-[var(--pd-status-running)]',
       label: 'ACTIVE',
     },
   ],
   [
     'starting',
     {
-      bgColor: 'bg-green-500',
-      txtColor: 'text-green-500',
+      bgColor: 'bg-[var(--pd-status-starting)]',
+      txtColor: 'text-[var(--pd-status-starting)]',
       label: 'ACTIVATING',
     },
   ],
   [
     'stopped',
     {
-      bgColor: 'bg-gray-900',
-      txtColor: 'text-gray-900',
+      bgColor: 'bg-[var(--pd-status-stopped)]',
+      txtColor: 'text-[var(--pd-status-stopped)]',
       label: 'DISABLED',
     },
   ],
   [
     'stopping',
     {
-      bgColor: 'bg-red-500',
-      txtColor: 'text-red-500',
+      bgColor: 'bg-[var(--pd-status-terminated)]',
+      txtColor: 'text-[var(--pd-status-terminated)]',
       label: 'DISABLING',
     },
   ],
   [
     'failed',
     {
-      bgColor: 'bg-red-500',
-      txtColor: 'text-red-500',
+      bgColor: 'bg-[var(--pd-status-terminated)]',
+      txtColor: 'text-[var(--pd-status-terminated)]',
       label: 'FAILED',
     },
   ],
   [
     'downloadable',
     {
-      bgColor: 'bg-purple-600',
-      txtColor: 'text-gray-700',
+      bgColor: 'bg-[var(--pd-notification-dot)]',
+      txtColor: 'text-[var(--pd-status-ready)]',
       label: 'DOWNLOADABLE',
     },
   ],
 ]);
 $: statusStyle = statusesStyle.get(status) ?? {
-  bgColor: 'bg-gray-900',
-  txtColor: 'text-gray-900',
+  bgColor: 'bg-[var(--pd-status-unknown)]',
+  txtColor: 'text-[var(--pd-status-unknown)]',
   label: status.toUpperCase(),
 };
 </script>

@@ -38,7 +38,7 @@ async function onShowHide() {
   bind:element={element}>
   <svelte:fragment slot="right">
     <button
-      class="px-1 cursor-pointer text-gray-700 group-hover:text-gray-900 group-focus-within:text-gray-900"
+      class="px-1 cursor-pointer text-[var(--pd-content-text)] group-hover:text-[var(--pd-content-sub-header)] group-focus-within:text-[var(--pd-content-sub-header)]"
       class:hidden={!password || readonly}
       aria-label="show/hide"
       on:click={onShowHide}
