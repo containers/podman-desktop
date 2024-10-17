@@ -16,7 +16,7 @@ export let displayTitle: boolean = false;
   class:border-[var(--pd-card-bg)]={variant === 'primary'}
   class:bg-[var(--pd-invert-content-card-bg)]={variant === 'secondary'}
   class:border-[var(--pd-invert-content-card-bg)]={variant === 'secondary'}
-  class="rounded-md flex flex-row justify-center p-4 border-2 hover:border-dustypurple-500"
+  class="rounded-md flex flex-row justify-center p-4 border-2 hover:border-[var(--pd-content-card-border-selected)]"
   aria-label={featuredExtension.displayName}>
   <div class="flex flex-col flex-1">
     {#if displayTitle}
@@ -31,14 +31,14 @@ export let displayTitle: boolean = false;
       </div>
       <div class="h-full w-18 flex flex-col items-end place-content-center">
         {#if featuredExtension.installed}
-          <div class="text-dustypurple-700 p-1 text-center flex flex-row place-items-center">
+          <div class="text-[var(--pd-content-card-border-selected)] p-1 text-center flex flex-row place-items-center">
             <Fa class="ml-1.5 mr-2" size="1.1x" icon={faCheckCircle} />
             <div class="uppercase font-bold text-sm cursor-default">installed</div>
           </div>
         {:else if featuredExtension.fetchable}
           <FeaturedExtensionDownload extension={featuredExtension} />
         {:else}
-          <div class="text-charcoal-300 p-1 text-center flex flex-row place-items-center">
+          <div class="text-[var(--pd-label-text)] p-1 text-center flex flex-row place-items-center">
             <Fa class="ml-1.5 mr-1" size="1.1x" icon={faCircleXmark} />
             <div class="uppercase text-sm cursor-default font-extralight">N/A</div>
           </div>
