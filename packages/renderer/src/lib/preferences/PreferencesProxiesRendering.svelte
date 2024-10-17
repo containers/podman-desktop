@@ -66,14 +66,26 @@ function validate(event: any) {
       <select
         class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
         id="toggle-proxy"
-        bind:value={proxyState}>
+        bind:value={proxyState}
+        on:change={async () => {
+          await window.setProxyState(proxyState);
+
+          if (proxyState === ProxyState.PROXY_MANUAL && !proxySettings) {
+            proxySettings = {
+              httpProxy: '',
+              httpsProxy: '',
+              noProxy: '',
+            };
+          }
+        }}
+        >
         <option value={ProxyState.PROXY_SYSTEM}>System</option>
         <option value={ProxyState.PROXY_MANUAL}>Manual</option>
         <option value={ProxyState.PROXY_DISABLED}>Disabled</option>
       </select>
     </label>
 
-    {#if proxySettings}
+    {#if proxySettings && proxyState === ProxyState.PROXY_MANUAL}
       <div class="space-y-2">
         <label
           for="httpProxy"
