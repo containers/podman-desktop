@@ -789,33 +789,16 @@ declare module '@podman-desktop/api' {
     connection: ContainerProviderConnection;
   }
 
-  export interface ProviderConnectionShellAccess {
-    onData: Event<ProviderConnectionShellAccessData>;
-    onError: Event<ProviderConnectionShellAccessError>;
-    onEnd: Event<void>;
-    write(data: string): void;
-    startConnection(): void;
-    stopConnection(): void;
-    setWindow(dimensions: ShellDimensions): void;
-  }
-
-  export interface ShellDimensions {
-    rows: number;
-    cols: number;
-  }
-
-  export interface ProviderConnectionShellAccessError {
-    error: string;
-  }
-
-  export interface ProviderConnectionShellAccessData {
-    data: string;
-  }
-
   /**
    * Callback for openning shell session
    */
   export class ProviderConnectionShellAccess {
+    /**
+     * Opens new session using ProviderConnectionShellAccessImpl class
+     * @example
+     * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+     * const session = providerConnectionShellAccess.open()
+     */
     open(): ProviderConnectionShellAccessSession;
   }
 
@@ -823,11 +806,46 @@ declare module '@podman-desktop/api' {
    * Callbacks for interaction with shell session
    */
   export interface ProviderConnectionShellAccessSession {
+    /**
+     * Receiving data event
+     * @example
+     * session.onData(data => {...
+     */
     onData: Event<ProviderConnectionShellAccessData>;
+
+    /**
+     * Error event
+     * @example
+     * session.onError(error => {...
+     */
     onError: Event<ProviderConnectionShellAccessError>;
+
+    /**
+     * End event
+     * @example
+     * session.onEnd(onEnd);
+     */
     onEnd: Event<void>;
-    write(data: string): void;
+
+    /**
+     * Sends data
+     * @example
+     * session.write(data)
+     */
+    write(data: string | Uint8Array): void;
+
+    /**
+     * Notifies server that terminal window has been resized
+     * @example
+     * session.resize(dimensions)
+     */
     resize(dimensions: ProviderConnectionShellDimensions): void;
+
+    /**
+     * Closes opened session and removes all listeners
+     * @example
+     * session.close()
+     */
     close(): void;
   }
 
