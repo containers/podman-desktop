@@ -41,7 +41,7 @@ const PVC_NAME = 'test-pvc-resource';
 const PVC_POD_NAME = 'test-pod-pvcs';
 const CONFIGMAP_NAME = 'test-configmap-resource';
 const SECRET_NAME = 'test-secret-resource';
-const SECRETS_POD_NAME = 'test-pod-configmaps-secrets';
+const SECRET_POD_NAME = 'test-pod-configmaps-secrets';
 const KUBERNETES_RUNTIME = {
   runtime: PlayYamlRuntime.Kubernetes,
   kubernetesContext: KUBERNETES_CONTEXT,
@@ -54,7 +54,7 @@ const PVC_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernet
 const PVC_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${PVC_POD_NAME}.yaml`);
 const CONFIGMAP_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${CONFIGMAP_NAME}.yaml`);
 const SECRET_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_NAME}.yaml`);
-const SECRET_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRETS_POD_NAME}.yaml`);
+const SECRET_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'kubernetes', `${SECRET_POD_NAME}.yaml`);
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
@@ -190,13 +190,13 @@ test.describe('Kubernetes resources End-to-End test', () => {
       await playYamlPage.playYaml(SECRET_POD_YAML_PATH, KUBERNETES_RUNTIME);
 
       await playExpect(podsPage.heading).toBeVisible();
-      await playExpect.poll(async () => podsPage.getPodRowByName(SECRETS_POD_NAME)).toBeTruthy();
-      const podsDetailsPage = await podsPage.openPodDetails(SECRETS_POD_NAME);
+      await playExpect.poll(async () => podsPage.getPodRowByName(SECRET_POD_NAME)).toBeTruthy();
+      const podsDetailsPage = await podsPage.openPodDetails(SECRET_POD_NAME);
       await playExpect(podsDetailsPage.heading).toBeVisible();
       await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 50_000 }).toEqual(PodState.Running);
     });
     test('Delete the ConfigMap and Secret resources', async ({ page, navigationBar }) => {
-      await deletePod(page, SECRETS_POD_NAME);
+      await deletePod(page, SECRET_POD_NAME);
       const kubernetesBar = await navigationBar.openKubernetes();
       const configmapsSecretsPage = await kubernetesBar.openTabPage(KubernetesResources.ConfigMapsSecrets);
       await configmapsSecretsPage.deleteKubernetesResource(SECRET_NAME);
