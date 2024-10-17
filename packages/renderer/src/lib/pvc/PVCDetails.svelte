@@ -62,7 +62,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <PVCActions pvc={pvc} detailed={true} on:update={() => (pvc = pvc)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={pvc.status} />
     </div>
     <svelte:fragment slot="tabs">
