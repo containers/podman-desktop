@@ -16,11 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Informer, KubernetesObject } from '@kubernetes/client-node';
-
 import type { ResourceName } from '/@api/kubernetes-contexts-states.js';
 
-import type { ContextInternalState } from './contexts-states-registry.js';
+import type { CancellableInformer, ContextInternalState } from './contexts-states-registry.js';
 import { isSecondaryResourceName } from './contexts-states-registry.js';
 
 export class ContextsInformersRegistry {
@@ -41,7 +39,7 @@ export class ContextsInformersRegistry {
     }
   }
 
-  setResourceInformer(contextName: string, resourceName: ResourceName, informer: Informer<KubernetesObject>): void {
+  setResourceInformer(contextName: string, resourceName: ResourceName, informer: CancellableInformer): void {
     const informers = this.informers.get(contextName);
     if (!informers) {
       throw new Error(`watchers for context ${contextName} not found`);
@@ -58,7 +56,8 @@ export class ContextsInformersRegistry {
     if (informers) {
       for (const [resourceName, informer] of informers) {
         if (isSecondaryResourceName(resourceName)) {
-          await informer?.stop();
+          await informer?.informer.stop();
+          informer?.cancel();
           informers.delete(resourceName);
         }
       }
@@ -69,7 +68,8 @@ export class ContextsInformersRegistry {
     const informers = this.informers.get(name);
     if (informers) {
       for (const informer of informers.values()) {
-        await informer.stop();
+        await informer.informer.stop();
+        informer.cancel();
       }
     }
     this.informers.delete(name);
