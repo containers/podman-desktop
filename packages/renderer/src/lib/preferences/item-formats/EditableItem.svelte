@@ -83,10 +83,10 @@ function onCancelClick(e: MouseEvent) {
     </Button>
   {:else}
     <Button on:click={onCancelClick} title="Cancel" class="ml-3" padding="p-2" type="link">
-      <Fa size="0.9x" class="text-red-500" icon={faXmark} />
+      <Fa size="0.9x" class="text-[var(--pd-state-error)]" icon={faXmark} />
     </Button>
     <Button on:click={onSaveClick} title="Save" padding="p-2" disabled={disableSaveButton} type="link">
-      <Fa size="0.9x" class={`${disableSaveButton ? 'text-gray-500' : 'text-green-500'}`} icon={faCheck} />
+      <Fa size="0.9x" class={`${disableSaveButton ? 'text-[var(--pd-button-disabled-text)]' : 'text-[var(--pd-state-success)]'}`} icon={faCheck} />
     </Button>
   {/if}
 </div>
