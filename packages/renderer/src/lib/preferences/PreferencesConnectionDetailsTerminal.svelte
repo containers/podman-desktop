@@ -5,7 +5,7 @@ import type { ProviderConnectionShellDimensions, ProviderConnectionStatus } from
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
-import { type IDisposable, Terminal } from '@xterm/xterm';
+import { Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -41,7 +41,7 @@ $effect(() => {
 
 async function restartTerminal() {
   await executeShellIntoProviderConnection();
-  window.dispatchEvent(new Event('setWindow'));
+  window.dispatchEvent(new Event('resize'));
 }
 
 // update current route scheme
@@ -125,8 +125,7 @@ async function refreshTerminal() {
       fontSize,
       lineHeight,
     };
-    // \r\n for starting new terminal on next line
-    shellTerminal.write(existingTerminal.terminal + '\r\n');
+    shellTerminal.write(existingTerminal.terminal);
   }
 
   const fitAddon = new FitAddon();
@@ -136,7 +135,7 @@ async function refreshTerminal() {
   shellTerminal.open(terminalXtermDiv);
 
   // call fit addon each time we resize the window
-  window.addEventListener('setWindow', () => {
+  window.addEventListener('resize', () => {
     if (currentRouterPath === `/providers/${provider.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
@@ -167,7 +166,6 @@ onDestroy(() => {
     terminal: terminalContent,
   });
   serializeAddon?.dispose();
-  onDataDisposible?.dispose();
   shellTerminal?.dispose();
   // Closes session
   if (sendCallbackId) {
