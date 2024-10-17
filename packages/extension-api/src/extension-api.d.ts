@@ -796,8 +796,20 @@ declare module '@podman-desktop/api' {
     /**
      * Opens new session using ProviderConnectionShellAccessImpl class
      * @example
-     * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
-     * const session = providerConnectionShellAccess.open()
+     * ```typescript
+     * open(): ProviderConnectionShellAccessSession {
+     *  // Create stream 
+     *  #connected = true;
+     *  return {
+     *    onData: onData,
+     *    onError: onError,
+     *    onEnd: onEnd,
+     *    write: write.bind(this),
+     *    resize: resize.bind(this),
+     *    close: close,
+     *  };
+     * }
+     * ```
      */
     open(): ProviderConnectionShellAccessSession;
   }
@@ -809,42 +821,82 @@ declare module '@podman-desktop/api' {
     /**
      * Receiving data event
      * @example
-     * session.onData(data => {...
+     * ```typescript
+     * onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
+     * onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event;
+     * 
+     * // later in code when "data" are emmited
+     * onDataEmit.fire({ data: data });
+     * ```
      */
     onData: Event<ProviderConnectionShellAccessData>;
 
     /**
      * Error event
      * @example
-     * session.onError(error => {...
+     * ```typescript
+     * onErrorEmit = new EventEmitter<ProviderConnectionShellAccessError>();
+     * onError: Event<ProviderConnectionShellAccessError> = this.onErrorEmit.event;
+     * 
+     * // later in code when "error" is emmited
+     * onErrorEmit.fire({ error: error });
+     * ```
      */
     onError: Event<ProviderConnectionShellAccessError>;
 
     /**
      * End event
      * @example
-     * session.onEnd(onEnd);
+     * ```typescript
+     * onEndEmit = new EventEmitter<void>();
+     * onEnd: Event<void> = this.onEndEmit.event;
+     * 
+     * // later in code when "exit" is emmited
+     * onEndEmit.fire();
+     * cleanup();
+     * ```
      */
     onEnd: Event<void>;
 
     /**
-     * Sends data
+     * Writes data to stream
      * @example
-     * session.write(data)
+     * ```typescript
+     * write(data: string): void {
+     *  if (#stream) {
+     *    #stream.write(data);
+     *  }
+     * }
+     * ```
      */
     write(data: string | Uint8Array): void;
 
     /**
      * Notifies server that terminal window has been resized
      * @example
-     * session.resize(dimensions)
+     * ```typescript
+     * resize(dimensions: ProviderConnectionShellDimensions): void {
+     *  if (#stream) {
+     *    #stream.resize(dimensions.rows, dimensions.cols);
+     *  }
+     * }
+     * ```
      */
     resize(dimensions: ProviderConnectionShellDimensions): void;
 
     /**
-     * Closes opened session and removes all listeners
+     * Closes opened session and removes all listeners / cleanup
      * @example
-     * session.close()
+     * ```typescript
+     * close(): void {
+     *  #connected = false;
+     *  #client?.end();
+     *  #client?.destroy();
+     *  onDataEmit.dispose();
+     *  onErrorEmit.dispose();
+     *  onEndEmit.dispose();
+     * }
+     * ```
      */
     close(): void;
   }
