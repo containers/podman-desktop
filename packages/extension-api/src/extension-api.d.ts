@@ -790,24 +790,63 @@ declare module '@podman-desktop/api' {
   }
 
   /**
-   * the callbacks of ssh shell in provider connection
+   * Callback for openning shell session
    */
   export interface ProviderConnectionShellAccess {
+    /**
+     * Opens new session using ProviderConnectionShellAccessImpl class
+     * @example
+     * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+     * const session = providerConnectionShellAccess.open()
+     */
+    open(): ProviderConnectionShellAccessSession;
+  }
+
+  /**
+   * Callbacks for interaction with shell session
+   */
+  export interface ProviderConnectionShellAccessSession {
+    /**
+     * Receiving data event
+     * @example
+     * session.onData(data => {...
+     */
     onData: Event<ProviderConnectionShellAccessData>;
+
+    /**
+     * Error event
+     * @example
+     * session.onError(error => {...
+     */
     onError: Event<ProviderConnectionShellAccessError>;
+
+    /**
+     * End event
+     * @example
+     * session.onEnd(onEnd);
+     */
     onEnd: Event<void>;
 
-    // function used for writting to shell (e.g. `ls`)
-    write(data: string): void;
+    /**
+     * Sends data
+     * @example
+     * session.write(data)
+     */
+    write(data: string | Uint8Array): void;
 
-    // function that starts the ssh connection to providers connection shell
-    startConnection(): void;
+    /**
+     * Notifies server that terminal window has been resized
+     * @example
+     * session.resize(dimensions)
+     */
+    resize(dimensions: ProviderConnectionShellDimensions): void;
 
-    // function that stops running ssh connection
-    stopConnection(): void;
-
-    // function that sets window size of shell
-    setWindow(dimensions: ProviderConnectionShellDimensions): void;
+    /**
+     * Closes opened session and removes all listeners
+     * @example
+     * session.close()
+     */
+    close(): void;
   }
 
   export interface ProviderConnectionShellDimensions {
