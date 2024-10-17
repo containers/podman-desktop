@@ -838,7 +838,19 @@ declare module '@podman-desktop/api' {
    */
   export interface ProviderConnectionShellAccessSession {
     onData: Event<ProviderConnectionShellAccessData>;
+
+    /**
+     * Error event
+     * @example
+     * session.onError(error => {...
+     */
     onError: Event<ProviderConnectionShellAccessError>;
+
+    /**
+     * End event
+     * @example
+     * session.onEnd(onEnd);
+     */
     onEnd: Event<void>;
     write(data: string | Uint8Array): void;
     resize(dimensions: ProviderConnectionShellDimensions): void;
