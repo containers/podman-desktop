@@ -842,14 +842,18 @@ declare module '@podman-desktop/api' {
     /**
      * Error event
      * @example
+     * ```typescript
      * session.onError(error => {...
+     * ```
      */
     onError: Event<ProviderConnectionShellAccessError>;
 
     /**
      * End event
      * @example
+     * ```typescript
      * session.onEnd(onEnd);
+     * ```
      */
     onEnd: Event<void>;
     write(data: string | Uint8Array): void;
