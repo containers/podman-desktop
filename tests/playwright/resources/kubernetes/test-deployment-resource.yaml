@@ -19,3 +19,4 @@ spec:
         image: quay.io/podman-desktop-demo/podify-demo-backend:v1
         ports:
         - containerPort: 80
+ 
