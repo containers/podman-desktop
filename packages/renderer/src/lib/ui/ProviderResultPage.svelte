@@ -122,14 +122,14 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected={true}
           disabled={countBySeverity.critical === 0}
           icon={faExclamationCircle}
-          iconClass="text-red-600"
+          iconClass="text-[var(--pd-state-error)]"
           on:click={event => onSeverityClicked('critical', event.detail)}
           >Critical ({countBySeverity.critical})</ToggleButton>
         <ToggleButton
           selected={true}
           disabled={countBySeverity.high === 0}
           icon={faExclamationTriangle}
-          iconClass="text-amber-500"
+          iconClass="text-[var(--pd-state-warning)]"
           on:click={event => onSeverityClicked('high', event.detail)}>High ({countBySeverity.high})</ToggleButton>
         <ToggleButton
           selected={true}
@@ -147,7 +147,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected={true}
           disabled={countBySeverity.success === 0}
           icon={faCheckSquare}
-          iconClass="text-green-500"
+          iconClass="text-[var(--pd-state-success)]"
           on:click={event => onSeverityClicked('success', event.detail)}
           >Passed ({countBySeverity.success})</ToggleButton>
       </ToggleButtonGroup>
