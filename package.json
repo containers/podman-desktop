@@ -118,7 +118,7 @@
     "@eslint/compat": "^1.2.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.12.0",
-    "@playwright/test": "1.48.0",
+    "@playwright/test": "1.48.1",
     "@podman-desktop/api": "workspace:",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
