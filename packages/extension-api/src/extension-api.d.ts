@@ -796,8 +796,39 @@ declare module '@podman-desktop/api' {
     /**
      * Opens new session using ProviderConnectionShellAccessImpl class
      * @example
-     * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
-     * const session = providerConnectionShellAccess.open()
+     * import * as api from '@podman-desktop/api';
+     *
+     * class ProviderConnectionShellAccessImpl implements ProviderConnectionShellAccess {
+     *  open(): ProviderConnectionShellAccessSession {
+     *    // This is client that will connect to your shell
+     *    #client = new Client();
+     *
+     *    // You need to listen to events from client and forward them to the caller by using the object returned below
+     *
+     *    return {
+     *      onData,
+     *      onError,
+     *      onEnd,
+     *      write,
+     *      resize,
+     *      close,
+     *    };
+     *  }
+     * }
+     *
+     * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+     *  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+     *
+     *  // Create containerProviderConnection object
+     *  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+     *    ...
+     *    shellAccess: providerConnectionShellAccess,
+     *    ...
+     *  };
+     *
+     *  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+     *  extensionContext.subscriptions.push(disposable);
+     * }
      */
     open(): ProviderConnectionShellAccessSession;
   }
@@ -806,46 +837,11 @@ declare module '@podman-desktop/api' {
    * Callbacks for interaction with shell session
    */
   export interface ProviderConnectionShellAccessSession {
-    /**
-     * Receiving data event
-     * @example
-     * session.onData(data => {...
-     */
     onData: Event<ProviderConnectionShellAccessData>;
-
-    /**
-     * Error event
-     * @example
-     * session.onError(error => {...
-     */
     onError: Event<ProviderConnectionShellAccessError>;
-
-    /**
-     * End event
-     * @example
-     * session.onEnd(onEnd);
-     */
     onEnd: Event<void>;
-
-    /**
-     * Sends data
-     * @example
-     * session.write(data)
-     */
     write(data: string | Uint8Array): void;
-
-    /**
-     * Notifies server that terminal window has been resized
-     * @example
-     * session.resize(dimensions)
-     */
     resize(dimensions: ProviderConnectionShellDimensions): void;
-
-    /**
-     * Closes opened session and removes all listeners
-     * @example
-     * session.close()
-     */
     close(): void;
   }
 
