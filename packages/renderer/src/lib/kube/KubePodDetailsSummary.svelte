@@ -16,6 +16,6 @@ export let pod: V1Pod | undefined;
     <KubePodStatusArtifact artifact={pod.status} />
     <KubePodSpecArtifact artifact={pod.spec} />
   {:else}
-    <p class="text-purple-500 font-medium">Loading ...</p>
+    <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
 </Table>
