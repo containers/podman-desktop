@@ -24,17 +24,17 @@ import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { providerTerminals } from '/@/stores/provider-terminal-store';
-
-import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info';
 
+import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
+
 const getConfigurationValueMock = vi.fn();
 const shellInProviderConnectionMock = vi.fn();
-const shellInProviderConnectionSetWindowMock = vi.fn();
+const shellInProviderConnectionResizeMock = vi.fn();
 const receiveEndCallbackMock = vi.fn();
 
 vi.mock('xterm', () => {
@@ -49,7 +49,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).shellInProviderConnection = shellInProviderConnectionMock;
-  (window as any).shellInProviderConnectionSetWindow = shellInProviderConnectionSetWindowMock;
+  (window as any).shellInProviderConnectionResize = shellInProviderConnectionResizeMock;
   (window as any).receiveEndCallback = receiveEndCallbackMock;
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
@@ -78,15 +78,15 @@ test('expect being able to reconnect ', async () => {
   const sendCallbackId = 12345;
   shellInProviderConnectionMock.mockImplementation(
     (
-      _providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       _providerId: string,
+      _providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       onData: (data: string) => void,
       _onError: (error: string) => void,
       _onEnd: () => void,
     ) => {
       onDataCallback = onData;
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -103,7 +103,7 @@ test('expect being able to reconnect ', async () => {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   // search a div having aria-live="assertive" attribute
-  const terminalLinesLiveRegion = renderObject.connectionInfo.querySelector('div[aria-live="assertive"]');
+  const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
   expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
@@ -128,7 +128,7 @@ test('expect being able to reconnect ', async () => {
   // wait 1s that everything is done
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  const terminalLinesLiveRegion2 = renderObject.connectionInfo.querySelector('div[aria-live="assertive"]');
+  const terminalLinesLiveRegion2 = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
   expect(terminalLinesLiveRegion2).toHaveTextContent('hello world');
@@ -157,8 +157,8 @@ test('terminal active/ restarts connection after stopping and starting a provide
   const sendCallbackId = 12345;
   shellInProviderConnectionMock.mockImplementation(
     (
-      _providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       _providerId: string,
+      _providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       onData: (data: string) => void,
       _onError: (error: string) => void,
       onEnd: () => void,
@@ -168,7 +168,7 @@ test('terminal active/ restarts connection after stopping and starting a provide
         onEnd();
       }, 500);
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -186,15 +186,15 @@ test('terminal active/ restarts connection after stopping and starting a provide
   onDataCallback('hello\nworld');
 
   // wait 1s
-  waitFor(() => renderObject.connectionInfo.querySelector('div[aria-live="assertive"]'));
+  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute
-  const terminalLinesLiveRegion = renderObject.connectionInfo.querySelector('div[aria-live="assertive"]');
+  const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
   waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
-  provider.status = 'stopped';
+  connectionInfo.status = 'stopped';
 
   waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
 
@@ -204,13 +204,13 @@ test('terminal active/ restarts connection after stopping and starting a provide
 
   waitFor(() => expect(screen.queryByText('Provider engine is not running')).toBeInTheDocument());
 
-  provider.status = 'starting';
+  connectionInfo.status = 'starting';
 
   await renderObject.rerender({ provider, connectionInfo, screenReaderMode: true });
 
   await tick();
 
-  provider.status = 'started';
+  connectionInfo.status = 'started';
 
   await renderObject.rerender({ provider, connectionInfo, screenReaderMode: true });
 
