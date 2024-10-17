@@ -110,6 +110,27 @@ function getTerminalCallback(): BuildImageCallback {
   };
 }
 
+export function getRelativePath(context: string, file: string): string {
+  let relativePath = '';
+  // split paths based on backward or forward slashes (works for both Windows and Mac/Linux path formats)
+  let contextPath = context.split(/[\\/]/).filter(dir => dir);
+  let filePath = file.split(/[\\/]/).filter(dir => dir);
+  let index = 0;
+  // find the first place where both paths don't match
+  while (index < contextPath.length && index < filePath.length && contextPath[index] === filePath[index]) {
+    index++;
+  }
+  // add .. for the remaining length of the context path (if the context path didn't fully match part of the file path)
+  // then add the remaining path of the file
+  if (index < contextPath.length) {
+    let back = Array(contextPath.length - index).fill('..');
+    relativePath = `${back.join('/')}/${filePath.slice(index).join('/')}`;
+  } else {
+    relativePath = filePath.slice(index).join('/');
+  }
+  return relativePath;
+}
+
 async function buildContainerImage(): Promise<void> {
   buildParentImageName = undefined;
   buildError = undefined;
@@ -139,7 +160,7 @@ async function buildSinglePlatformImage(): Promise<void> {
 
   if (containerFilePath && selectedProvider) {
     // Extract the relative path from the containerFilePath and containerBuildContextDirectory
-    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+    const relativeContainerfilePath = getRelativePath(containerBuildContextDirectory, containerFilePath);
     buildImageInfo = startBuild(containerImageName, getTerminalCallback());
 
     // Store the key
@@ -181,7 +202,7 @@ async function buildMultiplePlatformImagesAndCreateManifest(): Promise<void> {
 
   if (containerFilePath && selectedProvider) {
     // Extract the relative path from the containerFilePath and containerBuildContextDirectory
-    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+    const relativeContainerfilePath = getRelativePath(containerBuildContextDirectory, containerFilePath);
 
     // We'll iterate over each platform and build the image
     for (const platform of platforms) {
