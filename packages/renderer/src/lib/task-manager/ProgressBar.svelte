@@ -35,15 +35,15 @@ export let height: string = 'h-4';
 </script>
 
 <div class="flex flex-row">
-  <div class="{width} {height} rounded-full bg-gray-900 progress-bar overflow-hidden">
+  <div class="{width} {height} rounded-full bg-[var(--pd-progressBar-bg)] progress-bar overflow-hidden">
     {#if progress !== undefined}
       <div
-        class="{width} {height} bg-purple-600 rounded-full progress-bar-incremental"
+        class="{width} {height} bg-[var(--pd-progressBar-in-progress-bg)] rounded-full progress-bar-incremental"
         role="progressbar"
         style="width:{progress}%">
       </div>
     {:else}
-      <div class="{width} {height} bg-purple-600 rounded-full progress-bar-indeterminate" role="progressbar"></div>
+      <div class="{width} {height} bg-[var(--pd-progressBar-in-progress-bg)] rounded-full progress-bar-indeterminate" role="progressbar"></div>
     {/if}
   </div>
   {#if progress !== undefined}

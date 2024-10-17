@@ -68,7 +68,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <ServiceActions service={service} detailed={true} on:update={() => (service = service)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={service.status} />
     </div>
     <svelte:fragment slot="tabs">

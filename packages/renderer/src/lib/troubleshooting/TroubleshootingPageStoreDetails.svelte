@@ -84,12 +84,12 @@ async function fetch(): Promise<void> {
               {/each}
             </ul>
           {:else}
-            <div class="h-32 flex flex-row mx-auto text-xs text-gray-800 text-center">No buffer events</div>
+            <div class="h-32 flex flex-row mx-auto text-xs text-[var(--pd-content-text)] text-center">No buffer events</div>
           {/if}
         </div>
       </div>
 
-      <div class="text-xs text-gray-800 mt-2 text-center">Track events that have updated the store</div>
+      <div class="text-xs text-[var(--pd-content-text)] mt-2 text-center">Track events that have updated the store</div>
     </div>
   </div>
   <svelte:fragment slot="buttons">
