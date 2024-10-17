@@ -28,11 +28,6 @@ import type { TaskImpl } from '../../../main/src/plugin/tasks/task-impl';
  */
 export const tasksInfo: Writable<TaskInfo[]> = writable([]);
 
-// refresh the array every second
-setInterval(() => {
-  tasksInfo.update(tasks => [...tasks]);
-}, 1000);
-
 // remove element from the store
 export function removeTask(taskId: string): void {
   window.clearTask(taskId);
