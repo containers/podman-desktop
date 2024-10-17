@@ -393,6 +393,7 @@ declare module '@podman-desktop/api' {
     displayName?: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
+    shellAccess?: ProviderConnectionShellAccess;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     vmType?: string;
@@ -786,6 +787,131 @@ declare module '@podman-desktop/api' {
   export interface ProviderContainerConnection {
     providerId: string;
     connection: ContainerProviderConnection;
+  }
+
+  /**
+   * Callback for openning shell session
+   */
+  export interface ProviderConnectionShellAccess {
+    /**
+     * Opens new session using ProviderConnectionShellAccessImpl class
+     * @example
+     * ```typescript
+     * open(): ProviderConnectionShellAccessSession {
+     *  // Create stream 
+     *  #connected = true;
+     *  return {
+     *    onData: onData,
+     *    onError: onError,
+     *    onEnd: onEnd,
+     *    write: write.bind(this),
+     *    resize: resize.bind(this),
+     *    close: close,
+     *  };
+     * }
+     * ```
+     */
+    open(): ProviderConnectionShellAccessSession;
+  }
+
+  /**
+   * Callbacks for interaction with shell session
+   */
+  export interface ProviderConnectionShellAccessSession {
+    /**
+     * Receiving data event
+     * @example
+     * ```typescript
+     * onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
+     * onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event;
+     * 
+     * // later in code when "data" are emmited
+     * onDataEmit.fire({ data: data });
+     * ```
+     */
+    onData: Event<ProviderConnectionShellAccessData>;
+
+    /**
+     * Error event
+     * @example
+     * ```typescript
+     * onErrorEmit = new EventEmitter<ProviderConnectionShellAccessError>();
+     * onError: Event<ProviderConnectionShellAccessError> = this.onErrorEmit.event;
+     * 
+     * // later in code when "error" is emmited
+     * onErrorEmit.fire({ error: error });
+     * ```
+     */
+    onError: Event<ProviderConnectionShellAccessError>;
+
+    /**
+     * End event
+     * @example
+     * ```typescript
+     * onEndEmit = new EventEmitter<void>();
+     * onEnd: Event<void> = this.onEndEmit.event;
+     * 
+     * // later in code when "exit" is emmited
+     * onEndEmit.fire();
+     * cleanup();
+     * ```
+     */
+    onEnd: Event<void>;
+
+    /**
+     * Writes data to stream
+     * @example
+     * ```typescript
+     * write(data: string): void {
+     *  if (#stream) {
+     *    #stream.write(data);
+     *  }
+     * }
+     * ```
+     */
+    write(data: string | Uint8Array): void;
+
+    /**
+     * Notifies server that terminal window has been resized
+     * @example
+     * ```typescript
+     * resize(dimensions: ProviderConnectionShellDimensions): void {
+     *  if (#stream) {
+     *    #stream.resize(dimensions.rows, dimensions.cols);
+     *  }
+     * }
+     * ```
+     */
+    resize(dimensions: ProviderConnectionShellDimensions): void;
+
+    /**
+     * Closes opened session and removes all listeners / cleanup
+     * @example
+     * ```typescript
+     * close(): void {
+     *  #connected = false;
+     *  #client?.end();
+     *  #client?.destroy();
+     *  onDataEmit.dispose();
+     *  onErrorEmit.dispose();
+     *  onEndEmit.dispose();
+     * }
+     * ```
+     */
+    close(): void;
+  }
+
+  export interface ProviderConnectionShellDimensions {
+    rows: number;
+    cols: number;
+  }
+
+  export interface ProviderConnectionShellAccessError {
+    error: string;
+  }
+
+  export interface ProviderConnectionShellAccessData {
+    data: string;
   }
 
   /**
