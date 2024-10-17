@@ -235,8 +235,13 @@ describe('update', async () => {
         deployments: DEPLOYMENTS_NS1,
       },
     });
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', Array(PODS_NS1).fill({}));
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', [{ metadata: { uid: '0' } }]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
+      { metadata: { uid: '0' } },
+      { metadata: { uid: '1' } },
+      { metadata: { uid: '2' } },
+      { metadata: { uid: '3' } },
+    ]);
 
     const expectedCheckMap = new Map<string, CheckingState>();
     expectedCheckMap.set('context1', { state: 'waiting' });
@@ -329,8 +334,13 @@ describe('update', async () => {
         deployments: DEPLOYMENTS_NS1,
       },
     });
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', Array(PODS_NS1).fill({}));
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', [{ metadata: { uid: '0' } }]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
+      { metadata: { uid: '0' } },
+      { metadata: { uid: '1' } },
+      { metadata: { uid: '2' } },
+      { metadata: { uid: '3' } },
+    ]);
   });
 
   test('should check current context if contexts are > 10', async () => {
@@ -860,7 +870,10 @@ describe('update', async () => {
       },
     });
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [{}, {}]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
+      { metadata: { uid: '0' } },
+      { metadata: { uid: '1' } },
+    ]);
 
     vi.advanceTimersToNextTimer(); // error event
     vi.advanceTimersToNextTimer(); // dispatches
@@ -1038,7 +1051,7 @@ describe('update', async () => {
           deployments: 0,
         },
       });
-      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [{}]);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [{ metadata: { uid: '0' } }]);
     });
 
     test('createInformer should send data for deleted and updated resource', async () => {
