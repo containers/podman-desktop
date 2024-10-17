@@ -22,6 +22,6 @@ basic information -->
     <KubeObjectMetaArtifact artifact={configMap.metadata} />
     <KubeConfigMapArtifact artifact={configMap} />
   {:else}
-    <p class="text-purple-500 font-medium">Loading ...</p>
+    <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
 </Table>
