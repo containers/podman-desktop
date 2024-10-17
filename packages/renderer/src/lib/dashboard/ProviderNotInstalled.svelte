@@ -18,7 +18,7 @@ let preflightChecks: CheckStatus[] = [];
   <svelte:fragment slot="content">
     <div class="flex flex-col grow">
       <div class="flex flex-row items-center flex-row space-x-10 grow flex-nowrap">
-        <p class="text-gray-700 grow text-center" aria-label="Suggested Actions">
+        <p class="text-[var(--pd-content-text)] grow text-center" aria-label="Suggested Actions">
           Could not find an installation. To start working with containers, {provider.name} needs to be detected/installed.
         </p>
         <div class="flex space-x-2 w-full lg:w-1/3 justify-center">
@@ -27,12 +27,12 @@ let preflightChecks: CheckStatus[] = [];
         </div>
       </div>
       {#if detectionChecks.length > 0}
-        <div class="flex flex-col mt-5 px-5 pt-5 pb-0 rounded-lg bg-zinc-600">
+        <div class="flex flex-col mt-5 px-5 pt-5 pb-0 rounded-lg bg-[var(--pd-invert-content-card-bg)]">
           {#each detectionChecks as detectionCheck}
             <div class="flex flex-col">
               <p class="mb-4 items-center list-inside">{detectionCheck.status ? '✅' : '❌'} {detectionCheck.name}</p>
               {#if detectionCheck.details}
-                Details: <p class="text-gray-400 w-full break-all">{detectionCheck.details}</p>
+                Details: <p class="text-[var(--pd-content-text)] w-full break-all">{detectionCheck.details}</p>
               {/if}
             </div>
           {/each}

@@ -239,7 +239,7 @@ async function searchImages(value: string): Promise<string[]> {
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
           <div class="absolute mt-2 ml-[-18px] self-start">
             <Tooltip tip="Shortname images will be pulled from Docker Hub" topRight>
-              <Fa id="shortname-warning" size="1.1x" class="text-amber-400" icon={faTriangleExclamation} />
+              <Fa id="shortname-warning" size="1.1x" class="text-[var(--pd-state-warning)]" icon={faTriangleExclamation} />
             </Tooltip>
           </div>
         {/if}

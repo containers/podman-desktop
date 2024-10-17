@@ -28,13 +28,13 @@ function goToAuthPage() {
 </script>
 
 {#each recommendedRegistriesToInstall as registry}
-  <div class="text-amber-500 flex flex-row min-h-10 items-center pt-2 space-x-2">
+  <div class="text-[var(--pd-state-warning)] flex flex-row min-h-10 items-center pt-2 space-x-2">
     {#if !registry.isInstalled}
       <FeaturedExtensionDownload extension={registry.extensionDetails} />
     {/if}
     <p>
       {registry.isInstalled ? 'Check' : 'Install'} the &nbsp;<a
-        class="text-amber-500 underline"
+        class="text-[var(--pd-state-warning)] underline"
         href="/extensions/details/{registry.extensionId}">{registry.name} extension</a>
       to manage {registry.id}
     </p>

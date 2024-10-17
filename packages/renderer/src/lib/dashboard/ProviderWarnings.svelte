@@ -18,9 +18,9 @@ $: {
     {#each providerInfo.warnings as warn}
       <div class="flex-row items-center align-middle mt-0.5" role="listitem" aria-label={warn.name}>
         <!-- Make line height center-->
-        <span class="ml-1 text-gray-700">⚠</span>
-        <span class="ml-1 text-gray-700">{warn.name}:</span>
-        <span class="ml-1 text-gray-700">{warn.details}</span>
+        <span class="ml-1 text-[var(--pd-content-text)]">⚠</span>
+        <span class="ml-1 text-[var(--pd-content-text)]">{warn.name}:</span>
+        <span class="ml-1 text-[var(--pd-content-text)]">{warn.details}</span>
       </div>
     {/each}
   </div>

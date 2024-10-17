@@ -33,6 +33,6 @@ let dotClass = getStatusColor(status);
   </div>
   <!-- If text -->
   {#if number}
-    <div class="text-sm text-bold text-gray-600 mr-0.5">{number}</div>
+    <div class="text-sm text-bold text-[var(--pd-content-text)] mr-0.5">{number}</div>
   {/if}
 </Tooltip>

@@ -34,9 +34,9 @@ test('Expect green text and icon when connection is running', async () => {
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-green-500');
+  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
   expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-green-500');
+  expect(label).toHaveClass('text-[var(--pd-status-running)]');
   expect(label).toHaveTextContent('RUNNING');
 });
 
@@ -45,9 +45,9 @@ test('Expect green text and icon when connection is starting', async () => {
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-green-500');
+  expect(icon).toHaveClass('bg-[var(--pd-status-starting)]');
   expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-green-500');
+  expect(label).toHaveClass('text-[var(--pd-status-starting)]');
   expect(label).toHaveTextContent('STARTING');
 });
 
@@ -56,9 +56,9 @@ test('Expect green text and icon when connection is stopped', async () => {
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-gray-900');
+  expect(icon).toHaveClass('bg-[var(--pd-status-stopped)]');
   expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-gray-900');
+  expect(label).toHaveClass('text-[var(--pd-status-stopped)]');
   expect(label).toHaveTextContent('OFF');
 });
 
@@ -67,9 +67,9 @@ test('Expect green text and icon when connection is stopping', async () => {
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-red-500');
+  expect(icon).toHaveClass('bg-[var(--pd-status-terminated)]');
   expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-red-500');
+  expect(label).toHaveClass('text-[var(--pd-status-terminated)]');
   expect(label).toHaveTextContent('STOPPING');
 });
 
@@ -78,8 +78,8 @@ test('Expect green text and icon when connection is unknown', async () => {
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-gray-900');
+  expect(icon).toHaveClass('bg-[var(--pd-status-unknown)]');
   expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-gray-900');
+  expect(label).toHaveClass('text-[var(--pd-status-unknown)]');
   expect(label).toHaveTextContent('UNKNOWN');
 });

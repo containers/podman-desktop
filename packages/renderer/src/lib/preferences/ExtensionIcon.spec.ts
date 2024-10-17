@@ -100,5 +100,5 @@ test('Expect puzzle for missing icon', async () => {
   const icon = screen.getByRole('img', { hidden: true });
   expect(icon).toBeInTheDocument();
   expect(icon).not.toHaveAttribute('src', extension.icon);
-  expect(icon).toHaveClass('text-violet-600');
+  expect(icon).toHaveClass('text-[var(--pd-invert-content-info-icon)]');
 });

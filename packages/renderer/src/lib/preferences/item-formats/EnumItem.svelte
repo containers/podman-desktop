@@ -16,7 +16,7 @@ function onInput(event: Event) {
 </script>
 
 <select
-  class="border-b block w-full p-1 bg-zinc-700 border-violet-500 text-white text-sm checked:bg-violet-50"
+  class="border-b block w-full p-1 bg-[var(--pd-input-field-bg)] border-[var(--pd-input-field-hover-stroke)] text-[var(--pd-input-field-focused-text)] text-sm checked:bg-[var(--pd-input-field-focused-bg)]"
   name={record.id}
   id="input-standard-{record.id}"
   on:input={onInput}
@@ -25,7 +25,7 @@ function onInput(event: Event) {
   aria-label={record.description}>
   {#if record.enum}
     {#each record.enum as recordEnum}
-      <option value={recordEnum}>{recordEnum}</option>
+      <option class="bg-[var(--pd-input-field-focused-bg)]" value={recordEnum}>{recordEnum}</option>
     {/each}
   {/if}
 </select>

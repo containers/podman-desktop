@@ -24,6 +24,6 @@ basic information -->
     <KubePVCStatusArtifact artifact={pvc.status} />
     <KubePVCArtifact artifact={pvc.spec} />
   {:else}
-    <p class="text-purple-500 font-medium">Loading ...</p>
+    <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
 </Table>
