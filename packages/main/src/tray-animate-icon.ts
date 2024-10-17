@@ -48,16 +48,7 @@ export class AnimatedTray {
   }
 
   protected getAssetsFolder(): string {
-    // choose right folder for resources
-    // see extraResources in electron-builder config file
-    let assetsFolder;
-    if (this.isProd()) {
-      assetsFolder = path.resolve(process.resourcesPath, AnimatedTray.MAIN_ASSETS_FOLDER);
-    } else {
-      assetsFolder = path.resolve(app.getAppPath(), AnimatedTray.MAIN_ASSETS_FOLDER);
-    }
-
-    return assetsFolder;
+    return path.resolve(app.getAppPath(), AnimatedTray.MAIN_ASSETS_FOLDER);
   }
 
   protected animateTrayIcon(): void {
