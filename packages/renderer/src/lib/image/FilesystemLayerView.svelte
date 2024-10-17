@@ -58,7 +58,7 @@ function getLink(file: ImageFile | undefined): string {
   {#if root}
     {#if children}
       {#each children as [_, child]}
-        <svelte:self root={false} margin={margin + 2} tree={child} layerMode={layerMode} />
+        <svelte:self root={false} margin={margin + 0.5} tree={child} layerMode={layerMode} />
       {/each}
     {/if}
   {:else}
@@ -66,18 +66,18 @@ function getLink(file: ImageFile | undefined): string {
     <div class="text-right">{tree.data && !tree.hidden ? tree.data.uid + ':' + tree.data.gid : ''}</div>
     <span class="text-right">{!tree.hidden ? new ImageUtils().getHumanSize(tree.size) : ''}</span>
     {#if children?.size || (file && file.type === 'directory')}
-      <button class={`text-left ml-${margin} ${colorClass}`} on:click={toggleExpansion}>
+      <button style="margin-left: {margin}rem" class={`text-left ${colorClass}`} on:click={toggleExpansion}>
         <span class="cursor-pointer inline-block mr-1" class:rotate-90={arrowDown}>&gt;</span>
         {label}<span class="text-[var(--pd-content-text)] opacity-70">{getLink(tree?.data)}</span>
       </button>
       {#if expanded && children}
         {#each children as [_, child]}
-          <svelte:self root={false} margin={margin + 2} tree={child} layerMode={layerMode} />
+          <svelte:self root={false} margin={margin + 0.5} tree={child} layerMode={layerMode} />
         {/each}
       {/if}
     {:else}
       <div class={`${colorClass}`}>
-        <span class={`pl-4 ml-${margin}`}></span>
+        <span style="margin-left: {margin}rem" class="pl-4"></span>
         {label}<span class="text-[var(--pd-content-text)] opacity-70">{getLink(tree?.data)}</span>
       </div>
     {/if}
