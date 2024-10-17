@@ -31,7 +31,7 @@ test('Expect podman is purple', async () => {
 
   const circle = screen.getByLabelText('Provider info circle');
   expect(circle).toBeInTheDocument();
-  expect(circle).toHaveClass('bg-purple-600');
+  expect(circle).toHaveClass('bg-[var(--pd-provider-podman)]');
 });
 
 test('Expect kubernetes is purple', async () => {
@@ -41,7 +41,7 @@ test('Expect kubernetes is purple', async () => {
   });
   const circle = screen.getByLabelText('Provider info circle');
   expect(circle).toBeInTheDocument();
-  expect(circle).toHaveClass('bg-sky-600');
+  expect(circle).toHaveClass('bg-[var(--pd-provider-kubernetes)]');
 });
 
 test('Expect docker is blue', async () => {
@@ -51,7 +51,7 @@ test('Expect docker is blue', async () => {
   });
   const circle = screen.getByLabelText('Provider info circle');
   expect(circle).toBeInTheDocument();
-  expect(circle).toHaveClass('bg-sky-400');
+  expect(circle).toHaveClass('bg-[var(--pd-provider-docker)]');
 });
 
 test('Expect unknown is gray', async () => {
@@ -61,12 +61,12 @@ test('Expect unknown is gray', async () => {
   });
   const circle = screen.getByLabelText('Provider info circle');
   expect(circle).toBeInTheDocument();
-  expect(circle).toHaveClass('bg-gray-900');
+  expect(circle).toHaveClass('bg-[var(--pd-provider-unknown)]');
 });
 
 test('Expect missing is gray', async () => {
   render(ProviderInfoCircle);
   const circle = screen.getByLabelText('Provider info circle');
   expect(circle).toBeInTheDocument();
-  expect(circle).toHaveClass('bg-gray-900');
+  expect(circle).toHaveClass('bg-[var(--pd-provider-unknown)]');
 });
