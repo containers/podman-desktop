@@ -84,14 +84,7 @@ For more details, refer to [From containers to Kubernetes](/docs/kubernetes).
 
 ### Manage Docker compatibility
 
-Docker compatibility is a way to configure an environment in which you can run your Docker applications, commands, and tools on a Podman engine without reconfiguration. It encompasses two stages. You first [import your saved containers](/docs/migrating-from-docker/importing-saved-containers) into Podman Desktop using CLI and then access the [Docker Compatibility settings](/docs/migrating-from-docker/managing-docker-compatibility) to:
-
-- Check the system socket mapping status.
-- On macOS: Use all Docker tools, including CLI, with the Podman engine.
-- Use the Podman CLI to run Compose applications.
-- Select a Docker CLI context.
-
-On macOS, consider installing the [podman-mac-helper tool](/docs/migrating-from-docker/using-podman-mac-helper) to use Docker commands with a Podman engine.
+Docker compatibility is a way to configure an environment in which you can run your Docker applications, commands, and tools on a Podman engine without reconfiguration. It encompasses two stages. You first [import your saved containers](/docs/migrating-from-docker/importing-saved-containers) into Podman Desktop using CLI and then access the [Docker Compatibility settings](/docs/migrating-from-docker/managing-docker-compatibility) to configure a Docker-compatible environment based on your needs.
 
 ### Integrate your tools using extensions
 
