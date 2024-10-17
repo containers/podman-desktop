@@ -9,9 +9,9 @@ tags: [migrating-from-docker]
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using the `DOCKER_HOST` environment variable
+# Using the `DOCKER_HOST` environment variable 
 
-Consider using the `DOCKER_HOST` environment variable to migrate transparently from Docker to Podman Desktop on all platforms.
+Consider using the `DOCKER_HOST` environment variable to migrate transparently from Docker to Podman Desktop on Windows and Linux.
 
 - Continue using familiar Docker commands.
 - Take advantage of the benefits of Podman.
@@ -65,20 +65,6 @@ $env:DOCKER_HOST="npipe://<inspect_command_output>"
 Ideally you should set `DOCKER_HOST` at the system or user level environment variables (or even load it in your CL emulator init script of choice)
 
 Note: Setting the `DOCKER_HOST` environment variable isn't necessary on Windows since Podman also listens to the default `docker_engine` pipe. But it may be necessary if you get the following error: **Error: socket of machine is not set** while trying to use the podman compose command.
-</TabItem>
-<TabItem value="mac" label="macOS">
-
-1. Identify the location of your Podman socket
-
-```shell-session
-$ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
-```
-
-2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `unix://` scheme to the path retrieved previously:
-
-```shell-session
-$ export DOCKER_HOST=unix://<your_podman_socket_location>
-```
 
 </TabItem>
 <TabItem value="linux" label="Linux">
