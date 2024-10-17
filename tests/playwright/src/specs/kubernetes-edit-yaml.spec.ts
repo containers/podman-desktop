@@ -24,7 +24,12 @@ import { KubernetesResourceState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
 import { KubernetesResourceDetailsPage } from '../model/pages/kubernetes-resource-details-page';
 import { expect as playExpect, test } from '../utility/fixtures';
-import { createKindCluster, deleteKindCluster, ensureKindCliInstalled } from '../utility/operations';
+import {
+  createKindCluster,
+  deleteKindCluster,
+  ensureKindCliInstalled,
+  handleConfirmationDialog,
+} from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
@@ -126,7 +131,7 @@ test.describe('Kubernetes Edit YAML Feature E2E Test', () => {
   test('Delete the Kubernetes deployment resource', async ({ page, navigationBar }) => {
     const deploymentDetails = new KubernetesResourceDetailsPage(page, DEPLOYMENT_NAME);
     await deploymentDetails.deleteButton.click();
-    // handleconf?
+    await handleConfirmationDialog(page);
     const kubernetesBar = await navigationBar.openKubernetes();
     const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
     await playExpect(deploymentsPage.heading).toBeVisible();
