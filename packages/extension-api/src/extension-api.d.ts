@@ -790,24 +790,22 @@ declare module '@podman-desktop/api' {
   }
 
   /**
-   * the callbacks of ssh shell in provider connection
+   * Callback for openning shell session
    */
-  export interface ProviderConnectionShellAccess {
+  export class ProviderConnectionShellAccess {
+    open(): ProviderConnectionShellAccessSession;
+  }
+
+  /**
+   * Callbacks for interaction with shell session
+   */
+  export interface ProviderConnectionShellAccessSession {
     onData: Event<ProviderConnectionShellAccessData>;
     onError: Event<ProviderConnectionShellAccessError>;
     onEnd: Event<void>;
-
-    // function used for writting to shell (e.g. `ls`)
     write(data: string): void;
-
-    // function that starts the ssh connection to providers connection shell
-    startConnection(): void;
-
-    // function that stops running ssh connection
-    stopConnection(): void;
-
-    // function that sets window size of shell
-    setWindow(dimensions: ProviderConnectionShellDimensions): void;
+    resize(dimensions: ProviderConnectionShellDimensions): void;
+    close(): void;
   }
 
   export interface ProviderConnectionShellDimensions {
