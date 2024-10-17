@@ -796,8 +796,10 @@ declare module '@podman-desktop/api' {
     /**
      * Opens new session using ProviderConnectionShellAccessImpl class
      * @example
+     * ```typescript
      * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
      * const session = providerConnectionShellAccess.open()
+     * ```
      */
     open(): ProviderConnectionShellAccessSession;
   }
@@ -809,42 +811,54 @@ declare module '@podman-desktop/api' {
     /**
      * Receiving data event
      * @example
+     * ```typescript
      * session.onData(data => {...
+     * ```
      */
     onData: Event<ProviderConnectionShellAccessData>;
 
     /**
      * Error event
      * @example
+     * ```typescript
      * session.onError(error => {...
+     * ```
      */
     onError: Event<ProviderConnectionShellAccessError>;
 
     /**
      * End event
      * @example
+     * ```typescript
      * session.onEnd(onEnd);
+     * ```
      */
     onEnd: Event<void>;
 
     /**
      * Sends data
      * @example
+     * ```typescript
      * session.write(data)
+     * ```
      */
     write(data: string | Uint8Array): void;
 
     /**
      * Notifies server that terminal window has been resized
      * @example
+     * ```typescript
      * session.resize(dimensions)
+     * ```
      */
     resize(dimensions: ProviderConnectionShellDimensions): void;
 
     /**
      * Closes opened session and removes all listeners
      * @example
+     * ```typescript
      * session.close()
+     * ```
      */
     close(): void;
   }
