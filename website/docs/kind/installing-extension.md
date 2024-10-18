@@ -20,7 +20,7 @@ The Kind extension provides the capability of creating a local Kubernetes cluste
 
 #### Procedure
 
-Simply [install Podman Desktop](/docs/installation) to have the extension available. To confirm the built-in extension is installed, Kind can be found within the **Extensions** section of Podman Desktop.
+[Install Podman Desktop](/docs/installation) to have the extension available. To confirm the built-in extension is installed, you can find Kind within the **Extensions** section of Podman Desktop.
 
 #### Tutorial
 
