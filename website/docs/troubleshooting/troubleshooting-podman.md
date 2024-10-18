@@ -238,7 +238,7 @@ _Note:_ If Docker Desktop is started again, it will automatically re-alias the d
 
 #### Issue
 
-When uninstalling Podman Desktop, the configuration data persists even though it is not needed for a fresh installation.
+After uninstalling Podman Desktop, the configuration data persists even though it is not needed for a fresh installation.
 
 
 #### Solution
