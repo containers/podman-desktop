@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Checkbox, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
@@ -220,7 +220,7 @@ async function searchImages(value: string): Promise<string[]> {
 
   <div slot="content" class="space-y-6">
     <div class="w-full">
-      <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="imageName" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
       <div class="flex flex-col">
         <Typeahead
@@ -254,17 +254,17 @@ async function searchImages(value: string): Promise<string[]> {
 
       {#if providerConnections.length > 1}
         <div class="pt-4">
-          <label for="providerChoice" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
-            >Container Engine:</label>
-          <select
+          <label for="providerChoice" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Container Engine</label>
+          <Dropdown
             id="providerChoice"
-            class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
             name="providerChoice"
-            bind:value={selectedProviderConnection}>
-            {#each providerConnections as providerConnection}
-              <option value={providerConnection}>{providerConnection.name}</option>
-            {/each}
-          </select>
+            bind:value={selectedProviderConnection}
+            options={providerConnections.map(providerConnection => ({
+              label: providerConnection.name,
+              value: providerConnection,
+            }))}>
+          </Dropdown>
         </div>
       {/if}
       {#if providerConnections.length === 1}

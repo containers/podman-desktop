@@ -2,7 +2,7 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
@@ -83,24 +83,25 @@ async function loadImages() {
   </svelte:fragment>
   <div slot="content" class="space-y-2">
     {#if providerConnections.length > 1}
-      <label for="providerChoice" class="pt-6 block text-sm font-bold text-[var(--pd-content-card-header-text)]"
-        >Container Engine
-        <select
-          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+    <div class="mb-2">
+      <label for="providerChoice" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+        >Container Engine</label>
+        <Dropdown
           name="providerChoice"
           id="providerChoice"
-          bind:value={selectedProvider}>
-          {#each providerConnections as providerConnection}
-            <option value={providerConnection}>{providerConnection.name}</option>
-          {/each}
-        </select>
-      </label>
+          bind:value={selectedProvider}
+          options={providerConnections.map(providerConnection => ({
+            label: providerConnection.name,
+            value: providerConnection,
+          }))}>
+        </Dropdown>
+      </div>
     {/if}
 
     <Button on:click={addArchivesToLoad} icon={faPlusCircle} type="link">Add archive</Button>
     <!-- Display the list of existing imagesToLoad -->
     {#if archivesToLoad.length > 0}
-      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-[var(--pd-content-card-text)]">
+      <div class="flex flex-row justify-center w-full py-1 font-semibold text-[var(--pd-content-card-text)]">
         <div class="flex flex-col grow pl-2">Image Archives</div>
       </div>
     {/if}
