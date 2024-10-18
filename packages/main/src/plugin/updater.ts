@@ -272,6 +272,7 @@ export class Updater {
         console.error('Something went wrong while executing update command', err);
       });
     }
+    this.apiSender.send('app-update-available', true);
   }
 
   /**
@@ -327,6 +328,7 @@ export class Updater {
 
     // Update the 'version' entry in the status bar to show that no update is available
     this.defaultVersionEntry();
+    this.apiSender.send('app-update-available', false);
   }
 
   /**
@@ -375,6 +377,7 @@ export class Updater {
       return;
     }
     console.error('unable to check for updates', error);
+    this.apiSender.send('app-update-available', false);
   }
 
   /**
@@ -403,7 +406,7 @@ export class Updater {
   }
 
   public updateAvailable(): boolean {
-    return this.#updateCheckResult !== undefined;
+    return this.#updateCheckResult !== undefined && this.#currentVersion !== this.#nextVersion;
   }
 
   public init(): Disposable {
