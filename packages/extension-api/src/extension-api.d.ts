@@ -789,6 +789,93 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Callback for openning shell session
+   */
+  export interface ProviderConnectionShellAccess {
+    /**
+     * Opens new session using ProviderConnectionShellAccessImpl class
+     * @example
+     * ```typescript
+     * const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+     * const session = providerConnectionShellAccess.open()
+     * ```
+     */
+    open(): ProviderConnectionShellAccessSession;
+  }
+
+  /**
+   * Callbacks for interaction with shell session
+   */
+  export interface ProviderConnectionShellAccessSession {
+    /**
+     * Receiving data event
+     * @example
+     * ```typescript
+     * session.onData(data => {...
+     * ```
+     */
+    onData: Event<ProviderConnectionShellAccessData>;
+
+    /**
+     * Error event
+     * @example
+     * ```typescript
+     * session.onError(error => {...
+     * ```
+     */
+    onError: Event<ProviderConnectionShellAccessError>;
+
+    /**
+     * End event
+     * @example
+     * ```typescript
+     * session.onEnd(onEnd);
+     * ```
+     */
+    onEnd: Event<void>;
+
+    /**
+     * Sends data
+     * @example
+     * ```typescript
+     * session.write(data)
+     * ```
+     */
+    write(data: string | Uint8Array): void;
+
+    /**
+     * Notifies server that terminal window has been resized
+     * @example
+     * ```typescript
+     * session.resize(dimensions)
+     * ```
+     */
+    resize(dimensions: ProviderConnectionShellDimensions): void;
+
+    /**
+     * Closes opened session and removes all listeners
+     * @example
+     * ```typescript
+     * session.close()
+     * ```
+     */
+    close(): void;
+  }
+
+  export interface ProviderConnectionShellDimensions {
+    rows: number;
+    cols: number;
+  }
+
+  export interface ProviderConnectionShellAccessError {
+    error: string;
+  }
+
+  export interface ProviderConnectionShellAccessData {
+    data: string;
+  }
+
+  /**
    * the description of a file in an image filesystem layer
    */
   export interface ImageFile {
