@@ -20,6 +20,7 @@ export class Backoff {
   private readonly initial: number;
   constructor(
     public value: number,
+    public multiplier: number,
     private readonly max: number,
     private readonly jitter: number,
   ) {
@@ -29,7 +30,7 @@ export class Backoff {
   get(): number {
     const current = this.value;
     if (this.value < this.max) {
-      this.value *= 2;
+      this.value *= this.multiplier;
       this.value += this.getJitter();
     }
     return current;
