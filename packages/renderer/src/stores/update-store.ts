@@ -36,12 +36,12 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
   return false;
 }
 
-const isUpdateAvailable = (...args: unknown[]): Promise<boolean> => {
+const isUpdateAvailable = async (...args: unknown[]): Promise<boolean> => {
   const eventArg = args.length > 0 ? args[0] : false;
   if (typeof eventArg === 'boolean') {
-    return Promise.resolve(eventArg);
+    return eventArg;
   }
-  return Promise.resolve(false);
+  return false;
 };
 
 export const updateEventStore = new EventStore<boolean>(
