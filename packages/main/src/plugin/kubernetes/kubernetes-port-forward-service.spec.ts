@@ -113,4 +113,13 @@ describe('KubernetesPortForwardService', () => {
     expect(disposable).toHaveProperty('dispose');
     expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
   });
+
+  test('should dispose for a given configuration', async () => {
+    const disposable = await service.startForward(sampleForwardConfig);
+    expect(disposable).toHaveProperty('dispose');
+    const disposeMock = vi.spyOn(disposable, 'dispose');
+    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
+    service.dispose();
+    expect(disposeMock).toHaveBeenCalled();
+  });
 });

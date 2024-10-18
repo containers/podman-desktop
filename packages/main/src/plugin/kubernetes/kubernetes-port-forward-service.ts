@@ -62,7 +62,9 @@ export class KubernetesPortForwardServiceProvider {
  * Service for managing Kubernetes port forwarding.
  * @see KubernetesPortForwardServiceProvider.getService
  */
-export class KubernetesPortForwardService {
+export class KubernetesPortForwardService implements IDisposable {
+  #disposables: IDisposable[] = [];
+
   /**
    * Creates an instance of KubernetesPortForwardService.
    * @param configManagementService - The configuration management service.
@@ -72,6 +74,10 @@ export class KubernetesPortForwardService {
     private configManagementService: ConfigManagementService,
     private forwardingConnectionService: PortForwardConnectionService,
   ) {}
+
+  dispose(): void {
+    this.#disposables.forEach(disposable => disposable.dispose());
+  }
 
   /**
    * Creates a new forward configuration.
@@ -109,6 +115,8 @@ export class KubernetesPortForwardService {
    * @see ForwardConfig
    */
   async startForward(config: ForwardConfig): Promise<IDisposable> {
-    return this.forwardingConnectionService.startForward(config);
+    const disposable = await this.forwardingConnectionService.startForward(config);
+    this.#disposables.push(disposable);
+    return disposable;
   }
 }
