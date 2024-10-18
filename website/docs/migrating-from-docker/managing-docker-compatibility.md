@@ -22,7 +22,8 @@ As a developer, you can:
 
 - Use all Docker tools, including CLI, with the Podman engine without any reconfiguration. These tools connect to the default Podman socket, thereby enabling you to use all Docker commands with Podman. For example, you can run the `docker run` command on the Podman engine to start a container.
 
-  - By default, third-party Docker tool compatibility is enabled on macOS.
+  - On macOS, the **Third-Party Docker Tool Compatibility** setting is enabled by default.
+  - On Windows and Linux, the **Third-Party Docker Tool Compatibility** setting is not available. You can [use the `DOCKER_HOST` environment variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable) to let your tools communicate directly with the Podman socket.
 
 - Use the Podman CLI to run Compose applications by installing and setting up the [Compose extension](/docs/compose). For example, you can run the `docker compose up` command on the Podman engine to start your Compose v2 application. Also, ensure to place your Docker Compose file in a working directory, such as your home directory.
 
