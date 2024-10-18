@@ -17,15 +17,10 @@
  ***********************************************************************/
 import type { KubeConfig } from '@kubernetes/client-node';
 
-import { Directories } from '/@/plugin/directories.js';
 import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
 import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
-import {
-  ConfigManagementService,
-  FileBasedConfigStorage,
-  PreferenceFolderBasedStorage,
-} from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
+import { ConfigManagementService, MemoryBasedStorage } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
 import { isFreePort } from '/@/plugin/util/port.js';
@@ -42,16 +37,11 @@ export class KubernetesPortForwardServiceProvider {
    * @returns The port forward service.
    */
   getService(kubeClient: KubernetesClient): KubernetesPortForwardService {
-    const configKey = this.getKubeConfigKey(kubeClient.getKubeConfig());
-
     const forwardingConnectionService = new PortForwardConnectionService(
       kubeClient,
       new ForwardConfigRequirements(isFreePort),
     );
-    const forwardConfigStorage = new FileBasedConfigStorage(
-      new PreferenceFolderBasedStorage(new Directories()),
-      configKey,
-    );
+    const forwardConfigStorage = new MemoryBasedStorage();
     const configManagementService = new ConfigManagementService(forwardConfigStorage);
     return new KubernetesPortForwardService(configManagementService, forwardingConnectionService);
   }

@@ -28,6 +28,7 @@ import {
   FileBasedConfigStorage,
   type FileBasedStorage,
   type ForwardConfigStorage,
+  MemoryBasedStorage,
   PreferenceFolderBasedStorage,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 
@@ -250,6 +251,78 @@ describe('FileBasedConfigStorage', () => {
 
     expect(storage['configs']).toEqual([]);
     expect(readFileMock).toHaveBeenCalled();
+  });
+});
+
+describe('MemoryBasedConfigStorage', () => {
+  const sampleConfig: UserForwardConfig = {
+    name: 'test-name',
+    namespace: 'test-namespace',
+    kind: 0,
+    forwards: [{ localPort: 8080, remotePort: 80 }],
+    displayName: 'test-display-name',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('should create forward configuration', async () => {
+    const storage = new MemoryBasedStorage();
+    await storage.createForward(sampleConfig);
+
+    expect(storage['configs']).toContainEqual(sampleConfig);
+  });
+
+  test('should delete forward configuration', async () => {
+    const storage = new MemoryBasedStorage();
+    storage['configs'] = [sampleConfig];
+    await storage.deleteForward(sampleConfig);
+
+    expect(storage['configs']).not.toContainEqual(sampleConfig);
+  });
+
+  test('should update forward configuration', async () => {
+    const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
+    const storage = new MemoryBasedStorage();
+    storage['configs'] = [sampleConfig];
+    await storage.updateForward(sampleConfig, newConfig);
+
+    expect(storage['configs']).toContainEqual(newConfig);
+  });
+
+  test('should list all forward configurations', async () => {
+    const storage = new MemoryBasedStorage();
+    storage['configs'] = [sampleConfig];
+    const result = await storage.listForwards();
+
+    expect(result).toContainEqual(sampleConfig);
+  });
+
+  test('should throw an error if creating forward configuration with existing display name', () => {
+    const storage = new MemoryBasedStorage();
+    storage['configs'] = [sampleConfig];
+
+    expect(() => storage.createForward(sampleConfig)).toThrow(
+      'Found existed forward configuration with the same display name.',
+    );
+  });
+
+  test('should throw an error if deleting a non-existing forward configuration', () => {
+    const storage = new MemoryBasedStorage();
+
+    expect(() => storage.deleteForward(sampleConfig)).toThrow(
+      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+    );
+  });
+
+  test('should throw an error if updating a non-existing forward configuration', () => {
+    const storage = new MemoryBasedStorage();
+    const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
+
+    expect(() => storage.updateForward(sampleConfig, newConfig)).toThrow(
+      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+    );
   });
 });
 

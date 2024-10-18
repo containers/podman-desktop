@@ -308,6 +308,44 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
   }
 }
 
+export class MemoryBasedStorage implements ForwardConfigStorage {
+  private configs: UserForwardConfig[] = [];
+
+  createForward(config: UserForwardConfig): Promise<UserForwardConfig> {
+    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+    if (index > -1) {
+      throw new Error('Found existed forward configuration with the same display name.');
+    }
+
+    this.configs.push(config);
+    return Promise.resolve(config);
+  }
+
+  deleteForward(config: UserForwardConfig): Promise<void> {
+    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+    if (index === -1) {
+      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+    }
+
+    this.configs.splice(index, 1);
+    return Promise.resolve();
+  }
+
+  listForwards(): Promise<UserForwardConfig[]> {
+    return Promise.resolve(this.configs);
+  }
+
+  updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig> {
+    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+    if (index === -1) {
+      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+    }
+
+    this.configs[index] = newConfig;
+    return Promise.resolve(newConfig);
+  }
+}
+
 /**
  * Service for managing configuration.
  * The class is not intended for direct use. For proper usage, use the {@link KubernetesPortForwardServiceProvider.getService}.
