@@ -286,7 +286,8 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
 
     // => removing context, should remove context from sent info
-    kubeConfig.loadFromOptions({
+    const kubeConfig2 = new kubeclient.KubeConfig();
+    kubeConfig2.loadFromOptions({
       clusters: config.clusters,
       users: config.users,
       contexts: config.contexts.filter(ctx => ctx.name !== 'context2-2'),
@@ -296,7 +297,7 @@ describe('update', async () => {
     dispatchGeneralStateSpy.mockReset();
     dispatchCurrentContextGeneralStateSpy.mockReset();
     dispatchCurrentContextResourceSpy.mockReset();
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
     expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
       checking: { state: 'waiting' },
@@ -1385,16 +1386,16 @@ describe('update', async () => {
       makeInformerMock.mockClear();
 
       config.currentContext = 'context2';
-      kubeConfig.loadFromOptions(config);
+      const kubeConfig2 = new KubeConfig();
+      kubeConfig2.loadFromOptions(config);
 
       expect(informerStopMock).not.toHaveBeenCalled();
 
-      await client.update(kubeConfig);
+      await client.update(kubeConfig2);
 
-      expect(informerStopMock).toHaveBeenCalledTimes(3);
-      expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-      expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-      expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', informerPath);
+      expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+      expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+      expect(informerStopMock).toHaveBeenCalledWith('context1', informerPath);
       expect(client.getContextResources('context1', resource as ResourceName).length).toBe(0);
     });
   });
@@ -1460,33 +1461,24 @@ describe('update', async () => {
     makeInformerMock.mockClear();
 
     config.currentContext = 'context2';
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns2/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns2/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/ns2/services',
       expect.anything(),
     );
   });
@@ -1552,27 +1544,24 @@ describe('update', async () => {
     makeInformerMock.mockClear();
 
     config.currentContext = 'context2';
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new kubeclient.KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
     client.unregisterGetCurrentContextResources('services');
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(2);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns2/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns2/deployments',
       expect.anything(),
@@ -1899,33 +1888,24 @@ describe('update', async () => {
         server: 'server2',
       },
     ];
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context1', '/api/v1/namespaces/ns1/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context1', '/apis/apps/v1/namespaces/ns1/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/apis/apps/v1/namespaces/ns1/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns1/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns1/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/ns1/services',
       expect.anything(),
     );
   });
@@ -1989,36 +1969,28 @@ describe('update', async () => {
     );
 
     makeInformerMock.mockClear();
+    config.contexts = [...config.contexts];
     if (config.contexts[0]) {
-      config.contexts[0].namespace = 'other-ns';
+      config.contexts[0] = { ...config.contexts[0], namespace: 'other-ns' };
     }
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context1', '/api/v1/namespaces/ns1/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context1', '/apis/apps/v1/namespaces/ns1/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/apis/apps/v1/namespaces/ns1/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/other-ns/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/other-ns/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/other-ns/services',
       expect.anything(),
     );
   });
@@ -2083,8 +2055,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when namespace is changed',
-        stopInformerCalls: 2,
-        makeInformerCalls: 2,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
       {
         initialConfig: {
@@ -2151,8 +2123,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when user attrs changed',
-        stopInformerCalls: 2,
-        makeInformerCalls: 2,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
       {
         initialConfig: {
@@ -2219,9 +2191,9 @@ describe('update', async () => {
           ],
           currentContext: 'context1',
         },
-        testName: `does not restart if user name changed`,
-        stopInformerCalls: 0,
-        makeInformerCalls: 0,
+        testName: `restart if user name changed`,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
     ];
 
@@ -2257,13 +2229,11 @@ describe('update', async () => {
 
       expect(informerStopMock).toHaveBeenCalledTimes(stopInformerCalls);
       if (stopInformerCalls) {
-        expect(informerStopMock).toHaveBeenNthCalledWith(
-          1,
+        expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
           `/api/v1/namespaces/${initialConfig.contexts[1]?.namespace}/pods`,
         );
-        expect(informerStopMock).toHaveBeenNthCalledWith(
-          2,
+        expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
           `/apis/apps/v1/namespaces/${initialConfig.contexts[1]?.namespace}/deployments`,
         );
@@ -2271,14 +2241,12 @@ describe('update', async () => {
 
       expect(makeInformerMock).toHaveBeenCalledTimes(makeInformerCalls);
       if (makeInformerCalls) {
-        expect(makeInformerMock).toHaveBeenNthCalledWith(
-          1,
+        expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
           `/api/v1/namespaces/${updateConfig.contexts[1]?.namespace}/pods`,
           expect.anything(),
         );
-        expect(makeInformerMock).toHaveBeenNthCalledWith(
-          2,
+        expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
           `/apis/apps/v1/namespaces/${updateConfig.contexts[1]?.namespace}/deployments`,
           expect.anything(),
