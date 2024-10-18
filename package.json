@@ -111,7 +111,7 @@
     "*.{md,css,json}": "biome format --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@electron/fuses": "^1.8.0",
