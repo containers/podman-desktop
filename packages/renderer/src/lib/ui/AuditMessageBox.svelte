@@ -22,7 +22,7 @@ $: errorRecords = auditResult?.records.filter(record => record.type === 'error')
       aria-label="error">
       <div class="flex flex-row">
         <div class="mr-3">
-          <Fa size="1.1x" class="text-red-400" icon={faXmarkCircle} />
+          <Fa size="1.1x" class="text-[var(--pd-state-error)]" icon={faXmarkCircle} />
         </div>
         <div class="text-sm">
           {record.record}
@@ -40,7 +40,7 @@ $: errorRecords = auditResult?.records.filter(record => record.type === 'error')
       aria-label="warning">
       <div class="flex flex-row">
         <div class="mr-3">
-          <Fa size="1.1x" class="flex text-amber-400" icon={faTriangleExclamation} />
+          <Fa size="1.1x" class="flex text-[var(--pd-state-warning)]" icon={faTriangleExclamation} />
         </div>
         <div class="text-sm">
           {record.record}
