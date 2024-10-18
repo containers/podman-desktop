@@ -233,3 +233,26 @@ This might appear when either:
 3. Restart the Podman machine to recreate and activate the default Docker socket path.
 
 _Note:_ If Docker Desktop is started again, it will automatically re-alias the default Docker socket location and the Podman compatibility warning will re-appear.
+
+## Uninstalling Podman Desktop preserves the old configuration data  
+
+#### Issue
+
+When uninstalling Podman Desktop, the configuration data persists even though it is not needed for a fresh installation.
+
+
+#### Solution
+
+**_Deleting Podman Desktop configuration_**
+
+- Perform one of the following steps based on your operating system:
+   - On macOS, go to the _~/.local/share/containers/podman-desktop/_ directory and delete the _configuration_ folder.
+   - On Windows and Linux, go to the _~/.local/share/containers/podman-desktop/_ directory and delete the _configuration_ folder.
+
+**_Deleting Podman configuration_**  
+
+- Using CLI
+   - Run the `podman machine reset` command.
+- Using UI
+   1. Click the **Troubleshooting** icon in the status bar.
+   1. Click the **Cleanup/Purge data** button to delete all resources from the engine.
