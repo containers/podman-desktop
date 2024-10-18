@@ -37,8 +37,10 @@ const mocks = vi.hoisted(() => ({
   SubmenuNavigation: vi.fn(),
   KubernetesEmptyPage: vi.fn(),
   DeploymentsList: vi.fn(),
-  CLIToolsPage: vi.fn(),
+  CLIToolsPage: vi.fn().mockImplementation(() => console.log(' in mock >>>>>>>>>>>>>')),
 }));
+
+const getConfigurationValueMock = vi.fn();
 
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
   default: mocks.DashboardPage,
@@ -77,7 +79,7 @@ vi.mock('./lib/deployments/DeploymentsList.svelte', () => ({
   default: mocks.DeploymentsList,
 }));
 
-vi.mock('./lib/PreferencesCliToolsRendering.svelte', () => ({
+vi.mock('./lib/preferences/PreferencesCliToolsRendering.svelte', () => ({
   default: mocks.CLIToolsPage,
 }));
 
@@ -97,7 +99,7 @@ beforeEach(() => {
     }),
   };
   (window as any).dispatchEvent = dispatchEventMock;
-  (window.getConfigurationValue as unknown) = vi.fn();
+  (window.getConfigurationValue as unknown) = getConfigurationValueMock;
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
     reachable: false,
     error: 'initializing',
@@ -201,6 +203,7 @@ test('go to last kubernetes page when available', async () => {
 
 test('go to last preferences page when available', async () => {
   lastKubernetesPage.set({ name: 'CLI Tools', path: '/preferences/cli-tools' });
+  getConfigurationValueMock.mockResolvedValue(false);
   render(App);
   router.goto('/preferences');
   await tick();

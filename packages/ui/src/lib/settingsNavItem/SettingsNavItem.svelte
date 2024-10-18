@@ -54,8 +54,10 @@ function click(): void {
         <Fa class="mr-4" icon={icon} />
       {/if}
       {title}
+      {console.log(title)}
     </span>
     {#if section}
+      {console.log('section')}
       <div class="px-2 relative w-4 h-4 text-[color:var(--pd-secondary-nav-expander)]">
         {#if expanded}
           <i
