@@ -1293,9 +1293,7 @@ export class ProviderRegistry {
 
       return {
         write: (data: string): void => {
-          if (connection) {
-            connection.write(data);
-          }
+          connection?.write(data);
         },
         resize: (dimension: ProviderConnectionShellDimensions): void => {
           if (connection) {
