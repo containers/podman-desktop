@@ -20,13 +20,13 @@ import type { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
-import type { ForwardConfig, UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import {
   KubernetesPortForwardService,
   KubernetesPortForwardServiceProvider,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { ConfigManagementService } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
+import type { ForwardConfig, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 
 vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-connection.js');
 vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-storage.js');

@@ -22,7 +22,6 @@ import * as path from 'node:path';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Directories } from '/@/plugin/directories.js';
-import type { UserForwardConfig } from '/@/plugin/kubernetes/kubernetes-port-forward-model.js';
 import {
   ConfigManagementService,
   FileBasedConfigStorage,
@@ -31,6 +30,7 @@ import {
   MemoryBasedStorage,
   PreferenceFolderBasedStorage,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 
 vi.mock('node:fs/promises', () => ({
   mkdir: vi.fn(),
