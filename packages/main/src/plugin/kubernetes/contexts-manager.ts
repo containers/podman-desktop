@@ -60,7 +60,7 @@ import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
 import { backoffInitialValue, backoffJitter, backoffLimit, connectTimeout } from './contexts-constants.js';
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
-import type { ContextInternalState } from './contexts-states-registry.js';
+import type { CancellableInformer, ContextInternalState } from './contexts-states-registry.js';
 import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
 import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 
@@ -96,7 +96,7 @@ interface CreateInformerOptions<T> {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   protected states: ContextsStatesRegistry;
-  private informers = new ContextsInformersRegistry();
+  protected informers = new ContextsInformersRegistry();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 
@@ -305,7 +305,7 @@ export class ContextsManager {
     });
 
     const ns = context.namespace ?? 'default';
-    const result = new Map<ResourceName, Informer<KubernetesObject>>();
+    const result = new Map<ResourceName, CancellableInformer>();
     result.set('pods', this.createPodInformer(kc, ns, context));
     result.set('deployments', this.createDeploymentInformer(kc, ns, context));
     return result;
@@ -323,7 +323,7 @@ export class ContextsManager {
     }
     const kubeContext: KubeContext = this.getKubeContext(context);
     const ns = context.namespace ?? 'default';
-    let informer: Informer<KubernetesObject>;
+    let informer: CancellableInformer;
     switch (resourceName) {
       case 'services':
         informer = this.createServiceInformer(this.kubeConfig, ns, kubeContext);
@@ -364,7 +364,7 @@ export class ContextsManager {
     };
   }
 
-  private createPodInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Pod> {
+  private createPodInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PodList> => k8sApi.listNamespacedPod({ namespace });
     const path = `/api/v1/namespaces/${namespace}/pods`;
@@ -455,7 +455,7 @@ export class ContextsManager {
     });
   }
 
-  private createDeploymentInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Deployment> {
+  private createDeploymentInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(AppsV1Api);
     const listFn = (): Promise<V1DeploymentList> => k8sApi.listNamespacedDeployment({ namespace });
     const path = `/apis/apps/v1/namespaces/${namespace}/deployments`;
@@ -502,7 +502,7 @@ export class ContextsManager {
     });
   }
 
-  public createConfigMapInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1ConfigMap> {
+  public createConfigMapInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ConfigMapList> => k8sApi.listNamespacedConfigMap({ namespace });
     const path = `/api/v1/namespaces/${namespace}/configmaps`;
@@ -544,7 +544,7 @@ export class ContextsManager {
     });
   }
 
-  public createSecretInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Secret> {
+  public createSecretInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1SecretList> => k8sApi.listNamespacedSecret({ namespace });
     const path = `/api/v1/namespaces/${namespace}/secrets`;
@@ -588,7 +588,7 @@ export class ContextsManager {
     kc: KubeConfig,
     namespace: string,
     context: KubeContext,
-  ): Informer<V1PersistentVolumeClaim> {
+  ): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PersistentVolumeClaimList> =>
       k8sApi.listNamespacedPersistentVolumeClaim({ namespace });
@@ -633,7 +633,7 @@ export class ContextsManager {
     });
   }
 
-  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): Informer<V1Node> {
+  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NodeList> => k8sApi.listNode();
     const path = '/api/v1/nodes';
@@ -673,7 +673,7 @@ export class ContextsManager {
     });
   }
 
-  public createServiceInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Service> {
+  public createServiceInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ServiceList> => k8sApi.listNamespacedService({ namespace });
     const path = `/api/v1/namespaces/${namespace}/services`;
@@ -713,7 +713,7 @@ export class ContextsManager {
     });
   }
 
-  public createIngressInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Ingress> {
+  public createIngressInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
     const listFn = (): Promise<V1IngressList> => k8sNetworkingApi.listNamespacedIngress({ namespace });
     const path = `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`;
@@ -753,7 +753,7 @@ export class ContextsManager {
     });
   }
 
-  public createRouteInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Route> {
+  public createRouteInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
     const listFn = (): Promise<KubernetesListObject<V1Route>> =>
       customObjectsApi.listNamespacedCustomObject({
@@ -809,7 +809,7 @@ export class ContextsManager {
     path: string,
     listPromiseFn: ListPromise<T>,
     options: CreateInformerOptions<T>,
-  ): Informer<T> {
+  ): CancellableInformer {
     const informer = makeInformer(kc, path, listPromiseFn);
 
     informer.on('add', (obj: T) => {
@@ -860,7 +860,12 @@ export class ContextsManager {
       });
     }
     this.restartInformer<T>(informer, context, options);
-    return informer;
+    return {
+      informer,
+      cancel: (): void => {
+        clearTimeout(options.timer);
+      },
+    };
   }
 
   private setReachableDelay<T extends KubernetesObject>(options: CreateInformerOptions<T>, reachable: boolean): void {
