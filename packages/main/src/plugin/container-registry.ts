@@ -598,8 +598,6 @@ export class ContainerProviderRegistry {
   // Podman list images will prefer to use libpod API of the provider
   // before falling back to using the regular API
   async podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]> {
-    const telemetryOptions = {};
-
     // This gets all the available providers if no provider has been specified
     let providers: InternalContainerProvider[];
     if (options?.provider === undefined) {
@@ -664,10 +662,7 @@ export class ContainerProviderRegistry {
       }),
     );
 
-    const flattenedImages = images.flat();
-    this.telemetryService.track('podmanListImages', { total: flattenedImages.length, ...telemetryOptions });
-
-    return flattenedImages;
+    return images.flat();
   }
 
   async pruneImages(engineId: string): Promise<void> {
