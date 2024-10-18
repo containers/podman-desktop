@@ -69,6 +69,7 @@ import Webview from './lib/webview/Webview.svelte';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
+import { lastKubernetesPage } from './stores/breadcrumb';
 import { kubernetesCurrentContextState } from './stores/kubernetes-contexts-state';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
@@ -236,7 +237,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
            we use router.goto to preserve the navbar remembering the navigation location. 
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
-            {router.goto('/kubernetes/nodes')}
+            {router.goto($lastKubernetesPage.path)}
           </Route>
           <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
             <NodesList />
