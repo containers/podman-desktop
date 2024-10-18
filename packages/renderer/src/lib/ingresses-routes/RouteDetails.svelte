@@ -62,7 +62,7 @@ async function loadRouteDetails() {
     <svelte:fragment slot="actions">
       <IngressRouteActions ingressRoute={routeUI} detailed={true} on:update={() => (routeUI = routeUI)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={routeUI.status} />
     </div>
     <svelte:fragment slot="tabs">

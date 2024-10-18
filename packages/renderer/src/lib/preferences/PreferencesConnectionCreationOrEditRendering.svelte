@@ -520,7 +520,7 @@ function getConnectionResourceConfigurationNumberValue(
                     <Markdown markdown={configurationKey.markdownDescription} />
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
-                    <div class="text-gray-600">
+                    <div class="text-[var(--pd-content-text)]">
                       <EditableConnectionResourceItem
                         record={configurationKey}
                         value={getConnectionResourceConfigurationNumberValue(configurationKey, configurationValues)}

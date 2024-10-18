@@ -102,14 +102,14 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
       <!-- Manage lifecycle-->
       {#if providerInfo?.lifecycleMethods}
         <div class="pl-1 py-2 px-6">
-          <div class="text-sm italic text-gray-700">Status</div>
+          <div class="text-sm italic text-[var(--pd-content-text)]">Status</div>
           <div class="pl-3">{providerInfo.status}</div>
         </div>
 
         <div class="py-2 px-6 flex flex:row">
           <!-- start is enabled only in stopped mode-->
           {#if providerInfo?.lifecycleMethods.includes('start')}
-            <div class="px-2 text-sm italic text-gray-700">
+            <div class="px-2 text-sm italic text-[var(--pd-content-text)]">
               <Button disabled={providerInfo.status !== 'stopped'} on:click={() => startProvider()} icon={faPlay}>
                 Start
               </Button>
@@ -118,13 +118,13 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 
           <!-- stop is enabled only in started mode-->
           {#if providerInfo.lifecycleMethods.includes('stop')}
-            <div class="px-2 text-sm italic text-gray-700">
+            <div class="px-2 text-sm italic text-[var(--pd-content-text)]">
               <Button disabled={providerInfo.status !== 'started'} on:click={() => stopProvider()} icon={faStop}>
                 Stop
               </Button>
             </div>
           {/if}
-          <div class="px-2 text-sm italic text-gray-700">
+          <div class="px-2 text-sm italic text-[var(--pd-content-text)]">
             <Button on:click={() => (showModalProviderInfo = providerInfo)} icon={faHistory}>Show Logs</Button>
           </div>
 
