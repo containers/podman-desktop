@@ -45,7 +45,7 @@ export interface ForwardingSetup {
 export class PortForwardConnectionService {
   /**
    * Creates an instance of PortForwardConnectionService.
-   * @param kubeConfig - The Kubernetes configuration.
+   * @param kubeClient - The Kubernetes client.
    * @param configRequirementsChecker - Optional configuration requirements checker.
    */
   constructor(
