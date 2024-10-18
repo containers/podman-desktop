@@ -50,5 +50,5 @@ export enum KubernetesResources {
   Services = 'Services',
   IngeressesRoutes = 'Ingresses & Routes',
   PVCs = 'Persistent Volume Claims',
-  ConfigMapsSecrets = 'Config Maps & Secrets',
+  ConfigMapsSecrets = 'ConfigMaps & Secrets',
 }
