@@ -62,6 +62,11 @@ export class TaskManager {
             type: 'boolean',
             default: false,
           },
+          [`${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.Toast}`]: {
+            description: 'Display a notification toast when task is created',
+            type: 'boolean',
+            default: false,
+          },
         },
       },
     ]);
