@@ -166,7 +166,7 @@ export class ContextsManager {
       await this.states.disposeSecondaryStates(name);
     }
 
-    // Add primary informers for contexts (only current context if we are checking only it)
+    // Add primary informers for contexts (only for the current context if the number of contexts is too high)
     const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
     for (const context of this.kubeConfig.contexts) {
       if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
@@ -877,15 +877,12 @@ export class ContextsManager {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
-    if (!this.states.isReachable(this.currentContext.name)) {
-      console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
-      return [];
-    }
-    console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
     // start secondary informers only if current context is reachable
-    const currentContextState = this.states.getCurrentContextGeneralState(this.currentContext.name);
-    if (currentContextState.reachable) {
+    if (this.states.isReachable(this.currentContext.name)) {
+      console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
       this.startResourceInformer(this.currentContext.name, resourceName);
+    } else {
+      console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
     }
     return [];
   }
