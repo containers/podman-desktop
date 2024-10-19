@@ -60,6 +60,7 @@ import StatusBar from './lib/statusbar/StatusBar.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
+import ToastTaskNotifications from './lib/toast/ToastTaskNotifications.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
@@ -128,6 +129,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
+        <ToastTaskNotifications />
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
@@ -232,8 +234,8 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             <KubernetesEmptyPage />
           </Route>
         {:else}
-          <!-- Redirect /kubernetes to nodes if we end up on /kubernetes without a context error 
-           we use router.goto to preserve the navbar remembering the navigation location. 
+          <!-- Redirect /kubernetes to nodes if we end up on /kubernetes without a context error
+           we use router.goto to preserve the navbar remembering the navigation location.
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
             {router.goto('/kubernetes/nodes')}
