@@ -56,6 +56,22 @@ test('task manager init should register a configuration option', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
   taskManager.init();
   expect(configurationRegistry.registerConfigurations).toHaveBeenCalledOnce();
+  expect(configurationRegistry.registerConfigurations).toHaveBeenCalledWith(
+    expect.arrayContaining([expect.objectContaining({ id: 'preferences.experimental.tasks' })]),
+  );
+  expect(configurationRegistry.registerConfigurations).toHaveBeenCalledWith(
+    expect.arrayContaining([
+      expect.objectContaining({
+        properties: expect.objectContaining({
+          'tasks.Toast': {
+            type: 'boolean',
+            description: 'Display a notification toast when task is created',
+            default: false,
+          },
+        }),
+      }),
+    ]),
+  );
 });
 
 test('create task with title', async () => {
