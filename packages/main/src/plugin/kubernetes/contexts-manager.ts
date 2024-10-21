@@ -976,6 +976,14 @@ export class ContextsManager {
     return [];
   }
 
+  /**
+   * Ask for getting the state of the context as soon as possible.
+   *
+   * This is done by stopping all the informers for this context
+   * and restarting the primary informers.
+   *
+   * @param contextName the context for which to refresh the state
+   */
   public async refreshContextState(contextName: string): Promise<void> {
     const context = this.kubeConfig.getContexts().find(c => c.name === contextName);
     if (!context) {

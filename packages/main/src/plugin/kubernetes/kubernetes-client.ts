@@ -1727,6 +1727,17 @@ export class KubernetesClient {
     return podMetadata.ownerReferences?.find((ref: V1OwnerReference) => ref.controller === true);
   }
 
+  /**
+   * Ask forr getting the state of the context as soon as possible.
+   *
+   * Because the connection to a context is tested with a backoff,
+   * it can take time to know if a context is reachable or not.
+   * By calling this method, the connection will be tested immediately,
+   * and the result sent as soon as the connection status is known.
+   *
+   * @param context name of the context for which we want to get state ASAP
+   * @returns
+   */
   public async refreshContextState(context: string): Promise<void> {
     return this.contextsState.refreshContextState(context);
   }
