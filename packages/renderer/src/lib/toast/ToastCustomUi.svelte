@@ -8,7 +8,7 @@ import type { TaskInfo } from '/@api/taskInfo';
 
 let { toastId, taskInfo, onpop = () => {} }: { toastId: number; taskInfo: TaskInfo; onpop?: () => void } = $props();
 
-const clicked = (): void => {
+const closeAction = (): void => {
   toast.pop(toastId);
   onpop();
 };
@@ -45,7 +45,7 @@ const executeAction = (): void => {
     {/if}
 
     <div class="flex flex-grow flex-col items-end">
-      <CloseButton on:click={clicked} />
+      <CloseButton on:click={closeAction} />
     </div>
   </div>
   <div class="flex flex-row items-center italic">
@@ -57,9 +57,9 @@ const executeAction = (): void => {
       {taskInfo.name}
     {/if}
   </div>
-  <div class="text-right text-xs text-[var(--pd-content-text)]">
-    {#if taskInfo.action}
+  {#if taskInfo.action}
+    <div class="text-right text-xs text-[var(--pd-content-text)]">
       <Link onclick={executeAction}>{taskInfo.action}</Link>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>
