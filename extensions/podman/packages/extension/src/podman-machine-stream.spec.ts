@@ -17,38 +17,20 @@
  ***********************************************************************/
 
 import { Client } from 'ssh2';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { MachineInfo } from './extension';
 import { ProviderConnectionShellAccessImpl } from './podman-machine-stream';
 
 const onMock = vi.fn();
-const connectMock = vi.fn();
-const emitMock = vi.fn();
-const writeStreamMock = vi.fn();
+const onStreamMock = vi.fn();
+const streamMock = {
+  on: onStreamMock,
+  write: vi.fn(),
+};
 
-vi.mock('@podman-desktop/api', async () => {
-  return {
-    EventEmitter: vi.fn(),
-  };
-});
-
-const streamMock = new (require('node:events').EventEmitter)();
-
-streamMock.write = writeStreamMock;
-
-// Mock ssh2 Client
-vi.mock('ssh2', () => {
-  return {
-    Client: vi.fn().mockImplementation(() => ({
-      on: onMock,
-      connect: connectMock,
-      shell: vi.fn(callback => {
-        callback(null, streamMock);
-      }),
-      emit: emitMock,
-    })),
-  };
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 class TestProviderConnectionShellAccessImpl extends ProviderConnectionShellAccessImpl {
@@ -57,11 +39,47 @@ class TestProviderConnectionShellAccessImpl extends ProviderConnectionShellAcces
   }
 }
 
+vi.mock('node:fs');
+
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    EventEmitter: vi.fn().mockImplementation(() => ({
+      fire: vi.fn(),
+      dispose: vi.fn(),
+    })),
+  };
+});
+
+// Mock ssh2 Client
+vi.mock('ssh2', () => {
+  return {
+    Client: vi.fn().mockImplementation(() => ({
+      on: onMock,
+      connect: vi.fn(),
+      shell: vi.fn(callback => {
+        callback(null, streamMock);
+      }),
+      emit: vi.fn(),
+      end: vi.fn(),
+      destroy: vi.fn(),
+    })),
+  };
+});
+
 describe('Test SSH Client', () => {
   let client: Client;
+  let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
 
   beforeEach(() => {
+    vi.clearAllMocks();
+    const machineInfo: MachineInfo = {
+      port: 12345,
+      remoteUsername: 'user',
+      identityPath: 'path/to/privateKey',
+    } as unknown as MachineInfo;
+
     client = new Client();
+    providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
   });
 
   test('should register the ready event', () => {
@@ -83,39 +101,34 @@ describe('Test SSH Client', () => {
   });
 
   test('should emit ready event', () => {
-    const onReady = vi.fn();
-
-    // Adds callback for 'ready'
-    client.on('ready', onReady);
-
-    emitMock.mockImplementation((eventName, ...args) => {
+    onMock.mockImplementation((eventName, fn) => {
       if (eventName === 'ready') {
-        onReady(...args);
+        fn();
       }
+      return client;
     });
 
-    // Emmits event 'ready'
-    client.emit('ready');
+    // stream.on needs to return ClientChannel (streamMock)
+    onStreamMock.mockReturnValue(streamMock);
 
-    expect(onReady).toHaveBeenCalled();
+    providerConnectionShellAccess.open();
+    const connected = providerConnectionShellAccess.isConnected();
+    expect(connected).toBeTruthy();
   });
 
   test('should emit error event', () => {
-    const onError = vi.fn();
-
-    // Adds callback for 'error'
-    client.on('error', onError);
-
-    emitMock.mockImplementation((eventName, ...args) => {
+    const errMsg = { message: 'Error message' };
+    onMock.mockImplementation((eventName, fn) => {
       if (eventName === 'error') {
-        onError(...args);
+        fn(errMsg);
       }
+      return client;
     });
 
-    // Emmits event 'error'
-    client.emit('error');
-
-    expect(onError).toHaveBeenCalled();
+    providerConnectionShellAccess.open();
+    const connected = providerConnectionShellAccess.isConnected();
+    expect(connected).toBeFalsy();
+    expect(providerConnectionShellAccess.onErrorEmit.fire).toHaveBeenCalledWith({ error: 'Error message' });
   });
 });
 
@@ -126,59 +139,76 @@ describe('Test SSH Stream', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    client = new Client();
+    onMock.mockImplementation((eventName, fn) => {
+      if (eventName === 'ready') {
+        fn();
+      }
+      return client;
+    });
+
     const machineInfo: MachineInfo = {
       port: 12345,
       remoteUsername: 'user',
       identityPath: 'path/to/privateKey',
     } as unknown as MachineInfo;
 
+    client = new Client();
     providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
   });
 
   test('should handle ready event, start shell and get some data', async () => {
-    const onReady = vi.fn();
-    const onStreamData = vi.fn();
-
-    // Adds callback for 'ready'
-    client.on('ready', onReady);
-
-    emitMock.mockImplementation((eventName, ...args) => {
-      if (eventName === 'ready') {
-        onReady(...args);
+    const dataMsg = 'Some data';
+    onStreamMock.mockImplementation((eventName, fn) => {
+      if (eventName === 'data') {
+        fn(dataMsg);
       }
+      return streamMock;
     });
 
-    // Emit event 'ready'
-    client.emit('ready');
-
-    // Adds callback for 'data'
-    streamMock.on('data', onStreamData);
-    streamMock.emit('data', 'some_data');
-
-    expect(onStreamData).toHaveBeenCalledWith('some_data');
+    providerConnectionShellAccess.open();
+    const connected = providerConnectionShellAccess.isConnected();
+    expect(connected).toBeTruthy();
+    expect(providerConnectionShellAccess.onDataEmit.fire).toHaveBeenCalledWith({ data: 'Some data' });
   });
 
   test('should handle ready event and end shell', async () => {
-    const onReady = vi.fn();
-    const onStreamEnd = vi.fn();
-
-    // Adds callback for 'ready'
-    client.on('ready', onReady);
-
-    emitMock.mockImplementation((eventName, ...args) => {
-      if (eventName === 'ready') {
-        onReady(...args);
+    onStreamMock.mockImplementation((eventName, fn) => {
+      if (eventName === 'close') {
+        fn();
       }
+      return streamMock;
     });
 
-    // Emit event 'ready'
-    client.emit('ready');
+    providerConnectionShellAccess.open();
+    const connected = providerConnectionShellAccess.isConnected();
+    vi.waitFor(() => expect(connected).toBeFalsy());
+    expect(providerConnectionShellAccess.onEndEmit.fire).toHaveBeenCalled();
+  });
 
-    // Adds callback for 'close'
-    streamMock.on('close', onStreamEnd);
-    streamMock.emit('close');
+  test('already connected', async () => {
+    const disposeMock = vi.spyOn(providerConnectionShellAccess, 'dispose');
 
-    expect(onStreamEnd).toHaveBeenCalled();
+    // stream.on needs to return ClientChannel (streamMock)
+    onStreamMock.mockReturnValue(streamMock);
+
+    Object.defineProperty(providerConnectionShellAccess, '#connected', { value: true });
+
+    const connected = providerConnectionShellAccess.isConnected();
+    vi.waitFor(() => expect(connected).toBeTruthy());
+
+    const session = providerConnectionShellAccess.open();
+    expect(session).toEqual({
+      onData: providerConnectionShellAccess.onData,
+      onError: providerConnectionShellAccess.onError,
+      onEnd: providerConnectionShellAccess.onEnd,
+      write: expect.any(Function),
+      resize: expect.any(Function),
+      close: expect.any(Function),
+    });
+
+    const connected1 = providerConnectionShellAccess.isConnected();
+    expect(connected1).toBeTruthy();
+
+    vi.waitFor(() => expect(disposeMock).toHaveBeenCalled());
   });
 });
