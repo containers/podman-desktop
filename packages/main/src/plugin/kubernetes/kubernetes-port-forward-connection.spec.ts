@@ -19,8 +19,6 @@
 import net from 'node:net';
 
 import { AppsV1Api, CoreV1Api, type V1Deployment, type V1Pod, type V1Service } from '@kubernetes/client-node';
-import type fetch from 'node-fetch';
-import { Response } from 'node-fetch';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
