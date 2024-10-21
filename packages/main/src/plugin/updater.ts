@@ -72,8 +72,13 @@ export class Updater {
     if (version === 'current') {
       version = app.getVersion();
     } else if (version === 'latest') {
-      version = this.#nextVersion?.substring(1) ?? '';
+      version = this.#nextVersion ?? '';
     }
+
+    if (version.startsWith('v')) {
+      version = version.substring(1);
+    }
+
     const urlVersionFormat = version.split('.', 2).join('.');
     let notesURL = `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`;
     https.get(notesURL, res => {
