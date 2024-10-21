@@ -17,9 +17,9 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { createEvent, fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
 import Dropdown from './Dropdown.svelte';
 import DropdownTest from './DropdownTest.svelte';
@@ -39,6 +39,18 @@ test('initial value is visible', async () => {
   const input = screen.getByRole('button');
   expect(input).toBeInTheDocument();
   expect(input).toHaveTextContent('a value');
+});
+
+test('opening dropdown does not submit forms (prevents default button action)', async () => {
+  render(Dropdown);
+
+  const input = screen.getByRole('button');
+  expect(input).toBeInTheDocument();
+
+  const event = createEvent.click(input);
+  event.preventDefault = vi.fn();
+  await fireEvent(input, event);
+  expect(event.preventDefault).toHaveBeenCalled();
 });
 
 test('disabling changes state and styling', async () => {

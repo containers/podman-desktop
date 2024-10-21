@@ -131,12 +131,13 @@ function onSelect(e: Event, newValue: unknown): void {
   e.preventDefault();
 }
 
-function toggleOpen(): void {
+function toggleOpen(e: Event): void {
   if (opened) {
     close();
   } else {
     open();
   }
+  e.preventDefault();
 }
 
 function open(): void {
