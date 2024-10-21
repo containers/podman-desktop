@@ -977,6 +977,10 @@ export class ContextsManager {
   }
 
   public async refreshContextState(contextName: string): Promise<void> {
+    const context = this.kubeConfig.getContexts().find(c => c.name === contextName);
+    if (!context) {
+      throw new Error(`context ${contextName} not found`);
+    }
     // stop previous ones
     // primaries
     await this.informers.deleteContextInformers(contextName);
@@ -986,10 +990,6 @@ export class ContextsManager {
     await this.states.disposeSecondaryStates(contextName);
 
     // start new ones
-    const context = this.kubeConfig.getContexts().find(c => c.name === contextName);
-    if (!context) {
-      return;
-    }
     const kubeContext: KubeContext = this.getKubeContext(context);
     const informers = this.createKubeContextInformers(kubeContext);
     this.informers.setInformers(contextName, informers);

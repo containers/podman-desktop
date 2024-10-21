@@ -2930,4 +2930,37 @@ describe('refreshContextState', () => {
     await client.refreshContextState('context1');
     expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-checking-state-update', expectedMap);
   });
+
+  test('should throw an error if the context does not exist', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: `context1`,
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    await expect(async () => await client.refreshContextState('unknown-context')).rejects.toThrowError(
+      'context unknown-context not found',
+    );
+  });
 });
