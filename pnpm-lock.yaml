@@ -590,8 +590,8 @@ importers:
         specifier: ^6.6.2
         version: 6.6.2
       '@testing-library/svelte':
-        specifier: ^5.2.3
-        version: 5.2.3(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))
+        specifier: ^5.2.4
+        version: 5.2.4(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))
       '@testing-library/user-event':
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
@@ -723,8 +723,8 @@ importers:
         specifier: ^6.6.2
         version: 6.6.2
       '@testing-library/svelte':
-        specifier: ^5.2.3
-        version: 5.2.3(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))
+        specifier: ^5.2.4
+        version: 5.2.4(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))
       '@testing-library/user-event':
         specifier: ^14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
@@ -3466,8 +3466,8 @@ packages:
     resolution: {integrity: sha512-P6GJD4yqc9jZLbe98j/EkyQDTPgqftohZF5FBkHY5BUERZmcf4HeO2k0XaefEg329ux2p21i1A1DmyQ1kKw2Jw==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
 
-  '@testing-library/svelte@5.2.3':
-    resolution: {integrity: sha512-y5eaD2Vp3hb729dAv3dOYNoZ9uNM0bQ0rd5AfXDWPvI+HiGmjl8ZMOuKzBopveyAkci1Kplb6kS53uZhPGEK+w==}
+  '@testing-library/svelte@5.2.4':
+    resolution: {integrity: sha512-EFdy73+lULQgMJ1WolAymrxWWrPv9DWyDuDFKKlUip2PA/EXuHptzfYOKWljccFWDKhhGOu3dqNmoc2f/h/Ecg==}
     engines: {node: '>= 10'}
     peerDependencies:
       svelte: ^3 || ^4 || ^5 || ^5.0.0-next.0
@@ -14556,7 +14556,7 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
 
-  '@testing-library/svelte@5.2.3(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))':
+  '@testing-library/svelte@5.2.4(svelte@5.0.0-next.266)(vite@5.4.9(@types/node@22.7.5)(terser@5.31.6))(vitest@2.1.2(@types/node@22.7.5)(jsdom@25.0.1)(terser@5.31.6))':
     dependencies:
       '@testing-library/dom': 10.4.0
       svelte: 5.0.0-next.266
