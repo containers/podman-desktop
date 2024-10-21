@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { KubernetesObject } from '@kubernetes/client-node';
-import { derived, readable, writable } from 'svelte/store';
+import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import type { CheckingState, ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
@@ -27,6 +27,40 @@ export const kubernetesContextsCheckingState = readable(new Map<string, Checking
   window.events?.receive('kubernetes-contexts-checking-state-update', (value: unknown) => {
     set(value as Map<string, CheckingState>);
   });
+});
+
+const previousState = new Map<string, 'waiting' | 'checking' | 'gaveup'>();
+const checkingCount = new Map<string, number>();
+
+/**
+ * kubernetesContextsCheckingStateDelayed indicates for each context
+ * if it is being checked, with a delay of 2 seconds when it is being checked,
+ * so each check=true state in input is visible for at least 2 seconds
+ *  _    _      _          _
+ * | |__| |____| |________| |_____  input
+ *  ________    ____       ____
+ * |        |__|    |_____|    |__  output
+ */
+export const kubernetesContextsCheckingStateDelayed = derived<
+  Readable<Map<string, CheckingState>>[],
+  Map<string, boolean>
+>([kubernetesContextsCheckingState], ([$checkingState], set) => {
+  for (const [context, state] of $checkingState) {
+    if (!previousState.has(context) || previousState.get(context) !== state.state) {
+      if (state.state === 'checking') {
+        const prev = checkingCount.get(context) ?? 0;
+        checkingCount.set(context, prev + 1);
+        set(new Map(Array.from(checkingCount, ([key, value]) => [key, value > 0])));
+      } else if (state.state === 'waiting' && (checkingCount.get(context) ?? 0) > 0) {
+        const prev = checkingCount.get(context) ?? 0;
+        checkingCount.set(context, prev - 1);
+        setTimeout(() => {
+          set(new Map(Array.from(checkingCount, ([key, value]) => [key, value > 0])));
+        }, 2000);
+      }
+      previousState.set(context, state.state);
+    }
+  }
 });
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
