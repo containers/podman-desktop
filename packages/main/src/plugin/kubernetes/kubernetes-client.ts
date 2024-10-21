@@ -1728,7 +1728,7 @@ export class KubernetesClient {
   }
 
   /**
-   * Ask forr getting the state of the context as soon as possible.
+   * Ask for getting the state of the context as soon as possible.
    *
    * Because the connection to a context is tested with a backoff,
    * it can take time to know if a context is reachable or not.
