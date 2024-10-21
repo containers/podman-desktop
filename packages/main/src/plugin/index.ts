@@ -1088,9 +1088,18 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'container-provider-registry:logsContainer',
-      async (_listener, engine: string, containerId: string, onDataId: number): Promise<void> => {
-        return containerProviderRegistry.logsContainer(engine, containerId, (name: string, data: string) => {
-          this.getWebContentsSender().send('container-provider-registry:logsContainer-onData', onDataId, name, data);
+      async (_listener, logsParams: { engineId: string; containerId: string; onDataId: number }): Promise<void> => {
+        return containerProviderRegistry.logsContainer({
+          engineId: logsParams.engineId,
+          id: logsParams.containerId,
+          callback: (name: string, data: string) => {
+            this.getWebContentsSender().send(
+              'container-provider-registry:logsContainer-onData',
+              logsParams.onDataId,
+              name,
+              data,
+            );
+          },
         });
       },
     );

@@ -525,15 +525,18 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'logsContainer',
-    async (engine: string, containerId: string, callback: (name: string, data: string) => void): Promise<void> => {
+    async (logsParams: {
+      engineId: string;
+      containerId: string;
+      callback: (name: string, data: string) => void;
+    }): Promise<void> => {
       onDataCallbacksLogsContainerId++;
-      onDataCallbacksLogsContainer.set(onDataCallbacksLogsContainerId, callback);
-      return ipcInvoke(
-        'container-provider-registry:logsContainer',
-        engine,
-        containerId,
-        onDataCallbacksLogsContainerId,
-      );
+      onDataCallbacksLogsContainer.set(onDataCallbacksLogsContainerId, logsParams.callback);
+      return ipcInvoke('container-provider-registry:logsContainer', {
+        engineId: logsParams.engineId,
+        containerId: logsParams.containerId,
+        onDataId: onDataCallbacksLogsContainerId,
+      });
     },
   );
   ipcRenderer.on(

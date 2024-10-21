@@ -51,7 +51,7 @@ function callback(name: string, data: string) {
 
 async function fetchContainerLogs() {
   // grab logs of the container
-  await window.logsContainer(container.engineId, container.id, callback);
+  await window.logsContainer({ engineId: container.engineId, containerId: container.id, callback });
 }
 
 onMount(async () => {

@@ -1651,32 +1651,32 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async logsContainer(
-    engineId: string,
-    id: string,
-    callback: (name: string, data: string) => void,
-    abortController?: AbortController,
-  ): Promise<void> {
+  async logsContainer(logsParams: {
+    engineId: string;
+    id: string;
+    callback: (name: string, data: string) => void;
+    abortController?: AbortController;
+  }): Promise<void> {
     let telemetryOptions = {};
     let firstMessage = true;
-    const container = this.getMatchingContainer(engineId, id);
+    const container = this.getMatchingContainer(logsParams.engineId, logsParams.id);
     container
       .logs({
         follow: true,
         stdout: true,
         stderr: true,
-        abortSignal: abortController?.signal,
+        abortSignal: logsParams.abortController?.signal,
       })
       .then(containerStream => {
         containerStream.on('end', () => {
-          callback('end', '');
+          logsParams.callback('end', '');
         });
         containerStream.on('data', chunk => {
           if (firstMessage) {
             firstMessage = false;
-            callback('first-message', '');
+            logsParams.callback('first-message', '');
           }
-          callback('data', chunk.toString('utf-8'));
+          logsParams.callback('data', chunk.toString('utf-8'));
         });
       })
       .catch((error: unknown) => {
