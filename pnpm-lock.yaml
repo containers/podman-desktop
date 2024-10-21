@@ -656,8 +656,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(picomatch@4.0.2)(svelte@5.0.0-next.266)(typescript@5.6.3)
       svelte-eslint-parser:
-        specifier: ^0.42.0
-        version: 0.42.0(svelte@5.0.0-next.266)
+        specifier: ^0.43.0
+        version: 0.43.0(svelte@5.0.0-next.266)
       svelte-fa:
         specifier: ^4.0.3
         version: 4.0.3(svelte@5.0.0-next.266)
@@ -756,8 +756,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(picomatch@4.0.2)(svelte@5.0.0-next.266)(typescript@5.6.3)
       svelte-eslint-parser:
-        specifier: ^0.42.0
-        version: 0.42.0(svelte@5.0.0-next.266)
+        specifier: ^0.43.0
+        version: 0.43.0(svelte@5.0.0-next.266)
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.14
@@ -4534,6 +4534,7 @@ packages:
 
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   bottleneck@2.19.5:
     resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
@@ -10178,6 +10179,15 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.191
+    peerDependenciesMeta:
+      svelte:
+        optional: true
+
+  svelte-eslint-parser@0.43.0:
+    resolution: {integrity: sha512-GpU52uPKKcVnh8tKN5P4UZpJ/fUDndmq7wfsvoVXsyP+aY0anol7Yqo01fyrlaWGMFfm4av5DyrjlaXdLRJvGA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
       svelte:
         optional: true
@@ -22880,6 +22890,16 @@ snapshots:
       - picomatch
 
   svelte-eslint-parser@0.42.0(svelte@5.0.0-next.266):
+    dependencies:
+      eslint-scope: 7.2.2
+      eslint-visitor-keys: 3.4.3
+      espree: 9.6.1
+      postcss: 8.4.47
+      postcss-scss: 4.0.9(postcss@8.4.47)
+    optionalDependencies:
+      svelte: 5.0.0-next.266
+
+  svelte-eslint-parser@0.43.0(svelte@5.0.0-next.266):
     dependencies:
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
