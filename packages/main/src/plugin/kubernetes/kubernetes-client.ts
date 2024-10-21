@@ -67,8 +67,11 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 import { parseAllDocuments } from 'yaml';
 
+import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
+import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -175,6 +178,10 @@ export class KubernetesClient {
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
     this._onDidUpdateKubeconfig.event;
+
+  static readonly portForwardServiceProvider = new KubernetesPortForwardServiceProvider();
+
+  #portForwardService?: KubernetesPortForwardService;
 
   constructor(
     private readonly apiSender: ApiSenderType,
@@ -491,6 +498,8 @@ export class KubernetesClient {
     }
     this.setupKubeWatcher();
     this.apiResources.clear();
+    this.#portForwardService?.dispose();
+    this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this, this.apiSender);
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
@@ -1740,5 +1749,27 @@ export class KubernetesClient {
    */
   public async refreshContextState(context: string): Promise<void> {
     return this.contextsState.refreshContextState(context);
+  }
+
+  protected ensurePortForwardService(): KubernetesPortForwardService {
+    if (this.#portForwardService === undefined) {
+      this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this);
+    }
+    return this.#portForwardService;
+  }
+
+  public async getPortForwards(): Promise<UserForwardConfig[]> {
+    return this.ensurePortForwardService().listForwards();
+  }
+
+  public async createPortForward(config: UserForwardConfig): Promise<UserForwardConfig> {
+    const service = this.ensurePortForwardService();
+    const newConfig = await service.createForward(config);
+    await service.startForward(newConfig);
+    return config;
+  }
+
+  public async deletePortForward(config: UserForwardConfig): Promise<void> {
+    return this.ensurePortForwardService().deleteForward(config);
   }
 }

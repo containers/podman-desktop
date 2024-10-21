@@ -17,6 +17,7 @@
  ***********************************************************************/
 import type { KubeConfig } from '@kubernetes/client-node';
 
+import type { ApiSenderType } from '/@/plugin/api.js';
 import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
 import { ConfigManagementService, MemoryBasedStorage } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
@@ -34,16 +35,17 @@ export class KubernetesPortForwardServiceProvider {
   /**
    * Gets the port forward service for the given Kubernetes configuration.
    * @param kubeClient the Kubernetes client
+   * @param apiSender the api sender object
    * @returns The port forward service.
    */
-  getService(kubeClient: KubernetesClient): KubernetesPortForwardService {
+  getService(kubeClient: KubernetesClient, apiSender: ApiSenderType): KubernetesPortForwardService {
     const forwardingConnectionService = new PortForwardConnectionService(
       kubeClient,
       new ForwardConfigRequirements(isFreePort),
     );
     const forwardConfigStorage = new MemoryBasedStorage();
     const configManagementService = new ConfigManagementService(forwardConfigStorage);
-    return new KubernetesPortForwardService(configManagementService, forwardingConnectionService);
+    return new KubernetesPortForwardService(configManagementService, forwardingConnectionService, apiSender);
   }
 
   /**
@@ -73,7 +75,10 @@ export class KubernetesPortForwardService implements IDisposable {
   constructor(
     private configManagementService: ConfigManagementService,
     private forwardingConnectionService: PortForwardConnectionService,
-  ) {}
+    private apiSender: ApiSenderType,
+  ) {
+    this.apiSender.send('kubernetes-port-forwards-update');
+  }
 
   dispose(): void {
     this.#disposables.forEach(disposable => disposable.dispose());
@@ -86,7 +91,9 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async createForward(config: UserForwardConfig): Promise<ForwardConfig> {
-    return this.configManagementService.createForward(config);
+    const forwardConfig = await this.configManagementService.createForward(config);
+    this.apiSender.send('kubernetes-port-forwards-update');
+    return forwardConfig;
   }
 
   /**
@@ -96,7 +103,8 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
-    return this.configManagementService.deleteForward(config);
+    await this.configManagementService.deleteForward(config);
+    this.apiSender.send('kubernetes-port-forwards-update');
   }
 
   /**
