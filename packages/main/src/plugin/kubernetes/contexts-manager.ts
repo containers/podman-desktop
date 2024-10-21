@@ -976,6 +976,33 @@ export class ContextsManager {
     return [];
   }
 
+  /**
+   * Ask for getting the state of the context as soon as possible.
+   *
+   * This is done by stopping all the informers for this context
+   * and restarting the primary informers.
+   *
+   * @param contextName the context for which to refresh the state
+   */
+  public async refreshContextState(contextName: string): Promise<void> {
+    const context = this.kubeConfig.getContexts().find(c => c.name === contextName);
+    if (!context) {
+      throw new Error(`context ${contextName} not found`);
+    }
+    // stop previous ones
+    // primaries
+    await this.informers.deleteContextInformers(contextName);
+    await this.states.deleteContextState(contextName);
+    // secondaries
+    await this.informers.disposeSecondaryInformers(contextName);
+    await this.states.disposeSecondaryStates(contextName);
+
+    // start new ones
+    const kubeContext: KubeContext = this.getKubeContext(context);
+    const informers = this.createKubeContextInformers(kubeContext);
+    this.informers.setInformers(contextName, informers);
+  }
+
   // for tests
   public getContextResources(contextName: string, resourceName: ResourceName): KubernetesObject[] {
     return this.states.getContextResources(contextName, resourceName);

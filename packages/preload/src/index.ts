@@ -2026,6 +2026,10 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('kubernetesRefreshContextState', async (context: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:refreshContextState', context);
+  });
+
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
     async (namespace: string, route: V1Route): Promise<V1Route> => {
