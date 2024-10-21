@@ -419,6 +419,10 @@ export class KubernetesClient {
     await fs.promises.writeFile(this.kubeconfigPath, yamlString);
   }
 
+  getKubeConfig(): KubeConfig {
+    return this.kubeConfig;
+  }
+
   private async getDefaultNamespace(context: Context): Promise<string> {
     if (context.namespace) {
       return context.namespace;
@@ -831,7 +835,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
+  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod({ name, namespace });
@@ -845,7 +849,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment | undefined> {
+  async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment> {
     const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
     try {
       const res = await k8sAppsApi.readNamespacedDeployment({ name, namespace });
@@ -925,7 +929,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedService(name: string, namespace: string): Promise<V1Service | undefined> {
+  async readNamespacedService(name: string, namespace: string): Promise<V1Service> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedService({ name, namespace });
