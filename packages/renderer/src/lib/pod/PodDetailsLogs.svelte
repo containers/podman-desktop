@@ -86,7 +86,7 @@ async function fetchPodLogs() {
 
     // Get the logs for the container
     if (pod.kind === 'podman') {
-      await window.logsContainer(pod.engineId, container.Id, logsCallback);
+      await window.logsContainer({ engineId: pod.engineId, containerId: container.Id, callback: logsCallback });
     } else {
       await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
     }

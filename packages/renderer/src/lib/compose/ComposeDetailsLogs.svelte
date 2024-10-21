@@ -77,14 +77,18 @@ async function fetchComposeLogs(): Promise<void> {
 
     // Wrap the logsContainer function in a Promise
     return new Promise((resolve, reject) => {
-      window.logsContainer(container.engineId, container.id, (name, data) => {
-        try {
-          logsCallback(name, data);
-          resolve(undefined);
-        } catch (error) {
-          // Catch any errors that occur during logsCallback and reject the Promise
-          reject(error);
-        }
+      window.logsContainer({
+        engineId: container.engineId,
+        containerId: container.id,
+        callback: (name, data) => {
+          try {
+            logsCallback(name, data);
+            resolve(undefined);
+          } catch (error) {
+            // Catch any errors that occur during logsCallback and reject the Promise
+            reject(error);
+          }
+        },
       });
     }).catch((error: unknown) => {
       // If there's an error, just output it to console instead of throwing an error
