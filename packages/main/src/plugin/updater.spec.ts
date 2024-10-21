@@ -419,7 +419,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 2,
-      buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
+      buttons: ['Update now', `What's new`, 'Remind me later', `Don't show again`],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -435,7 +435,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 2,
-      buttons: ['Update now', 'View release notes', 'Cancel'],
+      buttons: ['Update now', `What's new`, 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
