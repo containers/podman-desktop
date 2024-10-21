@@ -4,7 +4,7 @@ import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
 import { createRouteObject } from 'tinro/dist/tinro_lib';
 
 import type { NavigationHint } from './navigation';
-import { currentPage, history, lastKubernetesPage, lastPage, lastPreferencesPage } from './stores/breadcrumb';
+import { currentPage, history, lastPage } from './stores/breadcrumb';
 import { TelemetryService } from './TelemetryService';
 
 export let path = '/*';
@@ -56,12 +56,6 @@ function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
     } else {
       // set the last page from the history
       lastPage.set($history[$history.length - 1]);
-    }
-
-    if (curPage.path.includes('/kubernetes/')) {
-      lastKubernetesPage.set(curPage);
-    } else if (curPage.path.includes('/preferences/')) {
-      lastPreferencesPage.set(curPage);
     }
 
     // set the current page to this route, unless we're on a tab

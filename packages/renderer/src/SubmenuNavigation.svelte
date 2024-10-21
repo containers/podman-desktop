@@ -2,11 +2,20 @@
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import type { TinroRouteMeta } from 'tinro';
 
+import { lastSubmenuPages } from './stores/breadcrumb';
 import type { NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 export let title: string;
 export let items: NavigationRegistryEntry[] | undefined;
+export let link: string;
 export let meta: TinroRouteMeta;
+
+let pages = $lastSubmenuPages;
+if (!pages[title]) {
+  let defaultLink = link === '/kubernetes' ? '/kubernetes/nodes' : link;
+  pages[title] = defaultLink;
+  lastSubmenuPages.set(pages);
+}
 </script>
 
 <nav
@@ -22,8 +31,7 @@ export let meta: TinroRouteMeta;
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
     {#each items ?? [] as item}
-      {console.log(item.name + ' in submenunav')}
-      <SettingsNavItem title={item.tooltip} href={item.link} selected={meta.url.startsWith(item.link)}
+      <SettingsNavItem title={item.tooltip} href={item.link} selected={meta.url.startsWith(item.link)} onClick={() => {pages[title] = item.link;}}
       ></SettingsNavItem>
     {/each}
   </div>

@@ -21,12 +21,9 @@ import { writable } from 'svelte/store';
 import type { TinroBreadcrumb } from 'tinro';
 
 const home = { name: 'Home', path: '/' } as TinroBreadcrumb;
-const kubernetesDefault = { name: 'Kubernetes', path: '/kubernetes/nodes' };
-const preferencesDefault = { name: 'Preferences', path: '/preferences' };
 export const currentPage: Writable<TinroBreadcrumb> = writable(home);
 export const lastPage: Writable<TinroBreadcrumb> = writable(home);
 
 export const history: Writable<TinroBreadcrumb[]> = writable([home]);
 
-export const lastKubernetesPage: Writable<TinroBreadcrumb> = writable(kubernetesDefault);
-export const lastPreferencesPage: Writable<TinroBreadcrumb> = writable(preferencesDefault);
+export const lastSubmenuPages: Writable<{ [page: string]: string }> = writable({});

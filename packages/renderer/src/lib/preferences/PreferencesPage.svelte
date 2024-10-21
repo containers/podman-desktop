@@ -1,9 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { router } from 'tinro';
 
 import PreferencesContainerConnectionEdit from '/@/lib/preferences/PreferencesContainerConnectionEdit.svelte';
-import { lastPreferencesPage } from '/@/stores/breadcrumb';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Route from '../../Route.svelte';
@@ -43,9 +41,7 @@ onMount(async () => {
 
 <div class="flex flex-col h-full bg-[var(--pd-invert-content-bg)]">
   <Route path="/*" breadcrumb="Preferences">
-    {#if $lastPreferencesPage.path !== '/preferences' }
-      {router.goto($lastPreferencesPage.path)}
-    {:else if defaultPrefPageId !== undefined}
+    {#if defaultPrefPageId !== undefined}
       <PreferencesRendering key={defaultPrefPageId} properties={properties} />
     {:else}
       empty

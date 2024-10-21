@@ -27,7 +27,6 @@ import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import App from './App.svelte';
-import { lastKubernetesPage } from './stores/breadcrumb';
 import { navigationRegistry, type NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
@@ -191,21 +190,4 @@ test('displays kubernetes empty screen if no current context, without Kubernetes
   expect(mocks.KubernetesEmptyPage).toHaveBeenCalled();
   expect(mocks.DeploymentsList).not.toHaveBeenCalled();
   expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
-});
-
-test('go to last kubernetes page when available', async () => {
-  lastKubernetesPage.set({ name: 'Deployments', path: '/kubernetes/deployments' });
-  render(App);
-  router.goto('/kubernetes');
-  await tick();
-  expect(mocks.DeploymentsList).toHaveBeenCalled();
-});
-
-test('go to last preferences page when available', async () => {
-  lastKubernetesPage.set({ name: 'CLI Tools', path: '/preferences/cli-tools' });
-  getConfigurationValueMock.mockResolvedValue(false);
-  render(App);
-  router.goto('/preferences');
-  await tick();
-  expect(mocks.CLIToolsPage).toHaveBeenCalled();
 });

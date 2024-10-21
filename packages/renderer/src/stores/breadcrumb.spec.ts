@@ -20,7 +20,7 @@ import { get } from 'svelte/store';
 import type { TinroBreadcrumb } from 'tinro';
 import { expect, test } from 'vitest';
 
-import { currentPage, history, lastKubernetesPage, lastPage, lastPreferencesPage } from './breadcrumb';
+import { currentPage, history, lastPage } from './breadcrumb';
 
 export function mockBreadcrumb() {
   history.set([{ name: 'List', path: '/list' } as TinroBreadcrumb]);
@@ -39,8 +39,4 @@ test('Confirm mock values', async () => {
 
   const hist = get(history);
   expect(hist[0].name).toBe('List');
-
-  expect(get(lastKubernetesPage).path).toBe('/kubernetes/nodes');
-
-  expect(get(lastPreferencesPage).path).toBe('/preferences');
 });

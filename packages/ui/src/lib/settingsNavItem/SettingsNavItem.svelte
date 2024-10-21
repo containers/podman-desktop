@@ -9,6 +9,7 @@ export let expanded = false;
 export let child = false;
 export let selected: boolean = false;
 export let icon: IconDefinition | undefined = undefined;
+export let onClick: () => void = () => {};
 
 function rotate(
   node: unknown,
@@ -30,6 +31,7 @@ function rotate(
 
 function click(): void {
   expanded = !expanded;
+  onClick();
 }
 </script>
 
@@ -54,10 +56,8 @@ function click(): void {
         <Fa class="mr-4" icon={icon} />
       {/if}
       {title}
-      {console.log(title)}
     </span>
     {#if section}
-      {console.log('section')}
       <div class="px-2 relative w-4 h-4 text-[color:var(--pd-secondary-nav-expander)]">
         {#if expanded}
           <i
