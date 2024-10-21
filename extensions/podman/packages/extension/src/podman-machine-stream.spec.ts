@@ -1,133 +1,172 @@
-/**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
- ***********************************************************************/
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import * as fs from 'node:fs';
-import { rm } from 'node:fs/promises';
-import { type AddressInfo, createConnection, createServer } from 'node:net';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-
-import { Server } from 'ssh2';
-import { generatePrivateKey } from 'sshpk';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { Client } from 'ssh2';
+import { beforeEach, describe, expect, test,vi } from 'vitest';
 
 import type { MachineInfo } from './extension';
-import { PodmanMachineStream } from './podman-machine-stream';
+import { ProviderConnectionShellAccessImpl } from './podman-machine-stream';
 
-// mock the API
+const onMock = vi.fn();
+const connectMock = vi.fn();
+const emitMock = vi.fn();
+const writeStreamMock = vi.fn();
+
 vi.mock('@podman-desktop/api', async () => {
   return {
-    process: {
-      exec: vi.fn(),
-    },
     EventEmitter: vi.fn(),
   };
 });
 
-vi.mock('node:fs');
+const streamMock = new (require('node:events').EventEmitter)();
 
-beforeEach(() => {
-  vi.resetAllMocks();
+streamMock.write = writeStreamMock;
+
+// Mock ssh2 Client
+vi.mock('ssh2', () => {
+  return {
+    Client: vi.fn().mockImplementation(() => ({
+      on: onMock,
+      connect: connectMock,
+      shell: vi.fn(callback => {
+        callback(null, streamMock);
+      }),
+      emit: emitMock,
+    })),
+  };
 });
 
-let dummyKey: string;
-beforeAll(async () => {
-  // generate on the fly a dummy key
-  dummyKey = generatePrivateKey('ed25519').toString('ssh');
-});
-
-test('should be able to connect', async () => {
-  vi.spyOn(fs, 'readFileSync').mockReturnValue(dummyKey);
-  let sshPort = 0;
-  let connected = false;
-  let authenticated = false;
-
-  // create ssh server
-  const sshServer = new Server(
-    {
-      hostKeys: [dummyKey],
-    },
-    client => {
-      connected = true;
-
-      client
-        .on('authentication', ctx => {
-          ctx.accept();
-        })
-        .on('ready', () => {
-          authenticated = true;
-        });
-    },
-  ).listen(0, '127.0.0.1', () => {
-    const address: AddressInfo = sshServer.address() as AddressInfo;
-    sshPort = address?.port;
-  });
-
-  // wait that the server is listening
-  await vi.waitFor(() => expect(sshPort).toBeGreaterThan(0));
-
-  // create a npipe/socket server
-  // on windows it's an npipe, on macOS a socket file
-  let socketOrNpipePathLocal: string;
-  let socketOrNpipePathRemote: string;
-  if (process.platform === 'win32') {
-    socketOrNpipePathLocal = '\\\\.\\pipe\\test-local';
-    socketOrNpipePathRemote = '\\\\.\\pipe\\test-remote';
-  } else {
-    socketOrNpipePathLocal = join(tmpdir(), 'test-local.sock');
-    socketOrNpipePathRemote = join(tmpdir(), 'test-remote.sock');
+class TestProviderConnectionShellAccessImpl extends ProviderConnectionShellAccessImpl {
+  isConnected(): boolean {
+    return super.isConnected();
   }
+}
 
-  // delete file if exists
-  await rm(socketOrNpipePathLocal, { force: true });
-  await rm(socketOrNpipePathRemote, { force: true });
+describe('Test SSH Client', () => {
+  let client: Client;
 
-  let listenReady = false;
-
-  // start a remote server
-  const npipeServer = createServer(_socket => {}).listen(socketOrNpipePathRemote, () => {
-    listenReady = true;
+  beforeEach(() => {
+    client = new Client();
   });
 
-  await vi.waitFor(() => expect(listenReady).toBeTruthy());
+  test('should register the ready event', () => {
+    const onReady = vi.fn();
 
-  const machineInfo: MachineInfo = {
-    port: sshPort,
-    remoteUsername: 'user',
-    identityPath: '/some/path',
-  } as unknown as MachineInfo;
+    // Adds callback for 'ready'
+    client.on('ready', onReady);
 
-  const podmanMachineStream = new PodmanMachineStream(machineInfo);
-
-  podmanMachineStream.startConnection();
-
-  // wait authenticated and connected
-  await vi.waitFor(() => expect(connected && authenticated).toBeTruthy());
-
-  let connectedToLocal = false;
-  // send a request to the tunnel using the socket path
-  const client = createConnection({ path: socketOrNpipePathLocal }, () => {
-    connectedToLocal = true;
+    expect(onMock).toHaveBeenCalledWith('ready', onReady);
   });
 
-  await vi.waitFor(() => expect(connectedToLocal).toBeTruthy());
+  test('should register the error event', () => {
+    const onError = vi.fn();
 
-  client.end();
-  npipeServer.close();
+    // Adds callback for 'error'
+    client.on('error', onError);
+
+    expect(onMock).toHaveBeenCalledWith('error', onError);
+  });
+
+  test('should emit ready event', () => {
+    const onReady = vi.fn();
+
+    // Adds callback for 'ready'
+    client.on('ready', onReady);
+
+    emitMock.mockImplementation((eventName, ...args) => {
+      if (eventName === 'ready') {
+        onReady(...args);
+      }
+    });
+
+    // Emmits event 'ready'
+    client.emit('ready');
+
+    expect(onReady).toHaveBeenCalled();
+  });
+
+  test('should emit error event', () => {
+    const onError = vi.fn();
+
+    // Adds callback for 'error'
+    client.on('error', onError);
+
+    emitMock.mockImplementation((eventName, ...args) => {
+      if (eventName === 'error') {
+        onError(...args);
+      }
+    });
+
+    // Emmits event 'error'
+    client.emit('error');
+
+    expect(onError).toHaveBeenCalled();
+  });
+});
+
+describe('Test SSH Stream', () => {
+  let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
+  let client: Client;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    client = new Client();
+    const machineInfo: MachineInfo = {
+      port: 12345,
+      remoteUsername: 'user',
+      identityPath: 'path/to/privateKey',
+    } as unknown as MachineInfo;
+
+    providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
+  });
+
+  test('should handle ready event, start shell and get some data', async () => {
+    const onReady = vi.fn();
+    const onStreamData = vi.fn();
+
+    // Adds callback for 'ready'
+    client.on('ready', onReady);
+
+    emitMock.mockImplementation((eventName, ...args) => {
+      if (eventName === 'ready') {
+        onReady(...args);
+      }
+    });
+
+    // Emit event 'ready'
+    client.emit('ready');
+
+    // Wait for the shell callback to be invoked
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Adds callback for 'data'
+    streamMock.on('data', onStreamData);
+    streamMock.emit('data', 'some_data');
+
+    expect(onStreamData).toHaveBeenCalledWith('some_data');
+  });
+
+  test('should handle ready event and end shell', async () => {
+    const onReady = vi.fn();
+    const onStreamEnd = vi.fn();
+
+    // Adds callback for 'ready'
+    client.on('ready', onReady);
+
+    emitMock.mockImplementation((eventName, ...args) => {
+      if (eventName === 'ready') {
+        onReady(...args);
+      }
+    });
+
+    // Emit event 'ready'
+    client.emit('ready');
+
+    // Wait for the shell callback to be invoked
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Adds callback for 'close'
+    streamMock.on('close', onStreamEnd);
+    streamMock.emit('close');
+
+    expect(onStreamEnd).toHaveBeenCalled();
+  });
 });

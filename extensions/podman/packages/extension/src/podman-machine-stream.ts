@@ -48,6 +48,10 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
     this.#privateKey = podmanMachine.identityPath;
   }
 
+  protected isConnected(): boolean {
+    return this.#connected;
+  }
+
   onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
   onData: Event<ProviderConnectionShellAccessData> = this.onDataEmit.event;
 
