@@ -23,6 +23,8 @@ import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { updateAvailable } from '/@/stores/update-store';
+
 import ReleaseNotesBox from './ReleaseNotesBox.svelte';
 
 const podmanDesktopUpdateAvailableMock = vi.fn();
@@ -86,7 +88,7 @@ test('expect no release notes available', async () => {
 });
 
 test('expect update button to show when there is an update', async () => {
-  podmanDesktopUpdateAvailableMock.mockResolvedValue(true);
+  updateAvailable.set(true);
   render(ReleaseNotesBox);
   await waitFor(() => expect(podmanDesktopGetReleaseNotesMock));
   await tick();
@@ -97,6 +99,7 @@ test('expect update button to show when there is an update', async () => {
 });
 
 test('expect update button to not show when there is no update', async () => {
+  updateAvailable.set(false);
   render(ReleaseNotesBox);
   await waitFor(() => expect(podmanDesktopGetReleaseNotesMock).toBeCalled());
   await tick();
