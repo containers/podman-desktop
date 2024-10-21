@@ -1,5 +1,5 @@
 <script lang="ts">
-import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import NoLogIcon from '/@/lib/ui/NoLogIcon.svelte';
@@ -53,16 +53,16 @@ function handleSelectionChange(event: Event) {
     </label>
     <div class="w-full">
       {#if pod.containers.length > 1}
-        <select
+        <Dropdown
           on:change={handleSelectionChange}
-          aria-labelledby="listbox-label"
-          class="block w-48 p-1 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-48"
           name={pod.name}
-          id="input-standard-{pod.name}">
-          {#each pod.containers as container}
-            <option value={container.Names}>{container.Names}</option>
-          {/each}
-        </select>
+          id="input-standard-{pod.name}"
+          options={pod.containers.map(container => ({
+            label: container.Names,
+            value: container.Names,
+          }))}>
+        </Dropdown>
       {:else}
         <span
           id="input-standard-{pod.name}"
