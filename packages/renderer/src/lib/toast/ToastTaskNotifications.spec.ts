@@ -84,15 +84,15 @@ test('Check a toast is being created when there is a task created', async () => 
   );
 });
 
-test('Check no toast is being if disabled', async () => {
+test('Check no toast is being created if disabled', async () => {
   // make it disabled
   vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
-  tasksInfo.set([]);
+  tasksInfo.set([IN_PROGRESS_TASK]);
 
   render(ToastTaskNotifications, {});
 
-  // check we have called toast library to create a toast
+  // check we have not called toast library to create a toast
   await waitFor(() => expect(toast.push).not.toHaveBeenCalled());
 });
 

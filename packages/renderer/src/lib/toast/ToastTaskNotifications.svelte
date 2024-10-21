@@ -36,7 +36,6 @@ function handleTasks(tasks: TaskInfo[]): void {
   // get deleted tasks
   const toDeleteTasks = currentTasks.filter(currentTask => !tasks.find(task => task.id === currentTask.id));
 
-  console;
   // for the new one, create the notification
   for (const taskInfo of newTasks) {
     const number = displayNewToast(taskInfo);
