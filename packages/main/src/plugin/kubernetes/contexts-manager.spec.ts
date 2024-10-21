@@ -2884,3 +2884,50 @@ describe('isContextChanged', () => {
     expect(routeInformer).toHaveBeenCalledOnce();
   });
 });
+
+describe('refreshContextState', () => {
+  test('should reset informers', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: `context1`,
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    const expectedMap = new Map<string, CheckingState>();
+    expectedMap.set('context1', {
+      state: 'checking',
+    } as CheckingState);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-checking-state-update', expectedMap);
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(9000);
+    expect(apiSenderSendMock).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1100);
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-checking-state-update', expectedMap);
+    apiSenderSendMock.mockClear();
+    await client.refreshContextState('context1');
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-checking-state-update', expectedMap);
+  });
+});

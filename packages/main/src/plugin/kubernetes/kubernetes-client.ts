@@ -1726,4 +1726,8 @@ export class KubernetesClient {
     // pod.metadata?.labels && 'pod-template-hash' in pod.metadata.labels
     return podMetadata.ownerReferences?.find((ref: V1OwnerReference) => ref.controller === true);
   }
+
+  public async refreshContextState(context: string): Promise<void> {
+    return this.contextsState.refreshContextState(context);
+  }
 }
