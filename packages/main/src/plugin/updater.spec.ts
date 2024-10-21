@@ -600,6 +600,10 @@ test('open release notes from podman-desktop.io', async () => {
   expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
   await updater.openReleaseNotes('latest');
   expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.2');
+  await updater.openReleaseNotes('v0.1.1');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-0.1');
+  await updater.openReleaseNotes('0.2.1');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-0.2');
 });
 
 test('open release notes from GitHub', async () => {
@@ -627,6 +631,10 @@ test('open release notes from GitHub', async () => {
   expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.20.0');
   await updater.openReleaseNotes('latest');
   expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.21.0');
+  await updater.openReleaseNotes('v1.1.1');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v1.1.1');
+  await updater.openReleaseNotes('1.1.2');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v1.1.2');
 });
 
 test('get release notes', async () => {
