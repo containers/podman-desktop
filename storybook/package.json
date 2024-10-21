@@ -30,7 +30,7 @@
     "@storybook/svelte-vite": "^8.3.6",
     "@storybook/test": "^8.3.6",
     "@sveltejs/package": "^2.3.5",
-    "@sveltejs/vite-plugin-svelte": "4.0.0-next.8",
+    "@sveltejs/vite-plugin-svelte": "4.0.0",
     "@tsconfig/svelte": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "autoprefixer": "^10.4.20",
