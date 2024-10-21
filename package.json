@@ -115,7 +115,7 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@electron/fuses": "^1.8.0",
-    "@eslint/compat": "^1.2.0",
+    "@eslint/compat": "^1.2.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
     "@playwright/test": "1.48.1",
