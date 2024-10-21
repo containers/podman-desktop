@@ -62,19 +62,15 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
   onEnd: Event<void> = this.onEndEmit.event;
 
   write(data: string): void {
-    if (this.#stream) {
-      this.#stream.write(data);
-    }
+    this.#stream?.write(data);
   }
 
   resize(dimensions: ProviderConnectionShellDimensions): void {
-    if (this.#stream) {
-      // rows and cols override width and height when rows and cols are non-zero.
-      this.#stream.setWindow(dimensions.rows, dimensions.cols, 0, 0);
-    }
+    // rows and cols override width and height when rows and cols are non-zero.
+    this.#stream?.setWindow(dimensions.rows, dimensions.cols, 0, 0);
   }
 
-  disposeListeners(): void {
+  dispose(): void {
     this.onDataEmit.dispose();
     this.onErrorEmit.dispose();
     this.onEndEmit.dispose();
@@ -84,13 +80,13 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
     this.#connected = false;
     this.#client?.end();
     this.#client?.destroy();
-    this.disposeListeners();
+    this.dispose();
   }
 
   open(): ProviderConnectionShellAccessSession {
     // Avoid multiple connections
     if (this.#connected) {
-      this.disposeListeners();
+      this.dispose();
       return {
         onData: this.onData,
         onError: this.onError,
