@@ -28,12 +28,9 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
-<<<<<<< HEAD
   ProviderConnectionShellAccess,
   ProviderConnectionShellAccessSession,
   ProviderConnectionShellDimensions,
-=======
->>>>>>> 5dce856ec (feat: files sorted into multiple PRs)
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
