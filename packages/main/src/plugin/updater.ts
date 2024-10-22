@@ -219,9 +219,9 @@ export class Updater {
 
       let buttons: string[];
       if (context === 'startup') {
-        buttons = ['Update now', 'View release notes', 'Remind me later', 'Do not show again'];
+        buttons = ['Update now', `What's new`, 'Remind me later', `Don't show again`];
       } else {
-        buttons = ['Update now', 'View release notes', 'Cancel'];
+        buttons = ['Update now', `What's new`, 'Cancel'];
       }
 
       const result = await this.messageBox.showMessageBox({
