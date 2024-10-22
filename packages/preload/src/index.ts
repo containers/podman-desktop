@@ -835,9 +835,12 @@ export function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('getProxySettings', async (): Promise<containerDesktopAPI.ProxySettings> => {
-    return ipcInvoke('proxy:getSettings');
-  });
+  contextBridge.exposeInMainWorld(
+    'getProxySettings',
+    async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
+      return ipcInvoke('proxy:getSettings');
+    },
+  );
 
   contextBridge.exposeInMainWorld('getProxyState', async (): Promise<ProxyState> => {
     return ipcInvoke('proxy:getState');
