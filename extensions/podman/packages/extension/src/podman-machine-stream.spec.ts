@@ -29,17 +29,30 @@ const streamMock = {
   write: vi.fn(),
 };
 
+let client: Client;
+let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
+
 beforeEach(() => {
   vi.clearAllMocks();
+  const machineInfo: MachineInfo = {
+    port: 12345,
+    remoteUsername: 'user',
+    identityPath: 'path/to/privateKey',
+  } as unknown as MachineInfo;
+
+  client = new Client();
+  providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
 });
 
 class TestProviderConnectionShellAccessImpl extends ProviderConnectionShellAccessImpl {
   isConnected(): boolean {
     return super.isConnected();
   }
-}
 
-vi.mock('node:fs');
+  disposeListeners(): void {
+    return super.disposeListeners();
+  }
+}
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -47,8 +60,11 @@ vi.mock('@podman-desktop/api', async () => {
       fire: vi.fn(),
       dispose: vi.fn(),
     })),
+    Disposable: vi.fn(),
   };
 });
+
+vi.mock('node:fs');
 
 // Mock ssh2 Client
 vi.mock('ssh2', () => {
@@ -67,20 +83,6 @@ vi.mock('ssh2', () => {
 });
 
 describe('Test SSH Client', () => {
-  let client: Client;
-  let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
-
-  beforeEach(() => {
-    const machineInfo: MachineInfo = {
-      port: 12345,
-      remoteUsername: 'user',
-      identityPath: 'path/to/privateKey',
-    } as unknown as MachineInfo;
-
-    client = new Client();
-    providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
-  });
-
   test('should register the ready event', () => {
     const onReady = vi.fn();
 
@@ -132,9 +134,6 @@ describe('Test SSH Client', () => {
 });
 
 describe('Test SSH Stream', () => {
-  let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
-  let client: Client;
-
   beforeEach(() => {
     onMock.mockImplementation((eventName, fn) => {
       if (eventName === 'ready') {
@@ -142,15 +141,6 @@ describe('Test SSH Stream', () => {
       }
       return client;
     });
-
-    const machineInfo: MachineInfo = {
-      port: 12345,
-      remoteUsername: 'user',
-      identityPath: 'path/to/privateKey',
-    } as unknown as MachineInfo;
-
-    client = new Client();
-    providerConnectionShellAccess = new TestProviderConnectionShellAccessImpl(machineInfo);
   });
 
   test('should handle ready event, start shell and get some data', async () => {
@@ -183,7 +173,7 @@ describe('Test SSH Stream', () => {
   });
 
   test('already connected', async () => {
-    const disposeMock = vi.spyOn(providerConnectionShellAccess, 'dispose');
+    const disposeListenersMock = vi.spyOn(providerConnectionShellAccess, 'disposeListeners');
 
     // stream.on needs to return ClientChannel (streamMock)
     onStreamMock.mockReturnValue(streamMock);
@@ -212,6 +202,6 @@ describe('Test SSH Stream', () => {
     const connected2 = providerConnectionShellAccess.isConnected();
     expect(connected2).toBeTruthy();
 
-    await vi.waitFor(() => expect(disposeMock).toHaveBeenCalled());
+    await vi.waitFor(() => expect(disposeListenersMock).toHaveBeenCalled());
   });
 });

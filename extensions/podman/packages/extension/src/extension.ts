@@ -814,6 +814,7 @@ export async function registerProviderFor(
   }
 
   const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+  storedExtensionContext?.subscriptions.push(providerConnectionShellAccess);
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: machineInfo.name,
     displayName: prettyMachineName(machineInfo.name),
