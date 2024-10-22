@@ -5,6 +5,7 @@
   --toastMsgPadding: '0';
   --toastMinHeight: 2rem;
   --toastBorderRadius: 0.3rem;
+  --toastWidth: 16rem;
   --toastContainerTop: auto;
   --toastContainerRight: 0.8rem;
   --toastContainerBottom: 1rem;
