@@ -21,7 +21,7 @@ import { expect, test } from 'vitest';
 import { Backoff } from './backoff.js';
 
 test('backoff increment and limit without jitter', () => {
-  const backoff = new Backoff(100, 2, 500, 0);
+  const backoff = new Backoff({ value: 100, multiplier: 2, max: 500 });
   expect(backoff.get()).toEqual(100);
   expect(backoff.get()).toEqual(200);
   expect(backoff.get()).toEqual(400);
@@ -32,7 +32,7 @@ test('backoff increment and limit without jitter', () => {
 test('backoff with jitter', () => {
   let jitterFound = false;
   let base = 100;
-  let backoff: Backoff = new Backoff(base, 2, 500, 10);
+  let backoff: Backoff = new Backoff({ value: base, multiplier: 2, max: 500, jitter: 10 });
   // run several tests, as we cannot rely on a single one due to the random nature
   for (let i = 0; i < 10; i++) {
     const value = backoff.get();
@@ -40,7 +40,7 @@ test('backoff with jitter', () => {
     expect(value).toBeLessThan(base * 1.1);
     if (value === base) {
       // this can happen, try again
-      backoff = new Backoff(base, 2, 500, 10);
+      backoff = new Backoff({ value: base, multiplier: 2, max: 500, jitter: 10 });
       continue;
     }
     jitterFound = true;
@@ -54,7 +54,7 @@ test('backoff with jitter', () => {
 });
 
 test('backoff reset', () => {
-  const backoff = new Backoff(100, 2, 500, 0);
+  const backoff = new Backoff({ value: 100, multiplier: 2, max: 500 });
   expect(backoff.get()).toBe(100);
   expect(backoff.get()).toBe(200);
   expect(backoff.get()).toBe(400);

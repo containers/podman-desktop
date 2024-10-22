@@ -943,14 +943,19 @@ export class ContextsManager {
 
   private getBackoffForContext(contextName: string): Backoff {
     if (contextName === this.kubeConfig.currentContext) {
-      return new Backoff(
-        backoffInitialValue,
-        backoffMultiplierCurrentContext,
-        backoffLimitCurrentContext,
-        backoffJitter,
-      );
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplierCurrentContext,
+        max: backoffLimitCurrentContext,
+        jitter: backoffJitter,
+      });
     } else {
-      return new Backoff(backoffInitialValue, backoffMultiplier, backoffLimit, backoffJitter);
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplier,
+        max: backoffLimit,
+        jitter: backoffJitter,
+      });
     }
   }
 }
