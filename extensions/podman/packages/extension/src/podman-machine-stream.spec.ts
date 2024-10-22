@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { Client } from 'ssh2';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { MachineInfo } from './extension';
 import { ProviderConnectionShellAccessImpl } from './podman-machine-stream';
@@ -29,7 +29,7 @@ const streamMock = {
   write: vi.fn(),
 };
 
-afterEach(() => {
+beforeEach(() => {
   vi.clearAllMocks();
 });
 
@@ -57,7 +57,7 @@ vi.mock('ssh2', () => {
       on: onMock,
       connect: vi.fn(),
       shell: vi.fn(callback => {
-        callback(null, streamMock);
+        callback(undefined, streamMock);
       }),
       emit: vi.fn(),
       end: vi.fn(),
@@ -71,7 +71,6 @@ describe('Test SSH Client', () => {
   let providerConnectionShellAccess: TestProviderConnectionShellAccessImpl;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     const machineInfo: MachineInfo = {
       port: 12345,
       remoteUsername: 'user',
@@ -137,8 +136,6 @@ describe('Test SSH Stream', () => {
   let client: Client;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     onMock.mockImplementation((eventName, fn) => {
       if (eventName === 'ready') {
         fn();
@@ -181,7 +178,7 @@ describe('Test SSH Stream', () => {
 
     providerConnectionShellAccess.open();
     const connected = providerConnectionShellAccess.isConnected();
-    vi.waitFor(() => expect(connected).toBeFalsy());
+    await vi.waitFor(() => expect(connected).toBeFalsy());
     expect(providerConnectionShellAccess.onEndEmit.fire).toHaveBeenCalled();
   });
 
@@ -191,24 +188,30 @@ describe('Test SSH Stream', () => {
     // stream.on needs to return ClientChannel (streamMock)
     onStreamMock.mockReturnValue(streamMock);
 
-    Object.defineProperty(providerConnectionShellAccess, '#connected', { value: true });
-
     const connected = providerConnectionShellAccess.isConnected();
-    vi.waitFor(() => expect(connected).toBeTruthy());
+    await vi.waitFor(() => expect(connected).toBeFalsy());
 
-    const session = providerConnectionShellAccess.open();
-    expect(session).toEqual({
+    const returnValue = {
       onData: providerConnectionShellAccess.onData,
       onError: providerConnectionShellAccess.onError,
       onEnd: providerConnectionShellAccess.onEnd,
       write: expect.any(Function),
       resize: expect.any(Function),
       close: expect.any(Function),
-    });
+    };
+
+    const session = providerConnectionShellAccess.open();
+    expect(session).toEqual(returnValue);
 
     const connected1 = providerConnectionShellAccess.isConnected();
-    expect(connected1).toBeTruthy();
+    await vi.waitFor(() => expect(connected1).toBeTruthy());
 
-    vi.waitFor(() => expect(disposeMock).toHaveBeenCalled());
+    const session1 = providerConnectionShellAccess.open();
+    expect(session1).toEqual(returnValue);
+
+    const connected2 = providerConnectionShellAccess.isConnected();
+    expect(connected2).toBeTruthy();
+
+    await vi.waitFor(() => expect(disposeMock).toHaveBeenCalled());
   });
 });

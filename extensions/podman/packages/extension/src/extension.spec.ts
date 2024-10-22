@@ -245,6 +245,10 @@ vi.mock('@podman-desktop/api', async () => {
     fs: {
       createFileSystemWatcher: vi.fn(),
     },
+    EventEmitter: vi.fn().mockImplementation(() => ({
+      fire: vi.fn(),
+      dispose: vi.fn(),
+    })),
   };
 });
 
