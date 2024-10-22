@@ -49,7 +49,7 @@ test.describe.serial('Podman Desktop Update Update installation offering @update
     await playExpect(updateAvailableDialog).toBeVisible();
     const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
     await playExpect(updateNowButton).toBeVisible();
-    const doNotshowButton = updateAvailableDialog.getByRole('button', { name: 'Do not show again' });
+    const doNotshowButton = updateAvailableDialog.getByRole('button', { name: `Don't show again` });
     await playExpect(doNotshowButton).toBeVisible();
     const cancelButton = updateAvailableDialog.getByRole('button', { name: 'Cancel' });
     await playExpect(cancelButton).toBeVisible();
