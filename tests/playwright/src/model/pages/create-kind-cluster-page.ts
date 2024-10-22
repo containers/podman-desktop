@@ -30,7 +30,7 @@ export class CreateKindClusterPage extends BasePage {
   readonly clusterCreationButton: Locator;
   readonly goBackButton: Locator;
   readonly logsButton: Locator;
-  readonly providerTypeCombobox: Locator;
+  readonly providerType: Locator;
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
@@ -50,7 +50,7 @@ export class CreateKindClusterPage extends BasePage {
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
-    this.providerTypeCombobox = this.clusterPropertiesInformation.getByRole('combobox', { name: 'Provider Type' });
+    this.providerType = this.clusterPropertiesInformation.getByRole('button', { name: 'Provider Type' });
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
@@ -60,10 +60,15 @@ export class CreateKindClusterPage extends BasePage {
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
-    await playExpect(this.providerTypeCombobox).toHaveValue('podman');
+    await playExpect(this.providerType).toBeVisible();
+    await playExpect(this.providerType).toHaveText('podman');
+    await playExpect(this.httpPort).toBeVisible();
     await playExpect(this.httpPort).toHaveValue('9090');
+    await playExpect(this.httpsPort).toBeVisible();
     await playExpect(this.httpsPort).toHaveValue('9443');
+    await playExpect(this.controllerCheckbox).toBeVisible();
     await playExpect(this.controllerCheckbox).toBeChecked();
+    await playExpect(this.containerImage).toBeVisible();
     await playExpect(this.containerImage).toBeEmpty();
     await this.createCluster(timeout);
   }
@@ -76,14 +81,12 @@ export class CreateKindClusterPage extends BasePage {
     await this.fillTextbox(this.clusterNameField, clusterName);
 
     if (providerType) {
-      await playExpect(this.providerTypeCombobox).toBeVisible();
-      const providerTypeOptions = await this.providerTypeCombobox.locator('option').allInnerTexts();
-      if (providerTypeOptions.includes(providerType)) {
-        await this.providerTypeCombobox.selectOption({ value: providerType });
-        await playExpect(this.providerTypeCombobox).toHaveValue(providerType);
-      } else {
-        throw new Error(`${providerType} doesn't exist`);
-      }
+      await playExpect(this.providerType).toBeVisible();
+      await this.providerType.click();
+      const providerTypeOption = this.page.getByRole('button', { name: providerType });
+      await playExpect(providerTypeOption).toBeVisible();
+      await providerTypeOption.click();
+      await playExpect(this.providerType).toHaveText(providerType);
     }
 
     if (httpPort) {
