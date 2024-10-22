@@ -60,7 +60,7 @@ export class CreateKindClusterPage extends BasePage {
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
-    await playExpect(this.providerTypeButton).toBeVisible();
+    await playExpect(this.providerTypeButton).toBeEnabled();
     await playExpect(this.providerTypeButton).toHaveText('podman');
     await playExpect(this.httpPort).toBeVisible();
     await playExpect(this.httpPort).toHaveValue('9090');
