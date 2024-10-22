@@ -179,7 +179,6 @@ function onWindowClick(e: Event): void {
   class:border-b-[var(--pd-input-field-stroke)]={!disabled}
   class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled}
   class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}
-  aria-label={ariaLabel}
   aria-invalid={ariaInvalid}
   bind:this={comp}>
   <button
@@ -192,7 +191,7 @@ function onWindowClick(e: Event): void {
     disabled={disabled}
     id={id}
     name={name}
-    aria-label={`${ariaLabel} Button`}
+    aria-label={ariaLabel}
     onclick={toggleOpen}
     onkeydown={onKeyDown}>
     <span class="grow">{selectLabel}</span>

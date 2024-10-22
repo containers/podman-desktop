@@ -27,7 +27,7 @@ import DropdownTest from './DropdownTest.svelte';
 test('a button is created', async () => {
   render(Dropdown, { ariaLabel: 'Dropdown' });
 
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).toBeInTheDocument();
 });
 
@@ -37,7 +37,7 @@ test('initial value is visible', async () => {
     ariaLabel: 'Dropdown',
   });
 
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).toBeInTheDocument();
   expect(input).toHaveTextContent('a value');
 });
@@ -45,7 +45,7 @@ test('initial value is visible', async () => {
 test('opening dropdown does not submit forms (prevents default button action)', async () => {
   render(Dropdown, { ariaLabel: 'Dropdown' });
 
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).toBeInTheDocument();
 
   const event = createEvent.click(input);
@@ -59,7 +59,7 @@ test('disabling changes state and styling', async () => {
     ariaLabel: 'Dropdown',
   });
 
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).toBeInTheDocument();
   expect(input).toBeDisabled();
   expect(input).toHaveClass('text-[color:var(--pd-input-field-disabled-text)]');
@@ -69,13 +69,13 @@ test('disabling changes state and styling', async () => {
 test('initial focus is not set by default', async () => {
   render(Dropdown, { ariaLabel: 'Dropdown' });
 
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).not.toHaveFocus();
 });
 
 test('should be able to navigate with keys', async () => {
   render(DropdownTest);
-  const input = screen.getByRole('button', { name: 'Dropdown Button' });
+  const input = screen.getByRole('button', { name: 'Dropdown' });
   expect(input).toBeInTheDocument();
   expect(input).toHaveTextContent('initial value');
   input.focus();
