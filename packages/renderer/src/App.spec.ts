@@ -201,8 +201,16 @@ test('go to last kubernetes page when available', async () => {
   expect(mocks.DeploymentsList).toHaveBeenCalled();
 });
 
-test('go to nodes page when last kubernetes page not available', async () => {
+test('go to nodes page when last kubernetes page is /kubernetes', async () => {
   lastSubmenuPages.set({ Kubernetes: '/kubernetes' });
+  render(App);
+  router.goto('/kubernetes');
+  await tick();
+  expect(mocks.NodesList).toHaveBeenCalled();
+});
+
+test('go to nodes page when last kubernetes page not available', async () => {
+  lastSubmenuPages.set({});
   render(App);
   router.goto('/kubernetes');
   await tick();

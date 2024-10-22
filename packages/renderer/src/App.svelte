@@ -237,7 +237,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
            we use router.goto to preserve the navbar remembering the navigation location. 
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
-            {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/nodes' : $lastSubmenuPages['Kubernetes'])}
+            {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/nodes' : ($lastSubmenuPages['Kubernetes'] ?? '/kubernetes/nodes'))}
           </Route>
           <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
             <NodesList />
