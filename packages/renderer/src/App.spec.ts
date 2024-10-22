@@ -202,7 +202,7 @@ test('go to last kubernetes page when available', async () => {
 });
 
 test('go to nodes page when last kubernetes page not available', async () => {
-  lastSubmenuPages.set({});
+  lastSubmenuPages.set({ Kubernetes: '/kubernetes' });
   render(App);
   router.goto('/kubernetes');
   await tick();

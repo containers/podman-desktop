@@ -84,18 +84,3 @@ test('set up and update lastSubmenuPages store for each submenu', async () => {
 
   expect(get(lastSubmenuPages)['page 1']).toBe('/page1');
 });
-
-test('set up kubernetes nodes page as the first default kubernetes page', async () => {
-  lastSubmenuPages.set({});
-  render(SubmenuNavigation, {
-    title: 'Kubernetes',
-    items: [],
-    meta: {
-      url: '/link1/subpath',
-    } as TinroRouteMeta,
-    link: '/kubernetes',
-  });
-  await tick();
-
-  expect(get(lastSubmenuPages)['Kubernetes']).toBe('/kubernetes/nodes');
-});

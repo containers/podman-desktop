@@ -12,8 +12,7 @@ export let meta: TinroRouteMeta;
 
 let pages = $lastSubmenuPages;
 if (!pages[title]) {
-  let defaultLink = link === '/kubernetes' ? '/kubernetes/nodes' : link;
-  pages[title] = defaultLink;
+  pages[title] = link;
   lastSubmenuPages.set(pages);
 }
 </script>
