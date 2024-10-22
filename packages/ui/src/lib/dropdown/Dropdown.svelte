@@ -191,6 +191,7 @@ function onWindowClick(e: Event): void {
     class:group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]={!disabled}
     disabled={disabled}
     id={id}
+    aria-label={`${ariaLabel} Button`}
     name={name}
     onclick={toggleOpen}
     onkeydown={onKeyDown}>
