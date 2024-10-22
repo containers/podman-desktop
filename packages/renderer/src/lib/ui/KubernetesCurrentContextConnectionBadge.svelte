@@ -21,7 +21,7 @@ function getClassColor(state?: ContextGeneralState): string {
 }
 
 $: text = getText($kubernetesCurrentContextState);
-$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
+$: currentContextName = $kubernetesContexts?.find(c => c.currentContext)?.name;
 </script>
 
 {#if $kubernetesCurrentContextState}

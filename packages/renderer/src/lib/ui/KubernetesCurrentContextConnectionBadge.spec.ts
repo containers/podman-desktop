@@ -20,10 +20,14 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
+import { type Writable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts';
+import * as kubeContextStateStore from '/@/stores/kubernetes-contexts-state';
+import type { KubeContext } from '/@api/kubernetes-context';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
 const mocks = vi.hoisted(() => ({
@@ -40,6 +44,11 @@ vi.mock('../../stores/kubernetes-contexts-state', () => ({
   },
 }));
 
+vi.mock('/@/stores/kubernetes-contexts');
+
+let delayed: Writable<Map<string, boolean>>;
+let contexts: Writable<KubeContext[]>;
+
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.subscribeMock.mockImplementation(listener => {
@@ -49,6 +58,11 @@ beforeEach(() => {
 
   (window as any).events = mocks.eventsMocks;
   (window as any).kubernetesGetContextsGeneralState = mocks.getCurrentKubeContextState;
+
+  delayed = writable<Map<string, boolean>>();
+  vi.mocked(kubeContextStateStore).kubernetesContextsCheckingStateDelayed = delayed;
+  contexts = writable<KubeContext[]>();
+  vi.mocked(kubeContextStore).kubernetesContexts = contexts;
 });
 
 test('expect no badges shown as no context has been provided.', async () => {
@@ -138,4 +152,46 @@ test('expect tooltip when error', async () => {
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
+});
+
+test('spinner should be displayed when and only when the context connectivity is being checked', async () => {
+  contexts.set([
+    {
+      name: 'context1',
+      cluster: 'cluster1',
+      user: 'user1',
+      currentContext: true,
+    },
+  ]);
+  mocks.getCurrentKubeContextState.mockReturnValue({
+    error: 'error message',
+    reachable: false,
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
+  } as ContextGeneralState); // no current ContextState
+  render(KubernetesCurrentContextConnectionBadge);
+
+  expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
+  let checking = screen.queryByLabelText('Loading');
+  expect(checking).toBeNull();
+
+  // context is being checked
+  delayed.set(new Map<string, boolean>([['context1', true]]));
+
+  // spinner should appear
+  await waitFor(() => {
+    checking = screen.queryByLabelText('Loading');
+    expect(checking).not.toBeNull();
+  });
+
+  // context is not being checked anymore
+  delayed.set(new Map<string, boolean>([['context1', false]]));
+
+  // spinner should disappear
+  await waitFor(() => {
+    checking = screen.queryByLabelText('Loading');
+    expect(checking).toBeNull();
+  });
 });
