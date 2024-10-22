@@ -30,7 +30,7 @@ export class CreateKindClusterPage extends BasePage {
   readonly clusterCreationButton: Locator;
   readonly goBackButton: Locator;
   readonly logsButton: Locator;
-  readonly providerType: Locator;
+  readonly providerTypeButton: Locator;
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
@@ -50,7 +50,7 @@ export class CreateKindClusterPage extends BasePage {
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
-    this.providerType = this.clusterPropertiesInformation.getByRole('button', { name: 'Provider Type' });
+    this.providerTypeButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Provider Type Button' });
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
@@ -60,8 +60,8 @@ export class CreateKindClusterPage extends BasePage {
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
-    await playExpect(this.providerType).toBeVisible();
-    await playExpect(this.providerType).toHaveText('podman');
+    await playExpect(this.providerTypeButton).toBeVisible();
+    await playExpect(this.providerTypeButton).toHaveText('podman');
     await playExpect(this.httpPort).toBeVisible();
     await playExpect(this.httpPort).toHaveValue('9090');
     await playExpect(this.httpsPort).toBeVisible();
@@ -81,12 +81,19 @@ export class CreateKindClusterPage extends BasePage {
     await this.fillTextbox(this.clusterNameField, clusterName);
 
     if (providerType) {
+<<<<<<< HEAD
       await playExpect(this.providerType).toBeEnabled();
       await this.providerType.click();
       const providerTypeOption = this.page.getByRole('button', { name: providerType, exact: true });
       await playExpect(providerTypeOption).tobeEnabled();
+=======
+      await playExpect(this.providerTypeButton).toBeVisible();
+      await this.providerTypeButton.click();
+      const providerTypeOption = this.page.getByRole('button', { name: providerType });
+      await playExpect(providerTypeOption).toBeVisible();
+>>>>>>> 191acbd2 (fix: aria-label)
       await providerTypeOption.click();
-      await playExpect(this.providerType).toHaveText(providerType);
+      await playExpect(this.providerTypeButton).toHaveText(providerType);
     }
 
     if (httpPort) {
