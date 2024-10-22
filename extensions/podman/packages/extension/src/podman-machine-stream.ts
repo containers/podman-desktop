@@ -19,6 +19,7 @@
 import * as fs from 'node:fs';
 
 import type {
+  Disposable,
   Event,
   ProviderConnectionShellAccess,
   ProviderConnectionShellAccessData,
@@ -32,7 +33,7 @@ import { Client } from 'ssh2';
 
 import type { MachineInfo } from './extension';
 
-export class ProviderConnectionShellAccessImpl implements ProviderConnectionShellAccess {
+export class ProviderConnectionShellAccessImpl implements ProviderConnectionShellAccess, Disposable {
   #host: string;
   #port: number;
   #username: string;
@@ -46,6 +47,10 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
     this.#port = podmanMachine.port;
     this.#username = podmanMachine.remoteUsername;
     this.#privateKey = podmanMachine.identityPath;
+  }
+
+  dispose(): void {
+    this.close();
   }
 
   protected isConnected(): boolean {
@@ -70,7 +75,7 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
     this.#stream?.setWindow(dimensions.rows, dimensions.cols, 0, 0);
   }
 
-  dispose(): void {
+  protected disposeListeners(): void {
     this.onDataEmit.dispose();
     this.onErrorEmit.dispose();
     this.onEndEmit.dispose();
@@ -80,13 +85,13 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
     this.#connected = false;
     this.#client?.end();
     this.#client?.destroy();
-    this.dispose();
+    this.disposeListeners();
   }
 
   open(): ProviderConnectionShellAccessSession {
     // Avoid multiple connections
     if (this.#connected) {
-      this.dispose();
+      this.disposeListeners();
       return {
         onData: this.onData,
         onError: this.onError,
