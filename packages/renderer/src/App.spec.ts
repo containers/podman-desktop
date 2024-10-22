@@ -40,8 +40,6 @@ const mocks = vi.hoisted(() => ({
   NodesList: vi.fn(),
 }));
 
-const getConfigurationValueMock = vi.fn();
-
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
   default: mocks.DashboardPage,
 }));
@@ -99,7 +97,7 @@ beforeEach(() => {
     }),
   };
   (window as any).dispatchEvent = dispatchEventMock;
-  (window.getConfigurationValue as unknown) = getConfigurationValueMock;
+  (window.getConfigurationValue as unknown) = vi.fn();
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable({
     reachable: false,
     error: 'initializing',
