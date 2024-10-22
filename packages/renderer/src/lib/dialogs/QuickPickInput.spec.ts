@@ -344,4 +344,60 @@ describe('QuickPickInput', () => {
     expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
     expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, -1);
   });
+
+  test('Expect item label to have ellipsis class', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: [
+        { label: 'item1', description: 'my description1', detail: 'my detail1' },
+        { label: 'item2', description: 'my description2', detail: 'my detail2' },
+      ],
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    const { getByText } = render(QuickPickInput, {});
+
+    const item1 = getByText('item1');
+    expect(item1).toBeDefined();
+    expect(item1.classList).toContain('overflow-hidden');
+    expect(item1.classList).toContain('text-ellipsis');
+  });
+
+  test('Expect item button to have full label in title', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: [
+        { label: 'item1', description: 'my description1', detail: 'my detail1' },
+        { label: 'item2', description: 'my description2', detail: 'my detail2' },
+      ],
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    const { getByTitle } = render(QuickPickInput, {});
+
+    const item1 = getByTitle('Select item1');
+    expect(item1).toBeDefined();
+  });
 });
