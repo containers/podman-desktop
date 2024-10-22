@@ -81,10 +81,10 @@ export class CreateKindClusterPage extends BasePage {
     await this.fillTextbox(this.clusterNameField, clusterName);
 
     if (providerType) {
-      await playExpect(this.providerType).toBeVisible();
+      await playExpect(this.providerType).toBeEnabled();
       await this.providerType.click();
-      const providerTypeOption = this.page.getByRole('button', { name: providerType });
-      await playExpect(providerTypeOption).toBeVisible();
+      const providerTypeOption = this.page.getByRole('button', { name: providerType, exact: true });
+      await playExpect(providerTypeOption).tobeEnabled();
       await providerTypeOption.click();
       await playExpect(this.providerType).toHaveText(providerType);
     }
