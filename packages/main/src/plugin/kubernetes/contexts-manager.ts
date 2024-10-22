@@ -294,7 +294,7 @@ export class ContextsManager {
           resources: { pods: true },
           update: state => {
             if (state.resources.pods.some(o => o.metadata?.uid !== obj.metadata?.uid)) {
-              console.debug(`pod ${obj.metadata?.name} already added in context ${this.kubeConfig.currentContext}`);
+              console.debug(`pod ${obj.metadata?.name} already added in context ${context.name}`);
             }
             state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
             state.resources.pods.push(obj);
@@ -334,24 +334,20 @@ export class ContextsManager {
             if (reachable) {
               for (const resourceName of secondaryResources) {
                 if (this.secondaryWatchers.hasSubscribers(resourceName)) {
-                  this.startResourceInformer(this.kubeConfig.currentContext, resourceName);
+                  this.startResourceInformer(context.name, resourceName);
                 }
               }
             } else {
               // Delete secondary informers
               this.informers
-                .disposeSecondaryInformers(this.kubeConfig.currentContext)
+                .disposeSecondaryInformers(context.name)
                 .catch((err: unknown) =>
-                  console.error(
-                    `error disposing secondary informers for context ${this.kubeConfig.currentContext}: ${String(err)}`,
-                  ),
+                  console.error(`error disposing secondary informers for context ${context.name}: ${String(err)}`),
                 );
               this.states
-                .disposeSecondaryStates(this.kubeConfig.currentContext)
+                .disposeSecondaryStates(context.name)
                 .catch((err: unknown) =>
-                  console.error(
-                    `error disposing secondary states for context ${this.kubeConfig.currentContext}: ${String(err)}`,
-                  ),
+                  console.error(`error disposing secondary states for context ${context.name}: ${String(err)}`),
                 );
             }
           },

@@ -35,6 +35,8 @@ const PODS_DEFAULT = 3;
 const DEPLOYMENTS_NS1 = 4;
 const DEPLOYMENTS_NS2 = 5;
 const DEPLOYMENTS_DEFAULT = 6;
+const NODES_CONTEXT1 = 1;
+const NODES_CONTEXT2 = 2;
 
 class TestContextsManager extends ContextsManager {
   getStates(): ContextsStatesRegistry {
@@ -77,6 +79,14 @@ function fakeMakeInformer(
       return buildFakeInformer(DEPLOYMENTS_NS2);
     case '/apis/apps/v1/namespaces/default/deployments':
       return buildFakeInformer(DEPLOYMENTS_DEFAULT);
+
+    case '/api/v1/nodes':
+      switch (kubeconfig.currentContext) {
+        case 'context1':
+          return buildFakeInformer(NODES_CONTEXT1);
+        case 'context2':
+          return buildFakeInformer(NODES_CONTEXT2);
+      }
   }
   return buildFakeInformer(0);
 }
@@ -2342,7 +2352,75 @@ describe('update', async () => {
       expect.anything(),
     );
   });
+
+  test('switch from non reachable to reachable context should send correct data for second informers', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    client = new TestContextsManager(apiSender);
+
+    // nodes informer are registered from frontend
+    client.registerGetCurrentContextResources('nodes');
+
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+        {
+          name: 'cluster2',
+          server: 'server2',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+        {
+          name: 'user2',
+        },
+      ],
+      contexts: [
+        {
+          name: `context1`,
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+        {
+          name: `context2`,
+          cluster: 'cluster2',
+          user: 'user2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+
+    // Start with a non reachable context
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+    apiSenderSendMock.mockClear();
+
+    // Switch to reachable context
+
+    config.currentContext = 'context2';
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
+    await client.update(kubeConfig2);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-nodes-update', [
+      { metadata: { uid: '0' } },
+      { metadata: { uid: '1' } },
+    ]);
+    vi.advanceTimersByTime(100_000);
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+  });
 });
+
 describe('isContextInKubeconfig', () => {
   let client: ContextsManager;
   beforeAll(async () => {
