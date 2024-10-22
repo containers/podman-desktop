@@ -73,7 +73,7 @@ function validate(event: any) {
       </select>
     </label>
 
-    {#if proxySettings}
+    {#if proxyState !== ProxyState.PROXY_SYSTEM}
       <div class="space-y-2">
         <label
           for="httpProxy"
