@@ -192,6 +192,7 @@ function onWindowClick(e: Event): void {
     disabled={disabled}
     id={id}
     name={name}
+    aria-label={`${ariaLabel} Button`}
     onclick={toggleOpen}
     onkeydown={onKeyDown}>
     <span class="grow">{selectLabel}</span>

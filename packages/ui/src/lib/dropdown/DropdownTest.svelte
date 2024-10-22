@@ -2,7 +2,7 @@
 import Dropdown from './Dropdown.svelte';
 </script>
 
-<Dropdown value="initial value">
+<Dropdown value="initial value" ariaLabel="Dropdown">
   <option value="a">A</option>
   <option value="b">B</option>
   <option value="c">C</option>
