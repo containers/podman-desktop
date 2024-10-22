@@ -95,14 +95,40 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
   };
 });
 
-// Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
+const connectTimeoutMock = vi.fn();
+const backoffInitialValueMock = vi.fn();
+const backoffMultiplierMock = vi.fn();
+const backoffMultiplierCurrentContextMock = vi.fn();
+const backoffLimitMock = vi.fn();
+const backoffLimitCurrentContextMock = vi.fn();
+const backoffJitterMock = vi.fn();
+const dispatchTimeoutMock = vi.fn();
 vi.mock('./contexts-constants.js', () => {
   return {
-    connectTimeout: 1,
-    backoffInitialValue: 10000,
-    backoffLimit: 1000,
-    backoffJitter: 0,
-    dispatchTimeout: 1,
+    get connectTimeout(): number {
+      return connectTimeoutMock();
+    },
+    get backoffInitialValue(): number {
+      return backoffInitialValueMock();
+    },
+    get backoffMultiplier(): number {
+      return backoffMultiplierMock();
+    },
+    get backoffMultiplierCurrentContext(): number {
+      return backoffMultiplierCurrentContextMock();
+    },
+    get backoffLimit(): number {
+      return backoffLimitMock();
+    },
+    get backoffLimitCurrentContext(): number {
+      return backoffLimitCurrentContextMock();
+    },
+    get backoffJitter(): number {
+      return backoffJitterMock();
+    },
+    get dispatchTimeout(): number {
+      return dispatchTimeoutMock();
+    },
   };
 });
 
@@ -112,11 +138,20 @@ const consoleDebugMock = vi.fn();
 beforeEach(() => {
   console.debug = consoleDebugMock;
   vi.useFakeTimers();
+  // Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
+  connectTimeoutMock.mockReturnValue(1);
+  backoffInitialValueMock.mockReturnValue(10000);
+  backoffMultiplierMock.mockReturnValue(2.0);
+  backoffMultiplierCurrentContextMock.mockReturnValue(1.2);
+  backoffLimitMock.mockReturnValue(1000);
+  backoffLimitCurrentContextMock.mockReturnValue(1000);
+  backoffJitterMock.mockReturnValue(0);
+  dispatchTimeoutMock.mockReturnValue(1);
 });
 
 afterEach(() => {
   console.debug = originalConsoleDebug;
-  vi.resetAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('update', async () => {
