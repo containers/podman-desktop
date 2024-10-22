@@ -159,9 +159,7 @@ function onInstallationClick() {
           <ul class="w-full outline-none bg-[var(--pd-dropdown-bg)] rounded-sm placeholder-[var(--pd-content-text)]">
             <li>
               <button
-                class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
-                  ? 'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)]'
-                  : 'bg-[var(--pd-button-tertiary)] text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
+                class="w-full p-2 bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeOnlyMode;
                   installationOptionsMenuVisible = false;
@@ -172,9 +170,7 @@ function onInstallationClick() {
             </li>
             <li>
               <button
-                class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
-                  ? 'bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)]'
-                  : 'bg-[var(--pd-button-tertiary)] text-[var(--pd-content-text)]'} hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
+                class="w-full p-2 bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeAndStartMode;
                   installationOptionsMenuVisible = false;
