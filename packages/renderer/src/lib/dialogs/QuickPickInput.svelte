@@ -288,7 +288,7 @@ function handleKeydown(e: KeyboardEvent) {
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this={outerDiv}
-        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm overflow-hidden">
         {#if title}
           <div
             aria-label="title"
@@ -344,12 +344,13 @@ function handleKeydown(e: KeyboardEvent) {
                 <Checkbox class="mx-1 my-auto" bind:checked={item.checkbox} />
               {/if}
               <button
+                title="Select {item.value}"
                 on:click={() => clickQuickPickItem(item, i)}
                 class="text-[var(--pd-modal-dropdown-text)] text-left relative my-1 w-full px-1">
                 <div class="flex flex-col w-full">
                   <!-- first row is Value + optional description-->
                   <div class="flex flex-row w-full max-w-[700px] truncate">
-                    <div class="font-bold">{item.value}</div>
+                    <div class="font-bold overflow-hidden text-ellipsis">{item.value}</div>
                     {#if item.description}
                       <div class="text-[var(--pd-modal-dropdown-text)] text-xs ml-2">{item.description}</div>
                     {/if}
