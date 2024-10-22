@@ -3,11 +3,12 @@ import '@xterm/xterm/css/xterm.css';
 
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import { onMount } from 'svelte';
+import { mount, onDestroy, onMount } from 'svelte';
 
 import { isMultiplexedLog } from '../stream/stream-utils';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
+import ContainerDetailsLogsClear from './ContainerDetailsLogsClear.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let container: ContainerInfoUI;
@@ -28,6 +29,7 @@ $: {
   }
   refContainer = container;
 }
+let terminalParentDiv: HTMLDivElement;
 
 let logsTerminal: Terminal;
 
@@ -54,8 +56,27 @@ async function fetchContainerLogs() {
   await window.logsContainer({ engineId: container.engineId, containerId: container.id, callback });
 }
 
+function afterTerminalInit(): void {
+  // mount the svelte5 component to the terminal xterm element
+  let xtermElement = terminalParentDiv.querySelector('.xterm');
+  if (!xtermElement) {
+    xtermElement = terminalParentDiv;
+  }
+  // add svelte component using this xterm element
+  mount(ContainerDetailsLogsClear, {
+    target: xtermElement,
+    props: {
+      terminal: logsTerminal,
+    },
+  });
+}
+
 onMount(async () => {
   await fetchContainerLogs();
+});
+
+onDestroy(() => {
+  logsTerminal?.dispose();
 });
 </script>
 
@@ -65,6 +86,7 @@ onMount(async () => {
   class="min-w-full flex flex-col"
   class:invisible={noLogs === true}
   class:h-0={noLogs === true}
-  class:h-full={noLogs === false}>
-  <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn />
+  class:h-full={noLogs === false}
+  bind:this={terminalParentDiv}>
+  <TerminalWindow on:init={afterTerminalInit} class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn />
 </div>
