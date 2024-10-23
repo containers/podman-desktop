@@ -287,6 +287,9 @@ jobs:
   smoke-e2e-tests:
     name: smoke e2e tests
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        mode: [production, development]
     steps:
       - uses: actions/checkout@v4
 
@@ -319,13 +322,30 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
+      - name: Build Podman Desktop for E2E tests Production Mode
+        if: ${{ matrix.mode == 'production' }}
+        env:
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          pnpm compile:current --linux dir
+          path=$(realpath ./dist/linux-unpacked/podman-desktop)
+          echo "Podman Desktop built binary: $path"
+          echo "PODMAN_DESKTOP_BINARY_PATH=$path" >> $GITHUB_ENV
+
       - name: Run E2E smoke tests
+        if: ${{ matrix.mode == 'development' }}
+        run: pnpm test:e2e:smoke
+
+      - name: Run Smoke E2E tests in Production mode
+        if: ${{ matrix.mode == 'production' }}
+        env:
+          PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY_PATH }}
         run: pnpm test:e2e:smoke
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: smoke-e2e-tests
+          name: ${{ matrix.mode }}-smoke-e2e-tests
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
