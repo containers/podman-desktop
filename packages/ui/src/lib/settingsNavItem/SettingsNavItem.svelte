@@ -9,6 +9,7 @@ export let expanded = false;
 export let child = false;
 export let selected: boolean = false;
 export let icon: IconDefinition | undefined = undefined;
+export let onClick: () => void = () => {};
 
 function rotate(
   node: unknown,
@@ -30,6 +31,7 @@ function rotate(
 
 function click(): void {
   expanded = !expanded;
+  onClick();
 }
 </script>
 
