@@ -2,8 +2,9 @@
 import type { V1NodeStatus } from '@kubernetes/client-node';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
-import Subtitle from '/@/lib/details/DetailsSubtitle.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
+
+import ConditionsTable from './ConditionsTable.svelte';
 
 export let artifact: V1NodeStatus | undefined;
 </script>
@@ -61,27 +62,7 @@ export let artifact: V1NodeStatus | undefined;
     <tr>
       <Title>Conditions</Title>
     </tr>
-    {#each artifact.conditions as condition}
-      <tr>
-        <Subtitle>{condition.reason}</Subtitle>
-      </tr>
-      <tr>
-        <Cell>Type</Cell>
-        <Cell>{condition.type}</Cell>
-      </tr>
-      <tr>
-        <Cell>Status</Cell>
-        <Cell>{condition.status}</Cell>
-      </tr>
-      <tr>
-        <Cell>Reason</Cell>
-        <Cell>{condition.reason}</Cell>
-      </tr>
-      <tr>
-        <Cell>Message</Cell>
-        <Cell>{condition.message}</Cell>
-      </tr>
-    {/each}
+    <ConditionsTable conditions={artifact.conditions} />
   {/if}
   {#if artifact.addresses}
     <tr>
