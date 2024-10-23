@@ -1,11 +1,10 @@
 <script lang="ts">
 import type { V1DeploymentStatus } from '@kubernetes/client-node';
-import humanizeDuration from 'humanize-duration';
-import moment from 'moment';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
-import Table from '/@/lib/details/DetailsTable.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
+
+import ConditionsTable from './ConditionsTable.svelte';
 
 export let artifact: V1DeploymentStatus | undefined;
 </script>
@@ -25,23 +24,6 @@ export let artifact: V1DeploymentStatus | undefined;
     <tr>
       <Title>Conditions</Title>
     </tr>
-    <tr>
-      <td colspan="2">
-        <Table>
-          <tr>
-            <th align="left">Type</th><th align="left">Status</th><th align="left">Updated</th><th align="left">Reason</th><th align="left">Message</th>
-          </tr>
-          {#each artifact.conditions as condition}
-            <tr>
-              <td>{condition.type}</td>
-              <td>{condition.status}</td>
-              <td>{humanizeDuration(moment().diff(condition.lastTransitionTime), { round: true, largest: 1 })}</td>
-              <td>{condition.reason}</td>
-              <td>{condition.message}</td>
-            </tr>
-          {/each}
-        </Table>
-      </td>
-    </tr>
+    <ConditionsTable conditions={artifact.conditions} />
   {/if}
 {/if}
