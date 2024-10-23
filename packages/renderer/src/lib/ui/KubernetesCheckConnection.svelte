@@ -2,12 +2,11 @@
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 
+import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import {
   kubernetesContextsCheckingStateDelayed,
   kubernetesCurrentContextState,
 } from '/@/stores/kubernetes-contexts-state';
-
-import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 
 let currentContextName: string | undefined;
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
