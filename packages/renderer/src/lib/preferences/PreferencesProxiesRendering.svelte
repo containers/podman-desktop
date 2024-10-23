@@ -79,58 +79,58 @@ function validate(event: any) {
       </select>
     </label>
 
-      <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
-            ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Web Proxy (HTTP):</label>
-        <Input
-          name="httpProxy"
-          id="httpProxy"
-          disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={httpProxy}
-          placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
-          required
-          on:input={event => validate(event)} />
-        {#if httpProxyError}
-          <ErrorMessage error={httpProxyError} />
-        {/if}
-      </div>
-      <div class="space-y-2">
-        <label
-          for="httpsProxy"
-          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
-            ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
-        <Input
-          name="httpsProxy"
-          id="httpsProxy"
-          disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={httpsProxy}
-          placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
-          required
-          on:input={event => validate(event)} />
-        {#if httpsProxyError}
-          <ErrorMessage error={httpsProxyError} />
-        {/if}
-      </div>
-      <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
-            ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
-        <Input
-          name="noProxy"
-          id="noProxy"
-          disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={noProxy}
-          placeholder="Example: *.domain.com, 192.168.*.*"
-          required />
-      </div>
-      <div class="my-2 pt-4">
-        <Button on:click={updateProxySettings} class="w-full" icon={faPen}>Update</Button>
-      </div>
+    <div class="space-y-2">
+      <label
+        for="httpProxy"
+        class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+          ? 'text-[var(--pd-invert-content-card-text)]'
+          : 'text-gray-900'}">Web Proxy (HTTP):</label>
+      <Input
+        name="httpProxy"
+        id="httpProxy"
+        disabled={proxyState !== ProxyState.PROXY_MANUAL}
+        bind:value={httpProxy}
+        placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
+        required
+        on:input={event => validate(event)} />
+      {#if httpProxyError}
+        <ErrorMessage error={httpProxyError} />
+      {/if}
+    </div>
+    <div class="space-y-2">
+      <label
+        for="httpsProxy"
+        class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+          ? 'text-[var(--pd-invert-content-card-text)]'
+          : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
+      <Input
+        name="httpsProxy"
+        id="httpsProxy"
+        disabled={proxyState !== ProxyState.PROXY_MANUAL}
+        bind:value={httpsProxy}
+        placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
+        required
+        on:input={event => validate(event)} />
+      {#if httpsProxyError}
+        <ErrorMessage error={httpsProxyError} />
+      {/if}
+    </div>
+    <div class="space-y-2">
+      <label
+        for="httpProxy"
+        class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
+          ? 'text-[var(--pd-invert-content-card-text)]'
+          : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
+      <Input
+        name="noProxy"
+        id="noProxy"
+        disabled={proxyState !== ProxyState.PROXY_MANUAL}
+        bind:value={noProxy}
+        placeholder="Example: *.domain.com, 192.168.*.*"
+        required />
+    </div>
+    <div class="my-2 pt-4">
+      <Button on:click={updateProxySettings} class="w-full" icon={faPen}>Update</Button>
+    </div>
   </div>
 </SettingsPage>
