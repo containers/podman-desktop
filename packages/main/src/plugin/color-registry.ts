@@ -256,6 +256,8 @@ export class ColorRegistry {
     this.initStates();
     this.initFiles();
     this.initTerminal();
+    this.initProgressBar();
+    this.initBadge();
   }
 
   protected initDefaults(): void {
@@ -1424,6 +1426,42 @@ export class ColorRegistry {
       light: colorPalette.sky[600],
     });
     this.registerColor(`${terminal}ansiBrightWhite`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
+  }
+
+  protected initProgressBar(): void {
+    const pb = 'progressBar-';
+    this.registerColor(`${pb}bg`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[700],
+    });
+    this.registerColor(`${pb}in-progress-bg`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${pb}text`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+  }
+
+  protected initBadge(): void {
+    const badge = 'badge-';
+    this.registerColor(`${badge}builtin-extension-bg`, {
+      dark: colorPalette.sky[200],
+      light: colorPalette.sky[200],
+    });
+    this.registerColor(`${badge}builtin-extension-text`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.charcoal[800],
+    });
+    this.registerColor(`${badge}dd-extension-bg`, {
+      dark: colorPalette.sky[600],
+      light: colorPalette.sky[600],
+    });
+    this.registerColor(`${badge}dd-extension-text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
     });
