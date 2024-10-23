@@ -52,9 +52,7 @@ export class CreateKindClusterPage extends BasePage {
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
-    this.providerTypeCombobox = this.clusterPropertiesInformation
-      .getByRole('button')
-      .and(this.clusterPropertiesInformation.getByLabel('Provider Type'));
+    this.providerTypeCombobox = this.clusterPropertiesInformation.getByLabel('Provider Type');
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
@@ -68,7 +66,7 @@ export class CreateKindClusterPage extends BasePage {
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     await this.fillTextbox(this.clusterNameField, clusterName);
-    await playExpect(this.providerTypeCombobox).toHaveValue('podman');
+    await playExpect(this.providerTypeCombobox).toContainText('podman');
     await playExpect(this.httpPort).toHaveValue('9090');
     await playExpect(this.httpsPort).toHaveValue('9443');
     await playExpect(this.controllerCheckbox).toBeChecked();
