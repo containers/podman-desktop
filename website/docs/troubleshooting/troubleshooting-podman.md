@@ -245,7 +245,7 @@ After uninstalling Podman Desktop, the configuration data persists even though i
 
 **_Deleting Podman Desktop configuration_**
 
-- Go to the `~/.local/share/containers/podman-desktop/` directory and delete the _configuration_ folder.
+- Go to the `~/.local/share/containers/podman-desktop/` directory and delete the `configuration` folder.
 
 **_Deleting Podman configuration_**  
 
