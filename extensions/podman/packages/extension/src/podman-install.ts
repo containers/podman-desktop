@@ -456,10 +456,13 @@ export class WinInstaller extends BaseInstaller {
       new WinBitCheck(),
       new WinVersionCheck(),
       new WinMemoryCheck(),
-      new VirtualMachinePlatformCheck(),
       new OrCheck(
         'Windows virtualization',
-        new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check(this.extensionContext)]),
+        new SequenceCheck('WSL platform', [
+          new VirtualMachinePlatformCheck(),
+          new WSLVersionCheck(),
+          new WSL2Check(this.extensionContext),
+        ]),
         new HyperVCheck(true),
       ),
     ];
@@ -638,7 +641,7 @@ class WinMemoryCheck extends BaseCheck {
   }
 }
 
-class VirtualMachinePlatformCheck extends BaseCheck {
+export class VirtualMachinePlatformCheck extends BaseCheck {
   title = 'Virtual Machine Platform Enabled';
 
   async execute(): Promise<extensionApi.CheckResult> {
