@@ -1753,7 +1753,7 @@ export class KubernetesClient {
 
   protected ensurePortForwardService(): KubernetesPortForwardService {
     if (this.#portForwardService === undefined) {
-      this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this);
+      this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this, this.apiSender);
     }
     return this.#portForwardService;
   }
