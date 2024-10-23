@@ -18,6 +18,8 @@
 
 import type {
   Context,
+  CoreV1Event,
+  CoreV1EventList,
   Informer,
   KubernetesListObject,
   KubernetesObject,
@@ -50,7 +52,7 @@ import {
 } from '@kubernetes/client-node';
 
 import type { KubeContext } from '/@api/kubernetes-context.js';
-import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { ContextGeneralState, ResourceName, WatchedObjects } from '/@api/kubernetes-contexts-states.js';
 import { secondaryResources } from '/@api/kubernetes-contexts-states.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
@@ -106,7 +108,7 @@ export class ContextsManager {
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 
-  private connectTimers = new Map<ResourceName, NodeJS.Timeout | undefined>();
+  private connectTimers = new Map<WatchedObjects, NodeJS.Timeout | undefined>();
   private connectionDelayTimers = new Map<string, NodeJS.Timeout | undefined>();
 
   private disposed = false;
@@ -116,7 +118,7 @@ export class ContextsManager {
   }
 
   setConnectionTimers(
-    resourceName: ResourceName,
+    resourceName: WatchedObjects,
     timer: NodeJS.Timeout | undefined,
     connectionDelay: NodeJS.Timeout | undefined,
   ): void {
@@ -193,6 +195,7 @@ export class ContextsManager {
       currentContextGeneralState: true,
       currentContext: this.kubeConfig.currentContext,
       resources: dispatchAllResources,
+      events: true,
     });
   }
 
@@ -220,7 +223,7 @@ export class ContextsManager {
     return result;
   }
 
-  startResourceInformer(contextName: string, resourceName: ResourceName): void {
+  startResourceInformer(contextName: string, resourceName: WatchedObjects): void {
     // this function is called from many places, we cannot guarantee
     // it is called only once, let's do nothing if the informer is already running
     if (this.informers.hasInformer(contextName, resourceName)) {
@@ -254,6 +257,9 @@ export class ContextsManager {
         break;
       case 'secrets':
         informer = this.createSecretInformer(this.kubeConfig, ns, context);
+        break;
+      case 'events':
+        informer = this.createEventInformer(this.kubeConfig, ns, context);
         break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
@@ -724,6 +730,55 @@ export class ContextsManager {
     });
   }
 
+  public createEventInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<CoreV1EventList> => k8sApi.listNamespacedEvent({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/events`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('events', timer, connectionDelay);
+    return this.createInformer<CoreV1Event>(kc, context, path, listFn, {
+      resource: 'events',
+      timer: timer,
+      backoff: this.getBackoffForContext(context.name),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          events: true,
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.events.push(obj);
+            }
+          },
+        });
+      },
+      onUpdate: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          events: true,
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.events = state.events.filter(o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid);
+              state.events.push(obj);
+            }
+          },
+        });
+      },
+      onDelete: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          events: true,
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.events = state.events.filter(d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid);
+            }
+          },
+        });
+      },
+    });
+  }
+
   private createInformer<T extends KubernetesObject>(
     kc: KubeConfig,
     context: KubeContext,
@@ -870,7 +925,17 @@ export class ContextsManager {
     return this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext);
   }
 
+  public registerGetCurrentContextEvents(): CoreV1Event[] {
+    return this.registerGetCurrentContextObject('events');
+  }
+
   public registerGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.registerGetCurrentContextObject(resourceName);
+  }
+
+  public registerGetCurrentContextObject(resourceName: 'events'): CoreV1Event[];
+  public registerGetCurrentContextObject(resourceName: ResourceName): KubernetesObject[];
+  public registerGetCurrentContextObject(resourceName: WatchedObjects): KubernetesObject[] | CoreV1Event[] {
     if (isSecondaryResourceName(resourceName)) {
       this.secondaryWatchers.subscribe(resourceName);
     }
@@ -879,7 +944,11 @@ export class ContextsManager {
     }
     if (this.informers.hasInformer(this.currentContext.name, resourceName)) {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
-      return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
+      if (resourceName === 'events') {
+        return this.states.getContextEvents(this.kubeConfig.currentContext);
+      } else {
+        return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
+      }
     }
     // start secondary informers only if current context is reachable
     if (this.states.isReachable(this.currentContext.name)) {
@@ -895,6 +964,11 @@ export class ContextsManager {
     if (isSecondaryResourceName(resourceName)) {
       this.secondaryWatchers.unsubscribe(resourceName);
     }
+    return [];
+  }
+
+  public unregisterGetCurrentContextEvents(): CoreV1Event[] {
+    this.secondaryWatchers.unsubscribe('events');
     return [];
   }
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { WatchedObjects } from '/@api/kubernetes-contexts-states.js';
 
 import type { CancellableInformer, ContextInternalState } from './contexts-states-registry.js';
 import { isSecondaryResourceName } from './contexts-states-registry.js';
@@ -28,7 +28,7 @@ export class ContextsInformersRegistry {
     return this.informers.has(name);
   }
 
-  hasInformer(context: string, resourceName: ResourceName): boolean {
+  hasInformer(context: string, resourceName: WatchedObjects): boolean {
     const informers = this.informers.get(context);
     return !!informers?.get(resourceName);
   }
@@ -39,7 +39,7 @@ export class ContextsInformersRegistry {
     }
   }
 
-  setResourceInformer(contextName: string, resourceName: ResourceName, informer: CancellableInformer): void {
+  setResourceInformer(contextName: string, resourceName: WatchedObjects, informer: CancellableInformer): void {
     const informers = this.informers.get(contextName);
     if (!informers) {
       throw new Error(`watchers for context ${contextName} not found`);

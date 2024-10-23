@@ -33,6 +33,7 @@ const deployment: DeploymentUI = {
   ready: 0,
   selected: false,
   conditions: [],
+  uid: '123',
 };
 
 test('Expect simple column styling', async () => {

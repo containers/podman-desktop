@@ -33,6 +33,7 @@ test('Expect simple column styling', async () => {
     ready: 0,
     selected: false,
     conditions: [],
+    uid: '123',
   };
   render(DeploymentColumnStatus, { object: deployment });
 

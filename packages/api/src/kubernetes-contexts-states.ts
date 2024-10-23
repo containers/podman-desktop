@@ -40,6 +40,7 @@ export const secondaryResources = [
 
 export type SecondaryResourceName = (typeof secondaryResources)[number];
 export type ResourceName = SelectedResourceName | SecondaryResourceName;
+export type WatchedObjects = ResourceName | 'events';
 
 export type SelectedResourceName = selectedResources[number];
 

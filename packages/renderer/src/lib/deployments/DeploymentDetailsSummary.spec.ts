@@ -33,6 +33,7 @@ const deploymentUI: DeploymentUI = {
   ready: 0,
   selected: false,
   conditions: [],
+  uid: '123',
 };
 
 const deployment: V1Deployment = {

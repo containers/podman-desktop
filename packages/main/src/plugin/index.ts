@@ -26,6 +26,7 @@ import * as path from 'node:path';
 import type {
   Cluster,
   Context as KubernetesContext,
+  CoreV1Event,
   KubernetesObject,
   V1ConfigMap,
   V1Deployment,
@@ -2535,12 +2536,20 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:registerGetCurrentContextEvents', async (_listener): Promise<CoreV1Event[]> => {
+      return kubernetesClient.registerGetCurrentContextEvents();
+    });
+
     this.ipcHandle(
       'kubernetes-client:unregisterGetCurrentContextResources',
       async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
         return kubernetesClient.unregisterGetCurrentContextResources(resourceName);
       },
     );
+
+    this.ipcHandle('kubernetes-client:unregisterGetCurrentContextEvents', async (_listener): Promise<CoreV1Event[]> => {
+      return kubernetesClient.unregisterGetCurrentContextEvents();
+    });
 
     const kubernetesExecCallbackMap = new Map<
       number,

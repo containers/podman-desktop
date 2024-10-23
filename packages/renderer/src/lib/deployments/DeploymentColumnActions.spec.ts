@@ -33,6 +33,7 @@ test('Expect action buttons', async () => {
     ready: 0,
     selected: false,
     conditions: [],
+    uid: '123',
   };
 
   render(DeploymentColumnActions, { object: deployment });
