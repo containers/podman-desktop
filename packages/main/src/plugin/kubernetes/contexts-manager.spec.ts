@@ -97,6 +97,23 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
+function contextHasBeenChecked(contextName: string): boolean {
+  for (const call of apiSenderSendMock.mock.calls) {
+    if (call[0] === 'kubernetes-contexts-checking-state-update') {
+      try {
+        const val: Map<string, CheckingState> = call[1];
+        const state = val.get(contextName);
+        if (state?.state === 'checking') {
+          return true;
+        }
+      } catch {
+        // noop
+      }
+    }
+  }
+  return false;
+}
+
 vi.mock('@kubernetes/client-node', async importOriginal => {
   const actual = await importOriginal<typeof kubeclient>();
   return {
@@ -2418,6 +2435,82 @@ describe('update', async () => {
     ]);
     vi.advanceTimersByTime(100_000);
     expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+  });
+
+  test('should use different backoff for current context', async () => {
+    connectTimeoutMock.mockReturnValue(1);
+    backoffInitialValueMock.mockReturnValue(10_000);
+    backoffMultiplierMock.mockReturnValue(5.0);
+    backoffMultiplierCurrentContextMock.mockReturnValue(1.0);
+    backoffLimitMock.mockReturnValue(100_000);
+    backoffLimitCurrentContextMock.mockReturnValue(100_000);
+    backoffJitterMock.mockReturnValue(0);
+    dispatchTimeoutMock.mockReturnValue(1);
+
+    vi.useFakeTimers();
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = new Error('err');
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+        {
+          name: 'cluster2',
+          server: 'server2',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+        {
+          name: 'user2',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+        {
+          name: 'context2',
+          cluster: 'cluster2',
+          user: 'user2',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersByTime(50);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(10_000);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(20_000);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeFalsy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(30_000);
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
   });
 });
 

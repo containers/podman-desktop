@@ -16,30 +16,42 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface BackoffOptions {
+  value: number;
+  multiplier: number;
+  max: number;
+  jitter?: number;
+}
+
 export class Backoff {
-  private readonly initial: number;
-  constructor(
-    public value: number,
-    private readonly max: number,
-    private readonly jitter: number,
-  ) {
-    this.initial = value;
-    this.value += this.getJitter();
+  #value: number;
+  readonly #initial: number;
+  readonly #multiplier: number;
+  readonly #max: number;
+  readonly #jitter: number;
+
+  constructor(options: BackoffOptions) {
+    this.#initial = options.value;
+    this.#value = options.value;
+    this.#multiplier = options.multiplier;
+    this.#max = options.max;
+    this.#jitter = options.jitter ?? 0;
+    this.#value += this.getJitter();
   }
   get(): number {
-    const current = this.value;
-    if (this.value < this.max) {
-      this.value *= 2;
-      this.value += this.getJitter();
+    const current = this.#value;
+    if (this.#value < this.#max) {
+      this.#value *= this.#multiplier;
+      this.#value += this.getJitter();
     }
     return current;
   }
   reset(): void {
-    this.value = this.initial + this.getJitter();
+    this.#value = this.#initial + this.getJitter();
   }
 
   private getJitter(): number {
     // eslint-disable-next-line sonarjs/pseudo-random
-    return Math.floor(this.jitter * Math.random());
+    return Math.floor(this.#jitter * Math.random());
   }
 }

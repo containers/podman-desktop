@@ -56,7 +56,15 @@ import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
-import { backoffInitialValue, backoffJitter, backoffLimit, connectTimeout } from './contexts-constants.js';
+import {
+  backoffInitialValue,
+  backoffJitter,
+  backoffLimit,
+  backoffLimitCurrentContext,
+  backoffMultiplier,
+  backoffMultiplierCurrentContext,
+  connectTimeout,
+} from './contexts-constants.js';
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
 import type { CancellableInformer, ContextInternalState } from './contexts-states-registry.js';
 import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
@@ -285,7 +293,7 @@ export class ContextsManager {
       checkReachable: true,
       resource: 'pods',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -378,7 +386,7 @@ export class ContextsManager {
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       resource: 'deployments',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -425,7 +433,7 @@ export class ContextsManager {
     return this.createInformer<V1ConfigMap>(kc, context, path, listFn, {
       resource: 'configmaps',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -467,7 +475,7 @@ export class ContextsManager {
     return this.createInformer<V1Secret>(kc, context, path, listFn, {
       resource: 'secrets',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -512,7 +520,7 @@ export class ContextsManager {
     return this.createInformer<V1PersistentVolumeClaim>(kc, context, path, listFn, {
       resource: 'persistentvolumeclaims',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -556,7 +564,7 @@ export class ContextsManager {
     return this.createInformer<V1Node>(kc, context, path, listFn, {
       resource: 'nodes',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -596,7 +604,7 @@ export class ContextsManager {
     return this.createInformer<V1Service>(kc, context, path, listFn, {
       resource: 'services',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -636,7 +644,7 @@ export class ContextsManager {
     return this.createInformer<V1Ingress>(kc, context, path, listFn, {
       resource: 'ingresses',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -682,7 +690,7 @@ export class ContextsManager {
     return this.createInformer<V1Route>(kc, context, path, listFn, {
       resource: 'routes',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -930,6 +938,24 @@ export class ContextsManager {
     }
     for (const timer of this.connectionDelayTimers.values()) {
       clearTimeout(timer);
+    }
+  }
+
+  private getBackoffForContext(contextName: string): Backoff {
+    if (contextName === this.kubeConfig.currentContext) {
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplierCurrentContext,
+        max: backoffLimitCurrentContext,
+        jitter: backoffJitter,
+      });
+    } else {
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplier,
+        max: backoffLimit,
+        jitter: backoffJitter,
+      });
     }
   }
 }
