@@ -64,7 +64,7 @@ function validate(event: any) {
     <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer"
       >Proxy configuration
       <select
-        class="p-2 outline-none text-sm bg-[var(--pd-invert-content-card-bg)] rounded-sm text-text-[var(--pd-content-text)] placeholder-text-[var(--pd-content-text)]"
+        class="p-2 outline-none text-sm bg-[var(--pd-invert-content-card-bg)] rounded-sm text-[var(--pd-content-text)] placeholder-[var(--pd-content-text)]"
         id="toggle-proxy"
         bind:value={proxyState}>
         <option value={ProxyState.PROXY_SYSTEM}>System</option>
