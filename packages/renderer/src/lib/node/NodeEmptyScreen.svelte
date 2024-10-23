@@ -5,6 +5,7 @@ import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-sta
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
 import NodeIcon from '../images/NodeIcon.svelte';
+import KubernetesCheckConnection from '../ui/KubernetesCheckConnection.svelte';
 
 // If the current context is CONNECTED and we are on this empty screen
 // say that you may not have permission to view the nodes on your cluster.
@@ -19,4 +20,6 @@ function getText(state: ContextGeneralState | undefined): string {
 $: text = getText($kubernetesCurrentContextState);
 </script>
 
-<EmptyScreen icon={NodeIcon} title="No nodes" message={text} />
+<EmptyScreen icon={NodeIcon} title="No nodes" message={text}>
+  <KubernetesCheckConnection />
+</EmptyScreen>
