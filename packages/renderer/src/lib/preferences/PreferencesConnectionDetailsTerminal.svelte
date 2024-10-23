@@ -167,6 +167,10 @@ onDestroy(() => {
   });
   serializeAddon?.dispose();
   shellTerminal?.dispose();
+  // Closes session
+  if (sendCallbackId) {
+    window.shellInProviderConnectionClose(sendCallbackId);
+  }
 });
 </script>
 
