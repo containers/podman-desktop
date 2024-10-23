@@ -1159,6 +1159,7 @@ export class PluginSystem {
       {
         write: (param: string) => void;
         resize: (dimensions: containerDesktopAPI.ProviderConnectionShellDimensions) => void;
+        close: () => void;
       }
     >();
     this.ipcHandle(
@@ -1211,6 +1212,16 @@ export class PluginSystem {
         const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
         if (callback) {
           callback.resize(dimensions);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionClose',
+      async (_listener, onDataId: number): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        if (callback) {
+          callback.close();
         }
       },
     );

@@ -663,6 +663,10 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('shellInProviderConnectionClose', async (dataId: number) => {
+    return ipcInvoke('provider-registry:shellInProviderConnectionClose', dataId);
+  });
+
   ipcRenderer.on(
     'provider-registry:shellInProviderConnection-onData',
     (_, onDataCallbacksShellInProviderConnectionId: number, data: string) => {
