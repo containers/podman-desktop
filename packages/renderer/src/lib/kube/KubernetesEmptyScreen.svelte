@@ -1,7 +1,7 @@
 <script lang='ts'>
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 
-import KubernetesCheckConnection from '../ui/KubernetesCheckConnection.svelte';
+import KubernetesCheckConnection from '/@/lib/ui/KubernetesCheckConnection.svelte';
 
 export let icon: any;
 </script>
