@@ -52,7 +52,9 @@ export class CreateKindClusterPage extends BasePage {
       .locator('..');
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
-    this.providerTypeCombobox = this.clusterPropertiesInformation.getByLabel('Provider Type');
+    this.providerTypeCombobox = this.clusterPropertiesInformation
+      .getByRole('button')
+      .and(this.clusterPropertiesInformation.getByLabel('Provider Type'));
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
