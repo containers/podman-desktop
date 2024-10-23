@@ -8,9 +8,8 @@ import {
   kubernetesCurrentContextState,
 } from '/@/stores/kubernetes-contexts-state';
 
-let currentContextName: string | undefined;
-$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
-let error: string = '';
+let currentContextName = $derived($kubernetesContexts.find(c => c.currentContext)?.name);
+let error = $state('');
 
 function refresh(): void {
   error = '';
