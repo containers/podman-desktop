@@ -245,10 +245,12 @@ After uninstalling Podman Desktop, the configuration data persists even though i
 
 **_Deleting Podman Desktop configuration_**
 
-- Go to the `~/.local/share/containers/podman-desktop/` directory and delete the `configuration` folder.
+1. Go to the `$HOME/.local/share/containers` directory, where `$HOME` denotes the home folder of the current user.
+1. Delete the `podman-desktop` folder.
 
-**_Deleting Podman configuration_**  
+**_Deleting Podman configuration_** 
 
+Podman stores its configuration files in the `$HOME/.config/containers` directory. Options available to delete Podman configuration: 
 - Using CLI
    - Run the `podman machine reset` command.
 - Using UI
