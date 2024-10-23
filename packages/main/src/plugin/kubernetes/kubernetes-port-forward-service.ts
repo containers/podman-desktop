@@ -71,13 +71,14 @@ export class KubernetesPortForwardService implements IDisposable {
    * Creates an instance of KubernetesPortForwardService.
    * @param configManagementService - The configuration management service.
    * @param forwardingConnectionService - The port forward connection service.
+   * @param apiSender the api sender object
    */
   constructor(
     private configManagementService: ConfigManagementService,
     private forwardingConnectionService: PortForwardConnectionService,
     private apiSender: ApiSenderType,
   ) {
-    this.apiSender.send('kubernetes-port-forwards-update');
+    this.apiSender.send('kubernetes-port-forwards-update', []);
   }
 
   dispose(): void {
