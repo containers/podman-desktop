@@ -332,15 +332,14 @@ jobs:
           echo "Podman Desktop built binary: $path"
           echo "PODMAN_DESKTOP_BINARY_PATH=$path" >> $GITHUB_ENV
 
-      - name: Run E2E smoke tests
-        if: ${{ matrix.mode == 'development' }}
-        run: pnpm test:e2e:smoke
-
-      - name: Run Smoke E2E tests in Production mode
-        if: ${{ matrix.mode == 'production' }}
+      - name: Run Smoke E2E tests in ${{ matrix.mode }} mode
         env:
           PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY_PATH }}
-        run: pnpm test:e2e:smoke
+        run: |
+          if [ ${{ matrix.mode }} == 'production' ]; then
+            export PODMAN_DESKTOP_BINARY=${{ env.PODMAN_DESKTOP_BINARY_PATH }}
+          fi
+          pnpm test:e2e:smoke
 
       - uses: actions/upload-artifact@v4
         if: always()
