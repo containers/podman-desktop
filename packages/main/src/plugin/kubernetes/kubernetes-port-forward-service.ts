@@ -92,7 +92,7 @@ export class KubernetesPortForwardService implements IDisposable {
    */
   async createForward(config: UserForwardConfig): Promise<ForwardConfig> {
     const forwardConfig = await this.configManagementService.createForward(config);
-    this.apiSender.send('kubernetes-port-forwards-update');
+    this.apiSender.send('kubernetes-port-forwards-update', this.listForwards());
     return forwardConfig;
   }
 
@@ -104,7 +104,7 @@ export class KubernetesPortForwardService implements IDisposable {
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
     await this.configManagementService.deleteForward(config);
-    this.apiSender.send('kubernetes-port-forwards-update');
+    this.apiSender.send('kubernetes-port-forwards-update', this.listForwards());
   }
 
   /**
