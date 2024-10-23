@@ -1,6 +1,5 @@
 <script lang="ts">
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import type { ProxySettings } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
@@ -9,19 +8,26 @@ import { ProxyState } from '/@api/proxy';
 import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
-let proxySettings: ProxySettings;
+let httpProxy = '';
+let httpsProxy = '';
+let noProxy = '';
 let proxyState: ProxyState;
 let httpProxyError: string | undefined;
 let httpsProxyError: string | undefined;
 
 onMount(async () => {
-  proxySettings = await window.getProxySettings();
+  const proxySettings = await window.getProxySettings();
+  httpProxy = proxySettings?.httpProxy ?? '';
+  httpsProxy = proxySettings?.httpsProxy ?? '';
+  noProxy = proxySettings?.noProxy ?? '';
   proxyState = await window.getProxyState();
 });
 
 async function updateProxySettings() {
   await window.setProxyState(proxyState);
-  await window.updateProxySettings(proxySettings);
+  if (proxyState !== ProxyState.PROXY_SYSTEM) {
+    await window.updateProxySettings({ httpProxy, httpsProxy, noProxy });
+  }
 
   // loop over all providers and container connections to see if there are any running engines
   const providerInfos = await window.getProviderInfos();
@@ -73,7 +79,6 @@ function validate(event: any) {
       </select>
     </label>
 
-    {#if proxySettings}
       <div class="space-y-2">
         <label
           for="httpProxy"
@@ -84,7 +89,7 @@ function validate(event: any) {
           name="httpProxy"
           id="httpProxy"
           disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={proxySettings.httpProxy}
+          bind:value={httpProxy}
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -102,7 +107,7 @@ function validate(event: any) {
           name="httpsProxy"
           id="httpsProxy"
           disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={proxySettings.httpsProxy}
+          bind:value={httpsProxy}
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -120,13 +125,12 @@ function validate(event: any) {
           name="noProxy"
           id="noProxy"
           disabled={proxyState !== ProxyState.PROXY_MANUAL}
-          bind:value={proxySettings.noProxy}
+          bind:value={noProxy}
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
         <Button on:click={updateProxySettings} class="w-full" icon={faPen}>Update</Button>
       </div>
-    {/if}
   </div>
 </SettingsPage>
