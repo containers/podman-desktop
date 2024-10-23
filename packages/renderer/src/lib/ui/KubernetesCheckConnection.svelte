@@ -11,17 +11,23 @@ import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 
 let currentContextName: string | undefined;
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
+let error: string = '';
 
 function refresh(): void {
+  error = '';
   if (currentContextName) {
-    window.kubernetesRefreshContextState(currentContextName);
+    window.kubernetesRefreshContextState(currentContextName).catch((err: unknown) => {
+      error = String(err);
+    });
   }
 }
 </script>
+
 {#if currentContextName && !$kubernetesCurrentContextState.reachable}
   <Button 
     on:click={refresh}
     icon={faRefresh}
     inProgress={$kubernetesContextsCheckingStateDelayed?.get(currentContextName)}
     >Refresh</Button>
+  {#if error}<div class="p-2 text-[var(--pd-state-error)]">{error}</div>{/if}
 {/if}
