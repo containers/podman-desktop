@@ -43,6 +43,7 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
   await test.step(`Delete container with name ${name}`, async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
+    await playExpect(containers.heading).toBeVisible({ timeout: 10_000 });
     const container = await containers.getContainerRowByName(name);
     // check for container existence
     if (container === undefined) {
@@ -59,7 +60,11 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
       // wait for container to disappear
       try {
         console.log('Waiting for container to get deleted ...');
-        await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 30000 }).toBeFalsy();
+        await playExpect
+          .poll(async () => await containers.getContainerRowByName(name), {
+            timeout: 30000,
+          })
+          .toBeFalsy();
       } catch (error) {
         if (!(error as Error).message.includes('Page is empty')) {
           throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
@@ -78,6 +83,7 @@ export async function deleteImage(page: Page, name: string): Promise<void> {
   await test.step(`Delete image ${name}`, async () => {
     const navigationBar = new NavigationBar(page);
     const images = await navigationBar.openImages();
+    await playExpect(images.heading).toBeVisible({ timeout: 10_000 });
     const row = await images.getImageRowByName(name);
     if (row === undefined) {
       console.log(`image '${name}' does not exist, skipping...`);
@@ -115,11 +121,15 @@ export async function deleteRegistry(page: Page, name: string, failIfNotExist = 
     const settingsBar = await navigationBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
     const registryRecord = await registryPage.getRegistryRowByName(name);
-    await waitUntil(() => registryRecord.isVisible(), { sendError: failIfNotExist });
+    await waitUntil(() => registryRecord.isVisible(), {
+      sendError: failIfNotExist,
+    });
     if (await registryRecord.isVisible()) {
       // it might be that the record exist but there are no credentials -> it is default registry and it is empty
       // or if there is a kebab memu available
-      const dropdownMenu = registryRecord.getByRole('button', { name: 'kebab menu' });
+      const dropdownMenu = registryRecord.getByRole('button', {
+        name: 'kebab menu',
+      });
       if (await dropdownMenu.isVisible()) {
         await registryPage.removeRegistry(name);
       }
@@ -131,6 +141,7 @@ export async function deletePod(page: Page, name: string, timeout: number = 50_0
   await test.step(`Delete pod ${name}`, async () => {
     const navigationBar = new NavigationBar(page);
     const pods = await navigationBar.openPods();
+    await playExpect(pods.heading).toBeVisible({ timeout: 10_000 });
     const pod = await pods.getPodRowByName(name);
     // check if pod exists
     if (pod === undefined) {
@@ -196,7 +207,9 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
       .poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME), { timeout: 10000 })
       .toBeTruthy();
     const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineVisibleName);
-    await playExpect(podmanResourceCard.providerConnections).toBeVisible({ timeout: 10_000 });
+    await playExpect(podmanResourceCard.providerConnections).toBeVisible({
+      timeout: 10_000,
+    });
     await waitUntil(
       async () => {
         return await podmanResourceCard.resourceElement.isVisible();
@@ -233,7 +246,9 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
         });
       }
       await podmanResourceCard.performConnectionAction(ResourceElementActions.Delete);
-      await playExpect(podmanResourceCard.resourceElement).toBeHidden({ timeout: 60_000 });
+      await playExpect(podmanResourceCard.resourceElement).toBeHidden({
+        timeout: 60_000,
+      });
     } else {
       console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
     }
@@ -247,6 +262,7 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
     try {
       const navigationBar = new NavigationBar(page);
       const volumePage = await navigationBar.openVolumes();
+      await playExpect(volumePage.heading).toBeVisible({ timeout: 10_000 });
       const rows = await volumePage.getAllTableRows();
 
       for (let i = rows.length - 1; i > 0; i--) {
@@ -281,16 +297,20 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
 export async function ensureKindCliInstalled(page: Page, timeout = 60000): Promise<void> {
   await test.step('Ensure Kind CLI is installed', async () => {
     const cliToolsPage = new CLIToolsPage(page);
-    await playExpect(cliToolsPage.toolsTable).toBeVisible({ timeout: 10000 });
+    await playExpect(cliToolsPage.toolsTable).toBeVisible({ timeout: 10_000 });
     await playExpect.poll(async () => await cliToolsPage.toolsTable.count()).toBeGreaterThan(0);
-    await playExpect(cliToolsPage.getToolRow('Kind')).toBeVisible({ timeout: 10_000 });
+    await playExpect(cliToolsPage.getToolRow('Kind')).toBeVisible({
+      timeout: 10_000,
+    });
 
     if (!(await cliToolsPage.getCurrentToolVersion('Kind'))) {
       await cliToolsPage.installTool('Kind');
     }
 
     await playExpect
-      .poll(async () => await cliToolsPage.getCurrentToolVersion('Kind'), { timeout: timeout })
+      .poll(async () => await cliToolsPage.getCurrentToolVersion('Kind'), {
+        timeout: timeout,
+      })
       .toBeTruthy();
   });
 }
@@ -310,7 +330,7 @@ export async function createKindCluster(
 
     const settingsPage = await navigationBar.openSettings();
     const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
-    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
     await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('kind')).toBeTruthy();
     await playExpect(kindResourceCard.markdownContent).toBeVisible();
     await playExpect(kindResourceCard.createButton).toBeVisible();
@@ -356,7 +376,7 @@ export async function deleteKindCluster(
 
     await navigationBar.openSettings();
     const resourcesPage = new ResourcesPage(page);
-    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
     if (!(await kindResourceCard.doesResourceElementExist())) {
       console.log(`Kind cluster [${clusterName}] not present, skipping deletion.`);
       return;
@@ -367,15 +387,23 @@ export async function deleteKindCluster(
       timeout: 50000,
     });
     await kindResourceCard.performConnectionAction(ResourceElementActions.Delete);
-    await playExpect(kindResourceCard.markdownContent).toBeVisible({ timeout: 50000 });
+    await playExpect(kindResourceCard.markdownContent).toBeVisible({
+      timeout: 50000,
+    });
     const containersPage = await navigationBar.openContainers();
     await playExpect(containersPage.heading).toBeVisible();
-    await playExpect.poll(async () => containersPage.containerExists(containerName), { timeout: 10000 }).toBeFalsy();
+    await playExpect
+      .poll(async () => containersPage.containerExists(containerName), {
+        timeout: 10000,
+      })
+      .toBeFalsy();
 
     const volumePage = await navigationBar.openVolumes();
     await playExpect(volumePage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await volumePage.waitForVolumeDelete(volumeName), { timeout: 20000 })
+      .poll(async () => await volumePage.waitForVolumeDelete(volumeName), {
+        timeout: 20000,
+      })
       .toBeTruthy();
   });
 }
