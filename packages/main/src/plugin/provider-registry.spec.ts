@@ -24,6 +24,8 @@ import type {
   InstallCheck,
   KubernetesProviderConnection,
   ProviderCleanup,
+  ProviderConnectionShellAccess,
+  ProviderConnectionShellAccessSession,
   ProviderInstallation,
   ProviderLifecycle,
   ProviderUpdate,
@@ -1138,5 +1140,96 @@ describe('startProvider', () => {
     });
     await providerRegistry.startProvider((provider as ProviderImpl).internalId);
     expect(startMock).toBeCalled();
+  });
+});
+
+describe('shellInProviderConnection', () => {
+  test('check if are all listeners disposed before calling close', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'connection',
+      displayName: 'connection',
+      type: 'docker',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: 'started',
+      vmType: {
+        id: 'libkrun',
+        name: 'libkrun',
+      },
+    };
+
+    const closeMock = vi.fn();
+    const openMock = vi.fn();
+
+    const disposeFuncOnDataMock = vi.fn();
+    const disposeFuncOnErrorMock = vi.fn();
+    const disposeFuncOnEndMock = vi.fn();
+
+    const disposeOnDataMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnDataMock });
+    const disposeOnErrorMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnErrorMock });
+    const disposeOnEndMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnEndMock });
+
+    const onDataMock = vi.fn().mockResolvedValue({ disposables: disposeOnDataMock });
+    const onErrorMock = vi.fn().mockResolvedValue({ disposables: disposeOnErrorMock });
+    const onEndMock = vi.fn().mockResolvedValue({ disposables: disposeOnEndMock });
+
+    const shellAccessSession: ProviderConnectionShellAccessSession = {
+      onData: onDataMock,
+      onError: onErrorMock,
+      onEnd: onEndMock,
+      close: closeMock,
+    } as unknown as ProviderConnectionShellAccessSession;
+
+    openMock.mockReturnValue(shellAccessSession);
+    const shellAccess: ProviderConnectionShellAccess = {
+      open: openMock,
+    } as unknown as ProviderConnectionShellAccess;
+
+    provider.registerContainerProviderConnection({
+      name: 'connection',
+      displayName: 'connection',
+      type: 'docker',
+      lifecycle: {
+        start: vi.fn(),
+        stop: vi.fn(),
+      },
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      shellAccess: shellAccess,
+      status() {
+        return 'started';
+      },
+      vmType: 'libkrun',
+    });
+
+    // Call shellInProviderConnection
+    const shellInProviderConnection = await providerRegistry.shellInProviderConnection(
+      '0',
+      connection,
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+    );
+
+    // Check that all callbacks are set and session is created
+    expect(openMock).toBeCalled();
+    expect(onDataMock).toBeCalled();
+    expect(onErrorMock).toBeCalled();
+    expect(onEndMock).toBeCalled();
+
+    // Check that close is called and listeners are disposed
+    shellInProviderConnection.close();
+
+    expect(disposeFuncOnDataMock).toBeCalled();
+    expect(disposeFuncOnErrorMock).toBeCalled();
+    expect(disposeFuncOnEndMock).toBeCalled();
+    expect(closeMock).toBeCalled();
   });
 });
