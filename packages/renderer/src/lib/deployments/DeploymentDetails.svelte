@@ -5,7 +5,11 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
 
-import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
+import type { EventUI } from '/@/lib/events/EventUI';
+import {
+  kubernetesCurrentContextDeployments,
+  kubernetesCurrentContextEvents,
+} from '/@/stores/kubernetes-contexts-state';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
@@ -26,6 +30,8 @@ let detailsPage: DetailsPage;
 let kubeDeployment: V1Deployment | undefined;
 let kubeError: string;
 
+let events: EventUI[] = [];
+
 onMount(() => {
   const deploymentUtils = new DeploymentUtils();
   // loading deployment info
@@ -36,6 +42,8 @@ onMount(() => {
     if (matchingDeployment) {
       try {
         deployment = deploymentUtils.getDeploymentUI(matchingDeployment);
+        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === deployment.uid);
+
         loadDetails();
       } catch (err) {
         console.error(err);
@@ -70,7 +78,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <DeploymentDetailsSummary deployment={kubeDeployment} kubeError={kubeError} />
+        <DeploymentDetailsSummary deployment={kubeDeployment} kubeError={kubeError} events={events} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content={JSON.stringify(kubeDeployment, undefined, 2)} language="json" />

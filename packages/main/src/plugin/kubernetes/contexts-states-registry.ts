@@ -16,13 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Informer, KubernetesObject } from '@kubernetes/client-node';
+import type { CoreV1Event, Informer, KubernetesObject } from '@kubernetes/client-node';
 
 import type {
   CheckingState,
   ContextGeneralState,
   ResourceName,
   SecondaryResourceName,
+  WatchedObjects,
 } from '/@api/kubernetes-contexts-states.js';
 import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '/@api/kubernetes-contexts-states.js';
 
@@ -34,7 +35,7 @@ export interface CancellableInformer {
   cancel: () => void;
 }
 // ContextInternalState stores informers for a kube context
-export type ContextInternalState = Map<ResourceName, CancellableInformer>;
+export type ContextInternalState = Map<WatchedObjects, CancellableInformer>;
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -43,6 +44,7 @@ export interface ContextState {
   error?: string;
   reachable: boolean;
   resources: ContextStateResources;
+  events: CoreV1Event[];
 }
 
 export type ContextStateResources = {
@@ -77,6 +79,8 @@ interface DispatchOptions {
   currentContext: string;
   // do we send resources data for each resource kind? default false for all resources
   resources: ResourcesDispatchOptions;
+  // do we send events for current context?
+  events: boolean;
 }
 
 // Options when calling setStateAndDispatch
@@ -89,6 +93,8 @@ interface SetStateAndDispatchOptions {
   currentContext: string;
   // resources for which to send a resource-specific update event
   resources?: ResourcesDispatchOptions;
+  // true to send events
+  events?: boolean;
   // the caller can modify the `previous` state in this function, which will be called before the state is dispatched
   update: (previous: ContextState) => void;
 }
@@ -183,6 +189,19 @@ export class ContextsStatesRegistry {
     return [];
   }
 
+  getContextEvents(current: string): CoreV1Event[] {
+    if (current) {
+      const state = this.state.get(current);
+      if (!state?.reachable) {
+        return [];
+      }
+      if (state) {
+        return state.events;
+      }
+    }
+    return [];
+  }
+
   isReachable(contextName: string): boolean {
     return this.state.get(contextName)?.reachable ?? false;
   }
@@ -195,6 +214,7 @@ export class ContextsStatesRegistry {
       currentContextGeneralState: options.sendGeneral ?? false,
       currentContext: options.currentContext,
       resources: options.resources ?? {},
+      events: options.events ?? false,
     });
   }
 
@@ -216,6 +236,7 @@ export class ContextsStatesRegistry {
           secrets: [],
           // add new resources here when adding new informers
         },
+        events: [],
       });
     }
     const val = this.state.get(name);
@@ -242,6 +263,9 @@ export class ContextsStatesRegistry {
         this.dispatchCurrentContextResource(resname, this.getContextResources(options.currentContext, resname));
       }
     });
+    if (options.events) {
+      this.dispatchCurrentContextEvents(this.getContextEvents(options.currentContext));
+    }
   }
 
   public dispatchCheckingState(val: Map<string, CheckingState>): void {
@@ -273,6 +297,18 @@ export class ContextsStatesRegistry {
         `kubernetes-current-context-${resname}-update`,
         val,
         this.dispatchCurrentContextResourceTimers.get(resname),
+        dispatchTimeout,
+      ),
+    );
+  }
+
+  public dispatchCurrentContextEvents(val: CoreV1Event[]): void {
+    this.dispatchCurrentContextResourceTimers.set(
+      'events',
+      this.dispatchDebounce(
+        `kubernetes-current-context-events-update`,
+        val,
+        this.dispatchCurrentContextResourceTimers.get('events'),
         dispatchTimeout,
       ),
     );
@@ -312,6 +348,7 @@ export class ContextsStatesRegistry {
       for (const resourceName of secondaryResources) {
         states.resources[resourceName] = [];
       }
+      states.events = [];
     }
   }
 }

@@ -25,6 +25,7 @@ import { PassThrough } from 'node:stream';
 import type {
   Cluster,
   Context,
+  CoreV1Event,
   KubernetesListObject,
   KubernetesObject,
   RequestContext,
@@ -1391,8 +1392,16 @@ export class KubernetesClient {
     return this.contextsState.registerGetCurrentContextResources(resourceName);
   }
 
+  public registerGetCurrentContextEvents(): CoreV1Event[] {
+    return this.contextsState.registerGetCurrentContextEvents();
+  }
+
   public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
     return this.contextsState.unregisterGetCurrentContextResources(resourceName);
+  }
+
+  public unregisterGetCurrentContextEvents(): CoreV1Event[] {
+    return this.contextsState.unregisterGetCurrentContextEvents();
   }
 
   public dispose(): void {

@@ -41,6 +41,7 @@ export class DeploymentUtils {
     }
 
     return {
+      uid: deployment.metadata?.uid ?? '',
       name: deployment.metadata?.name ?? '',
       status: status,
       namespace: deployment.metadata?.namespace ?? '',

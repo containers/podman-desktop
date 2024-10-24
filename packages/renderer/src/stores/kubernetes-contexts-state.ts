@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesObject } from '@kubernetes/client-node';
+import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
 import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import type { CheckingState, ContextGeneralState } from '/@api/kubernetes-contexts-states';
@@ -246,3 +246,15 @@ export const kubernetesCurrentContextRoutesFiltered = derived(
   [routeSearchPattern, kubernetesCurrentContextRoutes],
   ([$searchPattern, $routes]) => $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
 );
+
+// Events
+
+export const kubernetesCurrentContextEvents = readable<CoreV1Event[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextEvents().then(value => set(value));
+  window.events?.receive('kubernetes-current-context-events-update', (value: unknown) => {
+    set(value as CoreV1Event[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextEvents();
+  };
+});

@@ -25,6 +25,7 @@ import EventEmitter from 'node:events';
 import type {
   Cluster,
   Context,
+  CoreV1Event,
   KubernetesObject,
   V1ConfigMap,
   V1Deployment,
@@ -1863,10 +1864,19 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:registerGetCurrentContextResources', resourceName);
     },
   );
+  contextBridge.exposeInMainWorld('kubernetesRegisterGetCurrentContextEvents', async (): Promise<CoreV1Event[]> => {
+    return ipcInvoke('kubernetes-client:registerGetCurrentContextEvents');
+  });
   contextBridge.exposeInMainWorld(
     'kubernetesUnregisterGetCurrentContextResources',
     async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
       return ipcInvoke('kubernetes-client:unregisterGetCurrentContextResources', resourceName);
+    },
+  );
+  contextBridge.exposeInMainWorld(
+    'kubernetesUnregisterGetCurrentContextEvents',
+    async (): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:unregisterGetCurrentContextEvents');
     },
   );
 

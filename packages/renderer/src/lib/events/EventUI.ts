@@ -16,20 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface DeploymentUI {
-  uid: string;
-  name: string;
-  status: string;
-  namespace: string;
-  replicas: number;
-  ready: number;
-  created?: Date;
-  selected: boolean;
-  conditions: DeploymentCondition[];
-}
-
-export interface DeploymentCondition {
-  type: string;
+export interface EventUI {
+  type?: string;
   reason?: string;
+  lastTimestamp?: Date;
+  reportingComponent?: string;
   message?: string;
 }
