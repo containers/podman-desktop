@@ -495,10 +495,9 @@ export class ExtensionLoader {
   // check if all dependencies are available
   // if not, set the missingDependencies property
   async searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[], onStart: boolean): Promise<void> {
-    const extensionsList = onStart ? [] : await this.listExtensions();
+    const existingExtensions = onStart ? analyzedExtensions : await this.listExtensions();
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
-      const existingExtensions = onStart ? analyzedExtensions : extensionsList;
       extension.manifest?.extensionDependencies?.forEach(async (dependency: string) => {
         if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
