@@ -1220,9 +1220,7 @@ export class PluginSystem {
       'provider-registry:shellInProviderConnectionClose',
       async (_listener, onDataId: number): Promise<void> => {
         const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
-        if (callback) {
-          callback.close();
-        }
+        callback?.close();
       },
     );
 
