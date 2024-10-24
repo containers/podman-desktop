@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
+import { createNavigationKubernetesPortForwardEntry } from '/@/stores/navigation/kubernetes/navigation-registry-k8s-port-forward.svelte';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import { kubernetesCurrentContextState } from '../kubernetes-contexts-state';
@@ -45,6 +46,7 @@ export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   newItems.push(createNavigationKubernetesIngressesRoutesEntry());
   newItems.push(createNavigationKubernetesPersistentVolumeEntry());
   newItems.push(createNavigationKubernetesConfigMapSecretsEntry());
+  newItems.push(createNavigationKubernetesPortForwardEntry());
   kubernetesNavigationGroupItems = newItems;
 
   kubernetesCurrentContextState.subscribe(value => {
