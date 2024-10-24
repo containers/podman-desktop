@@ -430,7 +430,7 @@ export class ExtensionLoader {
     }
 
     // now we have all extensions, we can load them
-    await this.loadExtensions(analyzedExtensions, true);
+    await this.loadExtensions(analyzedExtensions);
   }
 
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
@@ -493,10 +493,8 @@ export class ExtensionLoader {
 
   // check if all dependencies are available
   // if not, set the missingDependencies property
-  async searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[], onStart: boolean): Promise<void> {
-    const existingExtensions = onStart
-      ? analyzedExtensions
-      : [...new Set([...(await this.listExtensions()), ...analyzedExtensions])];
+  searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[]): void {
+    const existingExtensions = [...new Set([...this.analyzedExtensions.values(), ...analyzedExtensions])];
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
       extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
@@ -508,9 +506,9 @@ export class ExtensionLoader {
     });
   }
 
-  async loadExtensions(analyzedExtensions: AnalyzedExtension[], onStart: boolean): Promise<void> {
+  async loadExtensions(analyzedExtensions: AnalyzedExtension[]): Promise<void> {
     // check if all dependencies are available
-    await this.searchForMissingDependencies(analyzedExtensions, onStart);
+    this.searchForMissingDependencies(analyzedExtensions);
 
     // do we have circular dependencies?
     this.searchForCircularDependencies(analyzedExtensions);

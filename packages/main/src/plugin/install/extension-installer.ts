@@ -334,7 +334,7 @@ export class ExtensionInstaller {
 
     // load all extensions
     analyzedExtensions.forEach(extension => this.extensionLoader.ensureExtensionIsEnabled(extension.id));
-    await this.extensionLoader.loadExtensions(analyzedExtensions, false);
+    await this.extensionLoader.loadExtensions(analyzedExtensions);
 
     sendEnd('Extension Successfully installed.');
     this.apiSender.send('extension-started', {});
