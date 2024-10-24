@@ -90,7 +90,7 @@ onDestroy(() => {
       {#if initializationContext.mode === InitializeAndStartMode}
         <Steps steps={InitializationSteps} />
       {/if}
-      <div class="flex flex-col text-gray-700 items-center" aria-label="Transitioning State">
+      <div class="flex flex-col text-[var(--pd-content-text)] items-center" aria-label="Transitioning State">
         <div>Initializing</div>
         <div class="my-2">
           <Spinner />

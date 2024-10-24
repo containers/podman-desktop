@@ -9,7 +9,7 @@ export let provider: ProviderInfo;
 <ProviderCard provider={provider}>
   <svelte:fragment slot="content">
     {#if provider.containerConnections.length > 0}
-      <div class="flex flex-row text-gray-900 mt-4">
+      <div class="flex flex-row text-[var(--pd-content-text)] mt-4">
         <p>
           {provider.containerConnections.map(c => c.name).join(', ')}
         </p>
