@@ -2,6 +2,7 @@
 import type { V1Container } from '@kubernetes/client-node';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
+import KubeContainerPorts from '/@/lib/kube/details/KubeContainerPorts.svelte';
 
 export let artifact: V1Container | undefined;
 </script>
@@ -19,12 +20,7 @@ export let artifact: V1Container | undefined;
     <Cell>Image Pull Policy</Cell>
     <Cell>{artifact.imagePullPolicy}</Cell>
   </tr>
-  {#if artifact.ports}
-    <tr>
-      <Cell>Ports</Cell>
-      <Cell>{artifact.ports?.map(port => `${port.containerPort}/${port.protocol}`).join(', ') || ''}</Cell>
-    </tr>
-  {/if}
+  <KubeContainerPorts ports={artifact.ports ?? []}/>
   {#if artifact.env}
     <tr>
       <Cell>Environment Variables</Cell>
