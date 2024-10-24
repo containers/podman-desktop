@@ -1,7 +1,7 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faGear, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
-import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
@@ -530,7 +530,26 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connection={container}
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
-                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue}>
+                <span slot="advancedActions">
+                  <!-- {#if provider?.stream} -->
+                  <DropdownMenu>
+                    <DropdownMenu.Item
+                      title="Open Terminal"
+                      onClick={() => {
+                        router.goto(
+                          `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                            container.name,
+                          ).toString(
+                            'base64',
+                          )}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/terminal`,
+                        );
+                      }}
+                      icon={faTerminal} />
+                  </DropdownMenu>
+                  <!-- {/if} -->
+                </span>
+              </PreferencesConnectionActions>
               <div class="mt-1.5 text-gray-900 text-[9px] flex justify-between">
                 <div aria-label="Connection Version">
                   {provider.name}
