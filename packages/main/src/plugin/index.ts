@@ -87,6 +87,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -2450,6 +2451,24 @@ export class PluginSystem {
       'kubernetes-client:applyResourcesFromYAML',
       async (_listener, context: string, yaml: string): Promise<KubernetesObject[]> => {
         return kubernetesClient.applyResourcesFromYAML(context, yaml);
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:getPortForwards', async (_listener): Promise<UserForwardConfig[]> => {
+      return kubernetesClient.getPortForwards();
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:createPortForward',
+      async (_listener, config: UserForwardConfig): Promise<UserForwardConfig> => {
+        return kubernetesClient.createPortForward(config);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:deletePortForward',
+      async (_listener, config: UserForwardConfig): Promise<void> => {
+        return kubernetesClient.deletePortForward(config);
       },
     );
 

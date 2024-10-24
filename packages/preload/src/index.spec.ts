@@ -23,6 +23,9 @@ import type { IpcRenderer, IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
+
 import { buildApiSender, initExposure } from '.';
 
 vi.mock('electron', async () => {
@@ -181,4 +184,101 @@ test('saveDialog', async () => {
 
   // check the result
   expect(result).toEqual('file1');
+});
+
+test('getKubernetesPortForwards', async () => {
+  // store the exposeInMainWorld calls
+  const exposeInMainWorldCalls: Map<string, (...args: unknown[]) => unknown> = new Map();
+
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation(
+    (funcName: string, func: (...args: unknown[]) => unknown) => {
+      exposeInMainWorldCalls.set(funcName, func);
+    },
+  );
+
+  vi.mocked(ipcRenderer.invoke).mockResolvedValue({ result: [] });
+  // call init exposure
+  initExposure();
+
+  // grab getKubernetesPortForwards exposure
+  const getKubernetesPortForwardsExposure = exposeInMainWorldCalls.get('getKubernetesPortForwards');
+  expect(getKubernetesPortForwardsExposure).toBeDefined();
+
+  const result = await getKubernetesPortForwardsExposure?.();
+
+  // check we invoke ipcRenderer.invoke
+  expect(ipcRenderer.invoke).toBeCalled();
+
+  // check the result
+  expect(result).toEqual([]);
+});
+
+test('createKubernetesPortForward', async () => {
+  // store the exposeInMainWorld calls
+  const exposeInMainWorldCalls: Map<string, (...args: unknown[]) => unknown> = new Map();
+
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation(
+    (funcName: string, func: (...args: unknown[]) => unknown) => {
+      exposeInMainWorldCalls.set(funcName, func);
+    },
+  );
+
+  const userPortForward: UserForwardConfig = {
+    displayName: 'My port forward',
+    namespace: 'kubernetes',
+    name: 'service',
+    kind: WorkloadKind.SERVICE,
+    forwards: [],
+  };
+
+  vi.mocked(ipcRenderer.invoke).mockResolvedValue({ result: userPortForward });
+  // call init exposure
+  initExposure();
+
+  // grab createKubernetesPortForward exposure
+  const createKubernetesPortForwardExposure = exposeInMainWorldCalls.get('createKubernetesPortForward');
+  expect(createKubernetesPortForwardExposure).toBeDefined();
+
+  const result = await createKubernetesPortForwardExposure?.(userPortForward);
+
+  // check we invoke ipcRenderer.invoke
+  expect(ipcRenderer.invoke).toBeCalled();
+
+  // check the result
+  expect(result).toEqual(userPortForward);
+});
+
+test('deleteKubernetesPortForward', async () => {
+  // store the exposeInMainWorld calls
+  const exposeInMainWorldCalls: Map<string, (...args: unknown[]) => unknown> = new Map();
+
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation(
+    (funcName: string, func: (...args: unknown[]) => unknown) => {
+      exposeInMainWorldCalls.set(funcName, func);
+    },
+  );
+
+  const userPortForward: UserForwardConfig = {
+    displayName: 'My port forward',
+    namespace: 'kubernetes',
+    name: 'service',
+    kind: WorkloadKind.SERVICE,
+    forwards: [],
+  };
+
+  vi.mocked(ipcRenderer.invoke).mockResolvedValue({ result: undefined });
+  // call init exposure
+  initExposure();
+
+  // grab createKubernetesPortForward exposure
+  const deleteKubernetesPortForwardExposure = exposeInMainWorldCalls.get('deleteKubernetesPortForward');
+  expect(deleteKubernetesPortForwardExposure).toBeDefined();
+
+  const result = await deleteKubernetesPortForwardExposure?.(userPortForward);
+
+  // check we invoke ipcRenderer.invoke
+  expect(ipcRenderer.invoke).toBeCalled();
+
+  // check the result
+  expect(result).toEqual(undefined);
 });

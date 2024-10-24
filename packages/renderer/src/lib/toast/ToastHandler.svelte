@@ -1,8 +1,16 @@
 <style>
 .svelte-toast-wrapper {
   font-size: 0.8rem;
+  --toastPadding: '0';
+  --toastMsgPadding: '0';
   --toastMinHeight: 2rem;
-  --toastBorderRadius: 0.2rem;
+  --toastBorderRadius: 0.3rem;
+  --toastWidth: 16rem;
+  --toastContainerTop: auto;
+  --toastContainerRight: 0.8rem;
+  --toastContainerBottom: 1rem;
+  --toastContainerLeft: auto;
+  --toastBackground: var(--pd-modal-bg);
 }
 </style>
 
