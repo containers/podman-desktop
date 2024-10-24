@@ -5,7 +5,7 @@ import { Button } from '@podman-desktop/ui-svelte';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
-import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import { type PortMapping, type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 interface Props {
   ports?: V1ContainerPort[];
@@ -22,8 +22,8 @@ let userForwardConfig: UserForwardConfig | undefined = $derived(
   ),
 );
 
-let portsMapping: Map<number, number> = $derived.by(() => {
-  return new Map<number, number>((userForwardConfig?.forwards ?? []).map(value => [value.remotePort, value.localPort]));
+let portsMapping: Map<number, PortMapping> = $derived.by(() => {
+  return new Map<number, PortMapping>((userForwardConfig?.forwards ?? []).map(value => [value.remotePort, value]));
 });
 
 async function onForwardRequest(port: V1ContainerPort): Promise<void> {
@@ -41,12 +41,10 @@ async function onForwardRequest(port: V1ContainerPort): Promise<void> {
       name: podName,
       kind: WorkloadKind.POD,
       namespace: namespace ?? 'default',
-      forwards: [
-        {
-          localPort: freePort,
-          remotePort: snapshot.containerPort,
-        },
-      ],
+      forward: {
+        localPort: freePort,
+        remotePort: snapshot.containerPort,
+      },
     });
   } catch (err: unknown) {
     console.error(err);
@@ -55,17 +53,18 @@ async function onForwardRequest(port: V1ContainerPort): Promise<void> {
   }
 }
 
-async function openExternal(localPort?: number): Promise<void> {
-  if (!localPort) return;
-  return window.openExternal(`http://localhost:${localPort}`);
+async function openExternal(mapping?: PortMapping): Promise<void> {
+  if (!mapping) return;
+  return window.openExternal(`http://localhost:${mapping.localPort}`);
 }
 
-async function removePortForward(): Promise<void> {
+async function removePortForward(mapping?: PortMapping): Promise<void> {
+  if (!mapping) return;
   if (!userForwardConfig) return;
   loading = true;
 
   try {
-    await window.deleteKubernetesPortForward(userForwardConfig);
+    await window.deleteKubernetesPortForward(userForwardConfig, mapping);
   } catch (err: unknown) {
     console.error(err);
   } finally {
@@ -79,14 +78,14 @@ async function removePortForward(): Promise<void> {
     <Cell class="flex">Ports</Cell>
     <Cell>
       <div class="flex gap-y-1 flex-col">
-        {#each ports as port (port.containerPort)}
+        {#each ports as port}
           <span class="flex gap-x-2 items-center">
             {port.containerPort}/{port.protocol}
             {#if portsMapping.has(port.containerPort)}
               <Button title="Open in browser" icon={faSquareUpRight} on:click={openExternal.bind(undefined, portsMapping.get(port.containerPort))} class="px-1 py-0.5" padding="0">
                 Open
               </Button>
-              <Button title="Remove port forward" icon={faTrash} on:click={removePortForward.bind(undefined)} class="px-1 py-0.5" padding="0">
+              <Button title="Remove port forward" icon={faTrash} on:click={removePortForward.bind(undefined, portsMapping.get(port.containerPort))} class="px-1 py-0.5" padding="0">
                 Remove
               </Button>
             {:else}
