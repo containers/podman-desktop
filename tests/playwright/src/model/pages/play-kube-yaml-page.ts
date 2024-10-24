@@ -79,10 +79,6 @@ export class PlayKubeYamlPage extends BasePage {
           await playExpect(this.kubernetesNamespaces).toBeVisible();
           await this.kubernetesNamespaces.click();
 
-          /*const namespaceOptions = await this.kubernetesNamespaces
-            .locator("option")
-            .allInnerTexts();*/
-
           const namespaceSelection = this.kubernetesNamespaces
             .getByRole('button', { name: kubernetesNamespace })
             .first();
@@ -90,18 +86,6 @@ export class PlayKubeYamlPage extends BasePage {
           await playExpect(namespaceSelection).toBeEnabled();
           await namespaceSelection.click();
           await playExpect(this.kubernetesNamespaces).toContainText(kubernetesNamespace);
-          /*if (namespaceOptions.includes(kubernetesNamespace)) {
-            await this.kubernetesNamespaces.selectOption({
-              value: kubernetesNamespace,
-            });
-            await playExpect(this.kubernetesNamespaces).toHaveValue(
-              kubernetesNamespace,
-            );
-          } else {
-            throw new Error(
-              `Kubernetes namespace: ${kubernetesNamespace} doesn't exist`,
-            );
-          }*/
         }
         break;
       default:
