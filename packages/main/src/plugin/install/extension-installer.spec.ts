@@ -350,6 +350,7 @@ test('should install an image with extension pack', async () => {
   // expect to have 2 arguments in array
   expect(loadExtensionsMock).toHaveBeenCalledWith(
     expect.arrayContaining([extensionWithPack, extensionOther, extensionAnother]),
+    false,
   );
 });
 
@@ -426,7 +427,7 @@ test('should install an image with transitive dependencies', async () => {
 
   // should have been called to load two extensions (current + extension pack)
   // expect to have 2 arguments in array
-  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionA, extensionB, extensionC]));
+  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionA, extensionB, extensionC]), false);
 });
 
 test('should install an image with extension pack with an existing dependency already installed', async () => {
@@ -499,7 +500,7 @@ test('should install an image with extension pack with an existing dependency al
 
   // should have been called to load two extensions (current + extension pack)
   // expect to have 2 arguments in array
-  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionWithPack, extensionOther]));
+  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionWithPack, extensionOther]), false);
 
   expect(analyzeFromImageSpy).toHaveBeenCalledWith(
     expect.any(Function),

@@ -430,7 +430,8 @@ export class ExtensionLoader {
     }
 
     // now we have all extensions, we can load them
-    await this.loadExtensions(analyzedExtensions);
+    console.log(analyzedExtensions.length);
+    await this.loadExtensions(analyzedExtensions, true);
   }
 
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
@@ -493,21 +494,27 @@ export class ExtensionLoader {
 
   // check if all dependencies are available
   // if not, set the missingDependencies property
-  searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[]): void {
+  async searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[], onStart: boolean): Promise<void> {
+    const extensionsList = onStart ? [] : await this.listExtensions();
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
-      extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
-        if (!analyzedExtensions.find(analyzedExtension => analyzedExtension.id === dependency)) {
+      const existingExtensions = onStart ? analyzedExtensions : extensionsList;
+      extension.manifest?.extensionDependencies?.forEach(async (dependency: string) => {
+        if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
+          console.log('extension: ' + extension + ' dependency: ' + dependency + ' missing');
         }
+        console.log(missingDependencies.length);
       });
       extension.missingDependencies = missingDependencies;
+
+      console.log(`extension length: ` + extension.missingDependencies.length);
     });
   }
 
-  async loadExtensions(analyzedExtensions: AnalyzedExtension[]): Promise<void> {
+  async loadExtensions(analyzedExtensions: AnalyzedExtension[], onStart: boolean): Promise<void> {
     // check if all dependencies are available
-    this.searchForMissingDependencies(analyzedExtensions);
+    await this.searchForMissingDependencies(analyzedExtensions, onStart);
 
     // do we have circular dependencies?
     this.searchForCircularDependencies(analyzedExtensions);

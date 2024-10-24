@@ -715,7 +715,7 @@ test('Verify searchForCircularDependencies(analyzedExtensions);', async () => {
   expect(analyzedExtension3.circularDependencies).toStrictEqual([extensionId2]);
 });
 
-test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
+test('Verify searchForMissingDependencies(analyzedExtensions); onStart', async () => {
   // Check if missing dependencies are found
   const extensionId1 = 'foo.extension1';
   const extensionId2 = 'foo.extension2';
@@ -753,11 +753,72 @@ test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
   expect(analyzedExtension3.missingDependencies).toBeUndefined();
 
   const analyzedExtensions = [analyzedExtension1, analyzedExtension2, analyzedExtension3];
-  extensionLoader.searchForMissingDependencies(analyzedExtensions);
+  await extensionLoader.searchForMissingDependencies(analyzedExtensions, true);
 
   // do we have missingDependencies field for extension 3 as it's missing
   expect(analyzedExtension1.missingDependencies).toStrictEqual([]);
   expect(analyzedExtension2.missingDependencies).toStrictEqual([]);
+  expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
+});
+
+test('Verify searchForMissingDependencies(analyzedExtensions); not onStart', async () => {
+  // Check if missing dependencies are found
+  const extensionId1 = 'foo.extension1';
+  const extensionId2 = 'foo.extension2';
+  const extensionId3 = 'foo.extension3';
+  const extensionId4 = 'foo.extension4';
+  const unknownExtensionId = 'foo.unknown';
+
+  // extension1 has no dependencies and has already been loaded
+  const analyzedExtension1: AnalyzedExtension = {
+    id: extensionId1,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension2 has no dependencies and has already been loaded
+  const analyzedExtension2: AnalyzedExtension = {
+    id: extensionId2,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension3 depends on unknown extension unknown
+  const analyzedExtension3: AnalyzedExtension = {
+    id: extensionId3,
+    manifest: {
+      extensionDependencies: [unknownExtensionId],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension4 depends on extension1
+  const analyzedExtension4: AnalyzedExtension = {
+    id: extensionId4,
+    manifest: {
+      extensionDependencies: [extensionId1],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  const analyzedExtensions = new Map<string, AnalyzedExtension>();
+
+  analyzedExtensions.set(extensionId1, analyzedExtension1);
+  analyzedExtensions.set(extensionId2, analyzedExtension2);
+
+  extensionLoader['analyzedExtensions'] = analyzedExtensions;
+
+  expect(analyzedExtension1.missingDependencies).toBeUndefined();
+  expect(analyzedExtension2.missingDependencies).toBeUndefined();
+  expect(analyzedExtension3.missingDependencies).toBeUndefined();
+
+  await extensionLoader.searchForMissingDependencies([analyzedExtension3, analyzedExtension4], false);
+
+  // do we have missingDependencies field for extension 3 as it's missing
+  console.log('length: ' + analyzedExtension3.missingDependencies?.length);
+  expect(analyzedExtension4.missingDependencies).toStrictEqual([]);
   expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
 });
 
@@ -2281,7 +2342,7 @@ test('load extensions sequentially', async () => {
   });
 
   const start = performance.now();
-  await extensionLoader.loadExtensions([analyzedExtension1, analyzedExtension2, analyzedExtension3]);
+  await extensionLoader.loadExtensions([analyzedExtension1, analyzedExtension2, analyzedExtension3], true);
   const end = performance.now();
 
   const delta = end - start;
