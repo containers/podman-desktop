@@ -647,9 +647,13 @@ export class VirtualMachinePlatformCheck extends BaseCheck {
   async execute(): Promise<extensionApi.CheckResult> {
     try {
       // set CurrentUICulture to force output in english
-      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-        '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
-      ]);
+      const { stdout: res } = await extensionApi.process.exec(
+        'powershell.exe',
+        [
+          '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
+        ],
+        { encoding: 'utf16le' },
+      );
       if (res.indexOf('VirtualMachinePlatform') >= 0) {
         return this.createSuccessfulResult();
       }
