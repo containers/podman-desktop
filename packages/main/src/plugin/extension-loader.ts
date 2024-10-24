@@ -430,7 +430,6 @@ export class ExtensionLoader {
     }
 
     // now we have all extensions, we can load them
-    console.log(analyzedExtensions.length);
     await this.loadExtensions(analyzedExtensions, true);
   }
 
@@ -501,13 +500,9 @@ export class ExtensionLoader {
       extension.manifest?.extensionDependencies?.forEach(async (dependency: string) => {
         if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
-          console.log('extension: ' + extension + ' dependency: ' + dependency + ' missing');
         }
-        console.log(missingDependencies.length);
       });
       extension.missingDependencies = missingDependencies;
-
-      console.log(`extension length: ` + extension.missingDependencies.length);
     });
   }
 

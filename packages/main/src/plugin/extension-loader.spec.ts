@@ -817,7 +817,6 @@ test('Verify searchForMissingDependencies(analyzedExtensions); not onStart', asy
   await extensionLoader.searchForMissingDependencies([analyzedExtension3, analyzedExtension4], false);
 
   // do we have missingDependencies field for extension 3 as it's missing
-  console.log('length: ' + analyzedExtension3.missingDependencies?.length);
   expect(analyzedExtension4.missingDependencies).toStrictEqual([]);
   expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
 });
