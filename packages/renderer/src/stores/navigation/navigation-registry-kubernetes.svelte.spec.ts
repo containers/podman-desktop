@@ -67,9 +67,9 @@ test('createNavigationImageEntry with current context', async () => {
   expect(entry.name).toBe('Kubernetes');
   expect(entry.icon.iconComponent).toBe(KubeIcon);
 
-  // should have 6 items
+  // should have 7 items
   await vi.waitFor(() => {
-    expect(entry.items?.length).toBe(6);
+    expect(entry.items?.length).toBe(7);
   });
 });
 

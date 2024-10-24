@@ -21,6 +21,7 @@ import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import { kubernetesCurrentContextState } from '../kubernetes-contexts-state';
 import { createNavigationKubernetesConfigMapSecretsEntry } from './kubernetes/navigation-registry-k8s-configmap-secrets.svelte';
+import { createNavigationKubernetesDashboardEntry } from './kubernetes/navigation-registry-k8s-dashboard.svelte';
 import { createNavigationKubernetesDeploymentsEntry } from './kubernetes/navigation-registry-k8s-deployments.svelte';
 import { createNavigationKubernetesIngressesRoutesEntry } from './kubernetes/navigation-registry-k8s-ingresses-routes.svelte';
 import { createNavigationKubernetesNodesEntry } from './kubernetes/navigation-registry-k8s-nodes.svelte';
@@ -37,6 +38,7 @@ const displayedItems = $derived(context ? kubernetesNavigationGroupItems : []);
 
 export function createNavigationKubernetesGroup(): NavigationRegistryEntry {
   const newItems: NavigationRegistryEntry[] = [];
+  newItems.push(createNavigationKubernetesDashboardEntry());
   newItems.push(createNavigationKubernetesNodesEntry());
   newItems.push(createNavigationKubernetesDeploymentsEntry());
   newItems.push(createNavigationKubernetesServicesEntry());
