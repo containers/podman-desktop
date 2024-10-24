@@ -82,11 +82,12 @@ test.afterAll(async ({ runner, page }) => {
   }
 });
 
+test.skip(
+  !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
+  'Tests suite should not run on Linux platform',
+);
+
 test.describe('Kubernetes resources End-to-End test', () => {
-  test.skip(
-    !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-    'Tests suite should not run on Linux platform',
-  );
   test('Kubernetes Nodes test', async ({ navigationBar }) => {
     const kubernetesBar = await navigationBar.openKubernetes();
     const nodesPage = await kubernetesBar.openTabPage(KubernetesResources.Nodes);

@@ -35,15 +35,19 @@ export class PlayKubeYamlPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Create pods from a Kubernetes YAML file' });
+    this.heading = page.getByRole('heading', {
+      name: 'Create pods from a Kubernetes YAML file',
+    });
     this.yamlPathInput = page.getByPlaceholder('Select a .yaml file to play');
-    this.podmanRuntimeButton = page.getByRole('button', { name: 'Podman Container Engine Runtime' });
-    this.kubernetesRuntimeButton = page.getByRole('button', { name: 'Kubernetes Cluster Runtime', exact: true });
-    this.kubernetesContext = this.kubernetesRuntimeButton.getByLabel('Default Kubernetes Context');
-    this.kubernetesNamespaces = this.kubernetesRuntimeButton.getByRole('combobox', {
-      name: 'Kubernetes Namespace',
+    this.podmanRuntimeButton = page.getByRole('button', {
+      name: 'Podman Container Engine Runtime',
+    });
+    this.kubernetesRuntimeButton = page.getByRole('button', {
+      name: 'Kubernetes Cluster Runtime',
       exact: true,
     });
+    this.kubernetesContext = this.kubernetesRuntimeButton.getByLabel('Default Kubernetes Context');
+    this.kubernetesNamespaces = this.kubernetesRuntimeButton.getByLabel('Kubernetes Namespace', { exact: true });
     this.playButton = page.getByRole('button', { name: 'Play' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
   }
@@ -73,13 +77,31 @@ export class PlayKubeYamlPage extends BasePage {
 
         if (kubernetesNamespace) {
           await playExpect(this.kubernetesNamespaces).toBeVisible();
-          const namespaceOptions = await this.kubernetesNamespaces.locator('option').allInnerTexts();
-          if (namespaceOptions.includes(kubernetesNamespace)) {
-            await this.kubernetesNamespaces.selectOption({ value: kubernetesNamespace });
-            await playExpect(this.kubernetesNamespaces).toHaveValue(kubernetesNamespace);
+          await this.kubernetesNamespaces.click();
+
+          /*const namespaceOptions = await this.kubernetesNamespaces
+            .locator("option")
+            .allInnerTexts();*/
+
+          const namespaceSelection = this.kubernetesNamespaces
+            .getByRole('button', { name: kubernetesNamespace })
+            .first();
+
+          await playExpect(namespaceSelection).toBeEnabled();
+          await namespaceSelection.click();
+          await playExpect(this.kubernetesNamespaces).toContainText(kubernetesNamespace);
+          /*if (namespaceOptions.includes(kubernetesNamespace)) {
+            await this.kubernetesNamespaces.selectOption({
+              value: kubernetesNamespace,
+            });
+            await playExpect(this.kubernetesNamespaces).toHaveValue(
+              kubernetesNamespace,
+            );
           } else {
-            throw new Error(`Kubernetes namespace: ${kubernetesNamespace} doesn't exist`);
-          }
+            throw new Error(
+              `Kubernetes namespace: ${kubernetesNamespace} doesn't exist`,
+            );
+          }*/
         }
         break;
       default:
