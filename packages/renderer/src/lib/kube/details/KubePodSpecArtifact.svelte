@@ -8,6 +8,7 @@ import Title from '/@/lib/details/DetailsTitle.svelte';
 import Container from './KubeContainerArtifact.svelte';
 import Volume from './KubeVolumeArtifact.svelte';
 
+export let namespace: string | undefined;
 export let podName: string | undefined;
 export let artifact: V1PodSpec | undefined;
 </script>
@@ -41,7 +42,7 @@ export let artifact: V1PodSpec | undefined;
       <tr>
         <Subtitle>{container.name}</Subtitle>
       </tr>
-      <Container podName={podName} artifact={container} />
+      <Container namespace={namespace} podName={podName} artifact={container} />
     {/each}
   {/if}
 
