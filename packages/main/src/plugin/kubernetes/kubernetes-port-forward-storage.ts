@@ -379,6 +379,17 @@ export class ConfigManagementService {
   }
 
   /**
+   * Update an existing forward configuration.
+   * @param oldConfig - The forward configuration to update
+   * @param newConfig - The
+   * @returns The updated configuration
+   * @see UserForwardConfig
+   */
+  async updateForward(oldConfig: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig> {
+    return this.configStorage.updateForward(oldConfig, newConfig);
+  }
+
+  /**
    * Lists all forward configurations.
    * @returns A list of forward configurations.
    * @see UserForwardConfig

@@ -20,9 +20,9 @@
  * Enumeration representing the kind of Kubernetes workload.
  */
 export enum WorkloadKind {
-  POD,
-  DEPLOYMENT,
-  SERVICE,
+  POD = 'pod',
+  DEPLOYMENT = 'deployment',
+  SERVICE = 'service',
 }
 
 /**
@@ -38,6 +38,32 @@ export interface PortMapping {
    * The remote port number.
    */
   remotePort: number;
+}
+
+export interface ForwardOptions {
+  /**
+   * The name of the resource.
+   */
+  name: string;
+
+  /**
+   * The namespace of the resource.
+   */
+  namespace: string;
+
+  /**
+   * The kind of the workload.
+   */
+  kind: WorkloadKind;
+
+  /**
+   * The forward to create
+   */
+  forward: PortMapping;
+  /**
+   * The display name for the forward configuration.
+   */
+  displayName: string;
 }
 
 /**
