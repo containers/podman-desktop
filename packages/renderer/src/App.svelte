@@ -42,7 +42,7 @@ import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
-import KubernetesEmptyPage from './lib/kube/KubernetesEmptyPage.svelte';
+import KubernetesDashboard from './lib/kube/KubernetesDashboard.svelte';
 import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import NodeDetails from './lib/node/NodeDetails.svelte';
 import NodesList from './lib/node/NodesList.svelte';
@@ -232,14 +232,17 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         {#if $kubernetesCurrentContextState.error === NO_CURRENT_CONTEXT_ERROR}
           <Route path="/kubernetes/*" breadcrumb="Kubernetes" navigationHint="root">
-            <KubernetesEmptyPage />
+            <KubernetesDashboard />
           </Route>
         {:else}
-          <!-- Redirect /kubernetes to nodes if we end up on /kubernetes without a context error
-           we use router.goto to preserve the navbar remembering the navigation location.
+          <!-- Redirect /kubernetes to dashboard if we end up on /kubernetes without a context error 
+           we use router.goto to preserve the navbar remembering the navigation location. 
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
-            {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/nodes' : ($lastSubmenuPages['Kubernetes'] ?? '/kubernetes/nodes'))}
+            {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/dashboard' : ($lastSubmenuPages['Kubernetes'] ?? '/kubernetes/dashboard'))}
+          </Route>
+          <Route path="/kubernetes/dashboard" breadcrumb="Dashboard" navigationHint="root">
+            <KubernetesDashboard />
           </Route>
           <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
             <NodesList />
