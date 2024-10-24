@@ -497,7 +497,7 @@ export class ExtensionLoader {
     const existingExtensions = onStart ? analyzedExtensions : await this.listExtensions();
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
-      extension.manifest?.extensionDependencies?.forEach(async (dependency: string) => {
+      extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
         if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
         }
