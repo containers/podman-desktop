@@ -40,6 +40,32 @@ export interface PortMapping {
   remotePort: number;
 }
 
+export interface ForwardOptions {
+  /**
+   * The name of the resource.
+   */
+  name: string;
+
+  /**
+   * The namespace of the resource.
+   */
+  namespace: string;
+
+  /**
+   * The kind of the workload.
+   */
+  kind: WorkloadKind;
+
+  /**
+   * The forward to create
+   */
+  forward: PortMapping;
+  /**
+   * The display name for the forward configuration.
+   */
+  displayName: string;
+}
+
 /**
  * Interface representing the configuration for forwarding ports.
  * @see WorkloadKind
