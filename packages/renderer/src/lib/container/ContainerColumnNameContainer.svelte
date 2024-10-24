@@ -15,7 +15,7 @@ function openContainerDetails(container: ContainerInfoUI): void {
     <div class="max-w-full">
       <div class="flex flex-nowrap max-w-full">
         <div
-          class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-violet-400"
+          class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-[var(--pd-link)]"
           title={object.name}>
           {object.name}
         </div>
