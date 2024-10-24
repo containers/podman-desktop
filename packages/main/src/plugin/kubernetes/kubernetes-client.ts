@@ -232,7 +232,10 @@ export class KubernetesClient {
     // Update the property on change
     this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'kubernetes.Kubeconfig') {
-        const val = e.value as string;
+        let val = e.value as string;
+        if (!val?.trim()) {
+          val = defaultKubeconfigPath;
+        }
         this.setupWatcher(val);
         await this.setKubeconfig(Uri.file(val));
       }
