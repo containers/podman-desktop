@@ -40,7 +40,6 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
   #privateKey: string;
   #client: Client | undefined;
   #stream: ClientChannel | undefined;
-  #connected: boolean = false;
 
   constructor(private readonly podmanMachine: MachineInfo) {
     this.#host = 'localhost';
@@ -51,10 +50,6 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
 
   dispose(): void {
     this.close();
-  }
-
-  protected isConnected(): boolean {
-    return this.#connected;
   }
 
   onDataEmit = new EventEmitter<ProviderConnectionShellAccessData>();
