@@ -23,8 +23,14 @@ import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-po
 import { ConfigManagementService, MemoryBasedStorage } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
+import { Disposable } from '/@/plugin/types/disposable.js';
 import { isFreePort } from '/@/plugin/util/port.js';
-import type { ForwardConfig, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type {
+  ForwardConfig,
+  ForwardOptions,
+  PortMapping,
+  UserForwardConfig,
+} from '/@api/kubernetes-port-forward-model.js';
 
 /**
  * Service provider for Kubernetes port forwarding.
@@ -83,38 +89,88 @@ export class KubernetesPortForwardService implements IDisposable {
 
   dispose(): void {
     this.#disposables.forEach(disposable => disposable.dispose());
-  }
-
-  private getPortForwardKey(config: ForwardConfig): string {
-    return `${config.namespace}/${config.name}/${config.kind}`;
+    this.#disposables.clear();
   }
 
   /**
-   * Creates a new forward configuration.
-   * @param config - The forward configuration to create.
-   * @returns The created forward configuration.
-   * @see UserForwardConfig
+   * Each key is specific for a dedicated remotePort
+   * @param config
+   * @param mapping
+   * @private
    */
-  async createForward(config: UserForwardConfig): Promise<ForwardConfig> {
-    const forwardConfig = await this.configManagementService.createForward(config);
+  private getPortForwardKey(config: ForwardConfig, mapping: PortMapping): string {
+    return `${config.namespace}/${config.name}/${config.kind}/${mapping.remotePort}`;
+  }
+
+  /**
+   * Creates a new forward
+   * If we have an already existing ForwardConfig we will update it
+   * @returns The created forward configuration.
+   * @see
+   * @param options
+   */
+  async createForward(options: ForwardOptions): Promise<UserForwardConfig> {
+    const configs = await this.listForwards();
+    const userForwardConfig: UserForwardConfig | undefined = configs.find(
+      config => config.name === options.name && config.namespace === options.namespace && config.kind === options.kind,
+    );
+    let result: UserForwardConfig;
+    if (userForwardConfig) {
+      result = await this.configManagementService.updateForward(userForwardConfig, {
+        name: options.name,
+        forwards: [...userForwardConfig.forwards, options.forward],
+        namespace: options.namespace,
+        kind: options.kind,
+        displayName: options.displayName,
+      });
+    } else {
+      result = await this.configManagementService.createForward({
+        name: options.name,
+        forwards: [options.forward],
+        namespace: options.namespace,
+        kind: options.kind,
+        displayName: options.displayName,
+      });
+    }
+
     this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
-    return forwardConfig;
+    return result;
   }
 
   /**
    * Deletes an existing forward configuration.
    * @param config - The forward configuration to delete.
+   * @param mapping - The mapping to delete, if mapping is undefined, delete all
    * @returns Void if the operation successful.
    * @see UserForwardConfig
    */
-  async deleteForward(config: UserForwardConfig): Promise<void> {
-    const key = this.getPortForwardKey(config);
-    const disposable = this.#disposables.get(key);
-    if (disposable) {
-      disposable.dispose();
-      this.#disposables.delete(key);
+  async deleteForward(config: UserForwardConfig, mapping?: PortMapping): Promise<void> {
+    const keys: string[] = [];
+    if (mapping) {
+      keys.push(this.getPortForwardKey(config, mapping));
+    } else {
+      keys.push(...config.forwards.map(forward => this.getPortForwardKey(config, forward)));
     }
-    await this.configManagementService.deleteForward(config);
+
+    for (const key of keys) {
+      const disposable = this.#disposables.get(key);
+      if (disposable) {
+        disposable.dispose();
+        this.#disposables.delete(key);
+      }
+    }
+
+    const newConfig: UserForwardConfig = {
+      ...config,
+      forwards: config.forwards.filter(forward => !keys.includes(this.getPortForwardKey(config, forward))),
+    };
+
+    if (newConfig.forwards.length === 0) {
+      await this.configManagementService.deleteForward(config);
+    } else {
+      await this.configManagementService.updateForward(config, newConfig);
+    }
+
     this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
   }
 
@@ -134,8 +190,17 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see ForwardConfig
    */
   async startForward(config: ForwardConfig): Promise<IDisposable> {
-    const disposable = await this.forwardingConnectionService.startForward(config);
-    this.#disposables.set(this.getPortForwardKey(config), disposable);
-    return disposable;
+    const disposables: IDisposable[] = [];
+    for (const forward of config.forwards) {
+      const key = this.getPortForwardKey(config, forward);
+
+      if (!this.#disposables.has(key)) {
+        const disposable = await this.forwardingConnectionService.startForward(config, forward);
+        disposables.push(disposable);
+        this.#disposables.set(key, disposable);
+      }
+    }
+
+    return Disposable.from(...disposables);
   }
 }
