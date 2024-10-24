@@ -2471,6 +2471,9 @@ export class ContainerProviderRegistry {
         if (options?.pull) {
           buildOptions.pull = options.pull;
         }
+        if (options?.containerFile) {
+          buildOptions.dockerfile = options.containerFile;
+        }
         streamingPromise = await matchingContainerProviderApi.buildImage(tarStream, buildOptions);
       } catch (error: unknown) {
         console.log('error in buildImage', error);
