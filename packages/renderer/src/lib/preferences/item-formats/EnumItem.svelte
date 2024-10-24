@@ -26,7 +26,7 @@ function onChangeHandler(newValue: unknown) {
   ariaLabel={record.description}>
   {#if record.enum}
     {#each record.enum as recordEnum}
-      <option value={recordEnum}>{recordEnum}</option>
+      <option class="bg-[var(--pd-input-field-focused-bg)]" value={recordEnum}>{recordEnum}</option>
     {/each}
   {/if}
 </Dropdown>
