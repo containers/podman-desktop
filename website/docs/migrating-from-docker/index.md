@@ -8,10 +8,10 @@ tags: [migrating-from-docker]
 
 # Migration from Docker to Podman Desktop
 
-When you have used Docker in the past, you can continue using familiar workflows with Podman Desktop:
+If you have used Docker in the past, you can continue using familiar workflows with the Docker compatibility feature of Podman Desktop.
 
-- [Importing saved containers to Podman to continue using familiar containers](/docs/migrating-from-docker/importing-saved-containers)
-- [Using the `DOCKER_HOST` environment variable to let your tools communicate directly with the Podman socket](/docs/migrating-from-docker/using-the-docker_host-environment-variable)
-- [Using the `podman-mac-helper` tool on macOS to redirect the Docker socket to the Podman socket](/docs/migrating-from-docker/using-podman-mac-helper)
-- [Emulating Docker CLI with Podman to continue using tools depending on the Docker CLI](/docs/migrating-from-docker/emulating-docker-cli-with-podman)
-- [Verifying that your tools are using Podman](/docs/migrating-from-docker/verifying-your-tools-are-using-podman)
+Docker compatibility is a way to configure an environment in which you can run your Docker applications, commands, and tools on a Podman engine without reconfiguration. It encompasses two stages:
+- [Import your saved containers](/docs/migrating-from-docker/importing-saved-containers) into Podman Desktop using CLI. 
+- [Access the Docker Compatibility settings](/docs/migrating-from-docker/managing-docker-compatibility) to configure a Docker-compatible environment based on your needs.
+
+
