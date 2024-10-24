@@ -65,7 +65,7 @@ export class KubernetesPortForwardServiceProvider {
  * @see KubernetesPortForwardServiceProvider.getService
  */
 export class KubernetesPortForwardService implements IDisposable {
-  #disposables: IDisposable[] = [];
+  #disposables: Map<string, IDisposable> = new Map();
 
   /**
    * Creates an instance of KubernetesPortForwardService.
@@ -83,6 +83,10 @@ export class KubernetesPortForwardService implements IDisposable {
 
   dispose(): void {
     this.#disposables.forEach(disposable => disposable.dispose());
+  }
+
+  private getPortForwardKey(config: ForwardConfig): string {
+    return `${config.namespace}/${config.name}/${config.kind}`;
   }
 
   /**
@@ -104,6 +108,12 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
+    const key = this.getPortForwardKey(config);
+    const disposable = this.#disposables.get(key);
+    if (disposable) {
+      disposable.dispose();
+      this.#disposables.delete(key);
+    }
     await this.configManagementService.deleteForward(config);
     this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
   }
@@ -125,7 +135,7 @@ export class KubernetesPortForwardService implements IDisposable {
    */
   async startForward(config: ForwardConfig): Promise<IDisposable> {
     const disposable = await this.forwardingConnectionService.startForward(config);
-    this.#disposables.push(disposable);
+    this.#disposables.set(this.getPortForwardKey(config), disposable);
     return disposable;
   }
 }

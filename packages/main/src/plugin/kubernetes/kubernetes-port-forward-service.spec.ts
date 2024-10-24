@@ -125,12 +125,13 @@ describe('KubernetesPortForwardService', () => {
     expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
   });
 
-  test('should dispose for a given configuration', async () => {
-    const disposable = await service.startForward(sampleForwardConfig);
+  test('should dispose on delete', async () => {
+    const result = await service.createForward(sampleUserForwardConfig);
+    const disposable = await service.startForward(result);
     expect(disposable).toHaveProperty('dispose');
     const disposeMock = vi.spyOn(disposable, 'dispose');
-    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
-    service.dispose();
+    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(result);
+    await service.deleteForward(sampleUserForwardConfig);
     expect(disposeMock).toHaveBeenCalled();
   });
 });
