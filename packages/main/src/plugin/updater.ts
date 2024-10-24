@@ -415,7 +415,6 @@ export class Updater {
   }
 
   public updateAvailable(): boolean {
-    console.log(!!this.#nextVersion);
     return !!this.#nextVersion;
   }
 

@@ -782,3 +782,26 @@ test('update is not available when next version is less than the current version
 
   expect(updater.updateAvailable()).toBeFalsy();
 });
+
+test('update is not available when next version empty', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeFalsy();
+});
