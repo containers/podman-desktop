@@ -10,6 +10,7 @@
       "**/builtin/*.cdix/**",
       "**/coverage/**",
       "**/dist/**",
+      "**/output/**",
       "**/packages/ui/.svelte-kit/**",
       "**/exposedIn*.d.ts",
       "website/.docusaurus/**",
