@@ -1039,6 +1039,7 @@ export const PODMAN_MACHINE_DISK_SUPPORTED_KEY = 'podman.podmanMachineDiskSuppor
 export const PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY = 'podman.isLibkrunSupported';
 export const CREATE_WSL_MACHINE_OPTION_SELECTED_KEY = 'podman.isCreateWSLOptionSelected';
 export const WSL_HYPERV_ENABLED_KEY = 'podman.wslHypervEnabled';
+export const PODMAN_DOCKER_COMPAT_ENABLE_KEY = 'podman.podmanDockerCompatibilityEnabled';
 
 export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
@@ -1390,8 +1391,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
     });
 
+    // register two commands to enable and disable compatibility mode
+    extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand('podman.disableCompatibilityMode', async () => {
+        await switchCompatibilityMode(false);
+      }),
+    );
+    extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand('podman.enableCompatibilityMode', async () => {
+        await switchCompatibilityMode(true);
+      }),
+    );
+
     // Get the socketCompatibilityClass for the current OS.
     const socketCompatibilityMode = getSocketCompatibility();
+    // update the initial context value
+    const compatibilityEnabled = socketCompatibilityMode.isEnabled();
+    extensionApi.context.setValue(PODMAN_DOCKER_COMPAT_ENABLE_KEY, compatibilityEnabled);
 
     // Create a status bar item to show the status of compatibility mode as well as
     // create a command so when you can disable / enable compatibility mode
@@ -1420,7 +1436,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Enable') {
-          await socketCompatibilityMode.enable();
+          await switchCompatibilityMode(true);
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
@@ -1430,7 +1446,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Disable') {
-          await socketCompatibilityMode.disable();
+          await switchCompatibilityMode(false);
         }
       }
       // Use tooltip text from class
@@ -2230,13 +2246,20 @@ function getCompatibilityModeSetting(): boolean {
 // and retrieving the correct socket compatibility class as well
 export async function handleCompatibilityModeSetting(): Promise<void> {
   const compatibilityMode = getCompatibilityModeSetting();
+
+  await switchCompatibilityMode(compatibilityMode);
+}
+
+async function switchCompatibilityMode(enabled: boolean): Promise<void> {
   const socketCompatibilityMode = getSocketCompatibility();
 
-  if (compatibilityMode) {
+  if (enabled) {
     await socketCompatibilityMode.enable();
   } else {
     await socketCompatibilityMode.disable();
   }
+  // update the context value
+  extensionApi.context.setValue(PODMAN_DOCKER_COMPAT_ENABLE_KEY, socketCompatibilityMode.isEnabled());
 }
 
 export function updateWSLHyperVEnabledContextValue(value: boolean): void {

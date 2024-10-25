@@ -2588,6 +2588,87 @@ async function testAudit(path: string, uri: string, condition: typeof expect | t
   expect(auditRecords.records).toEqual(condition.arrayContaining([expect.objectContaining({ type: 'error' })]));
 }
 
+test('activate on mac register commands for setting compatibility moide ', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(isWindows).mockReturnValue(false);
+  vi.mocked(isLinux).mockReturnValue(false);
+  vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
+    hasUpdate: false,
+  } as unknown as UpdateCheck);
+  const contextMock = {
+    subscriptions: [],
+    secrets: {
+      delete: vi.fn(),
+      get: vi.fn(),
+      onDidChange: vi.fn(),
+      store: vi.fn(),
+    },
+  } as unknown as extensionApi.ExtensionContext;
+
+  // mock getSocketCompatibility
+  const disableMock = vi.fn();
+  const enableMock = vi.fn();
+  const isEnabledMock = vi.fn().mockReturnValue(false);
+  const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
+  mock.mockReturnValue({
+    isEnabled: isEnabledMock,
+    enable: enableMock,
+    disable: disableMock,
+    details: '',
+    tooltipText: (): string => {
+      return '';
+    },
+  });
+
+  const api = await extension.activate(contextMock);
+  expect(api).toBeDefined();
+
+  // expect the command to be registered
+  expect(extensionApi.commands.registerCommand).toBeCalledWith('podman.disableCompatibilityMode', expect.any(Function));
+
+  // get the command
+  const disableCallcommand = vi
+    .mocked(extensionApi.commands.registerCommand)
+    .mock.calls?.find(call => call[0] === 'podman.disableCompatibilityMode');
+  expect(disableCallcommand).toBeDefined();
+  // get the command
+  const disableCommand = disableCallcommand?.[1];
+  expect(disableCommand).toBeDefined();
+
+  // call the command
+  await disableCommand?.();
+
+  // expect the command to be registered
+  expect(extensionApi.commands.registerCommand).toBeCalledWith('podman.enableCompatibilityMode', expect.any(Function));
+
+  // expect we have set the context value as well
+  expect(extensionApi.context.setValue).toBeCalledWith('podman.podmanDockerCompatibilityEnabled', false);
+  expect(disableMock).toBeCalled();
+
+  // now, call the enable command
+  const enableCallcommand = vi
+    .mocked(extensionApi.commands.registerCommand)
+    .mock.calls?.find(call => call[0] === 'podman.enableCompatibilityMode');
+  expect(enableCallcommand).toBeDefined();
+
+  // clear the calls
+  vi.mocked(extensionApi.context.setValue).mockClear();
+  enableMock.mockClear();
+  disableMock.mockClear();
+  isEnabledMock.mockReturnValue(true);
+
+  // get the command
+  const enableCommand = enableCallcommand?.[1];
+  expect(enableCommand).toBeDefined();
+
+  // call the command
+  await enableCommand?.();
+
+  // expect we have set the context value as well
+  expect(extensionApi.context.setValue).toBeCalledWith('podman.podmanDockerCompatibilityEnabled', true);
+  expect(enableMock).toBeCalled();
+});
+
 describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %s', os => {
   beforeEach(() => {
     vi.mocked(util.isMac).mockReturnValue(os === 'mac');
