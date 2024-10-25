@@ -826,3 +826,26 @@ test('update version is not full semver', async () => {
 
   expect(updater.updateAvailable()).toBeTruthy();
 });
+
+test('versions are not numbered versions', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: 'foo',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('bar');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
+});
