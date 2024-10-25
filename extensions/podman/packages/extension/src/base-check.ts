@@ -85,7 +85,11 @@ export class OrCheck extends BaseCheck {
   }
 
   async execute(): Promise<extensionApi.CheckResult> {
-    const result = await this.left.execute();
-    return result.successful ? result : await this.right.execute();
+    const leftResult = await this.left.execute();
+    if (leftResult.successful) {
+      return leftResult;
+    }
+    const rightResult = await this.right.execute();
+    return rightResult.successful ? rightResult : leftResult;
   }
 }
