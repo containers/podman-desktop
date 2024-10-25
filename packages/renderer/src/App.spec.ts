@@ -214,3 +214,11 @@ test('go to nodes page when last kubernetes page not available', async () => {
   await tick();
   expect(mocks.NodesList).toHaveBeenCalled();
 });
+
+test('receive show-release-notes event from main', async () => {
+  render(App);
+
+  messages.get('show-release-notes');
+
+  expect(mocks.DashboardPage).toBeCalled();
+});
