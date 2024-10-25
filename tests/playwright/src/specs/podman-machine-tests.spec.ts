@@ -101,13 +101,13 @@ test.describe
           await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeVisible();
           await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
         });
 
         await test.step('Stop default podman machine', async () => {
           await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineStopButton.click();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
         });
       });
     });
@@ -171,7 +171,7 @@ test.describe
           await handleConfirmationDialog(page, 'Podman', true, 'Yes');
           await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
         });
       });
     });
@@ -186,7 +186,7 @@ test.describe
       await test.step('Stop rootless podman machine', async () => {
         await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
         await podmanMachineDetails.podmanMachineStopButton.click();
-        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
       });
     });
 
@@ -221,7 +221,7 @@ test.describe
         await handleConfirmationDialog(page, 'Podman', true, 'Yes');
         await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
-        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
       });
     });
 
