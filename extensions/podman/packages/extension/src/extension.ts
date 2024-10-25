@@ -1378,7 +1378,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Compatibility mode status bar item
   // only available for macOS
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     // Handle any configuration changes (for example, changing the boolean button for compatibility mode)
     extensionApi.configuration.onDidChangeConfiguration(async e => {
       if (e.affectsConfiguration(`podman.${configurationCompatibilityMode}`)) {
