@@ -27,7 +27,7 @@ import { Disposable } from '@podman-desktop/api';
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { DarwinSocketCompatibility } from './compatibility-mode';
+import * as compatibilityModeLib from './compatibility-mode';
 import {
   checkDisguisedPodmanSocket,
   initCheckAndRegisterUpdate,
@@ -120,6 +120,12 @@ const mocks = vi.hoisted(() => ({
 vi.mock('ps-list', async () => {
   return {
     default: vi.fn(),
+  };
+});
+
+vi.mock('./compatibility-mode', async () => {
+  return {
+    getSocketCompatibility: vi.fn(),
   };
 });
 
@@ -323,6 +329,17 @@ beforeEach(() => {
   (extensionApi.env.isMac as boolean) = true;
   (extensionApi.env.isLinux as boolean) = false;
   (extensionApi.env.isWindows as boolean) = false;
+
+  const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
+  mock.mockReturnValue({
+    isEnabled: () => false,
+    enable: vi.fn(),
+    disable: vi.fn(),
+    details: '',
+    tooltipText: (): string => {
+      return '';
+    },
+  });
 });
 
 afterEach(() => {
@@ -1098,20 +1115,17 @@ test('handlecompatibilitymodesetting: enable called when configuration setting h
   const spyGetConfiguration = vi.spyOn(config, 'get');
   spyGetConfiguration.mockReturnValue(true);
 
-  // Mock that everything passes compatibility wise, since we only want to see if the function has been called.
-  const socketCompatClass = new DarwinSocketCompatibility();
-  const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
-  spyFindPodmanHelper.mockReturnValue('/opt/podman/bin/podman-mac-helper');
-
-  // Mock that admin command ran successfully (since we cannot test interactive mode priv in vitest / has to be integration tests)
-  const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runMacHelperCommandWithAdminPriv');
-  spyMacHelperCommand.mockImplementation(() => {
-    return Promise.resolve();
+  const enableMock = vi.fn();
+  const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
+  mock.mockReturnValue({
+    isEnabled: () => false,
+    enable: enableMock,
+    disable: vi.fn(),
+    details: '',
+    tooltipText: (): string => {
+      return '';
+    },
   });
-
-  const getSocketCompatibilityMock = vi.fn().mockReturnValue(socketCompatClass);
-  (extension as any).getSocketCompatibility = getSocketCompatibilityMock;
-
   // Mock async method findRunningMachine to return default
   const spyFindRunningMachine = vi.spyOn(extension, 'findRunningMachine');
   spyFindRunningMachine.mockImplementation(() => {
@@ -1121,13 +1135,8 @@ test('handlecompatibilitymodesetting: enable called when configuration setting h
   // Run handleCompatibilityModeSetting
   await extension.handleCompatibilityModeSetting();
 
-  // Check to see that the showInformationMessage asks the user to restart the machine to enable compatibility mode
-  // since we are resolving as the machine is running.
-  expect(extensionApi.window.showInformationMessage).toBeCalledWith(
-    `Restarting your Podman machine is required to apply the changes. Would you like to restart the Podman machine 'default' now?`,
-    'Yes',
-    'Cancel',
-  );
+  // check to see if enable has been called
+  expect(enableMock).toHaveBeenCalled();
 });
 
 test('handlecompatibilitymodesetting: disable compatibility called when configuration setting has been set to false', async () => {
@@ -1145,35 +1154,23 @@ test('handlecompatibilitymodesetting: disable compatibility called when configur
   const spyGetConfiguration = vi.spyOn(config, 'get');
   spyGetConfiguration.mockReturnValue(false);
 
-  // Mock that everything passes compatibility wise, since we only want to see if the function has been called.
-  const socketCompatClass = new DarwinSocketCompatibility();
-  const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
-  spyFindPodmanHelper.mockReturnValue('/opt/podman/bin/podman-mac-helper');
-
-  // Mock that admin command ran successfully (since we cannot test interactive mode priv in vitest / has to be integration tests)
-  const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runMacHelperCommandWithAdminPriv');
-  spyMacHelperCommand.mockImplementation(() => {
-    return Promise.resolve();
+  const disableMock = vi.fn();
+  const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
+  mock.mockReturnValue({
+    isEnabled: () => true,
+    enable: vi.fn(),
+    disable: disableMock,
+    details: '',
+    tooltipText: (): string => {
+      return '';
+    },
   });
-
-  const getSocketCompatibilityMock = vi.fn().mockReturnValue(socketCompatClass);
-  (extension as any).getSocketCompatibility = getSocketCompatibilityMock;
-
-  // Mock async method findRunningMachine to return default
-  const spyFindRunningMachine = vi.spyOn(extension, 'findRunningMachine');
-  spyFindRunningMachine.mockImplementation(() => {
-    return Promise.resolve('');
-  });
-
-  // Spy on "promptRestart", this should only appear if the machine is running.
-  const disableMessage = vi.spyOn(extensionApi.window, 'showInformationMessage');
 
   // Run handleCompatibilityModeSetting
   await extension.handleCompatibilityModeSetting();
-  await socketCompatClass.disable();
 
   // Make sure that it returns that the compatibility mode has been disabled
-  expect(disableMessage).toHaveBeenCalledWith('Docker socket compatibility mode for Podman has been disabled.');
+  expect(disableMock).toHaveBeenCalled();
 });
 
 test('ensure started machine reports default configuration', async () => {
