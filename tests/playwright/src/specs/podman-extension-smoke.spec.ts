@@ -100,18 +100,18 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // --------------------------
   if (enabled) {
     await playExpect(podmanExtensionPage.enableButton).not.toBeVisible({
-      timeout: 10000,
+      timeout: 10_000,
     });
     await playExpect(podmanExtensionPage.disableButton).toBeVisible({
-      timeout: 10000,
+      timeout: 10_000,
     });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_ACTIVE)).toBeVisible();
   } else {
     await playExpect(podmanExtensionPage.enableButton).toBeVisible({
-      timeout: 10000,
+      timeout: 10_000,
     });
     await playExpect(podmanExtensionPage.disableButton).not.toBeVisible({
-      timeout: 10000,
+      timeout: 10_000,
     });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_DISABLED)).toBeVisible();
   }
