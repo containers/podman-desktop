@@ -64,7 +64,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <ConfigMapSecretActions configMapSecret={secret} detailed={true} on:update={() => (secret = secret)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={secret.status} />
     </div>
     <svelte:fragment slot="tabs">

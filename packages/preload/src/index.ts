@@ -67,6 +67,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry';
 import type { KubeContext } from '/@api/kubernetes-context';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification';
@@ -835,9 +836,12 @@ export function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('getProxySettings', async (): Promise<containerDesktopAPI.ProxySettings> => {
-    return ipcInvoke('proxy:getSettings');
-  });
+  contextBridge.exposeInMainWorld(
+    'getProxySettings',
+    async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
+      return ipcInvoke('proxy:getSettings');
+    },
+  );
 
   contextBridge.exposeInMainWorld('getProxyState', async (): Promise<ProxyState> => {
     return ipcInvoke('proxy:getState');
@@ -2109,6 +2113,21 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesRefreshContextState', async (context: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:refreshContextState', context);
+  });
+
+  contextBridge.exposeInMainWorld('getKubernetesPortForwards', async (): Promise<UserForwardConfig[]> => {
+    return ipcInvoke('kubernetes-client:getPortForwards');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'createKubernetesPortForward',
+    async (config: UserForwardConfig): Promise<UserForwardConfig> => {
+      return ipcInvoke('kubernetes-client:createPortForward', config);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('deleteKubernetesPortForward', async (config: UserForwardConfig): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deletePortForward', config);
   });
 
   contextBridge.exposeInMainWorld(

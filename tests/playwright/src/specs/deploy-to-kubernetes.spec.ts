@@ -65,6 +65,7 @@ test.afterAll(async ({ runner, page }) => {
     await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
   } finally {
     await runner.close();
+    console.log('Runner closed');
   }
 });
 

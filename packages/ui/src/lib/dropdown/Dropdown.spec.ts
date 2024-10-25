@@ -72,6 +72,28 @@ test('initial focus is not set by default', async () => {
   expect(input).not.toHaveFocus();
 });
 
+test('value sets the initial option', async () => {
+  render(Dropdown, {
+    value: 'b',
+    options: [
+      { label: 'A', value: 'a' },
+      { label: 'B', value: 'b' },
+    ],
+  });
+
+  const input = screen.getByRole('button');
+  expect(input).not.toHaveFocus();
+  expect(input).toHaveTextContent('B');
+});
+
+test('first option is picked by default', async () => {
+  render(Dropdown, { options: [{ label: 'A', value: 'a' }] });
+
+  const input = screen.getByRole('button');
+  expect(input).not.toHaveFocus();
+  expect(input).toHaveTextContent('A');
+});
+
 test('should be able to navigate with keys', async () => {
   render(DropdownTest);
   const input = screen.getByRole('button');

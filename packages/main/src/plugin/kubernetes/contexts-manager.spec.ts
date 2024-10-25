@@ -35,6 +35,8 @@ const PODS_DEFAULT = 3;
 const DEPLOYMENTS_NS1 = 4;
 const DEPLOYMENTS_NS2 = 5;
 const DEPLOYMENTS_DEFAULT = 6;
+const NODES_CONTEXT1 = 1;
+const NODES_CONTEXT2 = 2;
 
 class TestContextsManager extends ContextsManager {
   getStates(): ContextsStatesRegistry {
@@ -77,6 +79,14 @@ function fakeMakeInformer(
       return buildFakeInformer(DEPLOYMENTS_NS2);
     case '/apis/apps/v1/namespaces/default/deployments':
       return buildFakeInformer(DEPLOYMENTS_DEFAULT);
+
+    case '/api/v1/nodes':
+      switch (kubeconfig.currentContext) {
+        case 'context1':
+          return buildFakeInformer(NODES_CONTEXT1);
+        case 'context2':
+          return buildFakeInformer(NODES_CONTEXT2);
+      }
   }
   return buildFakeInformer(0);
 }
@@ -87,6 +97,23 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
+function contextHasBeenChecked(contextName: string): boolean {
+  for (const call of apiSenderSendMock.mock.calls) {
+    if (call[0] === 'kubernetes-contexts-checking-state-update') {
+      try {
+        const val: Map<string, CheckingState> = call[1];
+        const state = val.get(contextName);
+        if (state?.state === 'checking') {
+          return true;
+        }
+      } catch {
+        // noop
+      }
+    }
+  }
+  return false;
+}
+
 vi.mock('@kubernetes/client-node', async importOriginal => {
   const actual = await importOriginal<typeof kubeclient>();
   return {
@@ -95,14 +122,40 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
   };
 });
 
-// Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
+const connectTimeoutMock = vi.fn();
+const backoffInitialValueMock = vi.fn();
+const backoffMultiplierMock = vi.fn();
+const backoffMultiplierCurrentContextMock = vi.fn();
+const backoffLimitMock = vi.fn();
+const backoffLimitCurrentContextMock = vi.fn();
+const backoffJitterMock = vi.fn();
+const dispatchTimeoutMock = vi.fn();
 vi.mock('./contexts-constants.js', () => {
   return {
-    connectTimeout: 1,
-    backoffInitialValue: 10000,
-    backoffLimit: 1000,
-    backoffJitter: 0,
-    dispatchTimeout: 1,
+    get connectTimeout(): number {
+      return connectTimeoutMock();
+    },
+    get backoffInitialValue(): number {
+      return backoffInitialValueMock();
+    },
+    get backoffMultiplier(): number {
+      return backoffMultiplierMock();
+    },
+    get backoffMultiplierCurrentContext(): number {
+      return backoffMultiplierCurrentContextMock();
+    },
+    get backoffLimit(): number {
+      return backoffLimitMock();
+    },
+    get backoffLimitCurrentContext(): number {
+      return backoffLimitCurrentContextMock();
+    },
+    get backoffJitter(): number {
+      return backoffJitterMock();
+    },
+    get dispatchTimeout(): number {
+      return dispatchTimeoutMock();
+    },
   };
 });
 
@@ -112,11 +165,20 @@ const consoleDebugMock = vi.fn();
 beforeEach(() => {
   console.debug = consoleDebugMock;
   vi.useFakeTimers();
+  // Needs to mock these values to make the backoff much longer than other timeouts, so connection are never retried during the tests
+  connectTimeoutMock.mockReturnValue(1);
+  backoffInitialValueMock.mockReturnValue(10000);
+  backoffMultiplierMock.mockReturnValue(2.0);
+  backoffMultiplierCurrentContextMock.mockReturnValue(1.2);
+  backoffLimitMock.mockReturnValue(1000);
+  backoffLimitCurrentContextMock.mockReturnValue(1000);
+  backoffJitterMock.mockReturnValue(0);
+  dispatchTimeoutMock.mockReturnValue(1);
 });
 
 afterEach(() => {
   console.debug = originalConsoleDebug;
-  vi.resetAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('update', async () => {
@@ -286,7 +348,8 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
 
     // => removing context, should remove context from sent info
-    kubeConfig.loadFromOptions({
+    const kubeConfig2 = new kubeclient.KubeConfig();
+    kubeConfig2.loadFromOptions({
       clusters: config.clusters,
       users: config.users,
       contexts: config.contexts.filter(ctx => ctx.name !== 'context2-2'),
@@ -296,7 +359,7 @@ describe('update', async () => {
     dispatchGeneralStateSpy.mockReset();
     dispatchCurrentContextGeneralStateSpy.mockReset();
     dispatchCurrentContextResourceSpy.mockReset();
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
     expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
       checking: { state: 'waiting' },
@@ -1385,16 +1448,16 @@ describe('update', async () => {
       makeInformerMock.mockClear();
 
       config.currentContext = 'context2';
-      kubeConfig.loadFromOptions(config);
+      const kubeConfig2 = new KubeConfig();
+      kubeConfig2.loadFromOptions(config);
 
       expect(informerStopMock).not.toHaveBeenCalled();
 
-      await client.update(kubeConfig);
+      await client.update(kubeConfig2);
 
-      expect(informerStopMock).toHaveBeenCalledTimes(3);
-      expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-      expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-      expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', informerPath);
+      expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+      expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+      expect(informerStopMock).toHaveBeenCalledWith('context1', informerPath);
       expect(client.getContextResources('context1', resource as ResourceName).length).toBe(0);
     });
   });
@@ -1460,33 +1523,24 @@ describe('update', async () => {
     makeInformerMock.mockClear();
 
     config.currentContext = 'context2';
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns2/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns2/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/ns2/services',
       expect.anything(),
     );
   });
@@ -1552,27 +1606,24 @@ describe('update', async () => {
     makeInformerMock.mockClear();
 
     config.currentContext = 'context2';
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new kubeclient.KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
     client.unregisterGetCurrentContextResources('services');
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context2', '/apis/apps/v1/namespaces/ns2/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(2);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns2/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns2/deployments',
       expect.anything(),
@@ -1899,33 +1950,24 @@ describe('update', async () => {
         server: 'server2',
       },
     ];
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context1', '/api/v1/namespaces/ns1/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context1', '/apis/apps/v1/namespaces/ns1/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/apis/apps/v1/namespaces/ns1/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/ns1/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/ns1/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/ns1/services',
       expect.anything(),
     );
   });
@@ -1989,36 +2031,28 @@ describe('update', async () => {
     );
 
     makeInformerMock.mockClear();
+    config.contexts = [...config.contexts];
     if (config.contexts[0]) {
-      config.contexts[0].namespace = 'other-ns';
+      config.contexts[0] = { ...config.contexts[0], namespace: 'other-ns' };
     }
-    kubeConfig.loadFromOptions(config);
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
 
     expect(informerStopMock).not.toHaveBeenCalled();
 
-    await client.update(kubeConfig);
+    await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledTimes(3);
-    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context1', '/api/v1/namespaces/ns1/pods');
-    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context1', '/apis/apps/v1/namespaces/ns1/deployments');
-    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
-    expect(makeInformerMock).toHaveBeenCalledTimes(3);
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      1,
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/pods');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/apis/apps/v1/namespaces/ns1/deployments');
+    expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/api/v1/namespaces/other-ns/pods',
       expect.anything(),
     );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      2,
+    expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
       '/apis/apps/v1/namespaces/other-ns/deployments',
-      expect.anything(),
-    );
-    expect(makeInformerMock).toHaveBeenNthCalledWith(
-      3,
-      expect.any(KubeConfig),
-      '/api/v1/namespaces/other-ns/services',
       expect.anything(),
     );
   });
@@ -2083,8 +2117,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when namespace is changed',
-        stopInformerCalls: 2,
-        makeInformerCalls: 2,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
       {
         initialConfig: {
@@ -2151,8 +2185,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when user attrs changed',
-        stopInformerCalls: 2,
-        makeInformerCalls: 2,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
       {
         initialConfig: {
@@ -2219,9 +2253,9 @@ describe('update', async () => {
           ],
           currentContext: 'context1',
         },
-        testName: `does not restart if user name changed`,
-        stopInformerCalls: 0,
-        makeInformerCalls: 0,
+        testName: `restart if user name changed`,
+        stopInformerCalls: 4,
+        makeInformerCalls: 4,
       },
     ];
 
@@ -2257,13 +2291,11 @@ describe('update', async () => {
 
       expect(informerStopMock).toHaveBeenCalledTimes(stopInformerCalls);
       if (stopInformerCalls) {
-        expect(informerStopMock).toHaveBeenNthCalledWith(
-          1,
+        expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
           `/api/v1/namespaces/${initialConfig.contexts[1]?.namespace}/pods`,
         );
-        expect(informerStopMock).toHaveBeenNthCalledWith(
-          2,
+        expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
           `/apis/apps/v1/namespaces/${initialConfig.contexts[1]?.namespace}/deployments`,
         );
@@ -2271,14 +2303,12 @@ describe('update', async () => {
 
       expect(makeInformerMock).toHaveBeenCalledTimes(makeInformerCalls);
       if (makeInformerCalls) {
-        expect(makeInformerMock).toHaveBeenNthCalledWith(
-          1,
+        expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
           `/api/v1/namespaces/${updateConfig.contexts[1]?.namespace}/pods`,
           expect.anything(),
         );
-        expect(makeInformerMock).toHaveBeenNthCalledWith(
-          2,
+        expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
           `/apis/apps/v1/namespaces/${updateConfig.contexts[1]?.namespace}/deployments`,
           expect.anything(),
@@ -2339,7 +2369,151 @@ describe('update', async () => {
       expect.anything(),
     );
   });
+
+  test('switch from non reachable to reachable context should send correct data for second informers', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    client = new TestContextsManager(apiSender);
+
+    // nodes informer are registered from frontend
+    client.registerGetCurrentContextResources('nodes');
+
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+        {
+          name: 'cluster2',
+          server: 'server2',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+        {
+          name: 'user2',
+        },
+      ],
+      contexts: [
+        {
+          name: `context1`,
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+        {
+          name: `context2`,
+          cluster: 'cluster2',
+          user: 'user2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+
+    // Start with a non reachable context
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+    apiSenderSendMock.mockClear();
+
+    // Switch to reachable context
+
+    config.currentContext = 'context2';
+    const kubeConfig2 = new KubeConfig();
+    kubeConfig2.loadFromOptions(config);
+    await client.update(kubeConfig2);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-nodes-update', [
+      { metadata: { uid: '0' } },
+      { metadata: { uid: '1' } },
+    ]);
+    vi.advanceTimersByTime(100_000);
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-nodes-update', []);
+  });
+
+  test('should use different backoff for current context', async () => {
+    connectTimeoutMock.mockReturnValue(1);
+    backoffInitialValueMock.mockReturnValue(10_000);
+    backoffMultiplierMock.mockReturnValue(5.0);
+    backoffMultiplierCurrentContextMock.mockReturnValue(1.0);
+    backoffLimitMock.mockReturnValue(100_000);
+    backoffLimitCurrentContextMock.mockReturnValue(100_000);
+    backoffJitterMock.mockReturnValue(0);
+    dispatchTimeoutMock.mockReturnValue(1);
+
+    vi.useFakeTimers();
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = new Error('err');
+        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+        {
+          name: 'cluster2',
+          server: 'server2',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+        {
+          name: 'user2',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+        {
+          name: 'context2',
+          cluster: 'cluster2',
+          user: 'user2',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersByTime(50);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(10_000);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(20_000);
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeFalsy();
+    apiSenderSendMock.mockClear();
+    vi.advanceTimersByTime(30_000);
+    expect(contextHasBeenChecked('context2')).toBeTruthy();
+  });
 });
+
 describe('isContextInKubeconfig', () => {
   let client: ContextsManager;
   beforeAll(async () => {
@@ -2479,290 +2653,6 @@ describe('isContextInKubeconfig', () => {
     expect(exists).toBeTruthy();
   });
 });
-describe('isContextChanged with currentContext', () => {
-  let client: ContextsManager;
-  beforeAll(async () => {
-    vi.mocked(makeInformer).mockImplementation(
-      (
-        kubeconfig: kubeclient.KubeConfig,
-        path: string,
-        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-      ) => {
-        const connectResult = new Error('err');
-        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
-      },
-    );
-    const kubeConfig = new kubeclient.KubeConfig();
-    const config = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server',
-        },
-        {
-          name: 'cluster1',
-          server: 'server1',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-        {
-          name: 'user1',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context',
-    };
-    kubeConfig.loadFromOptions(config);
-    client = new ContextsManager(apiSender);
-    await client.update(kubeConfig);
-  });
-  test('return true if current context is different from the latest', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context2',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context2',
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeTruthy();
-  });
-  test('return true if current context is undefined', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context2',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeTruthy();
-  });
-  test('return true if current context has a different user compared to the latest', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server',
-        },
-      ],
-      users: [
-        {
-          name: 'user2',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context',
-      getCurrentUser: () => {
-        return {
-          name: 'user2',
-        } as kubeclient.User;
-      },
-      getCurrentCluster: () => {
-        return {
-          name: 'cluster',
-          server: 'server',
-        } as kubeclient.Cluster;
-      },
-      getContexts: () => context.contexts,
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeTruthy();
-  });
-  test('return true if current context has a different cluster compared to the latest', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster2',
-          server: 'server2',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context',
-          cluster: 'cluster2',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context',
-      getCurrentUser: () => {
-        return {
-          name: 'user',
-        } as kubeclient.User;
-      },
-      getCurrentCluster: () => {
-        return {
-          name: 'cluster2',
-          server: 'server2',
-        } as kubeclient.Cluster;
-      },
-      getContexts: () => context.contexts,
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeTruthy();
-  });
-  test('return true if current context has a different cluster server but same cluster name compared to the latest', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server2',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context',
-      getCurrentUser: () => {
-        return {
-          name: 'user',
-        } as kubeclient.User;
-      },
-      getCurrentCluster: () => {
-        return {
-          name: 'cluster',
-          server: 'server2',
-        } as kubeclient.Cluster;
-      },
-      getContexts: () => context.contexts,
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeTruthy();
-  });
-  test('return false if current context is the same to the latest', () => {
-    const context: KubeConfig = {
-      clusters: [
-        {
-          name: 'cluster',
-          server: 'server',
-        },
-      ],
-      users: [
-        {
-          name: 'user',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context',
-          cluster: 'cluster',
-          user: 'user',
-          namespace: 'ns',
-        },
-      ],
-      currentContext: 'context',
-      getCurrentUser: () => {
-        return {
-          name: 'user',
-        } as kubeclient.User;
-      },
-      getCurrentCluster: () => {
-        return {
-          name: 'cluster',
-          server: 'server',
-        } as kubeclient.Cluster;
-      },
-      getContexts: () => context.contexts,
-    } as KubeConfig;
-    const changed = client.isContextChanged(context);
-    expect(changed).toBeFalsy();
-  });
-});
-
-describe('isContextChanged with no context', () => {
-  let client: ContextsManager;
-  let kubeConfig: KubeConfig;
-  beforeAll(async () => {
-    vi.mocked(makeInformer).mockImplementation(
-      (
-        kubeconfig: kubeclient.KubeConfig,
-        path: string,
-        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-      ) => {
-        const connectResult = new Error('err');
-        return new TestInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
-      },
-    );
-    kubeConfig = new kubeclient.KubeConfig();
-    const config = {
-      clusters: [],
-      users: [],
-      contexts: [],
-      currentContext: undefined,
-    };
-    kubeConfig.loadFromOptions(config);
-    client = new ContextsManager(apiSender);
-    await client.update(kubeConfig);
-  });
-
-  test('isContextChanged should return false', () => {
-    const changed = client.isContextChanged(kubeConfig);
-    expect(changed).toBeFalsy();
-  });
-});
-
 describe('isContextChanged', () => {
   let client: ContextsManager;
   let kubeConfig: kubeclient.KubeConfig;

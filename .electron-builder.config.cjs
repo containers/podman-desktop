@@ -79,7 +79,7 @@ const config = {
   buildDependenciesFromSource: false,
   npmRebuild: false,
   beforePack: async context => {
-    const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
+    const DEFAULT_ASSETS = [];
     context.packager.config.extraResources = DEFAULT_ASSETS;
 
     // universal build, add both pkg files

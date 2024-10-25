@@ -17,6 +17,7 @@
  ***********************************************************************/
 import type { KubeConfig } from '@kubernetes/client-node';
 
+import type { ApiSenderType } from '/@/plugin/api.js';
 import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
 import { ConfigManagementService, MemoryBasedStorage } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
@@ -34,16 +35,17 @@ export class KubernetesPortForwardServiceProvider {
   /**
    * Gets the port forward service for the given Kubernetes configuration.
    * @param kubeClient the Kubernetes client
+   * @param apiSender the api sender object
    * @returns The port forward service.
    */
-  getService(kubeClient: KubernetesClient): KubernetesPortForwardService {
+  getService(kubeClient: KubernetesClient, apiSender: ApiSenderType): KubernetesPortForwardService {
     const forwardingConnectionService = new PortForwardConnectionService(
       kubeClient,
       new ForwardConfigRequirements(isFreePort),
     );
     const forwardConfigStorage = new MemoryBasedStorage();
     const configManagementService = new ConfigManagementService(forwardConfigStorage);
-    return new KubernetesPortForwardService(configManagementService, forwardingConnectionService);
+    return new KubernetesPortForwardService(configManagementService, forwardingConnectionService, apiSender);
   }
 
   /**
@@ -63,20 +65,28 @@ export class KubernetesPortForwardServiceProvider {
  * @see KubernetesPortForwardServiceProvider.getService
  */
 export class KubernetesPortForwardService implements IDisposable {
-  #disposables: IDisposable[] = [];
+  #disposables: Map<string, IDisposable> = new Map();
 
   /**
    * Creates an instance of KubernetesPortForwardService.
    * @param configManagementService - The configuration management service.
    * @param forwardingConnectionService - The port forward connection service.
+   * @param apiSender the api sender object
    */
   constructor(
     private configManagementService: ConfigManagementService,
     private forwardingConnectionService: PortForwardConnectionService,
-  ) {}
+    private apiSender: ApiSenderType,
+  ) {
+    this.apiSender.send('kubernetes-port-forwards-update', []);
+  }
 
   dispose(): void {
     this.#disposables.forEach(disposable => disposable.dispose());
+  }
+
+  private getPortForwardKey(config: ForwardConfig): string {
+    return `${config.namespace}/${config.name}/${config.kind}`;
   }
 
   /**
@@ -86,7 +96,9 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async createForward(config: UserForwardConfig): Promise<ForwardConfig> {
-    return this.configManagementService.createForward(config);
+    const forwardConfig = await this.configManagementService.createForward(config);
+    this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
+    return forwardConfig;
   }
 
   /**
@@ -96,7 +108,14 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
-    return this.configManagementService.deleteForward(config);
+    const key = this.getPortForwardKey(config);
+    const disposable = this.#disposables.get(key);
+    if (disposable) {
+      disposable.dispose();
+      this.#disposables.delete(key);
+    }
+    await this.configManagementService.deleteForward(config);
+    this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
   }
 
   /**
@@ -116,7 +135,7 @@ export class KubernetesPortForwardService implements IDisposable {
    */
   async startForward(config: ForwardConfig): Promise<IDisposable> {
     const disposable = await this.forwardingConnectionService.startForward(config);
-    this.#disposables.push(disposable);
+    this.#disposables.set(this.getPortForwardKey(config), disposable);
     return disposable;
   }
 }

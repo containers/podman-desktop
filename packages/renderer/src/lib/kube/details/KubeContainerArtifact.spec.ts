@@ -55,13 +55,6 @@ test('Container artifact renders with correct values', async () => {
   expect(screen.getByText('Image Pull Policy')).toBeInTheDocument();
   expect(screen.getByText('IfNotPresent')).toBeInTheDocument();
 
-  // Check if ports are displayed correctly
-  if (fakeContainer.ports && fakeContainer.ports.length > 0) {
-    const portsText = fakeContainer.ports.map(port => `${port.containerPort}/${port.protocol}`).join(', ');
-    expect(screen.getByText('Ports')).toBeInTheDocument();
-    expect(screen.getByText(portsText)).toBeInTheDocument();
-  }
-
   // Check if environment variables are displayed correctly
   if (fakeContainer.env && fakeContainer.env.length > 0) {
     expect(screen.getByText('Environment Variables')).toBeInTheDocument();

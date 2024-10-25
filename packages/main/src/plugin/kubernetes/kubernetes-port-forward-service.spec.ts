@@ -19,6 +19,7 @@
 import type { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@/plugin/api.js';
 import type { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';
 import {
   KubernetesPortForwardService,
@@ -60,6 +61,10 @@ describe('KubernetesPortForwardService', () => {
   let mockConfigManagementService: ConfigManagementService;
   let mockForwardingConnectionService: PortForwardConnectionService;
   let service: KubernetesPortForwardService;
+  const apiSenderMock: ApiSenderType = {
+    send: vi.fn(),
+    receive: vi.fn(),
+  };
 
   const sampleUserForwardConfig: UserForwardConfig = {
     name: 'test-name',
@@ -88,18 +93,24 @@ describe('KubernetesPortForwardService', () => {
       startForward: vi.fn().mockResolvedValue({ dispose: vi.fn() } as unknown as IDisposable),
     } as unknown as PortForwardConnectionService;
 
-    service = new KubernetesPortForwardService(mockConfigManagementService, mockForwardingConnectionService);
+    service = new KubernetesPortForwardService(
+      mockConfigManagementService,
+      mockForwardingConnectionService,
+      apiSenderMock,
+    );
   });
 
   test('should create a forward configuration', async () => {
     const result = await service.createForward(sampleUserForwardConfig);
     expect(result).toEqual(sampleUserForwardConfig);
     expect(mockConfigManagementService.createForward).toHaveBeenCalledWith(sampleUserForwardConfig);
+    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should delete a forward configuration', async () => {
     await service.deleteForward(sampleUserForwardConfig);
     expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(sampleUserForwardConfig);
+    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should list all forward configurations', async () => {
@@ -114,12 +125,13 @@ describe('KubernetesPortForwardService', () => {
     expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
   });
 
-  test('should dispose for a given configuration', async () => {
-    const disposable = await service.startForward(sampleForwardConfig);
+  test('should dispose on delete', async () => {
+    const result = await service.createForward(sampleUserForwardConfig);
+    const disposable = await service.startForward(result);
     expect(disposable).toHaveProperty('dispose');
     const disposeMock = vi.spyOn(disposable, 'dispose');
-    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(sampleForwardConfig);
-    service.dispose();
+    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(result);
+    await service.deleteForward(sampleUserForwardConfig);
     expect(disposeMock).toHaveBeenCalled();
   });
 });
