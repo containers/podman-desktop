@@ -26,7 +26,7 @@ import {
   type UpdateDownloadedEvent,
   type UpdateInfo,
 } from 'electron-updater';
-import { compare } from 'semver';
+import { compare, valid } from 'semver';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -404,10 +404,13 @@ export class Updater {
       .checkForUpdates()
       .then(result => {
         this.#updateCheckResult = result ?? undefined;
-        this.#nextVersion =
+        if (
+          !valid(app.getVersion()) ||
+          !valid(this.#updateCheckResult?.updateInfo.version ?? '') ||
           compare(app.getVersion(), this.#updateCheckResult?.updateInfo.version ?? '') === -1
-            ? this.getFormattedVersion(this.#updateCheckResult?.updateInfo)
-            : undefined;
+        ) {
+          this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+        }
       })
       .catch((error: unknown) => {
         console.log('unable to check for updates', error);

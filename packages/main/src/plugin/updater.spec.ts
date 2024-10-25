@@ -373,11 +373,9 @@ describe('expect update command to depends on context', async () => {
 
     vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
       updateInfo: {
-        version: '1.2.0',
+        version: '@debug-next',
       },
     } as unknown as UpdateCheckResult);
-
-    vi.mocked(app.getVersion).mockReturnValue('1.1.0');
 
     let mListener: UpdateCommandListener | undefined;
     vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
@@ -423,7 +421,7 @@ describe('expect update command to depends on context', async () => {
       cancelId: 2,
       buttons: ['Update now', `What's new`, 'Remind me later', `Don't show again`],
       message:
-        'A new version v1.2.0 of Podman Desktop is available. Do you want to update your current version v1.1.0?',
+        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
       type: 'info',
     });
@@ -439,7 +437,7 @@ describe('expect update command to depends on context', async () => {
       cancelId: 2,
       buttons: ['Update now', `What's new`, 'Cancel'],
       message:
-        'A new version v1.2.0 of Podman Desktop is available. Do you want to update your current version v1.1.0?',
+        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
       type: 'info',
     });
@@ -804,4 +802,27 @@ test('update is not available when next version empty', async () => {
   await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
 
   expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update version is not full semver', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.4.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
 });
