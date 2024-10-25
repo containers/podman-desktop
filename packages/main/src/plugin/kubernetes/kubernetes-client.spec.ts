@@ -17,6 +17,8 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { homedir } from 'node:os';
+import { resolve } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
 import {
@@ -46,14 +48,24 @@ import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vi
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
-import type { ConfigurationRegistry } from '../configuration-registry.js';
+import type { ConfigurationRegistry, IConfigurationChangeEvent } from '../configuration-registry.js';
+import { Emitter } from '../events/emitter.js';
 import { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
+import { Uri } from '../types/uri.js';
 import type { PodCreationSource, ScalableControllerType } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
 import { ResizableTerminalWriter } from './kubernetes-exec-transmitter.js';
 
-const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
+const _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
+const configurationRegistry: ConfigurationRegistry = {
+  onDidChangeConfiguration: _onDidChangeConfiguration.event,
+  registerConfigurations: vi.fn(),
+  getConfiguration: vi.fn().mockReturnValue({
+    get: vi.fn().mockReturnValue(''),
+  }),
+} as unknown as ConfigurationRegistry;
+
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
 const telemetry: Telemetry = {
   track: vi.fn().mockImplementation(async () => {
@@ -521,6 +533,27 @@ test('Check update with empty kubeconfig file', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   await client.refresh();
   expect(consoleErrorSpy).toBeCalledWith(expect.stringContaining('is empty. Skipping'));
+});
+
+test('test that blank kubeconfig path will be set to default one', async () => {
+  const client = createTestClient('fooNS');
+  vi.spyOn(client, 'refresh').mockImplementation(() => {
+    return Promise.resolve();
+  });
+  const setKubeconfigSpy = vi.spyOn(client, 'setKubeconfig');
+
+  await client.init();
+
+  // Set empty path
+  _onDidChangeConfiguration.fire({
+    key: 'kubernetes.Kubeconfig',
+    value: '',
+    scope: 'DEFAULT',
+  });
+
+  const kubeconfigPath = Uri.file(resolve(homedir(), '.kube', 'config'));
+  // Should be default kubeconfigpath
+  expect(setKubeconfigSpy).toBeCalledWith(kubeconfigPath);
 });
 
 test('kube watcher', () => {
