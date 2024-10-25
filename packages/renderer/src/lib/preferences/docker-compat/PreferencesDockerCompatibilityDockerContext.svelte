@@ -36,7 +36,7 @@ $effect(() => {
 </script>
 
 <div
-  class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2 divide-x divide-[var(--pd-content-divider)] flex flex-col lg:flex-row">
+  class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 divide-x divide-[var(--pd-content-divider)] flex flex-col lg:flex-row">
   <div class="flex flex-row grow px-2 py-2 justify-between text-[color:var(--pd-invert-content-card-text)]">
     <div class="flex flex-col w-full">
       <div class="flex flex-row items-center text-[color:var(--pd-invert-content-card-text)]">

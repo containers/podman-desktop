@@ -59,6 +59,7 @@ export interface IConfigurationPropertySchema {
   type?: IConfigurationPropertySchemaType | IConfigurationPropertySchemaType[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default?: any;
+  group?: string;
   description?: string;
   placeholder?: string;
   markdownDescription?: string;
