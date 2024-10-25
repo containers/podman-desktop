@@ -138,7 +138,7 @@ function onInstallationClick() {
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
-    <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden={initializationButtonVisible}>
+    <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden={!initializationButtonVisible}>
       <div class="w-[212px] relative">
         <div class="bg-[var(--pd-invert-content-card-bg)] text-[var(--pd-button-text)] flex w-[212px]">
           <button
