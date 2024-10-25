@@ -176,7 +176,7 @@ export class Updater {
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
-        buttons: ['View release notes'],
+        buttons: ['View release notes banner'],
       });
       if (result.response === 0) {
         await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
