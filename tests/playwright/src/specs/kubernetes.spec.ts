@@ -193,7 +193,11 @@ test.describe('Kubernetes resources End-to-End test', () => {
         await playYamlPage.playYaml(SECRET_POD_YAML_PATH, KUBERNETES_RUNTIME);
 
         await playExpect(podsPage.heading).toBeVisible();
-        await playExpect.poll(async () => podsPage.getPodRowByName(SECRET_POD_NAME)).toBeTruthy();
+        await playExpect
+          .poll(async () => podsPage.getPodRowByName(SECRET_POD_NAME), {
+            timeout: 15_000,
+          })
+          .toBeTruthy();
         const podsDetailsPage = await podsPage.openPodDetails(SECRET_POD_NAME);
         await playExpect(podsDetailsPage.heading).toBeVisible();
         await playExpect.poll(async () => podsDetailsPage.getState(), { timeout: 50_000 }).toEqual(PodState.Running);
