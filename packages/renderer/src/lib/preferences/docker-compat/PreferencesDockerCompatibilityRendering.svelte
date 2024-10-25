@@ -9,7 +9,7 @@ import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDock
     Podman Desktop provides compatibility with Docker, allowing you to use your existing Docker commands, images and
     workflows.
   </svelte:fragment>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col space-y-2">
     <div class="container" role="list">
       <div class="text-lg font-medium first-letter:uppercase">Docker Preferences</div>
       <PreferencesDockerCompatibilitySocketMappingStatus />
