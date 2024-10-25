@@ -1167,17 +1167,25 @@ describe('shellInProviderConnection', () => {
     const closeMock = vi.fn();
     const openMock = vi.fn();
 
-    const disposeFuncOnDataMock = vi.fn();
-    const disposeFuncOnErrorMock = vi.fn();
-    const disposeFuncOnEndMock = vi.fn();
+    const disposeOnDataMock = vi.fn();
+    const disposeOnErrorMock = vi.fn();
+    const disposeOnEndMock = vi.fn();
 
-    const disposeOnDataMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnDataMock });
-    const disposeOnErrorMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnErrorMock });
-    const disposeOnEndMock = vi.fn().mockResolvedValue({ dispose: disposeFuncOnEndMock });
-
-    const onDataMock = vi.fn().mockResolvedValue({ disposables: disposeOnDataMock });
-    const onErrorMock = vi.fn().mockResolvedValue({ disposables: disposeOnErrorMock });
-    const onEndMock = vi.fn().mockResolvedValue({ disposables: disposeOnEndMock });
+    const onDataMock = vi.fn().mockImplementation((_listener, _thisArgs, disposableArray) => {
+      const disposable = { dispose: disposeOnDataMock };
+      disposableArray.push(disposable);
+      return disposable;
+    });
+    const onErrorMock = vi.fn().mockImplementation((_listener, _thisArgs, disposableArray) => {
+      const disposable = { dispose: disposeOnErrorMock };
+      disposableArray.push(disposable);
+      return disposable;
+    });
+    const onEndMock = vi.fn().mockImplementation((_listener, _thisArgs, disposableArray) => {
+      const disposable = { dispose: disposeOnEndMock };
+      disposableArray.push(disposable);
+      return disposable;
+    });
 
     const shellAccessSession: ProviderConnectionShellAccessSession = {
       onData: onDataMock,
@@ -1227,9 +1235,9 @@ describe('shellInProviderConnection', () => {
     // Check that close is called and listeners are disposed
     shellInProviderConnection.close();
 
-    expect(disposeFuncOnDataMock).toBeCalled();
-    expect(disposeFuncOnErrorMock).toBeCalled();
-    expect(disposeFuncOnEndMock).toBeCalled();
+    expect(disposeOnDataMock).toBeCalled();
+    expect(disposeOnErrorMock).toBeCalled();
+    expect(disposeOnEndMock).toBeCalled();
     expect(closeMock).toBeCalled();
   });
 });
