@@ -154,6 +154,8 @@ export class Proxy {
       newProxy.httpsProxy = ensureURL(newProxy.httpsProxy);
     } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
       newProxy = await getProxySettingsFromSystem(this);
+    } else if (this.proxyState === ProxyState.PROXY_DISABLED) {
+      newProxy = {} as ProxySettings;
     }
 
     // update configuration

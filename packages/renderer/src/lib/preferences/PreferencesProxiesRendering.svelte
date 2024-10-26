@@ -25,9 +25,7 @@ onMount(async () => {
 
 async function updateProxySettings() {
   await window.setProxyState(proxyState);
-  if (proxyState !== ProxyState.PROXY_SYSTEM) {
-    await window.updateProxySettings({ httpProxy, httpsProxy, noProxy });
-  }
+  await window.updateProxySettings({ httpProxy, httpsProxy, noProxy });
 
   // loop over all providers and container connections to see if there are any running engines
   const providerInfos = await window.getProviderInfos();
