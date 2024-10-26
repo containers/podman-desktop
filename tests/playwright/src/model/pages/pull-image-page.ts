@@ -34,13 +34,22 @@ export class PullImagePage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Pull Image From a Registry' });
+    this.heading = page.getByRole('heading', {
+      name: 'Pull Image From a Registry',
+    });
     this.pullImageButton = page.getByRole('button', { name: 'Pull' });
     this.closeLink = page.getByRole('link', { name: 'Close' });
-    this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
-    this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
+    this.backToImagesLink = page.getByRole('link', {
+      name: 'Go back to Images',
+    });
+    this.manageRegistriesButton = page.getByRole('button', {
+      name: 'Manage registries',
+    });
     this.imageNameInput = page.getByLabel('Image to Pull');
-    this.tabContent = page.getByRole('region', { name: 'Tab Content', exact: true });
+    this.tabContent = page.getByRole('region', {
+      name: 'Tab Content',
+      exact: true,
+    });
     this.searchResultsTable = this.tabContent.getByRole('row');
     this.doneButton = page.getByRole('button', { name: 'Done', exact: true });
   }
@@ -64,7 +73,7 @@ export class PullImagePage extends BasePage {
     imageTag = '',
     resultsExpected = true,
   ): Promise<string[]> {
-    return await test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
+    return test.step(`Get all search results for ${imageName}:${imageTag}`, async () => {
       const searchString = await this.handleFormAndResultSearchString(
         imageName,
         searchForVersion,
@@ -81,24 +90,32 @@ export class PullImagePage extends BasePage {
     imageTag = '',
     resultsExpected = true,
   ): Promise<string> {
-    return await test.step(`Get first search result for ${imageName}:${imageTag}`, async () => {
+    return test.step(`Get first search result for ${imageName}:${imageTag}`, async () => {
       await this.handleFormAndResultSearchString(imageName, searchForVersion, imageTag, resultsExpected);
       return await this.getFirstSearchResultInstantly();
     });
   }
 
   async refineSearchResults(stringToAppend: string, resultsExpected = true): Promise<string[]> {
-    return await test.step(`Refine search results by appending: ${stringToAppend}`, async () => {
-      await this.imageNameInput.pressSequentially(stringToAppend, { delay: 10 });
+    return test.step(`Refine search results by appending: ${stringToAppend}`, async () => {
+      await this.imageNameInput.pressSequentially(stringToAppend, {
+        delay: 10,
+      });
       const searchString = await this.imageNameInput.inputValue();
 
       if (resultsExpected) {
-        await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
+        await playExpect(this.searchResultsTable).toBeVisible({
+          timeout: 15_000,
+        });
         await playExpect
-          .poll(async () => await this.getFirstSearchResultInstantly(), { timeout: 10_000 })
+          .poll(async () => await this.getFirstSearchResultInstantly(), {
+            timeout: 10_000,
+          })
           .toContain(searchString);
       } else {
-        await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
+        await playExpect(this.searchResultsTable).not.toBeVisible({
+          timeout: 15_000,
+        });
       }
 
       return await this.getAllSearchResultsInstantly(searchString);
@@ -106,7 +123,7 @@ export class PullImagePage extends BasePage {
   }
 
   async getAllSearchResultsInstantly(searchString: string): Promise<string[]> {
-    return await test.step(`Get search results instantly for ${searchString}`, async () => {
+    return test.step(`Get search results instantly for ${searchString}`, async () => {
       const resultList: string[] = [];
       const resultRows = await this.getAllResultButtonLocators(searchString);
       for (const row of resultRows) {
@@ -119,14 +136,14 @@ export class PullImagePage extends BasePage {
   }
 
   async getFirstSearchResultInstantly(): Promise<string> {
-    return await test.step(`Get first search result from the results table`, async () => {
+    return test.step(`Get first search result from the results table`, async () => {
       const resultRow = this.getFirstResultButtonLocator();
       return await resultRow.innerText();
     });
   }
 
   async pullImageFromSearchResults(pattern: string, timeout = 60_000): Promise<ImagesPage> {
-    return await test.step(`Pull image from search results: ${pattern}`, async () => {
+    return test.step(`Pull image from search results: ${pattern}`, async () => {
       await this.selectValueFromSearchResults(pattern);
       await playExpect(this.pullImageButton).toBeEnabled();
       await this.pullImageButton.click();
@@ -138,7 +155,7 @@ export class PullImagePage extends BasePage {
   }
 
   async selectValueFromSearchResults(pattern: string): Promise<void> {
-    await test.step(`Select value from search results: ${pattern}`, async () => {
+    return test.step(`Select value from search results: ${pattern}`, async () => {
       const getExactButtonLocator = this.searchResultsTable.getByRole('button', { name: pattern, exact: true }).first();
 
       await getExactButtonLocator.scrollIntoViewIfNeeded();
@@ -152,7 +169,7 @@ export class PullImagePage extends BasePage {
   }
 
   async clearImageSearch(): Promise<void> {
-    await test.step('Clear image search', async () => {
+    return test.step('Clear image search', async () => {
       await this.imageNameInput.clear();
       await playExpect(this.imageNameInput).toHaveValue('');
       await playExpect(this.searchResultsTable).not.toBeVisible();
@@ -173,26 +190,32 @@ export class PullImagePage extends BasePage {
     imageTag = '',
     resultsExpected = true,
   ): Promise<string> {
-    if (!imageName || imageName.length === 0) {
-      throw new Error('Image name is invalid');
-    }
+    return test.step(`Handle form and result search string for ${imageName}:${imageTag}`, async () => {
+      if (!imageName || imageName.length === 0) {
+        throw new Error('Image name is invalid');
+      }
 
-    let searchString;
+      let searchString;
 
-    if (searchForVersion) {
-      searchString = `${imageName}:${imageTag}`;
-    } else {
-      searchString = imageName;
-    }
+      if (searchForVersion) {
+        searchString = `${imageName}:${imageTag}`;
+      } else {
+        searchString = imageName;
+      }
 
-    await this.clearImageSearch();
-    await this.imageNameInput.fill(searchString);
+      await this.clearImageSearch();
+      await this.imageNameInput.fill(searchString);
 
-    if (resultsExpected) {
-      await playExpect(this.searchResultsTable).toBeVisible({ timeout: 15_000 });
-    } else {
-      await playExpect(this.searchResultsTable).not.toBeVisible({ timeout: 15_000 });
-    }
-    return searchString;
+      if (resultsExpected) {
+        await playExpect(this.searchResultsTable).toBeVisible({
+          timeout: 15_000,
+        });
+      } else {
+        await playExpect(this.searchResultsTable).not.toBeVisible({
+          timeout: 15_000,
+        });
+      }
+      return searchString;
+    });
   }
 }

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { isWindows } from '/@/utility/platform';
 
@@ -38,9 +38,13 @@ export class MachineCreationForm extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
+    this.podmanMachineConfiguration = this.page.getByRole('form', {
+      name: 'Properties Information',
+    });
     this.podmanMachineName = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
-    this.imagePathBox = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Image Path (Optional) ' });
+    this.imagePathBox = this.podmanMachineConfiguration.getByRole('textbox', {
+      name: 'Image Path (Optional) ',
+    });
     this.browseImagesButton = this.podmanMachineConfiguration.getByRole('button', {
       name: 'button-Image Path (Optional)',
     });
@@ -69,24 +73,30 @@ export class MachineCreationForm extends BasePage {
       startNow?: boolean;
     } = {},
   ): Promise<void> {
-    await playExpect(this.podmanMachineConfiguration).toBeVisible({ timeout: 10_000 });
-    await this.podmanMachineName.clear();
-    await this.podmanMachineName.fill(machineName);
+    return test.step(`Create Podman Machine: ${machineName} with settings ${isRootful}, ${enableUserNet} and ${startNow}`, async () => {
+      await playExpect(this.podmanMachineConfiguration).toBeVisible({
+        timeout: 10_000,
+      });
+      await this.podmanMachineName.clear();
+      await this.podmanMachineName.fill(machineName);
 
-    await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
-    if (isWindows) {
-      await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
-    }
-    await this.ensureCheckboxState(startNow, this.startNowCheckbox);
+      await this.ensureCheckboxState(isRootful, this.rootPriviledgesCheckbox);
+      if (isWindows) {
+        await this.ensureCheckboxState(enableUserNet, this.userModeNetworkingCheckbox);
+      }
+      await this.ensureCheckboxState(startNow, this.startNowCheckbox);
 
-    await playExpect(this.createMachineButton).toBeEnabled();
-    await this.createMachineButton.click();
+      await playExpect(this.createMachineButton).toBeEnabled();
+      await this.createMachineButton.click();
+    });
   }
 
   async ensureCheckboxState(desiredState: boolean, checkbox: Locator): Promise<void> {
-    if (desiredState !== (await checkbox.isChecked())) {
-      await checkbox.locator('..').click();
-      playExpect(await checkbox.isChecked()).toBe(desiredState);
-    }
+    return test.step(`Ensure checkbox is ${desiredState ? 'checked' : 'unchecked'}`, async () => {
+      if (desiredState !== (await checkbox.isChecked())) {
+        await checkbox.locator('..').click();
+        playExpect(await checkbox.isChecked()).toBe(desiredState);
+      }
+    });
   }
 }

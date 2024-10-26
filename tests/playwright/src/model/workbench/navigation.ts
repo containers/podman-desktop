@@ -41,19 +41,26 @@ export class NavigationBar {
 
   constructor(page: Page) {
     this.page = page;
-    this.navigationLocator = this.page.getByRole('navigation', { name: 'AppNavigation' });
+    this.navigationLocator = this.page.getByRole('navigation', {
+      name: 'AppNavigation',
+    });
     this.imagesLink = this.page.getByRole('link', { name: 'Images' });
     this.containersLink = this.page.getByRole('link', { name: 'Containers' }).nth(0);
     this.podsLink = this.page.getByRole('link', { name: 'Pods' });
     this.volumesLink = this.page.getByRole('link', { name: 'Volumes' });
     this.dashboardLink = this.page.getByRole('link', { name: 'Dashboard' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
-    this.extensionsLink = this.navigationLocator.getByRole('link', { name: 'Extensions', exact: true });
-    this.kubernetesLink = this.navigationLocator.getByRole('link', { name: 'Kubernetes' });
+    this.extensionsLink = this.navigationLocator.getByRole('link', {
+      name: 'Extensions',
+      exact: true,
+    });
+    this.kubernetesLink = this.navigationLocator.getByRole('link', {
+      name: 'Kubernetes',
+    });
   }
 
   async openDashboard(): Promise<DashboardPage> {
-    return await test.step('Open Dashboard page', async () => {
+    return test.step('Open Dashboard page', async () => {
       await this.dashboardLink.waitFor({ state: 'visible' });
       await this.dashboardLink.click();
       return new DashboardPage(this.page);
@@ -61,7 +68,7 @@ export class NavigationBar {
   }
 
   async openImages(): Promise<ImagesPage> {
-    return await test.step('Open Images page', async () => {
+    return test.step('Open Images page', async () => {
       await this.imagesLink.waitFor({ state: 'visible' });
       await this.imagesLink.click();
       return new ImagesPage(this.page);
@@ -69,7 +76,7 @@ export class NavigationBar {
   }
 
   async openContainers(): Promise<ContainersPage> {
-    return await test.step('Open Containers page', async () => {
+    return test.step('Open Containers page', async () => {
       await this.containersLink.waitFor({ state: 'visible' });
       await this.containersLink.click();
       return new ContainersPage(this.page);
@@ -77,7 +84,7 @@ export class NavigationBar {
   }
 
   async openPods(): Promise<PodsPage> {
-    return await test.step('Open Pods page', async () => {
+    return test.step('Open Pods page', async () => {
       await this.podsLink.waitFor({ state: 'visible' });
       await this.podsLink.click();
       return new PodsPage(this.page);
@@ -85,7 +92,7 @@ export class NavigationBar {
   }
 
   async openSettings(): Promise<SettingsBar> {
-    return await test.step('Open Settings Page ', async () => {
+    return test.step('Open Settings Page ', async () => {
       const settingsBar = new SettingsBar(this.page);
       if (!(await settingsBar.settingsNavBar.isVisible())) {
         await expect(this.settingsLink).toBeVisible();
@@ -96,7 +103,7 @@ export class NavigationBar {
   }
 
   async openVolumes(): Promise<VolumesPage> {
-    return await test.step('Open Volumes page', async () => {
+    return test.step('Open Volumes page', async () => {
       await this.volumesLink.waitFor({ state: 'visible' });
       await this.volumesLink.click();
       return new VolumesPage(this.page);
@@ -104,7 +111,7 @@ export class NavigationBar {
   }
 
   async openKubernetes(): Promise<KubernetesBar> {
-    return await test.step('Open Kubernetes Page ', async () => {
+    return test.step('Open Kubernetes Page ', async () => {
       const kubernetesBar = new KubernetesBar(this.page);
       if (!(await kubernetesBar.kubernetesNavBar.isVisible())) {
         await expect(this.kubernetesLink).toBeVisible();
@@ -115,7 +122,7 @@ export class NavigationBar {
   }
 
   async openExtensions(): Promise<ExtensionsPage> {
-    return await test.step('Open Extensions page', async () => {
+    return test.step('Open Extensions page', async () => {
       await this.extensionsLink.waitFor({ state: 'visible' });
       await this.extensionsLink.click();
       return new ExtensionsPage(this.page);

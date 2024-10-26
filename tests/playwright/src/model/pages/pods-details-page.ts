@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { PodState } from '../core/states';
@@ -48,33 +48,43 @@ export class PodDetailsPage extends DetailsPage {
   }
 
   async getState(): Promise<string> {
-    const currentState = await this.header.getByRole('status').getAttribute('title');
-    for (const state of Object.values(PodState)) {
-      if (currentState === state) return state;
-    }
+    return test.step(`Get Pod State`, async () => {
+      const currentState = await this.header.getByRole('status').getAttribute('title');
+      for (const state of Object.values(PodState)) {
+        if (currentState === state) return state;
+      }
 
-    return PodState.Unknown;
+      return PodState.Unknown;
+    });
   }
 
   async startPod(): Promise<void> {
-    await playExpect(this.startButton).toBeEnabled({ timeout: 10_000 });
-    await this.startButton.click();
+    return test.step(`Start Pod`, async () => {
+      await playExpect(this.startButton).toBeEnabled({ timeout: 10_000 });
+      await this.startButton.click();
+    });
   }
 
   async stopPod(): Promise<void> {
-    await playExpect(this.stopButton).toBeEnabled({ timeout: 10_000 });
-    await this.stopButton.click();
+    return test.step(`Stop Pod`, async () => {
+      await playExpect(this.stopButton).toBeEnabled({ timeout: 10_000 });
+      await this.stopButton.click();
+    });
   }
 
   async restartPod(): Promise<void> {
-    await playExpect(this.restartButton).toBeEnabled({ timeout: 20_000 });
-    await this.restartButton.click();
+    return test.step(`Restart Pod`, async () => {
+      await playExpect(this.restartButton).toBeEnabled({ timeout: 20_000 });
+      await this.restartButton.click();
+    });
   }
 
   async deletePod(): Promise<PodsPage> {
-    await playExpect(this.deleteButton).toBeEnabled({ timeout: 10_000 });
-    await this.deleteButton.click();
-    await handleConfirmationDialog(this.page);
-    return new PodsPage(this.page);
+    return test.step(`Delete Pod`, async () => {
+      await playExpect(this.deleteButton).toBeEnabled({ timeout: 10_000 });
+      await this.deleteButton.click();
+      await handleConfirmationDialog(this.page);
+      return new PodsPage(this.page);
+    });
   }
 }

@@ -41,22 +41,31 @@ export class ImageDetailsPage extends DetailsPage {
 
   constructor(page: Page, name: string) {
     super(page, name);
-    this.runImageButton = this.controlActions.getByRole('button', { name: 'Run Image' });
-    this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete Image' });
-    this.editButton = this.controlActions.getByRole('button', { name: 'Edit Image' });
+    this.runImageButton = this.controlActions.getByRole('button', {
+      name: 'Run Image',
+    });
+    this.deleteButton = this.controlActions.getByRole('button', {
+      name: 'Delete Image',
+    });
+    this.editButton = this.controlActions.getByRole('button', {
+      name: 'Edit Image',
+    });
     this.summaryTab = this.tabs.getByText('Summary');
     this.historyTab = this.tabs.getByText('History');
     this.inspectTab = this.tabs.getByText('Inspect');
     this.actionsButton = page.getByRole('button', { name: 'kebab menu' });
     this.buildDiskImageButton = page.getByTitle('Build Disk Image');
-    this.saveImagebutton = this.controlActions.getByRole('button', { name: 'Save Image', exact: true });
+    this.saveImagebutton = this.controlActions.getByRole('button', {
+      name: 'Save Image',
+      exact: true,
+    });
     this.saveImageInput = page.locator('#input-output-directory');
     this.confirmSaveImages = page.getByLabel('Save images', { exact: true });
     this.browseButton = page.getByLabel('Select output folder');
   }
 
   async openRunImage(): Promise<RunImagePage> {
-    return await test.step('Open run image page', async () => {
+    return test.step('Open run image page', async () => {
       await playExpect(this.runImageButton).toBeEnabled({ timeout: 30_000 });
       await this.runImageButton.click();
       return new RunImagePage(this.page, this.resourceName);
@@ -64,7 +73,7 @@ export class ImageDetailsPage extends DetailsPage {
   }
 
   async openEditImage(): Promise<ImageEditPage> {
-    return await test.step('Open edit image page', async () => {
+    return test.step('Open edit image page', async () => {
       await playExpect(this.editButton).toBeEnabled({ timeout: 30_000 });
       await this.editButton.click();
       return new ImageEditPage(this.page, this.resourceName);
@@ -72,7 +81,7 @@ export class ImageDetailsPage extends DetailsPage {
   }
 
   async deleteImage(): Promise<ImagesPage> {
-    return await test.step('Delete image', async () => {
+    return test.step('Delete image', async () => {
       await playExpect(this.deleteButton).toBeEnabled({ timeout: 30_000 });
       await this.deleteButton.click();
       await handleConfirmationDialog(this.page);

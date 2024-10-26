@@ -93,6 +93,10 @@ window.events?.receive('context-menu:visible', visible => {
   }
 });
 
+window.events?.receive('show-release-notes', () => {
+  router.goto('/');
+});
+
 window.events?.receive('navigate', (navigationRequest: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleNavigation(navigationRequest as NavigationRequest<any>);

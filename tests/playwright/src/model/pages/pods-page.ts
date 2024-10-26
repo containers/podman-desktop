@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { MainPage } from './main-page';
@@ -31,18 +31,24 @@ export class PodsPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'pods');
-    this.playKubernetesYAMLButton = this.page.getByRole('button', { name: 'Play Kubernetes YAML' });
+    this.playKubernetesYAMLButton = this.page.getByRole('button', {
+      name: 'Play Kubernetes YAML',
+    });
     this.prunePodsButton = this.page.getByRole('button', { name: 'Prune' });
-    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
+    this.pruneConfirmationButton = this.page.getByRole('button', {
+      name: 'Yes',
+    });
   }
 
   async openPodDetails(name: string): Promise<PodDetailsPage> {
-    const podRow = await this.getPodRowByName(name);
-    if (podRow === undefined) {
-      throw Error(`Pod: ${name} does not exist`);
-    }
-    await podRow.getByText(name).click();
-    return new PodDetailsPage(this.page, name);
+    return test.step(`Open Pod: ${name} details`, async () => {
+      const podRow = await this.getPodRowByName(name);
+      if (podRow === undefined) {
+        throw Error(`Pod: ${name} does not exist`);
+      }
+      await podRow.getByText(name).click();
+      return new PodDetailsPage(this.page, name);
+    });
   }
 
   async getPodRowByName(name: string): Promise<Locator | undefined> {
@@ -54,25 +60,31 @@ export class PodsPage extends MainPage {
   }
 
   async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {
-    await playExpect(this.playKubernetesYAMLButton).toBeEnabled();
-    await this.playKubernetesYAMLButton.click();
-    return new PlayKubeYamlPage(this.page);
+    return test.step('Open Play Kubernetes YAML', async () => {
+      await playExpect(this.playKubernetesYAMLButton).toBeEnabled();
+      await this.playKubernetesYAMLButton.click();
+      return new PlayKubeYamlPage(this.page);
+    });
   }
 
   async prunePods(): Promise<PodsPage> {
-    await this.prunePodsButton.click();
-    await handleConfirmationDialog(this.page, 'Prune');
-    return this;
+    return test.step('Prune Pods', async () => {
+      await this.prunePodsButton.click();
+      await handleConfirmationDialog(this.page, 'Prune');
+      return this;
+    });
   }
 
   async selectPod(names: string[]): Promise<void> {
-    for (const containerName of names) {
-      const row = await this.getPodRowByName(containerName);
-      if (row === undefined) {
-        throw Error('Pod cannot be selected');
+    return test.step(`Select Pod: ${names}`, async () => {
+      for (const containerName of names) {
+        const row = await this.getPodRowByName(containerName);
+        if (row === undefined) {
+          throw Error('Pod cannot be selected');
+        }
+        await row.getByRole('cell').nth(1).click();
       }
-      await row.getByRole('cell').nth(1).click();
-    }
+    });
   }
 
   async getPodActionsMenu(name: string): Promise<Locator> {
@@ -84,23 +96,27 @@ export class PodsPage extends MainPage {
   }
 
   public async deployedPodExists(podName: string, environment: string = 'Podman'): Promise<boolean> {
-    const deployedContainerRow = await this.getPodRowByName(podName);
-    if (deployedContainerRow) {
-      const env = await deployedContainerRow.getByRole('cell').nth(4).textContent();
-      return env?.trim() === environment;
-    }
-    return false;
+    return test.step(`Check if deployed pod exists: ${podName}`, async () => {
+      const deployedContainerRow = await this.getPodRowByName(podName);
+      if (deployedContainerRow) {
+        const env = await deployedContainerRow.getByRole('cell').nth(4).textContent();
+        return env?.trim() === environment;
+      }
+      return false;
+    });
   }
 
   public async countPodReplicas(expectedPodName: string): Promise<number> {
-    let counter: number = 0;
-    const rows = await this.getAllTableRows();
-    for (let i = rows.length - 1; i > 0; i--) {
-      const podName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
-      if (podName?.includes(expectedPodName)) {
-        counter += 1;
+    return test.step(`Count pod replicas: ${expectedPodName}`, async () => {
+      let counter: number = 0;
+      const rows = await this.getAllTableRows();
+      for (let i = rows.length - 1; i > 0; i--) {
+        const podName = await rows[i].getByRole('cell').nth(3).getByRole('button').textContent();
+        if (podName?.includes(expectedPodName)) {
+          counter += 1;
+        }
       }
-    }
-    return counter;
+      return counter;
+    });
   }
 }

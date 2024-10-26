@@ -81,6 +81,7 @@ export type ConfigurationScope =
   | 'KubernetesConnection'
   | 'ContainerProviderConnectionFactory'
   | 'KubernetesProviderConnectionFactory'
+  | 'DockerCompatibility'
   | 'Onboarding';
 
 export interface IConfigurationExtensionInfo {

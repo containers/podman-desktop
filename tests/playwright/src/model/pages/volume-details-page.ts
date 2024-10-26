@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { VolumeState } from '../core/states';
@@ -31,7 +31,9 @@ export class VolumeDetailsPage extends DetailsPage {
 
   constructor(page: Page, name: string) {
     super(page, name);
-    this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete Volume' });
+    this.deleteButton = this.controlActions.getByRole('button', {
+      name: 'Delete Volume',
+    });
   }
 
   async isUsed(): Promise<boolean> {
@@ -39,9 +41,11 @@ export class VolumeDetailsPage extends DetailsPage {
   }
 
   async deleteVolume(): Promise<VolumesPage> {
-    await playExpect(this.deleteButton).toBeEnabled();
-    await this.deleteButton.click();
-    await handleConfirmationDialog(this.page);
-    return new VolumesPage(this.page);
+    return test.step('Delete Volume', async () => {
+      await playExpect(this.deleteButton).toBeEnabled();
+      await this.deleteButton.click();
+      await handleConfirmationDialog(this.page);
+      return new VolumesPage(this.page);
+    });
   }
 }
