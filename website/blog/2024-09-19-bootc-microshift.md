@@ -17,7 +17,7 @@ A "bootable" image, known as a BootC container image, allows you to use a simple
 
 This capability is ideal for a variety of uses, from a simple HTTP server to an OS powering a full-stack application.
 
-In this tutorial, we'll deploy an OpenShift derivative called [MicroShift](https://www.redhat.com/en/topics/edge-computing/microshift), an edge-optimized version of OpenShift designed for single-node setups. Think of it as a compact version of OpenShift!
+In this tutorial, we'll deploy an OpenShift derivative called [MicroShift](https://www.redhat.com/en/topics/edge-computing/microshift), an edge-optimized version of OpenShift designed for single-node setups on resource-constrained configurations. Think of it as a compact version of OpenShift!
 
 This entire process is carried out using a single Containerfile (or Dockerfile).
 
@@ -29,7 +29,7 @@ Before starting the tutorial, ensure you have:
 - Access to an [OpenShift Hybrid Cloud pull secret](https://console.redhat.com/openshift/install/pull-secret)
 - [Podman Desktop installed](https://podman-desktop.io/downloads)
 - [Podman Desktop BootC Extension](https://github.com/containers/podman-desktop-extension-bootc)
-- Your preferred VM-running software (e.g., [using libvirt](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/introducing-virtualization-in-rhel_configuring-and-managing-virtualization#what-is-virtualization_introducing-virtualization-in-rhel)
+- Your preferred VM-running software (e.g., [using libvirt](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/introducing-virtualization-in-rhel_configuring-and-managing-virtualization#what-is-virtualization_introducing-virtualization-in-rhel))
 
 ## Building the BootC container image
 
@@ -57,7 +57,7 @@ The Containerfile is crucial for creating the bootable image.
 
 It's important to note that we will be providing _one_ argument during the build and that is the **PASSWORD** in order to access the Virtual Machine that will be logged in via the `redhat` username.
 
-We will be using the Containerfile from the [official MicroShift image mode documentation](https://github.com/openshift/microshift/blob/main/docs/contributor/image_mode.md#build-image).
+We will be using the Containerfile from the [MicroShift image mode GitHub documentation](https://github.com/openshift/microshift/blob/main/docs/contributor/image_mode.md#build-image).
 
 Copy the Containerfile from the above link to a new file which we will be building with Podman Desktop:
 
@@ -288,6 +288,10 @@ Podman Desktop will automatically detect your `.kube/config` file.
 Note: You may need to modify your `.kube/config` file to reflect the correct domain or IP address of your cluster.
 
 ![cluster](img/bootc-microshift/cluster.png)
+
+### Storage configuration
+
+By default, storage configuration [requires an LVM partition](https://github.com/openshift/microshift/blob/main/docs/contributor/storage/default_csi_plugin.md#default-volume-group) and thus LVMS will not be deployed. An alternative storage solution is required for storage utilization.
 
 ## Conclusion
 
