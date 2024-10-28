@@ -712,3 +712,140 @@ test('get release notes in dev mode', async () => {
     vi.unstubAllEnvs();
   }
 });
+
+test('update is available when next version is greater then current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.1',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.0');
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+  expect(updater.updateAvailable()).toBeTruthy();
+});
+
+test('update is not available when next version is the same as the current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.0');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update is not available when next version is less than the current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update is not available when next version empty', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update version is not full semver', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.4.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
+});
+
+test('versions are not numbered versions', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: 'foo',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('bar');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
+});
