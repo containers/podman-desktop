@@ -46,7 +46,7 @@
     "@docusaurus/tsconfig": "^3.5.2",
     "@docusaurus/types": "^3.5.2",
     "autoprefixer": "^10.4.20",
-    "markdownlint": "^0.35.0",
+    "markdownlint": "^0.36.0",
     "markdownlint-cli2": "^0.14.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
