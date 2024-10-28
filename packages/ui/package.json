@@ -136,7 +136,7 @@
     "svelte-fa": "^4.0.3"
   },
   "devDependencies": {
-    "@sveltejs/package": "^2.3.6",
+    "@sveltejs/package": "^2.3.7",
     "@sveltejs/vite-plugin-svelte": "4.0.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",
