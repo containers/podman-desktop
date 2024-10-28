@@ -149,4 +149,26 @@ describe('port forwarding', () => {
       );
     });
   });
+
+  test('error from createKubernetesPortForward should be displayed', async () => {
+    vi.mocked(window.createKubernetesPortForward).mockRejectedValue('Dummy error');
+
+    const { getByTitle, getByRole } = render(KubeContainerPort, {
+      namespace: 'dummy-ns',
+      port: {
+        containerPort: 80,
+        protocol: 'TCP',
+      },
+      forwardConfig: undefined,
+      podName: 'dummy-pod-name',
+    });
+
+    const port80 = getByTitle('Forward container port 80');
+    await fireEvent.click(port80);
+
+    await vi.waitFor(() => {
+      const error = getByRole('alert', { name: 'Error Message Content' });
+      expect(error.textContent).toBe('Dummy error');
+    });
+  });
 });

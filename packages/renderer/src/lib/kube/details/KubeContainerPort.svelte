@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { V1ContainerPort } from '@kubernetes/client-node';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import { type PortMapping, type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
@@ -18,10 +18,12 @@ let mapping: PortMapping | undefined = $derived(
   forwardConfig?.forwards.find(mapping => mapping.remotePort === port.containerPort),
 );
 let loading: boolean = $state(false);
+let error: string | undefined = $state(undefined);
 
 async function onForwardRequest(port: V1ContainerPort): Promise<void> {
   if (!podName) throw new Error('pod name is undefined');
   loading = true;
+  error = undefined;
 
   // get a free port starting from 50k
   const freePort = await window.getFreePort(50_000);
@@ -39,8 +41,10 @@ async function onForwardRequest(port: V1ContainerPort): Promise<void> {
         remotePort: snapshot.containerPort,
       },
     });
+    error = undefined;
   } catch (err: unknown) {
     console.error(err);
+    error = String(err);
   } finally {
     loading = false;
   }
@@ -79,5 +83,8 @@ async function removePortForward(): Promise<void> {
     <Button title="Forward container port {port.containerPort}" disabled={loading} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
       Forward...
     </Button>
+  {/if}
+  {#if error}
+     <ErrorMessage error={error} />
   {/if}
 </span>
