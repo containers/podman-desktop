@@ -45,11 +45,21 @@ export abstract class MainPage extends BasePage {
     this.header = this.mainPage.getByRole('region', { name: 'header' });
     this.search = this.mainPage.getByRole('region', { name: 'search' });
     this.content = this.mainPage.getByRole('region', { name: 'content' });
-    this.additionalActions = this.header.getByRole('group', { name: 'additionalActions' });
-    this.bottomAdditionalActions = this.search.getByRole('group', { name: 'bottomAdditionalActions' });
+    this.additionalActions = this.header.getByRole('group', {
+      name: 'additionalActions',
+    });
+    this.bottomAdditionalActions = this.search.getByRole('group', {
+      name: 'bottomAdditionalActions',
+    });
     this.heading = this.header.getByRole('heading', { name: this.title });
-    this.noContainerEngineHeading = this.content.getByRole('heading', { name: 'No Container Engine', exact: true });
-    this.noImagesHeading = this.content.getByRole('heading', { name: `No ${this.title}`, exact: true });
+    this.noContainerEngineHeading = this.content.getByRole('heading', {
+      name: 'No Container Engine',
+      exact: true,
+    });
+    this.noImagesHeading = this.content.getByRole('heading', {
+      name: `No ${this.title}`,
+      exact: true,
+    });
   }
 
   /**
@@ -57,14 +67,14 @@ export abstract class MainPage extends BasePage {
    * @returns true, if there are any items present in the content's table, false otherwise
    */
   async pageIsEmpty(): Promise<boolean> {
-    return await test.step('Check if the page is empty', async () => {
+    return test.step('Check if the page is empty', async () => {
       if (await this.noContainerEngine()) return true;
       return (await this.noImagesHeading.count()) > 0;
     });
   }
 
   async noContainerEngine(): Promise<boolean> {
-    return await test.step('Check if there is no container engine', async () => {
+    return test.step('Check if there is no container engine', async () => {
       return (await this.noContainerEngineHeading.count()) > 0;
     });
   }
@@ -82,7 +92,7 @@ export abstract class MainPage extends BasePage {
   }
 
   async getRowFromTableByName(name: string): Promise<Locator | undefined> {
-    return await test.step(`Get row from ${this.title} page table by name: ${name}`, async () => {
+    return test.step(`Get row from ${this.title} page table by name: ${name}`, async () => {
       if (await this.pageIsEmpty()) {
         return undefined;
       }
@@ -108,8 +118,10 @@ export abstract class MainPage extends BasePage {
   }
 
   async getRowsFromTableByStatus(status: string): Promise<Locator[]> {
-    return await test.step(`Get rows from ${this.title} page table by status: ${status}`, async () => {
-      await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
+    return test.step(`Get rows from ${this.title} page table by status: ${status}`, async () => {
+      await waitUntil(async () => await this.rowsAreVisible(), {
+        sendError: false,
+      });
 
       const rows = await this.getAllTableRows();
       const filteredRows = [];
@@ -123,8 +135,10 @@ export abstract class MainPage extends BasePage {
   }
 
   async countRowsFromTable(): Promise<number> {
-    return await test.step(`Count rows from ${this.title} page table`, async () => {
-      await waitUntil(async () => await this.rowsAreVisible(), { sendError: false });
+    return test.step(`Count rows from ${this.title} page table`, async () => {
+      await waitUntil(async () => await this.rowsAreVisible(), {
+        sendError: false,
+      });
       const table = this.content.getByRole('table');
       const rows = await table.getByRole('row').all();
       return rows.length > 1 ? rows.length - 1 : 0;

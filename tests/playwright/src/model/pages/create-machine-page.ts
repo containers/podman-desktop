@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { MachineCreationForm } from './forms/machine-creation-form';
@@ -30,7 +30,9 @@ export class CreateMachinePage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
+    this.heading = this.page.getByRole('heading', {
+      name: 'Create Podman Machine',
+    });
     this.machineCreationForm = new MachineCreationForm(this.page);
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
   }
@@ -39,38 +41,54 @@ export class CreateMachinePage extends BasePage {
     machineName: string,
     { isRootful = true, enableUserNet = false, startNow = true, setAsDefault = true },
   ): Promise<ResourcesPage> {
-    await this.machineCreationForm.setupAndCreateMachine(machineName, { isRootful, enableUserNet, startNow });
+    return test.step(`Create Podman Machine: ${machineName}`, async () => {
+      await this.machineCreationForm.setupAndCreateMachine(machineName, {
+        isRootful,
+        enableUserNet,
+        startNow,
+      });
 
-    const successfulCreationMessage = this.page.getByText('Successful operation');
-    const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
+      const successfulCreationMessage = this.page.getByText('Successful operation');
+      const goBackToResourcesButton = this.page.getByRole('button', {
+        name: 'Go back to resources',
+      });
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 120_000 });
-    await playExpect(goBackToResourcesButton).toBeVisible();
+      await playExpect(successfulCreationMessage).toBeVisible({
+        timeout: 120_000,
+      });
+      await playExpect(goBackToResourcesButton).toBeVisible();
 
-    try {
-      await this.handleConnectionDialog(machineName, setAsDefault);
-    } catch (error) {
-      console.log('No handling dialog displayed', error);
-    }
+      try {
+        await this.handleConnectionDialog(machineName, setAsDefault);
+      } catch (error) {
+        console.log('No handling dialog displayed', error);
+      }
 
-    await playExpect(goBackToResourcesButton).toBeEnabled();
-    await goBackToResourcesButton.click();
-    return new ResourcesPage(this.page);
+      await playExpect(goBackToResourcesButton).toBeEnabled();
+      await goBackToResourcesButton.click();
+      return new ResourcesPage(this.page);
+    });
   }
 
   async handleConnectionDialog(machineName: string, setAsDefault: boolean): Promise<void> {
-    const connectionDialog = this.page.getByRole('dialog', { name: 'Podman' });
-    await playExpect(connectionDialog).toBeVisible({ timeout: 10_000 });
+    return test.step('Handle Podman Machine connection dialog', async () => {
+      const connectionDialog = this.page.getByRole('dialog', {
+        name: 'Podman',
+      });
+      await playExpect(connectionDialog).toBeVisible({ timeout: 10_000 });
 
-    const dialogMessage = connectionDialog.getByLabel('Dialog Message');
-    await playExpect(dialogMessage).toHaveText(
-      new RegExp(
-        `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
-      ),
-    );
+      const dialogMessage = connectionDialog.getByLabel('Dialog Message');
+      await playExpect(dialogMessage).toHaveText(
+        new RegExp(
+          `Podman Machine '${machineName}' is running but not the default machine .+ Do you want to set it as default?`,
+        ),
+      );
 
-    const handleButtonName = setAsDefault ? 'Yes' : 'Ignore';
-    const handleButton = connectionDialog.getByRole('button', { name: handleButtonName });
-    await handleButton.click();
+      const handleButtonName = setAsDefault ? 'Yes' : 'Ignore';
+      const handleButton = connectionDialog.getByRole('button', {
+        name: handleButtonName,
+      });
+      await handleButton.click();
+    });
   }
 }

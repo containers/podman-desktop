@@ -74,9 +74,9 @@ export class ImagesPage extends MainPage {
   }
 
   async openPullImage(): Promise<PullImagePage> {
-    return await test.step('Open pull image page', async () => {
+    return test.step('Open pull image page', async () => {
       await waitWhile(() => this.noContainerEngine(), {
-        timeout: 50000,
+        timeout: 50_000,
         message: 'No Container Engine is available, cannot pull an image',
       });
       await this.pullImageButton.click();
@@ -85,7 +85,7 @@ export class ImagesPage extends MainPage {
   }
 
   async pullImage(image: string): Promise<ImagesPage> {
-    return await test.step(`Pull image: ${image}`, async () => {
+    return test.step(`Pull image: ${image}`, async () => {
       const pullImagePage = await this.openPullImage();
       await playExpect(pullImagePage.heading).toBeVisible();
       return await pullImagePage.pullImage(image);
@@ -93,7 +93,7 @@ export class ImagesPage extends MainPage {
   }
 
   async renameImage(oldname: string, newname: string): Promise<ImagesPage> {
-    return await test.step(`Rename ${oldname} to ${newname}`, async () => {
+    return test.step(`Rename ${oldname} to ${newname}`, async () => {
       const imageDetailsPage = await this.openImageDetails(oldname);
       await playExpect(imageDetailsPage.heading).toContainText(oldname);
       const editImagePage = await imageDetailsPage.openEditImage();
@@ -106,7 +106,7 @@ export class ImagesPage extends MainPage {
     containerName: string,
     containersParams?: ContainerInteractiveParams,
   ): Promise<ContainersPage> {
-    return await test.step(`Start container with image: ${image}`, async () => {
+    return test.step(`Start container with image: ${image}`, async () => {
       const imageDetails = await this.openImageDetails(image);
       const runImage = await imageDetails.openRunImage();
       return await runImage.startContainer(containerName, containersParams);
@@ -114,7 +114,7 @@ export class ImagesPage extends MainPage {
   }
 
   async openImageDetails(name: string): Promise<ImageDetailsPage> {
-    return await test.step(`Open image details page for image: ${name}`, async () => {
+    return test.step(`Open image details page for image: ${name}`, async () => {
       const imageRow = await this.getImageRowByName(name);
       if (imageRow === undefined) {
         throw Error(`Image: '${name}' does not exist`);
@@ -126,7 +126,7 @@ export class ImagesPage extends MainPage {
   }
 
   async pruneImages(): Promise<ImagesPage> {
-    return await test.step('Prune images', async () => {
+    return test.step('Prune images', async () => {
       await this.pruneImagesButton.click();
       await handleConfirmationDialog(this.page, 'Prune');
       return this;
@@ -145,14 +145,14 @@ export class ImagesPage extends MainPage {
   }
 
   private async imageExists(name: string): Promise<boolean> {
-    return await test.step(`Check if image: ${name} exists`, async () => {
+    return test.step(`Check if image: ${name} exists`, async () => {
       const result = await this.getImageRowByName(name);
       return result !== undefined;
     });
   }
 
-  async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
-    return await test.step(`Wait for image: ${name} to exist`, async () => {
+  async waitForImageExists(name: string, timeout = 5_000): Promise<boolean> {
+    return test.step(`Wait for image: ${name} to exist`, async () => {
       await waitUntil(async () => await this.imageExists(name), {
         timeout: timeout,
       });
@@ -160,8 +160,8 @@ export class ImagesPage extends MainPage {
     });
   }
 
-  async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
-    return await test.step(`Wait for image: ${name} to be deleted`, async () => {
+  async waitForImageDelete(name: string, timeout = 5_000): Promise<boolean> {
+    return test.step(`Wait for image: ${name} to be deleted`, async () => {
       await waitWhile(async () => await this.imageExists(name), {
         timeout: timeout,
       });
@@ -170,7 +170,7 @@ export class ImagesPage extends MainPage {
   }
 
   async getCurrentStatusOfImage(name: string): Promise<string> {
-    return await test.step(`Get current status of image: ${name}`, async () => {
+    return test.step(`Get current status of image: ${name}`, async () => {
       let status = '';
       const row = await this.getImageRowByName(name);
 
@@ -193,7 +193,7 @@ export class ImagesPage extends MainPage {
   }
 
   async markAllUnusedImages(): Promise<boolean> {
-    return await test.step('Mark all unused images', async () => {
+    return test.step('Mark all unused images', async () => {
       if (!(await this.deleteAllUnusedImagesCheckbox.isVisible())) {
         console.log('No images available on the page');
         return false;
@@ -212,7 +212,7 @@ export class ImagesPage extends MainPage {
   }
 
   async deleteAllUnusedImages(): Promise<void> {
-    return await test.step('Delete all unused images', async () => {
+    return test.step('Delete all unused images', async () => {
       if (!(await this.markAllUnusedImages())) {
         console.log('No images available to delete');
         return;
@@ -225,7 +225,7 @@ export class ImagesPage extends MainPage {
   }
 
   async getCountOfImagesByStatus(status: string): Promise<number> {
-    return await test.step(`Get count from ${this.title} for images with status: ${status}`, async () => {
+    return test.step(`Get count from ${this.title} for images with status: ${status}`, async () => {
       const currentRows = await this.getAllTableRows();
       let count = 0;
       if (currentRows.length < 2) return 0;

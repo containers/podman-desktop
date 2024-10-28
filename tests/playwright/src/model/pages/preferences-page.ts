@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { SettingsPage } from './settings-page';
 
@@ -36,11 +36,13 @@ export class PreferencesPage extends SettingsPage {
   }
 
   async selectKubeFile(pathToKube: string): Promise<void> {
-    if (!pathToKube) {
-      throw Error(`Path to Kube config file is incorrect or not provided!`);
-    }
-    playExpect(this.kubePathInput).toBeDefined();
-    await this.kubePathInput.clear();
-    await this.kubePathInput.fill(pathToKube);
+    return test.step('Select Kube File', async () => {
+      if (!pathToKube) {
+        throw Error(`Path to Kube config file is incorrect or not provided!`);
+      }
+      playExpect(this.kubePathInput).toBeDefined();
+      await this.kubePathInput.clear();
+      await this.kubePathInput.fill(pathToKube);
+    });
   }
 }
