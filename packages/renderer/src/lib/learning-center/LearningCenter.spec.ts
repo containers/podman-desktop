@@ -21,7 +21,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { tick } from 'svelte';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import learningCenter from '../../../../main/src/plugin/learning-center/guides.json';
 import LearningCenter from './LearningCenter.svelte';
@@ -41,12 +42,23 @@ class ResizeObserver {
 
 const updateConfigurationValueMock = vi.fn();
 const getConfigurationValueMock = vi.fn();
+const listGuidesMock = vi.fn().mockReturnValue(learningCenter.guides);
+
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', {
+    value: getConfigurationValueMock,
+  });
+  Object.defineProperty(window, 'listGuides', {
+    value: listGuidesMock,
+  });
+  Object.defineProperty(window, 'updateConfigurationValue', {
+    value: updateConfigurationValueMock,
+  });
+  global.ResizeObserver = ResizeObserver;
+});
 
 beforeEach(() => {
-  (window as any).ResizeObserver = ResizeObserver;
-  (window as any).listGuides = vi.fn().mockReturnValue(learningCenter.guides);
-  (window as any).updateConfigurationValue = updateConfigurationValueMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock;
+  listGuidesMock.mockReturnValue(learningCenter.guides);
 });
 
 afterEach(() => {
@@ -81,23 +93,26 @@ test('Clicking on LearningCenter title hides carousel with guides', async () => 
 test('Toggling expansion sets configuration', async () => {
   render(LearningCenter);
 
+  // wait for onMount
+  await tick();
+
   expect(updateConfigurationValueMock).not.toHaveBeenCalled();
 
-  const toggle = screen.getByText('Learning Center');
-  expect(toggle).toBeInTheDocument();
-  expect(toggle.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'true');
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveAttribute('aria-expanded', 'true');
 
-  await fireEvent.click(toggle);
+  await fireEvent.click(button);
   expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', false);
-  expect(toggle.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'false');
+  expect(button).toHaveAttribute('aria-expanded', 'false');
 
-  await fireEvent.click(toggle);
+  await fireEvent.click(button);
   expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', true);
-  expect(toggle.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'true');
+  expect(button).toHaveAttribute('aria-expanded', 'true');
 
-  await fireEvent.click(toggle);
+  await fireEvent.click(button);
   expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', false);
-  expect(toggle.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'false');
+  expect(button).toHaveAttribute('aria-expanded', 'false');
 });
 
 test('Expanded when the config value not set', async () => {
