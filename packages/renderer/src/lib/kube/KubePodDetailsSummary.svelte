@@ -14,7 +14,7 @@ export let pod: V1Pod | undefined;
   {#if pod}
     <KubeObjectMetaArtifact artifact={pod.metadata} />
     <KubePodStatusArtifact artifact={pod.status} />
-    <KubePodSpecArtifact artifact={pod.spec} />
+    <KubePodSpecArtifact podName={pod.metadata?.name} namespace={pod.metadata?.namespace} artifact={pod.spec} />
   {:else}
     <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
