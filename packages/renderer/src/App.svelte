@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { router } from 'tinro';
 
+import PortForwardList from '/@/lib/kubernetes-port-forward/PortForwardList.svelte';
 import { handleNavigation } from '/@/navigation';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 import type { NavigationRequest } from '/@api/navigation-request';
@@ -239,8 +240,8 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             <KubernetesDashboard />
           </Route>
         {:else}
-          <!-- Redirect /kubernetes to dashboard if we end up on /kubernetes without a context error 
-           we use router.goto to preserve the navbar remembering the navigation location. 
+          <!-- Redirect /kubernetes to dashboard if we end up on /kubernetes without a context error
+           we use router.goto to preserve the navbar remembering the navigation location.
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
             {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/dashboard' : ($lastSubmenuPages['Kubernetes'] ?? '/kubernetes/dashboard'))}
@@ -317,6 +318,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             let:meta
             navigationHint="details">
             <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+          </Route>
+          <Route path="/kubernetes/port-forward" breadcrumb="Port Forwarding" navigationHint="root">
+            <PortForwardList />
           </Route>
         {/if}
         <Route path="/preferences/*" breadcrumb="Settings">
