@@ -27,8 +27,8 @@ $effect(() => {
 <div
   style={style}
   aria-label="Recommended extension"
-  class:bg-charcoal-800={!hasBackground}
-  class="bg-charcoal-800 bg-cover max-h-[180px] px-5 py-5 rounded-lg grid grid-cols-[20px_8fr_7fr] gap-4 overflow-hidden">
+  class:bg-[var(--pd-modal-bg)]={!hasBackground}
+  class="bg-[var(--pd-modal-bg)] bg-cover max-h-[180px] px-5 py-5 rounded-lg grid grid-cols-[20px_8fr_7fr] gap-4 overflow-hidden">
   <!-- icon column -->
   <div>
     <img class="w-4 h-4' object-contain mt-1" alt="banner icon" src={banner.icon} />

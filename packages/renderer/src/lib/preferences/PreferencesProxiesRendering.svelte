@@ -85,7 +85,7 @@ function validate(event: any) {
           for="httpProxy"
           class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Web Proxy (HTTP):</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
@@ -103,7 +103,7 @@ function validate(event: any) {
           for="httpsProxy"
           class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
@@ -121,7 +121,7 @@ function validate(event: any) {
           for="httpProxy"
           class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"
