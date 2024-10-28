@@ -8,8 +8,8 @@ interface Props {
 
 let { title, link }: Props = $props();
 
-function openLink() {
-  window.openExternal(link);
+async function openLink(): Promise<void> {
+  await window.openExternal(link);
 }
 </script>
 

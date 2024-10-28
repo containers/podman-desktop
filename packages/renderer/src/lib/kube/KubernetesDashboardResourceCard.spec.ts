@@ -41,7 +41,7 @@ test('Verify basic card format', async () => {
   expect(count).toHaveClass('text-[var(--pd-invert-content-card-text)]');
 });
 
-test('Expect clicking words', async () => {
+test('Expect clicking works', async () => {
   const gotoSpy = vi.spyOn(router, 'goto');
 
   const params = { type: 'a type', Icon: NodeIcon, count: 4, link: 'test-link' };

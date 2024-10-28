@@ -28,7 +28,9 @@ const openExternalMock = vi.fn();
 
 // fake the window object
 beforeAll(() => {
-  (window as any).openExternal = openExternalMock;
+  Object.defineProperty(window, 'openExternal', {
+    value: openExternalMock,
+  });
 });
 
 test('Verify basic card format', async () => {
@@ -50,7 +52,7 @@ test('Verify basic card format', async () => {
   expect(button).toBeInTheDocument();
 });
 
-test('Expect clicking words', async () => {
+test('Expect clicking works', async () => {
   const link = 'http://test-link';
   render(KubernetesDashboardGuideCard, { title: 'a title', link: link });
 

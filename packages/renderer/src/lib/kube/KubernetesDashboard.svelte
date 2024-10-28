@@ -38,8 +38,8 @@ let configMapSecretCount = $derived(
   $kubernetesCurrentContextConfigMaps.length + $kubernetesCurrentContextSecrets.length,
 );
 
-function openKubernetesDocumentation() {
-  window.openExternal('https://podman-desktop.io/docs/kubernetes');
+async function openKubernetesDocumentation(): Promise<void> {
+  await window.openExternal('https://podman-desktop.io/docs/kubernetes');
 }
 </script>
 
