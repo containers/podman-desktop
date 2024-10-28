@@ -116,12 +116,6 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
       .on('error', err => {
         this.onErrorEmit.fire({ error: err.message });
       })
-      .on('error', err => {
-        this.onErrorEmit.fire({ error: err.message });
-      })
-      .on('error', err => {
-        this.onErrorEmit.fire({ error: err.message });
-      })
       .connect({
         host: this.#host,
         port: this.#port,
