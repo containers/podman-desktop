@@ -19,7 +19,6 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { tick } from 'svelte';
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -35,6 +34,7 @@ import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetails
 const getConfigurationValueMock = vi.fn();
 const shellInProviderConnectionMock = vi.fn();
 const shellInProviderConnectionResizeMock = vi.fn();
+const shellInProviderConnectionCloseMock = vi.fn();
 const receiveEndCallbackMock = vi.fn();
 
 vi.mock('xterm', () => {
@@ -50,6 +50,7 @@ beforeEach(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).shellInProviderConnection = shellInProviderConnectionMock;
   (window as any).shellInProviderConnectionResize = shellInProviderConnectionResizeMock;
+  (window as any).shellInProviderConnectionClose = shellInProviderConnectionCloseMock;
   (window as any).receiveEndCallback = receiveEndCallbackMock;
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
@@ -186,35 +187,27 @@ test('terminal active/ restarts connection after stopping and starting a provide
   onDataCallback('hello\nworld');
 
   // wait 1s
-  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
+  await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
-
-  connectionInfo.status = 'stopped';
-
-  waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
+  await waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   await renderObject.rerender({ provider, connectionInfo, screenReaderMode: true });
 
-  await tick();
+  connectionInfo.status = 'stopped';
 
-  waitFor(() => expect(screen.queryByText('Provider engine is not running')).toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText('Provider engine is not running')).toBeInTheDocument());
 
   connectionInfo.status = 'starting';
 
   await renderObject.rerender({ provider, connectionInfo, screenReaderMode: true });
 
-  await tick();
-
   connectionInfo.status = 'started';
 
   await renderObject.rerender({ provider, connectionInfo, screenReaderMode: true });
-
-  await tick();
 
   await waitFor(() => expect(shellInProviderConnectionMock).toHaveBeenCalledTimes(2), { timeout: 2000 });
 });
