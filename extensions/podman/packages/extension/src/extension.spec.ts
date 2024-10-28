@@ -33,6 +33,7 @@ import {
   initCheckAndRegisterUpdate,
   registerOnboardingMachineExistsCommand,
   registerOnboardingUnsupportedPodmanMachineCommand,
+  setWSLEnabled,
 } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
@@ -350,64 +351,172 @@ afterEach(() => {
   console.error = originalConsoleError;
 });
 
-test('verify create command called with correct values', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
+describe.each(['macos', 'windows'])('verify create on %s', os => {
+  const provider = os === 'macos' ? VMTYPE.APPLEHV : VMTYPE.WSL;
+  beforeEach((): void => {
+    vi.mocked(util.isMac).mockReturnValue(os === 'macos');
+    vi.mocked(util.isWindows).mockReturnValue(os === 'windows');
+    setWSLEnabled(true);
   });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
 
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-path': 'path',
-    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
-    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
-    'podman.factory.machine.provider': LIBKRUN_LABEL,
-  });
-  expect(spyExecPromise).toBeCalledWith(
-    podmanCli.getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '1000', '--disk-size', '232', '--image-path', 'path', '--rootful'],
-    {
-      logger: undefined,
-      token: undefined,
-      env: {
-        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
+  test('verify create command called with correct values', async () => {
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+      'podman.factory.machine.provider': provider,
+    });
+    expect(spyExecPromise).toBeCalledWith(
+      podmanCli.getPodmanCli(),
+      ['machine', 'init', '--cpus', '2', '--memory', '1000', '--disk-size', '232', '--image-path', 'path', '--rootful'],
+      {
+        logger: undefined,
+        token: undefined,
+        env: {
+          CONTAINERS_MACHINE_PROVIDER: provider,
+        },
       },
-    },
-  );
+    );
 
-  // wait a call on telemetryLogger.logUsage
-  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+    // wait a call on telemetryLogger.logUsage
+    while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
-  expect(telemetryLogger.logUsage).toBeCalledWith(
-    'podman.machine.init',
-    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
-  );
-});
-
-test('verify create command called with correct image-path values with image URL', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
+    );
   });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
 
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-uri': 'https://host/file',
-    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
-    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
-    'podman.factory.machine.provider': LIBKRUN_LABEL,
+  test('verify create command called with correct image-path values with image URL', async () => {
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-uri': 'https://host/file',
+      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+      'podman.factory.machine.provider': provider,
+    });
+    expect(spyExecPromise).toBeCalledWith(
+      podmanCli.getPodmanCli(),
+      [
+        'machine',
+        'init',
+        '--cpus',
+        '2',
+        '--memory',
+        '1000',
+        '--disk-size',
+        '232',
+        '--image-path',
+        'https://host/file',
+        '--rootful',
+      ],
+      {
+        logger: undefined,
+        token: undefined,
+        env: {
+          CONTAINERS_MACHINE_PROVIDER: provider,
+        },
+      },
+    );
+
+    // wait a call on telemetryLogger.logUsage
+    while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-url' }),
+    );
   });
-  expect(spyExecPromise).toBeCalledWith(
-    podmanCli.getPodmanCli(),
-    [
+
+  test('verify create command called with correct image-path values with registry', async () => {
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-uri': 'registry/repo/image:version',
+      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
+      'podman.factory.machine.provider': provider,
+    });
+    expect(spyExecPromise).toBeCalledWith(
+      podmanCli.getPodmanCli(),
+      [
+        'machine',
+        'init',
+        '--cpus',
+        '2',
+        '--memory',
+        '1000',
+        '--disk-size',
+        '232',
+        '--image-path',
+        'docker://registry/repo/image:version',
+        '--rootful',
+      ],
+      {
+        logger: undefined,
+        token: undefined,
+        env: {
+          CONTAINERS_MACHINE_PROVIDER: provider,
+        },
+      },
+    );
+
+    // wait a call on telemetryLogger.logUsage
+    while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-registry' }),
+    );
+  });
+
+  test('verify create command called with correct values with user mode networking', async () => {
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.user-mode-networking': true,
+    });
+    const parameters = [
       'machine',
       'init',
       '--cpus',
@@ -417,214 +526,123 @@ test('verify create command called with correct image-path values with image URL
       '--disk-size',
       '232',
       '--image-path',
-      'https://host/file',
+      'path',
       '--rootful',
-    ],
-    {
+      '--user-mode-networking',
+    ];
+    expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
       logger: undefined,
-      token: undefined,
       env: {
-        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
+        CONTAINERS_MACHINE_PROVIDER: provider,
       },
-    },
-  );
-
-  // wait a call on telemetryLogger.logUsage
-  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  expect(telemetryLogger.logUsage).toBeCalledWith(
-    'podman.machine.init',
-    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-url' }),
-  );
-});
-
-test('verify create command called with correct image-path values with registry', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
-  });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-uri': 'registry/repo/image:version',
-    'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
-    'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
-    'podman.factory.machine.provider': LIBKRUN_LABEL,
-  });
-  expect(spyExecPromise).toBeCalledWith(
-    podmanCli.getPodmanCli(),
-    [
-      'machine',
-      'init',
-      '--cpus',
-      '2',
-      '--memory',
-      '1000',
-      '--disk-size',
-      '232',
-      '--image-path',
-      'docker://registry/repo/image:version',
-      '--rootful',
-    ],
-    {
-      logger: undefined,
       token: undefined,
-      env: {
-        CONTAINERS_MACHINE_PROVIDER: VMTYPE.LIBKRUN,
-      },
-    },
-  );
+    });
+    expect(console.error).not.toBeCalled();
 
-  // wait a call on telemetryLogger.logUsage
-  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+    // wait a call on telemetryLogger.logUsage
+    while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
-  expect(telemetryLogger.logUsage).toBeCalledWith(
-    'podman.machine.init',
-    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom-registry' }),
-  );
-});
-
-test('verify create command called with correct values with user mode networking', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
+    );
   });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
 
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-path': 'path',
-    'podman.factory.machine.memory': '1048000000',
-    'podman.factory.machine.diskSize': '250000000000',
-    'podman.factory.machine.user-mode-networking': true,
-  });
-  const parameters = [
-    'machine',
-    'init',
-    '--cpus',
-    '2',
-    '--memory',
-    '1000',
-    '--disk-size',
-    '232',
-    '--image-path',
-    'path',
-    '--rootful',
-    '--user-mode-networking',
-  ];
-  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
-    logger: undefined,
-  });
-  expect(console.error).not.toBeCalled();
+  test('verify create command called with now flag if start machine after creation is enabled', async () => {
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
 
-  // wait a call on telemetryLogger.logUsage
-  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  expect(telemetryLogger.logUsage).toBeCalledWith(
-    'podman.machine.init',
-    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
-  );
-});
-
-test('verify create command called with now flag if start machine after creation is enabled', async () => {
-  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementationOnce(() => {
-    return Promise.resolve({} as extensionApi.RunResult);
-  });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.image-path': 'path',
-    'podman.factory.machine.memory': '1048000000',
-    'podman.factory.machine.diskSize': '250000000000',
-    'podman.factory.machine.now': true,
-  });
-  const parameters = [
-    'machine',
-    'init',
-    '--cpus',
-    '2',
-    '--memory',
-    '1000',
-    '--disk-size',
-    '232',
-    '--image-path',
-    'path',
-    '--rootful',
-    '--now',
-  ];
-  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
-    logger: undefined,
-  });
-  expect(console.error).not.toBeCalled();
-});
-
-test('verify error contains name, message and stderr if creation fails', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockRejectedValueOnce({
-    name: 'name',
-    message: 'description',
-    stderr: 'error',
-  });
-  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-  await expect(
-    extension.createMachine({
+    await extension.createMachine({
       'podman.factory.machine.cpus': '2',
       'podman.factory.machine.image-path': 'path',
       'podman.factory.machine.memory': '1048000000',
       'podman.factory.machine.diskSize': '250000000000',
       'podman.factory.machine.now': true,
-    }),
-  ).rejects.toThrowError('name\ndescription\nerror\n');
-});
-
-test('verify create command called with embedded image if using podman v5', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
-  vi.mocked(getAssetsFolder).mockReturnValue('fake');
-  vi.mocked(fs.existsSync).mockReturnValue(true);
-  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-
-  await extension.createMachine({
-    'podman.factory.machine.cpus': '2',
-    'podman.factory.machine.memory': '1048000000',
-    'podman.factory.machine.diskSize': '250000000000',
-    'podman.factory.machine.now': true,
+    });
+    const parameters = [
+      'machine',
+      'init',
+      '--cpus',
+      '2',
+      '--memory',
+      '1000',
+      '--disk-size',
+      '232',
+      '--image-path',
+      'path',
+      '--rootful',
+      '--now',
+    ];
+    expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
+      logger: undefined,
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: provider,
+      },
+      token: undefined,
+    });
+    expect(console.error).not.toBeCalled();
   });
 
-  // check telemetry is called with telemetryRecords.imagePath
-  await vi.waitFor(() => {
-    expect(telemetryLogger.logUsage).toBeCalledWith(
-      'podman.machine.init',
-      expect.objectContaining({ imagePath: 'embedded' }),
+  test('verify error contains name, message and stderr if creation fails', async () => {
+    vi.spyOn(extensionApi.process, 'exec').mockRejectedValueOnce({
+      name: 'name',
+      message: 'description',
+      stderr: 'error',
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+    await expect(
+      extension.createMachine({
+        'podman.factory.machine.cpus': '2',
+        'podman.factory.machine.image-path': 'path',
+        'podman.factory.machine.memory': '1048000000',
+        'podman.factory.machine.diskSize': '250000000000',
+        'podman.factory.machine.now': true,
+      }),
+    ).rejects.toThrowError('name\ndescription\nerror\n');
+  });
+
+  test('verify create command called with embedded image if using podman v5', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(getAssetsFolder).mockReturnValue('fake');
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+    });
+
+    // check telemetry is called with telemetryRecords.imagePath
+    await vi.waitFor(() => {
+      expect(telemetryLogger.logUsage).toBeCalledWith(
+        'podman.machine.init',
+        expect.objectContaining({ imagePath: 'embedded' }),
+      );
+    });
+
+    expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
+      3,
+      podmanCli.getPodmanCli(),
+      expect.arrayContaining([expect.stringContaining('.zst')]),
+      expect.anything(),
     );
   });
-
-  expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
-    3,
-    podmanCli.getPodmanCli(),
-    expect.arrayContaining([expect.stringContaining('.zst')]),
-    expect.anything(),
-  );
 });
 
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
