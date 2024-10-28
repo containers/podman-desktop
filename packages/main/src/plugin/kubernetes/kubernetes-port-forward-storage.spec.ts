@@ -137,7 +137,7 @@ describe('FileBasedConfigStorage', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
@@ -259,7 +259,7 @@ describe('MemoryBasedConfigStorage', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
@@ -338,7 +338,7 @@ describe('ConfigManagementService', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
