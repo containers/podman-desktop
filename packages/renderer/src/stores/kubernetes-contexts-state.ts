@@ -255,7 +255,6 @@ export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]
     set(value);
   });
   window.events?.receive('kubernetes-port-forwards-update', (value: unknown) => {
-    set((value ?? []) as UserForwardConfig[]);
+    set(value as UserForwardConfig[]);
   });
-  return () => {};
 });
