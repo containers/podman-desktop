@@ -20,9 +20,9 @@
  * Enumeration representing the kind of Kubernetes workload.
  */
 export enum WorkloadKind {
-  POD,
-  DEPLOYMENT,
-  SERVICE,
+  POD = 'pod',
+  DEPLOYMENT = 'deployment',
+  SERVICE = 'service',
 }
 
 /**
