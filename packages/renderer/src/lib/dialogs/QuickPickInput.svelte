@@ -288,7 +288,7 @@ function handleKeydown(e: KeyboardEvent) {
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this={outerDiv}
-        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm overflow-hidden">
+        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-[var(--pd-input-field-stroke)] text-sm overflow-hidden">
         {#if title}
           <div
             aria-label="title"
@@ -303,7 +303,7 @@ function handleKeydown(e: KeyboardEvent) {
               on:input={event => onInputChange(event)}
               bind:value={inputValue}
               class="px-1 w-full h-20 text-[var(--pd-input-select-hover-text)] border {validationError
-                ? 'border-red-700'
+                ? 'border-[var(--pd-input-field-stroke-error)]'
                 : 'bg-[var(--pd-input-field-focused-bg)] border-[var(--pd-input-field-focused-bg)]'} focus:outline-none"
               placeholder={placeHolder}></textarea>
           {:else}
@@ -313,7 +313,7 @@ function handleKeydown(e: KeyboardEvent) {
               type="text"
               bind:value={inputValue}
               class="px-1 w-full text-[var(--pd-input-select-hover-text)] border {validationError
-                ? 'border-red-700'
+                ? 'border-[var(--pd-input-field-stroke-error)]'
                 : 'bg-[var(--pd-input-field-focused-bg)] border-[var(--pd-input-field-focused-bg)]'} focus:outline-none"
               placeholder={placeHolder} />
           {/if}
@@ -324,7 +324,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-[var(--pd-modal-dropdown-text)] border border-red-700 relative w-full bg-red-700 px-1">
+            <div class="text-[var(--pd-modal-dropdown-text)] border border-[var(--pd-input-field-stroke-error)] relative w-full bg-border-[var(--pd-input-field-stroke-error)] px-1">
               {validationError}
             </div>
           {:else}
