@@ -11,7 +11,7 @@ interface Props {
 
 let { type, Icon, count, link }: Props = $props();
 
-function openLink() {
+function openLink(): void {
   router.goto(link);
 }
 </script>

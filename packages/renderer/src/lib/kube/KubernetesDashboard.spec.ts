@@ -39,10 +39,9 @@ const openExternalMock = vi.fn();
 
 // fake the window object
 beforeAll(() => {
-  //(window as any).events = eventsMock;
-  //(window as any).getConfigurationValue = vi.fn();
-  //(window as any).sendNavigationItems = vi.fn();
-  (window as any).openExternal = openExternalMock;
+  Object.defineProperty(window, 'openExternal', {
+    value: openExternalMock,
+  });
 });
 
 beforeEach(() => {
