@@ -291,7 +291,7 @@ Note: You may need to modify your `.kube/config` file to reflect the correct dom
 
 ### Storage configuration
 
-By default, storage configuration [requires an LVM partition](https://github.com/openshift/microshift/blob/main/docs/contributor/storage/default_csi_plugin.md#default-volume-group) and thus LVMS will not be deployed. An alternative storage solution is required for storage utilization.
+By default, storage configuration [requires an LVM partition](https://github.com/openshift/microshift/blob/main/docs/contributor/storage/default_csi_plugin.md#default-volume-group) and LVMS storage manager will not be deployed. This is due to a limitation when building a RAW image. An alternative non-local storage solution is required to use OpenShift artifacts with storage capabilities. The feature to add LVM support is tracked in this [pull request](https://github.com/osbuild/images/pull/926).
 
 ## Conclusion
 
