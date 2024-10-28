@@ -20,6 +20,7 @@ import type { KubernetesObject } from '@kubernetes/client-node';
 import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import type { CheckingState, ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import { findMatchInLeaves } from './search-util';
 
@@ -246,3 +247,15 @@ export const kubernetesCurrentContextRoutesFiltered = derived(
   [routeSearchPattern, kubernetesCurrentContextRoutes],
   ([$searchPattern, $routes]) => $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
 );
+
+// Port Forwarding
+
+export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([], set => {
+  window.getKubernetesPortForwards().then(value => {
+    set(value);
+  });
+  window.events?.receive('kubernetes-port-forwards-update', (value: unknown) => {
+    set((value ?? []) as UserForwardConfig[]);
+  });
+  return () => {};
+});
