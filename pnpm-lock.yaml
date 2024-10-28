@@ -980,8 +980,8 @@ importers:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
       markdownlint:
-        specifier: ^0.35.0
-        version: 0.35.0
+        specifier: ^0.36.0
+        version: 0.36.0
       markdownlint-cli2:
         specifier: ^0.14.0
         version: 0.14.0
@@ -7811,8 +7811,16 @@ packages:
     resolution: {integrity: sha512-no5ZfdqAdWGxftCLlySHSgddEjyW4kui4z7amQcGsSKfYC5v/ou+8mIQVyg9KQMeEZLNtz9OPDTj7nnTnoR4FQ==}
     engines: {node: '>=18'}
 
+  markdownlint-micromark@0.1.12:
+    resolution: {integrity: sha512-RlB6EwMGgc0sxcIhOQ2+aq7Zw1V2fBnzbXKGgYK/mVWdT7cz34fteKSwfYeo4rL6+L/q2tyC9QtD/PgZbkdyJQ==}
+    engines: {node: '>=18'}
+
   markdownlint@0.35.0:
     resolution: {integrity: sha512-wgp8yesWjFBL7bycA3hxwHRdsZGJhjhyP1dSxKVKrza0EPFYtn+mHtkVy6dvP1kGSjovyG5B8yNP6Frj0UFUJg==}
+    engines: {node: '>=18'}
+
+  markdownlint@0.36.0:
+    resolution: {integrity: sha512-ULhCJrt12HC8jZPCzc6yN3g2l8KaFR8bYHStnffzCOwY33hPrC6ic1pz1tDNs/ydKU2UiETOtL5nLYJNZLOd6w==}
     engines: {node: '>=18'}
 
   matcher@3.0.0:
@@ -19888,10 +19896,17 @@ snapshots:
 
   markdownlint-micromark@0.1.10: {}
 
+  markdownlint-micromark@0.1.12: {}
+
   markdownlint@0.35.0:
     dependencies:
       markdown-it: 14.1.0
       markdownlint-micromark: 0.1.10
+
+  markdownlint@0.36.0:
+    dependencies:
+      markdown-it: 14.1.0
+      markdownlint-micromark: 0.1.12
 
   matcher@3.0.0:
     dependencies:
