@@ -2002,6 +2002,14 @@ export async function createMachine(
   } else if (params['podman.factory.machine.win.provider']) {
     provider = params['podman.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
+  } else {
+    if (isWindows()) {
+      provider = wslEnabled ? 'wsl' : 'hyperv';
+      telemetryRecords.provider = provider;
+    } else if (isMac()) {
+      provider = 'applehv';
+      telemetryRecords.provider = provider;
+    }
   }
 
   // cpus
