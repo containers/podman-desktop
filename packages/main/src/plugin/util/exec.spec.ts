@@ -78,7 +78,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -106,7 +106,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -133,7 +133,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(1);
         }
       }),
@@ -246,7 +246,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -283,7 +283,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -320,7 +320,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -357,7 +357,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: vi.fn() },
       stderr: { on, setEncoding: vi.fn() },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -393,7 +393,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: vi.fn() },
       stderr: { on, setEncoding: vi.fn() },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -426,7 +426,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: vi.fn() },
       stderr: { on, setEncoding: vi.fn() },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -463,7 +463,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: vi.fn() },
       stderr: { on, setEncoding: vi.fn() },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -496,7 +496,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: vi.fn() },
       stderr: { on, setEncoding: vi.fn() },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
@@ -527,7 +527,7 @@ describe('exec', () => {
       stdout: { on, setEncoding: setEncodingMock },
       stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-        if (event === 'exit') {
+        if (event === 'close') {
           cb(0);
         }
       }),
