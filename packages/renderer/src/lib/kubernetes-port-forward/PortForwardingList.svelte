@@ -10,7 +10,8 @@ import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-conte
 
 const columns = [
   new TableColumn<PortForwardRow>('Status', {
-    align: 'left',
+    align: 'center',
+    width: '70px',
     renderer: PortForwardIcon,
   }),
   new TableColumn<PortForwardRow, { name: string; namespace: string }>('Name', {
