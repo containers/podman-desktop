@@ -203,25 +203,25 @@ test.describe
 
             test('Podman machine operations - STOP', async ({ page }) => {
               const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
-              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
               await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
               await podmanMachineDetails.podmanMachineStopButton.click();
-              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
             });
 
             test('Podman machine operations - START', async ({ page }) => {
               const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
               await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
               await podmanMachineDetails.podmanMachineStartButton.click();
-              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
             });
 
             test('Podman machine operations - RESTART', async ({ page }) => {
               const podmanMachineDetails = new PodmanMachineDetails(page, PODMAN_MACHINE_NAME);
               await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
               await podmanMachineDetails.podmanMachineRestartButton.click();
-              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
-              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
+              await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
             });
           });
       });

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Locator, type Page } from '@playwright/test';
+import test, { type Locator, type Page } from '@playwright/test';
 
 import { waitUntil } from '/@/utility/wait';
 
@@ -41,20 +41,31 @@ export abstract class DetailsPage extends BasePage {
     this.tabContent = page.getByRole('region', { name: 'Tab Content' });
     this.header = page.getByRole('region', { name: 'Header' });
     this.tabs = page.getByRole('region', { name: 'Tabs' });
-    this.breadcrumb = this.header.getByRole('navigation', { name: 'Breadcrumb' });
-    this.controlActions = this.header.getByRole('group', { name: 'Control Actions' });
-    this.heading = this.header.getByRole('heading', { name: this.resourceName });
+    this.breadcrumb = this.header.getByRole('navigation', {
+      name: 'Breadcrumb',
+    });
+    this.controlActions = this.header.getByRole('group', {
+      name: 'Control Actions',
+    });
+    this.heading = this.header.getByRole('heading', {
+      name: this.resourceName,
+    });
     this.closeButton = this.breadcrumb.getByRole('button', { name: 'Close' });
     this.backLink = this.breadcrumb.getByRole('link', { name: 'Back' });
     this.pageName = this.breadcrumb.getByRole('region', { name: 'Page Name' });
   }
 
   async activateTab(tabName: string): Promise<this> {
-    const tabItem = this.tabs.getByRole('link', { name: tabName, exact: true });
-    await waitUntil(async () => await tabItem.isVisible(), {
-      message: `Tab ${tabName} does not exist currently, maybe entry was deleted!`,
+    return test.step(`Activate tab: ${tabName}`, async () => {
+      const tabItem = this.tabs.getByRole('link', {
+        name: tabName,
+        exact: true,
+      });
+      await waitUntil(async () => await tabItem.isVisible(), {
+        message: `Tab ${tabName} does not exist currently, maybe entry was deleted!`,
+      });
+      await tabItem.click();
+      return this;
     });
-    await tabItem.click();
-    return this;
   }
 }

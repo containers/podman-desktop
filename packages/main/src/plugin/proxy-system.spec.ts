@@ -120,6 +120,23 @@ describe('Windows platform tests', () => {
     expect(settings?.httpsProxy).toBe('http://127.0.0.1:8889');
     expect(settings?.noProxy).toBe('*.internal');
   });
+
+  test('State returned in case of proxy enabled and proxy server is <ip:port>', async () => {
+    setupPlatform(Platform.WINDOWS);
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(undefined, [
+          { name: 'ProxyEnable', value: '0x1' },
+          { name: 'ProxyServer', value: '127.0.0.1:8888' },
+        ]);
+      }),
+    });
+    const settings = await getProxySettingsFromSystem({} as Proxy);
+    expect(settings).toBeDefined();
+    expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
+    expect(settings?.httpsProxy).toBe('http://127.0.0.1:8888');
+    expect(settings?.noProxy).toBeUndefined();
+  });
 });
 
 describe('Linux platform test', () => {

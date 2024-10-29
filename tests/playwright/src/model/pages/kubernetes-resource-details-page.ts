@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, type Locator, type Page } from '@playwright/test';
+import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { handleConfirmationDialog } from '/@/utility/operations';
 
@@ -39,41 +39,58 @@ export class KubernetesResourceDetailsPage extends DetailsPage {
 
   constructor(page: Page, title: string) {
     super(page, title);
-    this.applyChangesButton = this.tabContent.getByRole('button', { name: 'Apply changes to cluster' });
-    this.revertChagesButton = this.tabContent.getByRole('button', { name: 'Revert Changes' });
-    this.deleteButton = this.controlActions.getByRole('button', { name: 'Delete', exact: false });
-    this.editorWidget = this.page.getByRole('dialog', { name: 'Find / Replace' });
-    this.toggleButton = this.editorWidget.getByRole('button', { name: 'Toggle Replace' });
+    this.applyChangesButton = this.tabContent.getByRole('button', {
+      name: 'Apply changes to cluster',
+    });
+    this.revertChagesButton = this.tabContent.getByRole('button', {
+      name: 'Revert Changes',
+    });
+    this.deleteButton = this.controlActions.getByRole('button', {
+      name: 'Delete',
+      exact: false,
+    });
+    this.editorWidget = this.page.getByRole('dialog', {
+      name: 'Find / Replace',
+    });
+    this.toggleButton = this.editorWidget.getByRole('button', {
+      name: 'Toggle Replace',
+    });
     this.findTextArea = this.editorWidget.getByPlaceholder('Find');
     this.replaceTextArea = this.editorWidget.getByPlaceholder('Replace');
-    this.replaceButton = this.editorWidget.getByRole('button', { name: 'Replace All' });
+    this.replaceButton = this.editorWidget.getByRole('button', {
+      name: 'Replace All',
+    });
   }
 
   async getState(): Promise<string> {
-    const currentState = await this.header.getByRole('status').getAttribute('title');
-    for (const state of Object.values(KubernetesResourceState)) {
-      if (currentState === state) return state;
-    }
+    return test.step('Get resource state', async () => {
+      const currentState = await this.header.getByRole('status').getAttribute('title');
+      for (const state of Object.values(KubernetesResourceState)) {
+        if (currentState === state) return state;
+      }
 
-    return KubernetesResourceState.Unknown;
+      return KubernetesResourceState.Unknown;
+    });
   }
 
   public async editKubernetsYamlFile(textToBeChanged: string, newText: string): Promise<void> {
-    await this.activateTab(KubernetesResourceDetailsPage.KUBE_TAB);
-    await this.tabContent.click();
-    await this.page.keyboard.press('Control+F');
-    await playExpect(this.editorWidget).toBeVisible();
-    await playExpect(this.findTextArea).toBeVisible();
-    await this.findTextArea.fill(textToBeChanged);
-    await playExpect(this.toggleButton).toBeVisible();
-    await this.toggleButton.click();
-    await playExpect(this.replaceTextArea).toBeVisible();
-    await this.replaceTextArea.fill(newText);
-    await playExpect(this.replaceButton).toBeVisible();
-    await this.replaceButton.click();
-    await playExpect(this.revertChagesButton).toBeEnabled();
-    await playExpect(this.applyChangesButton).toBeEnabled();
-    await this.applyChangesButton.click();
-    await handleConfirmationDialog(this.page, 'Kubernetes', true, 'OK');
+    return test.step('Edit Kubernetes YAML file', async () => {
+      await this.activateTab(KubernetesResourceDetailsPage.KUBE_TAB);
+      await this.tabContent.click();
+      await this.page.keyboard.press('Control+F');
+      await playExpect(this.editorWidget).toBeVisible();
+      await playExpect(this.findTextArea).toBeVisible();
+      await this.findTextArea.fill(textToBeChanged);
+      await playExpect(this.toggleButton).toBeVisible();
+      await this.toggleButton.click();
+      await playExpect(this.replaceTextArea).toBeVisible();
+      await this.replaceTextArea.fill(newText);
+      await playExpect(this.replaceButton).toBeVisible();
+      await this.replaceButton.click();
+      await playExpect(this.revertChagesButton).toBeEnabled();
+      await playExpect(this.applyChangesButton).toBeEnabled();
+      await this.applyChangesButton.click();
+      await handleConfirmationDialog(this.page, 'Kubernetes', true, 'OK');
+    });
   }
 }

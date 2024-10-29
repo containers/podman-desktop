@@ -18,6 +18,8 @@
 
 import type {
   Context,
+  CoreV1Event,
+  CoreV1EventList,
   Informer,
   KubernetesListObject,
   KubernetesObject,
@@ -254,6 +256,9 @@ export class ContextsManager {
         break;
       case 'secrets':
         informer = this.createSecretInformer(this.kubeConfig, ns, context);
+        break;
+      case 'events':
+        informer = this.createEventInformer(this.kubeConfig, ns, context);
         break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
@@ -719,6 +724,59 @@ export class ContextsManager {
             (state.resources.routes = state.resources.routes.filter(
               d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
             )),
+        });
+      },
+    });
+  }
+
+  public createEventInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<CoreV1EventList> => k8sApi.listNamespacedEvent({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/events`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('events', timer, connectionDelay);
+    return this.createInformer<CoreV1Event>(kc, context, path, listFn, {
+      resource: 'events',
+      timer: timer,
+      backoff: this.getBackoffForContext(context.name),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.resources.events.push(obj);
+            }
+          },
+        });
+      },
+      onUpdate: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.resources.events = state.resources.events.filter(
+                o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+              );
+              state.resources.events.push(obj);
+            }
+          },
+        });
+      },
+      onDelete: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (obj.involvedObject.kind === 'Deployment') {
+              state.resources.events = state.resources.events.filter(
+                d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+              );
+            }
+          },
         });
       },
     });

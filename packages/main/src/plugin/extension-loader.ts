@@ -494,10 +494,11 @@ export class ExtensionLoader {
   // check if all dependencies are available
   // if not, set the missingDependencies property
   searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[]): void {
+    const existingExtensions = Array.from(new Set([...this.analyzedExtensions.values(), ...analyzedExtensions]));
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
       extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
-        if (!analyzedExtensions.find(analyzedExtension => analyzedExtension.id === dependency)) {
+        if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
         }
       });

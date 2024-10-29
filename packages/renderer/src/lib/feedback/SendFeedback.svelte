@@ -143,8 +143,8 @@ async function openGitHub(): Promise<void> {
         <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
           <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
           <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
-            <Fa class="px-1 text-purple-500" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
-              class="px-1 text-amber-400"
+            <Fa class="px-1 text-[var(--pd-invert-content-info-icon)]" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
+              class="px-1 text-[var(--pd-state-warning)]"
               icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
           </span>
         </div>

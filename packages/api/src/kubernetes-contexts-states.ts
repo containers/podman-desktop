@@ -36,6 +36,7 @@ export const secondaryResources = [
   'secrets',
   'nodes',
   'persistentvolumeclaims',
+  'events',
 ] as const;
 
 export type SecondaryResourceName = (typeof secondaryResources)[number];

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { TestContext } from 'vitest';
+import KubeIcon from '/@/lib/images/KubeIcon.svelte';
 
-import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { NavigationRegistryEntry } from '../navigation-registry';
 
-export interface RunnerTestContext extends TestContext {
-  // to avoid compilation failures -> error TS2339: Property 'task' does not exist on type 'TestContext'.
-  // task: any;
-  pdRunner: PodmanDesktopRunner;
+export function createNavigationKubernetesDashboardEntry(): NavigationRegistryEntry {
+  const registry: NavigationRegistryEntry = {
+    name: 'Dashboard',
+    icon: { iconComponent: KubeIcon },
+    link: '/kubernetes/dashboard',
+    tooltip: 'Dashboard',
+    type: 'entry',
+    get counter() {
+      return 0;
+    },
+  };
+  return registry;
 }

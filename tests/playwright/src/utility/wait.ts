@@ -29,7 +29,7 @@ export async function wait(
   sendError: boolean,
   errorMessage: string,
 ): Promise<void> {
-  await test.step(`Wait for condition ${waitFunction.name} to become '${String(until)}'`, async () => {
+  return test.step(`Wait for condition ${waitFunction.name} to become '${String(until)}'`, async () => {
     let time = timeout;
     while (time > 0) {
       const waitFuncResult = await waitFunction();
@@ -63,11 +63,16 @@ export async function wait(
 export async function waitUntil(
   waitFunction: () => Promise<boolean>,
   {
-    timeout = 5000,
+    timeout = 5_000,
     diff = 500,
     sendError = true,
     message = '',
-  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
+  }: {
+    timeout?: number;
+    diff?: number;
+    sendError?: boolean;
+    message?: string;
+  } = {},
 ): Promise<void> {
   await wait(waitFunction, true, timeout, diff, sendError, message);
 }
@@ -84,11 +89,16 @@ export async function waitUntil(
 export async function waitWhile(
   waitFunction: () => Promise<boolean>,
   {
-    timeout = 5000,
+    timeout = 5_000,
     diff = 500,
     sendError = true,
     message = '',
-  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
+  }: {
+    timeout?: number;
+    diff?: number;
+    sendError?: boolean;
+    message?: string;
+  } = {},
 ): Promise<void> {
   await wait(waitFunction, false, timeout, diff, sendError, message);
 }
@@ -104,14 +114,16 @@ export async function delay(ms: number): Promise<void> {
   });
 }
 
-export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 30000): Promise<void> {
-  await test.step('Wait for Podman machine to be running', async () => {
+export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 30_000): Promise<void> {
+  return test.step('Wait for Podman machine to be running', async () => {
     const dashboardPage = await new NavigationBar(page).openDashboard();
     await playExpect(dashboardPage.heading).toBeVisible();
     await waitUntil(async () => await dashboardPage.podmanStatusLabel.isVisible(), {
       timeout: timeoutOut,
       sendError: false,
     });
-    await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: timeoutOut });
+    await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', {
+      timeout: timeoutOut,
+    });
   });
 }

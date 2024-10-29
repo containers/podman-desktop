@@ -35,9 +35,8 @@ const mocks = vi.hoisted(() => ({
   RunImage: vi.fn(),
   ImagesList: vi.fn(),
   SubmenuNavigation: vi.fn(),
-  KubernetesEmptyPage: vi.fn(),
   DeploymentsList: vi.fn(),
-  NodesList: vi.fn(),
+  KubernetesDashboard: vi.fn(),
 }));
 
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
@@ -69,16 +68,12 @@ vi.mock('./SubmenuNavigation.svelte', () => ({
   default: mocks.SubmenuNavigation,
 }));
 
-vi.mock('./lib/kube/KubernetesEmptyPage.svelte', () => ({
-  default: mocks.KubernetesEmptyPage,
+vi.mock('./lib/kube/KubernetesDashboard.svelte', () => ({
+  default: mocks.KubernetesDashboard,
 }));
 
 vi.mock('./lib/deployments/DeploymentsList.svelte', () => ({
   default: mocks.DeploymentsList,
-}));
-
-vi.mock('./lib/node/NodesList.svelte', () => ({
-  default: mocks.NodesList,
 }));
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
@@ -172,7 +167,7 @@ test('do not display kubernetes empty screen if current context', async () => {
   render(App);
   router.goto('/kubernetes/deployments');
   await tick();
-  expect(mocks.KubernetesEmptyPage).not.toHaveBeenCalled();
+  expect(mocks.KubernetesDashboard).not.toHaveBeenCalled();
   expect(mocks.DeploymentsList).toHaveBeenCalled();
 });
 
@@ -186,7 +181,7 @@ test('displays kubernetes empty screen if no current context, without Kubernetes
   render(App);
   router.goto('/kubernetes/deployments');
   await tick();
-  expect(mocks.KubernetesEmptyPage).toHaveBeenCalled();
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
   expect(mocks.DeploymentsList).not.toHaveBeenCalled();
   expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
 });
@@ -199,18 +194,27 @@ test('go to last kubernetes page when available', async () => {
   expect(mocks.DeploymentsList).toHaveBeenCalled();
 });
 
-test('go to nodes page when last kubernetes page is /kubernetes', async () => {
+test('go to dashboard page when last kubernetes page is /kubernetes', async () => {
   lastSubmenuPages.set({ Kubernetes: '/kubernetes' });
   render(App);
   router.goto('/kubernetes');
   await tick();
-  expect(mocks.NodesList).toHaveBeenCalled();
+
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
 });
 
-test('go to nodes page when last kubernetes page not available', async () => {
+test('go to dashboard page when last kubernetes page not available', async () => {
   lastSubmenuPages.set({});
   render(App);
   router.goto('/kubernetes');
   await tick();
-  expect(mocks.NodesList).toHaveBeenCalled();
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
+});
+
+test('receive show-release-notes event from main', async () => {
+  render(App);
+
+  messages.get('show-release-notes');
+
+  expect(mocks.DashboardPage).toBeCalled();
 });

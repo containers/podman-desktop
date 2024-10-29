@@ -31,6 +31,7 @@ import {
   PreferenceFolderBasedStorage,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import { WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 
 vi.mock('node:fs/promises', () => ({
   mkdir: vi.fn(),
@@ -136,7 +137,7 @@ describe('FileBasedConfigStorage', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
@@ -258,7 +259,7 @@ describe('MemoryBasedConfigStorage', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
@@ -337,7 +338,7 @@ describe('ConfigManagementService', () => {
   const sampleConfig: UserForwardConfig = {
     name: 'test-name',
     namespace: 'test-namespace',
-    kind: 0,
+    kind: WorkloadKind.POD,
     forwards: [{ localPort: 8080, remotePort: 80 }],
     displayName: 'test-display-name',
   };
@@ -368,5 +369,27 @@ describe('ConfigManagementService', () => {
 
     expect(result).toEqual([sampleConfig]);
     expect(mockConfigStorage.listForwards).toHaveBeenCalled();
+  });
+
+  test('should update configurations', async () => {
+    mockConfigStorage.listForwards = vi.fn().mockResolvedValue([sampleConfig]);
+    const service = new ConfigManagementService(mockConfigStorage);
+
+    const old = {
+      forwards: [],
+      displayName: 'dummy',
+      namespace: 'default',
+      kind: WorkloadKind.POD,
+      name: 'hihi',
+    };
+
+    const newConfig = {
+      ...old,
+      name: 'hoho',
+    };
+
+    await service.updateForward(old, newConfig);
+
+    expect(mockConfigStorage.updateForward).toHaveBeenCalledWith(old, newConfig);
   });
 });

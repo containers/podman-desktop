@@ -134,34 +134,32 @@ function onInstallationClick() {
 
 <ProviderCard provider={provider}>
   <svelte:fragment slot="content">
-    <p class="text-sm text-gray-700 w-2/3 text-center" aria-label="Suggested Actions">
+    <p class="text-sm text-[var(--pd-content-text)] w-2/3 text-center" aria-label="Suggested Actions">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
     <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden={!initializationButtonVisible}>
       <div class="w-[212px] relative">
-        <div class="bg-gray-300 text-white flex w-[212px]">
+        <div class="bg-[var(--pd-invert-content-card-bg)] text-[var(--pd-button-text)] flex w-[212px]">
           <button
-            class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
+            class="float-left bg-[var(--pd-button-primary-bg)] hover:bg-[var(--pd-button-primary-hover-bg)] pt-2 pr-3 pl-3 pb-2 text-[13px] text-[var(--pd-button-text)] mr-px w-[180px]"
             on:click={onInstallationClick}>
             {installationOptionSelected}
           </button>
           <button
-            class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
+            class="inline-block bg-[var(--pd-button-primary-bg)] hover:bg-[var(--pd-button-primary-hover-bg)] text-[13px] text-[var(--pd-button-text)] pt-2 pr-3 pl-3 pb-2 w-[32px]"
             aria-label="Installation options menu"
             on:click={() => updateOptionsMenu(!installationOptionsMenuVisible)}>
             <i class="fas fa-caret-down"></i>
           </button>
         </div>
         <div
-          class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-white absolute w-full"
+          class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-[var(--pd-button-text)] absolute w-full"
           class:hidden={!installationOptionsMenuVisible}>
-          <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
+          <ul class="w-full outline-none bg-[var(--pd-dropdown-bg)] rounded-sm placeholder-[var(--pd-content-text)]">
             <li>
               <button
-                class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
+                class="w-full p-2 bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeOnlyMode;
                   installationOptionsMenuVisible = false;
@@ -172,9 +170,7 @@ function onInstallationClick() {
             </li>
             <li>
               <button
-                class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
+                class="w-full p-2 bg-[var(--pd-button-primary-bg)] text-[var(--pd-button-text)] hover:bg-[var(--pd-button-primary-hover-bg)] cursor-pointer"
                 on:click={() => {
                   installationOptionSelected = InitializeAndStartMode;
                   installationOptionsMenuVisible = false;
@@ -192,7 +188,7 @@ function onInstallationClick() {
       {#if installationOptionSelected === InitializeAndStartMode}
         <Steps steps={InitializationSteps} />
       {/if}
-      <div class="flex flex-col text-gray-700">
+      <div class="flex flex-col text-[var(--pd-content-text)]">
         <div>Initializing</div>
         <div class="my-2">
           <Spinner />

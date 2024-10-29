@@ -361,7 +361,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
   <span slot="subtitle" class:hidden={providers.length === 0}>
     Additional provider information is available under <a
       href="/extensions"
-      class="text-gray-700 underline underline-offset-2">Extensions</a>
+      class="text-[var(--pd-content-text)] underline underline-offset-2">Extensions</a>
   </span>
   <div class="h-full" role="region" aria-label="Featured Provider Resources">
     <EmptyScreen
@@ -373,7 +373,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
     {#each providers as provider}
       <div
-        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-[var(--pd-content-divider)] flex"
         role="region"
         aria-label={provider.id}>
         <div role="region" aria-label="Provider Setup">
@@ -446,7 +446,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
         </div>
         <!-- providers columns -->
         <div
-          class="grow flex flex-wrap divide-gray-900 ml-2 text-[var(--pd-invert-content-card-text)]"
+          class="grow flex flex-wrap divide-[var(--pd-content-divider)] ml-2 text-[var(--pd-invert-content-card-text)]"
           role="region"
           aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
@@ -470,7 +470,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   </button>
                 </Tooltip>
               </div>
-              <div class="{container.status !== 'started' ? 'text-gray-900' : ''} font-semibold">
+              <div class="{container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''} font-semibold">
                 {container.displayName}
               </div>
               <div class="flex" aria-label="Connection Status">
@@ -480,16 +480,16 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <ConnectionErrorInfoButton status={status} />
                 {/if}
               </div>
-              <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
+              <div class="mt-2 text-[var(--pd-content-text)] text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
               <PreferencesResourcesRenderingCopyButton
-                class={container.status !== 'started' ? 'text-gray-900' : ''}
+                class={container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''}
                 path={container.endpoint.socketPath} />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) ?? []}
                 <div
-                  class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
+                  class="flex mt-3 {container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''}"
                   role="group"
                   aria-label="Provider Configuration">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
@@ -531,7 +531,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
                 addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
-              <div class="mt-1.5 text-gray-900 text-[9px] flex justify-between">
+              <div class="mt-1.5 text-[var(--pd-content-sub-header)] text-[9px] flex justify-between">
                 <div aria-label="Connection Version">
                   {provider.name}
                   {provider.version ? `v${provider.version}` : ''}
@@ -564,9 +564,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 <ConnectionStatus status={kubeConnection.status} />
               </div>
               <div class="mt-2">
-                <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
+                <div class="text-[var(--pd-content-text)] text-xs">Kubernetes endpoint</div>
                 <div class="mt-1">
-                  <span class="my-auto text-xs" class:text-gray-900={kubeConnection.status !== 'started'}
+                  <span class="my-auto text-xs" class:text-[var(--pd-content-sub-header)]={kubeConnection.status !== 'started'}
                     >{kubeConnection.endpoint.apiURL}</span>
                 </div>
               </div>

@@ -39,6 +39,7 @@ import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { HyperVCheck, PodmanInstall, WSL2Check, WSLVersionCheck } from './podman-install';
+import { ProviderConnectionShellAccessImpl } from './podman-machine-stream';
 import { PodmanRemoteConnections } from './podman-remote-connections';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
@@ -812,11 +813,14 @@ export async function registerProviderFor(
     };
   }
 
+  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+  storedExtensionContext?.subscriptions.push(providerConnectionShellAccess);
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: machineInfo.name,
     displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
+    shellAccess: providerConnectionShellAccess,
     lifecycle,
     endpoint: {
       socketPath,
@@ -1378,7 +1382,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Compatibility mode status bar item
   // only available for macOS
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     // Handle any configuration changes (for example, changing the boolean button for compatibility mode)
     extensionApi.configuration.onDidChangeConfiguration(async e => {
       if (e.affectsConfiguration(`podman.${configurationCompatibilityMode}`)) {
@@ -1998,6 +2002,14 @@ export async function createMachine(
   } else if (params['podman.factory.machine.win.provider']) {
     provider = params['podman.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
+  } else {
+    if (isWindows()) {
+      provider = wslEnabled ? 'wsl' : 'hyperv';
+      telemetryRecords.provider = provider;
+    } else if (isMac()) {
+      provider = 'applehv';
+      telemetryRecords.provider = provider;
+    }
   }
 
   // cpus

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, type Locator, type Page } from '@playwright/test';
+import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { KubernetesResources } from '../core/types';
 import { KubernetesResourceDetailsPage } from './kubernetes-resource-details-page';
@@ -27,7 +27,9 @@ export class KubernetesResourcePage extends MainPage {
 
   constructor(page: Page, name: KubernetesResources) {
     super(page, name);
-    this.applyYamlButton = this.additionalActions.getByRole('button', { name: 'Apply YAML' });
+    this.applyYamlButton = this.additionalActions.getByRole('button', {
+      name: 'Apply YAML',
+    });
   }
 
   getResourceRowByName(resourceName: string): Locator {
@@ -39,28 +41,35 @@ export class KubernetesResourcePage extends MainPage {
     resourceName: string,
     resourceType: KubernetesResources,
   ): Promise<KubernetesResourceDetailsPage> {
-    const resourceRow = this.getResourceRowByName(resourceName);
-    if (resourceRow === undefined) {
-      throw Error(`Resource: ${resourceName} does not exist`);
-    }
+    return test.step(`Open ${resourceType}: ${resourceName} details`, async () => {
+      const resourceRow = this.getResourceRowByName(resourceName);
+      if (resourceRow === undefined) {
+        throw Error(`Resource: ${resourceName} does not exist`);
+      }
 
-    let resourceRowName;
-    if (resourceType === KubernetesResources.Nodes) {
-      resourceRowName = resourceRow.getByRole('cell').nth(2);
-    } else {
-      resourceRowName = resourceRow.getByRole('cell').nth(3);
-    }
+      let resourceRowName;
+      if (resourceType === KubernetesResources.Nodes) {
+        resourceRowName = resourceRow.getByRole('cell').nth(2);
+      } else {
+        resourceRowName = resourceRow.getByRole('cell').nth(3);
+      }
 
-    await playExpect(resourceRowName).toBeEnabled();
-    await resourceRowName.click();
+      await playExpect(resourceRowName).toBeEnabled();
+      await resourceRowName.click();
 
-    return new KubernetesResourceDetailsPage(this.page, resourceName);
+      return new KubernetesResourceDetailsPage(this.page, resourceName);
+    });
   }
 
   async deleteKubernetesResource(resourceName: string): Promise<void> {
-    const resourceRow = this.getResourceRowByName(resourceName);
-    const deleteButton = resourceRow.getByRole('button', { name: 'Delete', exact: false });
-    await playExpect(deleteButton).toBeVisible();
-    await deleteButton.click();
+    return test.step(`Delete ${resourceName}`, async () => {
+      const resourceRow = this.getResourceRowByName(resourceName);
+      const deleteButton = resourceRow.getByRole('button', {
+        name: 'Delete',
+        exact: false,
+      });
+      await playExpect(deleteButton).toBeVisible();
+      await deleteButton.click();
+    });
   }
 }

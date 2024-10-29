@@ -725,6 +725,33 @@ describe('PortForwardConnectionService', () => {
       expect(disposable2.dispose).toHaveBeenCalled();
     });
 
+    test('should start port forwarding on specified mapping', async () => {
+      const mapping: PortMapping = { localPort: 3001, remotePort: 8080 };
+      const forwardConfig: ForwardConfig = {
+        kind: WorkloadKind.POD,
+        name: 'test-pod',
+        namespace: 'default',
+        forwards: [{ localPort: 3000, remotePort: 80 }, mapping],
+      };
+
+      const pod: V1Pod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: { name: 'test-pod', namespace: 'default' },
+      };
+
+      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
+
+      const disposable1 = new MockDisposable();
+
+      vi.spyOn(service, 'performForward').mockResolvedValueOnce(disposable1);
+
+      const disposable = await service.startForward(forwardConfig, mapping);
+
+      expect(service.performForward).toHaveBeenCalledTimes(1);
+      expect(disposable.dispose).toBeInstanceOf(Function);
+    });
+
     test('should throw an error if port forwarding fails', async () => {
       const forwardConfig: ForwardConfig = {
         kind: WorkloadKind.POD,

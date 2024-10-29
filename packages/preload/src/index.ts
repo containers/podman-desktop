@@ -67,7 +67,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry';
 import type { KubeContext } from '/@api/kubernetes-context';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardOptions, PortMapping, UserForwardConfig } from '/@api/kubernetes-port-forward-model';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification';
@@ -662,6 +662,10 @@ export function initExposure(): void {
       return ipcInvoke('provider-registry:shellInProviderConnectionResize', dataId, dimensions);
     },
   );
+
+  contextBridge.exposeInMainWorld('shellInProviderConnectionClose', async (dataId: number) => {
+    return ipcInvoke('provider-registry:shellInProviderConnectionClose', dataId);
+  });
 
   ipcRenderer.on(
     'provider-registry:shellInProviderConnection-onData',
@@ -2121,14 +2125,17 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'createKubernetesPortForward',
-    async (config: UserForwardConfig): Promise<UserForwardConfig> => {
-      return ipcInvoke('kubernetes-client:createPortForward', config);
+    async (options: ForwardOptions): Promise<UserForwardConfig> => {
+      return ipcInvoke('kubernetes-client:createPortForward', options);
     },
   );
 
-  contextBridge.exposeInMainWorld('deleteKubernetesPortForward', async (config: UserForwardConfig): Promise<void> => {
-    return ipcInvoke('kubernetes-client:deletePortForward', config);
-  });
+  contextBridge.exposeInMainWorld(
+    'deleteKubernetesPortForward',
+    async (config: UserForwardConfig, mapping?: PortMapping): Promise<void> => {
+      return ipcInvoke('kubernetes-client:deletePortForward', config, mapping);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',

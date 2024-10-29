@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import { ProxyState } from '/@api/proxy';
@@ -67,16 +67,17 @@ function validate(event: any) {
   <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer"
+    <label for="toggle-proxy" class="flex flex-row items-center mt-1 mb-6 cursor-pointer gap-x-4"
       >Proxy configuration
-      <select
-        class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+      <Dropdown
+        class="text-sm max-w-28"
         id="toggle-proxy"
-        bind:value={proxyState}>
-        <option value={ProxyState.PROXY_SYSTEM}>System</option>
-        <option value={ProxyState.PROXY_MANUAL}>Manual</option>
-        <option value={ProxyState.PROXY_DISABLED}>Disabled</option>
-      </select>
+        bind:value={proxyState}
+        options={[
+          {value: ProxyState.PROXY_SYSTEM, label:'System'},
+          {value: ProxyState.PROXY_MANUAL, label:'Manual'},
+          {value: ProxyState.PROXY_DISABLED, label:'Disabled'}]}>
+      </Dropdown>
     </label>
 
       <div class="space-y-2">
@@ -84,7 +85,7 @@ function validate(event: any) {
           for="httpProxy"
           class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Web Proxy (HTTP):</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
@@ -102,7 +103,7 @@ function validate(event: any) {
           for="httpsProxy"
           class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
@@ -120,7 +121,7 @@ function validate(event: any) {
           for="httpProxy"
           class="pt-4 mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
+            : 'text-[var(--pd-content-sub-header)]'}">Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"

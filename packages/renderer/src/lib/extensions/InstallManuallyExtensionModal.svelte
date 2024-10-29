@@ -117,15 +117,15 @@ function handleKeydown(e: KeyboardEvent) {
       <div class="w-full min-h-9 h-9 py-2">
         {#if installInProgress}
           <div class="flex grow">
-            <div class="w-full h-4 mb-4 rounded-md bg-gray-600 progress-bar overflow-hidden">
+            <div class="w-full h-4 mb-4 rounded-md bg-[var(--pd-progressBar-bg)] progress-bar overflow-hidden">
               <div
-                class="h-4 bg-purple-500 rounded-md"
+                class="h-4 bg-[var(--pd-progressBar-in-progress-bg)] rounded-md"
                 role="progressbar"
                 aria-label="Installation progress"
                 style="width: {progressPercent}%">
               </div>
             </div>
-            <div class="ml-2 w-3 text-sm text-purple-500">{progressPercent}%</div>
+            <div class="ml-2 w-3 text-sm text-[var(--pd-progressBar-text)]">{progressPercent}%</div>
           </div>
         {/if}
       </div>

@@ -87,7 +87,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardOptions, PortMapping, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -1159,6 +1159,7 @@ export class PluginSystem {
       {
         write: (param: string) => void;
         resize: (dimensions: containerDesktopAPI.ProviderConnectionShellDimensions) => void;
+        close: () => void;
       }
     >();
     this.ipcHandle(
@@ -1212,6 +1213,14 @@ export class PluginSystem {
         if (callback) {
           callback.resize(dimensions);
         }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionClose',
+      async (_listener, onDataId: number): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        callback?.close();
       },
     );
 
@@ -2460,15 +2469,15 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kubernetes-client:createPortForward',
-      async (_listener, config: UserForwardConfig): Promise<UserForwardConfig> => {
-        return kubernetesClient.createPortForward(config);
+      async (_listener, options: ForwardOptions): Promise<UserForwardConfig> => {
+        return kubernetesClient.createPortForward(options);
       },
     );
 
     this.ipcHandle(
       'kubernetes-client:deletePortForward',
-      async (_listener, config: UserForwardConfig): Promise<void> => {
-        return kubernetesClient.deletePortForward(config);
+      async (_listener, config: UserForwardConfig, mapping?: PortMapping): Promise<void> => {
+        return kubernetesClient.deletePortForward(config, mapping);
       },
     );
 

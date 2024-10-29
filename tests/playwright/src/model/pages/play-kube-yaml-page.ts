@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { PlayYamlRuntime } from '../core/operations';
 import type { PlayKubernetesOptions } from '../core/types';
@@ -58,46 +58,48 @@ export class PlayKubeYamlPage extends BasePage {
       kubernetesContext: 'kind-kind-cluster',
     },
   ): Promise<PodsPage> {
-    if (!pathToYaml) {
-      throw Error(`Path to Yaml file is incorrect or not provided!`);
-    }
+    return test.step('Play Kubernetes YAML', async () => {
+      if (!pathToYaml) {
+        throw Error(`Path to Yaml file is incorrect or not provided!`);
+      }
 
-    // TODO: evaluate() is required due to noninteractivity of fields currently, once https://github.com/containers/podman-desktop/issues/5479 is done they will no longer be needed
-    await this.yamlPathInput.evaluate(node => node.removeAttribute('readonly'));
-    await this.playButton.evaluate(node => node.removeAttribute('disabled'));
+      // TODO: evaluate() is required due to noninteractivity of fields currently, once https://github.com/containers/podman-desktop/issues/5479 is done they will no longer be needed
+      await this.yamlPathInput.evaluate(node => node.removeAttribute('readonly'));
+      await this.playButton.evaluate(node => node.removeAttribute('disabled'));
 
-    switch (runtime) {
-      case PlayYamlRuntime.Kubernetes:
-        await playExpect(this.kubernetesRuntimeButton).toBeEnabled();
-        await this.kubernetesRuntimeButton.locator('..').click();
-        await playExpect(this.kubernetesRuntimeButton).toHaveAttribute('aria-pressed', 'true');
+      switch (runtime) {
+        case PlayYamlRuntime.Kubernetes:
+          await playExpect(this.kubernetesRuntimeButton).toBeEnabled();
+          await this.kubernetesRuntimeButton.locator('..').click();
+          await playExpect(this.kubernetesRuntimeButton).toHaveAttribute('aria-pressed', 'true');
 
-        await playExpect(this.kubernetesContext).toBeVisible();
-        await playExpect(this.kubernetesContext).toHaveValue(kubernetesContext);
+          await playExpect(this.kubernetesContext).toBeVisible();
+          await playExpect(this.kubernetesContext).toHaveValue(kubernetesContext);
 
-        if (kubernetesNamespace) {
-          await playExpect(this.kubernetesNamespaces).toBeVisible();
-          await this.kubernetesNamespaces.click();
+          if (kubernetesNamespace) {
+            await playExpect(this.kubernetesNamespaces).toBeVisible();
+            await this.kubernetesNamespaces.click();
 
-          const namespaceSelection = this.kubernetesNamespaces
-            .getByRole('button', { name: kubernetesNamespace })
-            .first();
+            const namespaceSelection = this.kubernetesNamespaces
+              .getByRole('button', { name: kubernetesNamespace })
+              .first();
 
-          await playExpect(namespaceSelection).toBeEnabled();
-          await namespaceSelection.click();
-          await playExpect(this.kubernetesNamespaces).toContainText(kubernetesNamespace);
-        }
-        break;
-      default:
-        await playExpect(this.podmanRuntimeButton).toBeVisible();
-        await playExpect(this.podmanRuntimeButton).toHaveAttribute('aria-pressed', 'true');
-        break;
-    }
+            await playExpect(namespaceSelection).toBeEnabled();
+            await namespaceSelection.click();
+            await playExpect(this.kubernetesNamespaces).toContainText(kubernetesNamespace);
+          }
+          break;
+        default:
+          await playExpect(this.podmanRuntimeButton).toBeVisible();
+          await playExpect(this.podmanRuntimeButton).toHaveAttribute('aria-pressed', 'true');
+          break;
+      }
 
-    await this.yamlPathInput.fill(pathToYaml);
-    await this.playButton.click();
-    await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
-    await this.doneButton.click();
-    return new PodsPage(this.page);
+      await this.yamlPathInput.fill(pathToYaml);
+      await this.playButton.click();
+      await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
+      await this.doneButton.click();
+      return new PodsPage(this.page);
+    });
   }
 }

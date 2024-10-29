@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 import type { Locator, Page } from 'playwright';
 
 import { waitUntil } from '../../utility/wait';
@@ -39,44 +39,56 @@ export class RegistriesPage extends SettingsPage {
     this.addRegistryButton = page.getByRole('button', { name: 'Add registry' });
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
     this.addRegistryDialog = page.getByRole('dialog', { name: 'Add Registry' });
-    this.cancelDialogButton = this.addRegistryDialog.getByRole('button', { name: 'Cancel' });
-    this.confirmDialogButton = this.addRegistryDialog.getByRole('button', { name: 'Add' });
+    this.cancelDialogButton = this.addRegistryDialog.getByRole('button', {
+      name: 'Cancel',
+    });
+    this.confirmDialogButton = this.addRegistryDialog.getByRole('button', {
+      name: 'Add',
+    });
     this.registryUrlField = this.addRegistryDialog.getByPlaceholder('https://registry.io');
     this.registryUsernameField = this.addRegistryDialog.getByPlaceholder('username');
     this.registryPswdField = this.addRegistryDialog.getByPlaceholder('password');
   }
 
   async createRegistry(url: string, username: string, pswd: string): Promise<void> {
-    await this.page.waitForTimeout(4000);
-    await playExpect(this.addRegistryButton).toBeEnabled();
-    await this.addRegistryButton.click();
-    await playExpect(this.addRegistryDialog).toBeVisible();
-    await playExpect(this.cancelDialogButton).toBeEnabled();
+    return test.step('Create a new registry', async () => {
+      await this.page.waitForTimeout(4_000);
+      await playExpect(this.addRegistryButton).toBeEnabled();
+      await this.addRegistryButton.click();
+      await playExpect(this.addRegistryDialog).toBeVisible();
+      await playExpect(this.cancelDialogButton).toBeEnabled();
 
-    await this.registryUrlField.fill(url);
-    await this.registryUsernameField.fill(username);
-    await this.registryPswdField.fill(pswd);
+      await this.registryUrlField.fill(url);
+      await this.registryUsernameField.fill(username);
+      await this.registryPswdField.fill(pswd);
 
-    await playExpect(this.confirmDialogButton).toBeEnabled();
-    await this.confirmDialogButton.click();
+      await playExpect(this.confirmDialogButton).toBeEnabled();
+      await this.confirmDialogButton.click();
+    });
   }
 
   async editRegistry(title: string, newUsername: string, newPswd: string): Promise<void> {
-    const registryBox = await this.getRegistryRowByName(title);
+    return test.step('Edit registry', async () => {
+      const registryBox = await this.getRegistryRowByName(title);
 
-    const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
-    await dropdownMenu.click();
+      const dropdownMenu = registryBox.getByRole('button', {
+        name: 'kebab menu',
+      });
+      await dropdownMenu.click();
 
-    const editButton = registryBox.getByTitle('Edit password');
-    await editButton.click();
+      const editButton = registryBox.getByTitle('Edit password');
+      await editButton.click();
 
-    const registryUsername = registryBox.getByLabel('Username');
-    const registryPswd = registryBox.getByRole('textbox', { name: 'Password' });
-    await registryUsername.pressSequentially(newUsername, { delay: 100 });
-    await registryPswd.pressSequentially(newPswd, { delay: 100 });
+      const registryUsername = registryBox.getByLabel('Username');
+      const registryPswd = registryBox.getByRole('textbox', {
+        name: 'Password',
+      });
+      await registryUsername.pressSequentially(newUsername, { delay: 100 });
+      await registryPswd.pressSequentially(newPswd, { delay: 100 });
 
-    const loginButton = registryBox.getByRole('button', { name: 'Login' });
-    await this.loginButtonHandling(loginButton);
+      const loginButton = registryBox.getByRole('button', { name: 'Login' });
+      await this.loginButtonHandling(loginButton);
+    });
   }
 
   /*
@@ -84,18 +96,22 @@ export class RegistriesPage extends SettingsPage {
    * If it is default registry, it will delete only the credentials and the record will be kept there.
    */
   async removeRegistry(title: string): Promise<void> {
-    const registryBox = await this.getRegistryRowByName(title);
+    return test.step('Remove registry', async () => {
+      const registryBox = await this.getRegistryRowByName(title);
 
-    const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
-    try {
-      await dropdownMenu.waitFor({ state: 'visible', timeout: 3000 });
-    } catch (err) {
-      throw Error(`Dropdown menu on ${title} registry not available.`);
-    }
-    await dropdownMenu.click();
+      const dropdownMenu = registryBox.getByRole('button', {
+        name: 'kebab menu',
+      });
+      try {
+        await dropdownMenu.waitFor({ state: 'visible', timeout: 3_000 });
+      } catch (err) {
+        throw Error(`Dropdown menu on ${title} registry not available.`);
+      }
+      await dropdownMenu.click();
 
-    const editButton = registryBox.getByTitle('Remove');
-    await editButton.click();
+      const editButton = registryBox.getByTitle('Remove');
+      await editButton.click();
+    });
   }
 
   async getRegistryRowByName(name: string): Promise<Locator> {
@@ -103,16 +119,18 @@ export class RegistriesPage extends SettingsPage {
   }
 
   private async loginButtonHandling(loginButton: Locator): Promise<void> {
-    try {
-      await waitUntil(
-        async function loginIsEnabled() {
-          return await loginButton.isEnabled();
-        },
-        { message: 'Login Button not enabled in time' },
-      );
-      await loginButton.click({ timeout: 3000 });
-    } catch (err) {
-      throw Error(`An error occured when trying to log into registry: ${(err as Error).message}`);
-    }
+    return test.step('Handle login button', async () => {
+      try {
+        await waitUntil(
+          async function loginIsEnabled() {
+            return await loginButton.isEnabled();
+          },
+          { message: 'Login Button not enabled in time' },
+        );
+        await loginButton.click({ timeout: 3000 });
+      } catch (err) {
+        throw Error(`An error occured when trying to log into registry: ${(err as Error).message}`);
+      }
+    });
   }
 }

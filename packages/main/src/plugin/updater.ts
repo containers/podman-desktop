@@ -26,6 +26,7 @@ import {
   type UpdateDownloadedEvent,
   type UpdateInfo,
 } from 'electron-updater';
+import { compare, valid } from 'semver';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -176,7 +177,7 @@ export class Updater {
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
-        buttons: ['View release notes'],
+        buttons: ['View release notes banner'],
       });
       if (result.response === 0) {
         await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
@@ -403,7 +404,13 @@ export class Updater {
       .checkForUpdates()
       .then(result => {
         this.#updateCheckResult = result ?? undefined;
-        this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+        if (
+          !valid(app.getVersion()) ||
+          !valid(this.#updateCheckResult?.updateInfo.version ?? '') ||
+          compare(app.getVersion(), this.#updateCheckResult?.updateInfo.version ?? '') === -1
+        ) {
+          this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+        }
       })
       .catch((error: unknown) => {
         console.log('unable to check for updates', error);
@@ -411,7 +418,7 @@ export class Updater {
   }
 
   public updateAvailable(): boolean {
-    return this.#updateCheckResult !== undefined && this.#currentVersion !== this.#nextVersion;
+    return !!this.#nextVersion;
   }
 
   public init(): Disposable {

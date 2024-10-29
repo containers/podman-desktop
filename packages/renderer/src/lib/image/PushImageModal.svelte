@@ -81,15 +81,15 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
     <div class="pb-4">
       <label for="modalImageTag" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Image tag</label>
       {#if isAuthenticatedForThisImage}
-        <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon={faCheckCircle} />
+        <Fa class="absolute mt-3 ml-1.5 text-[var(--pd-state-success)]" size="1x" icon={faCheckCircle} />
       {:else}
-        <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon={faTriangleExclamation} />
+        <Fa class="absolute mt-3 ml-1.5 text-[var(--pd-state-warning)]" size="1x" icon={faTriangleExclamation} />
       {/if}
 
       <select
-        class="text-sm rounded-lg block w-full p-2.5 bg-charcoal-600 pl-6 border-r-8 border-transparent outline-1 outline {isAuthenticatedForThisImage
-          ? 'outline-gray-900'
-          : 'outline-amber-500'} placeholder-gray-700 text-white"
+        class="text-sm rounded-lg block w-full p-2.5 bg-[var(--pd-dropdown-bg)] pl-6 border-r-8 border-transparent outline-1 outline {isAuthenticatedForThisImage
+          ? 'outline-[var(--pd-modal-border)]'
+          : 'outline-[var(--pd-state-warning)]'} placeholder-[var(--pd-content-text)] text-[var(--pd-default-text)]"
         name="imageChoice"
         bind:value={selectedImageTag}>
         {#each imageTags as imageTag}
@@ -99,7 +99,7 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
       <!-- If the image is UNAUTHENTICATED, show a warning that the image is unable to be pushed
       and to click to go to the registries page -->
       {#if !isAuthenticatedForThisImage}
-        <p class="text-amber-500 pt-1">
+        <p class="text-[var(--pd-state-warning)] pt-1">
           No registry with push permissions found. <Link on:click={() => router.goto('/preferences/registries')}
             >Add a registry now.</Link>
         </p>{/if}

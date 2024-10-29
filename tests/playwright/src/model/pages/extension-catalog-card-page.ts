@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ExtensionDetailsPage } from './extension-details-page';
@@ -33,31 +33,45 @@ export class ExtensionCatalogCardPage extends BasePage {
     super(page);
     this.extensionName = extensionName;
     this.parent = this.page.getByRole('group', { name: this.extensionName });
-    this.detailsButton = this.parent.getByRole('button', { name: 'More details' });
+    this.detailsButton = this.parent.getByRole('button', {
+      name: 'More details',
+    });
     this.downloadButton = this.parent.getByRole('button', { name: 'Install' });
-    this.alreadyInstalledText = this.parent.getByText('Already installed', { exact: true });
+    this.alreadyInstalledText = this.parent.getByText('Already installed', {
+      exact: true,
+    });
   }
 
   public async openDetails(): Promise<ExtensionDetailsPage> {
-    await this.parent.scrollIntoViewIfNeeded();
-    await playExpect(this.detailsButton).toBeVisible();
-    await this.detailsButton.click();
-    return new ExtensionDetailsPage(this.page, this.extensionName);
+    return test.step(`Open details for extension: ${this.extensionName}`, async () => {
+      await this.parent.scrollIntoViewIfNeeded();
+      await playExpect(this.detailsButton).toBeVisible();
+      await this.detailsButton.click();
+      return new ExtensionDetailsPage(this.page, this.extensionName);
+    });
   }
 
   public async isInstalled(): Promise<boolean> {
-    await this.parent.scrollIntoViewIfNeeded();
-    const downloadButton = this.parent.getByRole('button', { name: 'Install' });
-    return (await this.alreadyInstalledText.count()) > 0 && (await downloadButton.count()) === 0;
+    return test.step(`Check if extension ${this.extensionName} is installed`, async () => {
+      await this.parent.scrollIntoViewIfNeeded();
+      const downloadButton = this.parent.getByRole('button', {
+        name: 'Install',
+      });
+      return (await this.alreadyInstalledText.count()) > 0 && (await downloadButton.count()) === 0;
+    });
   }
 
   public async install(timeout: number): Promise<void> {
-    if (await this.isInstalled()) {
-      console.log(`Extension ${this.extensionName} is already installed`);
-      return;
-    }
-    await playExpect(this.downloadButton).toBeEnabled();
-    await this.downloadButton.click();
-    await playExpect(this.alreadyInstalledText).toBeVisible({ timeout: timeout });
+    return test.step(`Install extension ${this.extensionName}`, async () => {
+      if (await this.isInstalled()) {
+        console.log(`Extension ${this.extensionName} is already installed`);
+        return;
+      }
+      await playExpect(this.downloadButton).toBeEnabled();
+      await this.downloadButton.click();
+      await playExpect(this.alreadyInstalledText).toBeVisible({
+        timeout: timeout,
+      });
+    });
   }
 }
