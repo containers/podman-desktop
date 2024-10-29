@@ -16,13 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1ObjectMeta } from '@kubernetes/client-node';
-
 export interface EventUI {
   count?: number;
-  apiVersion?: string;
-  kind?: string;
-  metadata?: V1ObjectMeta;
   type?: string;
   reason?: string;
   firstTimestamp?: Date;
