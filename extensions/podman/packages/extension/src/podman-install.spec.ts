@@ -298,6 +298,9 @@ test('expect winVirtualMachine preflight check return successful result if the v
 
   const winVirtualMachinePlatformCheck = new VirtualMachinePlatformCheck();
   const result = await winVirtualMachinePlatformCheck.execute();
+  expect(extensionApi.process.exec).toBeCalledWith(expect.anything(), expect.arrayContaining([expect.anything()]), {
+    encoding: 'utf16le',
+  });
   expect(result.successful).toBeTruthy();
 });
 
