@@ -650,7 +650,7 @@ export class VirtualMachinePlatformCheck extends BaseCheck {
       const { stdout: res } = await extensionApi.process.exec(
         'powershell.exe',
         [
-          '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
+          '[System.Console]::OutputEncoding = [System.Text.Encoding]::Unicode; (Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
         ],
         { encoding: 'utf16le' },
       );
