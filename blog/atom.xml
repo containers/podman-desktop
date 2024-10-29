@@ -2,12 +2,68 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://podman-desktop.io/blog</id>
     <title>Podman Desktop Blog</title>
-    <updated>2024-10-07T00:00:00.000Z</updated>
+    <updated>2024-10-29T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://podman-desktop.io/blog"/>
     <subtitle>Podman Desktop Blog</subtitle>
     <icon>https://podman-desktop.io/img/favicon.ico</icon>
     <rights>Copyright © 2024 Podman Desktop</rights>
+    <entry>
+        <title type="html"><![CDATA[Introduction to Podman Desktop extensions]]></title>
+        <id>https://podman-desktop.io/blog/extensions-introduction</id>
+        <link href="https://podman-desktop.io/blog/extensions-introduction"/>
+        <updated>2024-10-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Learn how to create and customize your own extension for Podman Desktop]]></summary>
+        <content type="html"><![CDATA[<p><img decoding="async" loading="lazy" alt="programming" src="https://podman-desktop.io/assets/images/programming-1923c2fcee3941601e7ed222868ca6e2.png" width="1216" height="832" class="img_SS3x"></p>
+<p>Extensions are a powerful tool to customize and extend the functionality of Podman Desktop. Whether you want to add new container management features, streamline current workflows, or create custom UI elements specific to your tech stack, building extensions allows you to tailor the Podman Desktop experience to your specific needs.</p>
+<p>In this guide, we'll introduce how you can build your own Podman Desktop extension, with links to detailed documentation that covers each part of the process.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="introduction-to-extensions">Introduction to extensions<a href="https://podman-desktop.io/blog/extensions-introduction#introduction-to-extensions" class="hash-link" aria-label="Direct link to Introduction to extensions" title="Direct link to Introduction to extensions">​</a></h2>
+<p>Extensions are abundant in Podman Desktop and can be found in the <strong>Extensions -&gt; Catalog</strong> section.</p>
+<p><img decoding="async" loading="lazy" alt="extension catalog" src="https://podman-desktop.io/assets/images/extension-catalog-8deddd045f1962b11c4940adb67075a8.png" width="1162" height="812" class="img_SS3x"></p>
+<p>Each extension expands on Podman Desktop, such as providing <a href="https://github.com/containers/podman-desktop-extension-minikube" target="_blank" rel="noopener noreferrer">Kubernetes development clusters with Minikube</a> or even <a href="https://github.com/containers/podman-desktop-extension-layers-explorer" target="_blank" rel="noopener noreferrer">analyzing your image layers</a>.</p>
+<p>Below is an example of the <a href="https://github.com/containers/podman-desktop-extension-layers-explorer" target="_blank" rel="noopener noreferrer">layers explorer extension</a> and how it integrates into Podman Desktop:</p>
+<p><img decoding="async" loading="lazy" alt="layers_explorer" src="https://podman-desktop.io/assets/images/layers_explorer-77d579b2b326abd827d0a4b387c81eaf.png" width="1101" height="746" class="img_SS3x"></p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="getting-started-with-your-project">Getting started with your project<a href="https://podman-desktop.io/blog/extensions-introduction#getting-started-with-your-project" class="hash-link" aria-label="Direct link to Getting started with your project" title="Direct link to Getting started with your project">​</a></h2>
+<p>The first step in creating your extension is setting up the project environment. To learn how to configure the project and add basic components, check out the <strong><a href="https://podman-desktop.io/docs/extensions/templates">Templates for creating an extension</a></strong> guide, which walks you through initializing your project from an official template.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="adding-ui-components">Adding UI components<a href="https://podman-desktop.io/blog/extensions-introduction#adding-ui-components" class="hash-link" aria-label="Direct link to Adding UI components" title="Direct link to Adding UI components">​</a></h2>
+<p>One of the most common tasks when creating an extension is adding a user interface. Whether it’s adding buttons, panels, or icons, UI components help make your extension more interactive and accessible. Adding a UI component is totally optional and an extension can be ran without UI components. Learn more about this in the <strong><a href="https://podman-desktop.io/docs/extensions/developing/adding-ui-components">Adding UI components</a></strong> documentation, where you’ll find instructions on creating and integrating components into the application’s UI.</p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="working-with-icons">Working with icons<a href="https://podman-desktop.io/blog/extensions-introduction#working-with-icons" class="hash-link" aria-label="Direct link to Working with icons" title="Direct link to Working with icons">​</a></h3>
+<p>Icons are a great way to make your extension more visually unique. You can learn how to add and style custom icons by following the <strong><a href="https://podman-desktop.io/docs/extensions/developing/adding-icons">Adding icons</a></strong> documentation.</p>
+<p>Below is an example of how the <a href="https://github.com/containers/podman-desktop-extension-bootc" target="_blank" rel="noopener noreferrer">bootc extension</a> added icons to the image list within Podman Desktop:</p>
+<p><img decoding="async" loading="lazy" alt="icons" src="https://podman-desktop.io/assets/images/icons-028efaf19e6ee9bd9d80663291e769d2.png" width="650" height="303" class="img_SS3x"></p>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="menus-and-navigation">Menus and navigation<a href="https://podman-desktop.io/blog/extensions-introduction#menus-and-navigation" class="hash-link" aria-label="Direct link to Menus and navigation" title="Direct link to Menus and navigation">​</a></h3>
+<p>Extensions often integrate with existing menus and navigation to offer users easy access to new commands and features. If you want to add items to the context menu, explore the <strong><a href="https://podman-desktop.io/docs/extensions/developing/menu">Menu configuration</a></strong> documentation, which explains how to add commands to menus and control when they are displayed using When Clauses.</p>
+<p>Below is an example of how the <a href="https://github.com/containers/podman-desktop-extension-bootc" target="_blank" rel="noopener noreferrer">bootc extension</a> added a new menu command to image list:</p>
+<p><img decoding="async" loading="lazy" alt="menus" src="https://podman-desktop.io/assets/images/menus-5ad42625f5a4db388f5132fa7f80191d.png" width="338" height="335" class="img_SS3x"></p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="adding-and-configuring-commands">Adding and configuring commands<a href="https://podman-desktop.io/blog/extensions-introduction#adding-and-configuring-commands" class="hash-link" aria-label="Direct link to Adding and configuring commands" title="Direct link to Adding and configuring commands">​</a></h2>
+<p>Commands are the backbone of most extensions, allowing users to interact with the application and trigger specific actions.</p>
+<p>If you need to define and register custom commands, the <strong><a href="https://podman-desktop.io/docs/extensions/developing/commands">Commands</a></strong> guide will show you how to create commands that respond to user actions or input, and tie them into your extension’s workflow.</p>
+<p>You can also configure these commands to appear in different contexts. Check out the <strong><a href="https://podman-desktop.io/docs/extensions/developing/when-clause-context">When clause Contexts</a></strong> documentation to learn more about restricting commands to specific scenarios.</p>
+<p>Commands are heavily influenced by <a href="https://code.visualstudio.com/api/extension-guides/command" target="_blank" rel="noopener noreferrer">VS Code commands</a> and can be configured similarly. See our <a href="https://podman-desktop.io/docs/extensions/developing/commands">commands guide</a> for more information.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="setting-up-onboarding-workflows">Setting up onboarding workflows<a href="https://podman-desktop.io/blog/extensions-introduction#setting-up-onboarding-workflows" class="hash-link" aria-label="Direct link to Setting up onboarding workflows" title="Direct link to Setting up onboarding workflows">​</a></h2>
+<p>Creating a smooth onboarding experience is essential to help users get started with your extension. This includes steps for CLI binary installations or other initial setup values.</p>
+<p>You can provide guidance, tutorials, or initial setup steps using the <strong><a href="https://podman-desktop.io/docs/extensions/developing/onboarding-workflow">Onboarding workflow</a></strong> guide.</p>
+<p>Below is an example of how the <a href="https://github.com/containers/podman-desktop/tree/main/extensions/compose" target="_blank" rel="noopener noreferrer">built-in compose extension</a> adds onboarding for the compose CLI binary installation:</p>
+<p><img decoding="async" loading="lazy" alt="compose" src="https://podman-desktop.io/assets/images/compose-cdb352311ae2e5b0a11abed0c453cad0.png" width="1089" height="732" class="img_SS3x"></p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="configuration-settings">Configuration settings<a href="https://podman-desktop.io/blog/extensions-introduction#configuration-settings" class="hash-link" aria-label="Direct link to Configuration settings" title="Direct link to Configuration settings">​</a></h2>
+<p>Once you’ve built your components and commands, you may want to setup configuration settings for advanced usage of your extension.</p>
+<p>The <strong><a href="https://podman-desktop.io/docs/extensions/developing/config">Configuration</a></strong> documentation outlines the configuration file structure and how to link everything together to use user-specific values.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="publishing-your-extension">Publishing your extension<a href="https://podman-desktop.io/blog/extensions-introduction#publishing-your-extension" class="hash-link" aria-label="Direct link to Publishing your extension" title="Direct link to Publishing your extension">​</a></h2>
+<p>Publishing enables users to install your extension, you can compile your extension into a container image for users to easily consume. Follow the <strong><a href="https://podman-desktop.io/docs/extensions/publish">Publishing</a></strong> guide to learn how to distribute your extension.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="conclusion">Conclusion<a href="https://podman-desktop.io/blog/extensions-introduction#conclusion" class="hash-link" aria-label="Direct link to Conclusion" title="Direct link to Conclusion">​</a></h2>
+<p>Creating an extension opens up endless possibilities to customize Podman Desktop to your specific needs.</p>
+<p>It is also easy to package and publish your extension for others to use.</p>
+<p>Have fun exploring our documentation on how to create an extension and happy coding!</p>]]></content>
+        <author>
+            <name>Charlie Drage</name>
+            <uri>https://github.com/cdrage</uri>
+        </author>
+        <category label="podman-desktop" term="podman-desktop"/>
+        <category label="release" term="release"/>
+        <category label="podman" term="podman"/>
+        <category label="extension" term="extension"/>
+        <category label="plugin" term="plugin"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Podman Desktop 1.13 Release]]></title>
         <id>https://podman-desktop.io/blog/podman-desktop-release-1.13</id>
@@ -299,7 +355,7 @@ release we received pull requests from the following new people:</p>
 <li>docs: add 1.11 release blog post by @cdrage in <a href="https://github.com/containers/podman-desktop/pull/7807" target="_blank" rel="noopener noreferrer">#7807</a></li>
 <li>feat: update podman to 5.2.0 release by @dgolovin in <a href="https://github.com/containers/podman-desktop/pull/8306" target="_blank" rel="noopener noreferrer">#8306</a></li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="settings-️">settings ⚙️<a href="https://podman-desktop.io/blog/podman-desktop-release-1.12#settings-%EF%B8%8F" class="hash-link" aria-label="Direct link to settings ⚙️" title="Direct link to settings ⚙️">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_JmGV" id="settings-️">settings ⚙️<a href="https://podman-desktop.io/blog/podman-desktop-release-1.12#settings-%EF%B8%8F" class="hash-link" aria-label="Direct link to settings �⚙️" title="Direct link to settings ⚙️">​</a></h3>
 <ul>
 <li>chore: move light mode out of experimental by @deboer-tim in <a href="https://github.com/containers/podman-desktop/pull/8290" target="_blank" rel="noopener noreferrer">#8290</a></li>
 <li>fix: support multiple scopes on create/edit configurations by @lstocchi in <a href="https://github.com/containers/podman-desktop/pull/7659" target="_blank" rel="noopener noreferrer">#7659</a></li>
@@ -2662,119 +2718,5 @@ zezo2019.</p>
         <category label="kubernetes" term="kubernetes"/>
         <category label="kind" term="kind"/>
         <category label="openshift" term="openshift"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Release Notes - Podman Desktop 0.15]]></title>
-        <id>https://podman-desktop.io/blog/podman-desktop-release-0.15</id>
-        <link href="https://podman-desktop.io/blog/podman-desktop-release-0.15"/>
-        <updated>2023-05-02T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Podman Desktop 0.15 has been released!]]></summary>
-        <content type="html"><![CDATA[<p>Podman Desktop 0.15 - Cleanliness is next to Podliness!</p>
-<p>It has only been two weeks since our last release, but we really wanted to complete a few scenarios,
-fix a few bugs, and show off several design updates and UI improvements that we have been working on.</p>
-<ul>
-<li><strong>Podman Version</strong>: Podman 4.5 now included in Windows and Mac installers.</li>
-<li><strong>Kind Ingress</strong>: Creating an ingress to expose services outside the Kind cluster.</li>
-<li><strong>Podliness</strong>: Ability to choose external ports when podifying containers.</li>
-<li><strong>Cleanliness</strong>: New navigation bar, dialog, and palette update.</li>
-<li><strong>UX and UI Improvements</strong>: Markdown support for extensions.</li>
-</ul>
-<p>Podman Desktop 0.15 is now available. <a href="https://podman-desktop.io/downloads">Click here to download it</a>!</p>
-<p><img decoding="async" loading="lazy" alt="Podman-desktop-0-15-hero" src="https://podman-desktop.io/assets/images/podman-desktop-release-0.15-89cd5f136ad85c15bc5b4d16a919140a.webp" width="1920" height="1432" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="release-details">Release Details<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#release-details" class="hash-link" aria-label="Direct link to Release Details" title="Direct link to Release Details">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="update-to-podman-v45o">Update to Podman v4.5.O<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#update-to-podman-v45o" class="hash-link" aria-label="Direct link to Update to Podman v4.5.O" title="Direct link to Update to Podman v4.5.O">​</a></h3>
-<p>Podman Desktop 0.15 embeds <a href="https://github.com/containers/podman/releases/tag/v4.5.0" target="_blank" rel="noopener noreferrer">Podman 4.5.0</a> in
-Windows and macOS installers <a href="https://github.com/containers/podman-desktop/issues/2115" target="_blank" rel="noopener noreferrer">#2115</a>.</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="kind-ingress">Kind Ingress<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#kind-ingress" class="hash-link" aria-label="Direct link to Kind Ingress" title="Direct link to Kind Ingress">​</a></h3>
-<p>Wait a minute, didn't we enable this last release? Well yes, last time we did add support for installing
-the Contour ingress controller on Kind <a href="https://github.com/containers/podman-desktop/issues/1675" target="_blank" rel="noopener noreferrer">#1675</a>,
-but you still couldn't access your containers without the corresponding ingress.</p>
-<p>This release adds a simple checkbox you can use when deploying to Kind to create an ingress and
-make your service accessible <a href="https://github.com/containers/podman-desktop/issues/1322" target="_blank" rel="noopener noreferrer">#1322</a>.</p>
-<div style="width:100%;height:100%"></div>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="podliness-ability-to-choose-external-ports-when-podifying-containers">Podliness: Ability to Choose External Ports when Podifying Containers<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#podliness-ability-to-choose-external-ports-when-podifying-containers" class="hash-link" aria-label="Direct link to Podliness: Ability to Choose External Ports when Podifying Containers" title="Direct link to Podliness: Ability to Choose External Ports when Podifying Containers">​</a></h3>
-<p>When you create a pod from of a set of containers (Podifying!), you probably don't want to expose every
-single port from every container to the world. With an updated panel you can now see which ports each container
-exposes, pick which should remain visible outside the pod, and which are for internal use
-<a href="https://github.com/containers/podman-desktop/pull/2232" target="_blank" rel="noopener noreferrer">#2232</a>.</p>
-<p><img decoding="async" loading="lazy" src="https://user-images.githubusercontent.com/49404737/234527674-ed14f52c-8f66-445f-8038-c8135bb61136.gif" alt="Podify page" class="img_SS3x"></p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="cleanliness-new-navigation-bar-dialogs-and-palette">Cleanliness: New Navigation Bar, Dialogs, and Palette<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#cleanliness-new-navigation-bar-dialogs-and-palette" class="hash-link" aria-label="Direct link to Cleanliness: New Navigation Bar, Dialogs, and Palette" title="Direct link to Cleanliness: New Navigation Bar, Dialogs, and Palette">​</a></h3>
-<p>It was time to catch up on some design ideas and do some UI cleanup!</p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="new-navgation-bar">New Navgation Bar<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#new-navgation-bar" class="hash-link" aria-label="Direct link to New Navgation Bar" title="Direct link to New Navgation Bar">​</a></h4>
-<p>The navigation bar is now always fixed on the left size, without labels. This opens up more space
-for the content on each page, and is easier to jump in and out of <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings</strong>.
-<a href="https://github.com/containers/podman-desktop/issues/2167" target="_blank" rel="noopener noreferrer">#2167</a></p>
-<p><img decoding="async" loading="lazy" alt="Navigation bar" src="https://podman-desktop.io/assets/images/navigation-a8912eb003f2c50ed0436cc5cb07be77.png" width="252" height="606" class="img_SS3x"></p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="updated-dialogs">Updated Dialogs<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#updated-dialogs" class="hash-link" aria-label="Direct link to Updated Dialogs" title="Direct link to Updated Dialogs">​</a></h4>
-<p>We wanted messages and dialog boxes to feel a bit more integrated, so we have a new message box
-<a href="https://github.com/containers/podman-desktop/pull/1808" target="_blank" rel="noopener noreferrer">#1808</a> and use it for all dialogs opened by
-extensions, pruning containers/pods/images/volumes <a href="https://github.com/containers/podman-desktop/pull/2138" target="_blank" rel="noopener noreferrer">#2138</a>,
-and updating Podman Desktop itself <a href="https://github.com/containers/podman-desktop/pull/2249" target="_blank" rel="noopener noreferrer">#2249</a>.</p>
-<p><img decoding="async" loading="lazy" alt="Dialog" src="https://podman-desktop.io/assets/images/dialog-a7641617566984fb155ab6060378c0e7.png" width="1114" height="454" class="img_SS3x"></p>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="colors">Colors<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#colors" class="hash-link" aria-label="Direct link to Colors" title="Direct link to Colors">​</a></h4>
-<p>We spent some time tweaking colors and closing on our final palette
-<a href="https://github.com/containers/podman-desktop/pull/2199" target="_blank" rel="noopener noreferrer">#2199</a>, updating the colors in the terminal &amp; detail page
-<a href="https://github.com/containers/podman-desktop/pull/2222" target="_blank" rel="noopener noreferrer">#2222</a>, tweaking the navigation and main page colors
-<a href="https://github.com/containers/podman-desktop/pull/2223" target="_blank" rel="noopener noreferrer">#2223</a>,
-and improving the look of forms <a href="https://github.com/containers/podman-desktop/issues/2156" target="_blank" rel="noopener noreferrer">#2156</a>.</p>
-<p>We're not done yet, but hopefully you will notice a more polished, consistent, good-looking application!</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="other-ui-and-ux-improvements">Other UI and UX Improvements<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#other-ui-and-ux-improvements" class="hash-link" aria-label="Direct link to Other UI and UX Improvements" title="Direct link to Other UI and UX Improvements">​</a></h3>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="markdown-support-for-extensions">Markdown Support for Extensions<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#markdown-support-for-extensions" class="hash-link" aria-label="Direct link to Markdown Support for Extensions" title="Direct link to Markdown Support for Extensions">​</a></h4>
-<p>We added a new component to display markdown <a href="https://github.com/containers/podman-desktop/pull/2219" target="_blank" rel="noopener noreferrer">#2219</a> and
-enabled it in preferences <a href="https://github.com/containers/podman-desktop/pull/2253" target="_blank" rel="noopener noreferrer">#2253</a>, and
-provider properties/creation pages <a href="https://github.com/containers/podman-desktop/issues/2152" target="_blank" rel="noopener noreferrer">#2152</a>.
-We can now embed links and other formatting in preferences, and extensions can use them in many places, for example:</p>
-<p><img decoding="async" loading="lazy" alt="Markdown" src="https://podman-desktop.io/assets/images/markdown-62e7791bc0cf89938d344d6bdacfb3a0.png" width="1620" height="264" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="other-notable-enhancements">Other Notable Enhancements<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#other-notable-enhancements" class="hash-link" aria-label="Direct link to Other Notable Enhancements" title="Direct link to Other Notable Enhancements">​</a></h2>
-<ul>
-<li>
-<p>We know which <strong>Settings</strong> page is used the most often, so now it's the default: <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Resources</strong> <a href="https://github.com/containers/podman-desktop/issues/2105" target="_blank" rel="noopener noreferrer">#2105</a>.</p>
-</li>
-<li>
-<p>Extensions can now use the Tasks API to let long running tasks continue in the background <a href="https://github.com/containers/podman-desktop/issues/2019" target="_blank" rel="noopener noreferrer">#2019</a> and the existing withProgress API also uses the task manager now
-<a href="https://github.com/containers/podman-desktop/pull/2187" target="_blank" rel="noopener noreferrer">#2187</a>.</p>
-</li>
-</ul>
-<p><img decoding="async" loading="lazy" src="https://user-images.githubusercontent.com/695993/233560830-85cfa685-5dcd-4efa-9fae-730a8a9eef3b.gif" alt="Task API" class="img_SS3x"></p>
-<ul>
-<li>
-<p>Images are now sorted by age <a href="https://github.com/containers/podman-desktop/pull/2311" target="_blank" rel="noopener noreferrer">#2311</a>.</p>
-</li>
-<li>
-<p>When you start/stop a container or pod, the button is now animated instead of having an separate spinner
-<a href="https://github.com/containers/podman-desktop/issues/2101" target="_blank" rel="noopener noreferrer">#2101</a>.</p>
-</li>
-<li>
-<p>The <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Preferences</strong> page now has a search bar <a href="https://github.com/containers/podman-desktop/pull/2128" target="_blank" rel="noopener noreferrer">#2128</a>.</p>
-</li>
-</ul>
-<p><img decoding="async" loading="lazy" alt="Search preferences" src="https://podman-desktop.io/assets/images/prefs-8b7886c5b18178c010e3d4033f25fe5c.png" width="1162" height="394" class="img_SS3x"></p>
-<ul>
-<li>The Help page has been updated <a href="https://github.com/containers/podman-desktop/issues/431" target="_blank" rel="noopener noreferrer">#431</a>.</li>
-</ul>
-<p><img decoding="async" loading="lazy" alt="Updated Help" src="https://podman-desktop.io/assets/images/help-61063667146d82cf967c0905ee7fc9b3.png" width="1386" height="1222" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="notable-bug-fixes">Notable Bug Fixes<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#notable-bug-fixes" class="hash-link" aria-label="Direct link to Notable Bug Fixes" title="Direct link to Notable Bug Fixes">​</a></h2>
-<ul>
-<li>There was no way to see log or outcome if you leave the Kind cluster creation page <a href="https://github.com/containers/podman-desktop/issues/2079" target="_blank" rel="noopener noreferrer">#2079</a>.</li>
-<li>Kind image load doesn't show a notification <a href="https://github.com/containers/podman-desktop/issues/2225" target="_blank" rel="noopener noreferrer">#2225</a>.</li>
-<li>Fix odd selection in <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg> Settings &gt; Extensions</strong> <a href="https://github.com/containers/podman-desktop/issues/2130" target="_blank" rel="noopener noreferrer">#2130</a>.</li>
-<li>Menus are now cleaned up properly when extensions are stopped <a href="https://github.com/containers/podman-desktop/pull/2188" target="_blank" rel="noopener noreferrer">#2188</a>.</li>
-<li>Kind clusters are now cleaned up when Podman machine is stopped <a href="https://github.com/containers/podman-desktop/pull/2306" target="_blank" rel="noopener noreferrer">#2306</a>.</li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="final-notes">Final notes<a href="https://podman-desktop.io/blog/podman-desktop-release-0.15#final-notes" class="hash-link" aria-label="Direct link to Final notes" title="Direct link to Final notes">​</a></h2>
-<p>The complete list of issues fixed in this release is available <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A0.15.0" target="_blank" rel="noopener noreferrer">here</a>.</p>
-<p>Get the latest release from the <a href="https://podman-desktop.io/downloads">Downloads</a> section of the website and boost your development journey with Podman Desktop. Additionally, visit the <a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer">GitHub repository</a> and see how you can help us make Podman Desktop better.</p>]]></content>
-        <author>
-            <name>Tim deBoer</name>
-            <uri>https://github.com/deboer-tim</uri>
-        </author>
-        <category label="podman-desktop" term="podman-desktop"/>
-        <category label="release" term="release"/>
-        <category label="kubernetes" term="kubernetes"/>
-        <category label="kind" term="kind"/>
     </entry>
 </feed>
