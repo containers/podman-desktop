@@ -4,9 +4,16 @@ import moment from 'moment';
 
 import type { EventUI } from '../../events/EventUI';
 
-export let events: EventUI[];
+interface Props {
+  events: EventUI[];
+}
 
-$: events.sort((ev1, ev2) => ((ev1.lastTimestamp ?? Date.now()) < (ev2.lastTimestamp ?? Date.now()) ? -1 : 1));
+let { events }: Props = $props();
+
+$effect(() => {
+  events.sort((ev1, ev2) => ((ev1.lastTimestamp ?? Date.now()) < (ev2.lastTimestamp ?? Date.now()) ? -1 : 1));
+});
+
 function getAgeAndCount(event: EventUI): string {
   let result = `${humanizeDuration(moment().diff(event.lastTimestamp), { round: true, largest: 1 })}`;
   if ((event.count ?? 0) > 1) {

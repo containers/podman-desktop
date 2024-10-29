@@ -32,7 +32,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('expect the events are displayed', async () => {
+test('expect the events are displayed reactively', async () => {
   const events: EventUI[] = [
     {
       count: 1,
@@ -58,14 +58,14 @@ test('expect the events are displayed', async () => {
 
   vi.advanceTimersByTime(20_000);
 
-  render(EventsTable, {
+  const rendered = render(EventsTable, {
     props: {
       events: events,
     },
   });
   const table = await screen.findByRole('table');
   expect(table).toBeDefined();
-  const rows = await within(table).findAllByRole('row');
+  let rows = await within(table).findAllByRole('row');
   expect(rows).toBeDefined();
   expect(rows.length).toBe(3);
 
@@ -80,4 +80,28 @@ test('expect the events are displayed', async () => {
   expect(within(rows[2]).getByText('SecondReason')).toBeInTheDocument();
   expect(within(rows[2]).getByText('another-controller')).toBeInTheDocument();
   expect(within(rows[2]).getByText('a second message')).toBeInTheDocument();
+
+  // refresh the component
+  events.push({
+    count: 1,
+    type: 'Normal',
+    reason: 'ThirdReason',
+    reportingComponent: 'a-controller',
+    message: 'a third message',
+    firstTimestamp: new Date(),
+    lastTimestamp: new Date(),
+  });
+  vi.advanceTimersByTime(10_000);
+  await rendered.rerender({ events: events });
+  rows = await within(table).findAllByRole('row');
+  expect(rows.length).toBe(4);
+
+  expect(within(rows[1]).getByText('35 seconds')).toBeInTheDocument();
+  expect(within(rows[2]).getByText('30 seconds (2x over 35 seconds)')).toBeInTheDocument();
+
+  expect(within(rows[3]).getByText('10 seconds')).toBeInTheDocument();
+  expect(within(rows[3]).getByText('Normal')).toBeInTheDocument();
+  expect(within(rows[3]).getByText('ThirdReason')).toBeInTheDocument();
+  expect(within(rows[3]).getByText('a-controller')).toBeInTheDocument();
+  expect(within(rows[3]).getByText('a third message')).toBeInTheDocument();
 });
