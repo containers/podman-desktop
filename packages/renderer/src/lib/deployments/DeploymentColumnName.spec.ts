@@ -26,6 +26,7 @@ import DeploymentColumnName from './DeploymentColumnName.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
 const deployment: DeploymentUI = {
+  uid: '123',
   name: 'my-deployment',
   status: '',
   namespace: 'default',

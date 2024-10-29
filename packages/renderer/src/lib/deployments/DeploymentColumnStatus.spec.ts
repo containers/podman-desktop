@@ -26,6 +26,7 @@ import type { DeploymentUI } from './DeploymentUI';
 
 test('Expect simple column styling', async () => {
   const deployment: DeploymentUI = {
+    uid: '123',
     name: 'my-deployment',
     status: 'RUNNING',
     namespace: '',

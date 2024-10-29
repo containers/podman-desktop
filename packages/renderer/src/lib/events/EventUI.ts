@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface DeploymentUI {
-  uid: string;
-  name: string;
-  status: string;
-  namespace: string;
-  replicas: number;
-  ready: number;
-  created?: Date;
-  selected: boolean;
-  conditions: DeploymentCondition[];
-}
+import type { V1ObjectMeta } from '@kubernetes/client-node';
 
-export interface DeploymentCondition {
-  type: string;
+export interface EventUI {
+  count?: number;
+  apiVersion?: string;
+  kind?: string;
+  metadata?: V1ObjectMeta;
+  type?: string;
   reason?: string;
+  firstTimestamp?: Date;
+  lastTimestamp?: Date;
+  reportingComponent?: string;
   message?: string;
 }

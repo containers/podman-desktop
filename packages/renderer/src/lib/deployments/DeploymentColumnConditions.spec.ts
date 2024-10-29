@@ -26,6 +26,7 @@ import type { DeploymentCondition } from './DeploymentUI';
 
 function createDeploymentUI(conditions: DeploymentCondition[]) {
   return {
+    uid: '123',
     name: 'my-deployment',
     status: '',
     namespace: '',

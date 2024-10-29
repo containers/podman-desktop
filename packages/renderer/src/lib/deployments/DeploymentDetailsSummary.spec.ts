@@ -18,14 +18,16 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { V1Deployment } from '@kubernetes/client-node';
+import type { CoreV1Event, V1Deployment } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
+import * as eventsTable from '../kube/details/EventsTable.svelte';
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
 const deploymentUI: DeploymentUI = {
+  uid: '123',
   name: 'my-deployment',
   status: 'RUNNING',
   namespace: 'default',
@@ -60,19 +62,46 @@ beforeAll(() => {
 test('Expect basic rendering', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedDeploymentMock.mockResolvedValue(deployment);
+  const eventsTableSpy = vi.spyOn(eventsTable, 'default');
 
-  render(DeploymentDetailsSummary, { deployment: deployment });
+  render(DeploymentDetailsSummary, { props: { deployment: deployment, events: [] } });
 
   expect(screen.getByText(deploymentUI.name)).toBeInTheDocument();
+  expect(screen.getByText('No events')).toBeInTheDocument();
+  expect(eventsTableSpy).not.toHaveBeenCalled();
 });
 
 test('Check more properties', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedDeploymentMock.mockResolvedValue(undefined);
 
-  render(DeploymentDetailsSummary, { deployment: deployment });
+  render(DeploymentDetailsSummary, { props: { deployment: deployment, events: [] } });
 
   // Expect the name and namespace to show
   expect(screen.getByText(deploymentUI.name)).toBeInTheDocument();
   expect(screen.getByText(deploymentUI.namespace)).toBeInTheDocument();
+});
+
+test('expect EventsTable is called with events', async () => {
+  kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
+  kubernetesReadNamespacedDeploymentMock.mockResolvedValue(deployment);
+
+  const eventsTableSpy = vi.spyOn(eventsTable, 'default');
+
+  const events: CoreV1Event[] = [
+    {
+      metadata: {
+        name: 'event1',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event2',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+  ];
+  render(DeploymentDetailsSummary, { props: { deployment: deployment, events: events } });
+  expect(eventsTableSpy).toHaveBeenCalledWith(expect.anything(), { events: events });
 });
