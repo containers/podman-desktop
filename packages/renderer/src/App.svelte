@@ -319,7 +319,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             navigationHint="details">
             <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
           </Route>
-          <Route path="/kubernetes/port-forward" breadcrumb="Port Forwarding" navigationHint="root">
+          <Route path="/kubernetes/portForward" breadcrumb="Port Forwarding" navigationHint="root">
             <PortForwardingList />
           </Route>
         {/if}

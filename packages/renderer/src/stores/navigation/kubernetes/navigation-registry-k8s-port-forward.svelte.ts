@@ -30,7 +30,7 @@ export function createNavigationKubernetesPortForwardEntry(): NavigationRegistry
   return {
     name: 'Port Forwarding',
     icon: { iconComponent: NodeIcon },
-    link: '/kubernetes/port-forward',
+    link: '/kubernetes/portForward',
     tooltip: 'Port Forwarding',
     type: 'entry',
     get counter() {

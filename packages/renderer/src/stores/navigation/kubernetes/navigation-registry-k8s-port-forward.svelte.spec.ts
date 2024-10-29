@@ -32,6 +32,6 @@ test('createNavigationKubernetesPortForwardEntry', async () => {
 
   expect(entry).toBeDefined();
   expect(entry.name).toBe('Port Forwarding');
-  expect(entry.link).toBe('/kubernetes/port-forward');
+  expect(entry.link).toBe('/kubernetes/portForward');
   expect(entry.tooltip).toBe('Port Forwarding');
 });
