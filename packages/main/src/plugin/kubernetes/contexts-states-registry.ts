@@ -63,6 +63,7 @@ export const dispatchAllResources: ResourcesDispatchOptions = {
   routes: true,
   configmaps: true,
   secrets: true,
+  events: true,
   // add new resources here when adding new informers
 };
 
@@ -214,6 +215,7 @@ export class ContextsStatesRegistry {
           routes: [],
           configmaps: [],
           secrets: [],
+          events: [],
           // add new resources here when adding new informers
         },
       });

@@ -1462,6 +1462,239 @@ describe('update', async () => {
     });
   });
 
+  test('createEventInformer should send data for added events related to Deployments only', async () => {
+    vi.useFakeTimers();
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = undefined;
+        return new TestInformer(
+          kubeconfig.currentContext,
+          path,
+          0,
+          connectResult,
+          [
+            {
+              delayMs: 8,
+              verb: 'add',
+              object: { metadata: { uid: 'event1' }, involvedObject: { kind: 'Pod' } } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 10,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event2' },
+                involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+          ],
+          [],
+        );
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+    expect(ctx).not.toBeUndefined();
+    client.createEventInformer(kubeConfig, 'ns1', ctx!);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    const expectedMap = new Map<string, ContextGeneralState>();
+    expectedMap.set('context1', {
+      checking: { state: 'waiting' },
+      reachable: true,
+      error: undefined,
+      resources: {
+        pods: 0,
+        deployments: 0,
+      },
+    });
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
+      reachable: true,
+      resources: {
+        pods: 0,
+        deployments: 0,
+      },
+    });
+    await vi.advanceTimersByTimeAsync(20);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
+    ]);
+  });
+
+  test('createEventInformer should send data for deleted and updated events related to Deployments only', async () => {
+    vi.useFakeTimers();
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = undefined;
+        return new TestInformer(
+          kubeconfig.currentContext,
+          path,
+          0,
+          connectResult,
+          [
+            {
+              delayMs: 80,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event1pod' },
+                involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 100,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event1' },
+                involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 180,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event2pod' },
+                involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 200,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event2' },
+                involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 280,
+              verb: 'delete',
+              object: {
+                metadata: { uid: 'event1pod' },
+                involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 300,
+              verb: 'delete',
+              object: {
+                metadata: { uid: 'event1' },
+                involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 380,
+              verb: 'update',
+              object: {
+                metadata: { uid: 'event2pod', name: 'name2pod' },
+                involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 400,
+              verb: 'update',
+              object: {
+                metadata: { uid: 'event2', name: 'name2' },
+                involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+          ],
+          [],
+        );
+      },
+    );
+    client = new TestContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+    expect(ctx).not.toBeUndefined();
+    client.createEventInformer(kubeConfig, 'ns1', ctx!);
+    vi.advanceTimersByTime(120);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
+    ]);
+
+    dispatchGeneralStateSpy.mockReset();
+    vi.advanceTimersByTime(100);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
+      { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
+    ]);
+
+    dispatchGeneralStateSpy.mockReset();
+    vi.advanceTimersByTime(100);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
+    ]);
+
+    dispatchGeneralStateSpy.mockReset();
+    vi.advanceTimersByTime(100);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event2', name: 'name2' }, involvedObject: { kind: 'Deployment' } },
+    ]);
+  });
+
   test('changing context should start service informer on current context if watchers have subscribed', async () => {
     vi.useFakeTimers();
     const makeInformerMock = vi.mocked(makeInformer);
@@ -2772,6 +3005,20 @@ describe('isContextChanged', () => {
     });
     client.startResourceInformer('context', 'routes');
     expect(routeInformer).toHaveBeenCalledOnce();
+  });
+  test('verify createInformer is called having kubeContext object initialized - events', () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const eventInformer = vi.spyOn(client, 'createEventInformer');
+    client.startResourceInformer('context', 'events');
+    expect(eventInformer).toHaveBeenCalledOnce();
+    expect(eventInformer).toBeCalledWith(kubeConfig, 'ns', {
+      name: 'context',
+      cluster: 'cluster',
+      user: 'user',
+      namespace: 'ns',
+    });
+    client.startResourceInformer('context', 'events');
+    expect(eventInformer).toHaveBeenCalledOnce();
   });
 });
 

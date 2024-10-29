@@ -96,6 +96,12 @@ describe('ContextsInformers tests', () => {
     expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
     expect(states.hasInformer('ctx1', 'pods')).toBeTruthy();
 
+    states.setResourceInformer('ctx1', 'events', {} as CancellableInformer);
+    expect(states.hasContext('ctx1')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'pods')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'events')).toBeTruthy();
+
     expect(() => states.setResourceInformer('ctx2', 'pods', {} as CancellableInformer)).toThrow(
       'watchers for context ctx2 not found',
     );
