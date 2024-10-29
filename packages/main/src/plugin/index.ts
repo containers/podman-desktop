@@ -692,6 +692,7 @@ export class PluginSystem {
       dialogRegistry,
       safeStorageRegistry,
       certificates,
+      taskManager,
     );
     await this.extensionLoader.init();
 
