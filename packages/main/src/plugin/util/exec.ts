@@ -210,7 +210,7 @@ export class Exec {
         reject(errResult);
       });
 
-      childProcess.on('exit', exitCode => {
+      childProcess.on('close', exitCode => {
         if (exitCode === 0) {
           const result: RunResult = {
             command,
