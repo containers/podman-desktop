@@ -76,6 +76,8 @@ import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 // only the connectivity to the current context will be checked
 const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
 
+const kindsWithEvents = ['Deployment', 'Pod'];
+
 interface CreateInformerOptions<T> {
   // resource name, for logging
   resource: string;
@@ -746,7 +748,7 @@ export class ContextsManager {
           currentContext: this.kubeConfig.currentContext,
           resources: { events: true },
           update: state => {
-            if (obj.involvedObject.kind === 'Deployment') {
+            if (!!obj.involvedObject.kind && kindsWithEvents.includes(obj.involvedObject.kind)) {
               state.resources.events.push(obj);
             }
           },
@@ -757,7 +759,7 @@ export class ContextsManager {
           currentContext: this.kubeConfig.currentContext,
           resources: { events: true },
           update: state => {
-            if (obj.involvedObject.kind === 'Deployment') {
+            if (!!obj.involvedObject.kind && kindsWithEvents.includes(obj.involvedObject.kind)) {
               state.resources.events = state.resources.events.filter(
                 o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
               );
@@ -771,7 +773,7 @@ export class ContextsManager {
           currentContext: this.kubeConfig.currentContext,
           resources: { events: true },
           update: state => {
-            if (obj.involvedObject.kind === 'Deployment') {
+            if (!!obj.involvedObject.kind && kindsWithEvents.includes(obj.involvedObject.kind)) {
               state.resources.events = state.resources.events.filter(
                 d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
               );
