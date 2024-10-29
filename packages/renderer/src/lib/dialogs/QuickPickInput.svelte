@@ -324,7 +324,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-[var(--pd-modal-dropdown-text)] border border-[var(--pd-input-field-stroke-error)] relative w-full bg-border-[var(--pd-input-field-stroke-error)] px-1">
+            <div class="text-[var(--pd-modal-dropdown-text)] border border-[var(--pd-input-field-stroke-error)] relative w-full bg-[var(--pd-input-field-stroke-error)] px-1">
               {validationError}
             </div>
           {:else}

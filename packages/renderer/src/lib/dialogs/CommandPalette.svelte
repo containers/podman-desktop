@@ -179,16 +179,16 @@ async function onInputChange() {
             type="text"
             bind:value={inputValue}
             on:input={() => onInputChange()}
-            class="px-1 w-full text-[var(--pd-input-field-text)] bg-[var(--pd-input-field-focused-bg)] border border-[var(--pd-input-field-stroke)] focus:outline-none" />
+            class="px-1 w-full text-[var(--pd-input-field-focused-text)] bg-[var(--pd-input-field-focused-bg)] border border-[var(--pd-input-field-stroke)] focus:outline-none" />
         </div>
         <ul class="max-h-[50vh] overflow-y-auto flex flex-col">
           {#each filteredCommandInfoItems as item, i}
             <li class="flex w-full flex-row" bind:this={scrollElements[i]} aria-label={item.id}>
               <button
                 on:click={() => clickOnItem(item, i)}
-                class="text-[var(--pd-content-text)] text-left relative my-0.5 mr-2 w-full {i === selectedFilteredIndex
-                  ? 'bg-[var(--pd-content-card-selected-bg)] selected'
-                  : 'hover:bg-[var(--pd-content-card-hover-bg)]'}  px-1">
+                class="text-[var(--pd-dropdown-item-text)] text-left relative my-0.5 mr-2 w-full {i === selectedFilteredIndex
+                  ? 'bg-[var(--pd-modal-dropdown-highlight)] selected'
+                  : 'hover:bg-[var(--pd-dropdown-bg)]'}  px-1">
                 <div class="flex flex-col w-full">
                   <div class="flex flex-row w-full max-w-[700px] truncate">
                     <div class="text-xs">{item.title}</div>
