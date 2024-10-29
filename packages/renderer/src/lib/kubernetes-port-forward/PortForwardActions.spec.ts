@@ -66,10 +66,10 @@ test('actions should be defined', () => {
     object: MOCKED_PORT_FORWARD_ROW,
   });
 
-  const openBtn = getByTitle('Open port forward');
+  const openBtn = getByTitle('Open forwarded port');
   expect(openBtn).toBeDefined();
 
-  const deleteBtn = getByTitle('Delete port forward');
+  const deleteBtn = getByTitle('Delete forwarded port');
   expect(deleteBtn).toBeDefined();
 });
 
@@ -78,7 +78,7 @@ test('open should call openExternal', async () => {
     object: MOCKED_PORT_FORWARD_ROW,
   });
 
-  const openBtn = getByTitle('Open port forward');
+  const openBtn = getByTitle('Open forwarded port');
   await fireEvent.click(openBtn);
 
   expect(window.openExternal).toHaveBeenCalledWith('http://localhost:55087');
@@ -89,7 +89,7 @@ test('remove should call deleteKubernetesPortForward', async () => {
     object: MOCKED_PORT_FORWARD_ROW,
   });
 
-  const deleteBtn = getByTitle('Delete port forward');
+  const deleteBtn = getByTitle('Delete forwarded port');
   await fireEvent.click(deleteBtn);
 
   expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(

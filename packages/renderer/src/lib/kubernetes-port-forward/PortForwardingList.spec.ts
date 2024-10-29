@@ -22,8 +22,9 @@ import { render } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import PortForwardList from '/@/lib/kubernetes-port-forward/PortForwardList.svelte';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+
+import PortForwardList from './PortForwardingList.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
@@ -36,6 +37,6 @@ beforeEach(() => {
 test('empty kubernetesCurrentContextPortForwards store should display empty screen', async () => {
   const { getByText } = render(PortForwardList);
 
-  const text = getByText('You may start a port forward from a pod summary page.');
+  const text = getByText('Start forwarding ports from the Pod Details > Summary tab');
   expect(text).toBeDefined();
 });

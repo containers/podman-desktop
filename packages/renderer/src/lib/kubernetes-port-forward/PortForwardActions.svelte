@@ -32,10 +32,10 @@ async function openExternal(): Promise<void> {
 </script>
 
 <ListItemButtonIcon
-  title="Open port forward"
+  title="Open forwarded port"
   onClick={openExternal.bind(undefined)}
   icon={faSquareUpRight} />
 <ListItemButtonIcon
-  title="Delete port forward"
+  title="Delete forwarded port"
   onClick={() => withConfirmation(deletePortForward, `delete port forward ${object.displayName}`)}
   icon={faTrash} />

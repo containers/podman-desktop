@@ -4,7 +4,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { router } from 'tinro';
 
-import PortForwardList from '/@/lib/kubernetes-port-forward/PortForwardList.svelte';
 import { handleNavigation } from '/@/navigation';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 import type { NavigationRequest } from '/@api/navigation-request';
@@ -44,6 +43,7 @@ import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svel
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import KubernetesDashboard from './lib/kube/KubernetesDashboard.svelte';
+import PortForwardingList from './lib/kubernetes-port-forward/PortForwardingList.svelte';
 import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import NodeDetails from './lib/node/NodeDetails.svelte';
 import NodesList from './lib/node/NodesList.svelte';
@@ -320,7 +320,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
           </Route>
           <Route path="/kubernetes/port-forward" breadcrumb="Port Forwarding" navigationHint="root">
-            <PortForwardList />
+            <PortForwardingList />
           </Route>
         {/if}
         <Route path="/preferences/*" breadcrumb="Settings">

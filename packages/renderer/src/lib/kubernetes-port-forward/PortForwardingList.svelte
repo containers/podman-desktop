@@ -1,24 +1,24 @@
 <script lang="ts">
+import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
-import NodeIcon from '/@/lib/images/KeyIcon.svelte';
 import PodNameColumn from '/@/lib/kubernetes-port-forward/PodNameColumn.svelte';
 import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
+import PortForwardIcon from '/@/lib/kubernetes-port-forward/PortForwardIcon.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
 
 const columns = [
+  new TableColumn<PortForwardRow>('Status', {
+    align: 'left',
+    renderer: PortForwardIcon,
+  }),
   new TableColumn<PortForwardRow, { name: string; namespace: string }>('Name', {
     align: 'left',
     renderer: PodNameColumn,
     renderMapping: config => ({ name: config.name, namespace: config.namespace }),
   }),
-  new TableColumn<PortForwardRow, string>('Namespace', {
-    align: 'left',
-    renderer: TableSimpleColumn,
-    renderMapping: config => config.namespace,
-  }),
-  new TableColumn<PortForwardRow, string>('Kind', {
+  new TableColumn<PortForwardRow, string>('Type', {
     align: 'left',
     renderer: TableSimpleColumn,
     renderMapping: config => config.kind,
@@ -54,18 +54,18 @@ let portForwardRows: PortForwardRow[] = $derived.by(() => {
 });
 </script>
 
-<NavPage searchEnabled={false} title="Port forward">
+<NavPage searchEnabled={false} title="Port forwarding">
   <div class="flex min-w-full h-full" slot="content">
     {#if $kubernetesCurrentContextPortForwards.length > 0}
       <Table
-        kind="deployment"
+        kind="port"
         data={portForwardRows}
         columns={columns}
         row={row}
         defaultSortColumn="Name">
       </Table>
     {:else}
-      <EmptyScreen message="You may start a port forward from a pod summary page." icon={NodeIcon} title="No port forward"/>
+      <EmptyScreen message="Start forwarding ports from the Pod Details > Summary tab" icon={faEthernet} title="No port forwarding configured"/>
     {/if}
   </div>
 </NavPage>
