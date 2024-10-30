@@ -23,10 +23,16 @@ import { writable } from 'svelte/store';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import PodNameColumn from '/@/lib/kubernetes-port-forward/PodNameColumn.svelte';
 import * as store from '/@/stores/pods'; // Adjust the import path as necessary
+import { type PortMapping, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
+import PodNameColumn from './PortForwardNameColumn.svelte';
+
+const DUMMY_MAPPING: PortMapping = {
+  localPort: 55_501,
+  remotePort: 80,
+};
 
 vi.mock('/@/stores/pods', async () => ({}));
 
@@ -41,6 +47,9 @@ test('name should be visible', () => {
     object: {
       name: 'dummy-pod-name',
       namespace: 'dummy-ns',
+      kind: WorkloadKind.POD,
+      displayName: '',
+      mapping: DUMMY_MAPPING,
     },
   });
 
@@ -64,6 +73,9 @@ test('click on name should redirect to pod page', async () => {
     object: {
       name: 'dummy-pod-name',
       namespace: 'dummy-ns',
+      kind: WorkloadKind.POD,
+      displayName: '',
+      mapping: DUMMY_MAPPING,
     },
   });
 

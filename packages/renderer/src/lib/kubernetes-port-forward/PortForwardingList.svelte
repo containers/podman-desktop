@@ -2,11 +2,12 @@
 import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
-import PodNameColumn from '/@/lib/kubernetes-port-forward/PodNameColumn.svelte';
 import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
 import PortForwardIcon from '/@/lib/kubernetes-port-forward/PortForwardIcon.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
+
+import PodNameColumn from './PortForwardNameColumn.svelte';
 
 const columns = [
   new TableColumn<PortForwardRow>('Status', {
@@ -14,10 +15,9 @@ const columns = [
     width: '70px',
     renderer: PortForwardIcon,
   }),
-  new TableColumn<PortForwardRow, { name: string; namespace: string }>('Name', {
+  new TableColumn<PortForwardRow>('Name', {
     align: 'left',
     renderer: PodNameColumn,
-    renderMapping: config => ({ name: config.name, namespace: config.namespace }),
   }),
   new TableColumn<PortForwardRow, string>('Type', {
     align: 'left',
