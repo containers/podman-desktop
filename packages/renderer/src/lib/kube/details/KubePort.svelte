@@ -97,7 +97,7 @@ async function removePortForward(): Promise<void> {
   {:else if (port.protocol ?? 'TCP') === 'TCP'}
     <Button
       title="Forward port {port.value}"
-      disabled={loading || (!!port.protocol && port.protocol !== 'TCP')}
+      disabled={loading}
       on:click={onForwardRequest.bind(undefined, port)}
       class="px-1 py-0.5"
       padding="0">
