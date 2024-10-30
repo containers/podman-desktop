@@ -25,7 +25,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
-import KubePorts from './KubePortsList.svelte';
+import KubePortsList from './KubePortsList.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
@@ -36,14 +36,14 @@ beforeEach(() => {
 });
 
 test('expect port title not to be visible when no ports provided', async () => {
-  const { queryByText } = render(KubePorts);
+  const { queryByText } = render(KubePortsList);
 
   const title = queryByText('Ports');
   expect(title).toBeNull();
 });
 
 test('expect port title to be visible when ports is defined', async () => {
-  const { getByText } = render(KubePorts, {
+  const { getByText } = render(KubePortsList, {
     resourceName: 'dummy-resource-name',
     namespace: 'dummy-ns',
     kind: WorkloadKind.POD,
@@ -61,7 +61,7 @@ test('expect port title to be visible when ports is defined', async () => {
 });
 
 test('expect multiple ports to be visible', async () => {
-  const { getByText } = render(KubePorts, {
+  const { getByText } = render(KubePortsList, {
     resourceName: 'dummy-resource-name',
     namespace: 'dummy-ns',
     kind: WorkloadKind.POD,
