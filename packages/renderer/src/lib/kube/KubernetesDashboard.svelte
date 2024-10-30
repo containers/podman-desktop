@@ -50,7 +50,7 @@ async function openKubernetesDocumentation(): Promise<void> {
     </div>
   </svelte:fragment>
 
-  <div class="flex min-w-full h-full" slot="content">
+  <div class="flex min-w-full h-full justify-center" slot="content">
     {#if noContexts}
         <KubernetesEmptyPage />
     {:else}
