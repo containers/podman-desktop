@@ -2,6 +2,9 @@
 import type { V1Pod } from '@kubernetes/client-node';
 import { onMount } from 'svelte';
 
+import { kubernetesCurrentContextEvents } from '/@/stores/kubernetes-contexts-state';
+
+import type { EventUI } from '../events/EventUI';
 import KubePodDetailsSummary from '../kube/KubePodDetailsSummary.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import PodmanPodDetailsSummary from './PodmanPodDetailsSummary.svelte';
@@ -9,6 +12,7 @@ import PodmanPodDetailsSummary from './PodmanPodDetailsSummary.svelte';
 export let pod: PodInfoUI;
 let kubePod: V1Pod | undefined;
 let getKubePodError: string;
+let events: EventUI[] = [];
 
 onMount(async () => {
   // If this is a kubernetes kind, let's retrieve the pod information and display it in the summary
@@ -18,6 +22,7 @@ onMount(async () => {
       const getKubePod = await window.kubernetesReadNamespacedPod(pod.name, ns);
       if (getKubePod) {
         kubePod = getKubePod;
+        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === getKubePod.metadata?.uid);
       } else {
         getKubePodError = `Unable to retrieve Kubernetes pod details for ${pod.name}`;
       }
@@ -35,7 +40,7 @@ basic pod information -->
 <!-- Load the Kubernetes information, pass in kubePod regardless if it's undefined
 ass KubePodDetailsSummary will automatically add a 'Loading ... ' section -->
 {#if pod.kind === 'kubernetes'}
-  <KubePodDetailsSummary pod={kubePod} />
+  <KubePodDetailsSummary pod={kubePod} events={events} />
 {:else}
   <!-- Still show pod information in case the Kubernetes pod retrieval errors out -->
   <PodmanPodDetailsSummary pod={pod} />
