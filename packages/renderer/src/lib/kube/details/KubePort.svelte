@@ -1,6 +1,7 @@
 <script lang="ts">
-import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { faQuestionCircle, faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
+import Fa from 'svelte-fa';
 
 import type { PortMapping, UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
@@ -73,20 +74,25 @@ async function removePortForward(): Promise<void> {
 </script>
 
 <span aria-label="port {port.value}" class="flex gap-x-2 items-center">
-  {port.displayValue}
+    {port.displayValue}
   {#if mapping}
-    <Button title="Open in browser" disabled={loading} icon={faSquareUpRight} on:click={openExternal.bind(undefined)} class="px-1 py-0.5" padding="0">
-      Open
-    </Button>
-    <Button title="Remove port forward" disabled={loading} icon={faTrash} on:click={removePortForward.bind(undefined)} class="px-1 py-0.5" padding="0">
-      Remove
-    </Button>
-  {:else}
-    <Button title="Forward port {port.value}" disabled={loading} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
-      Forward...
-    </Button>
-  {/if}
+      <Button title="Open in browser" disabled={loading} icon={faSquareUpRight} on:click={openExternal.bind(undefined)} class="px-1 py-0.5" padding="0">
+        Open
+      </Button>
+      <Button title="Remove port forward" disabled={loading} icon={faTrash} on:click={removePortForward.bind(undefined)} class="px-1 py-0.5" padding="0">
+        Remove
+      </Button>
+    {:else if (port.protocol ?? 'TCP') === 'TCP'}
+      <Button title="Forward port {port.value}" disabled={loading || (!!port.protocol && port.protocol !== 'TCP')} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
+        Forward...
+      </Button>
+      {:else}
+  <Tooltip class="w-min" tip={`${port.protocol} cannot be forwarded.`}>
+    <Fa size="1.1x" class="cursor-pointer" icon={faQuestionCircle} />
+  </Tooltip>
+    {/if}
   {#if error}
-     <ErrorMessage error={error} />
-  {/if}
+       <ErrorMessage error={error} />
+    {/if}
 </span>
+
