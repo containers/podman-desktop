@@ -1,7 +1,7 @@
 <script lang="ts">
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
-import type { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import type { UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import type { KubePortInfo } from './kube-port';
 import KubePort from './KubePort.svelte';
