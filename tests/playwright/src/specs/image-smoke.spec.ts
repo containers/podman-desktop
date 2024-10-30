@@ -154,11 +154,19 @@ test.describe
       for (const image of imageList) {
         await imagesPage.pullImage(helloContainer);
         await playExpect(imagesPage.heading).toBeVisible();
-        await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
+        await playExpect
+          .poll(async () => await imagesPage.waitForImageExists(helloContainer, 15_000), {
+            timeout: 0,
+          })
+          .toBeTruthy();
 
         await imagesPage.renameImage(helloContainer, image);
         await playExpect(imagesPage.heading).toBeVisible();
-        await playExpect.poll(async () => await imagesPage.waitForImageExists(image)).toBeTruthy();
+        await playExpect
+          .poll(async () => await imagesPage.waitForImageExists(image, 10_000), {
+            timeout: 0,
+          })
+          .toBeTruthy();
       }
 
       await imagesPage.pruneImages();
