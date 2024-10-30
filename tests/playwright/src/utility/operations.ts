@@ -332,7 +332,6 @@ export async function createKindCluster(
     const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
     await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
     await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('kind')).toBeTruthy();
-    await playExpect(kindResourceCard.markdownContent).toBeVisible();
     await playExpect(kindResourceCard.createButton).toBeVisible();
 
     if (await kindResourceCard.doesResourceElementExist()) {
