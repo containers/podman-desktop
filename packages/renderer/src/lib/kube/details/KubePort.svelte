@@ -1,27 +1,29 @@
 <script lang="ts">
 import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { V1ContainerPort } from '@kubernetes/client-node';
 import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
 
-import { type PortMapping, type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import type { PortMapping, UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+
+import type { KubePortInfo } from './kube-port';
 
 interface Props {
-  port: V1ContainerPort;
+  port: KubePortInfo;
   forwardConfig?: UserForwardConfig;
-  podName?: string;
+  resourceName?: string;
   namespace?: string;
+  kind: WorkloadKind;
 }
 
-let { port, forwardConfig, podName, namespace }: Props = $props();
+let { port, forwardConfig, resourceName, namespace, kind }: Props = $props();
 
 let mapping: PortMapping | undefined = $derived(
-  forwardConfig?.forwards.find(mapping => mapping.remotePort === port.containerPort),
+  forwardConfig?.forwards.find(mapping => mapping.remotePort === port.value),
 );
 let loading: boolean = $state(false);
 let error: string | undefined = $state(undefined);
 
-async function onForwardRequest(port: V1ContainerPort): Promise<void> {
-  if (!podName) throw new Error('pod name is undefined');
+async function onForwardRequest(port: KubePortInfo): Promise<void> {
+  if (!resourceName) throw new Error('pod name is undefined');
   loading = true;
   error = undefined;
 
@@ -29,16 +31,16 @@ async function onForwardRequest(port: V1ContainerPort): Promise<void> {
   const freePort = await window.getFreePort(50_000);
 
   // snapshot the object as Proxy cannot be serialized
-  const snapshot = $state.snapshot(port);
+  const snapshot: KubePortInfo = $state.snapshot(port);
   try {
     await window.createKubernetesPortForward({
-      displayName: `${podName}/${snapshot.name}`,
-      name: podName,
-      kind: WorkloadKind.POD,
+      displayName: `${resourceName}/${snapshot.name}`,
+      name: resourceName,
+      kind: kind,
       namespace: namespace ?? 'default',
       forward: {
         localPort: freePort,
-        remotePort: snapshot.containerPort,
+        remotePort: snapshot.value,
       },
     });
     error = undefined;
@@ -70,8 +72,8 @@ async function removePortForward(): Promise<void> {
 }
 </script>
 
-<span aria-label="container port {port.containerPort}" class="flex gap-x-2 items-center">
-  {port.containerPort}/{port.protocol}
+<span aria-label="port {port.value}" class="flex gap-x-2 items-center">
+  {port.displayValue}
   {#if mapping}
     <Button title="Open in browser" disabled={loading} icon={faSquareUpRight} on:click={openExternal.bind(undefined)} class="px-1 py-0.5" padding="0">
       Open
@@ -80,7 +82,7 @@ async function removePortForward(): Promise<void> {
       Remove
     </Button>
   {:else}
-    <Button title="Forward container port {port.containerPort}" disabled={loading} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
+    <Button title="Forward port {port.value}" disabled={loading} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
       Forward...
     </Button>
   {/if}
