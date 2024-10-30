@@ -21,8 +21,9 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import KubeContainerPort from '/@/lib/kube/details/KubeContainerPort.svelte';
 import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+
+import KubePort from './KubePort.svelte';
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -48,32 +49,36 @@ const DUMMY_FORWARD_CONFIG: UserForwardConfig = {
 
 describe('port forwarding', () => {
   test('forward button should be visible and unique for each container port', async () => {
-    const { getByTitle } = render(KubeContainerPort, {
+    const { getByTitle } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: undefined,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
-    const port80 = getByTitle('Forward container port 80');
+    const port80 = getByTitle('Forward port 80');
     expect(port80).toBeDefined();
   });
 
   test('forward button should call ', async () => {
-    const { getByTitle } = render(KubeContainerPort, {
+    const { getByTitle } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: undefined,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
-    const forwardBtn = getByTitle('Forward container port 80');
+    const forwardBtn = getByTitle('Forward port 80');
     await fireEvent.click(forwardBtn);
 
     await vi.waitFor(() => {
@@ -92,14 +97,16 @@ describe('port forwarding', () => {
   });
 
   test('existing forward should display actions', async () => {
-    const { getByTitle } = render(KubeContainerPort, {
+    const { getByTitle } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: DUMMY_FORWARD_CONFIG,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
     const openBtn = getByTitle('Open in browser');
@@ -110,14 +117,16 @@ describe('port forwarding', () => {
   });
 
   test('open button should use window.openExternal with proper local port', async () => {
-    const { getByTitle } = render(KubeContainerPort, {
+    const { getByTitle } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: DUMMY_FORWARD_CONFIG,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
     const openBtn = getByTitle('Open in browser');
@@ -129,14 +138,16 @@ describe('port forwarding', () => {
   });
 
   test('remove button should use window.deleteKubernetesPortForward with proper local port', async () => {
-    const { getByTitle } = render(KubeContainerPort, {
+    const { getByTitle } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: DUMMY_FORWARD_CONFIG,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
     const removeBtn = getByTitle('Remove port forward');
@@ -153,17 +164,19 @@ describe('port forwarding', () => {
   test('error from createKubernetesPortForward should be displayed', async () => {
     vi.mocked(window.createKubernetesPortForward).mockRejectedValue('Dummy error');
 
-    const { getByTitle, getByRole } = render(KubeContainerPort, {
+    const { getByTitle, getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
-        containerPort: 80,
+        displayValue: '80/TCP',
+        value: 80,
         protocol: 'TCP',
       },
       forwardConfig: undefined,
-      podName: 'dummy-pod-name',
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
     });
 
-    const port80 = getByTitle('Forward container port 80');
+    const port80 = getByTitle('Forward port 80');
     await fireEvent.click(port80);
 
     await vi.waitFor(() => {
