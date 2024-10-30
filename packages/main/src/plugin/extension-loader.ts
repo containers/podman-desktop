@@ -1159,7 +1159,7 @@ export class ExtensionLoader {
       },
       saveImage(engineId: string, id: string, filename: string, token?: containerDesktopAPI.CancellationToken) {
         const task = taskManager.createTask({
-          title: `${extensionInfo.name}: Save images`,
+          title: `${extensionInfo.name}: Save image`,
         });
         return containerProviderRegistry
           .saveImage(engineId, id, filename, token)

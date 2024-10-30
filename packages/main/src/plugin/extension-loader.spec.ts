@@ -65,6 +65,8 @@ import type { ExtensionSecretStorage, SafeStorageRegistry } from './safe-storage
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { NotificationRegistry } from './tasks/notification-registry.js';
 import { type ProgressImpl, ProgressLocation } from './tasks/progress-impl.js';
+import type { TaskManager } from './tasks/task-manager.js';
+import type { Task } from './tasks/tasks.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { IDisposable } from './types/disposable.js';
@@ -167,6 +169,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   listImages: vi.fn(),
   podmanListImages: vi.fn(),
   listInfos: vi.fn(),
+  buildImage: vi.fn(),
+  saveImage: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -248,6 +252,11 @@ const dialogRegistry: DialogRegistry = {
 
 const certificates: Certificates = {} as unknown as Certificates;
 
+const createTaskMock = vi.fn();
+const taskManager: TaskManager = {
+  createTask: createTaskMock,
+} as unknown as TaskManager;
+
 vi.mock('electron', () => {
   return {
     app: {
@@ -300,6 +309,7 @@ beforeAll(() => {
     dialogRegistry,
     safeStorageRegistry,
     certificates,
+    taskManager,
   );
 });
 
@@ -2140,6 +2150,17 @@ describe('window', async () => {
     expect(dialogRegistry.saveDialog).toBeCalled();
     expect(uri?.fsPath).toContain('path-to-file1');
   });
+
+  test('createTask', async () => {
+    const disposables: IDisposable[] = [];
+
+    const api = extensionLoader.createApi('/path', {}, disposables);
+    expect(api).toBeDefined();
+
+    api.window.createTask({ title: 'task1' });
+
+    expect(createTaskMock).toBeCalledWith({ title: 'task1' });
+  });
 });
 
 describe('containerEngine', async () => {
@@ -2229,6 +2250,37 @@ describe('containerEngine', async () => {
         name: 'dummyProvider',
       },
     });
+  });
+
+  test('create task when building an image', async () => {
+    const disposables: IDisposable[] = [];
+    const taskMock = { name: 'task1' } as unknown as Task;
+    createTaskMock.mockReturnValue(taskMock);
+
+    const api = extensionLoader.createApi('/path', { name: 'ext1' }, disposables);
+    expect(api).toBeDefined();
+    vi.mocked(containerProviderRegistry.buildImage).mockResolvedValue({});
+
+    await api.containerEngine.buildImage('context', vi.fn(), { tag: 'image 1' });
+    expect(createTaskMock).toHaveBeenCalledWith({
+      title: 'ext1: Build image 1',
+      action: { name: 'Go to task >', execute: expect.any(Function) },
+    });
+    expect(taskMock).toStrictEqual({ name: 'task1', status: 'success' });
+  });
+
+  test('create task when saving an image', async () => {
+    const disposables: IDisposable[] = [];
+    const taskMock = { name: 'task2' } as unknown as Task;
+    createTaskMock.mockReturnValue(taskMock);
+
+    const api = extensionLoader.createApi('/path', { name: 'ext2' }, disposables);
+    expect(api).toBeDefined();
+    vi.mocked(containerProviderRegistry.saveImage).mockResolvedValue();
+
+    await api.containerEngine.saveImage('engine1', 'id1', 'file1');
+    expect(createTaskMock).toHaveBeenCalledWith({ title: 'ext2: Save image' });
+    expect(taskMock).toStrictEqual({ name: 'task2', status: 'success' });
   });
 });
 
