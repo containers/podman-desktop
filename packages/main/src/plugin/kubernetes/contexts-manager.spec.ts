@@ -1462,7 +1462,7 @@ describe('update', async () => {
     });
   });
 
-  test('createEventInformer should send data for added events related to Deployments only', async () => {
+  test('createEventInformer should send data for added events related to Pods and Deployments only', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
       (
@@ -1477,6 +1477,14 @@ describe('update', async () => {
           0,
           connectResult,
           [
+            {
+              delayMs: 6,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event-cm' },
+                involvedObject: { kind: 'ConfigMap' },
+              } as kubeclient.KubernetesObject,
+            },
             {
               delayMs: 8,
               verb: 'add',
@@ -1551,11 +1559,12 @@ describe('update', async () => {
     });
     await vi.advanceTimersByTimeAsync(20);
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event1' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
     ]);
   });
 
-  test('createEventInformer should send data for deleted and updated events related to Deployments only', async () => {
+  test('createEventInformer should send data for deleted and updated events related to Pods and Deployments only', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
       (
@@ -1571,6 +1580,14 @@ describe('update', async () => {
           connectResult,
           [
             {
+              delayMs: 70,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event1cm' },
+                involvedObject: { kind: 'ConfigMap' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
               delayMs: 80,
               verb: 'add',
               object: {
@@ -1584,6 +1601,14 @@ describe('update', async () => {
               object: {
                 metadata: { uid: 'event1' },
                 involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 170,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event2cm' },
+                involvedObject: { kind: 'ConfigMap' },
               } as kubeclient.KubernetesObject,
             },
             {
@@ -1603,6 +1628,14 @@ describe('update', async () => {
               } as kubeclient.KubernetesObject,
             },
             {
+              delayMs: 270,
+              verb: 'delete',
+              object: {
+                metadata: { uid: 'event1cm' },
+                involvedObject: { kind: 'ConfigMap' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
               delayMs: 280,
               verb: 'delete',
               object: {
@@ -1616,6 +1649,14 @@ describe('update', async () => {
               object: {
                 metadata: { uid: 'event1' },
                 involvedObject: { kind: 'Deployment' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 370,
+              verb: 'update',
+              object: {
+                metadata: { uid: 'event2cm', name: 'name2cm' },
+                involvedObject: { kind: 'ConfigMap' },
               } as kubeclient.KubernetesObject,
             },
             {
@@ -1672,25 +1713,30 @@ describe('update', async () => {
     client.createEventInformer(kubeConfig, 'ns1', ctx!);
     vi.advanceTimersByTime(120);
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
     dispatchGeneralStateSpy.mockReset();
     vi.advanceTimersByTime(100);
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
+      { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
     dispatchGeneralStateSpy.mockReset();
     vi.advanceTimersByTime(100);
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
     dispatchGeneralStateSpy.mockReset();
     vi.advanceTimersByTime(100);
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+      { metadata: { uid: 'event2pod', name: 'name2pod' }, involvedObject: { kind: 'Pod' } },
       { metadata: { uid: 'event2', name: 'name2' }, involvedObject: { kind: 'Deployment' } },
     ]);
   });
