@@ -20,9 +20,14 @@ import '@testing-library/jest-dom/vitest';
 
 import type { V1Service } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { readable } from 'svelte/store';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
 const service: V1Service = {
   metadata: {
@@ -48,6 +53,12 @@ const kubernetesReadNamespacedServiceMock = vi.fn();
 beforeAll(() => {
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).kubernetesReadNamespacedService = kubernetesReadNamespacedServiceMock;
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable([]);
 });
 
 test('Expect basic rendering', async () => {

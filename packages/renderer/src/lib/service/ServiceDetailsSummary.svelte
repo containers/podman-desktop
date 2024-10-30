@@ -22,7 +22,7 @@ basic information -->
   {#if service}
     <KubeObjectMetaArtifact artifact={service.metadata} />
     <KubeServiceStatusArtifact artifact={service.status} />
-    <KubeServiceArtifact artifact={service.spec} />
+    <KubeServiceArtifact serviceName={service.metadata?.name} namespace={service.metadata?.namespace} artifact={service.spec} />
   {:else}
     <p class="text-purple-500 font-medium">Loading ...</p>
   {/if}
