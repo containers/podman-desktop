@@ -74,25 +74,41 @@ async function removePortForward(): Promise<void> {
 </script>
 
 <span aria-label="port {port.value}" class="flex gap-x-2 items-center">
-    {port.displayValue}
+  {port.displayValue}
   {#if mapping}
-      <Button title="Open in browser" disabled={loading} icon={faSquareUpRight} on:click={openExternal.bind(undefined)} class="px-1 py-0.5" padding="0">
-        Open
-      </Button>
-      <Button title="Remove port forward" disabled={loading} icon={faTrash} on:click={removePortForward.bind(undefined)} class="px-1 py-0.5" padding="0">
-        Remove
-      </Button>
-    {:else if (port.protocol ?? 'TCP') === 'TCP'}
-      <Button title="Forward port {port.value}" disabled={loading || (!!port.protocol && port.protocol !== 'TCP')} on:click={onForwardRequest.bind(undefined, port)} class="px-1 py-0.5" padding="0">
-        Forward...
-      </Button>
-      {:else}
-  <Tooltip class="w-min" tip={`${port.protocol} cannot be forwarded.`}>
-    <Fa size="1.1x" class="cursor-pointer" icon={faQuestionCircle} />
-  </Tooltip>
-    {/if}
+    <Button
+      title="Open in browser"
+      disabled={loading}
+      icon={faSquareUpRight}
+      on:click={openExternal.bind(undefined)}
+      class="px-1 py-0.5"
+      padding="0">
+      Open
+    </Button>
+    <Button
+      title="Remove port forward"
+      disabled={loading}
+      icon={faTrash}
+      on:click={removePortForward.bind(undefined)}
+      class="px-1 py-0.5"
+      padding="0">
+      Remove
+    </Button>
+  {:else if (port.protocol ?? 'TCP') === 'TCP'}
+    <Button
+      title="Forward port {port.value}"
+      disabled={loading || (!!port.protocol && port.protocol !== 'TCP')}
+      on:click={onForwardRequest.bind(undefined, port)}
+      class="px-1 py-0.5"
+      padding="0">
+      Forward...
+    </Button>
+  {:else}
+    <Tooltip class="w-min" tip={`${port.protocol} cannot be forwarded.`}>
+      <Fa size="1.1x" class="cursor-pointer" icon={faQuestionCircle} />
+    </Tooltip>
+  {/if}
   {#if error}
-       <ErrorMessage error={error} />
-    {/if}
+    <ErrorMessage error={error} />
+  {/if}
 </span>
-
