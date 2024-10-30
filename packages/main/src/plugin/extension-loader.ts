@@ -79,6 +79,7 @@ import type { NotificationRegistry } from './tasks/notification-registry.js';
 import type { ProgressImpl } from './tasks/progress-impl.js';
 import { ProgressLocation } from './tasks/progress-impl.js';
 import type { TaskManager } from './tasks/task-manager.js';
+import type { Task, TaskAction } from './tasks/tasks.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { IDisposable } from './types/disposable.js';
@@ -1064,6 +1065,9 @@ export class ExtensionLoader {
       ): Promise<containerDesktopAPI.Uri | undefined> => {
         return dialogRegistry.saveDialog(options);
       },
+      createTask: (options?: { title?: string; action?: TaskAction }): Task => {
+        return this.taskManager.createTask(options);
+      },
     };
 
     const fileSystemMonitoring = this.fileSystemMonitoring;
@@ -1154,7 +1158,19 @@ export class ExtensionLoader {
         return containerProviderRegistry.podmanListImages(options);
       },
       saveImage(engineId: string, id: string, filename: string, token?: containerDesktopAPI.CancellationToken) {
-        return containerProviderRegistry.saveImage(engineId, id, filename, token);
+        const task = taskManager.createTask({
+          title: `${extensionInfo.name}: Save images`,
+        });
+        return containerProviderRegistry
+          .saveImage(engineId, id, filename, token)
+          .then(result => {
+            task.status = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to save images: ${String(err)}`;
+            throw err;
+          });
       },
       pushImage(
         engineId: string,

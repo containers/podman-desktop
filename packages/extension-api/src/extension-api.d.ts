@@ -2107,6 +2107,31 @@ declare module '@podman-desktop/api' {
     readonly webviewPanel: WebviewPanel;
   }
 
+  export type TaskState = 'running' | 'completed';
+  export type TaskStatus = 'in-progress' | 'success' | 'failure';
+
+  export interface TaskAction {
+    name: string;
+    execute: (task: Task) => void;
+  }
+
+  export interface TaskUpdateEvent {
+    action: 'update' | 'delete';
+    task: Task;
+  }
+
+  export interface Task extends Disposable {
+    readonly id: string;
+    name: string;
+    readonly started: number;
+    state: TaskState;
+    status: TaskStatus;
+    error?: string;
+    progress?: number;
+    action?: TaskAction;
+    readonly onUpdate: Event<TaskUpdateEvent>;
+  }
+
   export namespace window {
     /**
      * Show an information message. Optionally provide an array of items which will be presented as
@@ -2340,6 +2365,8 @@ declare module '@podman-desktop/api' {
     export function createWebviewPanel(viewType: string, title: string, options?: WebviewOptions): WebviewPanel;
 
     export function listWebviews(): Promise<WebviewInfo[]>;
+
+    export function createTask(options?: { title?: string; action?: TaskAction }): Task;
   }
 
   export namespace kubernetes {
