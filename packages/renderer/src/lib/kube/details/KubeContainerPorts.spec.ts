@@ -19,9 +19,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { readable } from 'svelte/store';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeContainerPorts from '/@/lib/kube/details/KubeContainerPorts.svelte';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
+
+beforeEach(() => {
+  vi.resetAllMocks();
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable([]);
+});
 
 test('expect port title not to be visible when no ports provided', async () => {
   const { queryByText } = render(KubeContainerPorts);

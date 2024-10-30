@@ -4,7 +4,12 @@ import type { V1Container } from '@kubernetes/client-node';
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import KubeContainerPorts from '/@/lib/kube/details/KubeContainerPorts.svelte';
 
-export let artifact: V1Container | undefined;
+interface Props {
+  artifact?: V1Container;
+  podName?: string;
+  namespace?: string;
+}
+let { artifact, podName, namespace }: Props = $props();
 </script>
 
 {#if artifact}
@@ -20,7 +25,7 @@ export let artifact: V1Container | undefined;
     <Cell>Image Pull Policy</Cell>
     <Cell>{artifact.imagePullPolicy}</Cell>
   </tr>
-  <KubeContainerPorts ports={artifact.ports ?? []}/>
+  <KubeContainerPorts namespace={namespace} podName={podName}  ports={artifact.ports}/>
   {#if artifact.env}
     <tr>
       <Cell>Environment Variables</Cell>
