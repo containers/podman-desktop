@@ -45,6 +45,19 @@ export interface NavigationParameters {
   [NavigationPage.CLI_TOOLS]: never;
   [NavigationPage.EDIT_CONTAINER_CONNECTION]: { provider: string; name: string };
   [NavigationPage.PROVIDER_TASK]: { internalId: string; taskId: number | undefined };
+  [NavigationPage.KUBERNETES_NODES]: never;
+  [NavigationPage.KUBERNETES_NODE]: { name: string };
+  [NavigationPage.KUBERNETES_SERVICES]: never;
+  [NavigationPage.KUBERNETES_SERVICE]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_DEPLOYMENTS]: never;
+  [NavigationPage.KUBERNETES_DEPLOYMENT]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_CONFIGMAPS_SECRETS]: never;
+  [NavigationPage.KUBERNETES_SECRET]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_CONFIGMAP]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_PVCS]: never;
+  [NavigationPage.KUBERNETES_PVC]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_INGRESSES_ROUTES]: never;
+  [NavigationPage.KUBERNETES_INGRESSES_ROUTE]: { name: string; namespace: string };
 }
 
 // the parameters property is optional when the NavigationParameters say it is
