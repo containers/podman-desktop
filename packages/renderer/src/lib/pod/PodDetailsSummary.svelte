@@ -4,15 +4,18 @@ import { onMount } from 'svelte';
 
 import { kubernetesCurrentContextEvents } from '/@/stores/kubernetes-contexts-state';
 
-import type { EventUI } from '../events/EventUI';
 import KubePodDetailsSummary from '../kube/KubePodDetailsSummary.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import PodmanPodDetailsSummary from './PodmanPodDetailsSummary.svelte';
 
-export let pod: PodInfoUI;
-let kubePod: V1Pod | undefined;
-let getKubePodError: string;
-let events: EventUI[] = [];
+interface Props {
+  pod: PodInfoUI;
+}
+
+let { pod }: Props = $props();
+let kubePod: V1Pod | undefined = $state();
+let getKubePodError = $state('');
+let events = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === kubePod?.metadata?.uid));
 
 onMount(async () => {
   // If this is a kubernetes kind, let's retrieve the pod information and display it in the summary
@@ -22,7 +25,6 @@ onMount(async () => {
       const getKubePod = await window.kubernetesReadNamespacedPod(pod.name, ns);
       if (getKubePod) {
         kubePod = getKubePod;
-        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === getKubePod.metadata?.uid);
       } else {
         getKubePodError = `Unable to retrieve Kubernetes pod details for ${pod.name}`;
       }

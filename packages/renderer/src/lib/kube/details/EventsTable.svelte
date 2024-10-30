@@ -25,7 +25,7 @@ function getAgeAndCount(event: EventUI): string {
     
 <tr>
   <td colspan="2">
-    <table class="w-full ml-2.5">
+    <table class="w-full ml-2.5" aria-label="events">
       <tbody>
         <tr>
           <th align="left">Type</th><th align="left">Reason</th><th align="left">Age</th><th align="left">From</th><th align="left">Message</th>
