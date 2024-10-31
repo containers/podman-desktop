@@ -350,6 +350,12 @@ async function handleOnSubmit(e: any) {
     if (key.id && !formData.has(key.id) && key.type === 'boolean') {
       data[key.id] = false;
     }
+    if (key.id && !formData.has(key.id)) {
+      const value = configurationValues.get(key.id)?.value;
+      if (value !== undefined) {
+        data[key.id] = value;
+      }
+    }
   });
 
   for (let field of formData) {
