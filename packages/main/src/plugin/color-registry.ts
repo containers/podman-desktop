@@ -258,7 +258,6 @@ export class ColorRegistry {
     this.initTerminal();
     this.initProgressBar();
     this.initBadge();
-    this.initProviders();
   }
 
   protected initDefaults(): void {
@@ -1486,26 +1485,6 @@ export class ColorRegistry {
     this.registerColor(`${badge}gray`, {
       dark: colorPalette.gray[600],
       light: colorPalette.gray[600],
-    });
-  }
-
-  protected initProviders(): void {
-    const provider = 'provider-';
-    this.registerColor(`${provider}podman`, {
-      dark: colorPalette.purple[600],
-      light: colorPalette.purple[600],
-    });
-    this.registerColor(`${provider}docker`, {
-      dark: colorPalette.sky[400],
-      light: colorPalette.sky[400],
-    });
-    this.registerColor(`${provider}kubernetes`, {
-      dark: colorPalette.sky[600],
-      light: colorPalette.sky[600],
-    });
-    this.registerColor(`${provider}unknown`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.gray[900],
     });
   }
 }
