@@ -1462,378 +1462,255 @@ describe('update', async () => {
     });
   });
 
-  test('createEventInformer should send data for added events related to Pods, Deployments, Services and Nodes only', async () => {
-    vi.useFakeTimers();
-    vi.mocked(makeInformer).mockImplementation(
-      (
-        kubeconfig: kubeclient.KubeConfig,
-        path: string,
-        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-      ) => {
-        const connectResult = undefined;
-        return new TestInformer(
-          kubeconfig.currentContext,
-          path,
-          0,
-          connectResult,
-          [
-            {
-              delayMs: 6,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event-cm' },
-                involvedObject: { kind: 'ConfigMap' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 7,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event-node' },
-                involvedObject: { kind: 'Node' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 8,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event-pod' },
-                involvedObject: { kind: 'Pod' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 8,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event-svc' },
-                involvedObject: { kind: 'Service' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 10,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event-deployment' },
-                involvedObject: { kind: 'Deployment' },
-              } as kubeclient.KubernetesObject,
-            },
-          ],
-          [],
-        );
-      },
-    );
-    client = new TestContextsManager(apiSender);
-    const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
-    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
-    const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
-    const kubeConfig = new kubeclient.KubeConfig();
-    const config = {
-      clusters: [
-        {
-          name: 'cluster1',
-          server: 'server1',
+  describe.each([
+    {
+      resource: 'Pod',
+    },
+    {
+      resource: 'Deployment',
+    },
+    {
+      resource: 'Service',
+    },
+    {
+      resource: 'Node',
+    },
+  ])(`resource $resource`, ({ resource }) => {
+    test(`createEventInformer should send data for added events related to resource only`, async () => {
+      vi.useFakeTimers();
+      vi.mocked(makeInformer).mockImplementation(
+        (
+          kubeconfig: kubeclient.KubeConfig,
+          path: string,
+          _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+        ) => {
+          const connectResult = undefined;
+          return new TestInformer(
+            kubeconfig.currentContext,
+            path,
+            0,
+            connectResult,
+            [
+              {
+                delayMs: 6,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event-cm' },
+                  involvedObject: { kind: 'ConfigMap' },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 10,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event-resource' },
+                  involvedObject: { kind: resource },
+                } as kubeclient.KubernetesObject,
+              },
+            ],
+            [],
+          );
         },
-      ],
-      users: [
-        {
-          name: 'user1',
+      );
+      client = new TestContextsManager(apiSender);
+      const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
+      const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
+      const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
+      const kubeConfig = new kubeclient.KubeConfig();
+      const config = {
+        clusters: [
+          {
+            name: 'cluster1',
+            server: 'server1',
+          },
+        ],
+        users: [
+          {
+            name: 'user1',
+          },
+        ],
+        contexts: [
+          {
+            name: 'context1',
+            cluster: 'cluster1',
+            user: 'user1',
+            namespace: 'ns1',
+          },
+        ],
+        currentContext: 'context1',
+      };
+      kubeConfig.loadFromOptions(config);
+      await client.update(kubeConfig);
+      const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+      expect(ctx).not.toBeUndefined();
+      client.createEventInformer(kubeConfig, 'ns1', ctx!);
+      vi.advanceTimersToNextTimer();
+      vi.advanceTimersToNextTimer();
+      vi.advanceTimersToNextTimer();
+      const expectedMap = new Map<string, ContextGeneralState>();
+      expectedMap.set('context1', {
+        checking: { state: 'waiting' },
+        reachable: true,
+        error: undefined,
+        resources: {
+          pods: 0,
+          deployments: 0,
         },
-      ],
-      contexts: [
-        {
-          name: 'context1',
-          cluster: 'cluster1',
-          user: 'user1',
-          namespace: 'ns1',
+      });
+      expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+      expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+        checking: { state: 'waiting' },
+        reachable: true,
+        resources: {
+          pods: 0,
+          deployments: 0,
         },
-      ],
-      currentContext: 'context1',
-    };
-    kubeConfig.loadFromOptions(config);
-    await client.update(kubeConfig);
-    const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
-    expect(ctx).not.toBeUndefined();
-    client.createEventInformer(kubeConfig, 'ns1', ctx!);
-    vi.advanceTimersToNextTimer();
-    vi.advanceTimersToNextTimer();
-    vi.advanceTimersToNextTimer();
-    const expectedMap = new Map<string, ContextGeneralState>();
-    expectedMap.set('context1', {
-      checking: { state: 'waiting' },
-      reachable: true,
-      error: undefined,
-      resources: {
-        pods: 0,
-        deployments: 0,
-      },
+      });
+      await vi.advanceTimersByTimeAsync(20);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+        { metadata: { uid: 'event-resource' }, involvedObject: { kind: resource } },
+      ]);
     });
-    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
-    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
-      checking: { state: 'waiting' },
-      reachable: true,
-      resources: {
-        pods: 0,
-        deployments: 0,
-      },
+
+    test('createEventInformer should send data for deleted and updated events related to resource only', async () => {
+      vi.useFakeTimers();
+      vi.mocked(makeInformer).mockImplementation(
+        (
+          kubeconfig: kubeclient.KubeConfig,
+          path: string,
+          _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+        ) => {
+          const connectResult = undefined;
+          return new TestInformer(
+            kubeconfig.currentContext,
+            path,
+            0,
+            connectResult,
+            [
+              {
+                delayMs: 70,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event1cm' },
+                  involvedObject: { kind: 'ConfigMap' },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 100,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event1' },
+                  involvedObject: { kind: resource },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 170,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event2cm' },
+                  involvedObject: { kind: 'ConfigMap' },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 200,
+                verb: 'add',
+                object: {
+                  metadata: { uid: 'event2' },
+                  involvedObject: { kind: resource },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 270,
+                verb: 'delete',
+                object: {
+                  metadata: { uid: 'event1cm' },
+                  involvedObject: { kind: 'ConfigMap' },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 300,
+                verb: 'delete',
+                object: {
+                  metadata: { uid: 'event1' },
+                  involvedObject: { kind: resource },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 370,
+                verb: 'update',
+                object: {
+                  metadata: { uid: 'event2cm', name: 'name2cm' },
+                  involvedObject: { kind: 'ConfigMap' },
+                } as kubeclient.KubernetesObject,
+              },
+              {
+                delayMs: 400,
+                verb: 'update',
+                object: {
+                  metadata: { uid: 'event2', name: 'name2' },
+                  involvedObject: { kind: resource },
+                } as kubeclient.KubernetesObject,
+              },
+            ],
+            [],
+          );
+        },
+      );
+      client = new TestContextsManager(apiSender);
+      const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
+      const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
+      const kubeConfig = new kubeclient.KubeConfig();
+      const config = {
+        clusters: [
+          {
+            name: 'cluster1',
+            server: 'server1',
+          },
+        ],
+        users: [
+          {
+            name: 'user1',
+          },
+        ],
+        contexts: [
+          {
+            name: 'context1',
+            cluster: 'cluster1',
+            user: 'user1',
+            namespace: 'ns1',
+          },
+        ],
+        currentContext: 'context1',
+      };
+      kubeConfig.loadFromOptions(config);
+      await client.update(kubeConfig);
+      const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+      expect(ctx).not.toBeUndefined();
+      client.createEventInformer(kubeConfig, 'ns1', ctx!);
+      vi.advanceTimersByTime(120);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+        { metadata: { uid: 'event1' }, involvedObject: { kind: resource } },
+      ]);
+
+      dispatchGeneralStateSpy.mockReset();
+      vi.advanceTimersByTime(100);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+        { metadata: { uid: 'event1' }, involvedObject: { kind: resource } },
+        { metadata: { uid: 'event2' }, involvedObject: { kind: resource } },
+      ]);
+
+      dispatchGeneralStateSpy.mockReset();
+      vi.advanceTimersByTime(100);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+        { metadata: { uid: 'event2' }, involvedObject: { kind: resource } },
+      ]);
+
+      dispatchGeneralStateSpy.mockReset();
+      vi.advanceTimersByTime(100);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
+        { metadata: { uid: 'event2', name: 'name2' }, involvedObject: { kind: resource } },
+      ]);
     });
-    await vi.advanceTimersByTimeAsync(20);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
-      { metadata: { uid: 'event-node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event-pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event-svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event-deployment' }, involvedObject: { kind: 'Deployment' } },
-    ]);
-  });
-
-  test('createEventInformer should send data for deleted and updated events related to Pods, Deployments, Services and Nodes only', async () => {
-    vi.useFakeTimers();
-    vi.mocked(makeInformer).mockImplementation(
-      (
-        kubeconfig: kubeclient.KubeConfig,
-        path: string,
-        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-      ) => {
-        const connectResult = undefined;
-        return new TestInformer(
-          kubeconfig.currentContext,
-          path,
-          0,
-          connectResult,
-          [
-            {
-              delayMs: 70,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event1cm' },
-                involvedObject: { kind: 'ConfigMap' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 75,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event1node' },
-                involvedObject: { kind: 'Node' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 80,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event1pod' },
-                involvedObject: { kind: 'Pod' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 90,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event1svc' },
-                involvedObject: { kind: 'Service' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 100,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event1' },
-                involvedObject: { kind: 'Deployment' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 170,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event2cm' },
-                involvedObject: { kind: 'ConfigMap' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 175,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event2node' },
-                involvedObject: { kind: 'Node' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 180,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event2pod' },
-                involvedObject: { kind: 'Pod' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 190,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event2svc' },
-                involvedObject: { kind: 'Service' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 200,
-              verb: 'add',
-              object: {
-                metadata: { uid: 'event2' },
-                involvedObject: { kind: 'Deployment' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 270,
-              verb: 'delete',
-              object: {
-                metadata: { uid: 'event1cm' },
-                involvedObject: { kind: 'ConfigMap' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 275,
-              verb: 'delete',
-              object: {
-                metadata: { uid: 'event1node' },
-                involvedObject: { kind: 'Node' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 280,
-              verb: 'delete',
-              object: {
-                metadata: { uid: 'event1pod' },
-                involvedObject: { kind: 'Pod' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 290,
-              verb: 'delete',
-              object: {
-                metadata: { uid: 'event1svc' },
-                involvedObject: { kind: 'Service' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 300,
-              verb: 'delete',
-              object: {
-                metadata: { uid: 'event1' },
-                involvedObject: { kind: 'Deployment' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 370,
-              verb: 'update',
-              object: {
-                metadata: { uid: 'event2cm', name: 'name2cm' },
-                involvedObject: { kind: 'ConfigMap' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 375,
-              verb: 'update',
-              object: {
-                metadata: { uid: 'event2node', name: 'name2node' },
-                involvedObject: { kind: 'Node' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 380,
-              verb: 'update',
-              object: {
-                metadata: { uid: 'event2pod', name: 'name2pod' },
-                involvedObject: { kind: 'Pod' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 390,
-              verb: 'update',
-              object: {
-                metadata: { uid: 'event2svc', name: 'name2svc' },
-                involvedObject: { kind: 'Service' },
-              } as kubeclient.KubernetesObject,
-            },
-            {
-              delayMs: 400,
-              verb: 'update',
-              object: {
-                metadata: { uid: 'event2', name: 'name2' },
-                involvedObject: { kind: 'Deployment' },
-              } as kubeclient.KubernetesObject,
-            },
-          ],
-          [],
-        );
-      },
-    );
-    client = new TestContextsManager(apiSender);
-    const dispatchGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchGeneralState');
-    const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
-    const kubeConfig = new kubeclient.KubeConfig();
-    const config = {
-      clusters: [
-        {
-          name: 'cluster1',
-          server: 'server1',
-        },
-      ],
-      users: [
-        {
-          name: 'user1',
-        },
-      ],
-      contexts: [
-        {
-          name: 'context1',
-          cluster: 'cluster1',
-          user: 'user1',
-          namespace: 'ns1',
-        },
-      ],
-      currentContext: 'context1',
-    };
-    kubeConfig.loadFromOptions(config);
-    await client.update(kubeConfig);
-    const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
-    expect(ctx).not.toBeUndefined();
-    client.createEventInformer(kubeConfig, 'ns1', ctx!);
-    vi.advanceTimersByTime(120);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
-      { metadata: { uid: 'event1node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event1svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
-    ]);
-
-    dispatchGeneralStateSpy.mockReset();
-    vi.advanceTimersByTime(100);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
-      { metadata: { uid: 'event1node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event1svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
-      { metadata: { uid: 'event2node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event2svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
-    ]);
-
-    dispatchGeneralStateSpy.mockReset();
-    vi.advanceTimersByTime(100);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
-      { metadata: { uid: 'event2node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event2svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
-    ]);
-
-    dispatchGeneralStateSpy.mockReset();
-    vi.advanceTimersByTime(100);
-    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
-      { metadata: { uid: 'event2node', name: 'name2node' }, involvedObject: { kind: 'Node' } },
-      { metadata: { uid: 'event2pod', name: 'name2pod' }, involvedObject: { kind: 'Pod' } },
-      { metadata: { uid: 'event2svc', name: 'name2svc' }, involvedObject: { kind: 'Service' } },
-      { metadata: { uid: 'event2', name: 'name2' }, involvedObject: { kind: 'Deployment' } },
-    ]);
   });
 
   test('changing context should start service informer on current context if watchers have subscribed', async () => {
