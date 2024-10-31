@@ -184,4 +184,42 @@ describe('port forwarding', () => {
       expect(error.textContent).toBe('Dummy error');
     });
   });
+
+  test('non-TCP port should not display the forward action', async () => {
+    const { queryByTitle, getByText } = render(KubePort, {
+      namespace: 'dummy-ns',
+      port: {
+        displayValue: '80/UDP',
+        value: 80,
+        protocol: 'UDP',
+      },
+      forwardConfig: undefined,
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
+    });
+
+    const port80 = queryByTitle('Forward port 80');
+    expect(port80).toBeNull();
+
+    const tooltip = getByText('UDP cannot be forwarded.');
+    expect(tooltip).toBeDefined();
+  });
+
+  // kubernetes default to TCP
+  test('undefined protocol should display the forward action', async () => {
+    const { getByTitle } = render(KubePort, {
+      namespace: 'dummy-ns',
+      port: {
+        displayValue: '80',
+        value: 80,
+        protocol: undefined,
+      },
+      forwardConfig: undefined,
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
+    });
+
+    const port80 = getByTitle('Forward port 80');
+    expect(port80).not.toBeNull();
+  });
 });
