@@ -59,7 +59,9 @@ export function createListener(
 
     // if the user clicked on a button (new way)
     if (!command && e.target instanceof HTMLButtonElement) {
-      executeButtonCommand(e.target.id);
+      executeButtonCommand(e.target.id).catch((err: unknown) =>
+        console.error(`Error executing command ${e.target.id}`, err),
+      );
       return;
     }
 

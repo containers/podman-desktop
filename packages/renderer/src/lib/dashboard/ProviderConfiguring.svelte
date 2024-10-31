@@ -67,7 +67,7 @@ async function refreshTerminal() {
 
 onMount(async () => {
   // Refresh the terminal on initial load
-  refreshTerminal();
+  await refreshTerminal();
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(() => {

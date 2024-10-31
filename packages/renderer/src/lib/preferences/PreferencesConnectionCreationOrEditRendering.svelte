@@ -284,7 +284,7 @@ function getLoggerHandler(): ConnectionCallback {
       writeToTerminal(logsTerminal, args, '\x1b[1;31m');
     },
     onEnd: () => {
-      ended();
+      ended().catch((err: unknown) => console.error('Error closing terminal', err));
     },
   };
 }
@@ -399,7 +399,7 @@ async function cancelCreation() {
     operationCancelled = true;
     tokenId = undefined;
   }
-  window.telemetryTrack(
+  await window.telemetryTrack(
     connectionInfo ? 'updateProviderConnectionRequestUserCanceled' : 'createNewProviderConnectionRequestUserCanceled',
     {
       providerId: providerInfo.id,
@@ -409,12 +409,12 @@ async function cancelCreation() {
 }
 
 async function closePanel() {
-  cleanup();
+  await cleanup();
 }
 
-function closePage() {
+async function closePage() {
   router.goto('/preferences/resources');
-  window.telemetryTrack(
+  await window.telemetryTrack(
     connectionInfo ? 'updateProviderConnectionPageUserClosed' : 'createNewProviderConnectionPageUserClosed',
     {
       providerId: providerInfo.id,
@@ -453,8 +453,8 @@ function getConnectionResourceConfigurationNumberValue(
     <EmptyScreen icon={faCubes} title={operationLabel} message="Successful operation">
       <Button
         class="py-3"
-        on:click={() => {
-          cleanup();
+        on:click={async () => {
+          await cleanup();
           router.goto('/preferences/resources');
         }}>
         Go back to resources

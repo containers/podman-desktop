@@ -28,15 +28,15 @@ let providersUnsubscribe: Unsubscriber;
 
 onMount(async () => {
   providersUnsubscribe = imageCheckerProviders.subscribe(providers => {
-    callProviders(providers);
+    callProviders(providers).catch((err: unknown) => console.error('Error calling image providers', err));
   });
 });
 
-onDestroy(() => {
+onDestroy(async () => {
   // unsubscribe from the store
   providersUnsubscribe?.();
 
-  handleAbort();
+  await handleAbort();
 });
 
 async function callProviders(_providers: readonly ImageCheckerInfo[]) {
@@ -103,14 +103,16 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
         }
       })
       .finally(() => {
-        window.telemetryTrack('imageCheck', telemetryOptions);
+        window
+          .telemetryTrack('imageCheck', telemetryOptions)
+          .catch((err: unknown) => console.error('Error sending imageCheck telemetry', err));
       });
   });
 }
 
-function handleAbort() {
+async function handleAbort() {
   if (cancellableTokenId !== 0 && remainingProviders > 0) {
-    window.cancelToken(cancellableTokenId);
+    await window.cancelToken(cancellableTokenId);
     providers = providers.map(p => {
       if (p.state === 'running') {
         p.state = 'canceled';
@@ -118,7 +120,7 @@ function handleAbort() {
       return p;
     });
     aborted = true;
-    window.telemetryTrack('imageCheck.aborted');
+    await window.telemetryTrack('imageCheck.aborted');
     cancellableTokenId = 0;
   }
 }
@@ -138,7 +140,7 @@ function handleAbort() {
     </div>
     {#if remainingProviders > 0}
       <div class="mr-4">
-        <Button on:click={() => handleAbort()}>Cancel</Button>
+        <Button on:click={async () => await handleAbort()}>Cancel</Button>
       </div>
     {/if}
   </div>

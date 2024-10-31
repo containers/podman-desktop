@@ -39,12 +39,8 @@ onMount(() => {
   return kubernetesCurrentContextServices.subscribe(services => {
     const matchingService = services.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingService) {
-      try {
-        service = serviceUtils.getServiceUI(matchingService);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      service = serviceUtils.getServiceUI(matchingService);
+      loadDetails().catch((err: unknown) => console.error(`Error getting service details: ${service.name}`, err));
     } else if (detailsPage) {
       // the service has been deleted
       detailsPage.close();

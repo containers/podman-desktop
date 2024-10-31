@@ -79,9 +79,10 @@ function reconnect() {
       shellTerminal.clear();
       onDataDisposable?.dispose();
       onDataDisposable = shellTerminal.onData(data => {
-        window.kubernetesExecSend(id!, data);
+        window.kubernetesExecSend(id!, data).catch((err: unknown) => console.error('Error sending data', err));
       });
-    });
+    })
+    .catch((err: unknown) => console.error(`Error executing pod ${podName} container ${containerName}`, err));
 }
 
 async function initializeNewTerminal(container: HTMLElement) {
@@ -117,7 +118,7 @@ async function initializeNewTerminal(container: HTMLElement) {
 
   onDataDisposable?.dispose();
   onDataDisposable = shellTerminal.onData(data => {
-    window.kubernetesExecSend(id!, data);
+    window.kubernetesExecSend(id!, data).catch((err: unknown) => console.error('Error sending data', err));
   });
 
   const fitAddon = new FitAddon();

@@ -228,9 +228,9 @@ async function searchImages(value: string): Promise<string[]> {
           name="imageName"
           placeholder="Image name"
           searchFunction={searchImages}
-          onChange={(s: string) => {
+          onChange={async (s: string) => {
             validateImageName(s);
-            resolveShortname();
+            await resolveShortname();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}

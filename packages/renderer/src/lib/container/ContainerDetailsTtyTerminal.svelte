@@ -57,6 +57,11 @@ async function attachToContainer() {
     () => {},
     receiveEndCallback,
   );
+
+  // pass data from xterm to container
+  attachContainerTerminal?.onData(async data => {
+    await window.attachContainerSend(callbackId, data);
+  });
 }
 
 onMount(async () => {

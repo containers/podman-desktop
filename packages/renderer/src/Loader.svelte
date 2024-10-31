@@ -69,10 +69,10 @@ window.events?.receive('install-extension:from-id', (extensionId: any) => {
   if (!systemReady) {
     // need to wait for the system to be ready, so we delay the install
     window.addEventListener('system-ready', () => {
-      action();
+      action().catch((err: unknown) => console.log('Error while redirecting to extensions', err));
     });
   } else {
-    action();
+    action().catch((err: unknown) => console.log('Error while redirecting to extensions', err));
   }
 });
 

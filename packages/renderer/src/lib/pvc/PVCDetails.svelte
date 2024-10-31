@@ -33,12 +33,8 @@ onMount(() => {
   return kubernetesCurrentContextPersistentVolumeClaims.subscribe(pvcs => {
     const matchingPVC = pvcs.find(pvc => pvc.metadata?.name === name && pvc.metadata?.namespace === namespace);
     if (matchingPVC) {
-      try {
-        pvc = pvcUtils.getPVCUI(matchingPVC);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      pvc = pvcUtils.getPVCUI(matchingPVC);
+      loadDetails().catch((err: unknown) => console.error(`Error getting PVC details ${pvc.name}`, err));
     } else if (detailsPage) {
       // the pvc has been deleted
       detailsPage.close();

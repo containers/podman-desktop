@@ -176,7 +176,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
   await userEvent.type(containerImageName, 'foobar');
 
   // Wait until 'linux/arm64' checkboxes exist and are enabled
-  waitFor(() => {
+  await waitFor(() => {
     const platform1 = screen.getByRole('checkbox', { name: 'Intel and AMD x86_64 systems' });
     expect(platform1).toBeInTheDocument();
     expect(platform1).toBeChecked();

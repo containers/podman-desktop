@@ -193,5 +193,5 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
   expect(window.showMessageBox).toHaveBeenCalledTimes(2);
-  vi.waitFor(() => expect(window.kubernetesDeleteDeployment).toHaveBeenCalled());
+  await vi.waitFor(() => expect(window.kubernetesDeleteDeployment).toHaveBeenCalled());
 });

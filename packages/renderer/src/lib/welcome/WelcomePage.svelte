@@ -34,7 +34,7 @@ let onboardingProviders: OnboardingInfoWithSelected[] = [];
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();
   if (!ver) {
-    welcomeUtils.updateVersion('initial');
+    await welcomeUtils.updateVersion('initial');
     showWelcome = true;
   }
   router.goto('/');
@@ -65,10 +65,10 @@ onDestroy(() => {
   }
 });
 
-function closeWelcome() {
+async function closeWelcome() {
   showWelcome = false;
   if (showTelemetry) {
-    welcomeUtils.setTelemetry(telemetry);
+    await welcomeUtils.setTelemetry(telemetry);
   }
 }
 
@@ -145,8 +145,8 @@ function startOnboardingQueue() {
       </div>
       <div class="flex justify-center p-2 text-sm items-center">
         Configure these and more under <Link
-          on:click={() => {
-            closeWelcome();
+          on:click={async () => {
+            await closeWelcome();
             router.goto('/preferences');
           }}>Settings</Link
         >.
@@ -166,16 +166,16 @@ function startOnboardingQueue() {
           <div class="w-2/5 text-[var(--pd-content-card-text)]">
             Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected.
             <Link
-              on:click={() => {
-                window.openExternal('https://developers.redhat.com/article/tool-data-collection');
+              on:click={async () => {
+                await window.openExternal('https://developers.redhat.com/article/tool-data-collection');
               }}>Read our privacy statement</Link>
           </div>
         </div>
         <div class="flex justify-center p-1 text-sm text-[var(--pd-content-card-text)]">
           <div>
             You can always modify this preference later in <Link
-              on:click={() => {
-                closeWelcome();
+              on:click={async () => {
+                await closeWelcome();
                 router.goto('/preferences/default/preferences.telemetry');
               }}>Settings &gt; Preferences</Link>
           </div>
@@ -193,19 +193,19 @@ function startOnboardingQueue() {
           we do not want the user to not be able to continue. -->
           <Button
             type="secondary"
-            on:click={() => {
-              closeWelcome();
+            on:click={async () => {
+              await closeWelcome();
             }}>Go to Podman Desktop</Button>
           <Button
             class="ml-2"
-            on:click={() => {
-              closeWelcome();
+            on:click={async () => {
+              await closeWelcome();
               startOnboardingQueue();
             }}>Start onboarding</Button>
         {:else}
           <Button
-            on:click={() => {
-              closeWelcome();
+            on:click={async () => {
+              await closeWelcome();
             }}>Go to Podman Desktop</Button>
         {/if}
       </div>

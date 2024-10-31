@@ -49,7 +49,7 @@ afterEach(() => {
 test('LearningCenter component shows carousel with guides', async () => {
   render(LearningCenter);
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const firstCard = screen.getByText(learningCenter.guides[0].title);
     expect(firstCard).toBeVisible();
   });
@@ -57,7 +57,7 @@ test('LearningCenter component shows carousel with guides', async () => {
 
 test('Clicking on LearningCenter title hides carousel with guides', async () => {
   render(LearningCenter);
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const firstCard = screen.getByText(learningCenter.guides[0].title);
     expect(firstCard).toBeVisible();
   });
@@ -65,7 +65,7 @@ test('Clicking on LearningCenter title hides carousel with guides', async () => 
   const button = screen.getByRole('button', { name: 'Learning Center' });
   expect(button).toBeInTheDocument();
   await fireEvent.click(button);
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const firstCard = screen.queryByText(learningCenter.guides[0].title);
     expect(firstCard).not.toBeInTheDocument();
   });

@@ -30,7 +30,7 @@ export const tasksInfo: Writable<TaskInfo[]> = writable([]);
 
 // remove element from the store
 export function removeTask(taskId: string): void {
-  window.clearTask(taskId);
+  window.clearTask(taskId).catch((err: unknown) => console.error(`Error removing task ${taskId}`, err));
 }
 
 function updateTask(task: TaskInfo): void {
@@ -43,7 +43,7 @@ function updateTask(task: TaskInfo): void {
 
 // remove element from the store that are completed
 export function clearNotifications(): void {
-  window.clearTasks();
+  window.clearTasks().catch((err: unknown) => console.error('Error clearing notifications', err));
 }
 
 window.events?.receive('task-created', (task: unknown) => {

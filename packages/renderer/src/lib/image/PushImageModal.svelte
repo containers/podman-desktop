@@ -69,7 +69,10 @@ function callback(name: string, data: string) {
 }
 
 let isAuthenticatedForThisImage = false;
-$: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenticatedForThisImage = result));
+$: window
+  .hasAuthconfigForImage(imageInfoToPush.name)
+  .then(result => (isAuthenticatedForThisImage = result))
+  .catch((err: unknown) => console.error(`Error getting authentication required for image ${imageInfoToPush.id}`, err));
 </script>
 
 <Dialog
@@ -119,8 +122,8 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
         class="w-auto"
         icon={faCircleArrowUp}
         disabled={!isAuthenticatedForThisImage}
-        on:click={() => {
-          pushImage(selectedImageTag);
+        on:click={async () => {
+          await pushImage(selectedImageTag);
         }}
         bind:inProgress={pushInProgress}>
         Push image

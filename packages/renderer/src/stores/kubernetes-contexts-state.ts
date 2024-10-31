@@ -65,7 +65,10 @@ export const kubernetesContextsCheckingStateDelayed = derived<
 });
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
-  window.kubernetesGetContextsGeneralState().then(value => set(value));
+  window
+    .kubernetesGetContextsGeneralState()
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error getting Kubernetes contexts generate state initial value', err));
   window.events?.receive('kubernetes-contexts-general-state-update', (value: unknown) => {
     set(value as Map<string, ContextGeneralState>);
   });
@@ -78,7 +81,10 @@ export const kubernetesCurrentContextState = readable(
     resources: { pods: 0, deployments: 0 },
   } as ContextGeneralState,
   set => {
-    window.kubernetesGetCurrentContextGeneralState().then(value => set(value));
+    window
+      .kubernetesGetCurrentContextGeneralState()
+      .then(value => set(value))
+      .catch((err: unknown) => console.log('Error getting Kubernetes contexts generate state initial value', err));
     window.events?.receive('kubernetes-current-context-general-state-update', (value: unknown) => {
       set(value as ContextGeneralState);
     });
@@ -86,12 +92,17 @@ export const kubernetesCurrentContextState = readable(
 );
 
 export const kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('deployments').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('deployments')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes deployments', err));
   window.events?.receive('kubernetes-current-context-deployments-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('deployments');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('deployments')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes deployments', err));
   };
 });
 
@@ -107,12 +118,17 @@ export const kubernetesCurrentContextDeploymentsFiltered = derived(
 // Services
 
 export const kubernetesCurrentContextServices = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('services').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('services')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes services', err));
   window.events?.receive('kubernetes-current-context-services-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('services');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('services')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes services', err));
   };
 });
 
@@ -128,12 +144,17 @@ export const kubernetesCurrentContextServicesFiltered = derived(
 // Nodes
 
 export const kubernetesCurrentContextNodes = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('nodes').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('nodes')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes nodes', err));
   window.events?.receive('kubernetes-current-context-nodes-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('nodes');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('nodes')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes nodes', err));
   };
 });
 
@@ -148,12 +169,17 @@ export const kubernetesCurrentContextNodesFiltered = derived(
 // PersistentVolumeClaims
 
 export const kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('persistentvolumeclaims').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('persistentvolumeclaims')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes persistentvolumeclaims', err));
   window.events?.receive('kubernetes-current-context-persistentvolumeclaims-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('persistentvolumeclaims');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('persistentvolumeclaims')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes persistentvolumeclaims', err));
   };
 });
 
@@ -169,12 +195,17 @@ export const kubernetesCurrentContextPersistentVolumeClaimsFiltered = derived(
 // Ingresses
 
 export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('ingresses').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('ingresses')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes ingresses', err));
   window.events?.receive('kubernetes-current-context-ingresses-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('ingresses');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('ingresses')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes ingresses', err));
   };
 });
 
@@ -190,12 +221,17 @@ export const kubernetesCurrentContextIngressesFiltered = derived(
 // Routes
 
 export const kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('routes').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('routes')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes routes', err));
   window.events?.receive('kubernetes-current-context-routes-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('routes');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('routes')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes routes', err));
   };
 });
 
@@ -204,12 +240,17 @@ export const routeSearchPattern = writable('');
 // ConfigMaps
 
 export const kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('configmaps').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('configmaps')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes configmaps', err));
   window.events?.receive('kubernetes-current-context-configmaps-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('configmaps');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('configmaps')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes configmaps', err));
   };
 });
 
@@ -225,12 +266,17 @@ export const kubernetesCurrentContextConfigMapsFiltered = derived(
 // Secrets
 
 export const kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('secrets').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('secrets')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes secrets', err));
   window.events?.receive('kubernetes-current-context-secrets-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('secrets');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('secrets')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes secrets', err));
   };
 });
 
@@ -250,21 +296,29 @@ export const kubernetesCurrentContextRoutesFiltered = derived(
 
 // Events
 export const kubernetesCurrentContextEvents = readable<CoreV1Event[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('events').then(value => set(value as CoreV1Event[]));
+  window
+    .kubernetesRegisterGetCurrentContextResources('events')
+    .then(value => set(value as CoreV1Event[]))
+    .catch((err: unknown) => console.log('Error registering Kubernetes events', err));
   window.events?.receive('kubernetes-current-context-events-update', (value: unknown) => {
     set(value as CoreV1Event[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('events');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('events')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes events', err));
   };
 });
 
 // Port Forwarding
 
 export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([], set => {
-  window.getKubernetesPortForwards().then(value => {
-    set(value);
-  });
+  window
+    .getKubernetesPortForwards()
+    .then(value => {
+      set(value);
+    })
+    .catch((err: unknown) => console.log('Error getting port forwarding initial value', err));
   window.events?.receive('kubernetes-port-forwards-update', (value: unknown) => {
     set(value as UserForwardConfig[]);
   });

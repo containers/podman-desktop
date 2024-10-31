@@ -103,7 +103,9 @@ onMount(() => {
               action: 'restart',
               status: container.status,
             });
-            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${container.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -129,7 +131,9 @@ onMount(() => {
               action: 'restart',
               status: connection.status,
             });
-            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${connection.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -218,7 +222,9 @@ $: Promise.all(
     );
     return providerContainer.flat();
   }),
-).then(value => (tmpProviderContainerConfiguration = value.flat()));
+)
+  .then(value => (tmpProviderContainerConfiguration = value.flat()))
+  .catch((err: unknown) => console.error('Error collecting providers', err));
 
 $: providerContainerConfiguration = tmpProviderContainerConfiguration
   .filter(configurationKey => configurationKey.value !== undefined)
@@ -280,9 +286,9 @@ async function doCreateNew(provider: ProviderInfo, displayName: string) {
     providerInstallationInProgress = providerInstallationInProgress;
     providerToBeInstalled = { provider, displayName };
     doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
-    performInstallation(provider);
+    await performInstallation(provider);
   } else {
-    window.telemetryTrack('createNewProviderConnectionPageRequested', {
+    await window.telemetryTrack('createNewProviderConnectionPageRequested', {
       providerId: provider.id,
       name: provider.name,
     });

@@ -27,8 +27,8 @@ async function saveLogsAsZip() {
   <div class="mt-4">Bundle all available logs into a .zip</div>
   <div class="mt-4">
     <Button
-      on:click={() => {
-        saveLogsAsZip();
+      on:click={async () => {
+        await saveLogsAsZip();
       }}
       title="Collect logs for must gather tool"
       icon={faScroll}>Collect and save logs as .zip</Button>

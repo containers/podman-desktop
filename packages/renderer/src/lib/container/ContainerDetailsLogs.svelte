@@ -24,7 +24,7 @@ $: {
     (refContainer.id !== container.id || (refContainer.state !== container.state && container.state !== 'EXITED'))
   ) {
     logsTerminal?.clear();
-    fetchContainerLogs();
+    fetchContainerLogs().catch((err: unknown) => console.error(`Error fetching container logs ${container.id}`, err));
   }
   refContainer = container;
 }
@@ -55,7 +55,7 @@ async function fetchContainerLogs() {
 }
 
 onMount(async () => {
-  fetchContainerLogs();
+  await fetchContainerLogs();
 });
 </script>
 

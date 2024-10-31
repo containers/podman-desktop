@@ -19,9 +19,9 @@ onMount(async () => {
 
 onDestroy(() => {});
 
-function copyLogsToClipboard() {
+async function copyLogsToClipboard() {
   const logsText = logs.map(log => `${log.logType} : ${log.message}`).join('\n');
-  window.clipboardWriteText(logsText);
+  await window.clipboardWriteText(logsText);
 }
 </script>
 
@@ -30,7 +30,7 @@ function copyLogsToClipboard() {
     <Fa size="1.875x" class="pr-3" icon={faFileLines} />
     <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end">
-      <Button title="Copy To Clipboard" class="ml-5" on:click={() => copyLogsToClipboard()} type="link"
+      <Button title="Copy To Clipboard" class="ml-5" on:click={async () => await copyLogsToClipboard()} type="link"
         ><Fa class="h-5 w-5 cursor-pointer text-xl text-[var(--pd-button-primary-bg)]" icon={faPaste} /></Button>
     </div>
   </div>
