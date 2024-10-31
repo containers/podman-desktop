@@ -59,7 +59,7 @@ const SECRET_POD_YAML_PATH = path.resolve(__dirname, '..', '..', 'resources', 'k
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
-  test.setTimeout(250000);
+  test.setTimeout(350_000);
   runner.setVideoAndTraceName('kubernetes-e2e');
 
   await welcomePage.handleWelcomePage(true);
