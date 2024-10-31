@@ -27,6 +27,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import type { ContributionInfo } from '/@api/contribution-info';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import AppNavigation from './AppNavigation.svelte';
 import { contributions } from './stores/contribs';
@@ -59,6 +60,7 @@ test('Test rendering of the navigation bar with empty items', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable<ContextGeneralState>({} as ContextGeneralState);
 
   // init navigation registry
