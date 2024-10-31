@@ -118,40 +118,48 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
       router.goto(`/kubernetes/services`);
       break;
     case NavigationPage.KUBERNETES_SERVICE:
-      router.goto(`/kubernetes/services/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(`/kubernetes/services/${request.parameters.name}/${request.parameters.namespace}/summary`);
       break;
     case NavigationPage.KUBERNETES_DEPLOYMENTS:
       router.goto(`/kubernetes/deployments`);
       break;
     case NavigationPage.KUBERNETES_DEPLOYMENT:
-      router.goto(`/kubernetes/deployments/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(`/kubernetes/deployments/${request.parameters.name}/${request.parameters.namespace}/summary`);
       break;
     case NavigationPage.KUBERNETES_NODES:
       router.goto(`/kubernetes/nodes`);
       break;
     case NavigationPage.KUBERNETES_NODE:
-      router.goto(`/kubernetes/nodes/${request.parameters.name}`);
+      router.goto(`/kubernetes/nodes/${request.parameters.name}/summary`);
       break;
     case NavigationPage.KUBERNETES_PVCS:
       router.goto(`/kubernetes/persistentvolumeclaims`);
       break;
     case NavigationPage.KUBERNETES_PVC:
-      router.goto(`/kubernetes/persistentvolumeclaims/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(
+        `/kubernetes/persistentvolumeclaims/${request.parameters.name}/${request.parameters.namespace}/summary`,
+      );
       break;
     case NavigationPage.KUBERNETES_INGRESSES_ROUTES:
       router.goto(`/kubernetes/ingressesRoutes`);
       break;
     case NavigationPage.KUBERNETES_INGRESSES_ROUTE:
-      router.goto(`/kubernetes/ingressesRoutes/ingress/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(
+        `/kubernetes/ingressesRoutes/ingress/${request.parameters.name}/${request.parameters.namespace}/summary`,
+      );
       break;
     case NavigationPage.KUBERNETES_CONFIGMAPS_SECRETS:
       router.goto(`/kubernetes/configmapsSecrets`);
       break;
     case NavigationPage.KUBERNETES_CONFIGMAP:
-      router.goto(`/kubernetes/configmapsSecrets/configmap/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(
+        `/kubernetes/configmapsSecrets/configmap/${request.parameters.name}/${request.parameters.namespace}/summary`,
+      );
       break;
     case NavigationPage.KUBERNETES_SECRET:
-      router.goto(`/kubernetes/configmapsSecrets/secret/${request.parameters.name}/${request.parameters.namespace}`);
+      router.goto(
+        `/kubernetes/configmapsSecrets/secret/${request.parameters.name}/${request.parameters.namespace}/summary`,
+      );
       break;
   }
 };
