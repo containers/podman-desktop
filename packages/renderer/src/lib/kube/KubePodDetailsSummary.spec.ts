@@ -19,6 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type {
+  CoreV1Event,
   V1ConfigMapVolumeSource,
   V1Container,
   V1PersistentVolumeClaimVolumeSource,
@@ -29,9 +30,10 @@ import type {
   V1Volume,
 } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
-import KubeDetailsSummary from './KubePodDetailsSummary.svelte';
+import * as eventsTable from '../kube/details/EventsTable.svelte';
+import KubePodDetailsSummary from './KubePodDetailsSummary.svelte';
 
 const fakePod: V1Pod = {
   apiVersion: 'v1',
@@ -107,7 +109,7 @@ const fakePod: V1Pod = {
 // Test render KubeDetailsSummary with the V1Pod object
 test('KubeDetailsSummary renders with V1Pod object', async () => {
   // Render
-  render(KubeDetailsSummary, { pod: fakePod });
+  render(KubePodDetailsSummary, { props: { pod: fakePod, events: [] } });
 
   // Check that the rendered text is correct
   expect(screen.getByText('fakepod')).toBeInTheDocument();
@@ -124,4 +126,26 @@ test('KubeDetailsSummary renders with V1Pod object', async () => {
   expect(screen.getByText('secret-volume')).toBeInTheDocument();
   expect(screen.getByText('configmap-volume')).toBeInTheDocument();
   expect(screen.getByText('pvc-volume')).toBeInTheDocument();
+  expect(screen.getByText('No events')).toBeInTheDocument();
+});
+
+test('expect EventsTable is called with events', async () => {
+  const eventsTableSpy = vi.spyOn(eventsTable, 'default');
+
+  const events: CoreV1Event[] = [
+    {
+      metadata: {
+        name: 'event1',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event2',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+  ];
+  render(KubePodDetailsSummary, { props: { pod: fakePod, events: events } });
+  expect(eventsTableSpy).toHaveBeenCalledWith(expect.anything(), { events: events });
 });
