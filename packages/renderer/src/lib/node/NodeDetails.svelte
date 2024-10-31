@@ -9,6 +9,7 @@ import { kubernetesCurrentContextEvents, kubernetesCurrentContextNodes } from '/
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { EventUI } from '../events/EventUI';
 import NodeIcon from '../images/NodeIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -27,7 +28,7 @@ let detailsPage: DetailsPage | undefined = $state(undefined);
 let kubeNode: V1Node | undefined = $state(undefined);
 let kubeError: string | undefined = $state(undefined);
 
-let events = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node?.uid));
+let events: EventUI[] = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node?.uid));
 
 onMount(() => {
   const nodeUtils = new NodeUtils();
