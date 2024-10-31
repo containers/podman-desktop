@@ -26,6 +26,7 @@ import type { NodeUI } from './NodeUI';
 
 test('Expect simple column styling', async () => {
   const node: NodeUI = {
+    uid: '123',
     name: 'my-node',
     status: 'RUNNING',
     role: 'control-plane',

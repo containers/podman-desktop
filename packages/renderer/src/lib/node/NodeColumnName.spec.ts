@@ -26,6 +26,7 @@ import NodeColumnName from './NodeColumnName.svelte';
 import type { NodeUI } from './NodeUI';
 
 const node: NodeUI = {
+  uid: '123',
   name: 'my-node',
   status: '',
   role: 'control-plane',

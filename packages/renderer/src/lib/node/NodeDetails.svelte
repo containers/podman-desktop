@@ -5,10 +5,11 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
 
-import { kubernetesCurrentContextNodes } from '/@/stores/kubernetes-contexts-state';
+import { kubernetesCurrentContextEvents, kubernetesCurrentContextNodes } from '/@/stores/kubernetes-contexts-state';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { EventUI } from '../events/EventUI';
 import NodeIcon from '../images/NodeIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -17,12 +18,17 @@ import { NodeUtils } from './node-utils';
 import NodeDetailsSummary from './NodeDetailsSummary.svelte';
 import type { NodeUI } from './NodeUI';
 
-export let name: string;
+interface Props {
+  name: string;
+}
+let { name }: Props = $props();
 
-let node: NodeUI;
-let detailsPage: DetailsPage;
-let kubeNode: V1Node | undefined;
-let kubeError: string;
+let node: NodeUI | undefined = $state(undefined);
+let detailsPage: DetailsPage | undefined = $state(undefined);
+let kubeNode: V1Node | undefined = $state(undefined);
+let kubeError: string | undefined = $state(undefined);
+
+let events: EventUI[] = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node?.uid));
 
 onMount(() => {
   const nodeUtils = new NodeUtils();
@@ -48,7 +54,7 @@ async function loadDetails() {
   if (getKubeNode) {
     kubeNode = getKubeNode;
   } else {
-    kubeError = `Unable to retrieve Kubernetes details for ${node.name}`;
+    kubeError = `Unable to retrieve Kubernetes details for ${name}`;
   }
 }
 </script>
@@ -63,7 +69,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <NodeDetailsSummary node={kubeNode} kubeError={kubeError} />
+        <NodeDetailsSummary node={kubeNode} kubeError={kubeError} events={events} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content={JSON.stringify(kubeNode, undefined, 2)} language="json" />
