@@ -5,10 +5,11 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
 
-import { kubernetesCurrentContextNodes } from '/@/stores/kubernetes-contexts-state';
+import { kubernetesCurrentContextEvents, kubernetesCurrentContextNodes } from '/@/stores/kubernetes-contexts-state';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { EventUI } from '../events/EventUI';
 import NodeIcon from '../images/NodeIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -24,6 +25,8 @@ let detailsPage: DetailsPage;
 let kubeNode: V1Node | undefined;
 let kubeError: string;
 
+let events: EventUI[] = [];
+
 onMount(() => {
   const nodeUtils = new NodeUtils();
   // loading node info
@@ -32,6 +35,7 @@ onMount(() => {
     if (matchingNode) {
       try {
         node = nodeUtils.getNodeUI(matchingNode);
+        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node.uid);
         loadDetails();
       } catch (err) {
         console.error(err);
@@ -63,7 +67,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <NodeDetailsSummary node={kubeNode} kubeError={kubeError} />
+        <NodeDetailsSummary node={kubeNode} kubeError={kubeError} events={events} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content={JSON.stringify(kubeNode, undefined, 2)} language="json" />
