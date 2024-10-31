@@ -3,8 +3,15 @@ import type { V1ServiceSpec } from '@kubernetes/client-node';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
+import KubePorts from '/@/lib/kube/details/KubePortsList.svelte';
+import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
-export let artifact: V1ServiceSpec | undefined;
+interface Props {
+  artifact?: V1ServiceSpec;
+  serviceName?: string;
+  namespace?: string;
+}
+let { artifact, serviceName, namespace }: Props = $props();
 </script>
 
 {#if artifact}
@@ -29,18 +36,12 @@ export let artifact: V1ServiceSpec | undefined;
     <Cell>Session Affinity</Cell>
     <Cell>{artifact?.sessionAffinity}</Cell>
   </tr>
-  {#if artifact.ports}
-    <tr>
-      <Cell>Ports</Cell>
-      <Cell>
-        {#each artifact.ports as port}
-          <div>
-            {port.name ? port.name + ':' : ''}{port.port}{port.nodePort ? ':' + port.nodePort : ''}/{port.protocol}
-          </div>
-        {/each}
-      </Cell>
-    </tr>
-  {/if}
+  <KubePorts namespace={namespace} resourceName={serviceName} kind={WorkloadKind.SERVICE} ports={artifact.ports?.map((port) => ({
+    name: port.name,
+    value: port.port,
+    protocol: port.protocol,
+    displayValue: `${port.name ? port.name + ':' : ''}${port.port}${port.nodePort ? ':' + port.nodePort : ''}/${port.protocol}`,
+  }))}/>
   {#if artifact.selector}
     <tr>
       <Cell>Selectors</Cell>

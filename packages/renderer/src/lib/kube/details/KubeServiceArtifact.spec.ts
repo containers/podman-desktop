@@ -19,9 +19,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { readable } from 'svelte/store';
+import { beforeEach, expect, test, vi } from 'vitest';
 
-import KubeServiceSpecArtifact from './KubeServiceArtifact.svelte'; // Adjust the import path as necessary
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state'; // Adjust the import path as necessary
+
+import KubeServiceSpecArtifact from './KubeServiceArtifact.svelte';
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
 const fakeServiceSpec = {
   type: 'ClusterIP',
@@ -38,6 +43,12 @@ const fakeServiceSpec = {
     department: 'engineering',
   },
 };
+
+beforeEach(() => {
+  vi.resetAllMocks();
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable([]);
+});
 
 test('Renders service spec correctly', () => {
   render(KubeServiceSpecArtifact, { artifact: fakeServiceSpec });
