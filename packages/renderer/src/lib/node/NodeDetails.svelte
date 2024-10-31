@@ -9,7 +9,6 @@ import { kubernetesCurrentContextEvents, kubernetesCurrentContextNodes } from '/
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import type { EventUI } from '../events/EventUI';
 import NodeIcon from '../images/NodeIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -18,14 +17,17 @@ import { NodeUtils } from './node-utils';
 import NodeDetailsSummary from './NodeDetailsSummary.svelte';
 import type { NodeUI } from './NodeUI';
 
-export let name: string;
+interface Props {
+  name: string;
+}
+let { name }: Props = $props();
 
-let node: NodeUI;
-let detailsPage: DetailsPage;
-let kubeNode: V1Node | undefined;
-let kubeError: string;
+let node: NodeUI | undefined = $state(undefined);
+let detailsPage: DetailsPage | undefined = $state(undefined);
+let kubeNode: V1Node | undefined = $state(undefined);
+let kubeError: string | undefined = $state(undefined);
 
-let events: EventUI[] = [];
+let events = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node?.uid));
 
 onMount(() => {
   const nodeUtils = new NodeUtils();
@@ -35,7 +37,6 @@ onMount(() => {
     if (matchingNode) {
       try {
         node = nodeUtils.getNodeUI(matchingNode);
-        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === node.uid);
         loadDetails();
       } catch (err) {
         console.error(err);
@@ -52,7 +53,7 @@ async function loadDetails() {
   if (getKubeNode) {
     kubeNode = getKubeNode;
   } else {
-    kubeError = `Unable to retrieve Kubernetes details for ${node.name}`;
+    kubeError = `Unable to retrieve Kubernetes details for ${name}`;
   }
 }
 </script>
