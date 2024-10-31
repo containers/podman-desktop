@@ -76,7 +76,7 @@ import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 // only the connectivity to the current context will be checked
 const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
 
-const KINDS_WITH_EVENTS: Array<string | undefined> = ['Deployment', 'Pod', 'Node'];
+const KINDS_WITH_EVENTS: Array<string | undefined> = ['Deployment', 'Pod', 'Node', 'Service'];
 
 interface CreateInformerOptions<T> {
   // resource name, for logging

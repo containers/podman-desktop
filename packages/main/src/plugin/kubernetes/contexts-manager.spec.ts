@@ -1462,7 +1462,7 @@ describe('update', async () => {
     });
   });
 
-  test('createEventInformer should send data for added events related to Pods, Deployments and Nodes only', async () => {
+  test('createEventInformer should send data for added events related to Pods, Deployments, Services and Nodes only', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
       (
@@ -1499,6 +1499,14 @@ describe('update', async () => {
               object: {
                 metadata: { uid: 'event-pod' },
                 involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 8,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event-svc' },
+                involvedObject: { kind: 'Service' },
               } as kubeclient.KubernetesObject,
             },
             {
@@ -1572,11 +1580,12 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
       { metadata: { uid: 'event-node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event-pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event-svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event-deployment' }, involvedObject: { kind: 'Deployment' } },
     ]);
   });
 
-  test('createEventInformer should send data for deleted and updated events related to Pods, Deployments and Nodes only', async () => {
+  test('createEventInformer should send data for deleted and updated events related to Pods, Deployments, Services and Nodes only', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
       (
@@ -1616,6 +1625,14 @@ describe('update', async () => {
               } as kubeclient.KubernetesObject,
             },
             {
+              delayMs: 90,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event1svc' },
+                involvedObject: { kind: 'Service' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
               delayMs: 100,
               verb: 'add',
               object: {
@@ -1645,6 +1662,14 @@ describe('update', async () => {
               object: {
                 metadata: { uid: 'event2pod' },
                 involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 190,
+              verb: 'add',
+              object: {
+                metadata: { uid: 'event2svc' },
+                involvedObject: { kind: 'Service' },
               } as kubeclient.KubernetesObject,
             },
             {
@@ -1680,6 +1705,14 @@ describe('update', async () => {
               } as kubeclient.KubernetesObject,
             },
             {
+              delayMs: 290,
+              verb: 'delete',
+              object: {
+                metadata: { uid: 'event1svc' },
+                involvedObject: { kind: 'Service' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
               delayMs: 300,
               verb: 'delete',
               object: {
@@ -1709,6 +1742,14 @@ describe('update', async () => {
               object: {
                 metadata: { uid: 'event2pod', name: 'name2pod' },
                 involvedObject: { kind: 'Pod' },
+              } as kubeclient.KubernetesObject,
+            },
+            {
+              delayMs: 390,
+              verb: 'update',
+              object: {
+                metadata: { uid: 'event2svc', name: 'name2svc' },
+                involvedObject: { kind: 'Service' },
               } as kubeclient.KubernetesObject,
             },
             {
@@ -1759,6 +1800,7 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
       { metadata: { uid: 'event1node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event1svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
@@ -1767,9 +1809,11 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
       { metadata: { uid: 'event1node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event1pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event1svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event1' }, involvedObject: { kind: 'Deployment' } },
       { metadata: { uid: 'event2node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event2svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
@@ -1778,6 +1822,7 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
       { metadata: { uid: 'event2node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event2pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event2svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event2' }, involvedObject: { kind: 'Deployment' } },
     ]);
 
@@ -1786,6 +1831,7 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('events', [
       { metadata: { uid: 'event2node', name: 'name2node' }, involvedObject: { kind: 'Node' } },
       { metadata: { uid: 'event2pod', name: 'name2pod' }, involvedObject: { kind: 'Pod' } },
+      { metadata: { uid: 'event2svc', name: 'name2svc' }, involvedObject: { kind: 'Service' } },
       { metadata: { uid: 'event2', name: 'name2' }, involvedObject: { kind: 'Deployment' } },
     ]);
   });
