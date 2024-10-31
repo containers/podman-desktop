@@ -251,7 +251,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Release Details
+## Release details
 
 <!-- DESCRIBE MAJOR CHANGES, INCLUDE IMAGES / VIDEO IF APPLICABLE -->
 
@@ -265,7 +265,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Other Notable Enhancements
+## Other notable enhancements
 
 <!-- CATCHALL SECTION FOR MINOR ENHANCEMENTS -- >
 <!-- USE BULLET POINTS -->
@@ -274,7 +274,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Notable Bug Fixes
+## Notable bug fixes
 
 <!-- CATCHALL SECTION FOR BUG FIXES -- >
 <!-- USE BULLET POINTS -->
@@ -283,7 +283,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Community Thank You
+## Community thank you
 
 🎉 We’d like to say a big thank you to everyone who helped to make Podman Desktop even better. In this
 release we received pull requests from the following people:
