@@ -15,9 +15,9 @@ const ingressRouteUtils = new IngressRouteUtils();
     {#if hostPath.url}
       <Link
         aria-label={hostPath.label}
-        on:click={() => {
+        on:click={async () => {
           if (hostPath.url) {
-            window.openExternal(hostPath.url);
+            await window.openExternal(hostPath.url);
           }
         }}>
         {hostPath.label}

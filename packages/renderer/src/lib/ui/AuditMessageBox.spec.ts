@@ -91,7 +91,7 @@ test('Should update data when audit result is updated', async () => {
   expect(errMessage).toHaveTextContent('Dummy error message');
 
   // now we update the audit result field
-  renderComponent.rerender({
+  await renderComponent.rerender({
     auditResult: {
       records: [
         {

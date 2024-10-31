@@ -161,23 +161,23 @@ test('terminal active/ restarts connection after stopping and starting a contain
   onDataCallback(Buffer.from('hello\nworld'));
 
   // wait 1s
-  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
+  await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
+  await waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   container.state = 'EXITED';
 
-  waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
+  await waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
 
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
   await tick();
 
-  waitFor(() => expect(screen.queryByText('Container is not running')).toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText('Container is not running')).toBeInTheDocument());
 
   container.state = 'STARTING';
 

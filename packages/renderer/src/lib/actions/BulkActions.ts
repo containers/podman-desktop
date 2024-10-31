@@ -21,5 +21,6 @@ import { withConfirmation } from '../dialogs/messagebox-utils';
 export function withBulkConfirmation(callback: () => unknown, text: string): void {
   window
     .getConfigurationValue('userConfirmation.bulk')
-    .then(confirm => (confirm ? withConfirmation(callback, text) : callback()));
+    .then(confirm => (confirm ? withConfirmation(callback, text) : callback()))
+    .catch((err: unknown) => console.error('Error getting configuration value userConfirmation.bulk', err));
 }

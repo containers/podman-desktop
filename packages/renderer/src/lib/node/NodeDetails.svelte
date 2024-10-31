@@ -36,12 +36,8 @@ onMount(() => {
   return kubernetesCurrentContextNodes.subscribe(nodes => {
     const matchingNode = nodes.find(dep => dep.metadata?.name === name);
     if (matchingNode) {
-      try {
-        node = nodeUtils.getNodeUI(matchingNode);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      node = nodeUtils.getNodeUI(matchingNode);
+      loadDetails().catch((err: unknown) => console.error(`Error getting node details ${node.name}`, err));
     } else if (detailsPage) {
       // the node has been deleted
       detailsPage.close();

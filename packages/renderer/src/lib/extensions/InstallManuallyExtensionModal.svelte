@@ -75,13 +75,13 @@ async function installExtension() {
   installInProgress = false;
 }
 
-function handleKeydown(e: KeyboardEvent) {
+async function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter') {
     e.preventDefault();
     if (progressPercent === 100) {
       closeCallback();
     } else {
-      installExtension();
+      await installExtension();
     }
   }
 }

@@ -80,7 +80,9 @@ export class OnboardingTelemetrySession {
     this.data.extension = extensionName;
     this.data.skipped = skipped;
     this.data.durationMs = Math.round(performance.now() - this.onboardingStartTime);
-    window.telemetryTrack('onboarding', telemetryToSend(this.data));
+    window
+      .telemetryTrack('onboarding', telemetryToSend(this.data))
+      .catch((err: unknown) => console.error(`Error sending onboarding telemetry`, err));
   }
 
   private savePreviousDuration() {

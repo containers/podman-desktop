@@ -93,7 +93,9 @@ function openBrowser(): void {
   if (!container.openingUrl) {
     return;
   }
-  window.openExternal(container.openingUrl);
+  window
+    .openExternal(container.openingUrl)
+    .catch((err: unknown) => console.error(`Error opening URL ${container.openingUrl}`, err));
 }
 
 function openLogs(): void {

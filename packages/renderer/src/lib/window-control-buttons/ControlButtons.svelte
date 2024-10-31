@@ -4,15 +4,15 @@ import WindowControlButton from './ControlButton.svelte';
 export let platform: string;
 
 function minimize(): void {
-  window.windowMinimize();
+  window.windowMinimize().catch((err: unknown) => console.error('Error minimizing window', err));
 }
 
 function maximize(): void {
-  window.windowMaximize();
+  window.windowMaximize().catch((err: unknown) => console.error('Error maximizing window', err));
 }
 
 function close(): void {
-  window.windowClose();
+  window.windowClose().catch((err: unknown) => console.error('Error closing window', err));
 }
 </script>
 

@@ -442,7 +442,7 @@ test('Expect the pod1 row to have 3 status dots with the correct colors and the 
 
   await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
 
-  waitRender(PodsList);
+  await waitRender(PodsList);
 
   // Should render 4 status dots.
   // 3 for the first pod, 1 for the second pod
@@ -473,7 +473,7 @@ test('Expect the manyPod row to show 9 dots representing every status', async ()
 
   await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
-  waitRender(PodsList);
+  await waitRender(PodsList);
 
   // Should render 9 status dots representing all statuses from the 11 containers provided
   // due to the functoin organizeContainers it will be reorganized and the order will be different
@@ -659,5 +659,5 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
   expect(window.showMessageBox).toHaveBeenCalledTimes(2);
-  vi.waitFor(() => expect(window.removePod).toHaveBeenCalled());
+  await vi.waitFor(() => expect(window.removePod).toHaveBeenCalled());
 });

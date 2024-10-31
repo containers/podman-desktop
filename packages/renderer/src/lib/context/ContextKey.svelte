@@ -3,8 +3,8 @@ import { onMount } from 'svelte';
 
 import { initContextKeysPlatform } from './contextKey';
 
-onMount(() => {
+onMount(async () => {
   // initialize context keys value
-  initContextKeysPlatform();
+  await initContextKeysPlatform();
 });
 </script>

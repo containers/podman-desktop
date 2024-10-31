@@ -33,12 +33,10 @@ onMount(() => {
   return kubernetesCurrentContextIngresses.subscribe(ingress => {
     const matchingIngress = ingress.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingIngress) {
-      try {
-        ingressUI = ingressRouteUtils.getIngressUI(matchingIngress);
-        loadIngressDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      ingressUI = ingressRouteUtils.getIngressUI(matchingIngress);
+      loadIngressDetails().catch((err: unknown) =>
+        console.error(`Error getting ingress details ${ingressUI.name}`, err),
+      );
     } else if (detailsPage) {
       // the ingress has been deleted
       detailsPage.close();

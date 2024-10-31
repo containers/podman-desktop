@@ -124,7 +124,7 @@ test('receive context menu visible event from main', async () => {
   messages.get('context-menu:visible')?.(true);
 
   // wait for dispatch method to be called
-  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+  await waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
 
   const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
   expect((eventSent as Event).type).toBe('tooltip-hide');
@@ -136,7 +136,7 @@ test('receive context menu not visible event from main', async () => {
   messages.get('context-menu:visible')?.(false);
 
   //  wait for dispatch method to be called
-  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+  await waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
 
   const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
   expect((eventSent as Event).type).toBe('tooltip-show');

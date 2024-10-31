@@ -105,20 +105,20 @@ testComponent('button click shows error message if starting pod fails', async ()
   vi.spyOn(window, 'createPod').mockResolvedValue(podInfo);
   vi.spyOn(window, 'createAndStartContainer').mockRejectedValue(error);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(errorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(errorMessage));
 });
 
 test('button click shows error if image could not be pulled', async () => {
   vi.mocked(window.listImages).mockResolvedValue([]);
   render(PodEmptyScreen);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(imageErrorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(imageErrorMessage));
 });
 
 testComponent('button click shows error message if there is no active provider connection', async () => {
   providerInfos.set([]);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(providerErrorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(providerErrorMessage));
 });
 
 testComponent(`${copyToClipboard} button click puts starting pod command to clipboard`, async () => {

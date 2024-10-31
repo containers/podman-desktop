@@ -69,7 +69,7 @@ async function deleteImage(): Promise<void> {
   try {
     await imageUtils.deleteImage(image);
   } catch (error) {
-    onError(`Error while deleting image: ${String(error)}`);
+    await onError(`Error while deleting image: ${String(error)}`);
   }
 }
 
@@ -85,8 +85,8 @@ async function showLayersImage(): Promise<void> {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
 }
 
-function onError(error: string): void {
-  window.showMessageBox({
+async function onError(error: string): Promise<void> {
+  await window.showMessageBox({
     title: 'Something went wrong.',
     message: error,
     type: 'error',

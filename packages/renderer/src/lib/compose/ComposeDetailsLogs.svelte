@@ -22,7 +22,7 @@ let logsTerminal: Terminal;
 $: {
   if (refCompose && refCompose.status !== compose.status) {
     logsTerminal?.clear();
-    fetchComposeLogs();
+    fetchComposeLogs().catch((err: unknown) => console.error('Error fetching compose logs', err));
   }
   refCompose = compose;
 }
@@ -77,19 +77,23 @@ async function fetchComposeLogs(): Promise<void> {
 
     // Wrap the logsContainer function in a Promise
     return new Promise((resolve, reject) => {
-      window.logsContainer({
-        engineId: container.engineId,
-        containerId: container.id,
-        callback: (name, data) => {
-          try {
-            logsCallback(name, data);
-            resolve(undefined);
-          } catch (error) {
-            // Catch any errors that occur during logsCallback and reject the Promise
-            reject(error);
-          }
-        },
-      });
+      window
+        .logsContainer({
+          engineId: container.engineId,
+          containerId: container.id,
+          callback: (name, data) => {
+            try {
+              logsCallback(name, data);
+              resolve(undefined);
+            } catch (error) {
+              // Catch any errors that occur during logsCallback and reject the Promise
+              reject(error);
+            }
+          },
+        })
+        .catch((err: unknown) =>
+          console.error(`Error fetching compose logs provider ${container.engineId} container ${container.id}`, err),
+        );
     }).catch((error: unknown) => {
       // If there's an error, just output it to console instead of throwing an error
       // in case there's one container that errors, but the others don't.
@@ -107,7 +111,7 @@ onMount(async () => {
     colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
   });
 
-  fetchComposeLogs();
+  await fetchComposeLogs();
 });
 </script>
 

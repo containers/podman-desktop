@@ -48,7 +48,7 @@ onDestroy(() => {
 let selectedFilteredIndex = 0;
 let selectedIndex = 0;
 
-function handleKeydown(e: KeyboardEvent) {
+async function handleKeydown(e: KeyboardEvent) {
   // toggle display using F1 or ESC keys
   if (e.key === 'F1') {
     // clear the input value
@@ -117,7 +117,7 @@ function handleKeydown(e: KeyboardEvent) {
     display = false;
 
     selectedIndex = commandInfoItems.indexOf(filteredCommandInfoItems[selectedFilteredIndex]);
-    executeCommand(selectedIndex);
+    await executeCommand(selectedIndex);
     e.preventDefault();
   }
 }
@@ -149,7 +149,7 @@ async function clickOnItem(item: any, index: number) {
 
   // select the index from the cursor
   selectedIndex = commandInfoItems.indexOf(filteredCommandInfoItems[index]);
-  executeCommand(selectedIndex);
+  await executeCommand(selectedIndex);
 }
 
 async function onInputChange() {
