@@ -2193,11 +2193,8 @@ function setupDisguisedPodmanSocketWatcher(
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
-  if (isLinux()) {
+  if (isLinux() || isMac()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
-  } else if (isMac()) {
-    // watch parent directory
-    socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
   }
 
   // only trigger if the watched file is the socket file
