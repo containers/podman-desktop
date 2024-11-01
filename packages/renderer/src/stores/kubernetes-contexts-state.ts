@@ -166,6 +166,26 @@ export const kubernetesCurrentContextNodesFiltered = derived(
   ([$searchPattern, $nodes]) => $nodes.filter(node => findMatchInLeaves(node, $searchPattern.toLowerCase())),
 );
 
+// Pods
+
+export const kubernetesCurrentContextPods = readable<KubernetesObject[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextResources('pods').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-pods-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('pods');
+  };
+});
+
+export const podSearchPattern = writable('');
+
+// The pods in the current context, filtered with `podSearchPattern`
+export const kubernetesCurrentContextPodsFiltered = derived(
+  [podSearchPattern, kubernetesCurrentContextPods],
+  ([$searchPattern, $pods]) => $pods.filter(pod => findMatchInLeaves(pod, $searchPattern.toLowerCase())),
+);
+
 // PersistentVolumeClaims
 
 export const kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([], set => {
