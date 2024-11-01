@@ -28,8 +28,18 @@ export class PodUtils {
   }
 
   humanizeAge(started: string): string {
-    // get start time in ms
-    const uptimeInMs = moment().diff(started);
+    // Return nothing if 'started' is not even provided
+    if (!started) {
+      return '';
+    }
+
+    // To avoid https://momentjs.com/guides/#/warnings/js-date/ warning
+    // and provide better compatibility with the library, we will convert to ISO format before
+    // passing to moment.
+    const startedDate = new Date(started).toISOString();
+
+    const uptimeInMs = moment().diff(startedDate);
+
     // make it human friendly
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
@@ -39,8 +49,10 @@ export class PodUtils {
       return undefined;
     }
 
-    // make it human friendly
-    return moment(podInfoUI.created).toDate();
+    // To avoid https://momentjs.com/guides/#/warnings/js-date/ warning
+    // and provide better compatibility with the library, we will convert to ISO format before
+    // passing to moment
+    return moment(new Date(podInfoUI.created).toISOString()).toDate();
   }
 
   getEngineId(podinfo: PodInfo): string {
