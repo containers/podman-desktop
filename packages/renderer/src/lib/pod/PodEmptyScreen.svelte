@@ -10,8 +10,9 @@ const helloImage = 'quay.io/podman/hello:latest';
 const commandLine = `podman run -dt --pod new:${myFirstPod} ${helloImage}`;
 
 let inProgress = false;
+const provideInfosCopy = $providerInfos;
 
-$: selectedProviderConnection = $providerInfos
+$: selectedProviderConnection = provideInfosCopy
   .map(provider => provider.containerConnections)
   .flat()
   .find(providerContainerConnection => providerContainerConnection.status === 'started');
@@ -29,7 +30,7 @@ async function startPod(): Promise<void> {
       } else {
         await window.showMessageBox({
           title: `Error when running a pod`,
-          message: `Could not find '${helloImage}'' in images`,
+          message: `Could not find '${helloImage}' in images`,
         });
       }
     } catch (error) {

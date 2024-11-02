@@ -19,13 +19,20 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
 import type { ImageInfo } from '/@api/image-info';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import PodEmptyScreen from './PodEmptyScreen.svelte';
+
+vi.mock('/@/stores/providers', async () => {
+  const store = await import('svelte/store');
+  return {
+    providerInfos: store.writable<ProviderInfo[]>([]),
+  };
+});
 
 beforeAll(() => {
   (window as any).createPod = vi.fn();
@@ -34,6 +41,7 @@ beforeAll(() => {
   (window as any).pullImage = vi.fn();
   (window as any).listImages = vi.fn();
   (window as any).createAndStartContainer = vi.fn();
+  (window as any).getProviderInfos = vi.fn();
   providerInfos.set([
     {
       containerConnections: [
@@ -45,8 +53,9 @@ beforeAll(() => {
   ]);
 });
 
-afterEach(() => {
+beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(window.showMessageBox).mockResolvedValue(undefined as any);
 });
 
 const helloImage = 'quay.io/podman/hello:latest';
@@ -115,8 +124,9 @@ test('button click shows error if image could not be pulled', async () => {
   await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(imageErrorMessage));
 });
 
-testComponent('button click shows error message if there is no active provider connection', async () => {
+test('button click shows error message if there is no active provider connection', async () => {
   providerInfos.set([]);
+  render(PodEmptyScreen);
   await fireEvent.click(getButton());
   await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(providerErrorMessage));
 });
