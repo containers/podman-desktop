@@ -46,7 +46,7 @@ describe.each([{ platform: 'linux' }, { platform: 'win32' }])('Platform($platfor
   test('Expect minimize is called', async () => {
     render(ControlButtons, { platform });
 
-    const minimizeMock = vi.fn();
+    const minimizeMock = vi.fn().mockResolvedValue(undefined);
     (window as any).windowMinimize = minimizeMock;
 
     const minimizeButton = screen.getByRole('button', { name: 'Minimize' });
@@ -57,7 +57,7 @@ describe.each([{ platform: 'linux' }, { platform: 'win32' }])('Platform($platfor
   test('Expect maximize is called', async () => {
     render(ControlButtons, { platform });
 
-    const maximizeMock = vi.fn();
+    const maximizeMock = vi.fn().mockResolvedValue(undefined);
     (window as any).windowMaximize = maximizeMock;
 
     const maximizeButton = screen.getByRole('button', { name: 'Maximize' });
@@ -68,7 +68,7 @@ describe.each([{ platform: 'linux' }, { platform: 'win32' }])('Platform($platfor
   test('Expect close is called', async () => {
     render(ControlButtons, { platform });
 
-    const closeMock = vi.fn();
+    const closeMock = vi.fn().mockResolvedValue(undefined);
     (window as any).windowClose = closeMock;
 
     const closeButton = screen.getByRole('button', { name: 'Close' });

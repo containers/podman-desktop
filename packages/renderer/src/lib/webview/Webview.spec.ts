@@ -60,7 +60,7 @@ const webviewTestList: WebviewInfo[] = [
 
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).makeDefaultWebviewVisible = makeDefaultWebviewVisibleMock;
+  (window as any).makeDefaultWebviewVisible = makeDefaultWebviewVisibleMock.mockResolvedValue(undefined);
   (window as any).getWebviewPreloadPath = getWebviewPreloadPathMock;
   (window as any).getWebviewRegistryHttpPort = getWebviewRegistryHttpPortMock;
 
