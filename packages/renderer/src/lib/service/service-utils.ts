@@ -23,6 +23,7 @@ import type { ServiceUI } from './ServiceUI';
 export class ServiceUtils {
   getServiceUI(service: V1Service): ServiceUI {
     return {
+      uid: service.metadata?.uid ?? '',
       name: service.metadata?.name ?? '',
       status: 'RUNNING',
       namespace: service.metadata?.namespace ?? '',
