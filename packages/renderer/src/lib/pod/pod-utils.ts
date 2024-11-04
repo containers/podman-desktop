@@ -28,9 +28,15 @@ export class PodUtils {
   }
 
   humanizeAge(started: string): string {
-    // get start time in ms
-    const uptimeInMs = moment().diff(started);
-    // make it human friendly
+    // Return nothing if 'started' is not provided
+    if (!started) {
+      return '';
+    }
+
+    const startedDate = toISOStringSafe(started);
+    const uptimeInMs = moment().diff(startedDate);
+
+    // Make it human-friendly
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
@@ -39,8 +45,8 @@ export class PodUtils {
       return undefined;
     }
 
-    // make it human friendly
-    return moment(podInfoUI.created).toDate();
+    const createdDate = toISOStringSafe(podInfoUI.created);
+    return moment(createdDate).toDate();
   }
 
   getEngineId(podinfo: PodInfo): string {
@@ -134,4 +140,12 @@ export function ensureRestrictedSecurityContext(body: any) {
       container.securityContext.capabilities.drop.push('ALL');
     }
   });
+}
+
+// Utility function to safely convert a date string to ISO format
+// To avoid https://momentjs.com/guides/#/warnings/js-date/ warning
+// and provide better compatibility with the library, we will convert to ISO format before
+// passing to moment
+export function toISOStringSafe(date: string): string {
+  return new Date(date).toISOString();
 }

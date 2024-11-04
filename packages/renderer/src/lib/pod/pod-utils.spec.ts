@@ -123,4 +123,43 @@ test('Expect to get node and namespace from pod info', () => {
 
   expect(pod.node).toBe('node1');
   expect(pod.namespace).toBe('default');
+
+  // Expect the date to be undefined because we did not pass any Created values in podInfo
+  expect(pod.created).toBe(undefined);
+});
+
+test('Expect k8s format to convert to humanizedDuration format correctly', () => {
+  // Expect age to show 2 years
+  const created = new Date();
+  created.setFullYear(created.getFullYear() - 2);
+  const podUtils = new PodUtils();
+  const podInfo = {
+    kind: 'kubernetes',
+    Namespace: 'default',
+    Id: 'pod-id',
+    Created: created.toISOString(),
+  } as unknown as PodInfo;
+  const pod = podUtils.getPodInfoUI(podInfo);
+  expect(pod.age).toBe('2 years');
+
+  // Do the same for 2 months
+  const created2 = new Date();
+  created2.setMonth(created.getMonth() - 2);
+  podInfo.Created = created2.toISOString();
+  const pod2 = podUtils.getPodInfoUI(podInfo);
+  expect(pod2.age).toBe('2 months');
+
+  // Expect age to show 2 days
+  const created3 = new Date();
+  created3.setDate(created.getDate() - 2);
+  podInfo.Created = created3.toISOString();
+  const pod3 = podUtils.getPodInfoUI(podInfo);
+  expect(pod3.age).toBe('2 days');
+
+  // Expect age to be 2 hours
+  const created4 = new Date();
+  created4.setHours(created.getHours() - 2);
+  podInfo.Created = created4.toISOString();
+  const pod4 = podUtils.getPodInfoUI(podInfo);
+  expect(pod4.age).toBe('2 hours');
 });
