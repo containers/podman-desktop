@@ -63,3 +63,7 @@ Red Hat extension pack is a set of the following extensions that a developer can
 - Registries: Provides some default registries so that you can connect to them with your credentials. See [Managing registries](/docs/containers/registries). 
 
 - Image Layers Explorer: Use this extension to explore and analyze different layers of the container image. For more details, click the **More details** link in the **Catalog** tab of the Extensions page.
+
+**_Custom extensions_**
+
+You can also create your own customized extension using [these templates](/docs/extensions/templates). For more details about developing and publishing a custom extension, see [Developing a Podman Desktop extension](/docs/extensions/developing) and [Publishing a Podman Desktop extension](/docs/extensions/publish).
