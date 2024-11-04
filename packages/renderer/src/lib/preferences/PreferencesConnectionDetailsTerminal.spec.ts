@@ -100,14 +100,11 @@ test('expect being able to reconnect ', async () => {
   // write some data on the terminal
   onDataCallback('hello\nworld');
 
-  // wait 1s
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
   // search a div having aria-live="assertive" attribute
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  expect(terminalLinesLiveRegion).toHaveTextContent('hello world');
+  await waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   // should be no terminal being stored
   const terminals = get(providerTerminals);
@@ -126,13 +123,10 @@ test('expect being able to reconnect ', async () => {
   // wait shellInProviderMock is called
   await waitFor(() => expect(shellInProviderConnectionMock).toHaveBeenCalledTimes(2));
 
-  // wait 1s that everything is done
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
   const terminalLinesLiveRegion2 = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  expect(terminalLinesLiveRegion2).toHaveTextContent('hello world');
+  await waitFor(() => expect(terminalLinesLiveRegion2).toHaveTextContent('hello world'));
 
   // creating a new terminal requires new shellInProvider call
   expect(shellInProviderConnectionMock).toHaveBeenCalledTimes(2);
@@ -186,7 +180,6 @@ test('terminal active/ restarts connection after stopping and starting a provide
   // write some data on the terminal
   onDataCallback('hello\nworld');
 
-  // wait 1s
   await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute

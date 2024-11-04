@@ -192,7 +192,7 @@ function getLoggerHandler(
             leftPosition="left-[0.15rem]" />
         {/if}
         <div class="mr-2 text-sm">
-          <slot name="advancedActions" />
+          <slot name="advanced-actions" />
         </div>
       </div>
     </div>
