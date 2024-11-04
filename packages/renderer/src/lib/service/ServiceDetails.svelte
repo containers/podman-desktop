@@ -5,10 +5,11 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
 
-import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
+import { kubernetesCurrentContextEvents, kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { EventUI } from '../events/EventUI';
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -19,13 +20,18 @@ import ServiceActions from './ServiceActions.svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
 import type { ServiceUI } from './ServiceUI';
 
-export let name: string;
-export let namespace: string;
+interface Props {
+  name: string;
+  namespace: string;
+}
+let { name, namespace }: Props = $props();
 
-let service: ServiceUI;
-let detailsPage: DetailsPage;
-let kubeService: V1Service | undefined;
-let kubeError: string;
+let service: ServiceUI | undefined = $state(undefined);
+let detailsPage: DetailsPage | undefined = $state(undefined);
+let kubeService: V1Service | undefined = $state(undefined);
+let kubeError: string | undefined = $state(undefined);
+
+let events: EventUI[] = $derived($kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === service?.uid));
 
 onMount(() => {
   const serviceUtils = new ServiceUtils();
@@ -47,11 +53,11 @@ onMount(() => {
 });
 
 async function loadDetails() {
-  const getKubeService = await window.kubernetesReadNamespacedService(service.name, namespace);
+  const getKubeService = await window.kubernetesReadNamespacedService(name, namespace);
   if (getKubeService) {
     kubeService = getKubeService;
   } else {
-    kubeError = `Unable to retrieve Kubernetes details for ${service.name}`;
+    kubeError = `Unable to retrieve Kubernetes details for ${name}`;
   }
 }
 </script>
@@ -72,7 +78,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ServiceDetailsSummary service={kubeService} kubeError={kubeError} />
+        <ServiceDetailsSummary service={kubeService} kubeError={kubeError} events={events} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content={JSON.stringify(kubeService, undefined, 2)} language="json" />

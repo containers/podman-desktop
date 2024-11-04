@@ -25,6 +25,7 @@ import ServiceColumnType from './ServiceColumnType.svelte';
 import type { ServiceUI } from './ServiceUI';
 
 const service: ServiceUI = {
+  uid: '123',
   name: 'my-service',
   status: '',
   namespace: '',

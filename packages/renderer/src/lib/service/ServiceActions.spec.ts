@@ -31,6 +31,7 @@ const showMessageBoxMock = vi.fn();
 class ServiceUIImpl {
   #status: string;
   constructor(
+    public uid: string,
     public name: string,
     initStatus: string,
     public namespace: string,
@@ -51,7 +52,7 @@ class ServiceUIImpl {
   }
 }
 
-const service: ServiceUI = new ServiceUIImpl('my-service', 'RUNNING', '', false, '', '', '');
+const service: ServiceUI = new ServiceUIImpl('123', 'my-service', 'RUNNING', '', false, '', '', '');
 
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
