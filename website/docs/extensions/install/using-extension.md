@@ -8,13 +8,13 @@ tags: [using-extensions-for-development-tasks]
 
 # Using extensions for development tasks
 
-Podman Desktop provides a wide range of extensions that can be used to integrate your local tools with the UI. Installing extensions is a way to cutomize your development capabilities based on your needs. For example, if you have to run a Minikube cluster, you can install the Minikube extension. List of extensions available:
+Podman Desktop provides a wide range of extensions that can be used to integrate your local tools with the UI. By installing extensions, you can customize your development capabilities based on your needs. For example, if you want to run a Minikube cluster, you can install the Minikube extension. List of extensions available:
 
 **_Engine extensions_**
 
 - Podman: Handles creation and monitoring of Podman machines. It connects to the Podman socket so that you can see containers, images, volumes, and other resources in the Podman Desktop UI. See [Podman](/docs/podman).
 
-- Docker: Auto-registers the socket to Podman Desktop if any Docker engine is running on your machine. After registeration, you can monitor containers, images, volumes, and other resources from the UI. See [Migrationg from Docker](/docs/migrating-from-docker).
+- Docker: Auto-registers the socket to Podman Desktop if any Docker engine is running on your machine. After registeration, you can monitor containers, images, volumes, and other resources from the UI. See [Migrating from Docker](/docs/migrating-from-docker).
 
 **_Kubernetes extensions_**
 
@@ -66,4 +66,4 @@ Red Hat extension pack is a set of the following extensions that a developer can
 
 **_Custom extensions_**
 
-You can also create your own customized extension using [these templates](/docs/extensions/templates). For more details about developing and publishing a custom extension, see [Developing a Podman Desktop extension](/docs/extensions/developing) and [Publishing a Podman Desktop extension](/docs/extensions/publish).
+You can also create your own customized extension using [these templates](/docs/extensions/templates). For more details, see [Developing a Podman Desktop extension](/docs/extensions/developing) and [Publishing a Podman Desktop extension](/docs/extensions/publish).
