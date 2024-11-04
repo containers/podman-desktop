@@ -347,9 +347,12 @@ export class ContextsManager {
             state.reachable = reachable;
             state.error = reachable ? undefined : state.error; // if reachable we remove error
             if (reachable) {
-              for (const resourceName of secondaryResources) {
-                if (this.secondaryWatchers.hasSubscribers(resourceName)) {
-                  this.startResourceInformer(context.name, resourceName);
+              // start secondary informers, for current context only
+              if (this.kubeConfig.currentContext === context.name) {
+                for (const resourceName of secondaryResources) {
+                  if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+                    this.startResourceInformer(context.name, resourceName);
+                  }
                 }
               }
             } else {
