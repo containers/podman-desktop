@@ -209,7 +209,8 @@
       "rollup": "^4.22.5",
       "react-router>path-to-regexp": "^1.9.0",
       "serve-handler>path-to-regexp": "^3.3.0",
-      "express>cookie": "^0.7.0"
+      "express>cookie": "^0.7.0",
+      "@docusaurus/theme-mermaid>mermaid": "^10.9.3"
     },
     "patchedDependencies": {
       "@kubernetes/client-node@1.0.0-rc7": "patches/@kubernetes__client-node@1.0.0-rc7.patch"
