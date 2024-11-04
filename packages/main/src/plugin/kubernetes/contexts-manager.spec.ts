@@ -410,6 +410,72 @@ describe('update', async () => {
     ]);
   });
 
+  test('should start secondary resource informers for current context only, and only if reachable', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    client = new TestContextsManager(apiSender);
+    client.registerGetCurrentContextResources('services');
+    const startResourceInformerSpy = vi.spyOn(client, 'startResourceInformer');
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+        {
+          name: 'cluster2',
+          server: 'server2',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+        {
+          name: 'user2',
+        },
+      ],
+      contexts: [
+        {
+          // not reachable
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+        {
+          // reachable
+          name: 'context2',
+          cluster: 'cluster2',
+          user: 'user2',
+        },
+        {
+          // reachable, current
+          name: 'context2-1',
+          cluster: 'cluster2',
+          user: 'user2',
+          namespace: 'ns1',
+        },
+        {
+          // reachable
+          name: 'context2-2',
+          cluster: 'cluster2',
+          user: 'user2',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context2-1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+
+    expect(startResourceInformerSpy).toHaveBeenCalledWith('context2-1', 'services');
+    expect(startResourceInformerSpy).not.toHaveBeenCalledWith('context2', 'services');
+    expect(startResourceInformerSpy).not.toHaveBeenCalledWith('context2-2', 'services');
+    expect(startResourceInformerSpy).not.toHaveBeenCalledWith('context1', 'services');
+  });
+
   test('should check current context if contexts are > 10', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     client = new TestContextsManager(apiSender);
