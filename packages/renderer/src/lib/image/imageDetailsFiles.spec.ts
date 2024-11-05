@@ -414,10 +414,9 @@ describe('ImageDetailsFiles component', () => {
         imageInfo,
       });
       imageFilesProviders.set([{ id: 'provider1', label: 'Provider 1' }]);
-      await waitFor(async () => {
-        const fetchButton = screen.getByLabelText('fetch');
-        await userEvent.click(fetchButton);
-      });
+      await vi.waitFor(() => screen.getByLabelText('fetch'));
+      const fetchButton = screen.getByText('Fetch Layers');
+      await userEvent.click(fetchButton);
       await waitFor(() => expect(imageGetFilesystemLayersMock).toHaveBeenCalled());
       await waitFor(() => expect(screen.queryByLabelText('fetch')).toBeNull());
     });
