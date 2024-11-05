@@ -40,7 +40,7 @@ onMount(() => {
     const matchingService = services.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingService) {
       service = serviceUtils.getServiceUI(matchingService);
-      loadDetails().catch((err: unknown) => console.error(`Error getting service details: ${service.name}`, err));
+      loadDetails().catch((err: unknown) => console.error(`Error getting service details: ${service?.name}`, err));
     } else if (detailsPage) {
       // the service has been deleted
       detailsPage.close();
