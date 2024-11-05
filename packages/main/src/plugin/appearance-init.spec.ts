@@ -139,7 +139,8 @@ test('should register a configuration', async () => {
 });
 
 test('Icon should be default if not in dev env', () => {
-  vi.unstubAllEnvs();
+  vi.resetAllMocks();
+  vi.stubEnv('DEV', false);
   const appearanceInit = new AppearanceInit(configurationRegistry);
   appearanceInit.init();
 
