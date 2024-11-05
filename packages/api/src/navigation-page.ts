@@ -28,6 +28,7 @@ export enum NavigationPage {
   IMAGES = 'images',
   IMAGE_BUILD = 'image-build',
   IMAGE = 'image',
+  ONBOARDING = 'preferences-onboarding',
   PODS = 'pods',
   POD = 'pod',
   VOLUMES = 'volumes',
