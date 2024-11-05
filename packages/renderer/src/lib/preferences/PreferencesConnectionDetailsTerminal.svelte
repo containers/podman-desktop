@@ -39,7 +39,7 @@ $effect(() => {
   lastState = connectionStatus;
 });
 
-async function restartTerminal() {
+async function restartTerminal(): Promise<void> {
   await executeShellIntoProviderConnection();
   window.dispatchEvent(new Event('resize'));
 }
@@ -50,11 +50,11 @@ router.subscribe(route => {
 });
 
 // update terminal when receiving data
-function receiveDataCallback(data: string) {
+function receiveDataCallback(data: string): void {
   shellTerminal.write(data);
 }
 
-function receiveEndCallback() {
+function receiveEndCallback(): void {
   // need to reopen a new terminal
   window
     .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
@@ -67,7 +67,7 @@ function receiveEndCallback() {
 }
 
 // call exec command
-async function executeShellIntoProviderConnection() {
+async function executeShellIntoProviderConnection(): Promise<void> {
   if (connectionInfo.status !== 'started') {
     return;
   }
@@ -88,15 +88,15 @@ async function executeShellIntoProviderConnection() {
 
   await window.shellInProviderConnectionResize(callbackId, dimensions);
   // pass data from xterm to provider
-  shellTerminal?.onData((data: string) => {
-    window.shellInProviderConnectionSend(callbackId, data);
+  shellTerminal?.onData(async (data: string) => {
+    await window.shellInProviderConnectionSend(callbackId, data);
   });
   // store it
   sendCallbackId = callbackId;
 }
 
 // refresh
-async function refreshTerminal() {
+async function refreshTerminal(): Promise<void> {
   // missing element, return
   if (!terminalXtermDiv) {
     return;
@@ -155,7 +155,7 @@ onMount(async () => {
   await executeShellIntoProviderConnection();
 });
 
-onDestroy(() => {
+onDestroy(async () => {
   terminalContent = serializeAddon.serialize();
   // register terminal for reusing it
   registerTerminal({
@@ -169,7 +169,7 @@ onDestroy(() => {
   shellTerminal?.dispose();
   // Closes session
   if (sendCallbackId) {
-    window.shellInProviderConnectionClose(sendCallbackId);
+    await window.shellInProviderConnectionClose(sendCallbackId);
   }
 });
 </script>

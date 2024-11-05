@@ -47,27 +47,27 @@ vi.mock('xterm', () => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  Object.defineProperty(window, 'getConfigurationValue', {
-    value: getConfigurationValueMock,
-  });
-  Object.defineProperty(window, 'shellInProviderConnection', {
-    value: shellInProviderConnectionMock,
-  });
-  Object.defineProperty(window, 'shellInProviderConnectionResize', {
-    value: shellInProviderConnectionResizeMock,
-  });
-  Object.defineProperty(window, 'shellInProviderConnectionClose', {
-    value: shellInProviderConnectionCloseMock,
-  });
-  Object.defineProperty(window, 'receiveEndCallback', {
-    value: receiveEndCallbackMock,
-  });
-  Object.defineProperty(window, 'matchMedia', {
-    value: () => {
-      return {
+  Object.defineProperties(window, {
+    getConfigurationValue: {
+      value: getConfigurationValueMock,
+    },
+    shellInProviderConnection: {
+      value: shellInProviderConnectionMock,
+    },
+    shellInProviderConnectionResize: {
+      value: shellInProviderConnectionResizeMock,
+    },
+    shellInProviderConnectionClose: {
+      value: shellInProviderConnectionCloseMock,
+    },
+    receiveEndCallback: {
+      value: receiveEndCallbackMock,
+    },
+    matchMedia: {
+      value: () => ({
         addListener: () => {},
         removeListener: () => {},
-      };
+      }),
     },
   });
 });
