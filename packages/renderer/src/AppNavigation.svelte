@@ -67,14 +67,16 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <NavItem href="/" tooltip="Dashboard" bind:meta={meta} bind:iconWithTitle={iconWithTitle}>
     <div class="relative w-full">
       <div class="flex flex-col items-center w-full h-full">
-        <DashboardIcon size={iconSize} />
+        <div class="flex items-center w-fit h-full relative">
+          <DashboardIcon size={iconSize} />
+          <NewContentOnDashboardBadge />
+        </div>
         {#if iconWithTitle}
           <div class="text-xs text-center">
             Dashboard
           </div>
         {/if}
       </div>
-      <NewContentOnDashboardBadge />
     </div>
   </NavItem>
   {#each $navigationRegistry as navigationRegistryItem}
