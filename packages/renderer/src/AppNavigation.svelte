@@ -2,7 +2,7 @@
 
 <script lang="ts">
 import { Tooltip } from '@podman-desktop/ui-svelte';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
 import { NavigationPage } from '/@api/navigation-page';
@@ -16,18 +16,27 @@ import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
 import NavRegistryEntry from './lib/ui/NavRegistryEntry.svelte';
 import { handleNavigation } from './navigation';
+import { onDidChangeConfiguration } from './stores/configurationProperties';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 
 let { exitSettingsCallback, meta = $bindable() }: { exitSettingsCallback: () => void; meta: TinroRouteMeta } = $props();
 
 let authActions = $state<AuthActions>();
 let outsideWindow = $state<HTMLDivElement>();
+let iconWithTitle = $state(true);
 
 const iconSize = '22';
+
+onDidChangeConfiguration.addEventListener('preferences.navigationAppearance', onDidChangeConfigurationCallback);
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
+  iconWithTitle = (await window.getConfigurationValue('preferences.navigationAppearance')) === 'icon and title';
+});
+
+onDestroy(() => {
+  onDidChangeConfiguration.removeEventListener('preferences.navigationAppearance', onDidChangeConfigurationCallback);
 });
 
 function handleClick(): void {
@@ -37,16 +46,30 @@ function handleClick(): void {
     handleNavigation({ page: NavigationPage.RESOURCES });
   }
 }
+
+function onDidChangeConfigurationCallback(e: Event): void {
+  if ('detail' in e) {
+    const detail = e.detail as { key: string; value: string };
+    if ('preferences.navigationAppearance' === detail?.key) {
+      iconWithTitle = detail.value === 'icon and title';
+    }
+  }
+}
 </script>
 
 <svelte:window />
 <nav
   class="group w-leftnavbar min-w-leftnavbar flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
-  <NavItem href="/" tooltip="Dashboard" bind:meta={meta}>
+  <NavItem href="/" tooltip="Dashboard" bind:meta={meta} bind:iconWithTitle={iconWithTitle}>
     <div class="relative w-full">
-      <div class="flex items-center w-full h-full">
+      <div class="flex flex-col items-center w-full h-full">
         <DashboardIcon size={iconSize} />
+        {#if iconWithTitle}
+          <div class="text-xs text-center">
+            Dashboard
+          </div>
+        {/if}
       </div>
       <NewContentOnDashboardBadge />
     </div>
@@ -55,10 +78,10 @@ function handleClick(): void {
     {#if navigationRegistryItem.items && navigationRegistryItem.type === 'group'}
       <!-- This is a group, list all items from the entry -->
       {#each navigationRegistryItem.items as item}
-        <NavRegistryEntry entry={item} bind:meta={meta} />
+        <NavRegistryEntry entry={item} bind:meta={meta} bind:iconWithTitle={iconWithTitle} />
       {/each}
     {:else if navigationRegistryItem.type === 'entry' || navigationRegistryItem.type === 'submenu'}
-      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} />
+      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} bind:iconWithTitle={iconWithTitle} />
     {/if}
   {/each}
 
@@ -75,5 +98,10 @@ function handleClick(): void {
 
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
+      {#if iconWithTitle}
+        <div class="text-xs text-center">
+          Settings
+        </div>
+      {/if}
   </NavItem>
 </nav>

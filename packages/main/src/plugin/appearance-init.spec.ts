@@ -124,10 +124,15 @@ test('should register a configuration', async () => {
   expect(configurationNode?.id).toBe('preferences.appearance');
   expect(configurationNode?.title).toBe('Appearance');
   expect(configurationNode?.properties).toBeDefined();
-  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(2);
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(3);
   expect(configurationNode?.properties?.['preferences.zoomLevel']).toBeDefined();
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.markdownDescription).toBeDefined();
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.type).toBe('number');
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.default).toBe(0);
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.step).toBe(0.1);
+
+  expect(configurationNode?.properties?.['preferences.navigationAppearance']).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.navigationAppearance']?.description).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.navigationAppearance']?.type).toBe('string');
+  expect(configurationNode?.properties?.['preferences.navigationAppearance']?.default).toBe('icon and title');
 });

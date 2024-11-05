@@ -47,6 +47,12 @@ export class AppearanceInit {
           default: 0,
           step: 0.1,
         },
+        [`${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`]: {
+          description: 'Select icon and title or just icon for navigation icons',
+          type: 'string',
+          enum: ['icon and title', 'icon'],
+          default: 'icon and title',
+        },
       },
     };
 
