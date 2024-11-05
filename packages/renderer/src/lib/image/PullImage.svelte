@@ -220,7 +220,7 @@ async function searchLatestTag(): Promise<void> {
     const tags = await window.listImageTagsInRegistry({ image });
     const latestFound = tags.includes('latest');
     if (!latestFound) {
-      latestTagMessage = '"latest" tag not found. You can search a tag by typing ":"';
+      latestTagMessage = '"latest" tag not found. You can search a tag by appending ":" to the image name';
     } else {
       latestTagMessage = undefined;
     }
