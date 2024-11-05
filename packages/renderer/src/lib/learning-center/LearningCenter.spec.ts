@@ -26,6 +26,13 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import learningCenter from '../../../../main/src/plugin/learning-center/guides.json';
 import LearningCenter from './LearningCenter.svelte';
 
+vi.mock('../ui/animations', () => ({
+  fadeSlide: () => ({
+    delay: 0,
+    duration: 0,
+  }),
+}));
+
 class ResizeObserver {
   observe = vi.fn();
   disconnect = vi.fn();
@@ -35,11 +42,6 @@ class ResizeObserver {
 beforeEach(() => {
   (window as any).ResizeObserver = ResizeObserver;
   (window as any).listGuides = vi.fn().mockReturnValue(learningCenter.guides);
-  // Mock the animate function
-  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
-    finished: Promise.resolve(),
-    cancel: vi.fn(),
-  });
 });
 
 afterEach(() => {
@@ -64,9 +66,9 @@ test('Clicking on LearningCenter title hides carousel with guides', async () => 
 
   const button = screen.getByRole('button', { name: 'Learning Center' });
   expect(button).toBeInTheDocument();
+  expect(screen.queryByText(learningCenter.guides[0].title)).toBeInTheDocument();
   await fireEvent.click(button);
-  await vi.waitFor(() => {
-    const firstCard = screen.queryByText(learningCenter.guides[0].title);
-    expect(firstCard).not.toBeInTheDocument();
+  await vi.waitFor(async () => {
+    expect(screen.queryByText(learningCenter.guides[0].title)).not.toBeInTheDocument();
   });
 });
