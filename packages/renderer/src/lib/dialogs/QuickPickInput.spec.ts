@@ -39,7 +39,7 @@ beforeAll(() => {
   };
   (window as any).sendShowQuickPickValues = sendShowQuickPickValuesMock;
   (window as any).sendShowInputBoxValue = sendShowInputBoxValueMock;
-  (window as any).sendShowQuickPickOnSelect = sendShowQuickPickOnSelectMock;
+  (window as any).sendShowQuickPickOnSelect = sendShowQuickPickOnSelectMock.mockResolvedValue(undefined);
 });
 
 describe('QuickPickInput', () => {
