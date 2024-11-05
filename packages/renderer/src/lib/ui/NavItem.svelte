@@ -24,7 +24,12 @@ $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 
 const navItems: Writable<number> = getContext('nav-items');
 
-$: tooltipText = counter ? (iconWithTitle ? `${counter}` : `${tooltip} (${counter})`) : tooltip;
+let tooltipText = '';
+$: if (iconWithTitle) {
+  tooltipText = counter ? `${counter}` : '';
+} else {
+  tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
+}
 
 onMount(() => {
   inSection = navItems !== undefined;

@@ -28,7 +28,7 @@ let {
       <img src={entry.icon.iconImage} width="22" height="22" alt={entry.name} />
     {/if}
     {#if iconWithTitle && entry.icon}
-      <div class="text-xs text-center">
+      <div class="text-xs text-center" title="Icon title">
         {entry.name}
       </div>
     {/if}

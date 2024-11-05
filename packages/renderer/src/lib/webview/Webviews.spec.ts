@@ -60,7 +60,7 @@ test('check we have list of webviews in navigation bar', async () => {
 
   webviews.set(webviewTestList);
   const fakeMeta = { url: '/webviews' } as unknown as TinroRouteMeta;
-  render(Webviews, { meta: fakeMeta });
+  render(Webviews, { meta: fakeMeta, iconWithTitle: false });
 
   const links = screen.getAllByRole('link');
 
