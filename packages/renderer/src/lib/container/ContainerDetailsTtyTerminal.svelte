@@ -65,7 +65,7 @@ onMount(async () => {
 </script>
 
 <div class="h-full" class:hidden={container.state !== 'RUNNING'}>
-  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} screenReaderMode={screenReaderMode} disableStdIn={false} />
+  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} screenReaderMode={screenReaderMode} disableStdIn={false} showCursor={true} />
 </div>
 
 <EmptyScreen
