@@ -36,6 +36,7 @@ beforeAll(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).kubernetesExec = kubernetesExecMock;
   (window as any).kubernetesExecResize = kubernetesExecResizeMock;
+  (window as any).kubernetesExecSend = vi.fn().mockResolvedValue(undefined);
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
