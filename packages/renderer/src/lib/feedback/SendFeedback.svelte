@@ -8,7 +8,7 @@ import {
   faSmile,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
-import { Button, Dropdown, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import type { FeedbackCategory, FeedbackProperties } from '/@api/feedback';
@@ -17,6 +17,7 @@ import Dialog from '../dialogs/Dialog.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 let displayModal = false;
+let bugReport = true;
 
 const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
   ['developers', '💬 Direct your words to the developers'],
@@ -30,6 +31,11 @@ let smileyRating = 0;
 let tellUsWhyFeedback = '';
 let contactInformation = '';
 let category: FeedbackCategory = DEFAULT_CATEGORY;
+
+let issueTitle = '';
+let issueDescription = '';
+let collectSystemInfo = false;
+let collectExtensionInfo = false;
 
 $: hasFeedback =
   (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
@@ -47,6 +53,8 @@ function hideModal(): void {
   tellUsWhyFeedback = '';
   contactInformation = '';
   category = DEFAULT_CATEGORY;
+  issueTitle = '';
+  issueDescription = '';
 }
 
 function selectSmiley(item: number): void {
@@ -77,6 +85,14 @@ async function openGitHub(): Promise<void> {
   hideModal();
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
+}
+
+async function sendToGitHub(): Promise<void> {
+  displayModal = false;
+  const lnk = `https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=${issueTitle.split(' ').join('+')}&bug-description=${issueDescription.split(' ').join('+')}`;
+  console.log(lnk);
+  await window.openExternal(lnk);
+  displayModal = true;
 }
 </script>
 
@@ -124,50 +140,93 @@ async function openGitHub(): Promise<void> {
         </button>
       </div>
 
-      <label for="tellUsWhyFeedback" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
-        >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
-        left)</label>
-      <textarea
-        rows="3"
-        maxlength="1000"
-        name="tellUsWhyFeedback"
-        id="tellUsWhyFeedback"
-        data-testid="tellUsWhyFeedback"
-        bind:value={tellUsWhyFeedback}
-        class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
-        placeholder="Please enter your feedback here, we appreciate and review all comments"></textarea>
+      {#if !bugReport}
+        <label for="tellUsWhyFeedback" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+          >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
+          left)</label>
+        <textarea
+          rows="3"
+          maxlength="1000"
+          name="tellUsWhyFeedback"
+          id="tellUsWhyFeedback"
+          data-testid="tellUsWhyFeedback"
+          bind:value={tellUsWhyFeedback}
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
+          placeholder="Please enter your feedback here, we appreciate and review all comments"></textarea>
 
-      <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
-        >Share your contact information if you'd like us to answer you:</label>
-      <input
-        type="email"
-        name="contactInformation"
-        id="contactInformation"
-        bind:value={contactInformation}
-        placeholder="Enter email address, or leave blank for anonymous feedback"
-        class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]" />
+        <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+          >Share your contact information if you'd like us to answer you:</label>
+        <input
+          type="email"
+          name="contactInformation"
+          id="contactInformation"
+          bind:value={contactInformation}
+          placeholder="Enter email address, or leave blank for anonymous feedback"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]" />
+      {:else}
+        <label for="issueTitle" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Title</label>
+        <input type="text" name="issueTitle" id="issueTitle" bind:value={issueTitle} placeholder="Bug Report Title" class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"/>
+        <label for="issueDescription" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+          >Description</label>
+        <textarea
+          rows="3"
+          maxlength="1000"
+          name="issueDescription"
+          id="issueDescription"
+          data-testid="issueDescription"
+          bind:value={issueDescription}
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
+          placeholder="Bug Description"></textarea>
+          <Checkbox 
+          bind:checked={collectSystemInfo}
+          class="text-[var(--pd-content-card-text)] text-sm ml-1 my-1"
+          name="collectSystemInfo"
+          id="collectSystemInfo"
+          title="Collect system information"
+          required>Include my system information</Checkbox>
+          <Checkbox 
+          bind:checked={collectExtensionInfo}
+          class="text-[var(--pd-content-card-text)] text-sm ml-1"
+          name="collectExtensionInfo"
+          id="collectExtensionInfo"
+          title="Collect extensions information"
+          required>Include my enabled extensions</Checkbox>
+      {/if}
     </svelte:fragment>
     <svelte:fragment slot="validation">
-      {#if smileyRating === 0}
-        <ErrorMessage class="text-xs" error="Please select an experience smiley" />
-      {:else if smileyRating === 1 && !hasFeedback}
-        <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
-      {:else if smileyRating === 2 && !hasFeedback}
-        <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
-      {:else if smileyRating > 2}
-        <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
-          <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
-          <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
-            <Fa class="px-1 text-[var(--pd-invert-content-info-icon)]" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
-              class="px-1 text-[var(--pd-state-warning)]"
-              icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
-          </span>
-        </div>
+      {#if !bugReport}
+        {#if smileyRating === 0}
+          <ErrorMessage class="text-xs" error="Please select an experience smiley" />
+        {:else if smileyRating === 1 && !hasFeedback}
+          <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
+        {:else if smileyRating === 2 && !hasFeedback}
+          <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
+        {:else if smileyRating > 2}
+          <div class="text-[var(--pd-modal-text)] p-1 flex flex-row items-center text-xs">
+            <Fa size="1.125x" class="cursor-pointer" icon={faQuestionCircle} />
+            <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
+              <Fa class="px-1 text-[var(--pd-invert-content-info-icon)]" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
+                class="px-1 text-[var(--pd-state-warning)]"
+                icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
+            </span>
+          </div>
+        {/if}
+      {:else}
+          {#if !issueTitle}
+            <ErrorMessage class="text-xs" error="Please enter a title"/>
+          {/if}
+          {#if !issueDescription}
+            <ErrorMessage class="text-xs" error="Please enter bug description"/>
+          {/if}
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">
-      <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={() => sendFeedback()}
+      {#if !bugReport}
+        <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={() => sendFeedback()}
         >Send feedback</Button>
+      {:else}
+        <Button  on:click={() => sendToGitHub()}>Preview on GitHub</Button>
+      {/if}
     </svelte:fragment>
   </Dialog>
 {/if}
