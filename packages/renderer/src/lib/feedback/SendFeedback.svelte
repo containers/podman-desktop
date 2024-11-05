@@ -18,9 +18,9 @@ import WarningMessage from '../ui/WarningMessage.svelte';
 let displayModal = false;
 
 const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
-  ['developers', 'Address words to developers'],
-  ['feature', 'Feature request'],
-  ['bug', 'Bug'],
+  ['developers', '💬 Direct your words to the developers'],
+  ['feature', '🚀 Feature request'],
+  ['bug', '🪲 Bug'],
 ]);
 const DEFAULT_CATEGORY: FeedbackCategory = 'developers';
 

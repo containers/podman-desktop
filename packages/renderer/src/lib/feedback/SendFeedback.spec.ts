@@ -166,13 +166,13 @@ test('Expect category to be sent', async () => {
   render(SendFeedback, {});
 
   // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: 'Address words to developers' });
+  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
   expect(categorySelect).toBeInTheDocument();
   categorySelect.focus();
 
   // select the Feature request category
   await userEvent.keyboard('[ArrowDown]');
-  const featureCategory = screen.getByRole('button', { name: 'Feature request' });
+  const featureCategory = screen.getByRole('button', { name: /Feature request/ });
   expect(featureCategory).toBeInTheDocument();
   await fireEvent.click(featureCategory);
 
