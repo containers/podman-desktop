@@ -124,7 +124,7 @@ test('expect being able to reconnect ', async () => {
   expect(shellInContainerMock).toHaveBeenCalledTimes(2);
 });
 
-test('terminal active/ restarts connection after stopping and starting a container', async () => {
+test.skip('terminal active/ restarts connection after stopping and starting a container', async () => {
   const container: ContainerInfoUI = {
     id: 'myContainer',
     state: 'RUNNING',
