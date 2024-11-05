@@ -67,6 +67,7 @@ beforeEach(() => {
       func();
     },
   };
+  (window as any).deleteImage = vi.fn().mockResolvedValue(undefined);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
