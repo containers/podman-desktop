@@ -7,6 +7,7 @@ import type { TinroRouteMeta } from 'tinro';
 
 import { NavigationPage } from '/@api/navigation-page';
 
+import { AppearanceSettings } from '../../main/src/plugin/appearance-settings';
 import AuthActions from './lib/authentication/AuthActions.svelte';
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
@@ -26,17 +27,18 @@ let outsideWindow = $state<HTMLDivElement>();
 let iconWithTitle = $state(true);
 
 const iconSize = '22';
+const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;
 
-onDidChangeConfiguration.addEventListener('preferences.navigationAppearance', onDidChangeConfigurationCallback);
+onDidChangeConfiguration.addEventListener(NAV_BAR_LAYOUT, onDidChangeConfigurationCallback);
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
-  iconWithTitle = (await window.getConfigurationValue('preferences.navigationAppearance')) === 'icon and title';
+  iconWithTitle = (await window.getConfigurationValue(NAV_BAR_LAYOUT)) === 'icon + title';
 });
 
 onDestroy(() => {
-  onDidChangeConfiguration.removeEventListener('preferences.navigationAppearance', onDidChangeConfigurationCallback);
+  onDidChangeConfiguration.removeEventListener(NAV_BAR_LAYOUT, onDidChangeConfigurationCallback);
 });
 
 function handleClick(): void {
@@ -50,9 +52,10 @@ function handleClick(): void {
 function onDidChangeConfigurationCallback(e: Event): void {
   if ('detail' in e) {
     const detail = e.detail as { key: string; value: string };
-    if ('preferences.navigationAppearance' === detail?.key) {
-      iconWithTitle = detail.value === 'icon and title';
+    if (NAV_BAR_LAYOUT === detail?.key) {
+      iconWithTitle = detail.value === 'icon + title';
     }
+    console.log(detail.value);
   }
 }
 </script>

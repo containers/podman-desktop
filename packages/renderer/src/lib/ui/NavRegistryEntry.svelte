@@ -8,11 +8,13 @@ import type { NavigationRegistryEntry } from '/@/stores/navigation/navigation-re
 
 import NavItem from './NavItem.svelte';
 
-let {
-  entry,
-  meta = $bindable(),
-  iconWithTitle = $bindable(),
-}: { entry: NavigationRegistryEntry; meta: TinroRouteMeta; iconWithTitle: boolean } = $props();
+interface NavRegistryEntryProps {
+  entry: NavigationRegistryEntry;
+  meta: TinroRouteMeta;
+  iconWithTitle: boolean;
+}
+
+let { entry, meta = $bindable(), iconWithTitle = $bindable() }: NavRegistryEntryProps = $props();
 </script>
 
 {#if !entry.hidden}
