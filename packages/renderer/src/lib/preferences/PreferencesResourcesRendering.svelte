@@ -530,7 +530,18 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connection={container}
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
-                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue}>
+                <span slot="advanced-actions" class:hidden={providers.length === 0}>
+                  <Tooltip bottom tip="More Options">
+                    <DropdownMenu>
+                      <DropdownMenu.Item title="Open Terminal" icon={faTerminal} onClick={() => {router.goto(
+                        `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                          container.name,
+                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/terminal`);}}/>
+                    </DropdownMenu>
+                  </Tooltip>
+                </span>
+              </PreferencesConnectionActions>
               <div class="mt-1.5 text-[var(--pd-content-sub-header)] text-[9px] flex justify-between">
                 <div aria-label="Connection Version">
                   {provider.name}
