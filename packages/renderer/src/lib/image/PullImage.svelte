@@ -18,6 +18,7 @@ import WarningMessage from '../ui/WarningMessage.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 const DOCKER_PREFIX = 'docker.io';
+const DOCKER_PREFIX_WITH_SLASH = DOCKER_PREFIX + '/';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -176,8 +177,8 @@ async function searchImages(value: string): Promise<string[]> {
     const parts = value.split(':');
     const originalImage = parts[0];
     let image = parts[0];
-    if (image.startsWith(DOCKER_PREFIX + '/')) {
-      image = image.slice(DOCKER_PREFIX.length + 1);
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
     allTags = tags.map(t => `${originalImage}:${t}`);
@@ -214,8 +215,8 @@ async function searchLatestTag(): Promise<void> {
   }
   try {
     let image = imageToPull;
-    if (image.startsWith(DOCKER_PREFIX + '/')) {
-      image = image.slice(DOCKER_PREFIX.length + 1);
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
     const latestFound = tags.includes('latest');
