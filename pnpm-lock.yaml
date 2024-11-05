@@ -251,8 +251,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1
       globals:
-        specifier: ^15.11.0
-        version: 15.11.0
+        specifier: ^15.12.0
+        version: 15.12.0
       husky:
         specifier: ^9.1.6
         version: 9.1.6
@@ -6645,8 +6645,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@15.11.0:
-    resolution: {integrity: sha512-yeyNSjdbyVaWurlwCpcA6XNBrHTMIeDdj0/hnvX/OLJ9ekOXYbLsLinH/MucQyGvNnXhidTdNhTtJaffL2sMfw==}
+  globals@15.12.0:
+    resolution: {integrity: sha512-1+gLErljJFhbOVyaetcwJiJ4+eLe45S2E7P5UiZ9xGfeq3ATQf5DOv9G7MH3gGbKQLkzmNh2DxfZwLdw+j6oTQ==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -15180,6 +15180,14 @@ snapshots:
     optionalDependencies:
       vite: 5.4.10(@types/node@20.16.2)(terser@5.31.6)
 
+  '@vitest/mocker@2.1.4(vite@5.4.10(@types/node@20.16.2)(terser@5.31.6))':
+    dependencies:
+      '@vitest/spy': 2.1.4
+      estree-walker: 3.0.3
+      magic-string: 0.30.12
+    optionalDependencies:
+      vite: 5.4.10(@types/node@20.16.2)(terser@5.31.6)
+
   '@vitest/mocker@2.1.4(vite@5.4.10(@types/node@20.17.6)(terser@5.31.6))':
     dependencies:
       '@vitest/spy': 2.1.4
@@ -17876,7 +17884,7 @@ snapshots:
       core-js-compat: 3.38.1
       eslint: 9.14.0(jiti@1.21.6)
       esquery: 1.6.0
-      globals: 15.11.0
+      globals: 15.12.0
       indent-string: 4.0.0
       is-builtin-module: 3.2.1
       jsesc: 3.0.2
@@ -18626,7 +18634,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@15.11.0: {}
+  globals@15.12.0: {}
 
   globalthis@1.0.4:
     dependencies:
