@@ -33,6 +33,7 @@ import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
 import { NavigationPage } from '/@api/navigation-page.js';
+import type { OnboardingInfo } from '/@api/onboarding.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
 import { getBase64Image } from '../util.js';
@@ -179,7 +180,9 @@ const authenticationProviderRegistry: AuthenticationImpl = {
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 
-const onboardingRegistry: OnboardingRegistry = {} as unknown as OnboardingRegistry;
+const onboardingRegistry: OnboardingRegistry = {
+  getOnboarding: vi.fn(),
+} as unknown as OnboardingRegistry;
 
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
@@ -233,6 +236,7 @@ const navigationManager: NavigationManager = new NavigationManager(
   providerRegistry,
   webviewRegistry,
   commandRegistry,
+  onboardingRegistry,
 );
 
 const colorRegistry = {
@@ -1783,6 +1787,95 @@ describe('Navigation', async () => {
     });
 
     expect(vi.mocked(webviewRegistry.listWebviews)).toHaveBeenCalled();
+  });
+
+  test('navigateToOnboarding without parameter', async () => {
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue({
+      extension: 'foo',
+    } as OnboardingInfo);
+
+    await api.navigation.navigateToOnboarding();
+    expect(vi.mocked(apiSender.send)).toBeCalledWith('navigate', {
+      page: NavigationPage.ONBOARDING,
+      parameters: {
+        extensionId: 'publisher.name',
+      },
+    });
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('publisher.name');
+  });
+
+  test('navigateToOnboarding with parameter', async () => {
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue({
+      extension: 'foo',
+    } as OnboardingInfo);
+
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    // Call the method provided
+    await api.navigation.navigateToOnboarding('my.extension');
+
+    // Ensure the send method is called properly
+    expect(vi.mocked(apiSender.send)).toBeCalledWith('navigate', {
+      page: NavigationPage.ONBOARDING,
+      parameters: {
+        extensionId: 'my.extension',
+      },
+    });
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('my.extension');
+  });
+
+  test('navigateToOnboarding but no onboarding available', async () => {
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue(undefined);
+
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToOnboarding('do.not-exists');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is never called
+    expect(vi.mocked(apiSender.send)).not.toHaveBeenCalled();
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('do.not-exists');
   });
 });
 

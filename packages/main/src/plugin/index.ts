@@ -654,6 +654,7 @@ export class PluginSystem {
       providerRegistry,
       webviewRegistry,
       commandRegistry,
+      onboardingRegistry,
     );
 
     this.extensionLoader = new ExtensionLoader(

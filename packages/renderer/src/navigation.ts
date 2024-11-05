@@ -75,6 +75,9 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
         `/images/${request.parameters.id}/${request.parameters.engineId}/${Buffer.from(request.parameters.tag).toString('base64')}`,
       );
       break;
+    case NavigationPage.ONBOARDING:
+      router.goto(`/preferences/onboarding/${request.parameters.extensionId}`);
+      break;
     case NavigationPage.PODS:
       router.goto(`/pods`);
       break;

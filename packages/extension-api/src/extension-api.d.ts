@@ -4798,6 +4798,12 @@ declare module '@podman-desktop/api' {
     export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
 
     /**
+     *  Navigate to a specific onboarding page referenced by its extensionId
+     * @param extensionId The id of the extension to navigate to or if missing, default to the extension calling the method
+     */
+    export function navigateToOnboarding(extensionId?: string): Promise<void>;
+
+    /**
      * Allow to define custom route for an extension.
      *
      * @remarks

@@ -1435,6 +1435,13 @@ export class ExtensionLoader {
       ): Promise<void> => {
         await this.navigationManager.navigateToEditProviderContainerConnection(connection);
       },
+      navigateToOnboarding: async (extensionId?: string): Promise<void> => {
+        let onboardingExtensionId = extensionId;
+        if (!onboardingExtensionId) {
+          onboardingExtensionId = extensionInfo.id;
+        }
+        await this.navigationManager.navigateToOnboarding(onboardingExtensionId);
+      },
       navigate: async (routeId: string, ...args: unknown[]): Promise<void> => {
         return this.navigationManager.navigateToRoute(`${extensionInfo.id}.${routeId}`, args);
       },

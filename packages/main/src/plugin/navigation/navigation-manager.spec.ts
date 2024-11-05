@@ -20,7 +20,9 @@ import type { ProviderContainerConnection } from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
+import type { OnboardingRegistry } from '/@/plugin/onboarding-registry.js';
 import { NavigationPage } from '/@api/navigation-page.js';
+import type { OnboardingInfo } from '/@api/onboarding.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -65,6 +67,10 @@ const commandRegistry: CommandRegistry = {
   executeCommand: vi.fn(),
 } as unknown as CommandRegistry;
 
+const onboardingRegistry: OnboardingRegistry = {
+  getOnboarding: vi.fn(),
+} as unknown as OnboardingRegistry;
+
 beforeEach(() => {
   vi.resetAllMocks();
   navigationManager = new TestNavigationManager(
@@ -74,6 +80,7 @@ beforeEach(() => {
     providerRegistry,
     webviewRegistry,
     commandRegistry,
+    onboardingRegistry,
   );
 });
 
@@ -174,6 +181,19 @@ test('check navigateToEditProviderContainerConnection', async () => {
     parameters: {
       provider: 'id',
       name: Buffer.from(connection.connection.name).toString('base64'),
+    },
+  });
+});
+
+test('check navigateToOnboarding', async () => {
+  vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue({ extension: 'foo' } as OnboardingInfo);
+
+  await navigationManager.navigateToOnboarding('my.extension');
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.ONBOARDING,
+    parameters: {
+      extensionId: 'my.extension',
     },
   });
 });
