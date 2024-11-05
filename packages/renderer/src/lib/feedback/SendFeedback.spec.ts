@@ -36,6 +36,7 @@ beforeAll(() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).openExternal = vi.fn();
   (window as any).telemetryTrack = vi.fn();
+  (window as any).sendFeedback = vi.fn();
 });
 
 test('Expect that the button is disabled when loading the page', async () => {
@@ -158,5 +159,35 @@ test('Expect GitHub dialog visible when very-happy-smiley selected', async () =>
   await vi.waitFor(() => {
     expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGitHub');
     expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
+  });
+});
+
+test('Expect category to be sent', async () => {
+  render(SendFeedback, {});
+
+  // click on a smiley
+  const categorySelect = screen.getByRole('button', { name: 'Address words to developers' });
+  expect(categorySelect).toBeInTheDocument();
+  categorySelect.focus();
+
+  // select the Feature request category
+  await userEvent.keyboard('[ArrowDown]');
+  const featureCategory = screen.getByRole('button', { name: 'Feature request' });
+  expect(featureCategory).toBeInTheDocument();
+  await fireEvent.click(featureCategory);
+
+  // click on a smiley
+  const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
+  await fireEvent.click(smiley);
+
+  // click on submit button
+  const button = screen.getByRole('button', { name: 'Send feedback' });
+  expect(button).toBeInTheDocument();
+  expect(button).toBeEnabled();
+  await fireEvent.click(button);
+
+  expect(window.sendFeedback).toHaveBeenCalledWith({
+    category: 'feature',
+    rating: 4,
   });
 });

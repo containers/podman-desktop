@@ -119,7 +119,10 @@ export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 const originalConsole = console;
 const memoryLogs: { logType: LogType; date: Date; message: string }[] = [];
 
+export type FeedbackCategory = 'developers' | 'feature' | 'bug';
+
 export interface FeedbackProperties {
+  category: FeedbackCategory;
   rating: number;
   comment?: string;
   contact?: string;
