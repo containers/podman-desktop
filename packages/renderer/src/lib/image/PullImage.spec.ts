@@ -34,6 +34,7 @@ import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
 const resolveShortnameImageMock = vi.fn();
+const listImageTagsInRegistryMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -50,6 +51,7 @@ beforeAll(() => {
   });
   (window as any).pullImage = pullImageMock;
   (window as any).resolveShortnameImage = resolveShortnameImageMock.mockResolvedValue(['docker.io/test1']);
+  (window as any).listImageTagsInRegistry = listImageTagsInRegistryMock;
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -334,4 +336,29 @@ test('Expect not to check not shortname images', async () => {
   await userEvent.paste('test1/');
 
   expect(resolveShortnameImageMock).not.toBeCalled();
+});
+
+test('Expect latest tag warning is displayed when the image does not have latest tag', async () => {
+  setup();
+  render(PullImage);
+
+  listImageTagsInRegistryMock.mockResolvedValue(['other']);
+  await userEvent.keyboard('my-registry/image-without-latest[Enter]');
+
+  // expect that the warning message is displayed
+  const errorMesssage = screen.getByRole('alert', { name: 'Warning Message Content' });
+  expect(errorMesssage).toBeInTheDocument();
+  expect(errorMesssage).toHaveTextContent('"latest" tag not found');
+});
+
+test('Expect latest tag warning is not displayed when the image has latest tag', async () => {
+  setup();
+  render(PullImage);
+
+  listImageTagsInRegistryMock.mockResolvedValue(['latest', 'other']);
+  await userEvent.keyboard('my-registry/image-without-latest[Enter]');
+
+  // expect that the warning message is not displayed
+  const errorMesssage = screen.queryByRole('alert', { name: 'Warning Message Content' });
+  expect(errorMesssage).toBeNull();
 });
