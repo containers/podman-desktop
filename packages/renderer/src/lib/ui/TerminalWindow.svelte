@@ -12,6 +12,7 @@ export let terminal: Terminal;
 export let convertEol: boolean | undefined = undefined;
 export let disableStdIn: boolean = true;
 export let screenReaderMode: boolean | undefined = undefined;
+export let showCursor: boolean = false;
 
 let logsXtermDiv: HTMLDivElement;
 let resizeHandler: () => void;
@@ -43,8 +44,10 @@ async function refreshTerminal(): Promise<void> {
   terminal.loadAddon(fitAddon);
 
   terminal.open(logsXtermDiv);
-  // disable cursor
-  terminal.write('\x1b[?25l');
+  if (!showCursor) {
+    // disable cursor
+    terminal.write('\x1b[?25l');
+  }
 
   // call fit addon each time we resize the window
   resizeHandler = (): void => {
