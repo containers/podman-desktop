@@ -83,8 +83,8 @@ async function executeShellIntoContainer() {
   );
   await window.shellInContainerResize(callbackId, shellTerminal.cols, shellTerminal.rows);
   // pass data from xterm to container
-  shellTerminal?.onData(async data => {
-    await window.shellInContainerSend(callbackId, data);
+  shellTerminal?.onData(data => {
+    window.shellInContainerSend(callbackId, data).catch((error: unknown) => console.log(String(error)));
   });
 
   // store it
