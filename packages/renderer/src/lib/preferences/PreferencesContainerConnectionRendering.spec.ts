@@ -216,7 +216,7 @@ test('Expect that removing the connection is going back to the previous page', a
   await userEvent.click(deleteButton);
 
   // expect that we have called the router when page has been removed
-  // to jump to the resource page
+  // to jump to the resources page
   expect(routerGotoSpy).toBeCalledWith('/preferences/resources');
 
   // grab updated route
