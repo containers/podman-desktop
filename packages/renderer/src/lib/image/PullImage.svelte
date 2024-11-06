@@ -260,6 +260,7 @@ async function searchLatestTag(): Promise<void> {
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
+          isShortName={selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN)}
           required
           initialFocus />
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}

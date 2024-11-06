@@ -11,6 +11,7 @@ export let disabled: boolean = false;
 export let initialFocus: boolean = false;
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
+export let isShortName: boolean = false;
 
 export let searchFunction: SearchFunction = async (_s: string) => [];
 export let onChange = function (_s: string) {};
@@ -27,10 +28,12 @@ let highlightIndex: number = -1;
 let pageStep = 10;
 let userValue: string = '';
 let loading: boolean = false;
+let isRecognized: boolean = true;
 
 function onItemSelected(s: string): void {
   value = s;
   userValue = s;
+  onResultChanged();
   input.focus();
   close();
   onChange(s);
@@ -138,6 +141,17 @@ function makeVisible(): void {
   });
 }
 
+function onResultChanged(): void {
+  // [] and '' => dont show error
+  if (!items && !value) {
+    isRecognized = true;
+  } else {
+    // e.g. "docker.io/fedora" is in list
+    // or just "fedora" is not in list, but "fedora" is shortname
+    isRecognized = items.includes(value) || isShortName;
+  }
+}
+
 function processInput(): void {
   loading = true;
   searchFunction(value)
@@ -147,12 +161,14 @@ function processInput(): void {
         return;
       }
       items = result;
+      onResultChanged();
       highlightIndex = -1;
       open();
     })
     .catch(() => {
       // We do not display the error
       items = [];
+      isRecognized = false;
     })
     .finally(() => {
       loading = false;
@@ -183,15 +199,18 @@ function onWindowClick(e: Event): void {
 <svelte:window on:click={onWindowClick} />
 
 <div
+  role='cell'
   class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
     ''}"
   class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]={!disabled}
   class:focus-within:bg-[var(--pd-input-field-focused-bg)]={!disabled}
   class:focus-within:rounded-md={!disabled}
   class:border-b-[var(--pd-input-field-stroke)]={!disabled}
-  class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled}
+  class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled && isRecognized}
   class:focus-within:border-[var(--pd-input-field-hover-stroke)]={!disabled}
-  class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}>
+  class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}
+  class:border-b-[var(--pd-input-field-stroke-error)]={!isRecognized}
+  class:focus-within:border-[var(--pd-input-field-stroke-error)]={!isRecognized}>
   <input
     type="text"
     class="w-full px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
