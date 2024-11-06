@@ -15,6 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import { randomUUID } from 'node:crypto';
+
 import type { KubeConfig } from '@kubernetes/client-node';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
@@ -117,6 +119,7 @@ export class KubernetesPortForwardService implements IDisposable {
     let result: UserForwardConfig;
     if (userForwardConfig) {
       result = await this.configManagementService.updateForward(userForwardConfig, {
+        id: userForwardConfig.id,
         name: options.name,
         forwards: [...userForwardConfig.forwards, options.forward],
         namespace: options.namespace,
@@ -125,6 +128,7 @@ export class KubernetesPortForwardService implements IDisposable {
       });
     } else {
       result = await this.configManagementService.createForward({
+        id: randomUUID(),
         name: options.name,
         forwards: [options.forward],
         namespace: options.namespace,

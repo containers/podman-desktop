@@ -692,6 +692,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should start port forwarding successfully', async () => {
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',
@@ -728,6 +729,7 @@ describe('PortForwardConnectionService', () => {
     test('should start port forwarding on specified mapping', async () => {
       const mapping: PortMapping = { localPort: 3001, remotePort: 8080 };
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',
@@ -754,6 +756,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should throw an error if port forwarding fails', async () => {
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',
@@ -777,6 +780,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should dispose all successful forwards if any fail', async () => {
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',

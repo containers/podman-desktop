@@ -73,6 +73,10 @@ export interface ForwardOptions {
  */
 export interface ForwardConfig {
   /**
+   * Identifier of the forward config
+   */
+  id: string;
+  /**
    * The name of the resource.
    */
   name: string;

@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { UUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+
 import type { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -35,6 +38,7 @@ vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-storage.js');
 vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-validation.js');
 vi.mock('/@/plugin/util/port.js');
 vi.mock('/@/plugin/directories.js');
+vi.mock('node:crypto');
 
 class TestKubernetesPortForwardServiceProvider extends KubernetesPortForwardServiceProvider {
   public override getKubeConfigKey(kubeConfig: KubeConfig): string {
@@ -68,6 +72,7 @@ describe('KubernetesPortForwardService', () => {
   };
 
   const sampleForwardConfig: ForwardConfig = {
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -80,6 +85,7 @@ describe('KubernetesPortForwardService', () => {
   };
 
   const complexForwardConfig: ForwardConfig = {
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -112,6 +118,7 @@ describe('KubernetesPortForwardService', () => {
       mockForwardingConnectionService,
       apiSenderMock,
     );
+    vi.mocked(randomUUID).mockReturnValue('fake-id' as UUID);
   });
 
   test('should create a forward configuration', async () => {

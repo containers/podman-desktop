@@ -23,6 +23,7 @@ import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-
 
 describe('ForwardConfigRequirements', () => {
   const validConfig: ForwardConfig = {
+    id: 'fake-id',
     name: 'validName',
     namespace: 'validNamespace',
     kind: WorkloadKind.POD,

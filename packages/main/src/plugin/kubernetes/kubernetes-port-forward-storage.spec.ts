@@ -135,6 +135,7 @@ describe('FileBasedConfigStorage', () => {
   };
 
   const sampleConfig: UserForwardConfig = {
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -257,6 +258,7 @@ describe('FileBasedConfigStorage', () => {
 
 describe('MemoryBasedConfigStorage', () => {
   const sampleConfig: UserForwardConfig = {
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -336,6 +338,7 @@ describe('ConfigManagementService', () => {
   } as unknown as ForwardConfigStorage;
 
   const sampleConfig: UserForwardConfig = {
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -381,6 +384,7 @@ describe('ConfigManagementService', () => {
       namespace: 'default',
       kind: WorkloadKind.POD,
       name: 'hihi',
+      id: 'fake-id',
     };
 
     const newConfig = {
