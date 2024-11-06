@@ -27,7 +27,6 @@ import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import { lastPage } from '/@/stores/breadcrumb';
 import type { ProviderInfo } from '/@api/provider-info';
 
 import { providerInfos } from '../../stores/providers';
@@ -95,9 +94,6 @@ test('Expect that removing the connection is going back to the previous page', a
   // encode apiUrl of the second cluster
   const apiUrlBase64 = Buffer.from('http://localhost:8181').toString('base64');
 
-  // defines a fake lastPage so we can check where we will be redirected
-  lastPage.set({ name: 'Fake Previous', path: '/last' });
-
   // delete current cluster 2 from the provider info
   deleteMock.mockImplementation(() => {
     providerInfos.update(providerInfos =>
@@ -130,8 +126,8 @@ test('Expect that removing the connection is going back to the previous page', a
   await userEvent.click(deleteButton);
 
   // expect that we have called the router when page has been removed
-  // to jump to the previous page
-  expect(routerGotoSpy).toBeCalledWith('/last');
+  // to jump to the resource page
+  expect(routerGotoSpy).toBeCalledWith('lastPage');
 
   // grab updated route
   const afterRoute = window.location;
