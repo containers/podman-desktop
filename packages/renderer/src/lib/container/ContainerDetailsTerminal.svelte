@@ -28,10 +28,9 @@ let sendCallbackId: number | undefined;
 let terminalContent: string = '';
 let serializeAddon: SerializeAddon;
 let lastState = $state('');
-let containerState = $state(container.state);
+let containerState = $derived(container.state);
 
 $effect(() => {
-  containerState = container.state;
   if (lastState === 'STARTING' && containerState === 'RUNNING') {
     restartTerminal();
   }
