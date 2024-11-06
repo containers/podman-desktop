@@ -131,7 +131,7 @@ test('Expect that removing the connection is going back to the previous page', a
 
   // grab updated route
   const afterRoute = window.location;
-  expect(afterRoute.href).toBe('http://localhost:3000/last');
+  expect(afterRoute.href).toBe('http://localhost:3000/preferences/resources');
 });
 
 test('Expect to see error message if action fails', async () => {
