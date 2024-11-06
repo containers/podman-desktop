@@ -79,72 +79,71 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.describe
-  .serial('Kubernetes Edit YAML Feature E2E Test', () => {
-    test('Create a Kubernetes deployment resource', async ({ navigationBar }) => {
-      test.setTimeout(80_000);
-      const podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
-      await playYamlPage.playYaml(DEPLOYMENT_YAML_PATH, KUBERNETS_RUNTIME);
+test.describe.serial('Kubernetes Edit YAML Feature E2E Test', { tag: '@k8s_e2e' }, () => {
+  test('Create a Kubernetes deployment resource', async ({ navigationBar }) => {
+    test.setTimeout(80_000);
+    const podsPage = await navigationBar.openPods();
+    await playExpect(podsPage.heading).toBeVisible();
+    const playYamlPage = await podsPage.openPlayKubeYaml();
+    await playExpect(playYamlPage.heading).toBeVisible();
+    await playYamlPage.playYaml(DEPLOYMENT_YAML_PATH, KUBERNETS_RUNTIME);
 
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
-      await playExpect(deploymentsPage.heading).toBeVisible();
-      await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
-      const deploymentDetails = await deploymentsPage.openResourceDetails(
-        DEPLOYMENT_NAME,
-        KubernetesResources.Deployments,
-      );
-      await playExpect(deploymentDetails.heading).toBeVisible();
-      await playExpect
-        .poll(async () => deploymentDetails.getState(), { timeout: 80_000 })
-        .toEqual(KubernetesResourceState.Running);
-    });
-    test('Change the Kubernetes deployment YAML file', async ({ navigationBar }) => {
-      test.setTimeout(120_000);
-      const podsPage = await navigationBar.openPods();
-      await playExpect
-        .poll(async () => await podsPage.countPodReplicas(DEPLOYMENT_NAME), {
-          timeout: 60_000,
-        })
-        .toBe(3);
-
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
-      await playExpect(deploymentsPage.heading).toBeVisible();
-      await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
-      const deploymentDetails = await deploymentsPage.openResourceDetails(
-        DEPLOYMENT_NAME,
-        KubernetesResources.Deployments,
-      );
-      await playExpect(deploymentDetails.heading).toBeVisible();
-      await deploymentDetails.editKubernetsYamlFile('replicas: 3', 'replicas: 5');
-
-      await navigationBar.openPods();
-      await playExpect
-        .poll(async () => await podsPage.countPodReplicas(DEPLOYMENT_NAME), {
-          timeout: 60_000,
-        })
-        .toBe(5);
-      await navigationBar.openKubernetes();
-      await kubernetesBar.openTabPage(KubernetesResources.Deployments);
-      await playExpect(deploymentsPage.heading).toBeVisible();
-      await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
-      await deploymentsPage.openResourceDetails(DEPLOYMENT_NAME, KubernetesResources.Deployments);
-      await playExpect(deploymentDetails.heading).toBeVisible();
-      await playExpect
-        .poll(async () => deploymentDetails.getState(), { timeout: 80_000 })
-        .toEqual(KubernetesResourceState.Running);
-    });
-    test('Delete the Kubernetes deployment resource', async ({ page, navigationBar }) => {
-      const deploymentDetails = new KubernetesResourceDetailsPage(page, DEPLOYMENT_NAME);
-      await deploymentDetails.deleteButton.click();
-      await handleConfirmationDialog(page);
-      const kubernetesBar = await navigationBar.openKubernetes();
-      const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
-      await playExpect(deploymentsPage.heading).toBeVisible();
-      await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).not.toBeVisible();
-    });
+    const kubernetesBar = await navigationBar.openKubernetes();
+    const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
+    const deploymentDetails = await deploymentsPage.openResourceDetails(
+      DEPLOYMENT_NAME,
+      KubernetesResources.Deployments,
+    );
+    await playExpect(deploymentDetails.heading).toBeVisible();
+    await playExpect
+      .poll(async () => deploymentDetails.getState(), { timeout: 80_000 })
+      .toEqual(KubernetesResourceState.Running);
   });
+  test('Change the Kubernetes deployment YAML file', async ({ navigationBar }) => {
+    test.setTimeout(120_000);
+    const podsPage = await navigationBar.openPods();
+    await playExpect
+      .poll(async () => await podsPage.countPodReplicas(DEPLOYMENT_NAME), {
+        timeout: 60_000,
+      })
+      .toBe(3);
+
+    const kubernetesBar = await navigationBar.openKubernetes();
+    const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
+    const deploymentDetails = await deploymentsPage.openResourceDetails(
+      DEPLOYMENT_NAME,
+      KubernetesResources.Deployments,
+    );
+    await playExpect(deploymentDetails.heading).toBeVisible();
+    await deploymentDetails.editKubernetsYamlFile('replicas: 3', 'replicas: 5');
+
+    await navigationBar.openPods();
+    await playExpect
+      .poll(async () => await podsPage.countPodReplicas(DEPLOYMENT_NAME), {
+        timeout: 60_000,
+      })
+      .toBe(5);
+    await navigationBar.openKubernetes();
+    await kubernetesBar.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).toBeVisible();
+    await deploymentsPage.openResourceDetails(DEPLOYMENT_NAME, KubernetesResources.Deployments);
+    await playExpect(deploymentDetails.heading).toBeVisible();
+    await playExpect
+      .poll(async () => deploymentDetails.getState(), { timeout: 80_000 })
+      .toEqual(KubernetesResourceState.Running);
+  });
+  test('Delete the Kubernetes deployment resource', async ({ page, navigationBar }) => {
+    const deploymentDetails = new KubernetesResourceDetailsPage(page, DEPLOYMENT_NAME);
+    await deploymentDetails.deleteButton.click();
+    await handleConfirmationDialog(page);
+    const kubernetesBar = await navigationBar.openKubernetes();
+    const deploymentsPage = await kubernetesBar.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect(deploymentsPage.getResourceRowByName(DEPLOYMENT_NAME)).not.toBeVisible();
+  });
+});
