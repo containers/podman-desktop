@@ -224,6 +224,7 @@ test('createKubernetesPortForward', async () => {
   );
 
   const userPortForward: UserForwardConfig = {
+    uuid: 'fake-uuid',
     displayName: 'My port forward',
     namespace: 'kubernetes',
     name: 'service',
@@ -259,6 +260,7 @@ test('deleteKubernetesPortForward', async () => {
   );
 
   const userPortForward: UserForwardConfig = {
+    uuid: 'fake-uuid',
     displayName: 'My port forward',
     namespace: 'kubernetes',
     name: 'service',

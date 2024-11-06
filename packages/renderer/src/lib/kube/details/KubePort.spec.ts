@@ -35,6 +35,7 @@ beforeEach(() => {
 });
 
 const DUMMY_FORWARD_CONFIG: UserForwardConfig = {
+  uuid: 'fake-uuid',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,
