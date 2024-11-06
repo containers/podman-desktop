@@ -17,7 +17,6 @@ import Dialog from '../dialogs/Dialog.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 let displayModal = false;
-let bugReport = true;
 
 const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
   ['developers', '💬 Direct your words to the developers'],
@@ -34,6 +33,19 @@ let category: FeedbackCategory = DEFAULT_CATEGORY;
 
 let issueTitle = '';
 let issueDescription = '';
+let issueValidaionError = '';
+
+$: if (!issueTitle) {
+  if (!issueDescription) {
+    issueValidaionError = 'Please enter bug title and description';
+  } else {
+    issueValidaionError = 'Please enter bug title';
+  }
+} else {
+  if (!issueDescription) {
+    issueValidaionError = 'Please enter bug description';
+  }
+}
 let collectSystemInfo = false;
 let collectExtensionInfo = false;
 
@@ -86,11 +98,14 @@ async function openGitHub(): Promise<void> {
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
+async function openGitHubIssues(): Promise<void> {
+  displayModal = false;
+  await window.openExternal('https://github.com/containers/podman-desktop/issues');
+  displayModal = true;
+}
 
 async function sendToGitHub(): Promise<void> {
-  displayModal = false;
   const lnk = `https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=${issueTitle.split(' ').join('+')}&bug-description=${issueDescription.split(' ').join('+')}`;
-  console.log(lnk);
   await window.openExternal(lnk);
   displayModal = true;
 }
@@ -103,44 +118,47 @@ async function sendToGitHub(): Promise<void> {
       <Dropdown name="category" bind:value={category}
       options={Array.from(FEEDBACK_CATEGORIES).map(e => ({ value: e[0], label: e[1] }))}>
       </Dropdown>
-      <label for="smiley" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
-        >How was your experience with Podman Desktop?</label>
-      <div class="flex space-x-4">
-        <button aria-label="very-sad-smiley" on:click={() => selectSmiley(1)}>
-          <Fa
-            size="1.5x"
-            class="cursor-pointer {smileyRating === 1
-              ? 'text-[var(--pd-button-primary-bg)]'
-              : 'text-[var(--pd-button-disabled-text)]'}"
-            icon={faFrown} />
-        </button>
-        <button aria-label="sad-smiley" on:click={() => selectSmiley(2)}>
-          <Fa
-            size="1.5x"
-            class="cursor-pointer {smileyRating === 2
-              ? 'text-[var(--pd-button-primary-bg)]'
-              : 'text-[var(--pd-button-disabled-text)]'}"
-            icon={faMeh} />
-        </button>
-        <button aria-label="happy-smiley" on:click={() => selectSmiley(3)}>
-          <Fa
-            size="1.5x"
-            class="cursor-pointer {smileyRating === 3
-              ? 'text-[var(--pd-button-primary-bg)]'
-              : 'text-[var(--pd-button-disabled-text)]'}"
-            icon={faSmile} />
-        </button>
-        <button aria-label="very-happy-smiley" on:click={() => selectSmiley(4)}>
-          <Fa
-            size="1.5x"
-            class="cursor-pointer {smileyRating === 4
-              ? 'text-[var(--pd-button-primary-bg)]'
-              : 'text-[var(--pd-button-disabled-text)]'}"
-            icon={faGrinStars} />
-        </button>
-      </div>
+      {#if category !== 'developers'}
+        <div class="text-sm text-[var(--pd-state-warning)]">You can search existing issues on <Link aria-label="GitHub issues" onclick={openGitHubIssues}>github.com/containers/podman-desktop/issues</Link></div>
+      {/if}
+      {#if category === 'developers'}
+        <label for="smiley" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+          >How was your experience with Podman Desktop?</label>
+        <div class="flex space-x-4">
+          <button aria-label="very-sad-smiley" on:click={() => selectSmiley(1)}>
+            <Fa
+              size="1.5x"
+              class="cursor-pointer {smileyRating === 1
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
+              icon={faFrown} />
+          </button>
+          <button aria-label="sad-smiley" on:click={() => selectSmiley(2)}>
+            <Fa
+              size="1.5x"
+              class="cursor-pointer {smileyRating === 2
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
+              icon={faMeh} />
+          </button>
+          <button aria-label="happy-smiley" on:click={() => selectSmiley(3)}>
+            <Fa
+              size="1.5x"
+              class="cursor-pointer {smileyRating === 3
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
+              icon={faSmile} />
+          </button>
+          <button aria-label="very-happy-smiley" on:click={() => selectSmiley(4)}>
+            <Fa
+              size="1.5x"
+              class="cursor-pointer {smileyRating === 4
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
+              icon={faGrinStars} />
+          </button>
+        </div>
 
-      {#if !bugReport}
         <label for="tellUsWhyFeedback" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
           >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
           left)</label>
@@ -177,6 +195,7 @@ async function sendToGitHub(): Promise<void> {
           bind:value={issueDescription}
           class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
           placeholder="Bug Description"></textarea>
+
           <Checkbox 
           bind:checked={collectSystemInfo}
           class="text-[var(--pd-content-card-text)] text-sm ml-1 my-1"
@@ -194,7 +213,7 @@ async function sendToGitHub(): Promise<void> {
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="validation">
-      {#if !bugReport}
+      {#if category === 'developers'}
         {#if smileyRating === 0}
           <ErrorMessage class="text-xs" error="Please select an experience smiley" />
         {:else if smileyRating === 1 && !hasFeedback}
@@ -212,20 +231,17 @@ async function sendToGitHub(): Promise<void> {
           </div>
         {/if}
       {:else}
-          {#if !issueTitle}
-            <ErrorMessage class="text-xs" error="Please enter a title"/>
-          {/if}
-          {#if !issueDescription}
-            <ErrorMessage class="text-xs" error="Please enter bug description"/>
+          {#if !issueTitle || !issueDescription}
+            <ErrorMessage class="text-xs" error={issueValidaionError}/>
           {/if}
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">
-      {#if !bugReport}
+      {#if category === 'developers'}
         <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={() => sendFeedback()}
         >Send feedback</Button>
       {:else}
-        <Button  on:click={() => sendToGitHub()}>Preview on GitHub</Button>
+        <Button on:click={() => sendToGitHub()}>Preview on GitHub</Button>
       {/if}
     </svelte:fragment>
   </Dialog>
