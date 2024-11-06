@@ -580,7 +580,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { nodes: true },
-          update: state => state.resources.nodes.push(obj),
+          update: state => {
+            state.resources.nodes = state.resources.nodes.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.nodes.push(obj);
+          },
         });
       },
       onUpdate: obj => {
