@@ -15,9 +15,11 @@ interface Props {
 
 let { ports, resourceName, namespace, kind }: Props = $props();
 
-let userForwardConfig: UserForwardConfig | undefined = $derived(
-  $kubernetesCurrentContextPortForwards.find(
-    forward => forward.kind === kind && forward.name === resourceName && forward.namespace === namespace,
+let forwardConfigs: Map<number, UserForwardConfig> = $derived(
+  new Map(
+    $kubernetesCurrentContextPortForwards
+      .filter(forward => forward.kind === kind && forward.name === resourceName && forward.namespace === namespace)
+      .map(config => [config.forward.remotePort, config]),
   ),
 );
 </script>
@@ -28,7 +30,7 @@ let userForwardConfig: UserForwardConfig | undefined = $derived(
     <Cell>
       <div class="flex gap-y-1 flex-col">
         {#each ports as port}
-          <KubePort namespace={namespace} kind={kind} resourceName={resourceName} port={port} forwardConfig={userForwardConfig}/>
+          <KubePort namespace={namespace} kind={kind} resourceName={resourceName} port={port} forwardConfig={forwardConfigs.get(port.value)}/>
         {/each}
       </div>
     </Cell>

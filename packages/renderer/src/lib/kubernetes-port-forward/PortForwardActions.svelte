@@ -19,7 +19,8 @@ let userConfigForward: UserForwardConfig | undefined = $derived(
       config.kind === object.kind &&
       config.name === object.name &&
       config.namespace === object.namespace &&
-      config.forward.remotePort === object.mapping.remotePort,
+      config.forward.remotePort === object.mapping.remotePort &&
+      config.forward.localPort === object.mapping.localPort,
   ),
 );
 
