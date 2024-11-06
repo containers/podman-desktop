@@ -203,6 +203,22 @@
           "default": true,
           "description": "Use macOS Rosetta to run x86_64 Linux binaries on Podman 5.1.0 and above, disabling will use qemu. NOTE: This setting is only applied when creating new machines.",
           "when": "isMac"
+        },
+        "third-party.docker.tool.compatibility.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Disabling this option will prevent third-party Docker-compatible tools to use Podman. :button[Disable]{command=podman.disableCompatibilityMode}",
+          "when": "isMac && podman.podmanDockerCompatibilityEnabled",
+          "group": "podman-desktop.podman",
+          "scope": "DockerCompatibility"
+        },
+        "third-party.docker.tool.compatibility.disabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enabling this option will direct third-party Docker-compatible tools to use Podman. :button[Enable]{command=podman.enableCompatibilityMode}",
+          "when": "isMac && !podman.podmanDockerCompatibilityEnabled",
+          "group": "podman-desktop.podman",
+          "scope": "DockerCompatibility"
         }
       }
     },
