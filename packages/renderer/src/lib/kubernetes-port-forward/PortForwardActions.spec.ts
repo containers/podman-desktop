@@ -35,17 +35,15 @@ const MOCKED_USER_FORWARD_CONFIG: UserForwardConfig = {
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,
   displayName: 'dummy-display-name',
-  forwards: [
-    {
-      localPort: 55_087,
-      remotePort: 80,
-    },
-  ],
+  forward: {
+    localPort: 55_087,
+    remotePort: 80,
+  },
 };
 
 const MOCKED_PORT_FORWARD_ROW: PortForwardRow = {
   ...MOCKED_USER_FORWARD_CONFIG,
-  mapping: MOCKED_USER_FORWARD_CONFIG.forwards[0],
+  mapping: MOCKED_USER_FORWARD_CONFIG.forward,
 };
 
 beforeEach(() => {

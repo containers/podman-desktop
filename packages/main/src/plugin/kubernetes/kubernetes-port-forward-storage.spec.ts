@@ -139,7 +139,7 @@ describe('FileBasedConfigStorage', () => {
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
-    forwards: [{ localPort: 8080, remotePort: 80 }],
+    forward: { localPort: 8080, remotePort: 80 },
     displayName: 'test-display-name',
   };
 
@@ -262,7 +262,7 @@ describe('MemoryBasedConfigStorage', () => {
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
-    forwards: [{ localPort: 8080, remotePort: 80 }],
+    forward: { localPort: 8080, remotePort: 80 },
     displayName: 'test-display-name',
   };
 
@@ -342,7 +342,7 @@ describe('ConfigManagementService', () => {
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
-    forwards: [{ localPort: 8080, remotePort: 80 }],
+    forward: { localPort: 8080, remotePort: 80 },
     displayName: 'test-display-name',
   };
 
@@ -378,8 +378,8 @@ describe('ConfigManagementService', () => {
     mockConfigStorage.listForwards = vi.fn().mockResolvedValue([sampleConfig]);
     const service = new ConfigManagementService(mockConfigStorage);
 
-    const old = {
-      forwards: [],
+    const old: UserForwardConfig = {
+      forward: { localPort: 8080, remotePort: 80 },
       displayName: 'dummy',
       namespace: 'default',
       kind: WorkloadKind.POD,

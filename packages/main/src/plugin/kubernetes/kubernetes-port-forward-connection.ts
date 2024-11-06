@@ -56,38 +56,19 @@ export class PortForwardConnectionService {
   /**
    * Starts the port forwarding based on the provided configuration.
    * @param config - The forwarding configuration.
-   * @param mapping - The mapping to start, if not specified all {@link ForwardConfig#forwards} will be started
+   * @param mapping - The mapping to start, if not specified all {@link ForwardConfig#forward} will be started
    * @returns A promise that resolves to a disposable resource to stop the forwarding.
    * @throws If any of the port forwarding fail.
    */
-  async startForward(config: ForwardConfig, mapping?: PortMapping): Promise<IDisposable> {
+  async startForward(config: ForwardConfig): Promise<IDisposable> {
     if (this.configRequirementsChecker) {
       await this.configRequirementsChecker.checkRuntimeRequirements(config);
     }
 
     const resource = await this.getWorkloadResource(config.kind, config.name, config.namespace);
 
-    const results = await Promise.allSettled(
-      (mapping ? [mapping] : config.forwards).map(async forward => {
-        const forwardSetup = await this.getForwardingSetup(resource, forward);
-        return this.performForward(forwardSetup);
-      }),
-    );
-
-    const successForwards = results.filter(
-      result => result.status === 'fulfilled',
-    ) as PromiseFulfilledResult<IDisposable>[];
-    const failedForwards = results.filter(result => result.status === 'rejected') as PromiseRejectedResult[];
-
-    if (failedForwards.length > 0) {
-      successForwards.forEach(attempt => attempt.value.dispose());
-
-      const reasons = failedForwards.map(attempt => attempt.reason).join('\n');
-      throw new Error(reasons);
-    }
-
-    const disposables: IDisposable[] = successForwards.map(attempt => attempt.value);
-    return Disposable.from(...disposables);
+    const forwardSetup = await this.getForwardingSetup(resource, config.forward);
+    return this.performForward(forwardSetup);
   }
 
   /**

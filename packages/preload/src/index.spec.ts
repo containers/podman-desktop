@@ -229,7 +229,10 @@ test('createKubernetesPortForward', async () => {
     namespace: 'kubernetes',
     name: 'service',
     kind: WorkloadKind.SERVICE,
-    forwards: [],
+    forward: {
+      localPort: 50_050,
+      remotePort: 88,
+    },
   };
 
   vi.mocked(ipcRenderer.invoke).mockResolvedValue({ result: userPortForward });
@@ -265,7 +268,10 @@ test('deleteKubernetesPortForward', async () => {
     namespace: 'kubernetes',
     name: 'service',
     kind: WorkloadKind.SERVICE,
-    forwards: [],
+    forward: {
+      localPort: 50_050,
+      remotePort: 88,
+    },
   };
 
   vi.mocked(ipcRenderer.invoke).mockResolvedValue({ result: undefined });
