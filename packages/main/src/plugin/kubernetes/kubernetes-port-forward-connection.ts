@@ -56,7 +56,6 @@ export class PortForwardConnectionService {
   /**
    * Starts the port forwarding based on the provided configuration.
    * @param config - The forwarding configuration.
-   * @param mapping - The mapping to start, if not specified all {@link ForwardConfig#forward} will be started
    * @returns A promise that resolves to a disposable resource to stop the forwarding.
    * @throws If any of the port forwarding fail.
    */
