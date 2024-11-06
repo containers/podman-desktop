@@ -90,15 +90,6 @@ export class KubernetesPortForwardService implements IDisposable {
   }
 
   /**
-   * Return the identifier of the ForwardConfig
-   * @param config
-   * @private
-   */
-  private getPortForwardKey(config: ForwardConfig): string {
-    return config.id;
-  }
-
-  /**
    * Creates a new forward configuration
    * @returns The created forward configuration.
    * @param options
@@ -124,11 +115,9 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see UserForwardConfig
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
-    const key = this.getPortForwardKey(config);
-
-    const disposable = this.#disposables.get(key);
+    const disposable = this.#disposables.get(config.id);
     disposable?.dispose();
-    this.#disposables.delete(key);
+    this.#disposables.delete(config.id);
 
     await this.configManagementService.deleteForward(config);
 
@@ -151,14 +140,13 @@ export class KubernetesPortForwardService implements IDisposable {
    * @see ForwardConfig
    */
   async startForward(config: ForwardConfig): Promise<IDisposable> {
-    const key = this.getPortForwardKey(config);
-    if (this.#disposables.has(key)) throw new Error('forward already started');
+    if (this.#disposables.has(config.id)) throw new Error('forward already started');
 
     const disposable = await this.forwardingConnectionService.startForward(config);
-    this.#disposables.set(key, disposable);
+    this.#disposables.set(config.id, disposable);
 
     return Disposable.create(() => {
-      this.#disposables.delete(key);
+      this.#disposables.delete(config.id);
       disposable.dispose();
     });
   }
