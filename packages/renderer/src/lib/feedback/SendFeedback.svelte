@@ -11,7 +11,8 @@ import {
 import { Button, Dropdown, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { FeedbackCategory, FeedbackProperties } from '../../../../preload/src/index';
+import type { FeedbackCategory, FeedbackProperties } from '/@api/feedback';
+
 import Dialog from '../dialogs/Dialog.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 

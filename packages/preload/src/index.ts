@@ -58,6 +58,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import type { ContributionInfo } from '/@api/contribution-info';
 import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info';
 import type { ExtensionInfo } from '/@api/extension-info';
+import type { FeedbackProperties } from '/@api/feedback';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
@@ -118,15 +119,6 @@ export type OpenSaveDialogResultCallback = (result: string | string[] | undefine
 export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 const originalConsole = console;
 const memoryLogs: { logType: LogType; date: Date; message: string }[] = [];
-
-export type FeedbackCategory = 'developers' | 'feature' | 'bug';
-
-export interface FeedbackProperties {
-  category: FeedbackCategory;
-  rating: number;
-  comment?: string;
-  contact?: string;
-}
 
 export interface KeyLogger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
