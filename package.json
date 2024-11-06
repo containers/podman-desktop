@@ -42,7 +42,7 @@
     "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/ --grep-invert @update-install",
     "test:e2e:smoke": "npm run test:e2e:build && npm run test:e2e:smoke:run",
     "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/ -g @smoke",
-    "test:e2e:k8s": "npm run test:e2e:build && npm run test:e2e:smoke:run",
+    "test:e2e:k8s": "npm run test:e2e:build && npm run test:e2e:k8s:run",
     "test:e2e:k8s:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/ -g @k8s_e2e",
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test tests/playwright/src/specs/extension-installation.spec.ts",
