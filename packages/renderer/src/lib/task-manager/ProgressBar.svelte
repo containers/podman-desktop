@@ -29,12 +29,17 @@
 </style>
 
 <script lang="ts">
-export let progress: number | undefined;
-export let width: string = 'w-36';
-export let height: string = 'h-4';
+interface Props {
+  progress?: number;
+  width: string;
+  height: string;
+  class?: string;
+}
+
+let { class: className, progress, width = 'w-36', height = 'h-4' }: Props = $props();
 </script>
 
-<div class="flex flex-row">
+<div class="flex flex-row {className}">
   <div class="{width} {height} rounded-full bg-[var(--pd-progressBar-bg)] progress-bar overflow-hidden">
     {#if progress !== undefined}
       <div
