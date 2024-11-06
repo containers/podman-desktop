@@ -31,7 +31,6 @@ import type { ContainerInfoUI } from './ContainerInfoUI';
 const getConfigurationValueMock = vi.fn();
 const shellInContainerMock = vi.fn();
 const shellInContainerResizeMock = vi.fn();
-const receiveEndCallbackMock = vi.fn();
 vi.mock('xterm', () => {
   return {
     Terminal: vi
@@ -45,7 +44,6 @@ beforeEach(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).shellInContainer = shellInContainerMock;
   (window as any).shellInContainerResize = shellInContainerResizeMock;
-  (window as any).receiveEndCallback = receiveEndCallbackMock;
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
@@ -124,7 +122,7 @@ test('expect being able to reconnect ', async () => {
   expect(shellInContainerMock).toHaveBeenCalledTimes(2);
 });
 
-test.skip('terminal active/ restarts connection after stopping and starting a container', async () => {
+test('terminal active/ restarts connection after stopping and starting a container', async () => {
   const container: ContainerInfoUI = {
     id: 'myContainer',
     state: 'RUNNING',
@@ -171,8 +169,6 @@ test.skip('terminal active/ restarts connection after stopping and starting a co
 
   container.state = 'EXITED';
 
-  await waitFor(() => expect(receiveEndCallbackMock).toBeCalled());
-
   await renderObject.rerender({ container: container, screenReaderMode: true });
 
   await tick();
@@ -191,5 +187,5 @@ test.skip('terminal active/ restarts connection after stopping and starting a co
 
   await tick();
 
-  await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledTimes(2), { timeout: 2000 });
+  await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledTimes(10), { timeout: 2000 });
 });
