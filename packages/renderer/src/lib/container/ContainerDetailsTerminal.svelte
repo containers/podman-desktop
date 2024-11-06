@@ -31,7 +31,7 @@ let lastState = $state('');
 let containerState = $derived(container.state);
 
 $effect(() => {
-  if (lastState === 'STARTING' && containerState.state === 'RUNNING') {
+  if (lastState === 'STARTING' && containerState === 'RUNNING') {
     restartTerminal().catch((err: unknown) => console.error('Error restarting terminal', err));
   }
   lastState = container.state;
