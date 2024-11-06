@@ -31,7 +31,7 @@ let lastState = $state('');
 let containerState = $derived(container.state);
 
 $effect(() => {
-  if (lastState === 'STARTING' && containerState === 'RUNNING') {
+  if ((lastState === 'STARTING' || lastState === 'RESTARTING') && containerState === 'RUNNING') {
     restartTerminal();
   }
   lastState = container.state;
