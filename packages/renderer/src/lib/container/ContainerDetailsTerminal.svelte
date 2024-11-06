@@ -28,11 +28,11 @@ let sendCallbackId: number | undefined;
 let terminalContent: string = '';
 let serializeAddon: SerializeAddon;
 let lastState = $state('');
-let containerState = $state(container);
+let containerState = $state(container.state);
 
 $effect(() => {
-  containerState = container;
-  if (lastState === 'STARTING' && containerState.state === 'RUNNING') {
+  containerState = container.state;
+  if (lastState === 'STARTING' && containerState === 'RUNNING') {
     restartTerminal();
   }
   lastState = container.state;
@@ -54,16 +54,20 @@ function receiveDataCallback(data: Buffer) {
 }
 
 function receiveEndCallback() {
-  // need to reopen a new terminal
-  window
-    .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
-    .then(id => {
-      sendCallbackId = id;
-
-      shellTerminal?.onData(data => {
-        window.shellInContainerSend(id, data);
+  // need to reopen a new terminal if container is running
+  if (containerState === 'RUNNING') {
+    window
+      .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
+      .then(id => {
+        sendCallbackId = id;
+        shellTerminal?.onData(data => {
+          window.shellInContainerSend(id, data);
+        });
+      })
+      .catch((err: unknown) => {
+        console.error('error starting shell', err);
       });
-    });
+  }
 }
 
 // call exec command
