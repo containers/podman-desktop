@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 ![banner](img/bootc-microshift/redhat_selkie.png)
 
-If you're unfamiliar with [Image Mode for RHEL](https://developers.redhat.com/products/rhel-image-mode/overview), it offers an impressive method for deploying applications directly to bare metal from either a single Containerfile or a pre-existing bootc-supported image.
+If you're unfamiliar with [BootC](https://docs.fedoraproject.org/en-US/bootc/), it offers an impressive method for deploying applications directly to bare metal from either a single Containerfile or a pre-existing bootc-supported image.
 
 A "bootable" image, known as a BootC container image, allows you to use a simple container image to create a full bootable operating system, whether it's a `raw` virtual machine image or an `iso` for USB installation!
 
@@ -25,7 +25,7 @@ This entire process is carried out using a single Containerfile (or Dockerfile).
 
 Before starting the tutorial, ensure you have:
 
-- An active [Red Hat account](https://developers.redhat.com/articles/2024/05/07/podman-desktop-red-hat-developer-subscription)
+- An active [Red Hat account](https://developers.redhat.com/articles/2024/05/07/podman-desktop-red-hat-developer-subscription) in order to access RHEL-based images
 - Access to an [OpenShift Hybrid Cloud pull secret](https://console.redhat.com/openshift/install/pull-secret)
 - [Podman Desktop installed](https://podman-desktop.io/downloads)
 - [Podman Desktop BootC Extension](https://github.com/containers/podman-desktop-extension-bootc)
@@ -275,11 +275,13 @@ $ mkdir ~/.kube
 
 Within MicroShift, a `kubeconfig` file is automatically created at `/var/lib/microshift/resources/kubeadmin/kubeconfig`.
 
-Copy the file over to your local `.kube/config`
+Copy the file over to your local system:
 
 ```sh
-scp -P 2222 redhat@localhost:/var/lib/microshift/resources/kubeadmin/kubeconfig ~/.kube/config
+scp -P 2222 redhat@localhost:/var/lib/microshift/resources/kubeadmin/kubeconfig ~/config
 ```
+
+If you already have a `~/.kube/config`, copy the contents of `config` to the `~/.kube/config` file.
 
 3. Use Podman Desktop to verify the MicroShift cluster:
 
