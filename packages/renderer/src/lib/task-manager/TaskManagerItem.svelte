@@ -38,9 +38,9 @@ onMount(() => {
   }
 });
 
-function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
+async function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
   // needs to delete the task from the svelte store
-  removeTask(task.id);
+  return removeTask(task.id);
 }
 
 async function doExecuteAction(task: TaskInfo) {

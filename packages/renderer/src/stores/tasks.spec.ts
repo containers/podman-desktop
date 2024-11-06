@@ -43,7 +43,7 @@ test('Expect clearNotification to call window.clearTasks', async () => {
   const clearTasksMock = vi.fn().mockResolvedValue(undefined);
   (window as { clearTasks: () => void }).clearTasks = clearTasksMock;
 
-  clearNotifications();
+  await clearNotifications();
 
   expect(clearTasksMock).toHaveBeenCalled();
 });

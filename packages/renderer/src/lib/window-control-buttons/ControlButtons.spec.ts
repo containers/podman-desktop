@@ -46,7 +46,7 @@ describe.each([{ platform: 'linux' }, { platform: 'win32' }])('Platform($platfor
   test('Expect minimize is called', async () => {
     render(ControlButtons, { platform });
 
-    const minimizeMock = vi.fn().mockResolvedValue(undefined);
+    const minimizeMock = vi.fn();
     (window as any).windowMinimize = minimizeMock;
 
     const minimizeButton = screen.getByRole('button', { name: 'Minimize' });
