@@ -72,7 +72,7 @@ describe('KubernetesPortForwardService', () => {
   };
 
   const sampleForwardConfig: ForwardConfig = {
-    uuid: 'fake-uuid',
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -85,7 +85,7 @@ describe('KubernetesPortForwardService', () => {
   };
 
   const complexForwardConfig: ForwardConfig = {
-    uuid: 'fake-uuid',
+    id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
@@ -118,7 +118,7 @@ describe('KubernetesPortForwardService', () => {
       mockForwardingConnectionService,
       apiSenderMock,
     );
-    vi.mocked(randomUUID).mockReturnValue('fake-uuid' as UUID);
+    vi.mocked(randomUUID).mockReturnValue('fake-id' as UUID);
   });
 
   test('should create a forward configuration', async () => {

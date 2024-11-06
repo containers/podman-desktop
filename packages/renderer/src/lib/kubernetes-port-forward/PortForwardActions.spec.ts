@@ -30,7 +30,7 @@ import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forw
 vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
 const MOCKED_USER_FORWARD_CONFIG: UserForwardConfig = {
-  uuid: 'fake-uuid',
+  id: 'fake-id',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,

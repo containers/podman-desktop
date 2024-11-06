@@ -119,7 +119,7 @@ export class KubernetesPortForwardService implements IDisposable {
     let result: UserForwardConfig;
     if (userForwardConfig) {
       result = await this.configManagementService.updateForward(userForwardConfig, {
-        uuid: userForwardConfig.uuid,
+        id: userForwardConfig.id,
         name: options.name,
         forwards: [...userForwardConfig.forwards, options.forward],
         namespace: options.namespace,
@@ -128,7 +128,7 @@ export class KubernetesPortForwardService implements IDisposable {
       });
     } else {
       result = await this.configManagementService.createForward({
-        uuid: randomUUID(),
+        id: randomUUID(),
         name: options.name,
         forwards: [options.forward],
         namespace: options.namespace,
