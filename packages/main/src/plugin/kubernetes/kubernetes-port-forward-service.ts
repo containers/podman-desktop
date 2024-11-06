@@ -125,9 +125,6 @@ export class KubernetesPortForwardService implements IDisposable {
    */
   async deleteForward(config: UserForwardConfig): Promise<void> {
     const key = this.getPortForwardKey(config);
-    if (!this.#disposables.has(key)) {
-      throw new Error(`cannot delete forward with key ${key}.`);
-    }
 
     const disposable = this.#disposables.get(key);
     disposable?.dispose();
