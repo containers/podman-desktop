@@ -130,6 +130,22 @@
           "scope": ["DEFAULT", "Onboarding"],
           "hidden": true,
           "description": "Install system-wide instead of just your user directory, so compose can be accessed on the command line. Note: You may be prompted for elevated system privileges when enabling this."
+        },
+        "podman.compose.cli.support.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Compose support installed. You can use `podman compose` using the podman CLI.",
+          "when": "(isMac || isWindows) && compose.isComposeInstalledSystemWide",
+          "group": "podman-desktop.podman",
+          "scope": "DockerCompatibility"
+        },
+        "podman.compose.cli.support.missing": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Without compose support in podman you won't be able to use compose projects using the podman CLI. :button[Setup...]{command=compose.openComposeOnboarding}",
+          "when": "(isMac || isWindows) && !compose.isComposeInstalledSystemWide",
+          "group": "podman-desktop.podman",
+          "scope": "DockerCompatibility"
         }
       }
     }
