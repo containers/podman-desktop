@@ -54,7 +54,8 @@ beforeAll(() => {
       func();
     },
   };
-  (window as any).getConfigurationValue = vi.fn();
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue(undefined);
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });

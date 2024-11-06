@@ -278,6 +278,7 @@ beforeAll(() => {
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).onDidUpdateProviderStatus = vi.fn().mockResolvedValue(undefined);
   (window as any).removePod = vi.fn();
+  (window as any).kubernetesGetDetailedContexts = vi.fn().mockResolvedValue([]);
   vi.mocked(window.removePod);
   (window as any).getConfigurationValue = vi.fn();
   vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
