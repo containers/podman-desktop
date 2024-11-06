@@ -30,7 +30,9 @@ function listenTerminalData(terminal: Terminal, cbId: number) {
   listened = true;
   // pass data from xterm to container
   terminal.onData(data => {
-    window.attachContainerSend(callbackId, data);
+    window
+      .attachContainerSend(callbackId, data)
+      .catch((err: unknown) => console.log(`Error sending data to container ${container.id}`, err));
   });
 }
 
