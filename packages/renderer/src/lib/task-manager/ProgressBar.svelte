@@ -31,8 +31,8 @@
 <script lang="ts">
 interface Props {
   progress?: number;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
   class?: string;
 }
 

@@ -40,3 +40,9 @@ test('Expect that the progress bar is incremental', async () => {
   expect(progressBar).toHaveClass('progress-bar-incremental');
   expect(progressBar.classList.contains('progress-bar-indeterminate')).toBe(false);
 });
+
+test('Expect class to be propagated', async () => {
+  const { container } = render(ProgressBar, { progress: 5, class: 'dummy-class' });
+
+  expect(container.children[0]).toHaveClass('dummy-class');
+});
