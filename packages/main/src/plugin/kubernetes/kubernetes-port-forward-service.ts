@@ -81,7 +81,7 @@ export class KubernetesPortForwardService implements IDisposable {
     private forwardingConnectionService: PortForwardConnectionService,
     private apiSender: ApiSenderType,
   ) {
-    this.apiSender.send('kubernetes-port-forward-update', []);
+    this.apiSender.send('kubernetes-port-forwards-update', []);
   }
 
   dispose(): void {

@@ -119,13 +119,13 @@ describe('KubernetesPortForwardService', () => {
     });
     expect(result).toEqual(sampleUserForwardConfig);
     expect(mockConfigManagementService.createForward).toHaveBeenCalledWith(sampleUserForwardConfig);
-    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forward-update', []);
+    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should delete a forward configuration', async () => {
     await service.deleteForward(sampleUserForwardConfig);
     expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(sampleUserForwardConfig);
-    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forward-update', []);
+    expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should list all forward configurations', async () => {
