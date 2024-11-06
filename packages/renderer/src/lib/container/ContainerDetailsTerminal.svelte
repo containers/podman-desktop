@@ -32,7 +32,6 @@ let containerState = $derived(container.state);
 
 $effect(() => {
   if ((lastState === 'STARTING' || lastState === 'RESTARTING') && containerState === 'RUNNING') {
-    console.log('==> restart');
     restartTerminal();
   }
   lastState = container.state;
@@ -56,7 +55,6 @@ function receiveDataCallback(data: Buffer) {
 function receiveEndCallback() {
   // need to reopen a new terminal if container is running
   if (containerState === 'RUNNING') {
-    console.log('==> shellInContainer 2');
     window
       .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
       .then(id => {
@@ -78,7 +76,6 @@ async function executeShellIntoContainer() {
   }
 
   // grab logs of the container
-  console.log('==> shellInContainer 1');
   const callbackId = await window.shellInContainer(
     container.engineId,
     container.id,
