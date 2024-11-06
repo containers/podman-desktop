@@ -12,7 +12,6 @@ export let iconWithTitle = true;
 </script>
 
 {#each $webviews as webview (webview.id)}
-{console.log(webview.name)}
   <NavItem href="/webviews/{webview.id}" bind:meta={meta} tooltip={webview.name} bind:iconWithTitle={iconWithTitle}>
     {#if !webview.icon}
       <Fa icon={faPuzzlePiece} size="1.5x" />

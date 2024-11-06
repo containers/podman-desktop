@@ -55,7 +55,6 @@ function onDidChangeConfigurationCallback(e: Event): void {
     if (NAV_BAR_LAYOUT === detail?.key) {
       iconWithTitle = detail.value === 'icon + title';
     }
-    console.log(detail.value);
   }
 }
 </script>
