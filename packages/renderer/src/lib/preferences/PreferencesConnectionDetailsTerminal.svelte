@@ -150,7 +150,7 @@ async function refreshTerminal(): Promise<void> {
         };
         window
           .shellInProviderConnectionResize(sendCallbackId, dimensions)
-          .catch((err: unknown) => console.error(`Error resizing termninal for provider ${connectionInfo.name}`, err));
+          .catch((err: unknown) => console.error(`Error resizing terminal for provider ${connectionInfo.name}`, err));
       }
     }
   });
