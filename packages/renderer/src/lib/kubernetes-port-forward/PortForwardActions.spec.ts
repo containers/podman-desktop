@@ -91,8 +91,5 @@ test('remove should call deleteKubernetesPortForward', async () => {
   const deleteBtn = getByTitle('Delete forwarded port');
   await fireEvent.click(deleteBtn);
 
-  expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(
-    MOCKED_USER_FORWARD_CONFIG,
-    MOCKED_PORT_FORWARD_ROW.mapping,
-  );
+  expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(MOCKED_USER_FORWARD_CONFIG);
 });
