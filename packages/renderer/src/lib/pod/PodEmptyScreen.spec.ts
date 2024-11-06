@@ -66,7 +66,7 @@ const errorMessage = {
 };
 const imageErrorMessage = {
   title: `Error when running a pod`,
-  message: `Could not find '${helloImage}' in images`,
+  message: `Could not find '${helloImage}'' in images`,
 };
 const providerErrorMessage = {
   title: `Error when running a pod`,
