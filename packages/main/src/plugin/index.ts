@@ -1503,7 +1503,7 @@ export class PluginSystem {
         });
 
         return cliToolRegistry
-          .updateCliTool(id, logger)
+          .updateCliTool(id, version, logger)
           .then(result => {
             task.status = 'success';
             return result;

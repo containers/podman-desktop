@@ -4600,7 +4600,7 @@ declare module '@podman-desktop/api' {
 
   export interface CliToolSelectUpdate {
     selectVersion: () => Promise<string>;
-    doUpdate: (logger: Logger) => Promise<void>;
+    doUpdate: (logger: Logger, version: string) => Promise<void>;
   }
 
   export interface CliToolInstaller {

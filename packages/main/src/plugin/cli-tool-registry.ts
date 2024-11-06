@@ -72,10 +72,15 @@ export class CliToolRegistry {
     });
   }
 
-  async updateCliTool(id: string, logger: Logger): Promise<void> {
-    const cliToolUpdater = this.cliToolsUpdater.get(id);
-    if (cliToolUpdater) {
-      await cliToolUpdater.doUpdate(logger);
+  async updateCliTool(id: string, version: string, logger: Logger): Promise<void> {
+    const cliToolUpdater: CliToolUpdate | CliToolSelectUpdate | undefined = this.cliToolsUpdater.get(id);
+    if (!cliToolUpdater) return;
+
+    // if is CliToolUpdate we do not need to provide the version
+    if ('version' in cliToolUpdater) {
+      return cliToolUpdater.doUpdate(logger);
+    } else {
+      return cliToolUpdater.doUpdate(logger, version);
     }
   }
 

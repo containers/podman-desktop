@@ -228,17 +228,42 @@ suite('cli module', () => {
       const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
       // register the updater and call it
       const disposeUpdater = cliToolRegistry.registerUpdate(newCliTool as CliToolImpl, updater);
-      await cliToolRegistry.updateCliTool(newCliTool.id, {} as unknown as Logger);
 
-      expect(updateMock).toBeCalled();
+      const loggerMock: Logger = {} as unknown as Logger;
+      await cliToolRegistry.updateCliTool(newCliTool.id, '1.1.2', loggerMock);
+
+      expect(updateMock).toHaveBeenCalledWith(loggerMock);
       updateMock.mockReset();
 
       // dispose the updater and check it is not called again
       disposeUpdater.dispose();
       expect(apiSender.send).toBeCalledWith('cli-tool-change', 'ext-publisher.ext-name.tool-name');
-      await cliToolRegistry.updateCliTool(newCliTool.id, {} as unknown as Logger);
+      await cliToolRegistry.updateCliTool(newCliTool.id, '1.1.2', {} as unknown as Logger);
 
       expect(updateMock).not.toBeCalled();
+    });
+
+    test('expect CliToolSelectUpdate updater to receive version selected', async () => {
+      const updater: CliToolSelectUpdate = {
+        doUpdate: vi.fn(),
+        selectVersion: vi.fn(),
+      };
+      const options: CliToolOptions = {
+        name: 'tool-name',
+        displayName: 'tool-display-name',
+        markdownDescription: 'markdown description',
+        images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
+      };
+      const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      // register the updater and call it
+      cliToolRegistry.registerUpdate(newCliTool as CliToolImpl, updater);
+
+      const loggerMock: Logger = {} as unknown as Logger;
+      await cliToolRegistry.updateCliTool(newCliTool.id, '1.1.2', loggerMock);
+
+      expect(updater.doUpdate).toHaveBeenCalledWith(loggerMock, '1.1.2');
     });
   });
 
