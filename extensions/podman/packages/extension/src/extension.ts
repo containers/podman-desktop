@@ -184,6 +184,7 @@ function notifySetupPodman(): void {
 export async function updateMachines(
   provider: extensionApi.Provider,
   podmanConfiguration: PodmanConfiguration,
+  checkDefaultConnection?: boolean,
 ): Promise<void> {
   // init machines available
   let machineListOutput: MachineJSONListOutput;
@@ -402,7 +403,9 @@ export async function updateMachines(
       // Finally, we check to see if the machine that is running is set by default or not on the CLI
       // this will create a dialog that will ask the user if they wish to set the running machine as default.
       // this should only run if we at least one machine
-      await checkDefaultMachine(machines);
+      if (checkDefaultConnection) {
+        await checkDefaultMachine(machines);
+      }
     }
   }
 }
@@ -676,7 +679,7 @@ async function monitorMachines(
   // call us again
   if (!stopLoop) {
     try {
-      await updateMachines(provider, podmanConfiguration);
+      await updateMachines(provider, podmanConfiguration, true);
     } catch (error) {
       // ignore the update of machines
     }
