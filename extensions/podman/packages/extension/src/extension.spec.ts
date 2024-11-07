@@ -1561,6 +1561,29 @@ test('if there are no machines, make sure checkDefaultMachine is not being ran i
   expect(spyCheckDefaultMachine).not.toBeCalled();
 });
 
+test('if there is a machine not default, check dialog is displayed', async () => {
+  const spyCheckDefaultMachine = vi.spyOn(extension, 'checkDefaultMachine').mockRejectedValue(new Error());
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
+          resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
+          resolve({ stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name }]) } as unknown as extensionApi.RunResult);
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: false }]),
+          } as extensionApi.RunResult);
+        } else if (args?.[0] === '--version') {
+          resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.updateMachines(provider, podmanConfiguration, true);
+  expect(spyCheckDefaultMachine).toBeCalled();
+});
+
 test('Should notify clean machine if getJSONMachineList is erroring due to an invalid format on mac', async () => {
   vi.mocked(isMac).mockReturnValue(true);
   vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
