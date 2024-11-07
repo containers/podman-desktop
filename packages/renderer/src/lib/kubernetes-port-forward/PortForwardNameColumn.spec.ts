@@ -48,7 +48,6 @@ test('name should be visible', () => {
       name: 'dummy-pod-name',
       namespace: 'dummy-ns',
       kind: WorkloadKind.POD,
-      displayName: '',
       mapping: DUMMY_MAPPING,
     },
   });
@@ -74,7 +73,6 @@ test('click on name should redirect to pod page', async () => {
       name: 'dummy-pod-name',
       namespace: 'dummy-ns',
       kind: WorkloadKind.POD,
-      displayName: '',
       mapping: DUMMY_MAPPING,
     },
   });

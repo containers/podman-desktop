@@ -33,7 +33,6 @@ async function onForwardRequest(port: KubePortInfo): Promise<void> {
   const snapshot: KubePortInfo = $state.snapshot(port);
   try {
     await window.createKubernetesPortForward({
-      displayName: `${resourceName}/${snapshot.name}`,
       name: resourceName,
       kind: kind,
       namespace: namespace ?? 'default',
