@@ -16,21 +16,20 @@ This blog covers the following aspects:
 - Create a pod
 - Set up a local Kubernetes cluster
 - Deploy the application to Kubernetes
-- Verify the running
- service
+- Verify the running service
 
 ## Building a containerized application 
 
-You can build a containerized application that uses:
+With this blog, you will build a containerized application that uses:
+- a backend Redis server container
 - a frontend Python application container
-- a backend Redis server container 
 
 To do so, you can pull the relevant images from the `quay.io` registry.
 
 1. Go to the **Images** component page.
 2. Click **Pull**. 
   ![pull from registry](img/building-a-kubernetes-application/pulling-from-registry.png)
-3. Start the first backend container:
+3. Start the first container:
     1. Enter the image name to pull from a registry. For example, `quay.io/podman-desktop-demo/podify-demo-backend`. 
     ![enter image name](img/building-a-kubernetes-application/enter-image-name.png)
     2. Click **Pull image**. A download complete notification opens.
@@ -43,7 +42,7 @@ To do so, you can pull the relevant images from the `quay.io` registry.
     7. Click the **Logs** tab to view that the Redis server is running in standalone mode.
     ![view Logs tab](img/building-a-kubernetes-application/redis-running-in-logs.png)
 
-4. Start the second frontend container:
+4. Start the second container:
     1. Enter the image name to pull from a registry. For example, `quay.io/podman-desktop-demo/podify-demo-frontend`. 
     2. Click **Pull image** and then **Done**.
     3. Click the `Run Image` icon corresponding to the new image added.
