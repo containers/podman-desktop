@@ -36,7 +36,7 @@ function listenTerminalData(terminal: Terminal, cbId: number) {
 
 // update terminal when receiving data
 function receiveDataCallback(data: Buffer) {
-  attachContainerTerminal.write(data.toString());
+  attachContainerTerminal?.write(data.toString());
 }
 
 function receiveEndCallback() {
