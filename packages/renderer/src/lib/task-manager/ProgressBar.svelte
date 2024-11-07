@@ -35,7 +35,6 @@ interface Props extends HTMLAttributes<HTMLElement> {
   progress?: number;
   width?: string;
   height?: string;
-  class?: string;
 }
 
 let { progress, width = 'w-36', height = 'h-4', class: className, ...restProps }: Props = $props();
