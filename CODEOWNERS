@@ -1,10 +1,10 @@
 # Default Owners
-* @containers/podman-desktop-reviewers @benoitf
+* @podman-desktop/reviewers @benoitf
 
 # website
-website/** @containers/podman-desktop-reviewers @slemeur @cdrage @benoitf @Firewall
-website/docs/** @containers/podman-desktop-reviewers @shipsing @slemeur @cdrage @benoitf @Firewall
+website/** @podman-desktop/reviewers @slemeur @cdrage @benoitf @Firewall
+website/docs/** @podman-desktop/reviewers @shipsing @slemeur @cdrage @benoitf @Firewall
 
 # playwright tests
-tests/playwright/** @containers/podman-desktop-reviewers @containers/podman-desktop-qe-reviewers @benoitf
+tests/playwright/** @podman-desktop/reviewers @podman-desktop/qe-reviewers @benoitf
 
