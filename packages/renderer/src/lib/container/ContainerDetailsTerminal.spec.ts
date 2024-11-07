@@ -227,13 +227,13 @@ test('terminal active/ restarts connection after restarting a container', async 
   onDataCallback(Buffer.from('hello\nworld'));
 
   // wait 1s
-  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
+  await waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
 
   // search a div having aria-live="assertive" attribute
   const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
 
   // check the content
-  waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
+  await waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
 
   container.state = 'RESTARTING';
 
