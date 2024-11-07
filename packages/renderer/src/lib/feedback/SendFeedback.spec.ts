@@ -209,14 +209,47 @@ test('Expect feedback form to change to bug form when selected as category', asy
 
   await tick();
 
-  expect(screen.getByText('Bug title')).toBeInTheDocument();
-  expect(screen.getByText('Bug description')).toBeInTheDocument();
+  expect(screen.getByText('Title')).toBeInTheDocument();
+  expect(screen.getByText('Description')).toBeInTheDocument();
 
-  const sysInfo = screen.getByRole('checkbox', { name: 'Include my system information' });
+  const sysInfo = screen.getByRole('checkbox', { name: 'Collect system information' });
   expect(sysInfo).toBeInTheDocument();
   expect(sysInfo).not.toBeChecked();
 
-  const extensionInfo = screen.getByRole('checkbox', { name: 'Include my enabled extensions' });
+  const extensionInfo = screen.getByRole('checkbox', { name: 'Collect extensions information' });
   expect(extensionInfo).toBeInTheDocument();
   expect(extensionInfo).not.toBeChecked();
+});
+
+test('Expect bug GitHub link to include bug title and description', async () => {
+  render(SendFeedback, {});
+
+  // click on a smiley
+  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
+  expect(categorySelect).toBeInTheDocument();
+  categorySelect.focus();
+
+  // select the Feature request category
+  await userEvent.keyboard('[ArrowDown]');
+  const bugCategory = screen.getByRole('button', { name: /Bug/ });
+  expect(bugCategory).toBeInTheDocument();
+  await fireEvent.click(bugCategory);
+
+  await tick();
+
+  const bugTitle = screen.getByRole('textbox', { name: 'Title' });
+  expect(bugTitle).toBeInTheDocument();
+  await userEvent.type(bugTitle, 'PD is not working');
+
+  const bugDescription = screen.getByRole('textbox', { name: 'Description' });
+  expect(bugDescription).toBeInTheDocument();
+  await userEvent.type(bugDescription, 'bug description');
+
+  const gitHubButton = screen.getByRole('button', { name: 'Preview on GitHub' });
+  expect(gitHubButton).toBeInTheDocument();
+  await fireEvent.click(gitHubButton);
+
+  expect(window.openExternal).toHaveBeenCalledWith(
+    'https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description',
+  );
 });
