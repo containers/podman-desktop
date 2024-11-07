@@ -1,7 +1,7 @@
 <script lang="ts">
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
-import type { UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import type { KubePortInfo } from './kube-port';
 import KubePort from './KubePort.svelte';
@@ -15,7 +15,7 @@ interface Props {
 
 let { ports, resourceName, namespace, kind }: Props = $props();
 
-let forwardConfigs: Map<number, UserForwardConfig> = $derived(
+let forwardConfigs: Map<number, ForwardConfig> = $derived(
   new Map(
     $kubernetesCurrentContextPortForwards
       .filter(forward => forward.kind === kind && forward.name === resourceName && forward.namespace === namespace)

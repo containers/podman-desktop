@@ -4,7 +4,7 @@ import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
-import { type UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import { type ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
@@ -13,7 +13,7 @@ interface Props {
 }
 let { object }: Props = $props();
 
-let userConfigForward: UserForwardConfig | undefined = $derived(
+let userConfigForward: ForwardConfig | undefined = $derived(
   $kubernetesCurrentContextPortForwards.find(
     config =>
       config.kind === object.kind &&

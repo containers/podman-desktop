@@ -20,7 +20,7 @@ import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
 import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import type { CheckingState, ContextGeneralState } from '/@api/kubernetes-contexts-states';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import { findMatchInLeaves } from './search-util';
 
@@ -312,7 +312,7 @@ export const kubernetesCurrentContextEvents = readable<CoreV1Event[]>([], set =>
 
 // Port Forwarding
 
-export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([], set => {
+export const kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([], set => {
   window
     .getKubernetesPortForwards()
     .then(value => {
@@ -320,6 +320,6 @@ export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]
     })
     .catch((err: unknown) => console.log('Error getting port forwarding initial value', err));
   window.events?.receive('kubernetes-port-forwards-update', (value: unknown) => {
-    set(value as UserForwardConfig[]);
+    set(value as ForwardConfig[]);
   });
 });

@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import KubePort from './KubePort.svelte';
 
@@ -34,7 +34,7 @@ beforeEach(() => {
   (window.deleteKubernetesPortForward as unknown) = vi.fn();
 });
 
-const DUMMY_FORWARD_CONFIG: UserForwardConfig = {
+const DUMMY_FORWARD_CONFIG: ForwardConfig = {
   id: 'fake-id',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
@@ -43,7 +43,6 @@ const DUMMY_FORWARD_CONFIG: UserForwardConfig = {
     localPort: 55_076,
     remotePort: 80,
   },
-  displayName: 'dummy name',
 };
 
 describe('port forwarding', () => {

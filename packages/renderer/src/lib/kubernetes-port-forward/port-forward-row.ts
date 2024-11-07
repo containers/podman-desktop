@@ -21,6 +21,5 @@ export interface PortForwardRow {
   name: string;
   namespace: string;
   kind: WorkloadKind;
-  displayName: string;
   mapping: PortMapping;
 }

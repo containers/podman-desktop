@@ -3,13 +3,13 @@ import { faQuestionCircle, faSquareUpRight, faTrash } from '@fortawesome/free-so
 import { Button, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { PortMapping, UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig, PortMapping, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import type { KubePortInfo } from './kube-port';
 
 interface Props {
   port: KubePortInfo;
-  forwardConfig?: UserForwardConfig;
+  forwardConfig?: ForwardConfig;
   resourceName?: string;
   namespace?: string;
   kind: WorkloadKind;
