@@ -186,6 +186,7 @@ const config = {
     category: 'Development',
     icon: './buildResources/icon-512x512.png',
     target: ['flatpak', 'tar.gz'],
+    mimeTypes: ['x-scheme-handler/podman-desktop'],
   },
   mac: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
