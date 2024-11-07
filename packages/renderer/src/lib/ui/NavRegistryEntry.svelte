@@ -14,11 +14,11 @@ interface NavRegistryEntryProps {
   iconWithTitle: boolean;
 }
 
-let { entry, meta = $bindable(), iconWithTitle = $bindable() }: NavRegistryEntryProps = $props();
+let { entry, meta = $bindable(), iconWithTitle }: NavRegistryEntryProps = $props();
 </script>
 
 {#if !entry.hidden}
-  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta} bind:iconWithTitle={iconWithTitle}>
+  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta} iconWithTitle={iconWithTitle}>
     {#if entry.icon === undefined}
       {entry.name}
     {:else if entry.icon.faIcon}

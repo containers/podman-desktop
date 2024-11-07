@@ -63,7 +63,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
 <nav
   class="group w-fit min-w-leftnavbar max-w-[65px] flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
-  <NavItem href="/" tooltip="Dashboard" bind:meta={meta} bind:iconWithTitle={iconWithTitle}>
+  <NavItem href="/" tooltip="Dashboard" bind:meta={meta} iconWithTitle={iconWithTitle}>
     <div class="relative w-full">
       <div class="flex flex-col items-center w-full h-full">
         <div class="flex items-center w-fit h-full relative">
@@ -82,10 +82,10 @@ function onDidChangeConfigurationCallback(e: Event): void {
     {#if navigationRegistryItem.items && navigationRegistryItem.type === 'group'}
       <!-- This is a group, list all items from the entry -->
       {#each navigationRegistryItem.items as item}
-        <NavRegistryEntry entry={item} bind:meta={meta} bind:iconWithTitle={iconWithTitle} />
+        <NavRegistryEntry entry={item} bind:meta={meta} iconWithTitle={iconWithTitle} />
       {/each}
     {:else if navigationRegistryItem.type === 'entry' || navigationRegistryItem.type === 'submenu'}
-      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} bind:iconWithTitle={iconWithTitle} />
+      <NavRegistryEntry entry={navigationRegistryItem} bind:meta={meta} iconWithTitle={iconWithTitle} />
     {/if}
   {/each}
 
@@ -94,7 +94,14 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <div bind:this={outsideWindow}>
     <NavItem href="/accounts" tooltip="" bind:meta={meta} onClick={event => authActions?.onButtonClick(event)}>
       <Tooltip bottomRight tip="Accounts">
-        <AccountIcon size={iconSize} />
+        <div class="flex flex-col items-center w-full h-full">
+          <AccountIcon size={iconSize} />
+          {#if iconWithTitle}
+            <div class="text-xs text-center">
+              Accounts
+            </div>
+          {/if}
+        </div>
       </Tooltip>
       <AuthActions bind:this={authActions} outsideWindow={outsideWindow} />
     </NavItem>
@@ -102,10 +109,10 @@ function onDidChangeConfigurationCallback(e: Event): void {
 
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
-      {#if iconWithTitle}
-        <div class="text-xs text-center">
-          Settings
-        </div>
-      {/if}
+    {#if iconWithTitle}
+      <div class="text-xs text-center">
+        Settings
+      </div>
+    {/if}
   </NavItem>
 </nav>
