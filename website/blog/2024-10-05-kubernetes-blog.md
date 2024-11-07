@@ -90,7 +90,12 @@ You can use both the containers to create a pod. This way both the front-end and
 
 **_Alternative: Pod creation with Kubernetes YAML_**
 
-You can generate a Kubernetes manifest for any existing pod or container and use it to create a local Kubernetes YAML file. Then, you can customize that file and create a pod from it.
+You can generate a Kubernetes manifest for any existing pod or container and use it to create a local Kubernetes YAML file. Then, you can customize that file and create a pod from it. 
+
+At the time of pod creation, you can select a runtime to indicate whether you want to run the pod on a Podman engine or a Kubernetes cluster. Based on the selection, you get to see the newly created pod running in that environment:
+![pods running in different environments](img/building-a-kubernetes-application/pods-running-in-different-environments.png)
+
+The following procedure creates a pod that runs on a Podman engine.
 
 1. Go to the **Pods** page.
 2. Click the overflow menu icon corresponding to the pod.
@@ -104,8 +109,9 @@ You can generate a Kubernetes manifest for any existing pod or container and use
 8. Click **Play Kubernetes YAML**.
   ![play kubernetes yaml](img/building-a-kubernetes-application/play-kubernetes-yaml.png)
 9. Select the YAML file from your machine.
-10. Click **Play** and then **Done**. 
-11. View the newly created pod on the same page.
+10. Check that the **Runtime** field is set to `Podman container engine`.
+11. Click **Play** and then **Done**. 
+13. View the newly created pod on the same page.
 
 After creating the pod, set up a local Kubernetes cluster to deploy the pod.
 
@@ -121,7 +127,7 @@ Once a kubernetes cluster is created, you can view a running control plane node 
 
 ## Deploying the application to Kubernetes
 
-You can deploy the pod or container to a Kubernetes cluster that has an active connection and and access it through a service. 
+You can deploy the pod to a Kubernetes cluster that has an active connection and access it through a service. 
 
 1. Select your [Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context).
 2. Go to the **Pods** component page.
