@@ -76,28 +76,12 @@ describe('KubernetesPortForwardService', () => {
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
-    forwards: [{ localPort: 8080, remotePort: 80 }],
+    forward: { localPort: 8080, remotePort: 80 },
   };
 
   const sampleUserForwardConfig: UserForwardConfig = {
     ...sampleForwardConfig,
     displayName: 'test-display-name',
-  };
-
-  const complexForwardConfig: ForwardConfig = {
-    id: 'fake-id',
-    name: 'test-name',
-    namespace: 'test-namespace',
-    kind: WorkloadKind.POD,
-    forwards: [
-      { localPort: 8080, remotePort: 80 },
-      { localPort: 9090, remotePort: 90 },
-    ],
-  };
-
-  const complexUserForwardConfig: UserForwardConfig = {
-    ...complexForwardConfig,
-    displayName: 'complex-display-name',
   };
 
   beforeEach(() => {
@@ -123,7 +107,7 @@ describe('KubernetesPortForwardService', () => {
 
   test('should create a forward configuration', async () => {
     vi.mocked(mockConfigManagementService.listForwards).mockResolvedValue([]);
-    const forward = sampleUserForwardConfig.forwards[0];
+    const forward = sampleUserForwardConfig.forward;
     if (!forward) throw new Error('undefined forward');
 
     const result = await service.createForward({
@@ -150,15 +134,6 @@ describe('KubernetesPortForwardService', () => {
     expect(mockConfigManagementService.listForwards).toHaveBeenCalled();
   });
 
-  test('should start port forwarding for a given configuration', async () => {
-    const disposable = await service.startForward(sampleForwardConfig);
-    expect(disposable).toHaveProperty('dispose');
-    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(
-      sampleForwardConfig,
-      sampleForwardConfig.forwards[0],
-    );
-  });
-
   test('should dispose for a given configuration', async () => {
     const disposeMock = vi.fn();
     vi.mocked(mockForwardingConnectionService.startForward).mockResolvedValue({
@@ -170,62 +145,5 @@ describe('KubernetesPortForwardService', () => {
 
     service.dispose();
     expect(disposeMock).toHaveBeenCalled();
-  });
-
-  test('delete a multiple mapping should dispose all disposables', async () => {
-    const disposeMock = vi.fn();
-    vi.mocked(mockForwardingConnectionService.startForward).mockResolvedValue({
-      dispose: disposeMock,
-    });
-    await service.startForward(complexForwardConfig);
-
-    await service.deleteForward(complexUserForwardConfig);
-
-    expect(disposeMock).toHaveBeenCalledTimes(2);
-    expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(complexUserForwardConfig);
-    expect(mockConfigManagementService.updateForward).not.toHaveBeenCalled();
-  });
-
-  test('delete a mapping in a multiple mapping should update config without the one removed', async () => {
-    const disposeMock = vi.fn();
-    vi.mocked(mockForwardingConnectionService.startForward).mockResolvedValue({
-      dispose: disposeMock,
-    });
-    await service.startForward(complexForwardConfig);
-
-    await service.deleteForward(complexUserForwardConfig, complexUserForwardConfig.forwards[0]);
-
-    expect(disposeMock).toHaveBeenCalledTimes(1);
-    expect(mockConfigManagementService.deleteForward).not.toHaveBeenCalled();
-    expect(mockConfigManagementService.updateForward).toHaveBeenCalledWith(complexUserForwardConfig, {
-      ...complexUserForwardConfig,
-      forwards: [complexUserForwardConfig.forwards[1]],
-    });
-  });
-
-  test('calling start second time with an updated version should not start the same mapping twice', async () => {
-    const mappingA = complexForwardConfig.forwards[0];
-    const mappingB = complexForwardConfig.forwards[1];
-
-    if (!mappingA || !mappingB) throw new Error('undefined mapping');
-
-    await service.startForward({
-      ...complexForwardConfig,
-      forwards: [mappingA],
-    });
-
-    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledWith(expect.anything(), mappingA);
-    expect(mockForwardingConnectionService.startForward).not.toHaveBeenCalledWith(expect.anything(), mappingB);
-
-    await service.startForward({
-      ...complexForwardConfig,
-      forwards: [mappingA, mappingB],
-    });
-
-    expect(mockForwardingConnectionService.startForward).toHaveBeenNthCalledWith(1, expect.anything(), mappingA);
-    expect(mockForwardingConnectionService.startForward).toHaveBeenNthCalledWith(2, expect.anything(), mappingB);
-
-    // ensure only called twice, once for mappingA one for mappingB
-    expect(mockForwardingConnectionService.startForward).toHaveBeenCalledTimes(2);
   });
 });

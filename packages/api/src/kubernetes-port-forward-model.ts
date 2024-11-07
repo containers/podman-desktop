@@ -92,9 +92,9 @@ export interface ForwardConfig {
   kind: WorkloadKind;
 
   /**
-   * The list of port mappings.
+   * The port mapping.
    */
-  forwards: PortMapping[];
+  forward: PortMapping;
 }
 
 /**

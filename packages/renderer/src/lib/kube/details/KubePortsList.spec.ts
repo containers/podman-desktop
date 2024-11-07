@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render } from '@testing-library/svelte';
+import { render, within } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -73,7 +73,7 @@ test('expect multiple ports to be visible', async () => {
       },
       {
         displayValue: '100/TCP',
-        value: 80,
+        value: 100,
         protocol: 'TCP',
       },
     ],
@@ -84,4 +84,48 @@ test('expect multiple ports to be visible', async () => {
 
   const port100 = getByText('100/TCP');
   expect(port100).toBeDefined();
+});
+
+test('expect only target remote port have open button', async () => {
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable([
+    {
+      id: 'dummy-id',
+      displayName: 'dummy',
+      namespace: 'dummy-ns',
+      kind: WorkloadKind.POD,
+      forward: {
+        localPort: 55_001,
+        remotePort: 80,
+      },
+      name: 'dummy-resource-name',
+    },
+  ]);
+
+  const { getByLabelText } = render(KubePortsList, {
+    resourceName: 'dummy-resource-name',
+    namespace: 'dummy-ns',
+    kind: WorkloadKind.POD,
+    ports: [
+      {
+        displayValue: '80/TCP',
+        value: 80,
+        protocol: 'TCP',
+      },
+      {
+        displayValue: '100/TCP',
+        value: 100,
+        protocol: 'TCP',
+      },
+    ],
+  });
+
+  const div80 = getByLabelText('port 80');
+  expect(div80).toBeDefined();
+  const open80 = within(div80).getByTitle('Open in browser');
+  expect(open80).toBeDefined();
+
+  const div100 = getByLabelText('port 100');
+  expect(div100).toBeDefined();
+  const open100 = within(div100).queryByTitle('Open in browser');
+  expect(open100).toBeNull();
 });

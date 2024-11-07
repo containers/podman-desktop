@@ -50,17 +50,8 @@ export class ForwardConfigRequirements {
     if (config.namespace.length === 0) {
       throw new Error('Found empty namespace.');
     }
-    if (config.forwards.length === 0) {
-      throw new Error('Found empty port mappings.');
-    }
 
-    const localPortList = config.forwards.map(forward => forward.localPort);
-    const results = await Promise.allSettled(localPortList.map(async port => this.portChecker(port)));
-
-    const failedForwards = results.filter(result => result.status === 'rejected') as PromiseRejectedResult[];
-    if (failedForwards.length > 0) {
-      const reasons = failedForwards.map(attempt => attempt.reason).join('\n');
-      throw new Error(reasons);
-    }
+    const available = await this.portChecker(config.forward.localPort);
+    if (!available) throw new Error('port not available');
   }
 }

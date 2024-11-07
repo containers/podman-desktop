@@ -17,9 +17,7 @@ interface Props {
 
 let { port, forwardConfig, resourceName, namespace, kind }: Props = $props();
 
-let mapping: PortMapping | undefined = $derived(
-  forwardConfig?.forwards.find(mapping => mapping.remotePort === port.value),
-);
+let mapping: PortMapping | undefined = $derived(forwardConfig?.forward);
 let loading: boolean = $state(false);
 let error: string | undefined = $state(undefined);
 
@@ -64,7 +62,7 @@ async function removePortForward(): Promise<void> {
   loading = true;
 
   try {
-    await window.deleteKubernetesPortForward(forwardConfig, mapping);
+    await window.deleteKubernetesPortForward(forwardConfig);
   } catch (err: unknown) {
     console.error(err);
   } finally {

@@ -15,14 +15,19 @@ let { object }: Props = $props();
 
 let userConfigForward: UserForwardConfig | undefined = $derived(
   $kubernetesCurrentContextPortForwards.find(
-    forward => forward.kind === object.kind && forward.name === object.name && forward.namespace === object.namespace,
+    config =>
+      config.kind === object.kind &&
+      config.name === object.name &&
+      config.namespace === object.namespace &&
+      config.forward.remotePort === object.mapping.remotePort &&
+      config.forward.localPort === object.mapping.localPort,
   ),
 );
 
 async function deletePortForward(): Promise<void> {
   if (!userConfigForward) return;
 
-  await window.deleteKubernetesPortForward(userConfigForward, object.mapping);
+  await window.deleteKubernetesPortForward(userConfigForward);
 }
 
 async function openExternal(): Promise<void> {
