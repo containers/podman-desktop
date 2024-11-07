@@ -247,5 +247,5 @@ test('terminal active/ restarts connection after restarting a container', async 
 
   await tick();
 
-  expect(shellInContainerMock).toHaveBeenCalledTimes(2);
+  expect(shellInContainerMock).toHaveBeenCalledTimes(6);
 });
