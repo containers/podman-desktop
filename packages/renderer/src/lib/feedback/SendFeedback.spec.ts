@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import SendFeedback from './SendFeedback.svelte';
@@ -190,4 +191,32 @@ test('Expect category to be sent', async () => {
     category: 'feature',
     rating: 4,
   });
+});
+
+test('Expect feedback form to change to bug form when selected as category', async () => {
+  render(SendFeedback, {});
+
+  // click on a smiley
+  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
+  expect(categorySelect).toBeInTheDocument();
+  categorySelect.focus();
+
+  // select the Feature request category
+  await userEvent.keyboard('[ArrowDown]');
+  const bugCategory = screen.getByRole('button', { name: /Bug/ });
+  expect(bugCategory).toBeInTheDocument();
+  await fireEvent.click(bugCategory);
+
+  await tick();
+
+  expect(screen.getByText('Bug title')).toBeInTheDocument();
+  expect(screen.getByText('Bug description')).toBeInTheDocument();
+
+  const sysInfo = screen.getByRole('checkbox', { name: 'Include my system information' });
+  expect(sysInfo).toBeInTheDocument();
+  expect(sysInfo).not.toBeChecked();
+
+  const extensionInfo = screen.getByRole('checkbox', { name: 'Include my enabled extensions' });
+  expect(extensionInfo).toBeInTheDocument();
+  expect(extensionInfo).not.toBeChecked();
 });
