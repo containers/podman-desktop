@@ -61,7 +61,7 @@ beforeEach(() => {
   listViewsContributionsMock.mockResolvedValue([]);
   (window as any).getConfigurationValue = vi.fn();
   (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
-  (window as any).deleteImage = vi.fn().mockResolvedValue(undefined);
+  (window as any).deleteImage = vi.fn();
   vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
   (window.events as unknown) = {

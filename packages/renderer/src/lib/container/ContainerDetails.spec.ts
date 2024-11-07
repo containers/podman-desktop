@@ -141,7 +141,7 @@ test('Expect show tty if container has tty enabled', async () => {
 });
 
 test('Expect redirect to previous page if container is deleted', async () => {
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue(undefined);
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
