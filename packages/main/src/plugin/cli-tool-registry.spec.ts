@@ -121,8 +121,14 @@ suite('cli module', () => {
         doUninstall: vi.fn(),
       };
       const newCliTool = cliToolRegistry.createCliTool(extensionInfo, options);
+      // should notify create after creating a tool
+      expect(apiSender.send).toHaveBeenNthCalledWith(1, 'cli-tool-create');
       cliToolRegistry.registerUpdate(newCliTool as CliToolImpl, updater);
+      // should notify change after registering an update
+      expect(apiSender.send).toHaveBeenNthCalledWith(2, 'cli-tool-change', newCliTool.id);
       cliToolRegistry.registerInstaller(newCliTool as CliToolImpl, installer);
+      // should notify change after registering an installer
+      expect(apiSender.send).toHaveBeenNthCalledWith(3, 'cli-tool-change', newCliTool.id);
       const infoList = cliToolRegistry.getCliToolInfos();
       expect(infoList.length).equals(1);
       expect(infoList[0]).toMatchObject({
