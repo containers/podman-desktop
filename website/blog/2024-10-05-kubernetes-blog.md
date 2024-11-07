@@ -127,7 +127,7 @@ Once a kubernetes cluster is created, you can view a running control plane node 
 
 ## Deploying the application to Kubernetes
 
-You can deploy the pod to a Kubernetes cluster that has an active connection and access it through a service. 
+You can deploy the application pod to a Kubernetes cluster that has an active connection and access it through a service. Also, any container that is part of a pod is deployable to a Kubernetes cluster.
 
 1. Select your [Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context).
 2. Go to the **Pods** component page.
