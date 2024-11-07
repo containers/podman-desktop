@@ -61,7 +61,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
 
 <svelte:window />
 <nav
-  class="group w-leftnavbar min-w-leftnavbar flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="group w-fit min-w-leftnavbar max-w-[65px] flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
   <NavItem href="/" tooltip="Dashboard" bind:meta={meta} bind:iconWithTitle={iconWithTitle}>
     <div class="relative w-full">
