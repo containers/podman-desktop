@@ -36,7 +36,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).getExtensionBanners = getExtensionBannersMock;
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValueOnce(undefined);
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValueOnce({});
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {

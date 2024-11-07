@@ -70,7 +70,7 @@ beforeAll(() => {
   (window as any).getContributedMenus = getContributedMenusMock;
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).addEventListener = vi.fn();
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue(undefined);
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   mocks.TerminalMock.mockReturnValue({
