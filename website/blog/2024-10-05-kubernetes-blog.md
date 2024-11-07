@@ -21,8 +21,8 @@ This blog covers the following aspects:
 ## Building a containerized application 
 
 With this blog, you will build a containerized application that uses:
-- a backend Redis server container
-- a frontend Python application container
+- a back-end Redis server container
+- a front-end Python application container
 
 To do so, you can pull the relevant images from the `quay.io` registry.
 
@@ -38,7 +38,7 @@ To do so, you can pull the relevant images from the `quay.io` registry.
     ![running an image](img/building-a-kubernetes-application/running-an-image.png)
     5. Enter the container name `redis-server`.
     6. Click **Start Container**.
-    ![start a backend container](img/building-a-kubernetes-application/starting-a-backend-container.png)  
+    ![start a back-end container](img/building-a-kubernetes-application/starting-a-backend-container.png)  
     7. Click the **Logs** tab to view that the Redis server is running in standalone mode.
     ![view Logs tab](img/building-a-kubernetes-application/redis-running-in-logs.png)
 
@@ -64,16 +64,16 @@ To do so, you can pull the relevant images from the `quay.io` registry.
         :::
 
     6. Click **Start Container**. 
-    ![start a frontend container](img/building-a-kubernetes-application/starting-a-frontend-container.png)
+    ![start a front-end container](img/building-a-kubernetes-application/starting-a-frontend-container.png)
     7. Click the **Logs** tab to view that the application is running on port `5000`.
-    ![frontend app running](img/building-a-kubernetes-application/frontend-app-running.png)
+    ![front-end app running](img/building-a-kubernetes-application/frontend-app-running.png)
     8. Click the **Open browser** icon on the right side of the page.
-    9. View the running frontend application.
-    ![running frontend application](img/building-a-kubernetes-application/running-application-locally.png)
+    9. View the running front-end application.
+    ![running front-end application](img/building-a-kubernetes-application/running-application-locally.png)
 
 
 ## Creating a pod
-You can use both the containers to create a pod. This way both the frontend and backend container applications can share resources, such as storage and network.
+You can use both the containers to create a pod. This way both the front-end and back end container applications can share resources, such as storage and network.
 
 **_Pod creation with existing containers_**
 
