@@ -82,7 +82,6 @@ describe('port forwarding', () => {
     await vi.waitFor(() => {
       expect(window.getFreePort).toHaveBeenCalled();
       expect(window.createKubernetesPortForward).toHaveBeenCalledWith({
-        displayName: 'dummy-pod-name/undefined',
         forward: {
           localPort: 55001,
           remotePort: 80,
