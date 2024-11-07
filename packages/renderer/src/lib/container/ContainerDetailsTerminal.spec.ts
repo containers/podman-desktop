@@ -193,3 +193,63 @@ test('terminal active/ restarts connection after stopping and starting a contain
 
   await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledTimes(2), { timeout: 2000 });
 });
+
+test('terminal active/ restarts connection after restarting a container', async () => {
+  const container: ContainerInfoUI = {
+    id: 'myContainer',
+    state: 'RUNNING',
+    engineId: 'podman',
+  } as unknown as ContainerInfoUI;
+
+  let onDataCallback: (data: Buffer) => void = () => {};
+
+  const sendCallbackId = 12345;
+  shellInContainerMock.mockImplementation(
+    async (
+      _engineId: string,
+      _containerId: string,
+      onData: (data: Buffer) => void,
+      _onError: (error: string) => void,
+      onEnd: () => void,
+    ) => {
+      onDataCallback = onData;
+      setTimeout(() => {
+        onEnd();
+      }, 500);
+      // return a callback id
+      return sendCallbackId;
+    },
+  );
+
+  // render the component with a terminal
+  const renderObject = render(ContainerDetailsTerminal, { container, screenReaderMode: true });
+
+  // wait shellInContainerMock is called
+  await waitFor(() => expect(shellInContainerMock).toHaveBeenCalled());
+
+  // write some data on the terminal
+  onDataCallback(Buffer.from('hello\nworld'));
+
+  // wait 1s
+  waitFor(() => renderObject.container.querySelector('div[aria-live="assertive"]'));
+
+  // search a div having aria-live="assertive" attribute
+  const terminalLinesLiveRegion = renderObject.container.querySelector('div[aria-live="assertive"]');
+
+  // check the content
+  waitFor(() => expect(terminalLinesLiveRegion).toHaveTextContent('hello world'));
+
+  container.state = 'RESTARTING';
+
+  await renderObject.rerender({ container: container, screenReaderMode: true });
+
+  await tick();
+
+  container.state = 'RUNNING';
+
+  await renderObject.rerender({ container: container, screenReaderMode: true });
+
+  await tick();
+
+  expect(shellInContainerMock).toHaveBeenCalledTimes(2);
+});
