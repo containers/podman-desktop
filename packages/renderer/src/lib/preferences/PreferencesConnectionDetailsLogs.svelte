@@ -79,7 +79,7 @@ onMount(async () => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
   if (providerInternalId) {
-    window.startReceiveLogs(
+    await window.startReceiveLogs(
       providerInternalId,
       (data: any) => logHandler(data, '\x1b[37m'),
       (data: any) => logHandler(data, '\x1b[37m'),

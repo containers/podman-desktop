@@ -15,7 +15,7 @@ async function fetchCatalog() {
   try {
     await window.refreshCatalogExtensions();
   } catch (error) {
-    window.showMessageBox({
+    await window.showMessageBox({
       type: 'error',
       title: 'Error',
       message: 'Failed to refresh the catalog',

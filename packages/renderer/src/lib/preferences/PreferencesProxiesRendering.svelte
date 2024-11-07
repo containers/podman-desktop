@@ -43,7 +43,7 @@ async function updateProxySettings() {
     type = 'warning';
   }
 
-  window.showMessageBox({
+  await window.showMessageBox({
     title: 'Proxy Settings',
     type: type,
     message: message,

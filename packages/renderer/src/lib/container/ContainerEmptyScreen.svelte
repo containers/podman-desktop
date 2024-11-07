@@ -67,7 +67,7 @@ async function runContainer(commandLine: string) {
           message: `Could not find ${helloImage} in images`,
         });
       }
-      window.telemetryTrack('startFirstContainerByButton');
+      await window.telemetryTrack('startFirstContainerByButton');
     }
   } catch (err) {
     await window.showMessageBox({

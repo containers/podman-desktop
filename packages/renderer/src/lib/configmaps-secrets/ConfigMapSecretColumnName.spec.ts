@@ -61,7 +61,7 @@ test('Configmap: Expect clicking works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/configmapsSecrets/configmap/my-configmap/default/summary');
 });
@@ -75,7 +75,7 @@ test('Secret: Expect clicking works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/configmapsSecrets/secret/my-secret/default/summary');
 });

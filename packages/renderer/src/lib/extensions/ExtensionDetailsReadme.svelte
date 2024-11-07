@@ -9,7 +9,7 @@ export let readme: { content?: string; uri?: string };
 
 let readmeContent: string | undefined = undefined;
 
-$: readme && refreshReadme();
+$: readme && refreshReadme().catch((err: unknown) => console.log(`Error fetching readme from ${readme.uri}`, err));
 
 async function refreshReadme(): Promise<void> {
   readmeContent = undefined;

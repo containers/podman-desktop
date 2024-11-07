@@ -71,7 +71,9 @@ onMount(async () => {
           action: 'restart',
           status: connectionInfo.status,
         };
-        startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey);
+        startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey).catch((err: unknown) =>
+          console.error(`Error starting provider ${connectionInfo?.name}`, err),
+        );
         loggerHandlerKey = undefined;
       } else {
         connectionStatus = {

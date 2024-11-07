@@ -34,8 +34,8 @@ async function executeCommand(entry: StatusBarEntry) {
 </script>
 
 <button
-  on:click={() => {
-    executeCommand(entry);
+  on:click={async () => {
+    await executeCommand(entry);
   }}
   class="{opacity(entry)} px-1 py-px flex h-full items-center {hoverBackground(entry)} {hoverCursor(
     entry,

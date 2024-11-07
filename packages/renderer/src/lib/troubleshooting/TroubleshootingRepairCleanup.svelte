@@ -23,7 +23,7 @@ async function openCleanupDialog(): Promise<void> {
   });
 
   if (result?.response === 0) {
-    cleanup();
+    await cleanup();
   }
 }
 

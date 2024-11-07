@@ -70,7 +70,9 @@ onMount(async () => {
           action: 'restart',
           status: connectionInfo.status,
         };
-        startConnectionProvider(providerInfo, connectionInfo, loggerHandlerKey);
+        startConnectionProvider(providerInfo, connectionInfo, loggerHandlerKey).catch((err: unknown) =>
+          console.error(`Error starting provider ${connectionInfo?.name}`, err),
+        );
         loggerHandlerKey = undefined;
       } else {
         connectionStatus = {

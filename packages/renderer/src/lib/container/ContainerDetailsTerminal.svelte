@@ -31,8 +31,8 @@ let lastState = $state('');
 let containerState = $derived(container.state);
 
 $effect(() => {
-  if ((lastState === 'STARTING' || lastState === 'RESTARTING') && containerState === 'RUNNING') {
-    restartTerminal();
+  if (lastState === 'STARTING' && containerState === 'RUNNING') {
+    restartTerminal().catch((err: unknown) => console.error('Error restarting terminal', err));
   }
   lastState = container.state;
 });
@@ -59,13 +59,11 @@ function receiveEndCallback() {
       .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
       .then(id => {
         sendCallbackId = id;
-        shellTerminal?.onData(data => {
-          window.shellInContainerSend(id, data);
+        shellTerminal?.onData(async data => {
+          await window.shellInContainerSend(id, data);
         });
       })
-      .catch((err: unknown) => {
-        console.error('error starting shell', err);
-      });
+      .catch((err: unknown) => console.error(`Error opening terminal for container ${container.id}`, err));
   }
 }
 
@@ -86,7 +84,7 @@ async function executeShellIntoContainer() {
   await window.shellInContainerResize(callbackId, shellTerminal.cols, shellTerminal.rows);
   // pass data from xterm to container
   shellTerminal?.onData(data => {
-    window.shellInContainerSend(callbackId, data);
+    window.shellInContainerSend(callbackId, data).catch((error: unknown) => console.log(String(error)));
   });
 
   // store it
@@ -137,7 +135,9 @@ async function refreshTerminal() {
     if (currentRouterPath === `/containers/${container.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
-        window.shellInContainerResize(sendCallbackId, shellTerminal.cols, shellTerminal.rows);
+        window
+          .shellInContainerResize(sendCallbackId, shellTerminal.cols, shellTerminal.rows)
+          .catch((err: unknown) => console.error(`Error resizing terminal for container ${container.id}`, err));
       }
     }
   });

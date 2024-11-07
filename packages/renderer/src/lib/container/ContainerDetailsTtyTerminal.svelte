@@ -30,7 +30,9 @@ function listenTerminalData(terminal: Terminal, cbId: number) {
   listened = true;
   // pass data from xterm to container
   terminal.onData(data => {
-    window.attachContainerSend(callbackId, data);
+    window
+      .attachContainerSend(callbackId, data)
+      .catch((err: unknown) => console.log(`Error sending data to container ${container.id}`, err));
   });
 }
 
@@ -57,6 +59,11 @@ async function attachToContainer() {
     () => {},
     receiveEndCallback,
   );
+
+  // pass data from xterm to container
+  attachContainerTerminal?.onData(async data => {
+    await window.attachContainerSend(callbackId, data);
+  });
 }
 
 onMount(async () => {

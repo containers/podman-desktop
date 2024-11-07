@@ -62,15 +62,17 @@ onMount(async () => {
         if (askFetchLayers) {
           showFetchButton = true;
         } else {
-          fetchImageLayers(filesProvider, imageInfo);
+          fetchImageLayers(filesProvider, imageInfo).catch((err: unknown) =>
+            console.error(`Error fetching image layers ${imageInfo.Id}`, err),
+          );
         }
       }
     });
   }
 });
 
-onDestroy(() => {
-  window.cancelToken(cancellableTokenId);
+onDestroy(async () => {
+  await window.cancelToken(cancellableTokenId);
   filesProvidersUnsubscribe?.();
 });
 </script>

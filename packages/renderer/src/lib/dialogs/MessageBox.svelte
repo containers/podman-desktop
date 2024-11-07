@@ -86,13 +86,13 @@ function cleanup() {
   message = '';
 }
 
-function clickButton(index?: number) {
-  window.sendShowMessageBoxOnSelect(currentId, index);
+async function clickButton(index?: number) {
+  await window.sendShowMessageBoxOnSelect(currentId, index);
   cleanup();
 }
 
-function onClose() {
-  window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
+async function onClose() {
+  await window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
   cleanup();
 }
 
@@ -134,9 +134,9 @@ function getButtonType(b: boolean): ButtonType {
     <svelte:fragment slot="buttons">
       {#each buttonOrder as i}
         {#if i === cancelId}
-          <Button type="link" aria-label="Cancel" on:click={() => clickButton(i)}>Cancel</Button>
+          <Button type="link" aria-label="Cancel" on:click={async () => await clickButton(i)}>Cancel</Button>
         {:else}
-          <Button type={getButtonType(defaultId === i)} on:click={() => clickButton(i)}>{buttons[i]}</Button>
+          <Button type={getButtonType(defaultId === i)} on:click={async () => await clickButton(i)}>{buttons[i]}</Button>
         {/if}
       {/each}
     </svelte:fragment>

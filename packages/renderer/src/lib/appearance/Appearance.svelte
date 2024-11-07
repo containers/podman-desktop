@@ -10,7 +10,7 @@ let isDarkUnsubscribe: Unsubscriber;
 let isDarkTheme = false;
 
 const APPEARANCE_CONFIGURATION_KEY = AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance;
-async function updateAppearance(): Promise<void> {
+function updateAppearance(): void {
   const html = document.documentElement;
 
   // toggle the dark class on the html element
@@ -29,7 +29,7 @@ let onDidChangeConfigurationCallback: EventListenerOrEventListenerObject = () =>
 };
 
 onMount(async () => {
-  await updateAppearance();
+  updateAppearance();
 
   // add a listener for the appearance change in case user change setting on the Operating System
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

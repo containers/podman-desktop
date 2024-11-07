@@ -104,11 +104,11 @@ onMount(async () => {
   });
 });
 
-function openOpenshiftConsole() {
+async function openOpenshiftConsole() {
   // build link to openOpenshiftConsole
   if (createdPod?.metadata?.name) {
     const linkToOpen = `${openshiftConsoleURL}/k8s/ns/${currentNamespace}/pods/${createdPod.metadata.name}`;
-    window.openExternal(linkToOpen);
+    await window.openExternal(linkToOpen);
   }
 }
 
@@ -122,7 +122,7 @@ async function updatePod() {
   if (createdPod?.status?.phase === 'Running') {
     clearInterval(updatePodInterval);
     deployFinished = true;
-    window.telemetryTrack('deployToKube.running', {
+    await window.telemetryTrack('deployToKube.running', {
       useServices: deployUsingServices,
       useRoutes: deployUsingRoutes,
     });
@@ -147,8 +147,8 @@ function openPodDetails(): void {
   );
 }
 
-function openRoute(route: V1Route) {
-  window.openExternal(`https://${route.spec.host}`);
+async function openRoute(route: V1Route) {
+  await window.openExternal(`https://${route.spec.host}`);
 }
 
 async function deployToKube() {
@@ -346,17 +346,17 @@ async function deployToKube() {
     }
 
     // Telemetry
-    window.telemetryTrack('deployToKube', eventProperties);
+    await window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
     updatePodInterval = setInterval(() => {
-      updatePod();
+      updatePod().catch((err: unknown) => console.error(`Error updating pod ${createdPod?.metadata?.name}`, err));
     }, 2000);
   } catch (error: any) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.
     bodyPod = previousPod;
-    window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
+    await window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
@@ -554,7 +554,7 @@ function updateKubeResult() {
                 class="text-sm"
                 aria-label="Open in OpenShift Console"
                 icon={faExternalLink}
-                on:click={() => openOpenshiftConsole()}>Open in OpenShift console</Link>
+                on:click={async () => await openOpenshiftConsole()}>Open in OpenShift console</Link>
             </div>
           {/if}
         </div>
@@ -597,7 +597,7 @@ function updateKubeResult() {
               {#each createdRoutes as createdRoute}
                 <li class="pt-2">
                   Port {createdRoute.spec.port?.targetPort} is reachable with route
-                  <Link on:click={() => openRoute(createdRoute)}>{createdRoute.metadata.name}</Link>
+                  <Link on:click={async () => await openRoute(createdRoute)}>{createdRoute.metadata.name}</Link>
                 </li>
               {/each}
             </ul>

@@ -40,11 +40,13 @@ onMount(() => {
   if (record.id && record.scope === 'DEFAULT') {
     callbackId = record.id;
     callBack = () => {
-      getInitialValue(record).then(v => {
-        if (v) {
-          recordValue = v;
-        }
-      });
+      getInitialValue(record)
+        .then(v => {
+          if (v) {
+            recordValue = v;
+          }
+        })
+        .catch((err: unknown) => console.error(`Error getting initial value ${record.id}`, err));
     };
     onDidChangeConfiguration.addEventListener(record.id, callBack);
   }
@@ -59,19 +61,21 @@ onDestroy(() => {
 $: if (resetToDefault) {
   recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
   if (ensureType(recordValue)) {
-    update(record);
+    update(record).catch((err: unknown) => console.log(`Error updating ${record.id}`, err));
   }
 
   resetToDefault = false;
 }
 
 $: if (!isEqual(currentRecord, record)) {
-  initialValue.then(value => {
-    recordValue = value;
-    if (record.type === 'boolean') {
-      recordValue = !!value;
-    }
-  });
+  initialValue
+    .then(value => {
+      recordValue = value;
+      if (record.type === 'boolean') {
+        recordValue = !!value;
+      }
+    })
+    .catch((err: unknown) => console.error('Error getting initial value', err));
 
   invalidText = undefined;
   currentRecord = record;

@@ -67,6 +67,7 @@ beforeEach(() => {
       func();
     },
   };
+  (window as any).deleteImage = vi.fn().mockResolvedValue(undefined);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -670,5 +671,5 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
   expect(window.showMessageBox).toHaveBeenCalledTimes(2);
-  vi.waitFor(() => expect(window.deleteImage).toHaveBeenCalled());
+  await vi.waitFor(() => expect(window.deleteImage).toHaveBeenCalled());
 });

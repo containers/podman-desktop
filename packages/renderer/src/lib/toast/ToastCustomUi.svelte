@@ -19,8 +19,8 @@ const closeAction = (): void => {
   onpop();
 };
 
-const executeAction = (): void => {
-  window.executeTask(taskInfo.id);
+const executeAction = async (): Promise<void> => {
+  await window.executeTask(taskInfo.id);
 };
 </script>
 

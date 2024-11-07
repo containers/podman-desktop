@@ -334,7 +334,7 @@ describe('ImageDetailsFiles component', () => {
         imageInfo,
       });
       imageFilesProviders.set([{ id: 'provider1', label: 'Provider 1' }]);
-      waitFor(() => screen.getByText('Error: an error'));
+      await waitFor(() => screen.getByText('Error: an error'));
     });
   });
 
@@ -414,12 +414,11 @@ describe('ImageDetailsFiles component', () => {
         imageInfo,
       });
       imageFilesProviders.set([{ id: 'provider1', label: 'Provider 1' }]);
-      waitFor(async () => {
-        const fetchButton = screen.getByLabelText('fetch');
-        await userEvent.click(fetchButton);
-      });
-      waitFor(() => expect(imageGetFilesystemLayersMock).toHaveBeenCalled());
-      waitFor(() => expect(screen.queryByLabelText('fetch')).toBeNull());
+      await vi.waitFor(() => screen.getByLabelText('fetch'));
+      const fetchButton = screen.getByText('Fetch Layers');
+      await userEvent.click(fetchButton);
+      await waitFor(() => expect(imageGetFilesystemLayersMock).toHaveBeenCalled());
+      await waitFor(() => expect(screen.queryByLabelText('fetch')).toBeNull());
     });
   });
 });

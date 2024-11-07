@@ -31,7 +31,13 @@ configurationProperties.subscribe(() => {
         if (value) {
           updateIsDark(value);
         }
-      });
+      })
+      .catch((err: unknown) =>
+        console.error(
+          `Error getting configuration value ${AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance}`,
+          err,
+        ),
+      );
   }
 });
 

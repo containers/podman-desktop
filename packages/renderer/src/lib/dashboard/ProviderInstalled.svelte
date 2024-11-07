@@ -124,11 +124,11 @@ function updateOptionsMenu(visible: boolean) {
   installationOptionsMenuVisible = visible;
 }
 
-function onInstallationClick() {
+async function onInstallationClick() {
   initializeInProgress = true;
   initializationButtonVisible = false;
   initializationContext.mode = installationOptionSelected as InitializationMode;
-  initializeProvider();
+  await initializeProvider();
 }
 </script>
 

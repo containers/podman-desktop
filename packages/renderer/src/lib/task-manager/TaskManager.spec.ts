@@ -123,6 +123,7 @@ test('Expect tasks', async () => {
 
 test('Expect delete completed tasks remove tasks', async () => {
   const clearTasksMock = vi.fn();
+  vi.mocked(clearTasksMock).mockResolvedValue(undefined);
   (window as { clearTasks: () => void }).clearTasks = clearTasksMock;
 
   tasksInfo.set([SUCCEED_TASK]);

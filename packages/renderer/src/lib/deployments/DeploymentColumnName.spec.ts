@@ -53,7 +53,7 @@ test('Expect clicking works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/deployments/my-deployment/default/summary');
 });

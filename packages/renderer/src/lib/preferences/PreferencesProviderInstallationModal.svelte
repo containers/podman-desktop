@@ -12,10 +12,10 @@ export let preflightChecks: CheckStatus[];
 export let closeCallback: () => void;
 export let doCreateNew: (provider: ProviderInfo, displayName: string) => void;
 
-function openLink(e: MouseEvent, url: string): void {
+async function openLink(e: MouseEvent, url: string): Promise<void> {
   e.preventDefault();
   e.stopPropagation();
-  window.openExternal(url);
+  await window.openExternal(url);
 }
 </script>
 
@@ -47,7 +47,7 @@ function openLink(e: MouseEvent, url: string): void {
                       <div class="flex flex-row mt-0.5">
                         <span class="mr-1">See:</span>
                         {#each preCheck.docLinks as link}
-                          <a href={link.url} target="_blank" class="mr-1" on:click={e => openLink(e, link.url)}
+                          <a href={link.url} target="_blank" class="mr-1" on:click={async e => await openLink(e, link.url)}
                             >{link.title}</a>
                         {/each}
                       </div>

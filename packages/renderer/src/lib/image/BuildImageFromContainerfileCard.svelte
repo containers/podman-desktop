@@ -45,11 +45,13 @@ function handleClick() {
     additionalValue = '';
 
     // make focus on the input field
-    tick().then(() => {
-      if (inputHtmlElement) {
-        inputHtmlElement.focus();
-      }
-    });
+    tick()
+      .then(() => {
+        if (inputHtmlElement) {
+          inputHtmlElement.focus();
+        }
+      })
+      .catch((err: unknown) => console.error('Error tick', err));
     return;
   }
 
