@@ -46,3 +46,10 @@ test('Expect class to be propagated', async () => {
 
   expect(container.children[0]).toHaveClass('dummy-class');
 });
+
+test('Expect aria-label to be propagated', async () => {
+  const { getByLabelText } = render(ProgressBar, { progress: 5, 'aria-label': 'hello-world' });
+
+  const container = getByLabelText('hello-world');
+  expect(container).toBeDefined();
+});

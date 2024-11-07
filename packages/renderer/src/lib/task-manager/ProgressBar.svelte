@@ -29,17 +29,19 @@
 </style>
 
 <script lang="ts">
-interface Props {
+import type { HTMLAttributes } from 'svelte/elements';
+
+interface Props extends HTMLAttributes<HTMLElement> {
   progress?: number;
   width?: string;
   height?: string;
   class?: string;
 }
 
-let { class: className, progress, width = 'w-36', height = 'h-4' }: Props = $props();
+let { progress, width = 'w-36', height = 'h-4', class: className, ...restProps }: Props = $props();
 </script>
 
-<div class="flex flex-row {className}">
+<div class="flex flex-row {className}" {...restProps} >
   <div class="{width} {height} rounded-full bg-[var(--pd-progressBar-bg)] progress-bar overflow-hidden">
     {#if progress !== undefined}
       <div
