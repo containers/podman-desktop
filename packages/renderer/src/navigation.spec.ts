@@ -111,6 +111,17 @@ test(`Test navigationHandle for ${NavigationPage.IMAGE}`, () => {
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images/123/dummyEngineId/ZHVtbXlUYWc=');
 });
 
+test(`Test navigationHandle for ${NavigationPage.ONBOARDING}`, () => {
+  handleNavigation({
+    page: NavigationPage.ONBOARDING,
+    parameters: {
+      extensionId: 'my.extension',
+    },
+  });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/preferences/onboarding/my.extension');
+});
+
 test(`Test navigationHandle for ${NavigationPage.PODS}`, () => {
   handleNavigation({ page: NavigationPage.PODS });
 

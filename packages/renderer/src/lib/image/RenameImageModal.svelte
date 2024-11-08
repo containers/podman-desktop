@@ -117,8 +117,8 @@ async function renameImage(imageName: string, imageTag: string) {
     <Button
       class="col-start-4"
       disabled={disableSave(imageName, imageTag)}
-      on:click={() => {
-        renameImage(imageName, imageTag);
+      on:click={async () => {
+        await renameImage(imageName, imageTag);
       }}>Save</Button>
   </svelte:fragment>
 </Dialog>

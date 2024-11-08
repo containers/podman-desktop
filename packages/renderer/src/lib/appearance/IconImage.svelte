@@ -9,7 +9,10 @@ let imgSrc: string | undefined = undefined;
 $: getImgSrc(image);
 
 function getImgSrc(image: string | { light: string; dark: string } | undefined) {
-  new AppearanceUtil().getImage(image).then(s => (imgSrc = s));
+  new AppearanceUtil()
+    .getImage(image)
+    .then(s => (imgSrc = s))
+    .catch((err: unknown) => console.error(`Error getting image ${image}`, err));
 }
 </script>
 

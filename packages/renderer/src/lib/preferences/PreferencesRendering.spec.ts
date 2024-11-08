@@ -107,7 +107,7 @@ test('Expect example when property to be missing if when statement is not satisf
     scope: CONFIGURATION_DEFAULT_SCOPE,
   };
 
-  waitRender({ properties: [whenProperty], key: 'key' });
+  await waitRender({ properties: [whenProperty], key: 'key' });
 
   // Expect "example when property" to NOT be found when running getByLabelText
   const exampleWhenProperty = screen.queryByLabelText('example when property');
@@ -131,7 +131,7 @@ test('Expect example when property to show if when statement is satisfied from c
     scope: CONFIGURATION_DEFAULT_SCOPE,
   };
 
-  waitRender({ properties: [whenProperty], key: 'key' });
+  await waitRender({ properties: [whenProperty], key: 'key' });
 
   // Expect "example when property" to be found when running getByLabelText
   const exampleWhenProperty = screen.queryByLabelText('example when property');

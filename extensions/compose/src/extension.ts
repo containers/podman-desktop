@@ -65,6 +65,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const composeGitHubReleases = new ComposeGitHubReleases(octokit);
   const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleases, os);
 
+  // add a command to display the onboarding page
+  const openOnboardingCommand = extensionApi.commands.registerCommand('compose.openComposeOnboarding', async () => {
+    await extensionApi.navigation.navigateToOnboarding();
+  });
+
   // ONBOARDING: Command to check compose is downloaded
   const onboardingCheckDownloadCommand = extensionApi.commands.registerCommand(
     'compose.onboarding.checkDownloadedCommand',
@@ -198,6 +203,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Push the commands that will be used within the onboarding sequence
   extensionContext.subscriptions.push(
+    openOnboardingCommand,
     onboardingCheckDownloadCommand,
     onboardingPromptUserForVersionCommand,
     onboardingDownloadComposeCommand,

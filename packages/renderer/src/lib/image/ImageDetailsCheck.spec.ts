@@ -36,7 +36,7 @@ beforeAll(() => {
   getCancellableTokenSourceMock.mockImplementation(() => tokenID);
   (window as any).imageCheck = imageCheckMock;
   (window as any).cancelToken = cancelTokenSpy;
-  (window as any).telemetryTrack = vi.fn();
+  (window as any).telemetryTrack = vi.fn().mockResolvedValue(undefined);
 });
 
 beforeEach(() => {

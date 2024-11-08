@@ -1,7 +1,7 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faGear, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
-import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
@@ -103,7 +103,9 @@ onMount(() => {
               action: 'restart',
               status: container.status,
             });
-            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${container.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -129,7 +131,9 @@ onMount(() => {
               action: 'restart',
               status: connection.status,
             });
-            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${connection.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -218,7 +222,9 @@ $: Promise.all(
     );
     return providerContainer.flat();
   }),
-).then(value => (tmpProviderContainerConfiguration = value.flat()));
+)
+  .then(value => (tmpProviderContainerConfiguration = value.flat()))
+  .catch((err: unknown) => console.error('Error collecting providers', err));
 
 $: providerContainerConfiguration = tmpProviderContainerConfiguration
   .filter(configurationKey => configurationKey.value !== undefined)
@@ -280,9 +286,9 @@ async function doCreateNew(provider: ProviderInfo, displayName: string) {
     providerInstallationInProgress = providerInstallationInProgress;
     providerToBeInstalled = { provider, displayName };
     doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
-    performInstallation(provider);
+    await performInstallation(provider);
   } else {
-    window.telemetryTrack('createNewProviderConnectionPageRequested', {
+    await window.telemetryTrack('createNewProviderConnectionPageRequested', {
       providerId: provider.id,
       name: provider.name,
     });
@@ -530,7 +536,18 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connection={container}
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
-                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue}>
+                <span slot="advanced-actions" class:hidden={providers.length === 0}>
+                  <Tooltip bottom tip="More Options">
+                    <DropdownMenu>
+                      <DropdownMenu.Item title="Open Terminal" icon={faTerminal} onClick={() => {router.goto(
+                        `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                          container.name,
+                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/terminal`);}}/>
+                    </DropdownMenu>
+                  </Tooltip>
+                </span>
+              </PreferencesConnectionActions>
               <div class="mt-1.5 text-[var(--pd-content-sub-header)] text-[9px] flex justify-between">
                 <div aria-label="Connection Version">
                   {provider.name}

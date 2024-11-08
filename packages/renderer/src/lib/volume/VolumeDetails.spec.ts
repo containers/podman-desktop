@@ -58,6 +58,7 @@ beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listVolumes = listVolumesMock;
   (window as any).removeVolume = removeVolumeMock;
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
 });
 
 test('Expect redirect to previous page if volume is deleted', async () => {

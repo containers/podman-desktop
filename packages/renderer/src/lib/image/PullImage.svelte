@@ -253,9 +253,9 @@ async function searchLatestTag(): Promise<void> {
           name="imageName"
           placeholder="Image name"
           searchFunction={searchImages}
-          onChange={(s: string) => {
+          onChange={async (s: string) => {
             validateImageName(s);
-            resolveShortname();
+            await resolveShortname();
             searchLatestTag();
           }}
           onEnter={pullImage}

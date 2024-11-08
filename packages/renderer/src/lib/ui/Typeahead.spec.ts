@@ -98,7 +98,7 @@ test('should list the result after the delay, and display spinner during loading
   await new Promise(resolve => setTimeout(resolve, 5));
   assertIsListVisible(false);
   await new Promise(resolve => setTimeout(resolve, 10));
-  tick();
+  await tick();
   screen.getByRole('progressbar');
 
   await new Promise(resolve => setTimeout(resolve, 100));

@@ -30,21 +30,20 @@ import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forw
 vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
 const MOCKED_USER_FORWARD_CONFIG: UserForwardConfig = {
+  id: 'fake-id',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,
   displayName: 'dummy-display-name',
-  forwards: [
-    {
-      localPort: 55_087,
-      remotePort: 80,
-    },
-  ],
+  forward: {
+    localPort: 55_087,
+    remotePort: 80,
+  },
 };
 
 const MOCKED_PORT_FORWARD_ROW: PortForwardRow = {
   ...MOCKED_USER_FORWARD_CONFIG,
-  mapping: MOCKED_USER_FORWARD_CONFIG.forwards[0],
+  mapping: MOCKED_USER_FORWARD_CONFIG.forward,
 };
 
 beforeEach(() => {
@@ -92,8 +91,5 @@ test('remove should call deleteKubernetesPortForward', async () => {
   const deleteBtn = getByTitle('Delete forwarded port');
   await fireEvent.click(deleteBtn);
 
-  expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(
-    MOCKED_USER_FORWARD_CONFIG,
-    MOCKED_PORT_FORWARD_ROW.mapping,
-  );
+  expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(MOCKED_USER_FORWARD_CONFIG);
 });

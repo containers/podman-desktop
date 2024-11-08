@@ -8,19 +8,28 @@ import {
   faSmile,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { FeedbackProperties } from '../../../../preload/src/index';
+import type { FeedbackCategory, FeedbackProperties } from '/@api/feedback';
+
 import Dialog from '../dialogs/Dialog.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 let displayModal = false;
 
+const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
+  ['developers', '💬 Direct your words to the developers'],
+  ['feature', '🚀 Feature request'],
+  ['bug', '🪲 Bug'],
+]);
+const DEFAULT_CATEGORY: FeedbackCategory = 'developers';
+
 // feedback of the user
 let smileyRating = 0;
 let tellUsWhyFeedback = '';
 let contactInformation = '';
+let category: FeedbackCategory = DEFAULT_CATEGORY;
 
 $: hasFeedback =
   (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
@@ -37,6 +46,7 @@ function hideModal(): void {
   smileyRating = 0;
   tellUsWhyFeedback = '';
   contactInformation = '';
+  category = DEFAULT_CATEGORY;
 }
 
 function selectSmiley(item: number): void {
@@ -45,6 +55,7 @@ function selectSmiley(item: number): void {
 
 async function sendFeedback(): Promise<void> {
   const properties: FeedbackProperties = {
+    category: category,
     rating: smileyRating,
   };
 
@@ -72,7 +83,11 @@ async function openGitHub(): Promise<void> {
 {#if displayModal}
   <Dialog title="Share your feedback" on:close={() => hideModal()}>
     <svelte:fragment slot="content">
-      <label for="smiley" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
+      <label for="category" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Category</label>
+      <Dropdown name="category" bind:value={category}
+      options={Array.from(FEEDBACK_CATEGORIES).map(e => ({ value: e[0], label: e[1] }))}>
+      </Dropdown>
+      <label for="smiley" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
         >How was your experience with Podman Desktop?</label>
       <div class="flex space-x-4">
         <button aria-label="very-sad-smiley" on:click={() => selectSmiley(1)}>

@@ -167,9 +167,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="install"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canInstall) {
-                    install(cliTool);
+                    await install(cliTool);
                   }
                 }}
                 icon={faCircleArrowDown}
@@ -183,9 +183,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="update"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canUpdate) {
-                    update(cliTool);
+                    await update(cliTool);
                   }
                 }}
                 icon={faCircleArrowUp}
@@ -203,9 +203,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="uninstall"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canInstall) {
-                    uninstall(cliTool);
+                    await uninstall(cliTool);
                   }
                 }}
                 icon={faTrash}
@@ -247,9 +247,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 type="link"
                 class="underline"
                 padding="p-0"
-                on:click={() => {
+                on:click={async () => {
                   if (cliTool.canUpdate) {
-                    update(cliTool);
+                    await update(cliTool);
                   }
                 }}
                 title={`${cliTool.displayName} will be updated`}
@@ -272,9 +272,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 type="link"
                 class="underline"
                 padding="p-0"
-                on:click={() => {
+                on:click={async () => {
                   if (cliTool.canInstall) {
-                    install(cliTool);
+                    await install(cliTool);
                   }
                 }}
                 title={`${cliTool.displayName} will be installed`}

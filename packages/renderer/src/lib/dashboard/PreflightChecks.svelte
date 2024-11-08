@@ -5,8 +5,8 @@ import type { CheckStatus } from '/@api/provider-info';
 
 export let preflightChecks: CheckStatus[] = [];
 
-function openLink(url: string): void {
-  window.openExternal(url);
+async function openLink(url: string): Promise<void> {
+  await window.openExternal(url);
 }
 </script>
 
@@ -38,7 +38,7 @@ function openLink(url: string): void {
           {#if preCheck.docLinks}
             See:
             {#each preCheck.docLinks as link}
-              <Link aria-label="precheck-link" on:click={() => openLink(link.url)}>{link.title}</Link>
+              <Link aria-label="precheck-link" on:click={async () => await openLink(link.url)}>{link.title}</Link>
             {/each}
           {/if}
         {/if}

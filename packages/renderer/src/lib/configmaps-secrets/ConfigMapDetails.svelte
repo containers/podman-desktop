@@ -35,12 +35,8 @@ onMount(() => {
       configMap => configMap.metadata?.name === name && configMap.metadata?.namespace === namespace,
     );
     if (matchingConfigMap) {
-      try {
-        configMap = configMapUtils.getConfigMapSecretUI(matchingConfigMap);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      configMap = configMapUtils.getConfigMapSecretUI(matchingConfigMap);
+      loadDetails().catch((err: unknown) => console.error(`Error getting config map ${configMap.name} details`, err));
     } else if (detailsPage) {
       // the configMap has been deleted
       detailsPage.close();

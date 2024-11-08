@@ -47,7 +47,13 @@ onMount(async () => {
         if (result) {
           dockerCompatibilityEnabled = result;
         }
-      });
+      })
+      .catch((err: unknown) =>
+        console.error(
+          `Error getting configuration value ${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`,
+          err,
+        ),
+      );
   });
 });
 </script>

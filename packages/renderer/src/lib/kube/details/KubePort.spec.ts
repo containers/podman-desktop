@@ -35,15 +35,14 @@ beforeEach(() => {
 });
 
 const DUMMY_FORWARD_CONFIG: UserForwardConfig = {
+  id: 'fake-id',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,
-  forwards: [
-    {
-      localPort: 55_076,
-      remotePort: 80,
-    },
-  ],
+  forward: {
+    localPort: 55_076,
+    remotePort: 80,
+  },
   displayName: 'dummy name',
 };
 
@@ -154,10 +153,7 @@ describe('port forwarding', () => {
     await fireEvent.click(removeBtn);
 
     await vi.waitFor(() => {
-      expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(
-        DUMMY_FORWARD_CONFIG,
-        DUMMY_FORWARD_CONFIG.forwards[0],
-      );
+      expect(window.deleteKubernetesPortForward).toHaveBeenCalledWith(DUMMY_FORWARD_CONFIG);
     });
   });
 

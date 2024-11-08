@@ -21,9 +21,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import WindowsControlButton from './WindowsControlButton.svelte';
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  (window as any).windowClose = vi.fn().mockResolvedValue(undefined);
+});
 
 test('Check Maximize/Restore', async () => {
   render(WindowsControlButton, { name: 'Maximize' });

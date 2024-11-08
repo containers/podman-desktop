@@ -33,12 +33,8 @@ onMount(() => {
   return kubernetesCurrentContextRoutes.subscribe(route => {
     const matchingRoute = route.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingRoute) {
-      try {
-        routeUI = ingressRouteUtils.getRouteUI(matchingRoute as V1Route);
-        loadRouteDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      routeUI = ingressRouteUtils.getRouteUI(matchingRoute as V1Route);
+      loadRouteDetails().catch((err: unknown) => console.error(`Error getting route details ${routeUI.name}`, err));
     } else if (detailsPage) {
       // the route has been deleted
       detailsPage.close();

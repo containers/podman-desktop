@@ -42,12 +42,12 @@ async function runProvider() {
   runInProgress = false;
 }
 
-onMount(() => {
+onMount(async () => {
   if (runAtStart) {
     // we reset the mode bc the provider has to be started only after the initialization.
     // Otherwise if the user stops the provider, this component will mount again and will start the provider everytime
     initializationContext.mode = InitializeOnlyMode;
-    runProvider();
+    await runProvider();
   }
 });
 </script>

@@ -218,7 +218,7 @@ describe('PullImage', () => {
     expect(errorMesssage).toHaveTextContent('Image does not exists');
 
     // ok, now choose a valid image name
-    renderResult.rerender({ imageToPull: 'some-valid-image' });
+    await renderResult.rerender({ imageToPull: 'some-valid-image' });
 
     // pull image again
     const pullImagebutton2 = screen.getByRole('button', { name: 'Pull image' });

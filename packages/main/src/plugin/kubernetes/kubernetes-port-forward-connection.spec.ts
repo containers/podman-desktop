@@ -692,46 +692,11 @@ describe('PortForwardConnectionService', () => {
 
     test('should start port forwarding successfully', async () => {
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',
-        forwards: [
-          { localPort: 3000, remotePort: 80 },
-          { localPort: 3001, remotePort: 8080 },
-        ],
-      };
-
-      const pod: V1Pod = {
-        apiVersion: 'v1',
-        kind: 'Pod',
-        metadata: { name: 'test-pod', namespace: 'default' },
-      };
-
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
-
-      const disposable1 = new MockDisposable();
-      const disposable2 = new MockDisposable();
-
-      vi.spyOn(service, 'performForward').mockResolvedValueOnce(disposable1).mockResolvedValueOnce(disposable2);
-
-      const disposable = await service.startForward(forwardConfig);
-
-      expect(service.performForward).toHaveBeenCalledTimes(2);
-      expect(disposable.dispose).toBeInstanceOf(Function);
-
-      disposable.dispose();
-
-      expect(disposable1.dispose).toHaveBeenCalled();
-      expect(disposable2.dispose).toHaveBeenCalled();
-    });
-
-    test('should start port forwarding on specified mapping', async () => {
-      const mapping: PortMapping = { localPort: 3001, remotePort: 8080 };
-      const forwardConfig: ForwardConfig = {
-        kind: WorkloadKind.POD,
-        name: 'test-pod',
-        namespace: 'default',
-        forwards: [{ localPort: 3000, remotePort: 80 }, mapping],
+        forward: { localPort: 3000, remotePort: 80 },
       };
 
       const pod: V1Pod = {
@@ -746,7 +711,39 @@ describe('PortForwardConnectionService', () => {
 
       vi.spyOn(service, 'performForward').mockResolvedValueOnce(disposable1);
 
-      const disposable = await service.startForward(forwardConfig, mapping);
+      const disposable = await service.startForward(forwardConfig);
+
+      expect(service.performForward).toHaveBeenCalledOnce();
+      expect(disposable.dispose).toBeInstanceOf(Function);
+
+      disposable.dispose();
+
+      expect(disposable1.dispose).toHaveBeenCalled();
+    });
+
+    test('should start port forwarding on specified mapping', async () => {
+      const mapping: PortMapping = { localPort: 3001, remotePort: 8080 };
+      const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
+        kind: WorkloadKind.POD,
+        name: 'test-pod',
+        namespace: 'default',
+        forward: mapping,
+      };
+
+      const pod: V1Pod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: { name: 'test-pod', namespace: 'default' },
+      };
+
+      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
+
+      const disposable1 = new MockDisposable();
+
+      vi.spyOn(service, 'performForward').mockResolvedValueOnce(disposable1);
+
+      const disposable = await service.startForward(forwardConfig);
 
       expect(service.performForward).toHaveBeenCalledTimes(1);
       expect(disposable.dispose).toBeInstanceOf(Function);
@@ -754,10 +751,11 @@ describe('PortForwardConnectionService', () => {
 
     test('should throw an error if port forwarding fails', async () => {
       const forwardConfig: ForwardConfig = {
+        id: 'fake-id',
         kind: WorkloadKind.POD,
         name: 'test-pod',
         namespace: 'default',
-        forwards: [{ localPort: 3000, remotePort: 80 }],
+        forward: { localPort: 3000, remotePort: 80 },
       };
 
       const pod: V1Pod = {
@@ -773,37 +771,6 @@ describe('PortForwardConnectionService', () => {
       await expect(service.startForward(forwardConfig)).rejects.toThrow('Failed to forward port');
 
       expect(service.performForward).toHaveBeenCalledTimes(1);
-    });
-
-    test('should dispose all successful forwards if any fail', async () => {
-      const forwardConfig: ForwardConfig = {
-        kind: WorkloadKind.POD,
-        name: 'test-pod',
-        namespace: 'default',
-        forwards: [
-          { localPort: 3000, remotePort: 80 },
-          { localPort: 3001, remotePort: 8080 },
-        ],
-      };
-
-      const pod: V1Pod = {
-        apiVersion: 'v1',
-        kind: 'Pod',
-        metadata: { name: 'test-pod', namespace: 'default' },
-      };
-
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
-
-      const disposable1 = new MockDisposable();
-
-      vi.spyOn(service, 'performForward')
-        .mockResolvedValueOnce(disposable1)
-        .mockRejectedValueOnce(new Error('Failed to forward port'));
-
-      await expect(service.startForward(forwardConfig)).rejects.toThrow('Failed to forward port');
-
-      expect(service.performForward).toHaveBeenCalledTimes(2);
-      expect(disposable1.dispose).toHaveBeenCalled();
     });
   });
 });

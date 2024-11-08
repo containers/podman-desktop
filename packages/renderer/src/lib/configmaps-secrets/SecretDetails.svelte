@@ -35,12 +35,10 @@ onMount(() => {
       secret => secret.metadata?.name === name && secret.metadata?.namespace === namespace,
     );
     if (matchingSecret) {
-      try {
-        secret = secretUtils.getConfigMapSecretUI(matchingSecret);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      secret = secretUtils.getConfigMapSecretUI(matchingSecret);
+      loadDetails().catch((err: unknown) =>
+        console.error(`Error getting config map secret ${secret.name} details`, err),
+      );
     } else if (detailsPage) {
       // the secret has been deleted
       detailsPage.close();

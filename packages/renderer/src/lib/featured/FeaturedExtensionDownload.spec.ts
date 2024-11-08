@@ -84,7 +84,7 @@ test('Expect that we can see the button and click on the install', async () => {
     featuredExtension.installed = true;
     featuredExtension.fetchable = false;
     featuredExtension = { ...featuredExtension };
-    renderResult.rerender({ extension: featuredExtension });
+    await renderResult.rerender({ extension: featuredExtension });
   });
 
   // click on the button

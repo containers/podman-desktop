@@ -52,7 +52,9 @@ onMount(async () => {
   }
   // grab stats result from the container
   fetchStatsId = await window.getContainerStats(container.engineId, container.id, containerStats => {
-    updateStatistics(containerStats);
+    updateStatistics(containerStats).catch((err: unknown) =>
+      console.error(`Error getting container statistics for container ${container.id}`, err),
+    );
   });
 });
 

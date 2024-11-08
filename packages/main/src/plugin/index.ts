@@ -87,7 +87,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
-import type { ForwardOptions, PortMapping, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardOptions, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -654,6 +654,7 @@ export class PluginSystem {
       providerRegistry,
       webviewRegistry,
       commandRegistry,
+      onboardingRegistry,
     );
 
     this.extensionLoader = new ExtensionLoader(
@@ -2476,8 +2477,8 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kubernetes-client:deletePortForward',
-      async (_listener, config: UserForwardConfig, mapping?: PortMapping): Promise<void> => {
-        return kubernetesClient.deletePortForward(config, mapping);
+      async (_listener, config: UserForwardConfig): Promise<void> => {
+        return kubernetesClient.deletePortForward(config);
       },
     );
 

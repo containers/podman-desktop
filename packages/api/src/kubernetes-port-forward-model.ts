@@ -73,6 +73,10 @@ export interface ForwardOptions {
  */
 export interface ForwardConfig {
   /**
+   * Identifier of the forward config
+   */
+  id: string;
+  /**
    * The name of the resource.
    */
   name: string;
@@ -88,9 +92,9 @@ export interface ForwardConfig {
   kind: WorkloadKind;
 
   /**
-   * The list of port mappings.
+   * The port mapping.
    */
-  forwards: PortMapping[];
+  forward: PortMapping;
 }
 
 /**

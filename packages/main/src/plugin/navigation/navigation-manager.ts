@@ -22,6 +22,7 @@ import type { ApiSenderType } from '/@/plugin/api.js';
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import type { OnboardingRegistry } from '/@/plugin/onboarding-registry.js';
 import { NavigationPage } from '/@api/navigation-page.js';
 import type { NavigationRequest } from '/@api/navigation-request.js';
 
@@ -44,6 +45,7 @@ export class NavigationManager {
     private providerRegistry: ProviderRegistry,
     private webviewRegistry: WebviewRegistry,
     private commandRegistry: CommandRegistry,
+    private onboardingRegistry: OnboardingRegistry,
   ) {
     this.#registry = new Map();
   }
@@ -122,6 +124,12 @@ export class NavigationManager {
 
   private async assertContainerExist(id: string): Promise<void> {
     if (!(await this.containerRegistry.containerExist(id))) throw new Error(`Container with id ${id} cannot be found.`);
+  }
+
+  private assertOnboardingExist(extensionId: string): void {
+    if (!this.onboardingRegistry.getOnboarding(extensionId)) {
+      throw new Error(`Onboarding with extension id ${extensionId} cannot be found.`);
+    }
   }
 
   async navigateToContainerLogs(id: string): Promise<void> {
@@ -298,6 +306,17 @@ export class NavigationManager {
       parameters: {
         provider: internalId,
         name: Buffer.from(connection.connection.name).toString('base64'),
+      },
+    });
+  }
+
+  async navigateToOnboarding(extensionId: string): Promise<void> {
+    this.assertOnboardingExist(extensionId);
+
+    this.navigateTo({
+      page: NavigationPage.ONBOARDING,
+      parameters: {
+        extensionId: extensionId,
       },
     });
   }

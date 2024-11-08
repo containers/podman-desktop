@@ -25,12 +25,12 @@ async function deleteManifest(): Promise<void> {
   try {
     await window.removeManifest(manifest.engineId, manifest.name);
   } catch (error) {
-    onError(`Error while deleting manifest: ${String(error)}`);
+    await onError(`Error while deleting manifest: ${String(error)}`);
   }
 }
 
-function onError(error: string): void {
-  window.showMessageBox({
+async function onError(error: string): Promise<void> {
+  await window.showMessageBox({
     title: 'Something went wrong.',
     message: error,
     type: 'error',

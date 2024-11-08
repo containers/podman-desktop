@@ -25,7 +25,7 @@ async function openPruneDialog(): Promise<void> {
   });
 
   if (result && result.response === 0) {
-    prune(type);
+    await prune(type);
   }
 }
 

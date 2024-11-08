@@ -68,7 +68,7 @@ const init = () => {
   values.push(createNavigationKubernetesGroup());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationExtensionGroup());
-  hideItems();
+  hideItems().catch((err: unknown) => console.error('Error hiding navigation items', err));
 };
 
 function collecItem(navigationRegistryEntry: NavigationRegistryEntry, items: DisplayItem[]) {
@@ -159,6 +159,7 @@ configurationProperties.subscribe(() => {
           hiddenItems = value;
         }
       })
-      .then(() => hideItems());
+      .then(() => hideItems())
+      .catch((err: unknown) => console.error('Error getting configuration value navbar.disabledItems', err));
   }
 });

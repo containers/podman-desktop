@@ -38,13 +38,13 @@ onMount(() => {
   }
 });
 
-function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
+async function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
   // needs to delete the task from the svelte store
-  removeTask(task.id);
+  return removeTask(task.id);
 }
 
-function doExecuteAction(task: TaskInfo) {
-  window.executeTask(task.id);
+async function doExecuteAction(task: TaskInfo) {
+  await window.executeTask(task.id);
 }
 </script>
 
@@ -100,7 +100,7 @@ function doExecuteAction(task: TaskInfo) {
         <div class="flex flex-1 flex-col w-full items-end text-[var(--pd-button-secondary)] text-xs">
           <button
             class="text-[var(--pd-button-secondary)] cursor-pointer"
-            on:click={() => doExecuteAction(task)}
+            on:click={async () => await doExecuteAction(task)}
             aria-label="action button">{task.action}</button>
         </div>
       </div>

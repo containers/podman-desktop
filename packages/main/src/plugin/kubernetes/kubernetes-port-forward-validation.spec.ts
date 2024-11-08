@@ -23,10 +23,11 @@ import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-
 
 describe('ForwardConfigRequirements', () => {
   const validConfig: ForwardConfig = {
+    id: 'fake-id',
     name: 'validName',
     namespace: 'validNamespace',
     kind: WorkloadKind.POD,
-    forwards: [{ localPort: 8080, remotePort: 80 }],
+    forward: { localPort: 8080, remotePort: 80 },
   };
 
   test('should pass all requirements', async () => {
@@ -55,14 +56,6 @@ describe('ForwardConfigRequirements', () => {
     await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrow('Found empty namespace.');
   });
 
-  test('should fail with empty port mappings', async () => {
-    const portChecker = vi.fn().mockResolvedValue(true);
-    const requirements = new ForwardConfigRequirements(portChecker);
-    const invalidConfig = { ...validConfig, forwards: [] };
-
-    await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrow('Found empty port mappings.');
-  });
-
   test('should fail if port is not available', async () => {
     const portChecker = vi.fn().mockRejectedValue(new Error('Port is already in use.'));
     const requirements = new ForwardConfigRequirements(portChecker);
@@ -70,19 +63,12 @@ describe('ForwardConfigRequirements', () => {
     await expect(requirements.checkRuntimeRequirements(validConfig)).rejects.toThrow();
   });
 
-  test('should aggregate multiple port check failures', async () => {
-    const portChecker = vi.fn().mockImplementation(port => {
-      if (port === 8080) return Promise.resolve(true);
-      if (port === 8081) return Promise.reject(new Error(`Port ${port} is not available`));
-      return Promise.resolve(true);
-    });
+  test('should propagate port check failures', async () => {
+    const portChecker = vi.fn().mockRejectedValue(new Error(`Port 8081 is not available`));
     const requirements = new ForwardConfigRequirements(portChecker);
     const multiPortConfig = {
       ...validConfig,
-      forwards: [
-        { localPort: 8080, remotePort: 80 },
-        { localPort: 8081, remotePort: 81 },
-      ],
+      forward: { localPort: 8080, remotePort: 80 },
     };
 
     await expect(requirements.checkRuntimeRequirements(multiPortConfig)).rejects.toThrow('Port 8081 is not available');
