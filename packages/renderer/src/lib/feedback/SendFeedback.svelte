@@ -105,8 +105,11 @@ async function openGitHubIssues(): Promise<void> {
 }
 
 async function sendToGitHub(): Promise<void> {
-  const lnk = `https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=${issueTitle.split(' ').join('+')}&bug-description=${issueDescription.split(' ').join('+')}`;
-  await window.openExternal(lnk);
+  displayModal = false;
+  let linkTitle = issueTitle.split(' ').join('+');
+  let linkDescription = issueDescription.split(' ').join('+');
+  const bugLink = `https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=${linkTitle}&bug-description=${linkDescription}`;
+  await window.openExternal(bugLink);
   displayModal = true;
 }
 </script>
@@ -201,15 +204,13 @@ async function sendToGitHub(): Promise<void> {
           class="text-[var(--pd-content-card-text)] text-sm ml-1 my-1"
           name="collectSystemInfo"
           id="collectSystemInfo"
-          title="Collect system information"
-          required>Include my system information</Checkbox>
+          title="Collect system information">Include my system information</Checkbox>
           <Checkbox 
           bind:checked={collectExtensionInfo}
           class="text-[var(--pd-content-card-text)] text-sm ml-1"
           name="collectExtensionInfo"
           id="collectExtensionInfo"
-          title="Collect extensions information"
-          required>Include my enabled extensions</Checkbox>
+          title="Collect extensions information">Include my enabled extensions</Checkbox>
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="validation">
@@ -241,6 +242,7 @@ async function sendToGitHub(): Promise<void> {
         <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={() => sendFeedback()}
         >Send feedback</Button>
       {:else}
+        <Button class="underline" type="link" aria-label="Cancel" on:click={() => hideModal()}>Cancel</Button>
         <Button on:click={() => sendToGitHub()}>Preview on GitHub</Button>
       {/if}
     </svelte:fragment>

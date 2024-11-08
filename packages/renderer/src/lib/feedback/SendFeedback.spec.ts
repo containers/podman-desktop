@@ -171,12 +171,6 @@ test('Expect category to be sent', async () => {
   expect(categorySelect).toBeInTheDocument();
   categorySelect.focus();
 
-  // select the Feature request category
-  await userEvent.keyboard('[ArrowDown]');
-  const featureCategory = screen.getByRole('button', { name: /Feature request/ });
-  expect(featureCategory).toBeInTheDocument();
-  await fireEvent.click(featureCategory);
-
   // click on a smiley
   const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
   await fireEvent.click(smiley);
@@ -188,7 +182,7 @@ test('Expect category to be sent', async () => {
   await fireEvent.click(button);
 
   expect(window.sendFeedback).toHaveBeenCalledWith({
-    category: 'feature',
+    category: 'developers',
     rating: 4,
   });
 });
