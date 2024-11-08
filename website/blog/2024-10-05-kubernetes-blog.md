@@ -92,8 +92,7 @@ You can use both the containers to create a pod. This way both the front-end and
 
 You can generate a Kubernetes manifest for any existing pod or container and use it to create a local Kubernetes YAML file. Then, you can customize that file and create a pod from it. 
 
-At the time of pod creation, you can select a runtime to indicate whether you want to run the pod on a Podman engine or a Kubernetes cluster. Based on the selection, you get to see the newly created pod running in that environment:
-![pods running in different environments](img/building-a-kubernetes-application/pods-running-in-different-environments.png)
+At the time of pod creation, you can select a runtime to indicate whether you want to run the pod on a Podman engine or a Kubernetes cluster. Based on the selection, you get to see the newly created pod running in that environment on the Pods component page.
 
 The following procedure creates a pod that runs on a Podman engine.
 
