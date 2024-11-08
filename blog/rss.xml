@@ -380,6 +380,183 @@ release we received pull requests from the following new people:</p>
             <category>podman</category>
         </item>
         <item>
+            <title><![CDATA[Build your Kubernetes application with Podman Desktop]]></title>
+            <link>https://podman-desktop.io/blog/2024/10/05/kubernetes-blog</link>
+            <guid>https://podman-desktop.io/blog/2024/10/05/kubernetes-blog</guid>
+            <pubDate>Sat, 05 Oct 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Covers the end-to-end workflow to create a Kubernetes application]]></description>
+            <content:encoded><![CDATA[<p>The integration of Podman Desktop with Kubernetes helps you to run your application on a Kubernetes cluster, such as Kind or Minikube.</p>
+<p>This blog covers the following aspects:</p>
+<ul>
+<li>Build a containerized application from registry images</li>
+<li>Create a pod</li>
+<li>Set up a local Kubernetes cluster</li>
+<li>Deploy the application to Kubernetes</li>
+<li>Verify the running service</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="building-a-containerized-application">Building a containerized application<a href="https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#building-a-containerized-application" class="hash-link" aria-label="Direct link to Building a containerized application" title="Direct link to Building a containerized application">​</a></h2>
+<p>With this blog, you will build a containerized application that uses:</p>
+<ul>
+<li>a back-end Redis server container</li>
+<li>a front-end Python application container</li>
+</ul>
+<p>To do so, you can pull the relevant images from the <code>quay.io</code> registry.</p>
+<ol>
+<li>
+<p>Go to the <strong>Images</strong> component page.</p>
+</li>
+<li>
+<p>Click <strong>Pull</strong>.
+<img decoding="async" loading="lazy" alt="pull from registry" src="https://podman-desktop.io/assets/images/pulling-from-registry-c4c0b2921003af4f79c5f783f32f3a51.png" width="1530" height="360" class="img_SS3x"></p>
+</li>
+<li>
+<p>Start the first container:</p>
+<ol>
+<li>Enter the image name to pull from a registry. For example, <code>quay.io/podman-desktop-demo/podify-demo-backend</code>.
+<img decoding="async" loading="lazy" alt="enter image name" src="https://podman-desktop.io/assets/images/enter-image-name-5b7015d24d349426b31fd138a182c39d.png" width="1602" height="458" class="img_SS3x"></li>
+<li>Click <strong>Pull image</strong>. A download complete notification opens.</li>
+<li>Click <strong>Done</strong>.</li>
+<li>Click the <strong>Run Image</strong> icon corresponding to the new image added.
+<img decoding="async" loading="lazy" alt="running an image" src="https://podman-desktop.io/assets/images/running-an-image-d2a93525e1128e16f6d39dc008043d06.png" width="1952" height="350" class="img_SS3x"></li>
+<li>Enter the container name <code>redis-server</code>.</li>
+<li>Click <strong>Start Container</strong>.
+<img decoding="async" loading="lazy" alt="start a back-end container" src="https://podman-desktop.io/assets/images/starting-a-backend-container-e1428c8b7c671b3c7567cd59c05dd847.png" width="1972" height="1202" class="img_SS3x"></li>
+<li>Click the <strong>Logs</strong> tab to view that the Redis server is running in standalone mode.
+<img decoding="async" loading="lazy" alt="view Logs tab" src="https://podman-desktop.io/assets/images/redis-running-in-logs-7e3927e1f11739df5719ff4458b84f55.png" width="1980" height="856" class="img_SS3x"></li>
+</ol>
+</li>
+<li>
+<p>Start the second container:</p>
+<ol>
+<li>
+<p>Enter the image name to pull from a registry. For example, <code>quay.io/podman-desktop-demo/podify-demo-frontend</code>.</p>
+</li>
+<li>
+<p>Click <strong>Pull image</strong> and then <strong>Done</strong>.</p>
+</li>
+<li>
+<p>Click the <code>Run Image</code> icon corresponding to the new image added.</p>
+</li>
+<li>
+<p>Enter the container name <code>python-app</code>.
+<img decoding="async" loading="lazy" alt="enter image name" src="https://podman-desktop.io/assets/images/python-app-image-aafec2361e2144a143e5e830a711c591.png" width="1970" height="1200" class="img_SS3x"></p>
+<div class="theme-admonition theme-admonition-note admonition_WCGJ alert alert--secondary"><div class="admonitionHeading_GCBg"><span class="admonitionIcon_L39b"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg></span>note</div><div class="admonitionContent_pbrs"><p>If the default port is already in use, you can specify a different port in the <code>Port mapping</code> field.</p></div></div>
+</li>
+<li>
+<p>Select the <strong>Networking</strong> tab and enter hostname as <code>redis-server</code> and IP address as <code>10.88.0.2</code> to enable communication with the Redis server.</p>
+<div class="theme-admonition theme-admonition-note admonition_WCGJ alert alert--secondary"><div class="admonitionHeading_GCBg"><span class="admonitionIcon_L39b"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg></span>note</div><div class="admonitionContent_pbrs"><p>You can find the IP address in the <strong>Inspect</strong> tab of the <code>redis-server</code> Container Details page.</p></div></div>
+</li>
+<li>
+<p>Click <strong>Start Container</strong>.
+<img decoding="async" loading="lazy" alt="start a front-end container" src="https://podman-desktop.io/assets/images/starting-a-frontend-container-61596531d5bd533fb79852144e44c792.png" width="1964" height="1206" class="img_SS3x"></p>
+</li>
+<li>
+<p>Click the <strong>Logs</strong> tab to view that the application is running on port <code>5000</code>.
+<img decoding="async" loading="lazy" alt="front-end app running" src="https://podman-desktop.io/assets/images/frontend-app-running-0c82f8d9a8484e70579224c97d751324.png" width="1580" height="468" class="img_SS3x"></p>
+</li>
+<li>
+<p>Click the <strong>Open browser</strong> icon on the right side of the page.</p>
+</li>
+<li>
+<p>View the running front-end application.
+<img decoding="async" loading="lazy" alt="running front-end application" src="https://podman-desktop.io/assets/images/running-application-locally-72420503fbcf4acae0a9544540102f35.png" width="1680" height="1164" class="img_SS3x"></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="creating-a-pod">Creating a pod<a href="https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#creating-a-pod" class="hash-link" aria-label="Direct link to Creating a pod" title="Direct link to Creating a pod">​</a></h2>
+<p>You can use both the containers to create a pod. This way both the front-end and back end container applications can share resources, such as storage and network.</p>
+<p><strong><em>Pod creation with existing containers</em></strong></p>
+<ol>
+<li>Go to the <strong>Containers</strong> page.</li>
+<li>Select both the front-end and back-end containers.</li>
+<li>Click the <strong>Create Pod</strong> button.
+<img decoding="async" loading="lazy" alt="create a pod from containers" src="https://podman-desktop.io/assets/images/creating-pod-from-containers-fc106863f5660d686b50e46f0871a7e8.png" width="1568" height="642" class="img_SS3x"></li>
+<li>Click <strong>Create Pod</strong>.
+<img decoding="async" loading="lazy" alt="copying containers to a pod" src="https://podman-desktop.io/assets/images/copying-containers-to-a-pod-4368ef9c4ab3f08f009e314aaa4837c1.png" width="1562" height="918" class="img_SS3x"></li>
+<li>View the newly created pod on the Pods page.</li>
+<li>Click the name of the pod and then click the <strong>Summary</strong> tab to view its summary.
+<img decoding="async" loading="lazy" alt="viewing pod details" src="https://podman-desktop.io/assets/images/viewing-pod-details-55d5a9d6d339fbe68fa2705c9035df13.png" width="1558" height="574" class="img_SS3x"></li>
+</ol>
+<p><strong><em>Alternative: Pod creation with Kubernetes YAML</em></strong></p>
+<p>You can generate a Kubernetes manifest for any existing pod or container and use it to create a local Kubernetes YAML file. Then, you can customize that file and create a pod from it.</p>
+<p>At the time of pod creation, you can select a runtime to indicate whether you want to run the pod on a Podman engine or a Kubernetes cluster. Based on the selection, you get to see the newly created pod running in that environment on the Pods component page.</p>
+<p>The following procedure creates a pod that runs on a Podman engine.</p>
+<ol>
+<li>Go to the <strong>Pods</strong> page.</li>
+<li>Click the overflow menu icon corresponding to the pod.
+<img decoding="async" loading="lazy" alt="overflow menu icon" src="https://podman-desktop.io/assets/images/overflow-menu-icon-d4b2789f34e65233c6e3df4e59b5a127.png" width="1574" height="638" class="img_SS3x"></li>
+<li>Select the <strong>Generate Kube</strong> option from the dropdown list.</li>
+<li>View the Kubernetes YAML configuration in the <strong>Kube</strong> tab.
+<img decoding="async" loading="lazy" alt="kube manifest" src="https://podman-desktop.io/assets/images/kube-manifest-67dc07cdb16442a7af6c510352dab0ad.png" width="1332" height="630" class="img_SS3x"></li>
+<li>Copy the configuration and paste it into a YAML file on your machine.</li>
+<li>Edit the YAML configuration and save it.</li>
+<li>Go to the <strong>Pods</strong> component page.</li>
+<li>Click <strong>Play Kubernetes YAML</strong>.
+<img decoding="async" loading="lazy" alt="play kubernetes yaml" src="https://podman-desktop.io/assets/images/play-kubernetes-yaml-c83bfcd65f2f776e574ab4cd78e45851.png" width="1474" height="414" class="img_SS3x"></li>
+<li>Select the YAML file from your machine.</li>
+<li>Check that the <strong>Runtime</strong> field is set to <code>Podman container engine</code>.</li>
+<li>Click <strong>Play</strong> and then <strong>Done</strong>.</li>
+<li>View the newly created pod on the same page.</li>
+</ol>
+<p>After creating the pod, set up a local Kubernetes cluster to deploy the pod.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="setting-up-a-local-kubernetes-cluster">Setting up a local Kubernetes cluster<a href="https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#setting-up-a-local-kubernetes-cluster" class="hash-link" aria-label="Direct link to Setting up a local Kubernetes cluster" title="Direct link to Setting up a local Kubernetes cluster">​</a></h2>
+<p>You can set up a local Kubernetes cluster. Once the cluster is connected and running, you can deploy your application on it.</p>
+<p>Based on your preference, use the Kind or Minikube extension:</p>
+<ol>
+<li><a href="https://podman-desktop.io/docs/extensions/install">Install the extension</a> from the Extensions catalog.</li>
+<li>Create a Kubernetes cluster. See <a href="https://podman-desktop.io/docs/kind/installing-extension">Kind cluster creation</a> or <a href="https://podman-desktop.io/docs/minikube/installing-extension">Minikube cluster creation</a>.</li>
+</ol>
+<p>Once a kubernetes cluster is created, you can view a running control plane node and a running Kubernetes service on the Kubernetes component page. The page also shows that the cluster is connected.</p>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="deploying-the-application-to-kubernetes">Deploying the application to Kubernetes<a href="https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#deploying-the-application-to-kubernetes" class="hash-link" aria-label="Direct link to Deploying the application to Kubernetes" title="Direct link to Deploying the application to Kubernetes">​</a></h2>
+<p>You can deploy the application pod to a Kubernetes cluster that has an active connection and access it through a service. Also, any container that is part of a pod is deployable to a Kubernetes cluster.</p>
+<ol>
+<li>
+<p>Select your <a href="https://podman-desktop.io/docs/kubernetes/viewing-and-selecting-current-kubernetes-context">Kubernetes context</a>.</p>
+</li>
+<li>
+<p>Go to the <strong>Pods</strong> component page.</p>
+</li>
+<li>
+<p>Click the overflow menu icon corresponding to the pod.
+<img decoding="async" loading="lazy" alt="overflow menu icon" src="https://podman-desktop.io/assets/images/overflow-menu-icon-d4b2789f34e65233c6e3df4e59b5a127.png" width="1574" height="638" class="img_SS3x"></p>
+</li>
+<li>
+<p>Select the <strong>Deploy to Kubernetes</strong> option from the dropdown list.</p>
+</li>
+<li>
+<p>Select the checkbox to expose the service locally using the ingress controller.
+<img decoding="async" loading="lazy" alt="expose the service locally" src="https://podman-desktop.io/assets/images/expose-the-service-locally-c0f9ff42272180112432dd0dc98eda5e.png" width="1566" height="1192" class="img_SS3x"></p>
+<div class="theme-admonition theme-admonition-note admonition_WCGJ alert alert--secondary"><div class="admonitionHeading_GCBg"><span class="admonitionIcon_L39b"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg></span>note</div><div class="admonitionContent_pbrs"><p>When you configure custom port mapping while running an image, you get the option to select an Ingress host port from the dropdown list.
+<img decoding="async" loading="lazy" alt="ingress-host-port" src="https://podman-desktop.io/assets/images/ingress-host-port-add5711cd5105afc5d53138e02d0a380.png" width="1604" height="180" class="img_SS3x">
+Otherwise, you do not see the option.</p></div></div>
+</li>
+<li>
+<p>Click <strong>Deploy</strong> and then <strong>Done</strong>.</p>
+</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_JmGV" id="verifying-the-running-service">Verifying the running service<a href="https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#verifying-the-running-service" class="hash-link" aria-label="Direct link to Verifying the running service" title="Direct link to Verifying the running service">​</a></h2>
+<ol>
+<li>
+<p>Go the <strong>Kubernetes</strong> component page.</p>
+</li>
+<li>
+<p>Perform the following steps:</p>
+<ol>
+<li>Click the <strong>Services</strong> option to view the newly created service, <code>my-pod-5000</code>.
+<img decoding="async" loading="lazy" alt="service created" src="https://podman-desktop.io/assets/images/service-created-35d86f1be064c3ce5fe87f3a75dccbc8.png" width="1756" height="466" class="img_SS3x"></li>
+<li>Click the <strong>Ingresses and Routes</strong> option to view the newly created ingress, <code>my-pod</code>.
+<img decoding="async" loading="lazy" alt="ingress created" src="https://podman-desktop.io/assets/images/ingress-created-625b73bb0e09109411c8a7848a94cde5.png" width="1764" height="346" class="img_SS3x"></li>
+</ol>
+<div class="theme-admonition theme-admonition-note admonition_WCGJ alert alert--secondary"><div class="admonitionHeading_GCBg"><span class="admonitionIcon_L39b"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg></span>note</div><div class="admonitionContent_pbrs"><p>Use the <strong>Apply YAML</strong> button to directly apply a Kubernetes YAML file to create a resource.</p></div></div>
+</li>
+</ol>]]></content:encoded>
+            <category>podman-desktop</category>
+            <category>podman</category>
+            <category>Kubernetes-application</category>
+            <category>deployment</category>
+        </item>
+        <item>
             <title><![CDATA[Podman Desktop 1.12 Release]]></title>
             <link>https://podman-desktop.io/blog/podman-desktop-release-1.12</link>
             <guid>https://podman-desktop.io/blog/podman-desktop-release-1.12</guid>
@@ -2596,82 +2773,6 @@ log for every component individually.</p>
 <hr>
 <h2 class="anchor anchorWithStickyNavbar_JmGV" id="final-notes">Final notes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.2#final-notes" class="hash-link" aria-label="Direct link to Final notes" title="Direct link to Final notes">​</a></h2>
 <p>The complete list of issues fixed in this release is available <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A1.2.0" target="_blank" rel="noopener noreferrer">here</a> and <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A1.2.0" target="_blank" rel="noopener noreferrer">here</a>.</p>
-<p>Get the latest release from the <a href="https://podman-desktop.io/downloads">Downloads</a> section of the website and boost your development journey with Podman Desktop. Additionally, visit the <a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer">GitHub repository</a> and see how you can help us make Podman Desktop better.</p>]]></content:encoded>
-            <category>podman-desktop</category>
-            <category>release</category>
-            <category>kubernetes</category>
-            <category>openshift</category>
-        </item>
-        <item>
-            <title><![CDATA[Podman Desktop 1.1 Release]]></title>
-            <link>https://podman-desktop.io/blog/podman-desktop-release-1.1</link>
-            <guid>https://podman-desktop.io/blog/podman-desktop-release-1.1</guid>
-            <pubDate>Thu, 08 Jun 2023 00:00:00 GMT</pubDate>
-            <description><![CDATA[Podman Desktop 1.1 has been released!]]></description>
-            <content:encoded><![CDATA[<p>Podman Desktop 1.1 Release! 🎉</p>
-<p>This is primarily a bug-fix release to fix a few important issues, but we've managed to squeeze in a few enhancements
-along the way.</p>
-<ul>
-<li><strong>Podman 4.5.1</strong>: Podman 4.5.1 now included in Windows and Mac installers.</li>
-<li><strong>Extensions</strong>: Update extensions from within Podman Desktop.</li>
-<li><strong>Lima Support</strong>: Choose engine type and override its name from the settings.</li>
-<li><strong>UX and UI Improvements</strong>: New loading screen.</li>
-</ul>
-<p>Podman Desktop 1.1 is now available. <a href="https://podman-desktop.io/downloads">Click here to download it</a>!</p>
-<p><img decoding="async" loading="lazy" alt="Podman-desktop-1-1-hero" src="https://podman-desktop.io/assets/images/podman-desktop-release-1.1-44e0feeaa28730210c0fbecda0193b95.png" width="3958" height="2308" class="img_SS3x"></p>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="release-details">Release Details<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#release-details" class="hash-link" aria-label="Direct link to Release Details" title="Direct link to Release Details">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="podman-v451">Podman v4.5.1<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#podman-v451" class="hash-link" aria-label="Direct link to Podman v4.5.1" title="Direct link to Podman v4.5.1">​</a></h3>
-<p>Podman Desktop 1.1 moves up to <a href="https://github.com/containers/podman/releases/tag/v4.5.1" target="_blank" rel="noopener noreferrer">Podman 4.5.1</a>.</p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="extensions">Extensions<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#extensions" class="hash-link" aria-label="Direct link to Extensions" title="Direct link to Extensions">​</a></h3>
-<p>Optional extensions will follow their own lifecycle and update independently from Podman Desktop. As of
-this release you'll be able to see when there is an update available and install from within
-Podman Desktop <a href="https://github.com/containers/podman-desktop/pull/2655" target="_blank" rel="noopener noreferrer">#2655</a>.</p>
-<p>We've also added options in <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg>Settings &gt; Preferences</strong> to
-automatically check for and install extension updates.</p>
-<div style="width:100%;height:100%"></div>
-<p><img decoding="async" loading="lazy" alt="Update extensions" src="https://podman-desktop.io/assets/images/update-extensions-6b1ea25170c2f1b7608d8f5a887d902a.png" width="1324" height="364" class="img_SS3x"></p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="lima-support">Lima Support<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#lima-support" class="hash-link" aria-label="Direct link to Lima Support" title="Direct link to Lima Support">​</a></h3>
-<p>Thanks to contributor <a href="https://github.com/afbjorklund" target="_blank" rel="noopener noreferrer">Anders Björklund</a>, we have some improvements to the
-Lima extension! In <strong><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"></path></svg>Settings &gt; Preferences</strong> you can select which
-engine type Lima runs on and override the instance name <a href="https://github.com/containers/podman-desktop/pull/2674" target="_blank" rel="noopener noreferrer">#2674</a>.</p>
-<p><img decoding="async" loading="lazy" src="https://user-images.githubusercontent.com/10364051/241755966-0a6a293b-b18e-4222-9c40-abd6c114d464.png" alt="Lima preferences" class="img_SS3x"></p>
-<h3 class="anchor anchorWithStickyNavbar_JmGV" id="other-ui-and-ux-improvements">Other UI and UX Improvements<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#other-ui-and-ux-improvements" class="hash-link" aria-label="Direct link to Other UI and UX Improvements" title="Direct link to Other UI and UX Improvements">​</a></h3>
-<h4 class="anchor anchorWithStickyNavbar_JmGV" id="new-loading-screen">New Loading Screen<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#new-loading-screen" class="hash-link" aria-label="Direct link to New Loading Screen" title="Direct link to New Loading Screen">​</a></h4>
-<p>We have a new loading screen, Podman Desktop style! <a href="https://github.com/containers/podman-desktop/pull/2743" target="_blank" rel="noopener noreferrer">#2743</a>.</p>
-<div style="width:100%;height:100%"></div>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="other-notable-enhancements">Other Notable Enhancements<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#other-notable-enhancements" class="hash-link" aria-label="Direct link to Other Notable Enhancements" title="Direct link to Other Notable Enhancements">​</a></h2>
-<ul>
-<li>Docker-compose can be installed system-wide <a href="https://github.com/containers/podman-desktop/pull/2718" target="_blank" rel="noopener noreferrer">#2718</a>.</li>
-<li>Show warning when creating a pod with two containers that use the same port <a href="https://github.com/containers/podman-desktop/pull/2671" target="_blank" rel="noopener noreferrer">#2671</a>.</li>
-<li>Display Kubernetes context name in pod label <a href="https://github.com/containers/podman-desktop/pull/2634" target="_blank" rel="noopener noreferrer">#2634</a>.</li>
-<li>Add Docker compatibility button using flatpak-spawn <a href="https://github.com/containers/podman-desktop/pull/1925" target="_blank" rel="noopener noreferrer">#1925</a>.</li>
-<li>Improve UI consistency of Pull Image page <a href="https://github.com/containers/podman-desktop/pull/2604" target="_blank" rel="noopener noreferrer">#2604</a>.</li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="notable-bug-fixes">Notable Bug Fixes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#notable-bug-fixes" class="hash-link" aria-label="Direct link to Notable Bug Fixes" title="Direct link to Notable Bug Fixes">​</a></h2>
-<ul>
-<li>Could not install extensions on Windows 10 <a href="https://github.com/containers/podman-desktop/pull/2762" target="_blank" rel="noopener noreferrer">#2762</a>.</li>
-<li>Could not use locally built images on Kubernetes <a href="https://github.com/containers/podman-desktop/pull/2710" target="_blank" rel="noopener noreferrer">#2710</a>.</li>
-<li>Dashboard still suggests update after installation <a href="https://github.com/containers/podman-desktop/pull/2648" target="_blank" rel="noopener noreferrer">#2648</a>.</li>
-<li>Could not Play Kubernetes YAML to Podman on Windows <a href="https://github.com/containers/podman-desktop/pull/2594" target="_blank" rel="noopener noreferrer">#2594</a>.</li>
-<li>Pod label wasn't always shown in list <a href="https://github.com/containers/podman-desktop/pull/2614" target="_blank" rel="noopener noreferrer">#2614</a>.</li>
-<li>Dashboard button state was resetting <a href="https://github.com/containers/podman-desktop/pull/2584" target="_blank" rel="noopener noreferrer">#2584</a>.</li>
-<li>Change checkbox style so they don't look like stop buttons <a href="https://github.com/containers/podman-desktop/pull/2723" target="_blank" rel="noopener noreferrer">#2723</a>.</li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="community-thank-you">Community Thank You<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#community-thank-you" class="hash-link" aria-label="Direct link to Community Thank You" title="Direct link to Community Thank You">​</a></h2>
-<p>🎉 We’d like to say a big thank you to everyone who helped to make Podman Desktop even better. In this
-sprint we received pull requests from the following people:</p>
-<ul>
-<li><a href="https://github.com/fatelei" target="_blank" rel="noopener noreferrer">wangxiaolei</a> in <a href="https://github.com/containers/podman-desktop/pull/2602" target="_blank" rel="noopener noreferrer">#2602 - Add meaningful tooltips to build, pull, prune buttons</a></li>
-<li><a href="https://github.com/AsciiWolf" target="_blank" rel="noopener noreferrer">AsciiWolf</a> in <a href="https://github.com/containers/podman-desktop/pull/2607" target="_blank" rel="noopener noreferrer">#2607 - fix typing error in Flathub name</a> and <a href="https://github.com/containers/podman-desktop/pull/2609" target="_blank" rel="noopener noreferrer">#2609 - fix Flatpak install instructions</a></li>
-<li><a href="https://github.com/afbjorklund" target="_blank" rel="noopener noreferrer">Anders Björklund</a> in <a href="https://github.com/containers/podman-desktop/pull/2674" target="_blank" rel="noopener noreferrer">#2674 - Select engine for Lima provider</a></li>
-</ul>
-<hr>
-<h2 class="anchor anchorWithStickyNavbar_JmGV" id="final-notes">Final notes<a href="https://podman-desktop.io/blog/podman-desktop-release-1.1#final-notes" class="hash-link" aria-label="Direct link to Final notes" title="Direct link to Final notes">​</a></h2>
-<p>The complete list of issues fixed in this release is available <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A1.1.0" target="_blank" rel="noopener noreferrer">here</a> and <a href="https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3A1.1.0" target="_blank" rel="noopener noreferrer">here</a>.</p>
 <p>Get the latest release from the <a href="https://podman-desktop.io/downloads">Downloads</a> section of the website and boost your development journey with Podman Desktop. Additionally, visit the <a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer">GitHub repository</a> and see how you can help us make Podman Desktop better.</p>]]></content:encoded>
             <category>podman-desktop</category>
             <category>release</category>
