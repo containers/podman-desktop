@@ -22,7 +22,7 @@ It's an accessible platform for developers working with single-container applica
 Podman Desktop brings together three powerful features for managing small to large-scale projects:
 * **Container Management**: Supports creating, running, and monitoring containers.
 * **Compose Support**: Allows you to deploy applications defined in [Compose files](https://www.compose-spec.io/). This is particularly useful for managing applications that require multiple services, such as web servers, databases, and caches.
-* **Kubernetes Integration**: Offers tools to manage multi-node Kubernetes clusters, making it ideal for handling more complex distributed applications that need orchestration across several pods and services.
+* **Kubernetes Integration**: Offers tools to manage multi-node Kubernetes clusters, making it ideal for handling more complex distributed applications that need orchestration across several pods and services. You can setup your own development cluster with Podman Desktop using our [Minikube](/docs/minikube/installing-extension) or [Kind](/docs/kind/installing-extension) extensions.
 
 ## Minikube
 
@@ -39,7 +39,7 @@ The following video provides a complete guide from installation to cluster creat
 
 [Backstage](https://backstage.io/) is an open-source platform for building developer portals, designed by Spotify. It empowers engineering teams to create customized, centralized hubs for managing and documenting their services, applications, and infrastructure. Backstage’s extensible architecture includes features for cataloging software components, organizing documentation, managing cloud resources, and tracking workflows.
 
-A popular method for deploying Backstage is through a [Helm chart](https://github.com/backstage/charts), Once deployed, you can view Backstage’s services in the Kubernetes Dashboard to monitor components and ensure proper configuration:
+A popular method for deploying Backstage is through a [Helm chart](https://github.com/backstage/charts). Once deployed, you can view Backstage’s services in the Kubernetes Dashboard to monitor components and ensure proper configuration:
 
 ![backstage services](img/cncf-projects/backstage.png)
 
