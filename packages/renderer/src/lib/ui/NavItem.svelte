@@ -26,10 +26,8 @@ const navItems: Writable<number> = getContext('nav-items');
 
 let tooltipText = '';
 $: if (iconWithTitle) {
-  console.log('only number');
   tooltipText = counter ? `${counter}` : '';
 } else {
-  console.log('full tooltip');
   tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 }
 
