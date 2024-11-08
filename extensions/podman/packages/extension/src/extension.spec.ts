@@ -38,7 +38,8 @@ import {
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import * as podmanCli from './podman-cli';
-import { PodmanConfiguration } from './podman-configuration';
+import type { PodmanConfiguration } from './podman-configuration';
+import { RosettaConfiguration } from './podman-configuration';
 import type { UpdateCheck } from './podman-install';
 import { PodmanInstall } from './podman-install';
 import { getAssetsFolder, isLinux, isMac, isWindows, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
@@ -2221,7 +2222,6 @@ test('isIncompatibleMachineOutput', () => {
 });
 
 describe('calcPodmanMachineSetting', () => {
-  const podmanConfiguration = new PodmanConfiguration();
   let originalProvider: string | undefined;
   beforeEach(() => {
     originalProvider = process.env.CONTAINERS_MACHINE_PROVIDER;
@@ -2262,7 +2262,6 @@ describe('calcPodmanMachineSetting', () => {
   test('setValue to true if OS is Windows and uses WSL', async () => {
     vi.mocked(isWindows).mockReturnValue(true);
     process.env.CONTAINERS_MACHINE_PROVIDER = 'wsl';
-    vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(false);
     await extension.calcPodmanMachineSetting();
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, false);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, false);
@@ -2286,30 +2285,54 @@ test('checkForUpdate func should be called if there is no podman installed', asy
 });
 
 describe('checkRosettaMacArm', async () => {
-  const podmanConfiguration = {
-    isRosettaEnabled: vi.fn(),
-  } as unknown as PodmanConfiguration;
+  let podmanConfiguration: PodmanConfiguration;
+
+  beforeEach(() => {
+    podmanConfiguration = {
+      readUserConfig: vi.fn(),
+      writeUserConfig: vi.fn(),
+    } as unknown as PodmanConfiguration;
+    vi.resetAllMocks();
+    vi.mock('./podman-configuration');
+  });
 
   test('check do nothing on non-macOS', async () => {
     vi.mocked(isMac).mockReturnValue(false);
+    const rosettaConfig = {
+      isRosettaEnabled: vi.fn().mockResolvedValue(false),
+    };
+    vi.mocked(RosettaConfiguration).mockImplementation(function () {
+      return rosettaConfig as any;
+    });
     await extension.checkRosettaMacArm(podmanConfiguration);
     // not called as not on macOS
-    expect(vi.mocked(podmanConfiguration.isRosettaEnabled)).not.toBeCalled();
+    expect(vi.mocked(rosettaConfig.isRosettaEnabled)).not.toBeCalled();
   });
 
   test('check do nothing on macOS with intel', async () => {
     vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(arch).mockReturnValue('x64');
+    const rosettaConfig = {
+      isRosettaEnabled: vi.fn().mockResolvedValue(false),
+    };
+    vi.mocked(RosettaConfiguration).mockImplementation(function () {
+      return rosettaConfig as any;
+    });
     await extension.checkRosettaMacArm(podmanConfiguration);
     // not called as not on arm64
-    expect(vi.mocked(podmanConfiguration.isRosettaEnabled)).not.toBeCalled();
+    expect(vi.mocked(rosettaConfig.isRosettaEnabled)).not.toBeCalled();
   });
 
   test('check no dialog on macOS with arm64 if rosetta is working', async () => {
     vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(arch).mockReturnValue('arm64');
-    // rosetta is being enabled per configuration
-    vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(true);
+    const rosettaConfig = {
+      // rosetta is being enabled per configuration
+      isRosettaEnabled: vi.fn().mockResolvedValue(true),
+    };
+    vi.mocked(RosettaConfiguration).mockImplementation(function () {
+      return rosettaConfig as any;
+    });
 
     // mock rosetta is working when executing commands
     vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
@@ -2317,28 +2340,40 @@ describe('checkRosettaMacArm', async () => {
     await extension.checkRosettaMacArm(podmanConfiguration);
     // check showInformationMessage is not called
     expect(extensionApi.process.exec).toBeCalled();
-    expect(podmanConfiguration.isRosettaEnabled).toBeCalled();
+    expect(rosettaConfig.isRosettaEnabled).toBeCalled();
     expect(extensionApi.window.showInformationMessage).not.toBeCalled();
   });
 
   test('check no dialog on macOS with arm64 if rosetta is not enabled', async () => {
     vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(arch).mockReturnValue('arm64');
-    // rosetta is being enabled per configuration
-    vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(false);
+    const rosettaConfig = {
+      // rosetta is being disabled per configuration
+      isRosettaEnabled: vi.fn().mockResolvedValue(false),
+    };
+
+    vi.mocked(RosettaConfiguration).mockImplementation(function () {
+      return rosettaConfig as any;
+    });
 
     await extension.checkRosettaMacArm(podmanConfiguration);
     // do not try to execute something as disabled
     expect(extensionApi.process.exec).not.toBeCalled();
-    expect(podmanConfiguration.isRosettaEnabled).toBeCalled();
+    expect(rosettaConfig.isRosettaEnabled).toBeCalled();
     expect(extensionApi.window.showInformationMessage).not.toBeCalled();
   });
 
   test('check dialog on macOS with arm64 if rosetta is not working', async () => {
     vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(arch).mockReturnValue('arm64');
-    // rosetta is being enabled per configuration
-    vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(true);
+    const rosettaConfig = {
+      // rosetta is being enabled per configuration
+      isRosettaEnabled: vi.fn().mockResolvedValue(true),
+    };
+
+    vi.mocked(RosettaConfiguration).mockImplementation(function () {
+      return rosettaConfig as any;
+    });
 
     // mock rosetta is not working when executing commands
     vi.mocked(extensionApi.process.exec).mockRejectedValue({ stderr: 'Bad CPU' } as extensionApi.RunError);
@@ -2346,7 +2381,7 @@ describe('checkRosettaMacArm', async () => {
     await extension.checkRosettaMacArm(podmanConfiguration);
     // check showInformationMessage is not called
     expect(extensionApi.process.exec).toBeCalled();
-    expect(podmanConfiguration.isRosettaEnabled).toBeCalled();
+    expect(rosettaConfig.isRosettaEnabled).toBeCalled();
     expect(extensionApi.window.showInformationMessage).toBeCalled();
   });
 });
