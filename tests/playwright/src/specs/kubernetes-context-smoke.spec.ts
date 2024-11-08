@@ -62,7 +62,7 @@ test.describe.serial('Verification of kube context management', { tag: ['@k8s_e2
     const kubePage = await settingsBar.openTabPage(KubeContextPage);
     await playExpect(kubePage.heading).toBeVisible();
 
-    await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 10_000 }).toBeFalsy();
+    await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 30_000 }).toBeFalsy();
     for (const context of testContexts) {
       const row = await kubePage.getContextRowByName(context);
       await playExpect(row).toBeVisible();

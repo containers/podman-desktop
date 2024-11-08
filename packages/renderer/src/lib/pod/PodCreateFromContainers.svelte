@@ -295,8 +295,8 @@ function getWarningText(): string {
           <Button
             icon={SolidPodIcon}
             bind:disabled={createInProgress}
-            on:click={() => {
-              createPodFromContainers();
+            on:click={async () => {
+              await createPodFromContainers();
             }}
             bind:inProgress={createInProgress}
             aria-label="Create pod">

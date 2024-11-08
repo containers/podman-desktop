@@ -17,12 +17,12 @@ const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () 
   showBanner = true;
 });
 
-function openReleaseNotes() {
-  window.openExternal(notesURL);
+async function openReleaseNotes() {
+  await window.openExternal(notesURL);
 }
 
-function updatePodmanDesktop() {
-  window.updatePodmanDesktop();
+async function updatePodmanDesktop() {
+  await window.updatePodmanDesktop();
 }
 
 async function getInfoFromNotes() {

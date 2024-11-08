@@ -40,13 +40,9 @@ onMount(() => {
       dep => dep.metadata?.name === name && dep.metadata?.namespace === namespace,
     );
     if (matchingDeployment) {
-      try {
-        deployment = deploymentUtils.getDeploymentUI(matchingDeployment);
-        events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === deployment.uid);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      deployment = deploymentUtils.getDeploymentUI(matchingDeployment);
+      events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === deployment.uid);
+      loadDetails().catch((err: unknown) => console.error(`Error getting deployment details ${deployment.name}`, err));
     } else if (detailsPage) {
       // the deployment has been deleted
       detailsPage.close();

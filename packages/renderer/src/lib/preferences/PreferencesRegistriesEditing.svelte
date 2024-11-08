@@ -225,8 +225,8 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
   loggingIn = false;
 }
 
-function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
-  window.unregisterImageRegistry(registry);
+async function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
+  await window.unregisterImageRegistry(registry);
   setPasswordForRegistryVisible(registry, false);
 }
 </script>
@@ -362,7 +362,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                     onClick={() => markRegistryAsModified(registry)}
                     hidden={!registry.username && !registry.secret}
                     icon={faUserPen} />
-                  <DropdownMenu.Item title="Remove" onClick={() => removeExistingRegistry(registry)} icon={faTrash} />
+                  <DropdownMenu.Item title="Remove" onClick={async () => await removeExistingRegistry(registry)} icon={faTrash} />
                 </DropdownMenu>
               </div>
             {/if}

@@ -23,7 +23,7 @@ let logsTerminal: Terminal;
 $: {
   if (refPod && (refPod.id !== pod.id || (refPod.status !== pod.status && pod.status !== 'EXITED'))) {
     logsTerminal?.clear();
-    fetchPodLogs();
+    fetchPodLogs().catch((err: unknown) => console.error(`Error fetching logs for pod ${pod.id}`, err));
   }
   refPod = pod;
 }
@@ -94,7 +94,7 @@ async function fetchPodLogs() {
 }
 
 onMount(async () => {
-  fetchPodLogs();
+  await fetchPodLogs();
 });
 </script>
 

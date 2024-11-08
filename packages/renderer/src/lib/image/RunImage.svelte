@@ -505,9 +505,9 @@ function addHostContainerPorts() {
   ];
 }
 
-function deleteHostContainerPorts(index: number) {
+async function deleteHostContainerPorts(index: number) {
   hostContainerPortMappings = hostContainerPortMappings.filter((_, i) => i !== index);
-  assertAllPortAreValid();
+  await assertAllPortAreValid();
 }
 
 function addVolumeMount() {
@@ -587,14 +587,14 @@ function checkContainerName(event: any) {
 function onContainerPortMappingInput(event: Event, index: number) {
   onPortInput(event, containerPortMapping[index], () => {
     containerPortMapping = containerPortMapping;
-    assertAllPortAreValid();
+    assertAllPortAreValid().catch((err: unknown) => console.error('Error checking all ports valid', err));
   });
 }
 
 function onHostContainerPortMappingInput(event: Event, index: number) {
   onPortInput(event, hostContainerPortMappings[index].hostPort, () => {
     hostContainerPortMappings = hostContainerPortMappings;
-    assertAllPortAreValid();
+    assertAllPortAreValid().catch((err: unknown) => console.error('Error checking all ports valid', err));
   });
 }
 
@@ -749,7 +749,7 @@ const envDialogOptions: OpenDialogOptions = {
                     aria-label="container port"
                     placeholder="Container Port"
                     class="ml-2" />
-                  <Button type="link" on:click={() => deleteHostContainerPorts(index)} icon={faMinusCircle} />
+                  <Button type="link" on:click={async () => await deleteHostContainerPorts(index)} icon={faMinusCircle} />
                 </div>
               {/each}
               <label

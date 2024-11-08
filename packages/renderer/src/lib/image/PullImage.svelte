@@ -14,9 +14,11 @@ import { providerInfos } from '../../stores/providers';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import Typeahead from '../ui/Typeahead.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 const DOCKER_PREFIX = 'docker.io';
+const DOCKER_PREFIX_WITH_SLASH = DOCKER_PREFIX + '/';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -175,8 +177,8 @@ async function searchImages(value: string): Promise<string[]> {
     const parts = value.split(':');
     const originalImage = parts[0];
     let image = parts[0];
-    if (image.startsWith(DOCKER_PREFIX + '/')) {
-      image = image.slice(DOCKER_PREFIX.length + 1);
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
     allTags = tags.map(t => `${originalImage}:${t}`);
@@ -204,6 +206,29 @@ async function searchImages(value: string): Promise<string[]> {
   });
   return result;
 }
+
+let latestTagMessage: string | undefined = undefined;
+async function searchLatestTag(): Promise<void> {
+  if (imageNameIsInvalid || !imageToPull || imageToPull.includes(':')) {
+    latestTagMessage = undefined;
+    return;
+  }
+  try {
+    let image = imageToPull;
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
+    }
+    const tags = await window.listImageTagsInRegistry({ image });
+    const latestFound = tags.includes('latest');
+    if (!latestFound) {
+      latestTagMessage = '"latest" tag not found. You can search a tag by appending ":" to the image name';
+    } else {
+      latestTagMessage = undefined;
+    }
+  } catch {
+    latestTagMessage = undefined;
+  }
+}
 </script>
 
 <EngineFormPage
@@ -228,9 +253,10 @@ async function searchImages(value: string): Promise<string[]> {
           name="imageName"
           placeholder="Image name"
           searchFunction={searchImages}
-          onChange={(s: string) => {
+          onChange={async (s: string) => {
             validateImageName(s);
-            resolveShortname();
+            await resolveShortname();
+            await searchLatestTag();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
@@ -250,6 +276,9 @@ async function searchImages(value: string): Promise<string[]> {
       {/if}
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
+      {/if}
+      {#if latestTagMessage}
+        <WarningMessage error={latestTagMessage} />
       {/if}
 
       {#if providerConnections.length > 1}

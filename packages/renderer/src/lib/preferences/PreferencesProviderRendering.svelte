@@ -77,7 +77,7 @@ async function startReceivingLogs(providerInternalId: string): Promise<void> {
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
-  window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler);
+  await window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler);
 }
 
 async function stopReceivingLogs(providerInternalId: string): Promise<void> {
@@ -165,8 +165,8 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 {#if showModalProviderInfo}
   {@const showModalProviderInfoInternalId = showModalProviderInfo.internalId}
   <Modal
-    on:close={() => {
-      stopReceivingLogs(showModalProviderInfoInternalId);
+    on:close={async () => {
+      await stopReceivingLogs(showModalProviderInfoInternalId);
       showModalProviderInfo = undefined;
     }}>
     <div id="log" style="height: 400px; width: 647px;">

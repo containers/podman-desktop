@@ -87,7 +87,7 @@ function mockCallback(
     keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void,
   ): Promise<void> {
     // keep reference
-    callback(keyLogger);
+    await callback(keyLogger);
   });
 }
 
@@ -288,7 +288,7 @@ describe.each([
       name: providerInfo.name,
     });
     // expect it is sucessful
-    vi.waitFor(() => expect(cancelTokenMock).toBeCalled(), { timeout: 3000 });
+    await vi.waitFor(() => expect(cancelTokenMock).toBeCalled(), { timeout: 3000 });
   });
 
   test('Expect Close button and main image to not be visible if hidden using properties', async () => {

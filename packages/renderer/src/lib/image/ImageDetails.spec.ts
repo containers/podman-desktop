@@ -76,7 +76,10 @@ beforeEach(() => {
   (window as any).listContainers = vi.fn();
   (window as any).deleteImage = deleteImageMock;
   (window as any).hasAuthconfigForImage = hasAuthMock;
-
+  (window as any).getImageCheckerProviders = vi.fn().mockResolvedValue([]);
+  (window as any).listViewsContributions = vi.fn().mockResolvedValue([]);
+  (window as any).getImageFilesProviders = vi.fn().mockResolvedValue([]);
+  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });

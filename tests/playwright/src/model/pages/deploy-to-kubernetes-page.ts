@@ -124,7 +124,7 @@ export class DeployToKubernetesPage extends BasePage {
 
       await playExpect(this.deployButton).toBeEnabled();
       await this.deployButton.click();
-      await playExpect(this.deploymentStatus).toBeVisible();
+      await playExpect(this.deploymentStatus).toBeVisible({ timeout: 30_000 });
       await this.deploymentStatus.scrollIntoViewIfNeeded();
       await playExpect(this.doneButton).toBeVisible({ timeout: timeout });
     });

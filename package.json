@@ -1,7 +1,7 @@
 {
   "name": "podman-desktop",
   "productName": "Podman Desktop",
-  "repository": "https://github.com/containers/podman-desktop",
+  "repository": "https://github.com/podman-desktop/podman-desktop",
   "homepage": "https://www.podman-desktop.io",
   "version": "1.15.0-next",
   "license": "apache-2.0",
@@ -142,7 +142,7 @@
     "@vitest/eslint-plugin": "^1.1.7",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "33.1.0",
+    "electron": "33.2.0",
     "electron-builder": "25.1",
     "electron-builder-notarize": "^1.5.2",
     "electron-devtools-installer": "^3.2.0",

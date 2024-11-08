@@ -43,15 +43,10 @@ const columns = [
 const row = new TableRow<PortForwardRow>({});
 
 let portForwardRows: PortForwardRow[] = $derived.by(() => {
-  return $kubernetesCurrentContextPortForwards.reduce((accumulator, value) => {
-    accumulator.push(
-      ...value.forwards.map(forward => ({
-        ...value,
-        mapping: forward,
-      })),
-    );
-    return accumulator;
-  }, [] as PortForwardRow[]);
+  return $kubernetesCurrentContextPortForwards.map(config => ({
+    ...config,
+    mapping: config.forward,
+  }));
 });
 </script>
 

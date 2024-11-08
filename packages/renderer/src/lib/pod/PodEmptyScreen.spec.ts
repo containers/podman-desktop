@@ -19,13 +19,20 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
 import type { ImageInfo } from '/@api/image-info';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import PodEmptyScreen from './PodEmptyScreen.svelte';
+
+vi.mock('/@/stores/providers', async () => {
+  const store = await import('svelte/store');
+  return {
+    providerInfos: store.writable<ProviderInfo[]>([]),
+  };
+});
 
 beforeAll(() => {
   (window as any).createPod = vi.fn();
@@ -34,6 +41,7 @@ beforeAll(() => {
   (window as any).pullImage = vi.fn();
   (window as any).listImages = vi.fn();
   (window as any).createAndStartContainer = vi.fn();
+  (window as any).getProviderInfos = vi.fn();
   providerInfos.set([
     {
       containerConnections: [
@@ -45,8 +53,9 @@ beforeAll(() => {
   ]);
 });
 
-afterEach(() => {
+beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(window.showMessageBox).mockResolvedValue(undefined as any);
 });
 
 const helloImage = 'quay.io/podman/hello:latest';
@@ -57,7 +66,7 @@ const errorMessage = {
 };
 const imageErrorMessage = {
   title: `Error when running a pod`,
-  message: `Could not find '${helloImage}' in images`,
+  message: `Could not find '${helloImage}'' in images`,
 };
 const providerErrorMessage = {
   title: `Error when running a pod`,
@@ -105,20 +114,21 @@ testComponent('button click shows error message if starting pod fails', async ()
   vi.spyOn(window, 'createPod').mockResolvedValue(podInfo);
   vi.spyOn(window, 'createAndStartContainer').mockRejectedValue(error);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(errorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(errorMessage));
 });
 
 test('button click shows error if image could not be pulled', async () => {
   vi.mocked(window.listImages).mockResolvedValue([]);
   render(PodEmptyScreen);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(imageErrorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(imageErrorMessage));
 });
 
-testComponent('button click shows error message if there is no active provider connection', async () => {
+test('button click shows error message if there is no active provider connection', async () => {
   providerInfos.set([]);
+  render(PodEmptyScreen);
   await fireEvent.click(getButton());
-  vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(providerErrorMessage));
+  await vi.waitFor(() => expect(window.showMessageBox).toBeCalledWith(providerErrorMessage));
 });
 
 testComponent(`${copyToClipboard} button click puts starting pod command to clipboard`, async () => {

@@ -42,7 +42,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 test('Expect to have the "Try again" and Cancel buttons if the step represent a failed state', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();
-
+  (window as any).telemetryTrack = vi.fn();
   onboardingList.set([
     {
       extension: 'id',

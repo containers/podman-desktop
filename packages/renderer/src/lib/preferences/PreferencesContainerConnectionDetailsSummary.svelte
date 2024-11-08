@@ -28,7 +28,9 @@ $: Promise.all(
       providerId: providerInternalId ?? '',
     };
   }),
-).then(value => (tmpProviderContainerConfiguration = value.flat()));
+)
+  .then(value => (tmpProviderContainerConfiguration = value.flat()))
+  .catch((err: unknown) => console.error('Error collecting providers', err));
 
 $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
   configurationKey => configurationKey.value !== undefined,

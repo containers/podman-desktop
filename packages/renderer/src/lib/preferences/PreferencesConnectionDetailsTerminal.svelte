@@ -34,7 +34,9 @@ let lastState = $state<ProviderConnectionStatus>('started');
 $effect(() => {
   const connectionStatus = connectionInfo.status;
   if (lastState === 'stopped' && connectionStatus === 'started') {
-    restartTerminal();
+    restartTerminal().catch((err: unknown) =>
+      console.error(`Error restarting terminal for provider ${connectionInfo.name}`, err),
+    );
   }
   lastState = connectionStatus;
 });
@@ -61,9 +63,12 @@ function receiveEndCallback(): void {
     .then(id => {
       sendCallbackId = id;
       shellTerminal?.onData((data: string) => {
-        window.shellInProviderConnectionSend(id, data);
+        window
+          .shellInProviderConnectionSend(id, data)
+          .catch((err: unknown) => console.error(`Error sending data to provider ${connectionInfo.name}`, err));
       });
-    });
+    })
+    .catch((err: unknown) => console.log(`Error opening terminal for provider ${connectionInfo.name}`, err));
 }
 
 // call exec command
@@ -143,7 +148,9 @@ async function refreshTerminal(): Promise<void> {
           rows: shellTerminal?.rows,
           cols: shellTerminal?.cols,
         };
-        window.shellInProviderConnectionResize(sendCallbackId, dimensions);
+        window
+          .shellInProviderConnectionResize(sendCallbackId, dimensions)
+          .catch((err: unknown) => console.error(`Error resizing terminal for provider ${connectionInfo.name}`, err));
       }
     }
   });

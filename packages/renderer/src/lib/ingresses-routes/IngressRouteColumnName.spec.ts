@@ -64,7 +64,7 @@ test('Expect clicking on Ingress works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/ingressesRoutes/ingress/my-ingress/test-namespace/summary');
 });
@@ -86,7 +86,7 @@ test('Expect clicking on Route works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/ingressesRoutes/route/my-route/test-namespace/summary');
 });

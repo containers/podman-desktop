@@ -6,10 +6,10 @@ export let record: IConfigurationPropertyRecordedSchema;
 export let value: number;
 export let onChange = async (_id: string, _value: number) => {};
 
-function onInput(event: Event) {
+async function onInput(event: Event) {
   const target = event.currentTarget as HTMLInputElement;
   const _value = uncertainStringToNumber(target.value);
-  if (record.id && _value !== value) onChange(record.id, _value);
+  if (record.id && _value !== value) await onChange(record.id, _value);
 }
 </script>
 

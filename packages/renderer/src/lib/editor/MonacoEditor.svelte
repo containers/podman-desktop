@@ -39,7 +39,7 @@ async function updateTheme(isDarkTheme: boolean) {
 
 onMount(async () => {
   isDarkUnsubscribe = isDark.subscribe(value => {
-    updateTheme(value);
+    updateTheme(value).catch((err: unknown) => console.log(`Error updating theme to ${value}`, err));
   });
 
   self.MonacoEnvironment = {

@@ -71,8 +71,8 @@ async function pushManifestFinished() {
       <Button
         class="w-auto"
         icon={faCircleArrowUp}
-        on:click={() => {
-          pushManifest();
+        on:click={async () => {
+          await pushManifest();
         }}
         bind:inProgress={pushInProgress}>
         Push manifest
