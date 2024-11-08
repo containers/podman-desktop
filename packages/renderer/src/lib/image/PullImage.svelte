@@ -256,7 +256,7 @@ async function searchLatestTag(): Promise<void> {
           onChange={async (s: string) => {
             validateImageName(s);
             await resolveShortname();
-            searchLatestTag();
+            await searchLatestTag();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
