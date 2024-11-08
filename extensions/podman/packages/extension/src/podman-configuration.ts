@@ -167,12 +167,12 @@ export abstract class PodmanConfiguration {
   protected async readConfigFromFile(path: PathLike): Promise<Record<string, unknown>> {
     console.info(`Reading configuration file: ${path}`);
     const configFileContent = await fsPromises.readFile(path, 'utf8');
-    return toml.parse(configFileContent, { bigint: false });
+    return toml.parse(configFileContent);
   }
 
   protected async writeConfigToFile(path: PathLike, config: Record<string, unknown>): Promise<void> {
     console.info(`Writing configuration file: ${path}`);
-    const content = toml.stringify(config as never, { newline: '\n' });
+    const content = toml.stringify(config as never);
     await fs.promises.writeFile(path, content);
   }
 }

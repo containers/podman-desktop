@@ -330,7 +330,7 @@ describe('PodmanConfiguration', () => {
 
     await config.writeConfigToFile(filePath, table);
 
-    const expectedContent = toml.stringify(table as never, { newline: '\n' });
+    const expectedContent = toml.stringify(table as never);
     expect(fsPromises.writeFile).toHaveBeenCalledWith(filePath, expectedContent);
   });
 
@@ -400,7 +400,7 @@ describe('PodmanConfiguration', () => {
 
     await config.writeUserConfig(table);
 
-    const expectedContent = toml.stringify(table as never, { newline: '\n' });
+    const expectedContent = toml.stringify(table as never);
     expect(fsPromises.writeFile).toHaveBeenCalledWith(filePath, expectedContent);
   });
 
