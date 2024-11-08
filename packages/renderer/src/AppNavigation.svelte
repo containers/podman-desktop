@@ -24,7 +24,7 @@ let { exitSettingsCallback, meta = $bindable() }: { exitSettingsCallback: () => 
 
 let authActions = $state<AuthActions>();
 let outsideWindow = $state<HTMLDivElement>();
-let iconWithTitle = $state(true);
+let iconWithTitle = $state(false);
 
 const iconSize = '22';
 const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;

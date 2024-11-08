@@ -14,7 +14,7 @@ interface NavRegistryEntryProps {
   iconWithTitle: boolean;
 }
 
-let { entry, meta = $bindable(), iconWithTitle }: NavRegistryEntryProps = $props();
+let { entry, meta = $bindable(), iconWithTitle = false }: NavRegistryEntryProps = $props();
 </script>
 
 {#if !entry.hidden}

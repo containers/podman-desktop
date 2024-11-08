@@ -14,7 +14,7 @@ export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 export let counter: number | undefined = undefined;
-export let iconWithTitle = true;
+export let iconWithTitle = false;
 
 let inSection: boolean = false;
 let uri: string;
@@ -26,8 +26,10 @@ const navItems: Writable<number> = getContext('nav-items');
 
 let tooltipText = '';
 $: if (iconWithTitle) {
+  console.log('only number');
   tooltipText = counter ? `${counter}` : '';
 } else {
+  console.log('full tooltip');
   tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 }
 

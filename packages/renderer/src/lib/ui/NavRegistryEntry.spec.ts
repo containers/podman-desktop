@@ -75,7 +75,27 @@ test('Expect hidden entry is not rendered', async () => {
   expect(content).not.toBeInTheDocument();
 });
 
-test('Expect entry to have title by default', async () => {
+test('Expect entry to have title if iconWithTitle is true', async () => {
+  const entry: NavigationRegistryEntry = {
+    name: 'Item1',
+    hidden: false,
+    icon: {
+      faIcon: { definition: faPuzzlePiece, size: 'lg' },
+    },
+    tooltip: 'Item tooltip',
+    link: '/mylink',
+    counter: 0,
+    type: 'entry',
+  };
+  const meta = { url: '/test' } as TinroRouteMeta;
+  render(NavRegistryEntry, { entry, meta, iconWithTitle: true });
+
+  const content = screen.getByTitle('Icon title');
+  expect(content).toBeInTheDocument();
+  expect(content).toHaveTextContent('Item1');
+});
+
+test('Expect entry to not have title by default', async () => {
   const entry: NavigationRegistryEntry = {
     name: 'Item1',
     hidden: false,
@@ -89,26 +109,6 @@ test('Expect entry to have title by default', async () => {
   };
   const meta = { url: '/test' } as TinroRouteMeta;
   render(NavRegistryEntry, { entry, meta });
-
-  const content = screen.getByTitle('Icon title');
-  expect(content).toBeInTheDocument();
-  expect(content).toHaveTextContent('Item1');
-});
-
-test('Expect entry to not have title if iconWithTitle is false', async () => {
-  const entry: NavigationRegistryEntry = {
-    name: 'Item1',
-    hidden: false,
-    icon: {
-      faIcon: { definition: faPuzzlePiece, size: 'lg' },
-    },
-    tooltip: 'Item tooltip',
-    link: '/mylink',
-    counter: 0,
-    type: 'entry',
-  };
-  const meta = { url: '/test' } as TinroRouteMeta;
-  render(NavRegistryEntry, { entry, meta, iconWithTitle: false });
 
   const content = screen.queryByTitle('Icon title');
   expect(content).not.toBeInTheDocument();
