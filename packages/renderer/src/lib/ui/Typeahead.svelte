@@ -146,12 +146,9 @@ function processInput(): void {
       if (disabled) {
         return;
       }
-      items.splice(0, items.length);
-      items.push(
-        ...result
-          .toSorted((a: string, b: string) => a.localeCompare(b))
-          .toSorted((a: string, b: string) => (a.startsWith(value) && !b.startsWith(value) ? -1 : 1)),
-      );
+      items = result
+        .toSorted((a: string, b: string) => a.localeCompare(b))
+        .toSorted((a: string, b: string) => (a.startsWith(value) && !b.startsWith(value) ? -1 : 1));
       highlightIndex = -1;
       open();
     })
