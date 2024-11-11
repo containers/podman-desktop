@@ -146,9 +146,17 @@ function processInput(): void {
       if (disabled) {
         return;
       }
-      items = result
-        .toSorted((a: string, b: string) => a.localeCompare(b))
-        .toSorted((a: string, b: string) => (a.startsWith(value) && !b.startsWith(value) ? -1 : 1));
+      items = result.toSorted((a: string, b: string) => {
+        const aStartsWithValue = a.startsWith(value);
+        const bStartsWithValue = b.startsWith(value);
+        if ((aStartsWithValue && bStartsWithValue) || (!aStartsWithValue && !bStartsWithValue)) {
+          return a.localeCompare(b);
+        } else if (aStartsWithValue && !bStartsWithValue) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
       highlightIndex = -1;
       open();
     })
