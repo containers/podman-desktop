@@ -11,7 +11,7 @@ export let disabled: boolean = false;
 export let initialFocus: boolean = false;
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
-export let isShortName: boolean = false;
+export let isRecognized: boolean = true;
 
 export let searchFunction: SearchFunction = async (_s: string) => [];
 export let onChange = function (_s: string) {};
@@ -28,12 +28,10 @@ let highlightIndex: number = -1;
 let pageStep = 10;
 let userValue: string = '';
 let loading: boolean = false;
-let isRecognized: boolean = true;
 
 function onItemSelected(s: string): void {
   value = s;
   userValue = s;
-  onResultChanged();
   input.focus();
   close();
   onChange(s);
@@ -141,17 +139,6 @@ function makeVisible(): void {
   });
 }
 
-function onResultChanged(): void {
-  // [] and '' => dont show error
-  if (!items && !value) {
-    isRecognized = true;
-  } else {
-    // e.g. "docker.io/fedora" is in list
-    // or just "fedora" is not in list, but "fedora" is shortname
-    isRecognized = items.includes(value) || isShortName;
-  }
-}
-
 function processInput(): void {
   loading = true;
   searchFunction(value)
@@ -161,14 +148,12 @@ function processInput(): void {
         return;
       }
       items = result;
-      onResultChanged();
       highlightIndex = -1;
       open();
     })
     .catch(() => {
       // We do not display the error
       items = [];
-      isRecognized = false;
     })
     .finally(() => {
       loading = false;

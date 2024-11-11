@@ -27,6 +27,7 @@ let pullFinished = false;
 let shortnameImages: string[] = [];
 let podmanFQN = '';
 let usePodmanFQN = false;
+let isRecognized: boolean = true;
 
 export let imageToPull: string | undefined = undefined;
 
@@ -229,6 +230,18 @@ async function searchLatestTag(): Promise<void> {
     latestTagMessage = undefined;
   }
 }
+
+async function onResultChanged(image: string): Promise<void> {
+  const items = await searchImages(image);
+  // [] and '' => dont show error
+  if (!items && !image) {
+    isRecognized = true;
+  } else {
+    // e.g. "docker.io/fedora" is in list
+    // or just "fedora" is not in list, but "fedora" is shortname
+    isRecognized = items.includes(image) || (selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN));
+  }
+}
 </script>
 
 <EngineFormPage
@@ -254,13 +267,14 @@ async function searchLatestTag(): Promise<void> {
           placeholder="Image name"
           searchFunction={searchImages}
           onChange={async (s: string) => {
+            await onResultChanged(s);
             validateImageName(s);
             await resolveShortname();
             await searchLatestTag();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
-          isShortName={selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN)}
+          {isRecognized}
           required
           initialFocus />
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}

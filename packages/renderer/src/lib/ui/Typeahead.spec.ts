@@ -197,37 +197,28 @@ test('should navigate in list with keys', async () => {
   screen.getByDisplayValue('term03');
 });
 
-test('should show error border', async () => {
-  const searchFunction = async () => {
-    const result: string[] = ['term0', 'term1', 'term2', 'unknown'];
-    return result;
-  };
+test('should show clasic border', async () => {
   render(Typeahead, {
     initialFocus: true,
-    searchFunction,
+    isRecognized: true,
     delay: 10,
   });
-  const input = screen.getByRole('textbox');
-  await userEvent.type(input, 'term');
 
-  await new Promise(resolve => setTimeout(resolve, 11));
+  const cellOutsideInput = screen.getByRole('cell');
+  expect(cellOutsideInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(cellOutsideInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(cellOutsideInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
 
-  const list = screen.getByRole('row');
-  const items = within(list).getAllByRole('button');
-  expect(items.length).toBe(4);
-
-  // No item is selected first
-  assertItemSelected(items, -1);
+test('should show error border', async () => {
+  render(Typeahead, {
+    initialFocus: true,
+    isRecognized: false,
+    delay: 10,
+  });
 
   const cellOutsideInput = screen.getByRole('cell');
   expect(cellOutsideInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
   expect(cellOutsideInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
   expect(cellOutsideInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
-
-  // to finish the fisrt term => term0
-  await userEvent.type(input, '0');
-  await new Promise(resolve => setTimeout(resolve, 11));
-  expect(cellOutsideInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
