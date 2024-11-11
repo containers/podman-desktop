@@ -47,7 +47,7 @@ spec:
 #### Procedure: Creating an object
 
 1. Go to the **Kubernetes** component page. 
-2. Click one of the options to open the respective object page.
+2. Click one of the options to open the object page.
 
    ![kube objects](img/kube-objects.png)
 
@@ -58,7 +58,7 @@ spec:
 #### Procedure: Updating an existing object
 
 1. Go to the **Kubernetes** component page.
-2. Click one of the options to open the respective object page.
+2. Click one of the options to open the object page.
 3. Click the name of the object.
 4. Select the **Kube** tab and edit the configuration file.
    ![editing a node](img/example-edit-node.png)
@@ -68,7 +68,7 @@ spec:
 
 1. View the created object:
     - View the `Pod` object on the **Pods** component page.
-    - View the other Kubernetes objects on the respective object page. For example, if you have created a `Node` object, you can view it on the **Kubernetes > Nodes** page.  
+    - View the other Kubernetes objects on the related object page. For example, if you have created a `Node` object, you can view it on the **Kubernetes > Nodes** page.  
 
 2. Optional: Click the name of the object to view its detailed summary.
    ![summary tab](img/summary-tab.png)
