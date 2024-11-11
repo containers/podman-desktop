@@ -20,9 +20,11 @@ With Podman Desktop, you can easily transition from containers to Kubernetes and
   - `ConfigMap`: Use this object to to define non-sensitive configuration data for initializing or executing your application.
   - `Secret`: Use this object to store and manage sensitive data, such as passwords, OAuth tokens, and SSH keys for your application.
 - View and analyze real-time information about the connection status of the resources configured within the cluster.
+- View the dashboard for analyzing object metrics and reading Kubernetes articles and blog posts.
 - Get resource details using the _Summary_ and _Inspect_ tabs.
 - Edit and apply configuration changes directly using the _Kube_ tab.
 - Select multiple configuration files and apply them to your cluster in a single step.
+- Configure port forwarding for a Kubernetes service and view the port forwarding details.
 
 #### Prerequisites
 
@@ -44,24 +46,29 @@ spec:
 
 #### Procedure: Creating an object
 
-1. In the Kubernetes explorer, click one of the options to open the respective object page.
+1. Go to the **Kubernetes** component page. 
+2. Click one of the options to open the respective object page.
 
    ![kube objects](img/kube-objects.png)
 
-2. Click the **Apply YAML** button and select an object configuration file. A confirmation notification opens.
+3. Click the **Apply YAML** button and select an object configuration file. A confirmation notification opens.
    ![configuring a node](img/example-config-node.png)
-3. Click **Ok**.
+4. Click **Ok**.
 
 #### Procedure: Updating an existing object
 
-1. In the Kubernetes explorer, click one of the options to open the respective object page.
-2. Click the name of the object.
-3. Select the **Kube** tab and edit the configuration file.
+1. Go to the **Kubernetes** component page.
+2. Click one of the options to open the respective object page.
+3. Click the name of the object.
+4. Select the **Kube** tab and edit the configuration file.
    ![editing a node](img/example-edit-node.png)
-4. Click **Apply changes to cluster**.
+5. Click **Apply changes to cluster**.
 
 #### Verification
 
-1. View the created object on the page.
-1. Optional: Click the name of the object to view its detailed summary.
+1. View the created object:
+    - View the `Pod` object on the **Pods** component page.
+    - View the other Kubernetes objects on the respective object page. For example, if you have created a `Node` object, you can view it on the **Kubernetes > Nodes** page.  
+
+2. Optional: Click the name of the object to view its detailed summary.
    ![summary tab](img/summary-tab.png)
