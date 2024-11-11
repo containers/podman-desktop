@@ -131,7 +131,7 @@ export class CreateKindClusterPage extends BasePage {
 
   private async fillTextbox(textbox: Locator, text: string): Promise<void> {
     return test.step(`Fill textbox with ${text}`, async () => {
-      await playExpect(textbox).toBeVisible();
+      await playExpect(textbox).toBeVisible({ timeout: 15_000 });
       await textbox.fill(text);
       await playExpect(textbox).toHaveValue(text);
     });

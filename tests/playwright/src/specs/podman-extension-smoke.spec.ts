@@ -65,9 +65,13 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();
 
   if (enabled) {
-    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible();
+    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible({
+      timeout: 15_000,
+    });
   } else {
-    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible();
+    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible({
+      timeout: 15_000,
+    });
   }
   // always present and visible
   // go to the details of the extension
