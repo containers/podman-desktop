@@ -71,7 +71,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
           <NewContentOnDashboardBadge />
         </div>
         {#if iconWithTitle}
-          <div class="text-xs text-center">
+          <div class="text-xs text-center ml-1">
             Dashboard
           </div>
         {/if}
@@ -110,7 +110,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
     {#if iconWithTitle}
-      <div class="text-xs text-center">
+      <div class="text-xs text-center ml-1">
         Settings
       </div>
     {/if}
