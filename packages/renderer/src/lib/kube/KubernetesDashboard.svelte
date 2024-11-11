@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { KubernetesObject } from '@kubernetes/client-node';
 import { Link } from '@podman-desktop/ui-svelte';
 
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import { containersInfos } from '/@/stores/containers';
 import {
   kubernetesCurrentContextConfigMaps,
   kubernetesCurrentContextDeployments,
@@ -22,21 +24,36 @@ import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import NodeIcon from '../images/NodeIcon.svelte';
 import PvcIcon from '../images/PVCIcon.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
+import { fadeSlide } from '../ui/animations';
+import deployAndTestKubernetesImage from './DeployAndTestKubernetes.png';
 import KubernetesDashboardGuideCard from './KubernetesDashboardGuideCard.svelte';
 import KubernetesDashboardResourceCard from './KubernetesDashboardResourceCard.svelte';
 import KubernetesEmptyPage from './KubernetesEmptyPage.svelte';
-import { fadeSlide } from '../ui/animations';
-import { ContainerUtils } from '../container/container-utils';
-import { containersInfos } from '/@/stores/containers';
-import deployAndTestKubernetesImage from './DeployAndTestKubernetes.png';
 import shareYourLocalProdmanImagesWithTheKubernetesImage from './ShareYourLocalPodmanImagesWithTheKubernetes.png';
 import workingWithKubernetesImage from './WorkingWithKubernetes.png';
+
+interface ExtendedKubernetesObject extends KubernetesObject {
+  spec: {
+    replicas: number;
+  };
+}
 
 let noContexts = $derived($kubernetesCurrentContextState.error === NO_CURRENT_CONTEXT_ERROR);
 let currentContextName = $derived($kubernetesContexts.find(context => context.currentContext)?.name);
 let nodeCount = $derived($kubernetesCurrentContextNodes.length);
-let activeNodeCount = $state(0);
+let activeNodeCount = $derived(
+  $containersInfos.filter(
+    container =>
+      container.State === 'running' &&
+      container.Names?.some(name => $kubernetesCurrentContextNodes.some(node => name === `/${node.metadata?.name}`)),
+  ).length,
+);
 let deploymentCount = $derived($kubernetesCurrentContextDeployments.length);
+let activeDeploymentsCount = $derived(
+  ($kubernetesCurrentContextDeployments as ExtendedKubernetesObject[]).filter(
+    deployment => deployment.spec?.replicas > 0,
+  ).length,
+);
 let serviceCount = $derived($kubernetesCurrentContextServices.length);
 let ingressRouteCount = $derived($kubernetesCurrentContextIngresses.length + $kubernetesCurrentContextRoutes.length);
 let pvcCount = $derived($kubernetesCurrentContextPersistentVolumeClaims.length);
@@ -45,43 +62,10 @@ let configMapSecretCount = $derived(
 );
 let expandedDetails: boolean = $state(true);
 let expandedGuide: boolean = $state(true);
-let searchTerm: string = $state('');
-const containerUtils = new ContainerUtils();
 
 async function openKubernetesDocumentation(): Promise<void> {
   await window.openExternal('https://podman-desktop.io/docs/kubernetes');
 }
-
-async function updateActiveNodeCount(): Promise<void> {
-  for (const node of $kubernetesCurrentContextNodes) {
-    if (node.metadata?.name) {
-      const getKubeNode = await window.kubernetesReadNode(node.metadata.name);
-      // console.error(getKubeNode?.status);
-
-      if (getKubeNode?.status?.phase === 'RUNNING') {
-        activeNodeCount += 1;
-      }
-    }
-  }
-}
-
-$effect(() => {
-  // console.error($kubernetesCurrentContextNodes)
-
-  let containers = $containersInfos.filter(
-    container =>
-      container.State === 'running' &&
-      container.Names.filter(name => $kubernetesCurrentContextNodes.filter(node => node?.metadata?.name === name)),
-  );
-
-  console.error(containers);
-});
-
-let unsub;
-$effect(() => {
-  updateActiveNodeCount();
-  unsub = $containersInfos;
-});
 </script>
 
 <div class="flex flex-col w-full h-full">
@@ -133,7 +117,7 @@ $effect(() => {
                 <div class="text-xl pt-2">Metrics</div>
                   <div class="grid grid-cols-4 gap-4">
                       <KubernetesDashboardResourceCard type='Nodes' Icon={NodeIcon} activeCount={activeNodeCount} count={nodeCount} link='/kubernetes/nodes'/>
-                      <KubernetesDashboardResourceCard type='Deployments' Icon={DeploymentIcon} activeCount={2} count={deploymentCount} link='/kubernetes/deployments'/>
+                      <KubernetesDashboardResourceCard type='Deployments' Icon={DeploymentIcon} activeCount={activeDeploymentsCount} count={deploymentCount} link='/kubernetes/deployments'/>
                       <KubernetesDashboardResourceCard type='Services' Icon={ServiceIcon} count={serviceCount} link='/kubernetes/services'/>
                       <KubernetesDashboardResourceCard type='Ingresses & Routes' Icon={IngressRouteIcon} count={ingressRouteCount} link='/kubernetes/ingressesRoutes'/>
                       <KubernetesDashboardResourceCard type='Persistent Volume Claims' Icon={PvcIcon} count={pvcCount} link='/kubernetes/persistentvolumeclaims'/>
