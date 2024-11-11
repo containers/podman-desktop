@@ -335,6 +335,11 @@ export class ColorRegistry {
       light: colorPalette.purple[900],
     });
 
+    this.registerColor('titlebar-hover-bg', {
+      dark: colorPalette.charcoal[300],
+      light: colorPalette.gray[300],
+    });
+
     this.registerColor('titlebar-windows-hover-exit-bg', {
       dark: '#c42b1c',
       light: '#c42b1c',
@@ -1464,6 +1469,22 @@ export class ColorRegistry {
     this.registerColor(`${badge}dd-extension-text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
+    });
+    this.registerColor(`${badge}sky`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${badge}purple`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${badge}fuschia`, {
+      dark: colorPalette.fuschia[600],
+      light: colorPalette.fuschia[600],
+    });
+    this.registerColor(`${badge}gray`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[600],
     });
   }
 }
