@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import Typeahead from './Typeahead.svelte';
 
@@ -46,6 +46,11 @@ function assertItemSelected(items: HTMLElement[], r: number): void {
     }
   }
 }
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
+});
 
 test('a textbox is created', async () => {
   render(Typeahead);
@@ -200,7 +205,7 @@ test('should navigate in list with keys', async () => {
 test('should show clasic border', async () => {
   render(Typeahead, {
     initialFocus: true,
-    isRecognized: true,
+    error: false,
     delay: 10,
   });
 
@@ -213,7 +218,7 @@ test('should show clasic border', async () => {
 test('should show error border', async () => {
   render(Typeahead, {
     initialFocus: true,
-    isRecognized: false,
+    error: true,
     delay: 10,
   });
 

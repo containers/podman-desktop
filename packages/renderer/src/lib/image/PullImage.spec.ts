@@ -35,6 +35,7 @@ import PullImage from './PullImage.svelte';
 const pullImageMock = vi.fn();
 const resolveShortnameImageMock = vi.fn();
 const listImageTagsInRegistryMock = vi.fn();
+const searchImageInRegistryMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -52,6 +53,7 @@ beforeAll(() => {
   (window as any).pullImage = pullImageMock;
   (window as any).resolveShortnameImage = resolveShortnameImageMock.mockResolvedValue(['docker.io/test1']);
   (window as any).listImageTagsInRegistry = listImageTagsInRegistryMock;
+  (window as any).searchImageInRegistry = searchImageInRegistryMock;
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
