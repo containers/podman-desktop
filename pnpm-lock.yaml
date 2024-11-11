@@ -227,8 +227,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(eslint@9.14.0(jiti@1.21.6))(typescript@5.6.3)
       eslint-plugin-file-progress:
-        specifier: ^3.0.0
-        version: 3.0.0(eslint@9.14.0(jiti@1.21.6))
+        specifier: ^3.0.1
+        version: 3.0.1(eslint@9.14.0(jiti@1.21.6))
       eslint-plugin-import:
         specifier: ^2.31.0
         version: 2.31.0(@typescript-eslint/parser@8.13.0(eslint@9.14.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.14.0(jiti@1.21.6))
@@ -6554,8 +6554,8 @@ packages:
       eslint: ^8.0.0
       typescript: '>=4.0.0'
 
-  eslint-plugin-file-progress@3.0.0:
-    resolution: {integrity: sha512-9/KRlIK5J//PLwSHnOk11Rl1FV1hhNaYWP4tCte7dPus7ylwnC3fNuukCgh5faQELqxY5JrSWQbQ8wUP8nfEPQ==}
+  eslint-plugin-file-progress@3.0.1:
+    resolution: {integrity: sha512-sPUOIifutW3Ehhmujt40IU5ytXL6HnuGVev2n9cp4d5fzVOoQp1K17DJ/I+cRdctmTpMcYit/fOuF9efjmD98A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^9.0.0
@@ -19106,7 +19106,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-file-progress@3.0.0(eslint@9.14.0(jiti@1.21.6)):
+  eslint-plugin-file-progress@3.0.1(eslint@9.14.0(jiti@1.21.6)):
     dependencies:
       eslint: 9.14.0(jiti@1.21.6)
       nanospinner: 1.2.0
