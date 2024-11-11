@@ -28,6 +28,9 @@ import KubernetesEmptyPage from './KubernetesEmptyPage.svelte';
 import { fadeSlide } from '../ui/animations';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '/@/stores/containers';
+import deployAndTestKubernetesImage from './DeployAndTestKubernetes.png';
+import shareYourLocalProdmanImagesWithTheKubernetesImage from './ShareYourLocalPodmanImagesWithTheKubernetes.png';
+import workingWithKubernetesImage from './WorkingWithKubernetes.png';
 
 let noContexts = $derived($kubernetesCurrentContextState.error === NO_CURRENT_CONTEXT_ERROR);
 let currentContextName = $derived($kubernetesContexts.find(context => context.currentContext)?.name);
@@ -156,9 +159,9 @@ $effect(() => {
                   <div role="region" class="mt-5">
                     <div transition:fadeSlide={{ duration: 500 }}>
                       <div class="grid grid-cols-3 gap-4">
-                        <KubernetesDashboardGuideCard title='Deploy and test Kubernetes containers using Podman Desktop' link='https://developers.redhat.com/articles/2023/06/09/deploy-and-test-kubernetes-containers-using-podman-desktop'/>
-                        <KubernetesDashboardGuideCard title='Working with Kubernetes in Podman Desktop' link='https://developers.redhat.com/articles/2023/11/06/working-kubernetes-podman-desktop'/>
-                        <KubernetesDashboardGuideCard title='Share your local podman images with the Kubernetes cluster' link='https://podman-desktop.io/blog/sharing-podman-images-with-kubernetes-cluster'/>
+                        <KubernetesDashboardGuideCard title='Deploy and test Kubernetes containers using Podman Desktop' image={deployAndTestKubernetesImage} link='https://developers.redhat.com/articles/2023/06/09/deploy-and-test-kubernetes-containers-using-podman-desktop'/>
+                        <KubernetesDashboardGuideCard title='Working with Kubernetes in Podman Desktop' image={workingWithKubernetesImage} link='https://developers.redhat.com/articles/2023/11/06/working-kubernetes-podman-desktop'/>
+                        <KubernetesDashboardGuideCard title='Share your local podman images with the Kubernetes cluster' image={shareYourLocalProdmanImagesWithTheKubernetesImage} link='https://podman-desktop.io/blog/sharing-podman-images-with-kubernetes-cluster'/>
                       </div>
                     </div>
                   </div>
