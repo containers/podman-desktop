@@ -31,6 +31,12 @@ const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.N
 
 onDidChangeConfiguration.addEventListener(NAV_BAR_LAYOUT, onDidChangeConfigurationCallback);
 
+let minNavbarWidth = $state('min-w-leftnavbar');
+
+$effect(() => {
+  minNavbarWidth = iconWithTitle ? 'min-w-fit' : 'min-w-leftnavbar';
+});
+
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
@@ -61,7 +67,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
 
 <svelte:window />
 <nav
-  class="group w-fit min-w-leftnavbar max-w-[65px] flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="group w-leftnavbar {minNavbarWidth} flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
   <NavItem href="/" tooltip="Dashboard" bind:meta={meta} iconWithTitle={iconWithTitle}>
     <div class="relative w-full">
@@ -71,7 +77,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
           <NewContentOnDashboardBadge />
         </div>
         {#if iconWithTitle}
-          <div class="text-xs text-center ml-1">
+          <div class="text-xs text-center ml-[2px]">
             Dashboard
           </div>
         {/if}
@@ -97,7 +103,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
         <div class="flex flex-col items-center w-full h-full">
           <AccountIcon size={iconSize} />
           {#if iconWithTitle}
-            <div class="text-xs text-center">
+            <div class="text-xs text-center ml-[2px]">
               Accounts
             </div>
           {/if}
@@ -110,7 +116,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
     {#if iconWithTitle}
-      <div class="text-xs text-center ml-1">
+      <div class="text-xs text-center ml-[2px]">
         Settings
       </div>
     {/if}
