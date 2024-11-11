@@ -1458,7 +1458,7 @@ export class ColorRegistry {
       dark: colorPalette.sky[200],
       light: colorPalette.sky[200],
     });
-    this.registerColor(`${badge}builtin-extension-text`, {
+    this.registerColor(`${badge}text`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.charcoal[800],
     });
