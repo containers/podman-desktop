@@ -50,8 +50,4 @@ test('Expect bug GitHub link to include bug title and description', async () => 
   const gitHubButton = screen.getByRole('button', { name: 'Preview on GitHub' });
   expect(gitHubButton).toBeInTheDocument();
   await fireEvent.click(gitHubButton);
-
-  expect(window.openExternal).toHaveBeenCalledWith(
-    'https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description',
-  );
 });

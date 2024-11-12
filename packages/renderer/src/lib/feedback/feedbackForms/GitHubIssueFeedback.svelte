@@ -25,14 +25,6 @@ async function openGitHubIssues(): Promise<void> {
   hideModal();
   await window.openExternal('https://github.com/containers/podman-desktop/issues');
 }
-
-async function sendToGitHub(): Promise<void> {
-  let linkTitle = issueTitle.split(' ').join('+');
-  let linkDescription = issueDescription.split(' ').join('+');
-  const bugLink = `https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=${linkTitle}&bug-description=${linkDescription}`;
-  hideModal();
-  await window.openExternal(bugLink);
-}
 </script>
 
 <FeedbackForm>
@@ -60,6 +52,6 @@ async function sendToGitHub(): Promise<void> {
   </svelte:fragment>
   <svelte:fragment slot="buttons">
     <Button class="underline" type="link" aria-label="Cancel" on:click={() => hideModal()}>Cancel</Button>
-    <Button on:click={() => sendToGitHub()}>Preview on GitHub</Button>
+    <Button on:click={() => openGitHubIssues()}>Preview on GitHub</Button>
   </svelte:fragment>
 </FeedbackForm>
