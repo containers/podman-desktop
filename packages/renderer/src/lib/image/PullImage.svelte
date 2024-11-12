@@ -27,7 +27,7 @@ let pullFinished = false;
 let shortnameImages: string[] = [];
 let podmanFQN = '';
 let usePodmanFQN = false;
-let isRecognized: boolean = true;
+let imageIsRecognized: boolean = true;
 
 export let imageToPull: string | undefined = undefined;
 
@@ -235,11 +235,11 @@ async function onResultChanged(image: string): Promise<void> {
   const items = await searchImages(image);
   // [] and '' => dont show error
   if (!items && !image) {
-    isRecognized = true;
+    imageIsRecognized = true;
   } else {
     // e.g. "docker.io/fedora" is in list
     // or just "fedora" is not in list, but "fedora" is shortname
-    isRecognized = items.includes(image) || (selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN));
+    imageIsRecognized = items.includes(image) || (selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN));
   }
 }
 </script>
@@ -274,7 +274,7 @@ async function onResultChanged(image: string): Promise<void> {
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
-          {isRecognized}
+          error={!imageIsRecognized}
           required
           initialFocus />
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
