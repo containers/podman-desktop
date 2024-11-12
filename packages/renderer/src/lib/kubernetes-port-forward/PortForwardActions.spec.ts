@@ -39,11 +39,6 @@ const MOCKED_USER_FORWARD_CONFIG: ForwardConfig = {
   },
 };
 
-const MOCKED_PORT_FORWARD_ROW: ForwardConfig = {
-  ...MOCKED_USER_FORWARD_CONFIG,
-  forward: MOCKED_USER_FORWARD_CONFIG.forward,
-};
-
 beforeEach(() => {
   vi.resetAllMocks();
 
@@ -60,7 +55,7 @@ beforeEach(() => {
 
 test('actions should be defined', () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const openBtn = getByTitle('Open forwarded port');
@@ -72,7 +67,7 @@ test('actions should be defined', () => {
 
 test('open should call openExternal', async () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const openBtn = getByTitle('Open forwarded port');
@@ -83,7 +78,7 @@ test('open should call openExternal', async () => {
 
 test('remove should call deleteKubernetesPortForward', async () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const deleteBtn = getByTitle('Delete forwarded port');
