@@ -2,14 +2,13 @@
 import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
 import { type ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 interface Props {
-  object: PortForwardRow;
+  object: ForwardConfig;
 }
 let { object }: Props = $props();
 
@@ -19,8 +18,8 @@ let userConfigForward: ForwardConfig | undefined = $derived(
       config.kind === object.kind &&
       config.name === object.name &&
       config.namespace === object.namespace &&
-      config.forward.remotePort === object.mapping.remotePort &&
-      config.forward.localPort === object.mapping.localPort,
+      config.forward.remotePort === object.forward.remotePort &&
+      config.forward.localPort === object.forward.localPort,
   ),
 );
 
@@ -31,7 +30,7 @@ async function deletePortForward(): Promise<void> {
 }
 
 async function openExternal(): Promise<void> {
-  return window.openExternal(`http://localhost:${object.mapping.localPort}`);
+  return window.openExternal(`http://localhost:${object.forward.localPort}`);
 }
 </script>
 

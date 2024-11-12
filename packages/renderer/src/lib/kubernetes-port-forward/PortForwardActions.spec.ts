@@ -22,7 +22,6 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
@@ -40,9 +39,9 @@ const MOCKED_USER_FORWARD_CONFIG: ForwardConfig = {
   },
 };
 
-const MOCKED_PORT_FORWARD_ROW: PortForwardRow = {
+const MOCKED_PORT_FORWARD_ROW: ForwardConfig = {
   ...MOCKED_USER_FORWARD_CONFIG,
-  mapping: MOCKED_USER_FORWARD_CONFIG.forward,
+  forward: MOCKED_USER_FORWARD_CONFIG.forward,
 };
 
 beforeEach(() => {
