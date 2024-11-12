@@ -15,10 +15,8 @@ window.events?.receive('display-feedback', () => {
 });
 </script>
 
-{#if displayModal}
-  {#if category === 'developers'}
-    <DevelopersFeedback bind:displayModal={displayModal} bind:category={category} />
-  {:else}
-    <GitHubIssueFeedback bind:displayModal={displayModal} bind:category={category} />
-  {/if}
+{#if category === 'developers'}
+  <DevelopersFeedback bind:displayModal={displayModal} bind:category={category} />
+{:else}
+  <GitHubIssueFeedback bind:displayModal={displayModal} bind:category={category} />
 {/if}
