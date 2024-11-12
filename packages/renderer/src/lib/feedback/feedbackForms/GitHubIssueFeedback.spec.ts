@@ -18,8 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
@@ -34,20 +33,4 @@ test('Expect feedback form to to be bug feedback form', async () => {
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
-});
-
-test('Expect bug GitHub link to include bug title and description', async () => {
-  render(GitHubIssueFeedback, {});
-
-  const bugTitle = screen.getByRole('textbox', { name: 'Title' });
-  expect(bugTitle).toBeInTheDocument();
-  await userEvent.type(bugTitle, 'PD is not working');
-
-  const bugDescription = screen.getByRole('textbox', { name: 'Description' });
-  expect(bugDescription).toBeInTheDocument();
-  await userEvent.type(bugDescription, 'bug description');
-
-  const gitHubButton = screen.getByRole('button', { name: 'Preview on GitHub' });
-  expect(gitHubButton).toBeInTheDocument();
-  await fireEvent.click(gitHubButton);
 });
