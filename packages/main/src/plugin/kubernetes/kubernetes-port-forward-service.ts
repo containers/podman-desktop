@@ -27,7 +27,7 @@ import { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-
 import type { IDisposable } from '/@/plugin/types/disposable.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isFreePort } from '/@/plugin/util/port.js';
-import type { ForwardConfig, ForwardOptions, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 
 /**
  * Service provider for Kubernetes port forwarding.
@@ -94,14 +94,13 @@ export class KubernetesPortForwardService implements IDisposable {
    * @returns The created forward configuration.
    * @param options
    */
-  async createForward(options: ForwardOptions): Promise<UserForwardConfig> {
-    const result: UserForwardConfig = await this.configManagementService.createForward({
+  async createForward(options: ForwardOptions): Promise<ForwardConfig> {
+    const result: ForwardConfig = await this.configManagementService.createForward({
       id: randomUUID(),
       name: options.name,
       forward: options.forward,
       namespace: options.namespace,
       kind: options.kind,
-      displayName: options.displayName,
     });
 
     this.apiSender.send('kubernetes-port-forwards-update', await this.listForwards());
@@ -112,9 +111,9 @@ export class KubernetesPortForwardService implements IDisposable {
    * Deletes an existing forward configuration.
    * @param config - The forward configuration to delete.
    * @returns Void if the operation successful.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async deleteForward(config: UserForwardConfig): Promise<void> {
+  async deleteForward(config: ForwardConfig): Promise<void> {
     const disposable = this.#disposables.get(config.id);
     disposable?.dispose();
     this.#disposables.delete(config.id);
@@ -127,9 +126,9 @@ export class KubernetesPortForwardService implements IDisposable {
   /**
    * Lists all forward configurations.
    * @returns A list of forward configurations.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async listForwards(): Promise<UserForwardConfig[]> {
+  async listForwards(): Promise<ForwardConfig[]> {
     return this.configManagementService.listForwards();
   }
 

@@ -22,7 +22,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
 import { type ContextGeneralState, NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import * as kubeContextStore from '../kubernetes-contexts-state';
 import { createNavigationKubernetesGroup } from './navigation-registry-kubernetes.svelte';
@@ -61,7 +61,7 @@ test('createNavigationImageEntry with current context', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
-  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([]);
 
   const entry = createNavigationKubernetesGroup();
 
@@ -87,7 +87,7 @@ test('createNavigationImageEntry without current context', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
-  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([]);
 
   const entry = createNavigationKubernetesGroup();
 

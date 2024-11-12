@@ -25,16 +25,15 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
-import { type UserForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
-const MOCKED_USER_FORWARD_CONFIG: UserForwardConfig = {
+const MOCKED_USER_FORWARD_CONFIG: ForwardConfig = {
   id: 'fake-id',
   name: 'dummy-pod-name',
   namespace: 'dummy-ns',
   kind: WorkloadKind.POD,
-  displayName: 'dummy-display-name',
   forward: {
     localPort: 55_087,
     remotePort: 80,
