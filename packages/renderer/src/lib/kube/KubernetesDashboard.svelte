@@ -112,19 +112,20 @@ async function openKubernetesDocumentation(): Promise<void> {
         <div class="flex min-w-full h-full justify-center">
           <div class="flex flex-col space-y-4 min-w-full overflow-y-auto">
             <div class="flex flex-col gap-4 bg-[var(--pd-content-card-bg)] grow p-5">
-              <!-- Metrics - non-colapsible -->
               {#if currentContextName}
+                <!-- Metrics - non-colapsible -->
                 <div class="text-xl pt-2">Metrics</div>
-                  <div class="grid grid-cols-4 gap-4">
-                      <KubernetesDashboardResourceCard type='Nodes' Icon={NodeIcon} activeCount={activeNodeCount} count={nodeCount} link='/kubernetes/nodes'/>
-                      <KubernetesDashboardResourceCard type='Deployments' Icon={DeploymentIcon} activeCount={activeDeploymentsCount} count={deploymentCount} link='/kubernetes/deployments'/>
-                      <KubernetesDashboardResourceCard type='Services' Icon={ServiceIcon} count={serviceCount} link='/kubernetes/services'/>
-                      <KubernetesDashboardResourceCard type='Ingresses & Routes' Icon={IngressRouteIcon} count={ingressRouteCount} link='/kubernetes/ingressesRoutes'/>
-                      <KubernetesDashboardResourceCard type='Persistent Volume Claims' Icon={PvcIcon} count={pvcCount} link='/kubernetes/persistentvolumeclaims'/>
-                      <KubernetesDashboardResourceCard type='ConfigMaps & Secrets' Icon={ConfigMapSecretIcon} count={configMapSecretCount} link='/kubernetes/configmapsSecrets'/>
-                  </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <KubernetesDashboardResourceCard type='Nodes' Icon={NodeIcon} activeCount={activeNodeCount} count={nodeCount} link='/kubernetes/nodes'/>
+                    <KubernetesDashboardResourceCard type='Deployments' Icon={DeploymentIcon} activeCount={activeDeploymentsCount} count={deploymentCount} link='/kubernetes/deployments'/>
+                    <KubernetesDashboardResourceCard type='Services' Icon={ServiceIcon} count={serviceCount} link='/kubernetes/services'/>
+                    <KubernetesDashboardResourceCard type='Ingresses & Routes' Icon={IngressRouteIcon} count={ingressRouteCount} link='/kubernetes/ingressesRoutes'/>
+                    <KubernetesDashboardResourceCard type='Persistent Volume Claims' Icon={PvcIcon} count={pvcCount} link='/kubernetes/persistentvolumeclaims'/>
+                    <KubernetesDashboardResourceCard type='ConfigMaps & Secrets' Icon={ConfigMapSecretIcon} count={configMapSecretCount} link='/kubernetes/configmapsSecrets'/>
+                </div>
+                <!-- Graphs -->
+                
               {/if}
-              
               <!-- Articles and blog posts - colapsible -->
               <div class="flex flex-1 flex-col pt-2">
                 <div>

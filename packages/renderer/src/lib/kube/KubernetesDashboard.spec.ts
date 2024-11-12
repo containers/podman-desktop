@@ -35,6 +35,10 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {};
 });
 
+vi.mock('/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte', () => ({
+  default: vi.fn(),
+}));
+
 const openExternalMock = vi.fn();
 
 // fake the window object
@@ -112,5 +116,8 @@ test('Verify basic page with cluster', async () => {
 
   const guides = screen.getByText('Explore articles and blog posts');
   expect(guides).toBeInTheDocument();
-  expect(guides.nextElementSibling?.childElementCount).toBe(3);
+  expect(
+    guides.parentElement?.parentElement?.parentElement?.nextElementSibling?.firstElementChild?.firstElementChild
+      ?.childElementCount,
+  ).toBe(3);
 });
