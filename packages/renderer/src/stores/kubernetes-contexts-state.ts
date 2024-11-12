@@ -169,12 +169,17 @@ export const kubernetesCurrentContextNodesFiltered = derived(
 // Pods
 
 export const kubernetesCurrentContextPods = readable<KubernetesObject[]>([], set => {
-  window.kubernetesRegisterGetCurrentContextResources('pods').then(value => set(value));
+  window
+    .kubernetesRegisterGetCurrentContextResources('pods')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes pods', err));
   window.events?.receive('kubernetes-current-context-pods-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
   return () => {
-    window.kubernetesUnregisterGetCurrentContextResources('pods');
+    window
+      .kubernetesUnregisterGetCurrentContextResources('pods')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes pods', err));
   };
 });
 

@@ -36,7 +36,9 @@ import {
 const kubernetesRegisterGetCurrentContextResourcesMock: Mock<
   (resourceName: ResourceName) => Promise<KubernetesObject[]>
 > = vi.fn();
-const kubernetesUnregisterGetCurrentContextResourcesMock: Mock<(resourceName: ResourceName) => Promise<[]>> = vi.fn();
+const kubernetesUnregisterGetCurrentContextResourcesMock: Mock<
+  (resourceName: ResourceName) => Promise<KubernetesObject[]>
+> = vi.fn().mockResolvedValue([]);
 
 const callbacks = new Map<string, any>();
 const eventEmitter = {
