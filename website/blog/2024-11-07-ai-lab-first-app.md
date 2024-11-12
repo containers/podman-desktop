@@ -7,7 +7,7 @@ tags: [podman-desktop, extension, ai, llm, local]
 hide_table_of_contents: false
 ---
 
-Red Hat provides an extension to Podman Desktop, Podman AI Lab, which lets developers discover examples of applications using large language models (LLMs), and gives them a framework to create their own AI-based applications and share them with their team.
+Red Hat provides an extension to Podman Desktop, Podman AI Lab, which lets developers discover examples of applications by using large language models (LLMs), and gives them a framework to create their own AI-based applications and share them with their team.
 
 We will discover, through this article, the different steps to create our first AI application, and to add it to the catalog of recipes of Podman AI Lab.
 
@@ -35,7 +35,7 @@ Podman AI Lab provides a catalog of open source models that can be used locally.
 
 ![Mistral model is downloaded](./img/ai-lab-first-app/03-ai-lab-demo-mistral-model-downloaded.png)
 
-Once a model is downloaded, we can test and interact with this model, to try and find the best prompt for our application. For chat models, Podman AI Lab provides a `Playground`, so we can test different prompts and validate that the responses of the model are adequate.
+Once a model is downloaded, we can test and interact with this model, to try to find the best prompt for our application. For chat models, Podman AI Lab provides a `Playground`, so we can test different prompts and validate that the responses of the model are adequate.
 
 Let's start a new playground (from the `Models > Playgrounds` menu), and send our first prompt:
 
@@ -47,7 +47,7 @@ The model should reply with some list of pages, in a human-readable form (see th
 
 ![a first prompt with human readable output](./img/ai-lab-first-app/04-ai-lab-demo-prompt-1.png)
 
-The problem is that the response is in human readable form, but we don't want the API to return this response as is, we would like to have the name and the url of the pages, and send them to the website, so the website can display these pages with its preferred format. 
+The problem is that the response is in human readable form, but we don't want the API to return this response as is, we want to have the name and the url of the pages, and send them to the website, so the website can display these pages with its preferred format. 
 
 For this, we can try to ask the model to reply with a structured response, with the following prompt:
 
@@ -59,7 +59,7 @@ This time, we have received a response in JSON format, which is more suitable fo
 
 ![a prompt with structured output](./img/ai-lab-first-app/05-ai-lab-demo-prompt-json.png)
 
-We don't ecxpect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it on the fly. For this purpose, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
+We don't ecxpect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it in real time. For this purpose, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
 
 Podman AI Lab supports this feature, let's restart a Playground session with the following system prompt:
 
@@ -130,7 +130,7 @@ application:
 
 The file defines two containers, one for the inference server and one for the application itself.
 
-The first container, for the inference server, is generic and can be reused for any app using a chat model.
+The first container, for the inference server, is generic and can be reused for any app by using a chat model.
 
 The second one is the one we are particularly interested in. It defines how the container's image for the application is built. It points to the Containerfile used to build the image, on which we can find the source code for the app: in the `app/chatbot_ui.py` file.
 
