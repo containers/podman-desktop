@@ -41,13 +41,6 @@ const columns = [
 ];
 
 const row = new TableRow<ForwardConfig>({});
-
-let ForwardConfigs: ForwardConfig[] = $derived.by(() => {
-  return $kubernetesCurrentContextPortForwards.map(config => ({
-    ...config,
-    mapping: config.forward,
-  }));
-});
 </script>
 
 <NavPage searchEnabled={false} title="Port forwarding">
@@ -55,7 +48,7 @@ let ForwardConfigs: ForwardConfig[] = $derived.by(() => {
     {#if $kubernetesCurrentContextPortForwards.length > 0}
       <Table
         kind="port"
-        data={ForwardConfigs}
+        data={$kubernetesCurrentContextPortForwards}
         columns={columns}
         row={row}
         defaultSortColumn="Name">
