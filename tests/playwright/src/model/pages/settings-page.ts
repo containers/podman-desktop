@@ -22,14 +22,16 @@ import { BasePage } from './base-page';
 
 export abstract class SettingsPage extends BasePage {
   readonly tabName: string;
+  readonly parent: Locator;
   readonly header: Locator;
   readonly content: Locator;
 
   constructor(page: Page, tabName: string) {
     super(page);
     this.tabName = tabName;
-    this.header = this.page.getByRole('region', { name: 'Header' });
-    this.content = this.page.getByRole('region', { name: 'Content' });
+    this.parent = this.page.getByRole('region', { name: tabName });
+    this.header = this.parent.getByRole('region', { name: 'Header' });
+    this.content = this.parent.getByRole('region', { name: 'Content' });
   }
 
   async getTab(): Promise<Locator> {

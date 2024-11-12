@@ -23,13 +23,11 @@ import { SettingsPage } from './settings-page';
 
 export class PreferencesPage extends SettingsPage {
   readonly heading: Locator;
-  readonly content: Locator;
   readonly kubePathInput: Locator;
 
   constructor(page: Page) {
     super(page, 'Preferences');
-    this.heading = this.page.getByLabel('Title', { exact: true });
-    this.content = this.page.getByLabel('Content');
+    this.heading = this.header.getByLabel('Title', { exact: true });
     this.kubePathInput = this.content.getByLabel(
       'Path to the Kubeconfig file for accessing clusters. (Default is usually ~/.kube/config)',
     );
