@@ -655,8 +655,8 @@ importers:
         specifier: 5.1.15
         version: 5.1.15
       svelte-check:
-        specifier: ^4.0.6
-        version: 4.0.6(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
+        specifier: ^4.0.7
+        version: 4.0.7(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
       svelte-eslint-parser:
         specifier: ^0.43.0
         version: 0.43.0(svelte@5.1.15)
@@ -755,8 +755,8 @@ importers:
         specifier: 5.1.15
         version: 5.1.15
       svelte-check:
-        specifier: ^4.0.6
-        version: 4.0.6(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
+        specifier: ^4.0.7
+        version: 4.0.7(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
       svelte-eslint-parser:
         specifier: ^0.43.0
         version: 0.43.0(svelte@5.1.15)
@@ -869,8 +869,8 @@ importers:
         specifier: 5.1.15
         version: 5.1.15
       svelte-check:
-        specifier: ^4.0.6
-        version: 4.0.6(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
+        specifier: ^4.0.7
+        version: 4.0.7(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3)
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.14
@@ -10716,8 +10716,8 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
 
-  svelte-check@4.0.6:
-    resolution: {integrity: sha512-2XwmQNJaKbenJbvu5at+DuRpvF4v73Zu7f0/WkMl1O7WDm/IfF+E13t8D0nnRiRcMsNYm9ufHyLwfeMEnebpdg==}
+  svelte-check@4.0.7:
+    resolution: {integrity: sha512-24hwo+D5L35HOXsh3Z2sU4WhdDLavlHquYaJhrEqAt+mV1xOVzoMVYThW80n99osDJxyuH+vxjNFkNRL4EvwTg==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -24256,7 +24256,7 @@ snapshots:
       svelte: 5.1.15
       zimmerframe: 1.1.2
 
-  svelte-check@4.0.6(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3):
+  svelte-check@4.0.7(picomatch@4.0.2)(svelte@5.1.15)(typescript@5.6.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 4.0.1
