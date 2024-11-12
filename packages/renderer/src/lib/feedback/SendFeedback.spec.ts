@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,26 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import userEvent from '@testing-library/user-event';
-import { tick } from 'svelte';
+import { render } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
+
+import type { FeedbackCategory } from '/@api/feedback';
 
 import SendFeedback from './SendFeedback.svelte';
 
-// fake the window.events object
+const mocks = vi.hoisted(() => ({
+  gitHubIssueMock: vi.fn(),
+  developersFeedbackMock: vi.fn(),
+}));
+
+vi.mock('./GitHubIssueFeedback.svelte', () => ({
+  default: mocks.gitHubIssueMock,
+}));
+
+vi.mock('./DevelopersFeedback.svelte', () => ({
+  default: mocks.developersFeedbackMock,
+}));
+
 beforeAll(() => {
   (window.events as unknown) = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,217 +45,19 @@ beforeAll(() => {
       func();
     },
   };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).openExternal = vi.fn();
-  (window as any).telemetryTrack = vi.fn();
-  (window as any).sendFeedback = vi.fn();
 });
 
-test('Expect that the button is disabled when loading the page', async () => {
-  render(SendFeedback, {});
-  const button = screen.getByRole('button', { name: 'Send feedback' });
-  expect(button).toBeInTheDocument();
-  expect(button).toBeDisabled();
-});
-
-test('Expect that the button is enabled after clicking on a smiley', async () => {
-  render(SendFeedback, {});
-  const button = screen.getByRole('button', { name: 'Send feedback' });
-
-  // expect to have indication why the button is disabled
-  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
-
-  // click on a smiley
-  const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
-  await fireEvent.click(smiley);
-
-  // now expect to have the button enabled
-  expect(button).toBeEnabled();
-
-  // and the indication is gone
-  expect(screen.queryByText('Please select an experience smiley')).not.toBeInTheDocument();
-});
-
-test('Expect very sad smiley errors without feedback', async () => {
-  render(SendFeedback, {});
-  const button = screen.getByRole('button', { name: 'Send feedback' });
-  expect(button).toBeDisabled();
-
-  // expect to have indication why the button is disabled
-  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
-
-  // click on very sad smiley
-  const smiley = screen.getByRole('button', { name: 'very-sad-smiley' });
-  await fireEvent.click(smiley);
-
-  // expect button is still disabled, but with different indication
-  expect(button).toBeDisabled();
-  const message = screen.getByText('Please share contact info or details on how we can improve');
-  expect(message).toBeInTheDocument();
-
-  // add some text
-  const feedback = screen.getByTestId('tellUsWhyFeedback');
-  expect(feedback).toBeInTheDocument();
-
-  await userEvent.type(feedback, 'PD is awesome');
-
-  // button is enabled and the indication is gone
-  expect(button).toBeEnabled();
-  expect(message).not.toBeInTheDocument();
-});
-
-test('Expect sad smiley warns without feedback', async () => {
-  render(SendFeedback, {});
-  const button = screen.getByRole('button', { name: 'Send feedback' });
-  expect(button).toBeDisabled();
-
-  // expect to have indication why the button is disabled
-  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
-
-  // click on very sad smiley
-  const smiley = screen.getByRole('button', { name: 'sad-smiley' });
-  await fireEvent.click(smiley);
-
-  // expect button is now enabled, but with different indication
-  expect(button).toBeEnabled();
-  const warn = screen.getByText('We would really appreciate knowing how we can improve');
-  expect(warn).toBeInTheDocument();
-
-  // add some text
-  const feedback = screen.getByTestId('tellUsWhyFeedback');
-  expect(feedback).toBeInTheDocument();
-
-  await userEvent.type(feedback, 'PD is awesome');
-
-  // and the indication is gone
-  expect(warn).not.toBeInTheDocument();
-});
-
-test('Expect message for very-happy-smiley to use love', async () => {
-  const { getByRole, getByLabelText } = render(SendFeedback, {});
-
-  // click on a smiley
-  const smiley = getByRole('button', { name: 'very-happy-smiley' });
-  await fireEvent.click(smiley);
-
-  // and the GitHub star text is visible
-  const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
-  expect(region.textContent).toBe('Love It? Give us a on GitHub');
-});
-
-test('Expect message for happy-smiley to use like', async () => {
-  const { getByRole, getByLabelText } = render(SendFeedback, {});
-
-  // click on a smiley
-  const smiley = getByRole('button', { name: 'happy-smiley' });
-  await fireEvent.click(smiley);
-
-  // and the GitHub star text is visible
-  const region = getByLabelText('Like Podman Desktop? Give us a star on GitHub');
-  expect(region.textContent).toBe('Like It? Give us a on GitHub');
-});
-
-test('Expect GitHub dialog visible when very-happy-smiley selected', async () => {
+test('Expect developers feedback form to be rendered by default', async () => {
   render(SendFeedback, {});
 
   // click on a smiley
-  const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
-  await fireEvent.click(smiley);
-
-  // and the GitHub star text is visible
-  expect(screen.getByLabelText('Like Podman Desktop? Give us a star on GitHub')).toBeInTheDocument();
-
-  const link = screen.getByRole('link', { name: 'GitHub' });
-  await fireEvent.click(link);
-
-  await vi.waitFor(() => {
-    expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGitHub');
-    expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
-  });
+  expect(mocks.developersFeedbackMock).toBeCalled();
 });
 
-test('Expect category to be sent', async () => {
-  render(SendFeedback, {});
+test('Expect GitHubIssue feedback form to be rendered if category is not developers', async () => {
+  const feedbackCategory: FeedbackCategory = 'bug';
+  render(SendFeedback, { category: feedbackCategory });
 
   // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // click on a smiley
-  const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
-  await fireEvent.click(smiley);
-
-  // click on submit button
-  const button = screen.getByRole('button', { name: 'Send feedback' });
-  expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
-  await fireEvent.click(button);
-
-  expect(window.sendFeedback).toHaveBeenCalledWith({
-    category: 'developers',
-    rating: 4,
-  });
-});
-
-test('Expect feedback form to change to bug form when selected as category', async () => {
-  render(SendFeedback, {});
-
-  // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // select the Feature request category
-  await userEvent.keyboard('[ArrowDown]');
-  const bugCategory = screen.getByRole('button', { name: /Bug/ });
-  expect(bugCategory).toBeInTheDocument();
-  await fireEvent.click(bugCategory);
-
-  await tick();
-
-  expect(screen.getByText('Title')).toBeInTheDocument();
-  expect(screen.getByText('Description')).toBeInTheDocument();
-
-  const sysInfo = screen.getByRole('checkbox', { name: 'Collect system information' });
-  expect(sysInfo).toBeInTheDocument();
-  expect(sysInfo).not.toBeChecked();
-
-  const extensionInfo = screen.getByRole('checkbox', { name: 'Collect extensions information' });
-  expect(extensionInfo).toBeInTheDocument();
-  expect(extensionInfo).not.toBeChecked();
-});
-
-test('Expect bug GitHub link to include bug title and description', async () => {
-  render(SendFeedback, {});
-
-  // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // select the Feature request category
-  await userEvent.keyboard('[ArrowDown]');
-  const bugCategory = screen.getByRole('button', { name: /Bug/ });
-  expect(bugCategory).toBeInTheDocument();
-  await fireEvent.click(bugCategory);
-
-  await tick();
-
-  const bugTitle = screen.getByRole('textbox', { name: 'Title' });
-  expect(bugTitle).toBeInTheDocument();
-  await userEvent.type(bugTitle, 'PD is not working');
-
-  const bugDescription = screen.getByRole('textbox', { name: 'Description' });
-  expect(bugDescription).toBeInTheDocument();
-  await userEvent.type(bugDescription, 'bug description');
-
-  const gitHubButton = screen.getByRole('button', { name: 'Preview on GitHub' });
-  expect(gitHubButton).toBeInTheDocument();
-  await fireEvent.click(gitHubButton);
-
-  expect(window.openExternal).toHaveBeenCalledWith(
-    'https://github.com/containers/podman-desktop/issues/new?template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description',
-  );
+  expect(mocks.gitHubIssueMock).toBeCalled();
 });
