@@ -20,7 +20,6 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
@@ -30,21 +29,8 @@ beforeAll(() => {
   (window as any).openExternal = vi.fn();
 });
 
-test('Expect feedback form to change to bug form when selected as category', async () => {
+test('Expect feedback form to to be bug feedback form', async () => {
   render(GitHubIssueFeedback, {});
-
-  // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // select the Feature request category
-  await userEvent.keyboard('[ArrowDown]');
-  const bugCategory = screen.getByRole('button', { name: /Bug/ });
-  expect(bugCategory).toBeInTheDocument();
-  await fireEvent.click(bugCategory);
-
-  await tick();
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
@@ -52,19 +38,6 @@ test('Expect feedback form to change to bug form when selected as category', asy
 
 test('Expect bug GitHub link to include bug title and description', async () => {
   render(GitHubIssueFeedback, {});
-
-  // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // select the Feature request category
-  await userEvent.keyboard('[ArrowDown]');
-  const bugCategory = screen.getByRole('button', { name: /Bug/ });
-  expect(bugCategory).toBeInTheDocument();
-  await fireEvent.click(bugCategory);
-
-  await tick();
 
   const bugTitle = screen.getByRole('textbox', { name: 'Title' });
   expect(bugTitle).toBeInTheDocument();

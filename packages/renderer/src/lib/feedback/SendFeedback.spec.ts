@@ -18,10 +18,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';
-
-import type { FeedbackCategory } from '/@api/feedback';
 
 import SendFeedback from './SendFeedback.svelte';
 
@@ -30,11 +29,11 @@ const mocks = vi.hoisted(() => ({
   developersFeedbackMock: vi.fn(),
 }));
 
-vi.mock('./GitHubIssueFeedback.svelte', () => ({
+vi.mock('./feedbackForms/GitHubIssueFeedback.svelte', () => ({
   default: mocks.gitHubIssueMock,
 }));
 
-vi.mock('./DevelopersFeedback.svelte', () => ({
+vi.mock('./feedbackForms/DevelopersFeedback.svelte', () => ({
   default: mocks.developersFeedbackMock,
 }));
 
@@ -55,9 +54,17 @@ test('Expect developers feedback form to be rendered by default', async () => {
 });
 
 test('Expect GitHubIssue feedback form to be rendered if category is not developers', async () => {
-  const feedbackCategory: FeedbackCategory = 'bug';
-  render(SendFeedback, { category: feedbackCategory });
+  render(SendFeedback, {});
 
+  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
+  expect(categorySelect).toBeInTheDocument();
+  categorySelect.focus();
+
+  // select the Feature request category
+  await userEvent.keyboard('[ArrowDown]');
+  const bugCategory = screen.getByRole('button', { name: /Bug/ });
+  expect(bugCategory).toBeInTheDocument();
+  await fireEvent.click(bugCategory);
   // click on a smiley
   expect(mocks.gitHubIssueMock).toBeCalled();
 });

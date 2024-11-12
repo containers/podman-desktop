@@ -158,11 +158,6 @@ test('Expect category to be sent', async () => {
   render(DevelopersFeedback, {});
 
   // click on a smiley
-  const categorySelect = screen.getByRole('button', { name: /Direct your words to the developers/ });
-  expect(categorySelect).toBeInTheDocument();
-  categorySelect.focus();
-
-  // click on a smiley
   const smiley = screen.getByRole('button', { name: 'very-happy-smiley' });
   await fireEvent.click(smiley);
 
