@@ -10,7 +10,6 @@ import {
   faDiagramProject,
   faGaugeHigh,
   faGears,
-  faPlug,
   faRocket,
   faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
@@ -192,28 +191,40 @@ function Extensibility(): JSX.Element {
           <SectionTitle name="extensibility" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Bring new features with Podman Desktop plug-ins or Docker Desktop Extensions.
+            Bring new features to Podman Desktop with extensions.
           </h2>
         </div>
 
         <div className="flex flex-col w-full text-center">
-          <div className="mx-10">
-            <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-900 dark:text-gray-300" />
-          </div>
-
-          <ul className="list-disc list-inside text-center">
-            <li>Container engines are plugged through extension points</li>
-            <li>JavaScript extensions can contribute new behaviour</li>
-            <li>Reuse existing extensions such as Trivy and OpenShift directly in Podman Desktop</li>
-          </ul>
-
           <div className="flex flex-col items-center">
-            <div className="text-left my-4">
-              <p className="-ml-5 text-base">
-                Current Podman Desktop plugins: Podman, Docker, Lima, Kubernetes, and OpenShift Local with the Podman
-                preset.
-              </p>
-            </div>
+            <p className="text-base lg:w-2/3 text-center mx-auto">
+              Podman Desktop is built around extension points. You can easily create a new extension using our pre-made
+              templates, easy-to-use API and UI components. Integrate your own tools into Podman Desktop with ease to
+              enrich with your own developer tools and experiences.
+            </p>
+            <ul className="list-disc list-inside text-center">
+              <li>
+                Explore our
+                <Link title="catalog of extensions" to="/extensions">
+                  catalog of extensions
+                </Link>
+                .
+              </li>
+              <li>
+                Learn to
+                <Link title="develop your own extensions" to="/docs/extensions/developing">
+                  develop your own extensions
+                </Link>
+                .
+              </li>
+              <li>
+                Want to use a Docker Desktop extension? Extensions such as
+                <Link title="trivy" to="https://github.com/aquasecurity/trivy-docker-extension">
+                  Trivy
+                </Link>
+                work out of the box with Podman Desktop.
+              </li>
+            </ul>
           </div>
 
           <ThemedImage
