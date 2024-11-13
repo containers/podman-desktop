@@ -13,7 +13,7 @@
 
 <link rel="preconnect" href="https://podman-desktop-website.goatcounter.com">
 <script async src="//gc.zgo.at/count.js" data-goatcounter="https://podman-desktop-website.goatcounter.com/count"></script><link rel="stylesheet" href="/assets/css/styles.23bc662d.css">
-<script src="/assets/js/runtime~main.e9f05efc.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.25469b1a.js" defer="defer"></script>
 <script src="/assets/js/main.a7c71129.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -33,9 +33,11 @@
 </ul>
 </li>
 <li>View and analyze real-time information about the connection status of the resources configured within the cluster.</li>
+<li>View the dashboard for analyzing object metrics and reading Kubernetes articles and blog posts.</li>
 <li>Get resource details using the <em>Summary</em> and <em>Inspect</em> tabs.</li>
 <li>Edit and apply configuration changes directly using the <em>Kube</em> tab.</li>
 <li>Select multiple configuration files and apply them to your cluster in a single step.</li>
+<li>Configure port forwarding for a Kubernetes service and view the port forwarding details.</li>
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="prerequisites">Prerequisites<a href="#prerequisites" class="hash-link" aria-label="Direct link to Prerequisites" title="Direct link to Prerequisites">​</a></h4>
 <ul>
@@ -46,8 +48,11 @@
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure-creating-an-object">Procedure: Creating an object<a href="#procedure-creating-an-object" class="hash-link" aria-label="Direct link to Procedure: Creating an object" title="Direct link to Procedure: Creating an object">​</a></h4>
 <ol>
 <li>
-<p>In the Kubernetes explorer, click one of the options to open the respective object page.</p>
-<p><img decoding="async" loading="lazy" alt="kube objects" src="/assets/images/kube-objects-722ad69fd283737ed192a1c1b85b4591.png" width="228" height="312" class="img_SS3x"></p>
+<p>Go to the <strong>Kubernetes</strong> component page.</p>
+</li>
+<li>
+<p>Click one of the options to open the object page.</p>
+<p><img decoding="async" loading="lazy" alt="kube objects" src="/assets/images/kube-objects-140ec1f152d01b7de37f507c034f1880.png" width="239" height="440" class="img_SS3x"></p>
 </li>
 <li>
 <p>Click the <strong>Apply YAML</strong> button and select an object configuration file. A confirmation notification opens.
@@ -59,7 +64,8 @@
 </ol>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="procedure-updating-an-existing-object">Procedure: Updating an existing object<a href="#procedure-updating-an-existing-object" class="hash-link" aria-label="Direct link to Procedure: Updating an existing object" title="Direct link to Procedure: Updating an existing object">​</a></h4>
 <ol>
-<li>In the Kubernetes explorer, click one of the options to open the respective object page.</li>
+<li>Go to the <strong>Kubernetes</strong> component page.</li>
+<li>Click one of the options to open the object page.</li>
 <li>Click the name of the object.</li>
 <li>Select the <strong>Kube</strong> tab and edit the configuration file.
 <img decoding="async" loading="lazy" alt="editing a node" src="/assets/images/example-edit-node-82c6b5b3d7ce59d32d52a48bcdfb2121.png" width="1060" height="710" class="img_SS3x"></li>
@@ -67,9 +73,17 @@
 </ol>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification">Verification<a href="#verification" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
 <ol>
-<li>View the created object on the page.</li>
-<li>Optional: Click the name of the object to view its detailed summary.
-<img decoding="async" loading="lazy" alt="summary tab" src="/assets/images/summary-tab-57a47c6b2f5ce733c28758c4a3be2f10.png" width="1060" height="608" class="img_SS3x"></li>
+<li>
+<p>View the created object:</p>
+<ul>
+<li>View the <code>Pod</code> object on the <strong>Pods</strong> component page.</li>
+<li>View the other Kubernetes objects on the related object page. For example, if you have created a <code>Node</code> object, you can view it on the <strong>Kubernetes &gt; Nodes</strong> page.</li>
+</ul>
+</li>
+<li>
+<p>Optional: Click the name of the object to view its detailed summary.
+<img decoding="async" loading="lazy" alt="summary tab" src="/assets/images/summary-tab-57a47c6b2f5ce733c28758c4a3be2f10.png" width="1060" height="608" class="img_SS3x"></p>
+</li>
 </ol></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-tags-row"><div class="col"><b>Tags:</b><ul class="tags_Ow0B padding--none margin-left--sm"><li class="tag_DFxh"><a class="tag_otG2 tagRegular_s0E1" href="/docs/tags/managing-kubernetes">managing-kubernetes</a></li><li class="tag_DFxh"><a class="tag_otG2 tagRegular_s0E1" href="/docs/tags/objects">objects</a></li></ul></div></div><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col"><a href="https://github.com/containers/podman-desktop/tree/main/website/docs/kubernetes/configuring-editing-kube-object.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_bHB7" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_ydrU"></div></div></footer></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/kubernetes/creating-a-kube-cluster"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Creating a Kubernetes cluster</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/kubernetes/existing-kubernetes"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Existing Kubernetes</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_XG6w thin-scrollbar theme-doc-toc-desktop"></div></div></div></div></main></div></div></div><footer class="footer"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Documentation</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/docs/installation">Installing Podman Desktop</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/migrating-from-docker">Migrating from Docker</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/kubernetes">Working with Kubernetes</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/troubleshooting">Troubleshooting</a></li></ul></div><div class="col footer__col"><div class="footer__title">Links</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/containers/podman-desktop" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPrP"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://discord.com/invite/x5GzFF6QH4" target="_blank" rel="noopener noreferrer" class="footer__link-item">Chat (bridged): #podman-desktop on Discord<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPrP"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://github.com/containers/podman-desktop#communication" target="_blank" rel="noopener noreferrer" class="footer__link-item">Other ways to Communicate<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPrP"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://github.com/orgs/containers/projects/4/views/8" target="_blank" rel="noopener noreferrer" class="footer__link-item">Current Sprint<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPrP"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 podman desktop - Apache License 2.0 License</div></div></div></footer></div>
 </body>
 </html>
