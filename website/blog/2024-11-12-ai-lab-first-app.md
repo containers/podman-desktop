@@ -59,7 +59,7 @@ This time, we have received a response in JSON format, which is more suitable fo
 
 ![a prompt with structured output](./img/ai-lab-first-app/05-ai-lab-demo-prompt-json.png)
 
-We don't ecxpect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it in real time. For this purpose, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
+We don't expect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it in real time. For this purpose, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
 
 Podman AI Lab supports this feature, let's restart a Playground session with the following system prompt:
 
