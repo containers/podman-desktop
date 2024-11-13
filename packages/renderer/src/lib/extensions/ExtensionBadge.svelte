@@ -13,7 +13,7 @@ export let extension: { type: 'dd' | 'pd'; removable: boolean };
     </Tooltip>
   {:else if !extension.removable}
     <Tooltip right tip="built-in Extension">
-      <Badge class="text-[8px] text-[var(--pd-badge-builtin-extension-text)]" color="bg-[var(--pd-badge-builtin-extension-bg)]" label="built-in Extension" />
+      <Badge class="text-[8px] text-[var(--pd-badge-text)]" color="bg-[var(--pd-badge-builtin-extension-bg)]" label="built-in Extension" />
     </Tooltip>
   {/if}
 </div>

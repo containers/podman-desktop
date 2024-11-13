@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import type { OpenDialogOptions } from '@podman-desktop/api';
-import { Button, Checkbox, Dropdown, ErrorMessage, Input, Tab } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Input, NumberInput, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -18,7 +18,6 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import FileInput from '../ui/FileInput.svelte';
-import NumberInput from '../ui/NumberInput.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';
 import type { ImageInfoUI } from './ImageInfoUI';
 

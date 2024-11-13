@@ -20,7 +20,7 @@ import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
 import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import type { CheckingState, ContextGeneralState } from '/@api/kubernetes-contexts-states';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import { findMatchInLeaves } from './search-util';
 
@@ -164,6 +164,31 @@ export const nodeSearchPattern = writable('');
 export const kubernetesCurrentContextNodesFiltered = derived(
   [nodeSearchPattern, kubernetesCurrentContextNodes],
   ([$searchPattern, $nodes]) => $nodes.filter(node => findMatchInLeaves(node, $searchPattern.toLowerCase())),
+);
+
+// Pods
+
+export const kubernetesCurrentContextPods = readable<KubernetesObject[]>([], set => {
+  window
+    .kubernetesRegisterGetCurrentContextResources('pods')
+    .then(value => set(value))
+    .catch((err: unknown) => console.log('Error registering Kubernetes pods', err));
+  window.events?.receive('kubernetes-current-context-pods-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window
+      .kubernetesUnregisterGetCurrentContextResources('pods')
+      .catch((err: unknown) => console.log('Error unregistering Kubernetes pods', err));
+  };
+});
+
+export const podSearchPattern = writable('');
+
+// The pods in the current context, filtered with `podSearchPattern`
+export const kubernetesCurrentContextPodsFiltered = derived(
+  [podSearchPattern, kubernetesCurrentContextPods],
+  ([$searchPattern, $pods]) => $pods.filter(pod => findMatchInLeaves(pod, $searchPattern.toLowerCase())),
 );
 
 // PersistentVolumeClaims
@@ -312,7 +337,7 @@ export const kubernetesCurrentContextEvents = readable<CoreV1Event[]>([], set =>
 
 // Port Forwarding
 
-export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]>([], set => {
+export const kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([], set => {
   window
     .getKubernetesPortForwards()
     .then(value => {
@@ -320,6 +345,6 @@ export const kubernetesCurrentContextPortForwards = readable<UserForwardConfig[]
     })
     .catch((err: unknown) => console.log('Error getting port forwarding initial value', err));
   window.events?.receive('kubernetes-port-forwards-update', (value: unknown) => {
-    set(value as UserForwardConfig[]);
+    set(value as ForwardConfig[]);
   });
 });
