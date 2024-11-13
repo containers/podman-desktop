@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Input } from '..';
+import Input from './Input.svelte';
 
 export let name: string | undefined = undefined;
 export let value: number;
