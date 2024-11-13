@@ -13,7 +13,7 @@ let title: string | undefined = $derived.by(() => {
 });
 
 let progress: number | undefined = $derived.by(() => {
-  if (runningTasks.length !== 0) return undefined;
+  if (runningTasks.length === 0) return undefined;
   return runningTasks[0].progress ?? 0;
 });
 
@@ -29,7 +29,7 @@ function toggleTaskManager(): void {
         <div class="flex items-center gap-x-2">
           <span role="status" class="max-w-32 text-ellipsis overflow-hidden whitespace-nowrap">{title}</span>
           {#if (progress ?? 0) >= 0}
-            <ProgressBar height="h-1" width="w-20" progress={progress} />
+            <ProgressBar class="items-center" height="h-1" width="w-20" progress={progress} />
           {/if}
         </div>
       </button>
