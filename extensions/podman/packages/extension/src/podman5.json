@@ -1,24 +1,24 @@
 {
-  "version": "5.2.5",
+  "version": "5.3.1",
   "releaseNotes": {
-    "href": "https://github.com/containers/podman/releases/tag/v5.2.5"
+    "href": "https://github.com/containers/podman/releases/tag/v5.3.1"
   },
   "platform": {
     "win32": {
-      "version": "v5.2.5",
-      "fileName": "podman-5.2.5-setup.exe"
+      "version": "v5.3.1",
+      "fileName": "podman-5.3.1-setup.exe"
     },
     "darwin": {
-      "version": "v5.2.5",
+      "version": "v5.3.1",
       "arch": {
         "x64": {
-          "fileName": "podman-installer-macos-amd64-v5.2.5.pkg"
+          "fileName": "podman-installer-macos-amd64-v5.3.1.pkg"
         },
         "arm64": {
-          "fileName": "podman-installer-macos-aarch64-v5.2.5.pkg"
+          "fileName": "podman-installer-macos-aarch64-v5.3.1.pkg"
         },
         "universal": {
-          "fileName": "podman-installer-macos-universal-v5.2.5.pkg"
+          "fileName": "podman-installer-macos-universal-v5.3.1.pkg"
         }
       }
     }
