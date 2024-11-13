@@ -1,8 +1,67 @@
 # Contributing to podman-desktop.io
 
-Thank you for your interest in improving the website!
+Contributing to the Podman Desktop website is a valuable way to support the project. Here are several ways you can contribute:
+
+- **Enhancing Content:** Improve existing pages by updating information, correcting inaccuracies, or adding new sections.
+- **Writing Blog Posts:** Share insights, tutorials, or news related to Podman Desktop by authoring blog posts. 
+- **Improving Documentation:** Contribute to the website's documentation by clarifying instructions, adding examples.
+- **Design and Usability Enhancements:** If you have design skills, propose improvements to the website's layout, navigation, or overall user experience to make it more intuitive and visually appealing.
+- **Reporting and Fixing Issues:** Identify and report bugs or issues on the website, such as broken links or formatting problems. If you have web development skills, you can also contribute by fixing these issues.
+- **Search Engine Optimization (SEO):** Suggest or implement strategies to improve the website's visibility on search engines, helping more users discover Podman Desktop.
 
 The below information outlines details on how to both contribute as well as our documentation "templates" and criteria.
+
+## Folders
+
+Here is a brief description of the folders for the website of Podman Desktop and how they are organized.
+
+- `blogs`: All the blog posts published on [https://podman-desktop.io/blog](https://podman-desktop.io/blog).
+- `blogs/img`: Store all the images used in the the blog posts.
+- `docs`: All documentation published on [https://podman-desktop.io/docs](https://podman-desktop.io/docs).
+- `tutorials`: All tutorials published on [https://podman-desktop.io/tutorial](https://podman-desktop.io/tutorial).
+- `src`: Content for the website.
+- `src/pages`: All sub pages available on the website.
+
+## Propose a Blog post
+
+### Create a new author information
+
+If you are not yet an author on Podman Desktop blog, you'll need to add yourself to the list of authors in `blogs/authors.yml` following this pattern:
+
+```yaml
+authorid:
+  name: Your Name
+  title: Your Title
+  url: your GitHub link 
+  image_url: <your GitHub link>.png
+```
+
+### Create a new post
+
+In order to propose a new blog post, you'll need to do a pull request on the repository. Posts are authored as markdown files and are following a specific pattern:
+
+```md
+---
+title: Title of the blog post
+description: Description and short summary of the post
+slug: Unique identifier of the page used for the URL (example: podman-desktop-release-1.11).
+authors: Your author ID on podman desktop blog
+tags: Tags for the post (example: [podman-desktop, release, podman])
+hide_table_of_contents: false
+image: Path to the hero image for the post (example: /img/blog/podman-desktop-release-1.11/banner.png).
+---
+```
+
+If you need to include images and videos, you'll need to create a new folder in `blog/img` 
+
+### Videos
+
+If you want to include gifs and videos in your blog post, you'll need to import the following player at the top of your content:
+`import ReactPlayer from 'react-player'`
+
+Then in your blog post content use the following (and replace the URL):
+`<ReactPlayer playing playsinline controls url="path to your video file" width='100%' height='100%' />` 
+
 
 ## Documentation information
 
