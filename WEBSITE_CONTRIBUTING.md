@@ -33,7 +33,7 @@ authorid:
   name: Your Name
   title: Your Title
   url: your GitHub link 
-  image_url: your GitHub profile picture or <your GitHub link>.png
+  image_url: <your GitHub link>.png
 ```
 
 ### Create a new post
