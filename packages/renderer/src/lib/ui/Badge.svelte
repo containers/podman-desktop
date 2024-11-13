@@ -26,6 +26,6 @@ onMount(async () => {
 });
 </script>
 
-<div class="text-[var(--pd-card-bg)] text-xs me-2 px-1 py-0.5 rounded select-none {customClass} {$$props.class}" style={customStyle}>
+<div class="text-[var(--pd-badge-text)] text-xs me-2 px-1 py-0.5 rounded select-none {customClass} {$$props.class}" style={customStyle}>
   {label}
 </div>
