@@ -68,7 +68,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry';
 import type { KubeContext } from '/@api/kubernetes-context';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states';
-import type { ForwardOptions, PortMapping, UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification';
@@ -2114,23 +2114,20 @@ export function initExposure(): void {
     return ipcInvoke('kubernetes-client:refreshContextState', context);
   });
 
-  contextBridge.exposeInMainWorld('getKubernetesPortForwards', async (): Promise<UserForwardConfig[]> => {
+  contextBridge.exposeInMainWorld('getKubernetesPortForwards', async (): Promise<ForwardConfig[]> => {
     return ipcInvoke('kubernetes-client:getPortForwards');
   });
 
   contextBridge.exposeInMainWorld(
     'createKubernetesPortForward',
-    async (options: ForwardOptions): Promise<UserForwardConfig> => {
+    async (options: ForwardOptions): Promise<ForwardConfig> => {
       return ipcInvoke('kubernetes-client:createPortForward', options);
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'deleteKubernetesPortForward',
-    async (config: UserForwardConfig, mapping?: PortMapping): Promise<void> => {
-      return ipcInvoke('kubernetes-client:deletePortForward', config, mapping);
-    },
-  );
+  contextBridge.exposeInMainWorld('deleteKubernetesPortForward', async (config: ForwardConfig): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deletePortForward', config);
+  });
 
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',

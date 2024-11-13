@@ -30,7 +30,7 @@ import {
   MemoryBasedStorage,
   PreferenceFolderBasedStorage,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import { WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 
 vi.mock('node:fs/promises', () => ({
@@ -45,15 +45,15 @@ class TestFileBasedConfigStorage extends FileBasedConfigStorage {
     return super.ensureStorageInitialized();
   }
 
-  public override _createForward(config: UserForwardConfig): void {
+  public override _createForward(config: ForwardConfig): void {
     super._createForward(config);
   }
 
-  public override _deleteForward(config: UserForwardConfig): void {
+  public override _deleteForward(config: ForwardConfig): void {
     super._deleteForward(config);
   }
 
-  public override _updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): void {
+  public override _updateForward(config: ForwardConfig, newConfig: ForwardConfig): void {
     super._updateForward(config, newConfig);
   }
 }
@@ -134,13 +134,12 @@ describe('FileBasedConfigStorage', () => {
     getStoragePath: vi.fn().mockReturnValue('/mock/storage/path'),
   };
 
-  const sampleConfig: UserForwardConfig = {
+  const sampleConfig: ForwardConfig = {
     id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
     forward: { localPort: 8080, remotePort: 80 },
-    displayName: 'test-display-name',
   };
 
   beforeEach(() => {
@@ -206,16 +205,14 @@ describe('FileBasedConfigStorage', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage._createForward(sampleConfig)).toThrow(
-      'Found existed forward configuration with the same display name.',
-    );
+    expect(() => storage._createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
 
     expect(() => storage._deleteForward(sampleConfig)).toThrow(
-      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+      `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
 
@@ -224,7 +221,7 @@ describe('FileBasedConfigStorage', () => {
     const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
 
     expect(() => storage._updateForward(sampleConfig, newConfig)).toThrow(
-      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+      `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
 
@@ -257,13 +254,12 @@ describe('FileBasedConfigStorage', () => {
 });
 
 describe('MemoryBasedConfigStorage', () => {
-  const sampleConfig: UserForwardConfig = {
+  const sampleConfig: ForwardConfig = {
     id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
     forward: { localPort: 8080, remotePort: 80 },
-    displayName: 'test-display-name',
   };
 
   beforeEach(() => {
@@ -286,7 +282,7 @@ describe('MemoryBasedConfigStorage', () => {
   });
 
   test('should update forward configuration', async () => {
-    const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
+    const newConfig: ForwardConfig = { ...sampleConfig, namespace: 'new-ns' };
     const storage = new MemoryBasedStorage();
     storage['configs'] = [sampleConfig];
     await storage.updateForward(sampleConfig, newConfig);
@@ -302,29 +298,27 @@ describe('MemoryBasedConfigStorage', () => {
     expect(result).toContainEqual(sampleConfig);
   });
 
-  test('should throw an error if creating forward configuration with existing display name', () => {
+  test('should throw an error if creating forward configuration with existing id', () => {
     const storage = new MemoryBasedStorage();
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage.createForward(sampleConfig)).toThrow(
-      'Found existed forward configuration with the same display name.',
-    );
+    expect(() => storage.createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
     const storage = new MemoryBasedStorage();
 
     expect(() => storage.deleteForward(sampleConfig)).toThrow(
-      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+      `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
 
   test('should throw an error if updating a non-existing forward configuration', () => {
     const storage = new MemoryBasedStorage();
-    const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
+    const newConfig: ForwardConfig = { ...sampleConfig, namespace: 'new-ns' };
 
     expect(() => storage.updateForward(sampleConfig, newConfig)).toThrow(
-      `Forward configuration with display name ${sampleConfig.displayName} not found.`,
+      `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
 });
@@ -337,13 +331,12 @@ describe('ConfigManagementService', () => {
     listForwards: vi.fn(),
   } as unknown as ForwardConfigStorage;
 
-  const sampleConfig: UserForwardConfig = {
+  const sampleConfig: ForwardConfig = {
     id: 'fake-id',
     name: 'test-name',
     namespace: 'test-namespace',
     kind: WorkloadKind.POD,
     forward: { localPort: 8080, remotePort: 80 },
-    displayName: 'test-display-name',
   };
 
   test('should create forward configuration', async () => {
@@ -378,9 +371,8 @@ describe('ConfigManagementService', () => {
     mockConfigStorage.listForwards = vi.fn().mockResolvedValue([sampleConfig]);
     const service = new ConfigManagementService(mockConfigStorage);
 
-    const old: UserForwardConfig = {
+    const old: ForwardConfig = {
       forward: { localPort: 8080, remotePort: 80 },
-      displayName: 'dummy',
       namespace: 'default',
       kind: WorkloadKind.POD,
       name: 'hihi',

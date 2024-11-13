@@ -30,7 +30,7 @@ import {
 } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { ConfigManagementService } from '/@/plugin/kubernetes/kubernetes-port-forward-storage.js';
 import type { IDisposable } from '/@/plugin/types/disposable.js';
-import type { ForwardConfig, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 import { WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 
 vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-connection.js');
@@ -79,18 +79,13 @@ describe('KubernetesPortForwardService', () => {
     forward: { localPort: 8080, remotePort: 80 },
   };
 
-  const sampleUserForwardConfig: UserForwardConfig = {
-    ...sampleForwardConfig,
-    displayName: 'test-display-name',
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfigManagementService = {
-      createForward: vi.fn().mockResolvedValue(sampleUserForwardConfig),
+      createForward: vi.fn().mockResolvedValue(sampleForwardConfig),
       deleteForward: vi.fn().mockResolvedValue(undefined),
-      updateForward: vi.fn().mockResolvedValue(sampleUserForwardConfig),
-      listForwards: vi.fn().mockResolvedValue([sampleUserForwardConfig]),
+      updateForward: vi.fn().mockResolvedValue(sampleForwardConfig),
+      listForwards: vi.fn().mockResolvedValue([sampleForwardConfig]),
     } as unknown as ConfigManagementService;
 
     mockForwardingConnectionService = {
@@ -107,30 +102,29 @@ describe('KubernetesPortForwardService', () => {
 
   test('should create a forward configuration', async () => {
     vi.mocked(mockConfigManagementService.listForwards).mockResolvedValue([]);
-    const forward = sampleUserForwardConfig.forward;
+    const forward = sampleForwardConfig.forward;
     if (!forward) throw new Error('undefined forward');
 
     const result = await service.createForward({
-      name: sampleUserForwardConfig.name,
-      kind: sampleUserForwardConfig.kind,
-      namespace: sampleUserForwardConfig.namespace,
+      name: sampleForwardConfig.name,
+      kind: sampleForwardConfig.kind,
+      namespace: sampleForwardConfig.namespace,
       forward: forward,
-      displayName: sampleUserForwardConfig.displayName,
     });
-    expect(result).toEqual(sampleUserForwardConfig);
-    expect(mockConfigManagementService.createForward).toHaveBeenCalledWith(sampleUserForwardConfig);
+    expect(result).toEqual(sampleForwardConfig);
+    expect(mockConfigManagementService.createForward).toHaveBeenCalledWith(sampleForwardConfig);
     expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should delete a forward configuration', async () => {
-    await service.deleteForward(sampleUserForwardConfig);
-    expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(sampleUserForwardConfig);
+    await service.deleteForward(sampleForwardConfig);
+    expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(sampleForwardConfig);
     expect(apiSenderMock.send).toHaveBeenCalledWith('kubernetes-port-forwards-update', []);
   });
 
   test('should list all forward configurations', async () => {
     const result = await service.listForwards();
-    expect(result).toEqual([sampleUserForwardConfig]);
+    expect(result).toEqual([sampleForwardConfig]);
     expect(mockConfigManagementService.listForwards).toHaveBeenCalled();
   });
 

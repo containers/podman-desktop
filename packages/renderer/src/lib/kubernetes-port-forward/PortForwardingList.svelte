@@ -2,52 +2,45 @@
 import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
 import PortForwardIcon from '/@/lib/kubernetes-port-forward/PortForwardIcon.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import PodNameColumn from './PortForwardNameColumn.svelte';
 
 const columns = [
-  new TableColumn<PortForwardRow>('Status', {
+  new TableColumn<ForwardConfig>('Status', {
     align: 'center',
     width: '70px',
     renderer: PortForwardIcon,
   }),
-  new TableColumn<PortForwardRow>('Name', {
+  new TableColumn<ForwardConfig>('Name', {
     align: 'left',
     renderer: PodNameColumn,
   }),
-  new TableColumn<PortForwardRow, string>('Type', {
+  new TableColumn<ForwardConfig, string>('Type', {
     align: 'left',
     renderer: TableSimpleColumn,
     renderMapping: config => config.kind,
   }),
-  new TableColumn<PortForwardRow, string>('Local Port', {
+  new TableColumn<ForwardConfig, string>('Local Port', {
     align: 'left',
     renderer: TableSimpleColumn,
-    renderMapping: config => String(config.mapping.localPort),
+    renderMapping: config => String(config.forward.localPort),
   }),
-  new TableColumn<PortForwardRow, string>('Remote Port', {
+  new TableColumn<ForwardConfig, string>('Remote Port', {
     align: 'left',
     renderer: TableSimpleColumn,
-    renderMapping: config => String(config.mapping.remotePort),
+    renderMapping: config => String(config.forward.remotePort),
   }),
-  new TableColumn<PortForwardRow>('Actions', {
+  new TableColumn<ForwardConfig>('Actions', {
     align: 'right',
     renderer: PortForwardActions,
   }),
 ];
 
-const row = new TableRow<PortForwardRow>({});
-
-let portForwardRows: PortForwardRow[] = $derived.by(() => {
-  return $kubernetesCurrentContextPortForwards.map(config => ({
-    ...config,
-    mapping: config.forward,
-  }));
-});
+const row = new TableRow<ForwardConfig>({});
 </script>
 
 <NavPage searchEnabled={false} title="Port forwarding">
@@ -55,7 +48,7 @@ let portForwardRows: PortForwardRow[] = $derived.by(() => {
     {#if $kubernetesCurrentContextPortForwards.length > 0}
       <Table
         kind="port"
-        data={portForwardRows}
+        data={$kubernetesCurrentContextPortForwards}
         columns={columns}
         row={row}
         defaultSortColumn="Name">

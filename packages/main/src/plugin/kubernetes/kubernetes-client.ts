@@ -71,7 +71,7 @@ import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernet
 import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
-import type { ForwardOptions, UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -1761,18 +1761,18 @@ export class KubernetesClient {
     return this.#portForwardService;
   }
 
-  public async getPortForwards(): Promise<UserForwardConfig[]> {
+  public async getPortForwards(): Promise<ForwardConfig[]> {
     return this.ensurePortForwardService().listForwards();
   }
 
-  public async createPortForward(config: ForwardOptions): Promise<UserForwardConfig> {
+  public async createPortForward(config: ForwardOptions): Promise<ForwardConfig> {
     const service = this.ensurePortForwardService();
     const newConfig = await service.createForward(config);
     await service.startForward(newConfig);
     return newConfig;
   }
 
-  public async deletePortForward(config: UserForwardConfig): Promise<void> {
+  public async deletePortForward(config: ForwardConfig): Promise<void> {
     return this.ensurePortForwardService().deleteForward(config);
   }
 }

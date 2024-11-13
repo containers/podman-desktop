@@ -23,7 +23,7 @@ import type { IpcRenderer, IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import { buildApiSender, initExposure } from '.';
@@ -223,9 +223,8 @@ test('createKubernetesPortForward', async () => {
     },
   );
 
-  const userPortForward: UserForwardConfig = {
+  const userPortForward: ForwardConfig = {
     id: 'fake-id',
-    displayName: 'My port forward',
     namespace: 'kubernetes',
     name: 'service',
     kind: WorkloadKind.SERVICE,
@@ -262,9 +261,8 @@ test('deleteKubernetesPortForward', async () => {
     },
   );
 
-  const userPortForward: UserForwardConfig = {
+  const userPortForward: ForwardConfig = {
     id: 'fake-id',
-    displayName: 'My port forward',
     namespace: 'kubernetes',
     name: 'service',
     kind: WorkloadKind.SERVICE,

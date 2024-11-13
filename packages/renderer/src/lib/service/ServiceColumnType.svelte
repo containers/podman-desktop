@@ -12,16 +12,16 @@ function getTypeAttributes(type: string) {
   switch (type) {
     case 'ClusterIP':
       // faNetworkWired: Represents internal network connections, suitable for ClusterIP
-      return { color: 'text-sky-500', icon: faNetworkWired };
+      return { color: 'text-[var(--pd-badge-sky)]', icon: faNetworkWired };
     case 'LoadBalancer':
       // faBalanceScale: Symbolizes distribution, fitting for LoadBalancer that distributes traffic
-      return { color: 'text-purple-500', icon: faBalanceScale };
+      return { color: 'text-[var(--pd-badge-purple)]', icon: faBalanceScale };
     case 'NodePort':
       // faPlug: Indicates a connection point, appropriate for NodePort which exposes services on each Node's IP
-      return { color: 'text-fuschia-600', icon: faPlug };
+      return { color: 'text-[var(--pd-badge-fuschia)]', icon: faPlug };
     default:
       // faQuestionCircle: Used for unknown or unspecified types
-      return { color: 'text-gray-600', icon: faQuestionCircle };
+      return { color: 'text-[var(--pd-badge-gray)]', icon: faQuestionCircle };
   }
 }
 </script>

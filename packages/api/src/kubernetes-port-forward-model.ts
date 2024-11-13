@@ -60,10 +60,6 @@ export interface ForwardOptions {
    * The forward to create
    */
   forward: PortMapping;
-  /**
-   * The display name for the forward configuration.
-   */
-  displayName: string;
 }
 
 /**
@@ -95,16 +91,4 @@ export interface ForwardConfig {
    * The port mapping.
    */
   forward: PortMapping;
-}
-
-/**
- * Interface representing a user-specific forward configuration.
- * Extends the base {@link ForwardConfig} interface.
- * @see ForwardConfig
- */
-export interface UserForwardConfig extends ForwardConfig {
-  /**
-   * The display name for the forward configuration.
-   */
-  displayName: string;
 }

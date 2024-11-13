@@ -3,10 +3,10 @@ import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { StatusIcon } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 interface Props {
-  object: PortForwardRow;
+  object: ForwardConfig;
 }
 let { object }: Props = $props();
 </script>

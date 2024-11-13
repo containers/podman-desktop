@@ -17,7 +17,7 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen, within } from '@testing-library/svelte';
+import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
 import { expect, test } from 'vitest';
@@ -111,6 +111,32 @@ test('should list the result after the delay, and display spinner during loading
   within(list).getByText('aze01');
   within(list).getByText('aze02');
   within(list).getByText('aze03');
+});
+
+test('should list items started with search term on top', async () => {
+  const searchFunction = async (s: string) => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return ['z1' + s, s + '01', 'z0', s + '02', 'z2', s + '03'];
+  };
+  render(Typeahead, {
+    initialFocus: true,
+    searchFunction,
+    delay: 10,
+  });
+
+  const input = screen.getByRole('textbox');
+
+  await userEvent.type(input, 'aze');
+
+  await waitFor(() => {
+    const list = screen.getByRole('row');
+    const items = within(list).getAllByRole('button');
+    expect(items.length).toBe(6);
+    expect(items[0].textContent).toBe('aze01');
+    expect(items[1].textContent).toBe('aze02');
+    expect(items[2].textContent).toBe('aze03');
+    expect(items[3].textContent).toBe('z0');
+  });
 });
 
 test('should navigate in list with keys', async () => {

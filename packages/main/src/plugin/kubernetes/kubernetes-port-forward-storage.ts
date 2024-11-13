@@ -19,7 +19,7 @@ import * as fs from 'node:fs/promises';
 import path from 'node:path';
 
 import type { Directories } from '/@/plugin/directories.js';
-import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model.js';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model.js';
 
 /**
  * Interface for forward configuration storage.
@@ -29,33 +29,33 @@ export interface ForwardConfigStorage {
    * Creates a new forward configuration.
    * @param config - The forward configuration to create.
    * @returns The created forward configuration.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  createForward(config: UserForwardConfig): Promise<UserForwardConfig>;
+  createForward(config: ForwardConfig): Promise<ForwardConfig>;
 
   /**
    * Deletes an existing forward configuration.
    * @param config - The forward configuration to delete.
    * @returns Void if the operation successful.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  deleteForward(config: UserForwardConfig): Promise<void>;
+  deleteForward(config: ForwardConfig): Promise<void>;
 
   /**
    * Updates an existing forward configuration.
    * @param config - The existing forward configuration.
    * @param newConfig - The new forward configuration.
    * @returns The updated forward configuration.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig>;
+  updateForward(config: ForwardConfig, newConfig: ForwardConfig): Promise<ForwardConfig>;
 
   /**
    * Lists all forward configurations.
    * @returns A list of forward configurations.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  listForwards(): Promise<UserForwardConfig[]>;
+  listForwards(): Promise<ForwardConfig[]>;
 }
 
 /**
@@ -158,7 +158,7 @@ export class PreferenceFolderBasedStorage implements FileBasedStorage {
  * @see ForwardConfigStorage
  */
 export class FileBasedConfigStorage implements ForwardConfigStorage {
-  private configs: UserForwardConfig[] = [];
+  private configs: ForwardConfig[] = [];
 
   /**
    * Creates an instance of FileBasedConfigStorage.
@@ -176,9 +176,9 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * @param config - The forward configuration to create.
    * @returns The created forward configuration.
    * @throws If the storage is not initialized or creation fails.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async createForward(config: UserForwardConfig): Promise<UserForwardConfig> {
+  async createForward(config: ForwardConfig): Promise<ForwardConfig> {
     await this.ensureStorageInitialized();
     this._createForward(config);
     await this.flushStorage();
@@ -191,9 +191,9 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * @param config - The forward configuration to delete.
    * @returns Void if the operation successful.
    * @throws If the storage is not initialized or deletion fails.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async deleteForward(config: UserForwardConfig): Promise<void> {
+  async deleteForward(config: ForwardConfig): Promise<void> {
     await this.ensureStorageInitialized();
     this._deleteForward(config);
     await this.flushStorage();
@@ -205,9 +205,9 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * @param newConfig - The new forward configuration.
    * @returns The updated forward configuration.
    * @throws If the storage is not initialized or update fails.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig> {
+  async updateForward(config: ForwardConfig, newConfig: ForwardConfig): Promise<ForwardConfig> {
     await this.ensureStorageInitialized();
     this._updateForward(config, newConfig);
     await this.flushStorage();
@@ -218,9 +218,9 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * Lists all forward configurations.
    * @returns A list of forward configurations.
    * @throws If the storage is not initialized.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async listForwards(): Promise<UserForwardConfig[]> {
+  async listForwards(): Promise<ForwardConfig[]> {
     await this.ensureStorageInitialized();
     return [...this.configs];
   }
@@ -235,7 +235,7 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
       await this.fileStorage.initStorage();
       const storagePath = this.fileStorage.getStoragePath();
       const fileContent = await fs.readFile(storagePath, 'utf-8');
-      const configMap: Map<string, UserForwardConfig[]> = new Map(Object.entries(JSON.parse(fileContent)));
+      const configMap: Map<string, ForwardConfig[]> = new Map(Object.entries(JSON.parse(fileContent)));
 
       if (configMap.has(this.configKey)) {
         this.configs = configMap.get(this.configKey) ?? [];
@@ -253,7 +253,7 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
   protected async flushStorage(): Promise<void> {
     const storagePath = this.fileStorage.getStoragePath();
     const fileContent = await fs.readFile(storagePath, 'utf-8');
-    const configMap: Map<string, UserForwardConfig[]> = new Map(Object.entries(JSON.parse(fileContent)));
+    const configMap: Map<string, ForwardConfig[]> = new Map(Object.entries(JSON.parse(fileContent)));
 
     configMap.set(this.configKey, this.configs);
 
@@ -265,12 +265,12 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * Creates a new forward configuration in memory.
    * @param config - The forward configuration to create.
    * @throws If a configuration with the same display name already exists.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  protected _createForward(config: UserForwardConfig): void {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  protected _createForward(config: ForwardConfig): void {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index > -1) {
-      throw new Error('Found existed forward configuration with the same display name.');
+      throw new Error('Found existed forward configuration with the same id.');
     }
 
     this.configs.push(config);
@@ -280,12 +280,12 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * Deletes an existing forward configuration in memory.
    * @param config - The forward configuration to delete.
    * @throws If the configuration is not found.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  protected _deleteForward(config: UserForwardConfig): void {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  protected _deleteForward(config: ForwardConfig): void {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index === -1) {
-      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+      throw new Error(`Forward configuration with id ${config.id} not found.`);
     }
 
     this.configs.splice(index, 1);
@@ -296,12 +296,12 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
    * @param config - The existing forward configuration.
    * @param newConfig - The new forward configuration.
    * @throws If the configuration is not found.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  protected _updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): void {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  protected _updateForward(config: ForwardConfig, newConfig: ForwardConfig): void {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index === -1) {
-      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+      throw new Error(`Forward configuration with id ${config.id} not found.`);
     }
 
     this.configs[index] = newConfig;
@@ -309,36 +309,36 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
 }
 
 export class MemoryBasedStorage implements ForwardConfigStorage {
-  private configs: UserForwardConfig[] = [];
+  private configs: ForwardConfig[] = [];
 
-  createForward(config: UserForwardConfig): Promise<UserForwardConfig> {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  createForward(config: ForwardConfig): Promise<ForwardConfig> {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index > -1) {
-      throw new Error('Found existed forward configuration with the same display name.');
+      throw new Error('Found existed forward configuration with the same id.');
     }
 
     this.configs.push(config);
     return Promise.resolve(config);
   }
 
-  deleteForward(config: UserForwardConfig): Promise<void> {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  deleteForward(config: ForwardConfig): Promise<void> {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index === -1) {
-      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+      throw new Error(`Forward configuration with id ${config.id} not found.`);
     }
 
     this.configs.splice(index, 1);
     return Promise.resolve();
   }
 
-  listForwards(): Promise<UserForwardConfig[]> {
+  listForwards(): Promise<ForwardConfig[]> {
     return Promise.resolve(this.configs);
   }
 
-  updateForward(config: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig> {
-    const index = this.configs.findIndex(c => c.displayName === config.displayName);
+  updateForward(config: ForwardConfig, newConfig: ForwardConfig): Promise<ForwardConfig> {
+    const index = this.configs.findIndex(c => c.id === config.id);
     if (index === -1) {
-      throw new Error(`Forward configuration with display name ${config.displayName} not found.`);
+      throw new Error(`Forward configuration with id ${config.id} not found.`);
     }
 
     this.configs[index] = newConfig;
@@ -362,9 +362,9 @@ export class ConfigManagementService {
    * Creates a new forward configuration.
    * @param config - The forward configuration to create.
    * @returns The created forward configuration.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async createForward(config: UserForwardConfig): Promise<UserForwardConfig> {
+  async createForward(config: ForwardConfig): Promise<ForwardConfig> {
     return this.configStorage.createForward(config);
   }
 
@@ -372,9 +372,9 @@ export class ConfigManagementService {
    * Deletes an existing forward configuration.
    * @param config - The forward configuration to delete.
    * @returns Void if the operation successful.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async deleteForward(config: UserForwardConfig): Promise<void> {
+  async deleteForward(config: ForwardConfig): Promise<void> {
     return this.configStorage.deleteForward(config);
   }
 
@@ -383,18 +383,18 @@ export class ConfigManagementService {
    * @param oldConfig - The forward configuration to update
    * @param newConfig - The
    * @returns The updated configuration
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async updateForward(oldConfig: UserForwardConfig, newConfig: UserForwardConfig): Promise<UserForwardConfig> {
+  async updateForward(oldConfig: ForwardConfig, newConfig: ForwardConfig): Promise<ForwardConfig> {
     return this.configStorage.updateForward(oldConfig, newConfig);
   }
 
   /**
    * Lists all forward configurations.
    * @returns A list of forward configurations.
-   * @see UserForwardConfig
+   * @see ForwardConfig
    */
-  async listForwards(): Promise<UserForwardConfig[]> {
+  async listForwards(): Promise<ForwardConfig[]> {
     return this.configStorage.listForwards();
   }
 }
