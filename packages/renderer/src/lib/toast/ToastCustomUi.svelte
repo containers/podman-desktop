@@ -30,7 +30,7 @@ const executeAction = async (): Promise<void> => {
 >
   <div class="mb-1 flex flex-row items-center">
     <div
-      class="mr-1 text-purple-500"
+      class="mr-1 text-[var(--pd-state-info)]"
       role="status"
       aria-label={taskInfo.status}
     >
