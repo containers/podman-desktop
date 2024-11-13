@@ -1832,7 +1832,7 @@ test('Should return false if the timeout is reached but pods still exist', async
   const selector = 'app=test-app';
   const timeout = 1000;
 
-  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ items: [existingPodMock] });
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValue({ items: [existingPodMock] });
 
   const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector, timeout);
   expect(result).toBe(false);
