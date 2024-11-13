@@ -1,6 +1,6 @@
 # Contributing to podman-desktop.io
 
-Contributing to the Podman Desktop website is a valuable way to support the project's. Here are several ways you can contribute:
+Contributing to the Podman Desktop website is a valuable way to support the project. Here are several ways you can contribute:
 
 - **Enhancing Content:** Improve existing pages by updating information, correcting inaccuracies, or adding new sections.
 - **Writing Blog Posts:** Share insights, tutorials, or news related to Podman Desktop by authoring blog posts. 
@@ -13,20 +13,20 @@ The below information outlines details on how to both contribute as well as our 
 
 ## Folders
 
-Here is a brief description of the folders for the website of Podman Desktop and how its been organized.
+Here is a brief description of the folders for the website of Podman Desktop and how they are organized.
 
 - `blogs`: All the blog posts published on [https://podman-desktop.io/blog](https://podman-desktop.io/blog).
-- `blogs\img`: Store all the images used in the the blog posts.
+- `blogs/img`: Store all the images used in the the blog posts.
 - `docs`: All documentation published on [https://podman-desktop.io/docs](https://podman-desktop.io/docs).
 - `tutorials`: All tutorials published on [https://podman-desktop.io/tutorial](https://podman-desktop.io/tutorial).
 - `src`: Content for the website.
-- `src\pages`: All sub pages available on the website.
+- `src/pages`: All sub pages available on the website.
 
 ## Propose a Blog post
 
 ### Create a new author information
 
-If you are not yet an author on Podman Desktop blog, you'll need to add yourself to the list of authors in `blogs\authors.yml` following this pattern:
+If you are not yet an author on Podman Desktop blog, you'll need to add yourself to the list of authors in `blogs/authors.yml` following this pattern:
 
 ```yaml
 authorid:
@@ -38,21 +38,21 @@ authorid:
 
 ### Create a new post
 
-In order to propose a new blog post, you'll need to do a pull request on the repository. Posts are authored as markdown file and are following a specific pattern:
+In order to propose a new blog post, you'll need to do a pull request on the repository. Posts are authored as markdown files and are following a specific pattern:
 
 ```md
 ---
 title: Title of the blog post
 description: Description and short summary of the post
 slug: Unique identifier of the page used for the URL (example: podman-desktop-release-1.11).
-authors: Your author ID on podman desktop blog ()
+authors: Your author ID on podman desktop blog
 tags: Tags for the post (example: [podman-desktop, release, podman])
 hide_table_of_contents: false
 image: Path to the hero image for the post (example: /img/blog/podman-desktop-release-1.11/banner.png).
 ---
 ```
 
-If you need to include images and videos, you'll need to create a new folder in `blog\img` 
+If you need to include images and videos, you'll need to create a new folder in `blog/img` 
 
 ### Videos
 
