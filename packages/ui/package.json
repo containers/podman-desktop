@@ -149,7 +149,7 @@
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",
     "postcss-load-config": "^6.0.1",
-    "svelte": "5.1.15",
+    "svelte": "5.1.16",
     "svelte-check": "^4.0.7",
     "svelte-eslint-parser": "^0.43.0",
     "tailwindcss": "^3.4.14",
