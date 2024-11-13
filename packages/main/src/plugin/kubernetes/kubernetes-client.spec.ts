@@ -21,7 +21,6 @@ import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
-import * as clientNode from '@kubernetes/client-node';
 import {
   type AppsV1Api,
   BatchV1Api,
@@ -42,14 +41,10 @@ import {
   type V1Status,
   type Watch,
 } from '@kubernetes/client-node';
+import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
 import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
-import type {
-  KubernetesPortForwardService,
-  KubernetesPortForwardServiceProvider,
-} from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
-import { type ForwardConfig, type ForwardOptions, WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -269,17 +264,6 @@ const apiSender: ApiSenderType = {
   send: apiSenderSendMock,
   receive: vi.fn(),
 };
-
-const mocks = vi.hoisted(() => ({
-  getServiceMock: vi.fn(),
-}));
-
-vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-service', () => ({
-  KubernetesPortForwardService: vi.fn(),
-  KubernetesPortForwardServiceProvider: vi.fn().mockReturnValue({
-    getService: mocks.getServiceMock,
-  } as unknown as KubernetesPortForwardServiceProvider),
-}));
 
 const execMock = vi.fn();
 beforeAll(() => {
@@ -2555,64 +2539,4 @@ test('test sync resources was called with no resourceVersion, uid, selfLink, or 
     undefined,
     'podman-desktop',
   );
-});
-
-describe('port forward', () => {
-  const serviceMock: KubernetesPortForwardService = {
-    createForward: vi.fn(),
-    startForward: vi.fn(),
-    deleteForward: vi.fn(),
-  } as unknown as KubernetesPortForwardService;
-
-  const DUMMY_FORWARD_OPTIONS: ForwardOptions = {
-    name: 'dummy-name',
-    namespace: 'dummy-ns',
-    kind: WorkloadKind.POD,
-    forward: {
-      localPort: 55_001,
-      remotePort: 80,
-    },
-  };
-
-  const DUMMY_FORWARD_CONFIG: ForwardConfig = {
-    ...DUMMY_FORWARD_OPTIONS,
-    id: 'dummy-id',
-  };
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-    mocks.getServiceMock.mockReturnValue(serviceMock);
-  });
-
-  test('expect forward to be returned', async () => {
-    vi.mocked(serviceMock.createForward).mockResolvedValue(DUMMY_FORWARD_CONFIG);
-
-    const client = createTestClient('default');
-
-    const result = await client.createPortForward(DUMMY_FORWARD_OPTIONS);
-    expect(result).toBe(DUMMY_FORWARD_CONFIG);
-
-    expect(serviceMock.createForward).toHaveBeenCalledWith(DUMMY_FORWARD_OPTIONS);
-    expect(serviceMock.startForward).toHaveBeenCalledWith(DUMMY_FORWARD_CONFIG);
-  });
-
-  test('expect forward to be deleted if start failed', async () => {
-    vi.mocked(serviceMock.createForward).mockResolvedValue(DUMMY_FORWARD_CONFIG);
-    vi.mocked(serviceMock.startForward).mockRejectedValue(new Error('host not reachable error'));
-
-    const client = createTestClient('default');
-    await expect(async () => {
-      await client.createPortForward({
-        name: 'dummy-name',
-        namespace: 'dummy-ns',
-        kind: WorkloadKind.POD,
-        forward: {
-          localPort: 55_001,
-          remotePort: 80,
-        },
-      });
-    }).rejects.toThrowError('host not reachable error');
-
-    expect(serviceMock.deleteForward).toHaveBeenCalledWith(DUMMY_FORWARD_CONFIG);
-  });
 });
