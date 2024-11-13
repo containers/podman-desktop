@@ -120,6 +120,10 @@
     "./StatusIcon": {
       "types": "./dist/statusIcon/StatusIcon.d.ts",
       "svelte": "./dist/statusIcon/StatusIcon.svelte"
+    },
+    "./NumberInput": {
+      "types": "./dist/inputs/NumberInput.svelte.d.ts",
+      "svelte": "./dist/inputs/NumberInput.svelte"
     }
   },
   "peerDependencies": {
