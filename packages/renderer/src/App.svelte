@@ -29,7 +29,7 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ExtensionDetails from './lib/extensions/ExtensionDetails.svelte';
 import ExtensionList from './lib/extensions/ExtensionList.svelte';
 import SendFeedback from './lib/feedback/SendFeedback.svelte';
-import HelpPage from './lib/help/HelpPage.svelte';
+import HelpActions from './lib/help/HelpActions.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
 import ImagesList from './lib/image/ImagesList.svelte';
@@ -332,15 +332,11 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             extensionIds={meta.query.ids ? decodeURIComponent(meta.query.ids).split(',') : []}
             global={true} />
         </Route>
-
         <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
           <DockerExtension name={decodeURI(meta.params.name)} />
         </Route>
         <Route path="/webviews/:id/*" breadcrumb="Webview" let:meta>
           <Webview id={meta.params.id} />
-        </Route>
-        <Route path="/help" breadcrumb="Help">
-          <HelpPage />
         </Route>
         <Route path="/troubleshooting/*" breadcrumb="Troubleshooting">
           <TroubleshootingPage />
@@ -353,6 +349,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
       </div>
     </div>
+    <HelpActions/>
     <StatusBar />
   </main>
 </Route>

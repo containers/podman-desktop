@@ -588,7 +588,7 @@ export class PluginSystem {
     });
 
     commandRegistry.registerCommand('help', () => {
-      return navigationManager.navigateToHelp();
+      apiSender.send('toggle-help-menu', '');
     });
 
     commandRegistry.registerCommand('troubleshooting', () => {
