@@ -1,16 +1,15 @@
 <script lang="ts">
 import { get } from 'svelte/store';
 
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import { handleNavigation } from '/@/navigation';
 import { podsInfos } from '/@/stores/pods';
-import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
 import { NavigationPage } from '/@api/navigation-page';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 
 interface Props {
-  object: PortForwardRow;
+  object: ForwardConfig;
 }
 
 let { object }: Props = $props();

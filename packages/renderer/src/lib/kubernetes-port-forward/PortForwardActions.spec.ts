@@ -22,7 +22,6 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { PortForwardRow } from '/@/lib/kubernetes-port-forward/port-forward-row';
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import { type ForwardConfig, WorkloadKind } from '/@api/kubernetes-port-forward-model';
@@ -38,11 +37,6 @@ const MOCKED_USER_FORWARD_CONFIG: ForwardConfig = {
     localPort: 55_087,
     remotePort: 80,
   },
-};
-
-const MOCKED_PORT_FORWARD_ROW: PortForwardRow = {
-  ...MOCKED_USER_FORWARD_CONFIG,
-  mapping: MOCKED_USER_FORWARD_CONFIG.forward,
 };
 
 beforeEach(() => {
@@ -61,7 +55,7 @@ beforeEach(() => {
 
 test('actions should be defined', () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const openBtn = getByTitle('Open forwarded port');
@@ -73,7 +67,7 @@ test('actions should be defined', () => {
 
 test('open should call openExternal', async () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const openBtn = getByTitle('Open forwarded port');
@@ -84,7 +78,7 @@ test('open should call openExternal', async () => {
 
 test('remove should call deleteKubernetesPortForward', async () => {
   const { getByTitle } = render(PortForwardActions, {
-    object: MOCKED_PORT_FORWARD_ROW,
+    object: MOCKED_USER_FORWARD_CONFIG,
   });
 
   const deleteBtn = getByTitle('Delete forwarded port');
