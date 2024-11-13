@@ -59,11 +59,13 @@ async function removePortForward(): Promise<void> {
   if (!mapping) return;
   if (!forwardConfig) return;
   loading = true;
+  error = undefined;
 
   try {
     await window.deleteKubernetesPortForward(forwardConfig);
   } catch (err: unknown) {
     console.error(err);
+    error = String(err);
   } finally {
     loading = false;
   }
