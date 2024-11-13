@@ -46,10 +46,10 @@ import type { FileSystemWatcher } from '@podman-desktop/api';
 import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
 import type {
-  type KubernetesPortForwardService,
+  KubernetesPortForwardService,
   KubernetesPortForwardServiceProvider,
 } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
-import type { ForwardConfig, type ForwardOptions, WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
+import { type ForwardConfig, type ForwardOptions, WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
