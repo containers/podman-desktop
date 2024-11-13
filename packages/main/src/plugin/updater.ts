@@ -246,6 +246,12 @@ export class Updater {
         this.#downloadTask.progress = 0;
 
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          autoUpdater.setFeedURL({
+            repo: 'podman-desktop',
+            owner: 'podman-desktop',
+            provider: 'github',
+          });
           await autoUpdater.downloadUpdate();
         } catch (error: unknown) {
           console.error('Update error: ', error);
@@ -335,6 +341,14 @@ export class Updater {
     // Update the 'version' entry in the status bar to show that no update is available
     this.defaultVersionEntry();
     this.apiSender.send('app-update-available', false);
+  }
+
+  /**
+   * Handler for checking-for-update event.
+   */
+  private onUpdateCheckingForUpdate(): void {
+    this.#updateInProgress = false;
+    this.#updateAlreadyDownloaded = false;
   }
 
   /**
@@ -442,6 +456,7 @@ export class Updater {
     autoUpdater.on('update-downloaded', this.onUpdateDownloaded.bind(this));
     autoUpdater.on('error', this.onUpdateError.bind(this));
     autoUpdater.on('download-progress', this.onUpdateDownloadProgress.bind(this));
+    autoUpdater.on('checking-for-update', this.onUpdateCheckingForUpdate.bind(this));
 
     try {
       this.checkForUpdates();
