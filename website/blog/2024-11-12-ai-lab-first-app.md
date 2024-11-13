@@ -130,7 +130,7 @@ application:
 
 The file defines two containers, one for the inference server and one for the application itself.
 
-The first container, for the inference server, is generic and can be reused for any app by using a chat model.
+The first container, for the inference server, is generic and can be reused for any app using a chat model.
 
 The second one is the one we are particularly interested in. It defines how the container's image for the application is built. It points to the Containerfile used to build the image, on which we can find the source code for the app: in the `app/chatbot_ui.py` file.
 
