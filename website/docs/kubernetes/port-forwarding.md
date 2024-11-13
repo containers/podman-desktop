@@ -15,8 +15,8 @@ You can use the port forwarding feature for the pods and services running on a K
 #### Prerequisites
 
 Make sure you have:
-- A running Podman machine.
-- A running Kubernetes cluster.
+- A [running Podman machine](/docs/podman/creating-a-podman-machine).
+- A running Kubernetes cluster, such as [Kind](/docs/kind/creating-a-kind-cluster) or [Minikube](/docs/minikube/creating-a-minikube-cluster)
 - Created a YAML configuration file with an exposed port:
 
 ```yaml
@@ -77,6 +77,6 @@ You can stop port forwarding by using one of the following ways:
 
 #### Verification
 
-1. Go to the **Kubernetes > Port Forwarding**  page.
+1. Go to the **Kubernetes > Port Forwarding** page.
 1. View the port forwarding details for Kubernetes pods and services.
   ![verifying port forwarding details](img/verifying-the-port-forwarding-details.png)
