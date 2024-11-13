@@ -216,4 +216,38 @@ describe('port forwarding', () => {
     const port80 = getByTitle('Forward port 80');
     expect(port80).not.toBeNull();
   });
+
+  test('error should be cleaned after deletion', async () => {
+    // only reject ONCE
+    vi.mocked(window.deleteKubernetesPortForward).mockRejectedValueOnce('Dummy error');
+
+    const { getByTitle, getByRole, queryByRole } = render(KubePort, {
+      namespace: 'dummy-ns',
+      port: {
+        displayValue: '80/TCP',
+        value: 80,
+        protocol: 'TCP',
+      },
+      forwardConfig: DUMMY_FORWARD_CONFIG,
+      resourceName: 'dummy-pod-name',
+      kind: WorkloadKind.POD,
+    });
+
+    // first click will raise an error
+    const removeBtn = getByTitle('Remove port forward');
+    await fireEvent.click(removeBtn);
+
+    await vi.waitFor(() => {
+      const error = getByRole('alert', { name: 'Error Message Content' });
+      expect(error.textContent).toBe('Dummy error');
+    });
+
+    // second click should clean the error
+    await fireEvent.click(removeBtn);
+
+    await vi.waitFor(() => {
+      const error = queryByRole('alert', { name: 'Error Message Content' });
+      expect(error).toBeNull();
+    });
+  });
 });
