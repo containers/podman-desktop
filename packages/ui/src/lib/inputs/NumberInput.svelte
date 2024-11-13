@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Input } from '@podman-desktop/ui-svelte';
+import { Input } from '..';
 
 export let name: string | undefined = undefined;
 export let value: number;
@@ -13,7 +13,7 @@ export let type: 'number' | 'integer';
 export let step: number | undefined = undefined;
 
 // callback after validation occurs
-export let onValidation = (_value: number, _error?: string) => {};
+export let onValidation = (_value: number, _error?: string): void => {};
 
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
@@ -23,7 +23,7 @@ $: if (valueAsString !== undefined || disabled) {
   validateNumber();
 }
 
-function validateNumber() {
+function validateNumber(): void {
   const numberToValidate = Number(valueAsString);
   if (maximum !== undefined && numberToValidate > maximum) {
     error = `The value cannot be greater than ${maximum}`;
@@ -41,12 +41,15 @@ function validateNumber() {
   onValidation(numberToValidate, error);
 }
 
-function onKeyPress(event: any) {
+function onKeyPress(event: KeyboardEvent): void {
+  if (!(event.target instanceof HTMLInputElement)) {
+    return;
+  }
   // Numbers with a zero fractional part are considered integers
   // see https://json-schema.org/understanding-json-schema/reference/numeric
 
   // get cursor position
-  const cursorPosition = event.target.selectionStart;
+  const cursorPosition = event.target.selectionStart ?? 0;
 
   // add the new character to the cursor position
   const wantedValue = `${event.target.value.slice(0, cursorPosition)}${event.key}${event.target.value.slice(cursorPosition)}`;
@@ -73,13 +76,13 @@ function precision(value: number, incrementOrDecrement: number): number {
   return Number((Number(value) + incrementOrDecrement).toFixed(precisionDigits));
 }
 
-function onDecrement(e: MouseEvent) {
+function onDecrement(e: MouseEvent): void {
   const dec = step ? step : 1;
   e.preventDefault();
   value = precision(value, -dec);
 }
 
-function onIncrement(e: MouseEvent) {
+function onIncrement(e: MouseEvent): void {
   const inc = step ? step : 1;
   e.preventDefault();
   value = precision(value, inc);
@@ -91,7 +94,7 @@ function onIncrement(e: MouseEvent) {
   inputClass="text-center"
   name={name}
   bind:value={valueAsString}
-  on:keypress={event => onKeyPress(event)}
+  on:keypress={onKeyPress}
   on:input
   showError={showError}
   error={error}
