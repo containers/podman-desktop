@@ -79,7 +79,7 @@ We can see in the screenshot below that the model still returns a response suita
 
 Now that we have a suitable prompt to use for our application, it is time to start our application itself. 
 
-Many developers prefer to have a working example of application to start with, and Podman AI Lab provides such examples with a catalog of recipes, visible in the page `AI Apps > Recipes Catalog`.
+Many developers prefer to have a working example of application to start with, and Podman AI Lab provides such examples with a catalog of recipes, visible in the page `AI Apps > Recipe Catalog`.
 
 Let's select the Chatbot recipe (`More details` link on the Chatbot card), and start it with the Mistral model (by pressing the `Start` button and filling the form).
 
