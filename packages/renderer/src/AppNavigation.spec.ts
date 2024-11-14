@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { readable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
@@ -123,6 +124,7 @@ test('Test contributions', () => {
 });
 
 test('NAV_BAR_LAYOUT updates on configuration change', async () => {
+  const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;
@@ -134,6 +136,15 @@ test('NAV_BAR_LAYOUT updates on configuration change', async () => {
     meta,
     exitSettingsCallback: () => {},
   });
+  await tick();
 
-  callbacks.get(`${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`)?.();
+  callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.IconAndTitle } });
+  await tick();
+  expect(screen.getByTitle('Dashboard')).toBeInTheDocument();
+  expect(screen.getByRole('navigation')).toHaveClass('min-w-fit');
+
+  callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.Icon } });
+  await tick();
+  expect(screen.queryByTitle('Dashboard')).not.toBeInTheDocument();
+  expect(screen.getByRole('navigation')).toHaveClass('min-w-leftnavbar');
 });

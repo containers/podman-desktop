@@ -65,7 +65,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
 <nav
   class="group w-leftnavbar {minNavbarWidth} flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="AppNavigation">
-  <NavItem href="/" tooltip="Dashboard" bind:meta={meta} iconWithTitle={iconWithTitle}>
+  <NavItem href="/" tooltip="Dashboard" bind:meta={meta}>
     <div class="relative w-full">
       <div class="flex flex-col items-center w-full h-full">
         <div class="flex items-center w-fit h-full relative">
@@ -73,7 +73,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
           <NewContentOnDashboardBadge />
         </div>
         {#if iconWithTitle}
-          <div class="text-xs text-center ml-[2px]">
+          <div class="text-xs text-center ml-[2px]" title="Dashboard">
             Dashboard
           </div>
         {/if}
@@ -99,7 +99,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
         <div class="flex flex-col items-center w-full h-full">
           <AccountIcon size={iconSize} />
           {#if iconWithTitle}
-            <div class="text-xs text-center ml-[2px]">
+            <div class="text-xs text-center ml-[2px]" title="Accounts">
               Accounts
             </div>
           {/if}
@@ -112,7 +112,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
     {#if iconWithTitle}
-      <div class="text-xs text-center ml-[2px]">
+      <div class="text-xs text-center ml-[2px]" title="Settings">
         Settings
       </div>
     {/if}
