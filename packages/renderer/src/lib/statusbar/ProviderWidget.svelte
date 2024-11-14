@@ -3,9 +3,9 @@ import { router } from 'tinro';
 
 import type { ProviderInfo } from '/@api/provider-info';
 
-import IconImage from '../appearance/IconImage.svelte';
+import ProviderIcons from './ProviderIcons.svelte';
 
-let { entry, command = () => router.goto('/preferences/resources') }: { entry: ProviderInfo; command: () => void } =
+let { entry, command = () => router.goto('/preferences/resources') }: { entry: ProviderInfo; command?: () => void } =
   $props();
 let statusStyle = $state('bg-gray-900 text-gray-900');
 
@@ -46,16 +46,14 @@ $effect(() => {
   
   <button
     onclick={executeCommand}
-    class="px-2 py-1 gap-x-2 flex h-full min-w-fit items-center hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer relative inline-block text-base text-[var(--pd-button-text)]"
+    class="px-2 py-1 gap-1 flex h-full min-w-fit items-center hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer relative text-base text-[var(--pd-button-text)]"
     title={tooltipText(entry)}>
     
     {#if entry.containerConnections || entry.kubernetesConnections || entry.status }
       <div aria-label="Connection Status Icon" class="w-3 h-3 rounded-full {statusStyle}"></div>
     {/if}
-    {#if entry.images.icon}
-      <IconImage image={entry.images.icon} class="max-h-3" alt={entry.name}></IconImage>
-    {/if}
+    <ProviderIcons entry={entry} />
     {#if entry.name}
-      <span class="ml-1 max-w-[70px] truncate">{entry.name}</span>
+      <span class="whitespace-nowrap h-fit">{entry.name}</span>
     {/if}
   </button>
