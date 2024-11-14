@@ -23,7 +23,6 @@ $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 
 const navItems: Writable<number> = getContext('nav-items');
 
-let tooltipText = '';
 $: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 
 onMount(() => {
