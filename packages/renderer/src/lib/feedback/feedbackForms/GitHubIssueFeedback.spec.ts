@@ -19,6 +19,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
@@ -33,4 +35,21 @@ test('Expect feedback form to to be bug feedback form', async () => {
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
+});
+
+test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
+  render(GitHubIssueFeedback, {});
+
+  expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeDisabled();
+
+  const issueTitle = screen.getByTestId('issueTitle');
+  expect(issueTitle).toBeInTheDocument();
+  await userEvent.type(issueTitle, 'Bug title');
+
+  const issueDescription = screen.getByTestId('issueDescription');
+  expect(issueDescription).toBeInTheDocument();
+  await userEvent.type(issueDescription, 'Bug description');
+
+  await tick();
+  expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeEnabled();
 });
