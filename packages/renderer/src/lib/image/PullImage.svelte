@@ -27,6 +27,7 @@ let pullFinished = false;
 let shortnameImages: string[] = [];
 let podmanFQN = '';
 let usePodmanFQN = false;
+let isValidName = true;
 
 export let imageToPull: string | undefined = undefined;
 
@@ -219,6 +220,7 @@ async function searchLatestTag(): Promise<void> {
       image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
+    isValidName = Boolean(tags);
     const latestFound = tags.includes('latest');
     if (!latestFound) {
       latestTagMessage = '"latest" tag not found. You can search a tag by appending ":" to the image name';
@@ -226,6 +228,7 @@ async function searchLatestTag(): Promise<void> {
       latestTagMessage = undefined;
     }
   } catch {
+    isValidName = false;
     latestTagMessage = undefined;
   }
 }
@@ -260,6 +263,7 @@ async function searchLatestTag(): Promise<void> {
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
+          error={!isValidName}
           required
           initialFocus />
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
