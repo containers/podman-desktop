@@ -42,7 +42,7 @@ on:
 jobs:
   e2e-tests:
     name: Run All E2E tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,21 +66,19 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
-      - name: Update podman
+      - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
         run: |
-          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
-          curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key" | sudo apt-key add -
-          sudo apt-get update -qq
-          sudo apt-get -qq -y install podman || { echo "Start fallback steps for podman nightly installation from a static mirror" && \
-            sudo sh -c "echo 'deb http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
-            curl -L "http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key" | sudo apt-key add - && \
-            sudo apt-get update && \
-            sudo apt-get -y install podman; }
-          podman version
-          # downgrade conmon package version to workaround issue with starting containers, see  https://github.com/containers/conmon/issues/475
-          # remove once the repository contains conmon 2.1.10
-          wget https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb -O /tmp/conmon_2.1.2.deb
-          sudo apt install /tmp/conmon_2.1.2.deb
+          # allow unprivileged user namespace
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Set cgroup_manager to 'cgroupfs' instead of systemd
+        run: |
+          mkdir -p ~/.config/containers
+          cat <<EOT >> ~/.config/containers/containers.conf
+          [engine]
+          cgroup_manager="cgroupfs"
+          EOT
+          podman info 
 
       - name: Execute pnpm
         run: pnpm install
