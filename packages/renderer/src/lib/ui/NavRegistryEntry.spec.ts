@@ -90,7 +90,7 @@ test('Expect entry to have title if iconWithTitle is true', async () => {
   const meta = { url: '/test' } as TinroRouteMeta;
   render(NavRegistryEntry, { entry, meta, iconWithTitle: true });
 
-  const content = screen.getByTitle('Icon title');
+  const content = screen.getByTitle('Item1');
   expect(content).toBeInTheDocument();
   expect(content).toHaveTextContent('Item1');
 });
@@ -110,6 +110,6 @@ test('Expect entry to not have title by default', async () => {
   const meta = { url: '/test' } as TinroRouteMeta;
   render(NavRegistryEntry, { entry, meta });
 
-  const content = screen.queryByTitle('Icon title');
+  const content = screen.queryByTitle('Item1');
   expect(content).not.toBeInTheDocument();
 });

@@ -29,11 +29,15 @@ import type { ContributionInfo } from '/@api/contribution-info';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 import type { UserForwardConfig } from '/@api/kubernetes-port-forward-model';
 
+import { AppearanceSettings } from '../../main/src/plugin/appearance-settings';
 import AppNavigation from './AppNavigation.svelte';
+import { onDidChangeConfiguration } from './stores/configurationProperties';
 import { contributions } from './stores/contribs';
 import { fetchNavigationRegistries } from './stores/navigation/navigation-registry';
 
 const eventsMock = vi.fn();
+
+const callbacks = new Map<string, any>();
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {};
@@ -44,6 +48,9 @@ beforeAll(() => {
   (window as any).events = eventsMock;
   (window as any).getConfigurationValue = vi.fn();
   (window as any).sendNavigationItems = vi.fn();
+  onDidChangeConfiguration.addEventListener = vi.fn().mockImplementation((message: string, callback: any) => {
+    callbacks.set(message, callback);
+  });
 });
 
 test('Test rendering of the navigation bar with empty items', async () => {
@@ -113,4 +120,20 @@ test('Test contributions', () => {
     meta,
     exitSettingsCallback: () => {},
   });
+});
+
+test('NAV_BAR_LAYOUT updates on configuration change', async () => {
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
+  // init navigation registry
+  await fetchNavigationRegistries();
+
+  render(AppNavigation, {
+    meta,
+    exitSettingsCallback: () => {},
+  });
+
+  callbacks.get(`${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`)?.();
 });

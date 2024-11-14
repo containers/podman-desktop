@@ -144,7 +144,7 @@ test('Expect that counter is rendered', async () => {
   const href = '/href';
   let counter = 0;
 
-  const result = render(NavItem, { counter, tooltip, href, meta: { url: '/test' }, iconWithTitle: false });
+  const result = render(NavItem, { counter, tooltip, href, meta: { url: '/test' } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -157,7 +157,7 @@ test('Expect that counter is rendered', async () => {
   counter = 4;
 
   // check tooltip is working if counter is updated
-  render(NavItem, { counter, tooltip, href, meta: { url: '/test' }, iconWithTitle: false });
+  render(NavItem, { counter, tooltip, href, meta: { url: '/test' } });
 
   // get div with label tooltip
   const element2 = screen.getByLabelText('Foo');
@@ -165,23 +165,4 @@ test('Expect that counter is rendered', async () => {
 
   // get text of the element
   expect(element2.textContent).toContain('Foo (4)');
-});
-
-test('Expect icon behavior with title to have only counter in tooltip', () => {
-  const tooltip = 'Foo';
-  const href = '/href';
-  const counter = 4;
-
-  render(NavItem, { counter, tooltip, href, meta: { url: '/test' }, iconWithTitle: true });
-
-  const element = screen.getByLabelText(tooltip);
-  expect(element).toBeInTheDocument();
-  expect(element).toHaveAttribute('href', '/href');
-
-  const element2 = screen.getByLabelText('tooltip');
-  expect(element2).toBeInTheDocument();
-
-  // get text of the element
-  expect(element2.textContent).toContain('4');
-  expect(element2.textContent).not.toContain('Foo');
 });

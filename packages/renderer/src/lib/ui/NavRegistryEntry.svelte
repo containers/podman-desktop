@@ -18,7 +18,7 @@ let { entry, meta = $bindable(), iconWithTitle = false }: NavRegistryEntryProps 
 </script>
 
 {#if !entry.hidden}
-  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta} iconWithTitle={iconWithTitle}>
+  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta} >
     {#if entry.icon === undefined}
       {entry.name}
     {:else if entry.icon.faIcon}
@@ -30,7 +30,7 @@ let { entry, meta = $bindable(), iconWithTitle = false }: NavRegistryEntryProps 
       <img src={entry.icon.iconImage} width="22" height="22" alt={entry.name} />
     {/if}
     {#if iconWithTitle && entry.icon}
-      <div class="text-xs text-center max-w-[60px] ml-[2px]" title="Icon title">
+      <div class="text-xs text-center max-w-[60px] ml-[2px]" title={entry.name}>
         {entry.name}
       </div>
     {/if}

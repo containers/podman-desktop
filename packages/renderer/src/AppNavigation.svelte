@@ -31,16 +31,12 @@ const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.N
 
 onDidChangeConfiguration.addEventListener(NAV_BAR_LAYOUT, onDidChangeConfigurationCallback);
 
-let minNavbarWidth = $state('min-w-leftnavbar');
-
-$effect(() => {
-  minNavbarWidth = iconWithTitle ? 'min-w-fit' : 'min-w-leftnavbar';
-});
+let minNavbarWidth = $derived(iconWithTitle ? 'min-w-fit' : 'min-w-leftnavbar');
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
-  iconWithTitle = (await window.getConfigurationValue(NAV_BAR_LAYOUT)) === 'icon + title';
+  iconWithTitle = (await window.getConfigurationValue(NAV_BAR_LAYOUT)) === AppearanceSettings.IconAndTitle;
 });
 
 onDestroy(() => {
@@ -59,7 +55,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
   if ('detail' in e) {
     const detail = e.detail as { key: string; value: string };
     if (NAV_BAR_LAYOUT === detail?.key) {
-      iconWithTitle = detail.value === 'icon + title';
+      iconWithTitle = detail.value === AppearanceSettings.IconAndTitle;
     }
   }
 }

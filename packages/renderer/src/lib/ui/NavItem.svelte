@@ -14,7 +14,6 @@ export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 export let counter: number | undefined = undefined;
-export let iconWithTitle = false;
 
 let inSection: boolean = false;
 let uri: string;
@@ -25,11 +24,7 @@ $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 const navItems: Writable<number> = getContext('nav-items');
 
 let tooltipText = '';
-$: if (iconWithTitle) {
-  tooltipText = counter ? `${counter}` : '';
-} else {
-  tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
-}
+$: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 
 onMount(() => {
   inSection = navItems !== undefined;

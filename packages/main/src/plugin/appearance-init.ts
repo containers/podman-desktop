@@ -50,8 +50,8 @@ export class AppearanceInit {
         [`${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`]: {
           description: 'Select icon and title or just icon for navigation icons',
           type: 'string',
-          enum: ['icon + title', 'icon'],
-          default: import.meta.env.DEV ? 'icon + title' : 'icon',
+          enum: [AppearanceSettings.IconAndTitle, AppearanceSettings.Icon],
+          default: import.meta.env.DEV ? AppearanceSettings.IconAndTitle : AppearanceSettings.Icon,
         },
       },
     };

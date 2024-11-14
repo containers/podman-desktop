@@ -12,14 +12,14 @@ export let iconWithTitle = true;
 </script>
 
 {#each $webviews as webview (webview.id)}
-  <NavItem href="/webviews/{webview.id}" bind:meta={meta} tooltip={webview.name} iconWithTitle={iconWithTitle}>
+  <NavItem href="/webviews/{webview.id}" bind:meta={meta} tooltip={webview.name}>
     {#if !webview.icon}
       <Fa icon={faPuzzlePiece} size="1.5x" />
     {:else}
       <IconImage image={webview?.icon} alt={webview.name} class="max-h-6 max-w-[24px]" />
     {/if}
     {#if iconWithTitle}
-      <div class="text-xs text-center" id="iconTitle">
+      <div class="text-xs text-center" title={webview.name}>
         {webview.name}
       </div>
     {/if}
