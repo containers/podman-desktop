@@ -30,7 +30,7 @@ let { entry, meta = $bindable(), iconWithTitle = false }: NavRegistryEntryProps 
       <img src={entry.icon.iconImage} width="22" height="22" alt={entry.name} />
     {/if}
     {#if iconWithTitle && entry.icon}
-      <div class="text-xs text-center max-w-[60px] ml-[2px]" title={entry.name}>
+      <div class="text-xs text-center max-w-[60px] ml-[2px]" aria-label={`${entry.name} title`}>
         {entry.name}
       </div>
     {/if}

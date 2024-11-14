@@ -75,8 +75,8 @@ test('check we have list of webviews in navigation bar', async () => {
   expect(links[0]).toHaveAttribute('href', '/webviews/webviewId1');
   expect(links[1]).toHaveAttribute('href', '/webviews/webviewId2');
 
-  expect(screen.queryByTitle('Podman Desktop1')).not.toBeInTheDocument();
-  expect(screen.queryByTitle('Podman Desktop2')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop1 title')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop2 title')).not.toBeInTheDocument();
 });
 
 test('check that title shows up if iconWithTitle is true', async () => {
@@ -121,6 +121,6 @@ test('check that title shows up if iconWithTitle is true', async () => {
   expect(links[0]).toHaveAttribute('href', '/webviews/webviewId1');
   expect(links[1]).toHaveAttribute('href', '/webviews/webviewId2');
 
-  expect(screen.getByTitle('Podman Desktop1')).toBeInTheDocument();
-  expect(screen.getByTitle('Podman Desktop2')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop1 title')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop2 title')).toBeInTheDocument();
 });

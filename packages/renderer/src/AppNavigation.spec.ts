@@ -140,11 +140,11 @@ test('NAV_BAR_LAYOUT updates on configuration change', async () => {
 
   callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.IconAndTitle } });
   await tick();
-  expect(screen.getByTitle('Dashboard')).toBeInTheDocument();
+  expect(screen.getByLabelText('Dashboard title')).toBeInTheDocument();
   expect(screen.getByRole('navigation')).toHaveClass('min-w-fit');
 
   callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.Icon } });
   await tick();
-  expect(screen.queryByTitle('Dashboard')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Dashboard title')).not.toBeInTheDocument();
   expect(screen.getByRole('navigation')).toHaveClass('min-w-leftnavbar');
 });

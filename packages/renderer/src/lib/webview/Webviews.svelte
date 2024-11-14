@@ -19,7 +19,7 @@ export let iconWithTitle = true;
       <IconImage image={webview?.icon} alt={webview.name} class="max-h-6 max-w-[24px]" />
     {/if}
     {#if iconWithTitle}
-      <div class="text-xs text-center" title={webview.name}>
+      <div class="text-xs text-center" aria-label={`${webview.name} title`}>
         {webview.name}
       </div>
     {/if}

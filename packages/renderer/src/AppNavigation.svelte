@@ -73,7 +73,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
           <NewContentOnDashboardBadge />
         </div>
         {#if iconWithTitle}
-          <div class="text-xs text-center ml-[2px]" title="Dashboard">
+          <div class="text-xs text-center ml-[2px]" aria-label="Dashboard title">
             Dashboard
           </div>
         {/if}
@@ -99,7 +99,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
         <div class="flex flex-col items-center w-full h-full">
           <AccountIcon size={iconSize} />
           {#if iconWithTitle}
-            <div class="text-xs text-center ml-[2px]" title="Accounts">
+            <div class="text-xs text-center ml-[2px]" aria-label="Accounts title">
               Accounts
             </div>
           {/if}
@@ -112,7 +112,7 @@ function onDidChangeConfigurationCallback(e: Event): void {
   <NavItem href="/preferences" tooltip="Settings" bind:meta={meta} onClick={handleClick}>
     <SettingsIcon size={iconSize} />
     {#if iconWithTitle}
-      <div class="text-xs text-center ml-[2px]" title="Settings">
+      <div class="text-xs text-center ml-[2px]" aria-label="Settings title">
         Settings
       </div>
     {/if}
