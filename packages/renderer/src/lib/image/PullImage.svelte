@@ -27,8 +27,6 @@ let pullFinished = false;
 let shortnameImages: string[] = [];
 let podmanFQN = '';
 let usePodmanFQN = false;
-let imageIsRecognized: boolean = true;
-let images: string[] = [];
 
 export let imageToPull: string | undefined = undefined;
 
@@ -206,9 +204,6 @@ async function searchImages(value: string): Promise<string[]> {
   result = searchResult.map(r => {
     return [options.registry, r.name].join('/');
   });
-
-  images = result;
-  await onResultChanged(value);
   return result;
 }
 
@@ -232,17 +227,6 @@ async function searchLatestTag(): Promise<void> {
     }
   } catch {
     latestTagMessage = undefined;
-  }
-}
-
-async function onResultChanged(image: string): Promise<void> {
-  // [] and '' => dont show error
-  if (!images && !image) {
-    imageIsRecognized = true;
-  } else {
-    // e.g. "docker.io/fedora" is in list
-    // or just "fedora" is not in list, but "fedora" is shortname
-    imageIsRecognized = images.includes(image) || (selectedProviderConnection?.type === 'podman' && Boolean(podmanFQN));
   }
 }
 </script>
@@ -270,14 +254,12 @@ async function onResultChanged(image: string): Promise<void> {
           placeholder="Image name"
           searchFunction={searchImages}
           onChange={async (s: string) => {
-            await onResultChanged(s);
             validateImageName(s);
             await resolveShortname();
             await searchLatestTag();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
-          error={!imageIsRecognized}
           required
           initialFocus />
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
