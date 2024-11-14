@@ -49,7 +49,6 @@ function assertItemSelected(items: HTMLElement[], r: number): void {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.restoreAllMocks();
 });
 
 test('a textbox is created', async () => {
@@ -209,10 +208,11 @@ test('should show clasic border', async () => {
     delay: 10,
   });
 
-  const cellOutsideInput = screen.getByRole('cell');
-  expect(cellOutsideInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
 
 test('should show error border', async () => {
@@ -222,8 +222,9 @@ test('should show error border', async () => {
     delay: 10,
   });
 
-  const cellOutsideInput = screen.getByRole('cell');
-  expect(cellOutsideInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
-  expect(cellOutsideInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });

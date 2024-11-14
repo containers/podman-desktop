@@ -183,7 +183,6 @@ function onWindowClick(e: Event): void {
 
 <svelte:window on:click={onWindowClick} />
 <div
-  role='cell'
   class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
     ''}"
   class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]={!disabled}
