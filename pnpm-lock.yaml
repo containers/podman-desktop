@@ -103,6 +103,9 @@ importers:
       tar-fs:
         specifier: ^3.0.6
         version: 3.0.6
+      tar-stream:
+        specifier: ^3.1.7
+        version: 3.1.7
       undici:
         specifier: ^6.21.0
         version: 6.21.0
