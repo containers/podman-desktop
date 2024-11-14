@@ -55,9 +55,9 @@ As a  CNCF project, we have the opportunity to open our doors to a wider communi
 
 Before you start contributing, it's helpful to familiarize yourself with the [project's contribution guidelines](https://github.com/podman-desktop/podman-desktop/blob/main/CONTRIBUTING.md)  and code architecture. These resources provide valuable information on coding style, testing procedures, and the overall development process. You can also join #podman-desktop on the Kubernetes Slack to connect with other contributors and get help.
 
-### KubeCon 2025 and beyond
+### KubeCon 2024 and beyond
 
-We are at KubeCon 2025 to officially announce this exciting news and share more about Podman Desktop and our roadmap. Stop by the Red Hat booth to say hello, contribute to the project, and help us shape the future of cloud-native development.
+We are at KubeCon NA 2024 in Salt Lake, to officially announce this exciting news and share more about Podman Desktop and our roadmap. Stop by the Red Hat booth to say hello, contribute to the project, and help us shape the future of cloud-native development.
 
 ### Get involved and learn more
 
