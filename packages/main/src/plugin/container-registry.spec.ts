@@ -415,14 +415,7 @@ vi.mock('node:stream/promises', async () => {
   };
 });
 
-vi.mock(import('node:fs/promises'), async importOriginal => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    readFile: vi.fn(),
-    rm: vi.fn(),
-  };
-});
+vi.mock('node:fs/promises');
 
 beforeEach(() => {
   nock.cleanAll();
