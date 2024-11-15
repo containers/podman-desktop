@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import Typeahead from './Typeahead.svelte';
 
@@ -46,6 +46,10 @@ function assertItemSelected(items: HTMLElement[], r: number): void {
     }
   }
 }
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('a textbox is created', async () => {
   render(Typeahead);
@@ -221,4 +225,32 @@ test('should navigate in list with keys', async () => {
   assertIsListVisible(false);
   // copies the item in the input
   screen.getByDisplayValue('term03');
+});
+
+test('should show clasic border', async () => {
+  render(Typeahead, {
+    initialFocus: true,
+    error: false,
+    delay: 10,
+  });
+
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
+
+test('should show error border', async () => {
+  render(Typeahead, {
+    initialFocus: true,
+    error: true,
+    delay: 10,
+  });
+
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });

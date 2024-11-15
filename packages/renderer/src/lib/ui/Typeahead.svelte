@@ -11,6 +11,7 @@ export let disabled: boolean = false;
 export let initialFocus: boolean = false;
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
+export let error: boolean = false;
 
 export let searchFunction: SearchFunction = async (_s: string) => [];
 export let onChange = function (_s: string) {};
@@ -191,7 +192,6 @@ function onWindowClick(e: Event): void {
 </script>
 
 <svelte:window on:click={onWindowClick} />
-
 <div
   class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
     ''}"
@@ -199,9 +199,11 @@ function onWindowClick(e: Event): void {
   class:focus-within:bg-[var(--pd-input-field-focused-bg)]={!disabled}
   class:focus-within:rounded-md={!disabled}
   class:border-b-[var(--pd-input-field-stroke)]={!disabled}
-  class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled}
+  class:hover:border-b-[var(--pd-input-field-hover-stroke)]={!disabled && !error}
   class:focus-within:border-[var(--pd-input-field-hover-stroke)]={!disabled}
-  class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}>
+  class:border-b-[var(--pd-input-field-stroke-readonly)]={disabled}
+  class:border-b-[var(--pd-input-field-stroke-error)]={error}
+  class:focus-within:border-[var(--pd-input-field-stroke-error)]={error}>
   <input
     type="text"
     class="w-full px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
