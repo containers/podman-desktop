@@ -1,15 +1,65 @@
 # Podman Desktop Playwright Tests
 
-This document contains information on how to use the E2E testing framework of Podman Desktop from an external project.
+This document contains information on how to use the E2E testing framework of Podman Desktop on different scenarios.
 This is particularly useful if you want to execute the tests from a Podman Desktop extension or you want to develop your own.
-
-## Usage of @podman-desktop/tests-playwright locally
 
 Prerequisites:
 
 - Have Node.js 20 installed (ideally using `nvm`)
 - Have a clone of the Podman Desktop repo (you can get it [here](https://github.com/containers/podman-desktop/tree/main))
 - Have pnpm installed (you can get it [here](https://pnpm.io/installation))
+
+## Usage of @podman-desktop/tests-playwright to develop the podman-desktop tests
+
+This section explains how to reference and import the test modules from a folder without using the npm package.
+
+Steps:
+
+1. Go to your project and add the necessary `devDependencies` to your package.json file:
+
+- `"@podman-desktop/tests-playwright": "^1.8.0,"`
+- `"@playwright/test": "1.47.1",`
+
+2. Set up playwright in your project, you have some options:
+
+- Run `pnpm playwright init`, which will generate the `playwright.config` file, set up the testing folder structure and install playwright, or
+- Run `pnpm playwright install`, which will install the necessary binaries, and then run `playwright codegen --save-config=playwright.config.ts` which will generate the default `playwright.config` file, or
+- Add manually to your project the default `playwright.config` file:
+
+```
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  retries: 0,
+  use: {
+    headless: true,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+});
+```
+
+3. Get into the Podman Desktop repo folder (should be named `podman-desktop`)
+4. Install its local dependencies by executing `pnpm install`
+5. Build the application's tests with `pnpm test:e2e:build`
+6. Go back into your repo folder and add the following script target to your package.json file, changing **'/path/to/podman-desktop'** by the actual absolute path of your `podman-desktop` repo folder:
+
+```
+  "scripts": {
+    "test:e2e": "PODMAN_DESKTOP_ARGS='/path/to/podman-desktop' playwright test tests/src/ --workers=1 --no-parallel",
+  }
+```
+
+7. Now you can implement your E2E tests in the `tests` folder of YOUR repo
+8. Execute `npm test:e2e` in order to run them
+9. When the tests finish you will find the test artifacts and logs available under `./tests/output`
+
+## Usage of @podman-desktop/tests-playwright in an external repository
+
+This section explains how to add the npm package to a repository external to podman-desktop.
 
 Steps:
 
@@ -38,33 +88,16 @@ Steps:
 
 [³] If your project does not already have the `xvfb-maybe` dependency, you'll need to add it as well
 
-## Usage of @podman-desktop/tests-playwright in your remote repository
+## How to develop using locally built @podman-desktop/tests-playwright
 
-1. Add necessary dependencies, ie. `devDependencies`: `"@podman-desktop/tests-playwright": "^1.8.0"`
-2. Add additional dependencies: `playwright`
+This section references how to use @podman-desktop/tests-playwright generated archive file for local development
 
-### Setting and Running the E2E tests with @podman-desktop/tests-playwright npm package
-
-Since you have your tests and testing framework at place, you can now run your tests from the repository.
-
-You will have to checkout podman-desktop repository and build it first.
-
-1. `git clone https://github.com/containers/podman-desktop`
-2. `cd podman-desktop`
-3. `pnpm install`
-4. `pnpm test:e2e:build` -> this step is essential
-
-Then you need to prepare your tests to be run from your repository
-
-1. Add dependency for `@podman-desktop/tests-playwright` in `devDependencies`
-2. add npm script target to run E2E tests:
-
-```package.json
-  "scripts": {
-    "test:e2e": "PODMAN_DESKTOP_ARGS='/path/to/podman-desktop' vitest run tests/src/ --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
-  }
-```
-
-3. Implement your E2E tests in `tests` folder of YOUR repo
-4. Run `npm test:e2e`
-5. Artifacts logs are available under `./tests/output`
+1. Get into the Podman Desktop repo folder (should be named `podman-desktop`)
+2. Install its local dependencies by executing `pnpm install`
+3. Implement your changes to the E2E tests library (it can be found under `tests/playwright`)
+4. Build the application with `pnpm build`
+5. Create the local package with `pnpm run package`, this will produce a .tgz archive
+6. In YOUR repository, update the `package.json` file to have the following contents under `devDependencies`:
+   `"@podman-desktop/tests-playwright": "file:../podman-desktop/tests/playwright/podman-desktop-tests-playwright-1.9.0.tgz"`
+7. Execute `pnpm install`, which should extract the contents of the previously built Podman Desktop into the `node_modules` folder in your repo
+8. Now, the changes you made to `@podman-desktop/tests-playwright` should be available in your project. If the process was successful, you should be able to find the classes you added on the `index.d.ts` file under `node_modules/@podman_desktop/tests_playwright/dist`
