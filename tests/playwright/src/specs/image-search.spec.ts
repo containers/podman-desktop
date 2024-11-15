@@ -34,7 +34,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe('Image search verification @smoke', () => {
+test.describe('Image search verification', { tag: '@smoke' }, () => {
   test('Search for image and then clear field', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
