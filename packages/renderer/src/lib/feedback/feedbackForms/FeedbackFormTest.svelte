@@ -9,4 +9,3 @@ import FeedbackForm from '../FeedbackForm.svelte';
   
     <p slot="buttons" aria-label="buttons">Buttons</p>
   </FeedbackForm>
-  

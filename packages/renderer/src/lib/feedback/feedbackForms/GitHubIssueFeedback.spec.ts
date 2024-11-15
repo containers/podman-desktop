@@ -21,17 +21,18 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
 
-const openExternalMock = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'openExternal', {
+    value: vi.fn(),
+  });
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
-  Object.defineProperty(window, 'openExternal', {
-    value: openExternalMock,
-  });
 });
 
 test('Expect feedback form to to be bug feedback form', async () => {

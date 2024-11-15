@@ -20,25 +20,24 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import DevelopersFeedback from './DevelopersFeedback.svelte';
 
-const openExternalMock = vi.fn();
-const telemetryTrackMock = vi.fn();
-const sendFeedbackMock = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'openExternal', {
+    value: vi.fn(),
+  });
+  Object.defineProperty(window, 'telemetryTrack', {
+    value: vi.fn(),
+  });
+  Object.defineProperty(window, 'sendFeedback', {
+    value: vi.fn(),
+  });
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
-  Object.defineProperty(window, 'openExternal', {
-    value: openExternalMock,
-  });
-  Object.defineProperty(window, 'telemetryTrack', {
-    value: telemetryTrackMock,
-  });
-  Object.defineProperty(window, 'sendFeedback', {
-    value: sendFeedbackMock,
-  });
 });
 
 test('Expect that the button is disabled when loading the page', () => {
