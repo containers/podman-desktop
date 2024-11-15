@@ -43,7 +43,7 @@ const executeAction = async (): Promise<void> => {
       {/if}
     </div>
 
-    <div class="font-bold text-ellipsis line-clamp-1 overflow-hidden">
+    <div class="font-bold text-ellipsis line-clamp-1 overflow-hidden text-[var(--pd-modal-text)]">
       {taskInfo.name}
     </div>
 
@@ -61,7 +61,7 @@ const executeAction = async (): Promise<void> => {
         {taskInfo.error}
       </p>
     {:else}
-    <p class="flex-1 text-sm text-ellipsis overflow-hidden">
+    <p class="flex-1 text-sm text-ellipsis overflow-hidden text-[var(--pd-modal-text)]">
       {taskInfo.name}
     </p>
     {/if}
