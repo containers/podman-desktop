@@ -13,13 +13,13 @@ We will discover, through this article, the different steps to create our first 
 
 # Our first AI Application
 
-For our first experiment, we will work on a micro-service for the podman-desktop.io website. The micro-service would receive the search terms from the website, and would ask the model to find the best matching pages, before to return the result to the website.
+For our first experiment, we will work on a micro-service for the podman-desktop.io website. The micro-service would receive the search terms from the website, and would ask the model to find the best matching pages, before returning the result to the website.
 
 ![my first app](./img/ai-lab-first-app/00-my-first-ai-app.png)
 
 ## Preparing Podman Desktop and Podman AI Lab
 
-If you haven't done it yet, the first step is to [install Podman Desktop and its extension Podman AI Lab](https://podman-desktop.io/docs/ai-lab/installing).
+If you haven't done it yet, first [install Podman Desktop and its extension Podman AI Lab](https://podman-desktop.io/docs/ai-lab/installing).
 
 To have a better experience, it is recommended to use the GPU acceleration to serve the model. If you have such a GPU on your machine, you will need to create a Podman machine with the LibKrun provider (on MacOS). More details on [the GPU support for Podman AI Lab](https://developers.redhat.com/articles/2024/09/10/gpu-support-podman-ai-lab). 
 
@@ -35,7 +35,7 @@ Podman AI Lab provides a catalog of open source models that can be used locally.
 
 ![Mistral model is downloaded](./img/ai-lab-first-app/03-ai-lab-demo-mistral-model-downloaded.png)
 
-Once a model is downloaded, we can test and interact with this model, to try to find the best prompt for our application. For chat models, Podman AI Lab provides a `Playground`, so we can test different prompts and validate that the responses of the model are adequate.
+Once a model is downloaded, we can test and interact with this model to try to find the best prompt for our application. For chat models, Podman AI Lab provides a `Playground`, so we can test different prompts and validate that the responses of the model are adequate.
 
 Let's start a new playground (from the `Models > Playgrounds` menu), and send our first prompt:
 
@@ -43,11 +43,11 @@ Let's start a new playground (from the `Models > Playgrounds` menu), and send ou
 Give me a list of pages in the website www.podman-desktop.io related to "build an image"
 ```
 
-The model should reply with some list of pages, in a human-readable form (see the screenshot below, for a response we have received).
+The model should reply with some list of pages, in a human-readable form (see the screenshot below, for the response we received).
 
-![a first prompt with human readable output](./img/ai-lab-first-app/04-ai-lab-demo-prompt-1.png)
+![a first prompt with human-readable output](./img/ai-lab-first-app/04-ai-lab-demo-prompt-1.png)
 
-The problem is that the response is in human readable form, but we don't want the API to return this response as is, we want to have the name and the url of the pages, and send them to the website, so the website can display these pages with its preferred format. 
+The problem is that the response is in human-readable form, but we don't want the API to return this response as is. We want to have the name and the url of the pages, and send them to the website, so the website can display these pages with its preferred format. 
 
 For this, we can try to ask the model to reply with a structured response, with the following prompt:
 
@@ -55,11 +55,11 @@ For this, we can try to ask the model to reply with a structured response, with 
 Give me a list of pages in the website www.podman-desktop.io related to "build an image" as JSON output as an array of objects with 2 fields name and url
 ```
 
-This time, we have received a response in JSON format, which is more suitable for our needs.
+This time, we received a response in JSON format, which is more suitable for our needs.
 
 ![a prompt with structured output](./img/ai-lab-first-app/05-ai-lab-demo-prompt-json.png)
 
-We don't expect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it in real time. For this purpose, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
+We don't expect the user to ask such a precise question, and we would prefer to send to the model the exact question of the user, without modifying it in real time. To achieve this, chat models provide a system prompt feature. The system prompt can be defined at the beginning of the chat session.
 
 Podman AI Lab supports this feature, let's restart a Playground session with the following system prompt:
 
