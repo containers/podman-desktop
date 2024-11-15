@@ -23,4 +23,7 @@ export enum AppearanceSettings {
   DarkEnumValue = 'dark',
   SystemEnumValue = 'system',
   ZoomLevel = 'zoomLevel',
+  NavigationAppearance = 'navigationBarLayout',
+  Icon = 'icon',
+  IconAndTitle = 'icon + title',
 }
