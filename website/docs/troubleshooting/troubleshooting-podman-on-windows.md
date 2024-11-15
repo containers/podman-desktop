@@ -59,7 +59,7 @@ You can find here troubleshooting help for issues specific to Windows.
 
 When the host is behind a VPN, Podman might fail to access network resources, and display errors such as _Temporary failure in name resolution_.
 
-### Solution
+#### Solution
 
 See [Accessing resources behind a VPN with Podman on Windows](/docs/proxy).
 
@@ -78,3 +78,24 @@ Older versions of WSL might cause networking issues, such as the `Get-NetTCPConn
    ```
 
 3. Optionally, delete your Podman machine, and create a new one.
+
+## Windows 10 Enterprise LTSC version 21H2: Podman Desktop is unable to detect WSL2 machine
+
+On a Windows 10 LTSC version, running the `wsl --install --no-distribution` command does not work, and the Podman Desktop setup does not run smoothly.  
+
+You must install a specific Windows Subsystem for Linux (WSL) distribution to make the Podman Desktop setup run smoothly. After setting up Podman Desktop, you can unintsall the WSL distribution.
+
+#### Solution: Enable Podman Desktop setup to run smoothly
+
+**_Windows 11 or later version_**
+1. Run the `wsl --update` command to update the WSL kernel.
+1. Run the `wsl --install --no-distribution` command to not install any WSL distribution. 
+1. Restart your machine.
+
+**_Windows 10 LTSC version_** 
+
+1. Run the `wsl --update` command.
+1. Run the `wsl --install -d <distro>` command to install a specific WSL distribution. 
+    - Replace `distro` with any official WSL distribution, such as `ubuntu-24.04`.
+1. Restart your machine.
+1. (Optional): Run the `wsl --unregister <distro>` to uninstall the WSL distribution. 
