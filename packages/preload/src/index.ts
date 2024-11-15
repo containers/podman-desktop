@@ -2378,6 +2378,10 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('switchDockerContext', async (contextName: string): Promise<DockerContextInfo[]> => {
     return ipcInvoke('docker-compatibility:switchDockerContext', contextName);
   });
+
+  contextBridge.exposeInMainWorld('pathRelative', async (from: string, to: string): Promise<string> => {
+    return ipcInvoke('path:relative', from, to);
+  });
 }
 
 // expose methods

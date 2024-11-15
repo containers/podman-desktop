@@ -63,6 +63,7 @@ beforeAll(() => {
   (window as any).getCancellableTokenSource = vi.fn().mockReturnValue({
     cancel: vi.fn(),
   });
+  (window as any).pathRelative = vi.fn();
 });
 
 beforeEach(() => {
@@ -245,6 +246,7 @@ test('Selecting one platform only calls buildImage once with the selected platfo
   setup();
   await waitRender();
 
+  vi.mocked(window.pathRelative).mockResolvedValue('containerfile');
   const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
@@ -385,24 +387,4 @@ test('Expect build to include build arguments', async () => {
   expect(buildButton).toBeInTheDocument();
   expect(buildButton).toBeEnabled();
   await userEvent.click(buildButton);
-});
-
-test('Expect getRelativePath to compute a path relative to a directory', () => {
-  setup();
-  const { component } = render(BuildImageFromContainerfile, {});
-  let buildContext = '/User/test/test1/test2';
-  let containerFilePath = '/User/file1';
-  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../../../file1');
-
-  buildContext = '/User//test/test1/test2';
-  containerFilePath = '/User/test//test1/test2//test3/file1';
-  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('test3/file1');
-
-  buildContext = '/User//test/test1/test2';
-  containerFilePath = '/User/test1//test1/test2//test3/file1';
-  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../../../test1/test1/test2/test3/file1');
-
-  buildContext = 'User\\test\\test1\\test2';
-  containerFilePath = 'User\\test\\test1\\test3\\file1';
-  expect(component.getRelativePath(buildContext, containerFilePath)).toBe('../test3/file1');
 });

@@ -2852,6 +2852,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('path:relative', async (_listener, from: string, to: string): Promise<string> => {
+      return path.relative(from, to);
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
