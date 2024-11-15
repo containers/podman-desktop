@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,28 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import DevelopersFeedback from './DevelopersFeedback.svelte';
 
-beforeAll(() => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).openExternal = vi.fn();
-  (window as any).telemetryTrack = vi.fn();
-  (window as any).sendFeedback = vi.fn();
+const openExternalMock = vi.fn();
+const telemetryTrackMock = vi.fn();
+const sendFeedbackMock = vi.fn();
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  Object.defineProperty(window, 'openExternal', {
+    value: openExternalMock,
+  });
+  Object.defineProperty(window, 'telemetryTrack', {
+    value: telemetryTrackMock,
+  });
+  Object.defineProperty(window, 'sendFeedback', {
+    value: sendFeedbackMock,
+  });
 });
 
-test('Expect that the button is disabled when loading the page', async () => {
+test('Expect that the button is disabled when loading the page', () => {
   render(DevelopersFeedback, {});
   const button = screen.getByRole('button', { name: 'Send feedback' });
   expect(button).toBeInTheDocument();

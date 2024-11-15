@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 
-import FeedbackForm from '../FeedbackForm.svelte';
+import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 
 let issueTitle = '';
 let issueDescription = '';
@@ -19,10 +19,10 @@ $: if (!issueTitle) {
   }
 }
 
-export let hideModal = () => {};
+export let onCloseForm = () => {};
 
 async function openGitHubIssues(): Promise<void> {
-  hideModal();
+  onCloseForm();
   await window.openExternal('https://github.com/containers/podman-desktop/issues');
 }
 </script>
@@ -51,7 +51,7 @@ async function openGitHubIssues(): Promise<void> {
     {/if}
   </svelte:fragment>
   <svelte:fragment slot="buttons">
-    <Button class="underline" type="link" aria-label="Cancel" on:click={() => hideModal()}>Cancel</Button>
+    <Button class="underline" type="link" aria-label="Cancel" on:click={() => onCloseForm()}>Cancel</Button>
     <Button aria-label="Preview on GitHub" on:click={() => openGitHubIssues()} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
   </svelte:fragment>
 </FeedbackForm>

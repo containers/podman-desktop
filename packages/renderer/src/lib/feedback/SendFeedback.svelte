@@ -44,9 +44,9 @@ function hideModal(): void {
     </div>
 
     {#if category === 'developers'}
-      <DevelopersFeedback hideModal={hideModal}/>
+      <DevelopersFeedback onCloseForm={hideModal}/>
     {:else}
-      <GitHubIssueFeedback hideModal={hideModal}/>
+      <GitHubIssueFeedback onCloseForm={hideModal}/>
     {/if}
   </Modal>
 {/if}

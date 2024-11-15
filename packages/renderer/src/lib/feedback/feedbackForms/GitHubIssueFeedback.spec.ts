@@ -21,13 +21,17 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
 
-beforeAll(() => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).openExternal = vi.fn();
+const openExternalMock = vi.fn();
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  Object.defineProperty(window, 'openExternal', {
+    value: openExternalMock,
+  });
 });
 
 test('Expect feedback form to to be bug feedback form', async () => {

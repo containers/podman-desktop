@@ -22,19 +22,16 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';
 
+import DevelopersFeedback from './feedbackForms/DevelopersFeedback.svelte';
+import GitHubIssueFeedback from './feedbackForms/GitHubIssueFeedback.svelte';
 import SendFeedback from './SendFeedback.svelte';
 
-const mocks = vi.hoisted(() => ({
-  gitHubIssueMock: vi.fn(),
-  developersFeedbackMock: vi.fn(),
-}));
-
 vi.mock('./feedbackForms/GitHubIssueFeedback.svelte', () => ({
-  default: mocks.gitHubIssueMock,
+  default: vi.fn(),
 }));
 
 vi.mock('./feedbackForms/DevelopersFeedback.svelte', () => ({
-  default: mocks.developersFeedbackMock,
+  default: vi.fn(),
 }));
 
 beforeAll(() => {
@@ -49,8 +46,7 @@ beforeAll(() => {
 test('Expect developers feedback form to be rendered by default', async () => {
   render(SendFeedback, {});
 
-  // click on a smiley
-  expect(mocks.developersFeedbackMock).toBeCalled();
+  expect(vi.mocked(DevelopersFeedback)).toBeCalled();
 });
 
 test('Expect GitHubIssue feedback form to be rendered if category is not developers', async () => {
@@ -66,5 +62,5 @@ test('Expect GitHubIssue feedback form to be rendered if category is not develop
   expect(bugCategory).toBeInTheDocument();
   await fireEvent.click(bugCategory);
   // click on a smiley
-  expect(mocks.gitHubIssueMock).toBeCalled();
+  expect(vi.mocked(GitHubIssueFeedback)).toBeCalled();
 });

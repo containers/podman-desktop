@@ -11,10 +11,10 @@ import {
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
+import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 import type { FeedbackProperties } from '/@api/feedback';
 
 import WarningMessage from '../../ui/WarningMessage.svelte';
-import FeedbackForm from '../FeedbackForm.svelte';
 
 // feedback of the user
 let smileyRating = 0;
@@ -25,7 +25,7 @@ $: hasFeedback =
   (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
   (contactInformation && contactInformation.trim().length > 4);
 
-export let hideModal = () => {};
+export let onCloseForm = () => {};
 
 function selectSmiley(item: number): void {
   smileyRating = item;
@@ -47,12 +47,12 @@ async function sendFeedback(): Promise<void> {
 
   // send
   await window.sendFeedback(properties);
-  // close the modal
-  hideModal();
+  // close the form
+  onCloseForm();
 }
 
 async function openGitHub(): Promise<void> {
-  hideModal();
+  onCloseForm();
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
