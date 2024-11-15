@@ -1768,8 +1768,13 @@ export class KubernetesClient {
   public async createPortForward(config: ForwardOptions): Promise<ForwardConfig> {
     const service = this.ensurePortForwardService();
     const newConfig = await service.createForward(config);
-    await service.startForward(newConfig);
-    return newConfig;
+    try {
+      await service.startForward(newConfig);
+      return newConfig;
+    } catch (err: unknown) {
+      await service.deleteForward(newConfig);
+      throw err;
+    }
   }
 
   public async deletePortForward(config: ForwardConfig): Promise<void> {
