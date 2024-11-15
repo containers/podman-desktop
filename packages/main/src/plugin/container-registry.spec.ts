@@ -18,7 +18,6 @@
 
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
-import { mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { PassThrough, Readable } from 'node:stream';
@@ -52,14 +51,14 @@ import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
 
-const tar: { pack: (dir: string, opts?: PackOptions) => NodeJS.ReadableStream } = require('tar-fs');
-
-const originalTarPack = tar.pack;
-
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
+
+const tar: { pack: (dir: string, opts?: PackOptions & { fs?: any }) => NodeJS.ReadableStream } = require('tar-fs');
+
+const originalTarPack = tar.pack;
 
 const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   Id: '1234567890',
@@ -400,8 +399,6 @@ const configurationRegistry = {
   getConfiguration: getConfigurationMock,
 } as unknown as ConfigurationRegistry;
 
-const fsActual = await vi.importActual<typeof import('node:fs')>('node:fs');
-
 vi.mock('node:fs', async () => {
   return {
     promises: {
@@ -427,8 +424,6 @@ vi.mock(import('node:fs/promises'), async importOriginal => {
   };
 });
 
-let contextDir: string | undefined;
-
 beforeEach(() => {
   nock.cleanAll();
   vi.mocked(apiSender.receive).mockClear();
@@ -450,11 +445,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
-  if (contextDir) {
-    // only remove directory, as the contextDir is never populated during tests
-    fsActual.rmdirSync(contextDir);
-    contextDir = undefined;
-  }
 });
 
 test('tag should reject if no provider', async () => {
@@ -1584,7 +1574,6 @@ describe('buildImage', () => {
     };
 
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
-    vi.spyOn(tar, 'pack').mockImplementation(originalTarPack);
     vi.spyOn(dockerAPI, 'buildImage').mockResolvedValue({} as NodeJS.ReadableStream);
     vi.spyOn(dockerAPI.modem, 'followProgress').mockImplementation((_s, f, _p) => {
       return f(null, []);
@@ -1595,8 +1584,30 @@ describe('buildImage', () => {
     });
     vi.mocked(dockerAPI.buildImage).mockReset();
 
-    contextDir = await mkdtemp(path.join(os.tmpdir(), 'pd-tests-'));
-    await containerRegistry.buildImage(contextDir, () => {}, {
+    // Mock tar.pack to call the original one with the additional parameter `fs`,
+    // virtualizing an fs with empty directories
+    vi.spyOn(tar, 'pack').mockImplementation(
+      (dir: string, opts?: PackOptions & { fs?: any }): NodeJS.ReadableStream => {
+        const virtfs = {
+          // all paths exist and are directories
+          lstat: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, {
+              isDirectory: () => true,
+              isSocket: () => false,
+            });
+          }),
+          // all directories are empty
+          readdir: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, []);
+          }),
+        };
+        opts = opts ?? {};
+        opts.fs = virtfs;
+        return originalTarPack(dir, opts);
+      },
+    );
+
+    await containerRegistry.buildImage('unknown-directory', () => {}, {
       containerFile: '../../containerfile',
       tag: 'name',
       platform: '',
