@@ -44,16 +44,16 @@ $effect(() => {
 });
 </script>
   
-  <button
-    onclick={executeCommand}
-    class="px-2 py-1 gap-1 flex h-full min-w-fit items-center hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer relative text-base text-[var(--pd-button-text)]"
-    title={tooltipText(entry)}>
-    
-    {#if entry.containerConnections || entry.kubernetesConnections || entry.status }
-      <div aria-label="Connection Status Icon" class="w-3 h-3 rounded-full {statusStyle}"></div>
-    {/if}
-    <ProviderIcons entry={entry} />
-    {#if entry.name}
-      <span class="whitespace-nowrap h-fit">{entry.name}</span>
-    {/if}
-  </button>
+<button
+  onclick={executeCommand}
+  class="px-2 py-1 gap-1 flex h-full min-w-fit items-center hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer relative text-base text-[var(--pd-button-text)]"
+  title={tooltipText(entry)}>
+  
+  {#if entry.containerConnections || entry.kubernetesConnections || entry.status }
+    <div aria-label="Connection Status Icon" class="w-3 h-3 rounded-full {statusStyle}"></div>
+  {/if}
+  <ProviderIcons entry={entry} />
+  {#if entry.name}
+    <span class="whitespace-nowrap h-fit">{entry.name}</span>
+  {/if}
+</button>
