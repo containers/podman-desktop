@@ -13,6 +13,8 @@ function tooltipText(entry: ProviderInfo): string {
   let tooltip = '';
   if (entry.containerConnections.length > 0) {
     tooltip = entry.containerConnections.map(c => c.name).join(', ');
+  } else if (entry.kubernetesConnections.length > 0) {
+    tooltip = entry.kubernetesConnections.map(c => c.name).join(', ');
   }
   return tooltip;
 }
@@ -27,9 +29,9 @@ const statusesStyle = new Map<string, string>([
   ['starting', 'animate-spin border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent'],
   ['stopped', 'fa-regular fa-circle-dot'],
   ['stopping', 'animate-spin border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent'],
-  ['failed', 'fa-circle-x'],
-  ['not-installed', 'fa fa-exclamation-triangle text-[var(--pd-button-text)]'],
-  ['update available', 'fa-regular fa-circle-arrow-up text-[var(--pd-button-text)]'],
+  ['error', 'fa-regular fa-circle-xmark'],
+  ['not-installed', 'fa fa-exclamation-triangle'],
+  ['update available', 'fa-regular fa-circle-up'],
   ['unknown', 'fa-regular fa-moon'],
 ]);
 
@@ -47,10 +49,11 @@ $effect(() => {
 <button
   onclick={executeCommand}
   class="px-2 py-1 gap-1 flex h-full min-w-fit items-center hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer relative text-base text-[var(--pd-button-text)]"
-  title={tooltipText(entry)}>
+  title={tooltipText(entry)}
+  aria-label={entry.name}>
   
-  {#if entry.containerConnections || entry.kubernetesConnections || entry.status }
-    <div aria-label="Connection Status Icon" class="w-3 h-3 rounded-full {statusStyle}"></div>
+  {#if entry.containerConnections.length > 0 || entry.kubernetesConnections.length > 0 || entry.status }
+    <div aria-label="Connection Status Icon" title={entry.status} class="w-3 h-3 rounded-full {statusStyle}"></div>
   {/if}
   <ProviderIcons entry={entry} />
   {#if entry.name}
