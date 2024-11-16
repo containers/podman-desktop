@@ -40,10 +40,11 @@
           "description": "HTTPS Port"
         },
         "kind.cluster.creation.ingress": {
-          "type": "boolean",
-          "default": true,
+          "type": "string",
+          "default": "contour",
+          "enum": ["none", "contour"],
           "scope": "KubernetesProviderConnectionFactory",
-          "description": "Setup an ingress controller (Contour https://projectcontour.io)"
+          "description": "Setup an ingress controller"
         },
         "kind.cluster.creation.controlPlaneImage": {
           "type": "string",
@@ -92,7 +93,7 @@
     ]
   },
   "scripts": {
-    "install:contour": "tsx ./scripts/download.ts",
+    "install:contour": "tsx ./scripts/download-ingress-contour.ts",
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
