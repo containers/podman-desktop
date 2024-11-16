@@ -19,7 +19,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Octokit } from 'octokit';
+import { Octokit } from '@octokit/rest';
 import type { OctokitOptions } from '@octokit/core/dist-types/types';
 
 const CONTOUR_ORG = 'projectcontour';
