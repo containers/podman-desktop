@@ -37,12 +37,17 @@ const octokit = new Octokit(octokitOptions);
 // to make this file a module
 export {};
 
-async function downloadIngressContour(tagVersion: string, repoPath: string, fileName: string): Promise<void> {
+async function downloadIngressContour(
+  tagVersion: string,
+  repoPath: string,
+  fileName: string,
+  destFileName: string,
+): Promise<void> {
   const destDir = path.resolve(__dirname, '..', 'src', 'resources');
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir);
   }
-  const destFile = path.resolve(destDir, fileName);
+  const destFile = path.resolve(destDir, destFileName);
   console.log(
     `Downloading Contour manifests from https://github.com/${CONTOUR_ORG}/${CONTOUR_REPO}/${CONTOUR_DEPLOY_PATH}/${CONTOUR_DEPLOY_FILE} version ${tagVersion}`,
   );
@@ -75,4 +80,4 @@ async function downloadIngressContour(tagVersion: string, repoPath: string, file
 // download the file from the given URL and store the content in destFile
 // particular contour file should be manually added to the repo once downloaded
 // run download script on demand using `pnpm --cwd extensions/kind/ run install:contour`
-downloadIngressContour(CONTOUR_VERSION, CONTOUR_DEPLOY_PATH, CONTOUR_DEPLOY_FILE);
+downloadIngressContour(CONTOUR_VERSION, CONTOUR_DEPLOY_PATH, CONTOUR_DEPLOY_FILE, 'ingress-contour.yaml');
