@@ -58,7 +58,7 @@ You can develop on either: `Windows`, `macOS` or `Linux`.
 Requirements:
 
 - [Node.js 20+](https://nodejs.org/en/)
-- [pnpm v9.x](https://pnpm.io/installation) (`corepack enable pnpm)
+- [pnpm v9.x](https://pnpm.io/installation) (`corepack enable pnpm`)
 
 Optional Linux requirements:
 
