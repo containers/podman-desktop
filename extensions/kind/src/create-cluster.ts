@@ -26,6 +26,7 @@ import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
 import ingressManifestsContour from '/@/resources/ingress-contour.yaml?raw';
+import ingressManifestsNginx from '/@/resources/ingress-nginx.yaml?raw';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
 import { getKindPath, getMemTotalInfo } from './util';
@@ -63,6 +64,9 @@ export async function setupIngressController(clusterName: string, ingressControl
   switch (ingressControllerType) {
     case 'contour':
       manifests = parseAllDocuments(ingressManifestsContour, { customTags: getTags });
+      break;
+    case 'nginx':
+      manifests = parseAllDocuments(ingressManifestsNginx, { customTags: getTags });
       break;
     case 'none':
     default:

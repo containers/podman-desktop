@@ -42,7 +42,7 @@
         "kind.cluster.creation.ingress": {
           "type": "string",
           "default": "contour",
-          "enum": ["none", "contour"],
+          "enum": ["none", "contour", "nginx"],
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Setup an ingress controller"
         },
@@ -94,6 +94,7 @@
   },
   "scripts": {
     "install:contour": "tsx ./scripts/download-ingress-contour.ts",
+    "install:nginx": "tsx ./scripts/download-ingress-nginx.ts",
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
