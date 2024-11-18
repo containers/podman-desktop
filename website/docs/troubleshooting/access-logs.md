@@ -10,7 +10,7 @@ tags: [acessing-podman-desktop-logs, troubleshooting-podman-desktop]
 
 When you face any connection issues or any other problems with your task execution, you can access the Podman Desktop logs to troubleshoot. In addition, you can also resolve those issues using the **Repair & Connections** and **Stores** tabs.
 
-Stores denote the front-end objects that capture the event logs from the back-end side. For example, if a container is missing from the **Containers** component page, you can click the **containers** store link to check the event that triggered the last refresh. You can map the number of containers present in the store with the ones present on the **Containers** page. This way you can identify whether a recent event is captured. If not, use the **Refresh** button to refresh the store data.  
+Stores denote the front-end objects that capture the event logs from the back-end side. For example, if a container is missing from the **Containers** component page, click the **containers** store link to check the event that triggered the last refresh. After comparing the number of containers in the store with those on the **Containers** page, you can identify whether a recent event is captured. If not, use the **Refresh** button to refresh the store data.  
 
 If you do not want to track the previous event logs, you can remove them from the history of the store.
 
