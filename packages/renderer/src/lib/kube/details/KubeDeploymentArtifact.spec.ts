@@ -20,8 +20,9 @@ import '@testing-library/jest-dom/vitest';
 
 import type { V1DeploymentSpec } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
+import * as Container from './KubeContainerArtifact.svelte';
 import KubeDeploymentArtifact from './KubeDeploymentArtifact.svelte'; // Adjust the import path as necessary
 
 const fakeDeploymentSpec: V1DeploymentSpec = {
@@ -34,7 +35,18 @@ const fakeDeploymentSpec: V1DeploymentSpec = {
   strategy: {
     type: 'RollingUpdate',
   },
-  template: {},
+  template: {
+    spec: {
+      containers: [
+        {
+          name: 'container1',
+        },
+        {
+          name: 'container2',
+        },
+      ],
+    },
+  },
 };
 
 test('DeploymentSpec artifact renders with correct values', async () => {
@@ -51,4 +63,26 @@ test('DeploymentSpec artifact renders with correct values', async () => {
   // Check if strategy type is displayed correctly
   expect(screen.getByText('Strategy')).toBeInTheDocument();
   expect(screen.getByText('RollingUpdate')).toBeInTheDocument();
+});
+
+test('Container compoennt called for each container in the template', async () => {
+  const containerSpy = vi.spyOn(Container, 'default');
+  render(KubeDeploymentArtifact, {
+    artifact: fakeDeploymentSpec,
+    deploymentName: 'my-deployment',
+    namespace: 'my-ns',
+  });
+  expect(containerSpy).toHaveBeenCalledTimes(2);
+  expect(containerSpy).toHaveBeenCalledWith(expect.anything(), {
+    kind: 'deployment',
+    resourceName: 'my-deployment',
+    namespace: 'my-ns',
+    artifact: { name: 'container1' },
+  });
+  expect(containerSpy).toHaveBeenCalledWith(expect.anything(), {
+    kind: 'deployment',
+    resourceName: 'my-deployment',
+    namespace: 'my-ns',
+    artifact: { name: 'container2' },
+  });
 });
