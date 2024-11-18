@@ -10,10 +10,10 @@ function clear(): void {
 }
 </script>
 
-<div class="absolute top-0 right-0 px-1 z-50 m-1 opacity-50 space-x-1">
-  <button title="Clear logs" onclick={clear}>
+<div class="absolute top-0 right-2 px-1 z-50 m-1 opacity-50 space-x-1">
+  <button title="Clear logs" onclick={clear} class="">
     <Fa
-      class="cursor-pointer rounded-full bg-[var(--pd-button-disabled)] min-h-8 w-8 p-1.5"
+      class="cursor-pointer rounded-full bg-[var(--pd-button-disabled)] min-h-8 w-8 p-1.5 hover:bg-[var(--pd-button-primary-hover-bg)]"
       icon={faEraser}
     />
   </button>
