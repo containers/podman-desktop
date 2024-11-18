@@ -26,7 +26,7 @@ const CONTOUR_ORG = 'projectcontour';
 const CONTOUR_REPO = 'contour';
 const CONTOUR_DEPLOY_FILE = 'contour.yaml';
 const CONTOUR_DEPLOY_PATH = 'examples/render';
-const CONTOUR_VERSION = 'v1.24.2';
+const CONTOUR_VERSION = 'v1.30.1';
 
 const octokitOptions: OctokitOptions = {};
 if (process.env.GITHUB_TOKEN) {
