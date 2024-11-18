@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   windows:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Windows
     runs-on: windows-2022
     timeout-minutes: 60
@@ -76,6 +77,7 @@ jobs:
           path: ./dist/podman-desktop*-next-arm64.exe
 
   linux:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Linux
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -124,6 +126,7 @@ jobs:
           path: ./dist/podman-desktop-*.flatpak
 
   darwin:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: macOS
     runs-on: macos-14
     timeout-minutes: 40
@@ -166,6 +169,7 @@ jobs:
           path: ./dist/podman-desktop-*universal.dmg
 
   website-build:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: build website
     runs-on: ubuntu-24.04
     steps:
@@ -201,6 +205,7 @@ jobs:
             PR_SHA
 
   lint-format:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: linter, formatters
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -234,6 +239,7 @@ jobs:
           fi
 
   typecheck:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: typecheck
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -259,6 +265,7 @@ jobs:
         run: pnpm svelte:check
 
   unit-tests:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: unit tests / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
@@ -285,6 +292,7 @@ jobs:
         run: pnpm test:unit
 
   smoke-e2e-tests:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: smoke e2e tests
     runs-on: ubuntu-24.04
     strategy:
@@ -362,6 +370,7 @@ jobs:
             !./tests/**/traces/raw
 
   detect_pnpm_changes:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Detect pnpm lock or pr-check files changes
     runs-on: ubuntu-24.04
     outputs:
