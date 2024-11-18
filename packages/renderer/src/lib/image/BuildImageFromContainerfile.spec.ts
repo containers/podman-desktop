@@ -63,6 +63,7 @@ beforeAll(() => {
   (window as any).getCancellableTokenSource = vi.fn().mockReturnValue({
     cancel: vi.fn(),
   });
+  (window as any).pathRelative = vi.fn();
 });
 
 beforeEach(() => {
@@ -245,6 +246,7 @@ test('Selecting one platform only calls buildImage once with the selected platfo
   setup();
   await waitRender();
 
+  vi.mocked(window.pathRelative).mockResolvedValue('containerfile');
   const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');

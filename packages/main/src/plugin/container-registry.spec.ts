@@ -27,6 +27,8 @@ import type * as podmanDesktopAPI from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 import moment from 'moment';
 import nock from 'nock';
+import type { PackOptions } from 'tar-fs';
+import * as tarstream from 'tar-stream';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
@@ -49,12 +51,14 @@ import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
 
-const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
-
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
+
+const tar: { pack: (dir: string, opts?: PackOptions & { fs?: any }) => NodeJS.ReadableStream } = require('tar-fs');
+
+const originalTarPack = tar.pack;
 
 const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   Id: '1234567890',
@@ -401,6 +405,7 @@ vi.mock('node:fs', async () => {
       readdir: vi.fn(),
     },
     createWriteStream: vi.fn(),
+    existsSync: vi.fn(),
   };
 });
 
@@ -409,6 +414,8 @@ vi.mock('node:stream/promises', async () => {
     pipeline: vi.fn(),
   };
 });
+
+vi.mock('node:fs/promises');
 
 beforeEach(() => {
   nock.cleanAll();
@@ -1528,6 +1535,101 @@ describe('buildImage', () => {
       t: 'name',
       platform: '',
     });
+  });
+
+  test('verify containerfile is added to archive if outside of context', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        name: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      displayName: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(dockerAPI, 'buildImage').mockResolvedValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI.modem, 'followProgress').mockImplementation((_s, f, _p) => {
+      return f(null, []);
+    });
+
+    vi.mocked(fs.existsSync).mockImplementation(path => {
+      return String(path).endsWith('Containerfile.0') || String(path).endsWith('Containerfile.1');
+    });
+    vi.mocked(dockerAPI.buildImage).mockReset();
+
+    // Mock tar.pack to call the original one with the additional parameter `fs`,
+    // virtualizing an fs with empty directories
+    vi.spyOn(tar, 'pack').mockImplementation(
+      (dir: string, opts?: PackOptions & { fs?: any }): NodeJS.ReadableStream => {
+        const virtfs = {
+          // all paths exist and are directories
+          lstat: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, {
+              isDirectory: () => true,
+              isSocket: () => false,
+            });
+          }),
+          // all directories are empty
+          readdir: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, []);
+          }),
+        };
+        opts = opts ?? {};
+        opts.fs = virtfs;
+        return originalTarPack(dir, opts);
+      },
+    );
+
+    await containerRegistry.buildImage('unknown-directory', () => {}, {
+      containerFile: '../../containerfile',
+      tag: 'name',
+      platform: '',
+      provider: connection,
+    });
+
+    expect(vi.mocked(dockerAPI.buildImage).mock.calls.length).toBe(1);
+    const args = vi.mocked(dockerAPI.buildImage).mock.calls[0];
+    const archive = args?.[0] as unknown as tarstream.Pack;
+    const extract = tarstream.extract();
+    const entries: string[] = [];
+    extract.on('entry', function (header, stream, next) {
+      entries.push(header.name);
+      // header is the tar header
+      // stream is the content body (might be an empty stream)
+      // call next when you are done with this entry
+      stream.on('end', function () {
+        next(); // ready for next entry
+      });
+      stream.resume(); // just auto drain the stream
+    });
+
+    archive.pipe(extract);
+
+    await vi.waitFor(() => {
+      expect(entries).toContain('Containerfile.2');
+    });
+    const options = args?.[1];
+    expect(options?.dockerfile).toEqual('./Containerfile.2');
   });
 
   async function verifyBuildImage(extraArgs: object): Promise<void> {
