@@ -2,7 +2,7 @@
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
-import type { FeedbackCategory } from '/@api/feedback';
+import type { FeedbackCategory, GitHubIssueProperties } from '/@api/feedback';
 
 export let category: FeedbackCategory = 'bug';
 let issueTitle = '';
@@ -33,7 +33,16 @@ export let onCloseForm = () => {};
 
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
+<<<<<<< HEAD
   await window.openExternal(existingIssuesLink);
+=======
+  const issueProperties: GitHubIssueProperties = {
+    category: 'bug',
+    issueTitle: issueTitle,
+    issueDescription: issueDescription,
+  };
+  await window.previewOnGitHub(issueProperties);
+>>>>>>> 7b1b0dc8 (chore: add Preview on GitHub functionality)
 }
 </script>
 

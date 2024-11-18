@@ -16,19 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type FeedbackCategory = 'developers' | 'feature' | 'bug';
+import { shell } from 'electron';
 
-export interface FeedbackProperties {
-  category: FeedbackCategory;
-  rating: number;
-  comment?: string;
-  contact?: string;
-}
+import type { GitHubIssueProperties } from '/@api/feedback.js';
 
-export interface GitHubIssueProperties {
-  category: FeedbackCategory;
-  issueTitle: string;
-  issueDescription: string;
-  includeSystemInfo?: boolean;
-  includeExtensionInfo?: boolean;
+export class FeedbackHandler {
+  async openGitHubIssue(issueProperties: GitHubIssueProperties): Promise<void> {
+    let urlSearchParams = '';
+    if (issueProperties.category === 'bug') {
+      const params = {
+        template: 'bug_report.yml',
+        title: issueProperties.issueTitle,
+        'bug-description': issueProperties.issueDescription,
+      };
+      urlSearchParams = new URLSearchParams(params).toString();
+    }
+    const link = `https://github.com/containers/podman-desktop/issues/new?${urlSearchParams}`;
+    await shell.openExternal(link);
+  }
 }
