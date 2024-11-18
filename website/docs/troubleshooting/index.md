@@ -11,7 +11,7 @@ If you cannot find your issue here or in the documentation, please fill an issue
 Access the following pages to troubleshoot your issues:
 
 - [Accessing logs](/docs/troubleshooting/access-logs)
-- [Troubleshooting Podman Desktop](/docs/troubleshooting/troubleshooting-podman)
+- [Troubleshooting Podman](/docs/troubleshooting/troubleshooting-podman)
 - [Troubleshooting Podman on Windows](/docs/troubleshooting/troubleshooting-podman-on-windows)
 - [Troubleshooting Podman on macOS](/docs/troubleshooting/troubleshooting-podman-on-macos)
 - [Troubleshooting Podman on Linux](/docs/troubleshooting/troubleshooting-podman-on-linux)
