@@ -23,10 +23,6 @@ function onChangeHandler(newValue: unknown) {
   onChange={onChangeHandler}
   bind:value={value}
   ariaInvalid={invalidEntry}
-  ariaLabel={record.description}>
-  {#if record.enum}
-    {#each record.enum as recordEnum}
-      <option class="bg-[var(--pd-input-field-focused-bg)]" value={recordEnum}>{recordEnum}</option>
-    {/each}
-  {/if}
+  ariaLabel={record.description}
+  options={record.enum?.map(recordEnum => ({label: recordEnum, value: recordEnum}))}>
 </Dropdown>
