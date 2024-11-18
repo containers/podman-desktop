@@ -17,19 +17,17 @@
  ***********************************************************************/
 
 import { shell } from 'electron';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
 import type { GitHubIssueProperties } from '/@api/feedback.js';
 
 import { FeedbackHandler } from './feedback-handler.js';
 
-beforeEach(() => {
-  vi.mock('electron', () => ({
-    shell: {
-      openExternal: vi.fn(),
-    },
-  }));
-});
+vi.mock('electron', () => ({
+  shell: {
+    openExternal: vi.fn(),
+  },
+}));
 
 const issueProperties: GitHubIssueProperties = {
   category: 'bug',
