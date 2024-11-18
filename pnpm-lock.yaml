@@ -584,8 +584,8 @@ importers:
         specifier: ^6.6.0
         version: 6.6.0
       '@sveltejs/vite-plugin-svelte':
-        specifier: 4.0.0
-        version: 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        specifier: 4.0.1
+        version: 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
@@ -717,8 +717,8 @@ importers:
         specifier: ^2.3.7
         version: 2.3.7(svelte@5.2.2)(typescript@5.6.3)
       '@sveltejs/vite-plugin-svelte':
-        specifier: 4.0.0
-        version: 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        specifier: 4.0.1
+        version: 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
@@ -814,7 +814,7 @@ importers:
         version: 8.4.4(react@18.2.0)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
       '@storybook/addon-svelte-csf':
         specifier: 5.0.0-next.11
-        version: 5.0.0-next.11(@storybook/svelte@8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2))(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        version: 5.0.0-next.11(@storybook/svelte@8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2))(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@storybook/blocks':
         specifier: ^8.4.4
         version: 8.4.4(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
@@ -823,7 +823,7 @@ importers:
         version: 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)
       '@storybook/svelte-vite':
         specifier: ^8.4.4
-        version: 8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        version: 8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@storybook/test':
         specifier: ^8.4.4
         version: 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
@@ -831,8 +831,8 @@ importers:
         specifier: ^2.3.7
         version: 2.3.7(svelte@5.2.2)(typescript@5.6.3)
       '@sveltejs/vite-plugin-svelte':
-        specifier: 4.0.0
-        version: 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        specifier: 4.0.1
+        version: 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@tsconfig/svelte':
         specifier: ^5.0.2
         version: 5.0.4
@@ -3903,8 +3903,8 @@ packages:
       svelte: ^5.0.0-next.96 || ^5.0.0
       vite: ^5.0.0
 
-  '@sveltejs/vite-plugin-svelte@4.0.0':
-    resolution: {integrity: sha512-kpVJwF+gNiMEsoHaw+FJL76IYiwBikkxYU83+BpqQLdVMff19KeRKLd2wisS8niNBMJ2omv5gG+iGDDwd8jzag==}
+  '@sveltejs/vite-plugin-svelte@4.0.1':
+    resolution: {integrity: sha512-prXoAE/GleD2C4pKgHa9vkdjpzdYwCSw/kmjw6adIyu0vk5YKCfqIztkLg10m+kOYnzZu3bb0NaPTxlWre2a9Q==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22}
     peerDependencies:
       svelte: ^5.0.0-next.96 || ^5.0.0
@@ -15524,14 +15524,14 @@ snapshots:
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
       ts-dedent: 2.2.0
 
-  '@storybook/addon-svelte-csf@5.0.0-next.11(@storybook/svelte@8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2))(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
+  '@storybook/addon-svelte-csf@5.0.0-next.11(@storybook/svelte@8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2))(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
     dependencies:
       '@storybook/csf': 0.1.11
       '@storybook/docs-tools': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
       '@storybook/node-logger': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
       '@storybook/svelte': 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)
       '@storybook/types': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
-      '@sveltejs/vite-plugin-svelte': 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+      '@sveltejs/vite-plugin-svelte': 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       dedent: 1.5.3
       es-toolkit: 1.26.1
       esrap: 1.2.2
@@ -15674,11 +15674,11 @@ snapshots:
       react-dom: 18.3.1(react@18.2.0)
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
 
-  '@storybook/svelte-vite@8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
+  '@storybook/svelte-vite@8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
     dependencies:
       '@storybook/builder-vite': 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@storybook/svelte': 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.2)
-      '@sveltejs/vite-plugin-svelte': 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+      '@sveltejs/vite-plugin-svelte': 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       magic-string: 0.30.12
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
       svelte: 5.2.2
@@ -15750,18 +15750,18 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@sveltejs/vite-plugin-svelte-inspector@3.0.0-next.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
+  '@sveltejs/vite-plugin-svelte-inspector@3.0.0-next.3(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+      '@sveltejs/vite-plugin-svelte': 4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       debug: 4.3.7
       svelte: 5.2.2
       vite: 5.4.11(@types/node@22.7.5)(terser@5.31.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
+  '@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 3.0.0-next.3(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+      '@sveltejs/vite-plugin-svelte-inspector': 3.0.0-next.3(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(svelte@5.2.2)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       debug: 4.3.7
       deepmerge: 4.3.1
       kleur: 4.1.5
