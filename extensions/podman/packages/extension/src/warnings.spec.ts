@@ -16,22 +16,40 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import nock from 'nock';
-import { expect, test } from 'vitest';
+import { delay, http, HttpResponse } from 'msw';
+import type { SetupServerApi } from 'msw/node';
+import { setupServer } from 'msw/node';
+import { afterEach, expect, test } from 'vitest';
 
 import { isDisguisedPodmanPath } from './warnings';
 
-test('isDisguisedPodman', async () => {
-  nock('http://localhost').get('/libpod/_ping').reply(200, 'OK');
+let server: SetupServerApi | undefined = undefined;
 
-  const response = await isDisguisedPodmanPath('http://localhost:10000/socket');
+afterEach(() => {
+  server?.close();
+});
+
+test('isDisguisedPodman', async () => {
+  const handlers = [http.get('http://localhost/libpod/_ping', () => HttpResponse.text('OK'))];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const response = await isDisguisedPodmanPath('http://localhost/socket');
 
   expect(response).toBe(true);
 });
 
 test('isDisguisedPodman with timeout', async () => {
-  // we do a reply OK after 3s but we will check with a delay of 1s the request so it should still fail
-  nock('http://localhost').get('/libpod/_ping').delay(3000).reply(200, 'OK');
+  const handlers = [
+    http.get('http://localhost/libpod/_ping', async () => {
+      // we do a reply OK after 3s but we will check with a delay of 1s the request so it should still fail
+      await delay(3_000);
+
+      return HttpResponse.text('OK');
+    }),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const response = await isDisguisedPodmanPath('http://localhost:10000/socket', 1000);
 
