@@ -27,7 +27,7 @@ import {
   createKindCluster,
   deleteKindCluster,
   deletePod,
-  ensureKindCliInstalled,
+  ensureCliInstalled,
   handleConfirmationDialog,
 } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
@@ -68,7 +68,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
     const settingsBar = await navigationBar.openSettings();
     await settingsBar.cliToolsTab.click();
 
-    await ensureKindCliInstalled(page);
+    await ensureCliInstalled(page, 'Kind');
   }
   await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
 });
