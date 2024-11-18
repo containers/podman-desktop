@@ -63,3 +63,20 @@ SoniaSandler:
   title: Associate Software Engineer
   url: https://github.com/SoniaSandler
   image_url: https://github.com/SoniaSandler.png
+
+gastoner:
+  name: Evžen Gasta
+  title: Associate Software Engineer
+  url: https://github.com/gastoner
+  image_url: https://github.com/gastoner.png
+shipsing:
+  name: Shipra Singh
+  title: Tech writer
+  url: https://github.com/shipsing
+  image_url: https://github.com/shipsing.png
+
+meisele:
+  name: Markus Eisele
+  title: Product Marketing
+  url: https://github.com/myfear
+  image_url: https://github.com/myfear.png

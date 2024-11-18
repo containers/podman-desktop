@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ExtensionsPage } from './extensions-page';
@@ -44,37 +44,53 @@ export class ExtensionDetailsPage extends BasePage {
     this.heading = this.header.getByRole('heading', { name: extensionName });
     this.enableButton = this.header.getByRole('button', { name: 'Start' });
     this.disableButton = this.header.getByRole('button', { name: 'Stop' });
-    this.removeExtensionButton = this.header.getByRole('button', { name: 'Delete' });
+    this.removeExtensionButton = this.header.getByRole('button', {
+      name: 'Delete',
+    });
     this.status = this.header.getByLabel('Extension Status Label');
-    this.errorStackTrace = this.tabContent.getByRole('group', { name: 'Stack Trace', exact: true });
+    this.errorStackTrace = this.tabContent.getByRole('group', {
+      name: 'Stack Trace',
+      exact: true,
+    });
   }
 
   async disableExtension(): Promise<this> {
-    if ((await this.status.innerText()) === 'DISABLED') return this;
+    return test.step(`Disable extension: ${this.extensionName}`, async () => {
+      if ((await this.status.innerText()) === 'DISABLED') return this;
 
-    await this.disableButton.click();
-    await playExpect(this.status).toHaveText('DISABLED', { timeout: 30000 });
-    return this;
+      await this.disableButton.click();
+      await playExpect(this.status).toHaveText('DISABLED', { timeout: 30000 });
+      return this;
+    });
   }
 
   async enableExtension(): Promise<this> {
-    if ((await this.status.innerText()) === 'ACTIVE') return this;
+    return test.step(`Enable extension: ${this.extensionName}`, async () => {
+      if ((await this.status.innerText()) === 'ACTIVE') return this;
 
-    await this.enableButton.click();
-    await playExpect(this.status).toHaveText('ACTIVE', { timeout: 30000 });
-    return this;
+      await this.enableButton.click();
+      await playExpect(this.status).toHaveText('ACTIVE', { timeout: 30000 });
+      return this;
+    });
   }
 
   async removeExtension(): Promise<ExtensionsPage> {
-    await this.disableExtension();
-    await this.removeExtensionButton.click();
-    return new ExtensionsPage(this.page);
+    return test.step(`Remove extension: ${this.extensionName}`, async () => {
+      await this.disableExtension();
+      await this.removeExtensionButton.click();
+      return new ExtensionsPage(this.page);
+    });
   }
 
   async activateTab(tabName: string): Promise<this> {
-    const tabItem = this.tabs.getByRole('button', { name: tabName, exact: true });
-    await playExpect(tabItem).toBeVisible();
-    await tabItem.click();
-    return this;
+    return test.step(`Activate tab: ${tabName}`, async () => {
+      const tabItem = this.tabs.getByRole('button', {
+        name: tabName,
+        exact: true,
+      });
+      await playExpect(tabItem).toBeVisible();
+      await tabItem.click();
+      return this;
+    });
   }
 }

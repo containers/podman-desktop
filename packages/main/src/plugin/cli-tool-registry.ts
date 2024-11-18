@@ -56,6 +56,7 @@ export class CliToolRegistry {
 
   registerUpdate(cliTool: CliToolImpl, updater: CliToolUpdate | CliToolSelectUpdate): Disposable {
     this.cliToolsUpdater.set(cliTool.id, updater);
+    this.apiSender.send('cli-tool-change', cliTool.id);
 
     return Disposable.create(() => {
       this.cliToolsUpdater.delete(cliTool.id);
@@ -65,6 +66,7 @@ export class CliToolRegistry {
 
   registerInstaller(cliTool: CliToolImpl, installer: CliToolInstaller): Disposable {
     this.cliToolsInstaller.set(cliTool.id, installer);
+    this.apiSender.send('cli-tool-change', cliTool.id);
 
     return Disposable.create(() => {
       this.cliToolsInstaller.delete(cliTool.id);

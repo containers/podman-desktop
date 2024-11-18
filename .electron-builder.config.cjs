@@ -79,7 +79,7 @@ const config = {
   buildDependenciesFromSource: false,
   npmRebuild: false,
   beforePack: async context => {
-    const DEFAULT_ASSETS = ['packages/main/src/assets/**'];
+    const DEFAULT_ASSETS = [];
     context.packager.config.extraResources = DEFAULT_ASSETS;
 
     // universal build, add both pkg files
@@ -132,7 +132,7 @@ const config = {
   afterPack: async context => {
     await addElectronFuses(context);
   },
-  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
+  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**', 'packages/main/src/assets/**'],
   portable: {
     artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
   },

@@ -60,7 +60,7 @@ test('check we have list of webviews in navigation bar', async () => {
 
   webviews.set(webviewTestList);
   const fakeMeta = { url: '/webviews' } as unknown as TinroRouteMeta;
-  render(Webviews, { meta: fakeMeta });
+  render(Webviews, { meta: fakeMeta, iconWithTitle: false });
 
   const links = screen.getAllByRole('link');
 
@@ -74,4 +74,53 @@ test('check we have list of webviews in navigation bar', async () => {
   // check link href
   expect(links[0]).toHaveAttribute('href', '/webviews/webviewId1');
   expect(links[1]).toHaveAttribute('href', '/webviews/webviewId2');
+
+  expect(screen.queryByLabelText('Podman Desktop1 title')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop2 title')).not.toBeInTheDocument();
+});
+
+test('check that title shows up if iconWithTitle is true', async () => {
+  // register webviews to the store
+  const webviewTestList: WebviewInfo[] = [
+    {
+      id: 'webviewId1',
+      uuid: 'uuid1',
+      viewType: 'podman-desktop',
+      sourcePath: '/path/to/source',
+      icon: 'icon1',
+      name: 'Podman Desktop1',
+      html: '<html>newCode1</html>',
+      state: { stateData1: 'stateData1' },
+    },
+    {
+      id: 'webviewId2',
+      uuid: 'uuid2',
+      viewType: 'podman-desktop',
+      sourcePath: '/path/to/source',
+      icon: 'icon2',
+      name: 'Podman Desktop2',
+      html: '<html>newCode2</html>',
+      state: { stateData1: 'stateData2' },
+    },
+  ];
+
+  webviews.set(webviewTestList);
+  const fakeMeta = { url: '/webviews' } as unknown as TinroRouteMeta;
+  render(Webviews, { meta: fakeMeta, iconWithTitle: true });
+
+  const links = screen.getAllByRole('link');
+
+  // check we have 2 links
+  expect(links).toHaveLength(2);
+
+  // now check detail of each link
+  expect(links[0]).toHaveTextContent('Podman Desktop1');
+  expect(links[1]).toHaveTextContent('Podman Desktop2');
+
+  // check link href
+  expect(links[0]).toHaveAttribute('href', '/webviews/webviewId1');
+  expect(links[1]).toHaveAttribute('href', '/webviews/webviewId2');
+
+  expect(screen.queryByLabelText('Podman Desktop1 title')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Podman Desktop2 title')).toBeInTheDocument();
 });

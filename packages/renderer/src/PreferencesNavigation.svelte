@@ -47,7 +47,13 @@ onMount(async () => {
         if (result) {
           dockerCompatibilityEnabled = result;
         }
-      });
+      })
+      .catch((err: unknown) =>
+        console.error(
+          `Error getting configuration value ${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`,
+          err,
+        ),
+      );
   });
 });
 </script>
@@ -56,9 +62,9 @@ onMount(async () => {
   class="z-1 w-leftsidebar min-w-leftsidebar flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
-    <div class="pt-4 px-3 mb-10">
+    <div class="pt-4 px-3 mb-5">
       <p
-        class="text-2xl font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
+        class="text-xl font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
         Settings
       </p>
     </div>

@@ -184,15 +184,16 @@ function getLoggerHandler(
             leftPosition="left-[0.12rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('delete')}
-          <div class="mr-2 text-sm">
-            <LoadingIconButton
-              clickAction={() => deleteConnectionProvider(provider, connection)}
-              action="delete"
-              icon={faTrash}
-              state={connectionStatus}
-              leftPosition="left-[0.15rem]" />
-          </div>
+          <LoadingIconButton
+            clickAction={() => deleteConnectionProvider(provider, connection)}
+            action="delete"
+            icon={faTrash}
+            state={connectionStatus}
+            leftPosition="left-[0.15rem]" />
         {/if}
+        <div class="mr-2 text-sm">
+          <slot name="advanced-actions" />
+        </div>
       </div>
     </div>
   {/if}

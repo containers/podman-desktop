@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { DashboardPage } from './dashboard-page';
@@ -26,51 +26,62 @@ export class WelcomePage extends BasePage {
   readonly welcomeMessage: Locator;
   readonly telemetryConsent: Locator;
   readonly goToPodmanDesktopButton: Locator;
+  readonly checkLoader: Locator;
 
   constructor(page: Page) {
     super(page);
     this.welcomeMessage = page.getByText('Welcome to Podman Desktop');
     this.telemetryConsent = page.getByText('Telemetry');
-    this.goToPodmanDesktopButton = page.getByRole('button', { name: 'Go to Podman Desktop', exact: true });
+    this.goToPodmanDesktopButton = page.getByRole('button', {
+      name: 'Go to Podman Desktop',
+      exact: true,
+    });
+    this.checkLoader = this.page.getByRole('heading', {
+      name: 'Initializing...',
+    });
   }
 
   async turnOffTelemetry(): Promise<void> {
-    if (await this.telemetryConsent.isChecked()) {
-      await this.telemetryConsent.uncheck();
-    }
+    return test.step('Turn off Telemetry', async () => {
+      if (await this.telemetryConsent.isChecked()) {
+        await this.telemetryConsent.uncheck();
+      }
 
-    await playExpect(this.telemetryConsent).not.toBeChecked();
+      await playExpect(this.telemetryConsent).not.toBeChecked();
+    });
   }
 
   async closeWelcomePage(): Promise<DashboardPage> {
-    await playExpect(this.goToPodmanDesktopButton).toBeEnabled();
-    await this.goToPodmanDesktopButton.click();
-    return new DashboardPage(this.page);
+    return test.step('Close Welcome Page', async () => {
+      await playExpect(this.goToPodmanDesktopButton).toBeEnabled();
+      await this.goToPodmanDesktopButton.click();
+      return new DashboardPage(this.page);
+    });
   }
 
   async waitForInitialization(): Promise<void> {
-    // wait for an application to initialize
-    const checkLoader = this.page.getByRole('heading', { name: 'Initializing...' });
-    await playExpect(checkLoader).toHaveCount(0);
+    await playExpect(this.checkLoader).toHaveCount(0, { timeout: 10_000 });
   }
 
   /**
    * Waits for application to initialize, turn off telemetry and closes welcome page
    */
   async handleWelcomePage(skipIfNotPresent: boolean): Promise<void> {
-    await this.waitForInitialization();
-    if (skipIfNotPresent) {
-      try {
-        await this.goToPodmanDesktopButton.waitFor({ state: 'visible' });
-      } catch (err) {
-        if ((err as Error).name !== 'TimeoutError') {
-          throw err;
+    return test.step('Handle Welcome Page', async () => {
+      await this.waitForInitialization();
+      if (skipIfNotPresent) {
+        try {
+          await this.goToPodmanDesktopButton.waitFor({ state: 'visible' });
+        } catch (err) {
+          if ((err as Error).name !== 'TimeoutError') {
+            throw err;
+          }
+          return;
         }
-        return;
       }
-    }
-    await this.turnOffTelemetry();
-    await this.closeWelcomePage();
-    await playExpect(this.welcomeMessage).toHaveCount(0);
+      await this.turnOffTelemetry();
+      await this.closeWelcomePage();
+      await playExpect(this.welcomeMessage).toHaveCount(0);
+    });
   }
 }

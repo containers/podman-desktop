@@ -23,7 +23,9 @@ $: webviewInfo = get(webviews).find(webview => webview.id === id);
 
 const notifyNewWebwievState = () => {
   if (webviewInfo) {
-    window.makeDefaultWebviewVisible(webviewInfo.id);
+    window
+      .makeDefaultWebviewVisible(webviewInfo.id)
+      .catch((err: unknown) => console.error(`Error make default webview visible ${webviewInfo?.id}`, err));
   }
 };
 
@@ -75,7 +77,9 @@ onDestroy(() => {
   unsubscriber?.();
 
   // no webviews are visible anymore
-  window.makeDefaultWebviewVisible('');
+  window
+    .makeDefaultWebviewVisible('')
+    .catch((err: unknown) => console.error('Error make default webviews visible', err));
 });
 </script>
 

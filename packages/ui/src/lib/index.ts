@@ -23,6 +23,7 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import Dropdown from './dropdown/Dropdown.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
+import NumberInput from './inputs/NumberInput.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
 import DetailsPage from './layouts/DetailsPage.svelte';
 import FormPage from './layouts/FormPage.svelte';
@@ -61,6 +62,7 @@ export {
   Link,
   Modal,
   NavPage,
+  NumberInput,
   Page,
   SearchInput,
   SettingsNavItem,

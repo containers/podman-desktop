@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { ContainerState } from '../core/states';
@@ -43,43 +43,58 @@ export class ContainerDetailsPage extends DetailsPage {
     this.stopButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Stop Container'));
     this.deleteButton = this.controlActions.getByRole('button').and(this.page.getByLabel('Delete Container'));
     this.imageLink = this.header.getByRole('link', { name: 'Image Details' });
-    this.deployButton = this.controlActions.getByRole('button', { name: 'Deploy to Kubernetes' });
-    this.startButton = this.controlActions.getByRole('button', { name: 'Start Container', exact: true });
+    this.deployButton = this.controlActions.getByRole('button', {
+      name: 'Deploy to Kubernetes',
+    });
+    this.startButton = this.controlActions.getByRole('button', {
+      name: 'Start Container',
+      exact: true,
+    });
   }
 
   async getState(): Promise<string> {
-    const currentState = await this.header.getByRole('status').getAttribute('title');
-    for (const state of Object.values(ContainerState)) {
-      if (currentState === state) return state;
-    }
+    return test.step('Get container state', async () => {
+      const currentState = await this.header.getByRole('status').getAttribute('title');
+      for (const state of Object.values(ContainerState)) {
+        if (currentState === state) return state;
+      }
 
-    return ContainerState.Unknown;
+      return ContainerState.Unknown;
+    });
   }
 
   async stopContainer(): Promise<void> {
-    await playExpect(this.stopButton).toBeEnabled();
-    await this.stopButton.click();
+    return test.step('Stop container', async () => {
+      await playExpect(this.stopButton).toBeEnabled();
+      await this.stopButton.click();
+    });
   }
 
   async deleteContainer(): Promise<ContainersPage> {
-    await playExpect(this.deleteButton).toBeEnabled();
-    await this.deleteButton.click();
-    await handleConfirmationDialog(this.page);
-    return new ContainersPage(this.page);
+    return test.step('Delete container', async () => {
+      await playExpect(this.deleteButton).toBeEnabled();
+      await this.deleteButton.click();
+      await handleConfirmationDialog(this.page);
+      return new ContainersPage(this.page);
+    });
   }
 
   async getContainerPort(): Promise<string> {
-    await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
-    const summaryTable = this.tabContent.getByRole('table');
-    const portsRow = summaryTable.locator('tr:has-text("Ports")');
-    const portsCell = portsRow.getByRole('cell').nth(1);
-    await playExpect(portsCell).toBeVisible();
-    return await portsCell.innerText();
+    return test.step('Get container port', async () => {
+      await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
+      const summaryTable = this.tabContent.getByRole('table');
+      const portsRow = summaryTable.locator('tr:has-text("Ports")');
+      const portsCell = portsRow.getByRole('cell').nth(1);
+      await playExpect(portsCell).toBeVisible();
+      return await portsCell.innerText();
+    });
   }
 
   async openDeployToKubernetesPage(): Promise<DeployToKubernetesPage> {
-    await playExpect(this.deployButton).toBeVisible();
-    await this.deployButton.click();
-    return new DeployToKubernetesPage(this.page);
+    return test.step('Open Deploy to Kubernetes page', async () => {
+      await playExpect(this.deployButton).toBeVisible();
+      await this.deployButton.click();
+      return new DeployToKubernetesPage(this.page);
+    });
   }
 }

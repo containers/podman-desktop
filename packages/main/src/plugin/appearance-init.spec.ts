@@ -116,6 +116,7 @@ test('Expect unknown theme to be set to system', async () => {
 });
 
 test('should register a configuration', async () => {
+  vi.stubEnv('DEV', true);
   const appearanceInit = new AppearanceInit(configurationRegistry);
   appearanceInit.init();
 
@@ -124,10 +125,27 @@ test('should register a configuration', async () => {
   expect(configurationNode?.id).toBe('preferences.appearance');
   expect(configurationNode?.title).toBe('Appearance');
   expect(configurationNode?.properties).toBeDefined();
-  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(2);
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(3);
   expect(configurationNode?.properties?.['preferences.zoomLevel']).toBeDefined();
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.markdownDescription).toBeDefined();
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.type).toBe('number');
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.default).toBe(0);
   expect(configurationNode?.properties?.['preferences.zoomLevel']?.step).toBe(0.1);
+
+  expect(configurationNode?.properties?.['preferences.navigationBarLayout']).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.navigationBarLayout']?.description).toBeDefined();
+  expect(configurationNode?.properties?.['preferences.navigationBarLayout']?.type).toBe('string');
+  expect(configurationNode?.properties?.['preferences.navigationBarLayout']?.default).toBe('icon + title');
+});
+
+test('Icon should be default if not in dev env', () => {
+  vi.resetAllMocks();
+  vi.stubEnv('DEV', false);
+  const appearanceInit = new AppearanceInit(configurationRegistry);
+  appearanceInit.init();
+
+  expect(configurationRegistry.registerConfigurations).toBeCalled();
+  const configurationNode = vi.mocked(configurationRegistry.registerConfigurations).mock.calls[0]?.[0][0];
+
+  expect(configurationNode?.properties?.['preferences.navigationBarLayout']?.default).toBe('icon');
 });

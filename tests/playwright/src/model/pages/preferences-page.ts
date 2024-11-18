@@ -17,30 +17,30 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { SettingsPage } from './settings-page';
 
 export class PreferencesPage extends SettingsPage {
   readonly heading: Locator;
-  readonly content: Locator;
   readonly kubePathInput: Locator;
 
   constructor(page: Page) {
     super(page, 'Preferences');
-    this.heading = this.page.getByLabel('Title', { exact: true });
-    this.content = this.page.getByLabel('Content');
+    this.heading = this.header.getByLabel('Title', { exact: true });
     this.kubePathInput = this.content.getByLabel(
       'Path to the Kubeconfig file for accessing clusters. (Default is usually ~/.kube/config)',
     );
   }
 
   async selectKubeFile(pathToKube: string): Promise<void> {
-    if (!pathToKube) {
-      throw Error(`Path to Kube config file is incorrect or not provided!`);
-    }
-    playExpect(this.kubePathInput).toBeDefined();
-    await this.kubePathInput.clear();
-    await this.kubePathInput.fill(pathToKube);
+    return test.step('Select Kube File', async () => {
+      if (!pathToKube) {
+        throw Error(`Path to Kube config file is incorrect or not provided!`);
+      }
+      playExpect(this.kubePathInput).toBeDefined();
+      await this.kubePathInput.clear();
+      await this.kubePathInput.fill(pathToKube);
+    });
   }
 }

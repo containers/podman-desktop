@@ -3,13 +3,13 @@ import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { Button, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 
+import { updateAvailable } from '/@/stores/update-store';
 import type { ReleaseNotes } from '/@api/release-notes-info';
 
 import Markdown from '../markdown/Markdown.svelte';
 
 let showBanner = false;
 let notesAvailable = false;
-let updateAvailable = false;
 let notesURL: string;
 let currentVersion: string;
 let notesInfo: ReleaseNotes | undefined;
@@ -17,12 +17,12 @@ const receiveShowReleaseNotes = window.events?.receive('show-release-notes', () 
   showBanner = true;
 });
 
-function openReleaseNotes() {
-  window.openExternal(notesURL);
+async function openReleaseNotes() {
+  await window.openExternal(notesURL);
 }
 
-function updatePodmanDesktop() {
-  window.updatePodmanDesktop();
+async function updatePodmanDesktop() {
+  await window.updatePodmanDesktop();
 }
 
 async function getInfoFromNotes() {
@@ -40,11 +40,6 @@ async function onClose() {
 onMount(async () => {
   currentVersion = await window.getPodmanDesktopVersion();
   showBanner = (await window.getConfigurationValue(`releaseNotesBanner.show`)) !== currentVersion ? true : false;
-  try {
-    updateAvailable = await window.podmanDesktopUpdateAvailable();
-  } catch (e) {
-    console.log('Cannot check for update');
-  }
   await getInfoFromNotes();
 });
 
@@ -77,7 +72,7 @@ onDestroy(async () => {
         {/if}
         <div class="flex flex-row justify-end items-center gap-3 mt-2">
           <Link on:click={openReleaseNotes}>Learn more</Link>
-          <Button on:click={updatePodmanDesktop} hidden={!updateAvailable} icon={faCircleArrowUp}>Update</Button>
+          <Button on:click={updatePodmanDesktop} hidden={!$updateAvailable} icon={faCircleArrowUp}>Update</Button>
         </div>
       </div>
     </div>

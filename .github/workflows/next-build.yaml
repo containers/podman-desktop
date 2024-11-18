@@ -61,14 +61,14 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
           find extensions/* -maxdepth 2 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" {}
           # change the repository field to be the prerelease repository in package.json file
-          sed -i "s#\"repository\":\ \"\(.*\)\",#\"repository\":\ \"https://github.com/containers/podman-desktop-prereleases\",#g" package.json
+          sed -i "s#\"repository\":\ \"\(.*\)\",#\"repository\":\ \"https://github.com/podman-desktop/podman-desktop-prereleases\",#g" package.json
           cat package.json
           git add package.json extensions/*/package.json
           git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
           # push tag to the prereleases repository
-          git remote add prereleases https://github.com/containers/podman-desktop-prereleases
+          git remote add prereleases https://github.com/podman-desktop/podman-desktop-prereleases
           git push prereleases ${{ steps.TAG_UTIL.outputs.githubTag }}
 
       - name: Create Release
@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: containers/podman-desktop-prereleases
+          repository: podman-desktop/podman-desktop-prereleases
           ref: ${{ needs.tag.outputs.githubTag}}
 
       - uses: pnpm/action-setup@v4
@@ -169,7 +169,7 @@ jobs:
         with:
           id: ${{ needs.tag.outputs.releaseId}}
           repo: podman-desktop-prereleases
-          owner: containers
+          owner: podman-desktop
 
   publish:
     needs: [tag, release]
@@ -216,3 +216,10 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" tests/playwright/package.json
           cd tests/playwright && pnpm build && pnpm publish --tag next --no-git-checks --access public
+
+      - name: Publish Podman Extension API to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" extensions/podman/packages/api/package.json
+          cd extensions/podman/packages/api
+          pnpm publish --tag next --no-git-checks --access public

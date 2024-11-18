@@ -494,10 +494,11 @@ export class ExtensionLoader {
   // check if all dependencies are available
   // if not, set the missingDependencies property
   searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[]): void {
+    const existingExtensions = Array.from(new Set([...this.analyzedExtensions.values(), ...analyzedExtensions]));
     analyzedExtensions.forEach(extension => {
       const missingDependencies: string[] = [];
       extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
-        if (!analyzedExtensions.find(analyzedExtension => analyzedExtension.id === dependency)) {
+        if (!existingExtensions.find(existingExtension => existingExtension.id === dependency)) {
           missingDependencies.push(dependency);
         }
       });
@@ -1110,7 +1111,7 @@ export class ExtensionLoader {
         return containerProviderRegistry.startContainer(engineId, id);
       },
       logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void) {
-        return containerProviderRegistry.logsContainer(engineId, id, callback);
+        return containerProviderRegistry.logsContainer({ engineId, id, callback });
       },
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
@@ -1433,6 +1434,13 @@ export class ExtensionLoader {
         connection: containerDesktopAPI.ProviderContainerConnection,
       ): Promise<void> => {
         await this.navigationManager.navigateToEditProviderContainerConnection(connection);
+      },
+      navigateToOnboarding: async (extensionId?: string): Promise<void> => {
+        let onboardingExtensionId = extensionId;
+        if (!onboardingExtensionId) {
+          onboardingExtensionId = extensionInfo.id;
+        }
+        await this.navigationManager.navigateToOnboarding(onboardingExtensionId);
       },
       navigate: async (routeId: string, ...args: unknown[]): Promise<void> => {
         return this.navigationManager.navigateToRoute(`${extensionInfo.id}.${routeId}`, args);

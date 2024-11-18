@@ -4,12 +4,15 @@ import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import Table from '/@/lib/details/DetailsTable.svelte';
 
+import type { EventUI } from '../events/EventUI';
+import KubeEventsArtifact from '../kube/details/KubeEventsArtifact.svelte';
 import KubeNodeArtifact from '../kube/details/KubeNodeArtifact.svelte';
 import KubeNodeStatusArtifact from '../kube/details/KubeNodeStatusArtifact.svelte';
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
 
 export let node: V1Node | undefined;
 export let kubeError: string | undefined = undefined;
+export let events: EventUI[];
 </script>
 
 <!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the
@@ -23,7 +26,8 @@ basic information -->
     <KubeObjectMetaArtifact artifact={node.metadata} />
     <KubeNodeStatusArtifact artifact={node.status} />
     <KubeNodeArtifact artifact={node.spec} />
+    <KubeEventsArtifact events={events} />
   {:else}
-    <p class="text-purple-500 font-medium">Loading ...</p>
+    <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
 </Table>

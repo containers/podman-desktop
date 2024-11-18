@@ -35,12 +35,8 @@ onMount(() => {
       configMap => configMap.metadata?.name === name && configMap.metadata?.namespace === namespace,
     );
     if (matchingConfigMap) {
-      try {
-        configMap = configMapUtils.getConfigMapSecretUI(matchingConfigMap);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      configMap = configMapUtils.getConfigMapSecretUI(matchingConfigMap);
+      loadDetails().catch((err: unknown) => console.error(`Error getting config map ${configMap.name} details`, err));
     } else if (detailsPage) {
       // the configMap has been deleted
       detailsPage.close();
@@ -64,7 +60,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <ConfigMapSecretActions configMapSecret={configMap} detailed={true} on:update={() => (configMap = configMap)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={configMap.status} />
     </div>
     <svelte:fragment slot="tabs">

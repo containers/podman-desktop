@@ -22,6 +22,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeIcon from '/@/lib/images/KubeIcon.svelte';
 import { type ContextGeneralState, NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
 import * as kubeContextStore from '../kubernetes-contexts-state';
 import { createNavigationKubernetesGroup } from './navigation-registry-kubernetes.svelte';
@@ -60,6 +61,7 @@ test('createNavigationImageEntry with current context', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([]);
 
   const entry = createNavigationKubernetesGroup();
 
@@ -67,9 +69,9 @@ test('createNavigationImageEntry with current context', async () => {
   expect(entry.name).toBe('Kubernetes');
   expect(entry.icon.iconComponent).toBe(KubeIcon);
 
-  // should have 6 items
+  // should have 8 items
   await vi.waitFor(() => {
-    expect(entry.items?.length).toBe(6);
+    expect(entry.items?.length).toBe(8);
   });
 });
 
@@ -85,6 +87,7 @@ test('createNavigationImageEntry without current context', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([]);
 
   const entry = createNavigationKubernetesGroup();
 

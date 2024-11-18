@@ -43,9 +43,15 @@ export class RunImagePage extends BasePage {
     this.name = page.getByLabel('name').and(page.getByText('Run Image'));
     this.heading = page.getByRole('heading', { name: this.imageName });
     this.closeLink = page.getByRole('link', { name: 'Close' });
-    this.errorAlert = page.getByRole('alert', { name: 'Error Message Content' });
-    this.backToImageDetailsLink = page.getByRole('link', { name: 'Go back to Image Details' });
-    this.startContainerButton = page.getByLabel('Start Container', { exact: true });
+    this.errorAlert = page.getByRole('alert', {
+      name: 'Error Message Content',
+    });
+    this.backToImageDetailsLink = page.getByRole('link', {
+      name: 'Go back to Image Details',
+    });
+    this.startContainerButton = page.getByLabel('Start Container', {
+      exact: true,
+    });
     this.containerNameInput = page.getByLabel('Container Name');
     this.containerEntryPointInput = page.getByLabel('Entrypoint');
     this.containerComamndInput = page.getByLabel('Command');
@@ -53,7 +59,7 @@ export class RunImagePage extends BasePage {
   }
 
   async activateTab(name: string): Promise<void> {
-    await test.step(`Activate tab: ${name}`, async () => {
+    return test.step(`Activate tab: ${name}`, async () => {
       const tabactive = this.page.getByRole('link', { name: name, exact: true }).and(this.page.getByText(name));
       await tabactive.click();
     });
@@ -62,7 +68,7 @@ export class RunImagePage extends BasePage {
   // If the container has a defined exposed port, the mapping offers only one part of the input box, host port
   // Example of the placeholder: 'Enter value for port 80/tcp' : settable value
   async setHostPortToExposedContainerPort(exposedPort: string, port: string): Promise<void> {
-    await test.step(`Set host port to exposed container port`, async () => {
+    return test.step(`Set host port to exposed container port`, async () => {
       await this.activateTab('Basic');
       const portMapping = this.page
         .getByRole('textbox')
@@ -74,7 +80,10 @@ export class RunImagePage extends BasePage {
 
   async startInteractiveContainer(customName = ''): Promise<ContainerDetailsPage> {
     return test.step(`Start interactive container from image: ${this.imageName}`, async () => {
-      await this.startContainer(customName, { attachTerminal: true, interactive: true } as ContainerInteractiveParams);
+      await this.startContainer(customName, {
+        attachTerminal: true,
+        interactive: true,
+      } as ContainerInteractiveParams);
       const detailsPageLocator = this.page.getByLabel('name').and(this.page.getByText('Container Details'));
       await playExpect(detailsPageLocator).toBeVisible(); // we are sure to get into details page
       const heading = this.page.getByRole('heading');
@@ -85,7 +94,7 @@ export class RunImagePage extends BasePage {
   }
 
   async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<ContainersPage> {
-    return await test.step(`Start container from image: ${this.imageName}`, async () => {
+    return test.step(`Start container from image: ${this.imageName}`, async () => {
       if (customName !== '') {
         await this.activateTab('Basic');
         await playExpect(this.containerNameInput).toBeVisible();
@@ -95,25 +104,33 @@ export class RunImagePage extends BasePage {
       if (optionalParams?.attachTerminal !== undefined) {
         // disable the checkbox in advanced tab
         await this.activateTab('Advanced');
-        const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
+        const checkbox = this.page.getByRole('checkbox', {
+          name: 'Attach a pseudo terminal',
+        });
         if (optionalParams.attachTerminal) {
           await checkbox.check();
         } else {
           await checkbox.uncheck();
         }
-        await playExpect(checkbox).toBeChecked({ checked: optionalParams.attachTerminal });
+        await playExpect(checkbox).toBeChecked({
+          checked: optionalParams.attachTerminal,
+        });
       }
 
       if (optionalParams?.interactive !== undefined) {
         // disable the checkbox in advanced tab
         await this.activateTab('Advanced');
-        const checkbox = this.page.getByRole('checkbox', { name: 'Interactive: Keep STDIN' });
+        const checkbox = this.page.getByRole('checkbox', {
+          name: 'Interactive: Keep STDIN',
+        });
         if (optionalParams.interactive) {
           await checkbox.check();
         } else {
           await checkbox.uncheck();
         }
-        await playExpect(checkbox).toBeChecked({ checked: optionalParams.interactive });
+        await playExpect(checkbox).toBeChecked({
+          checked: optionalParams.interactive,
+        });
       }
 
       await this.activateTab('Basic');
@@ -142,7 +159,7 @@ export class RunImagePage extends BasePage {
   }
 
   async setCustomPortMapping(customPortMapping: string): Promise<void> {
-    await test.step(`Set custom port mapping: ${customPortMapping}`, async () => {
+    return test.step(`Set custom port mapping: ${customPortMapping}`, async () => {
       // add port mapping
       await this.activateTab('Basic');
       await playExpect(this.containerAddCustomPortMappingButton).toBeVisible();

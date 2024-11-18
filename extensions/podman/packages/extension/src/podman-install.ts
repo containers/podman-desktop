@@ -456,10 +456,13 @@ export class WinInstaller extends BaseInstaller {
       new WinBitCheck(),
       new WinVersionCheck(),
       new WinMemoryCheck(),
-      new VirtualMachinePlatformCheck(),
       new OrCheck(
         'Windows virtualization',
-        new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check(this.extensionContext)]),
+        new SequenceCheck('WSL platform', [
+          new VirtualMachinePlatformCheck(),
+          new WSLVersionCheck(),
+          new WSL2Check(this.extensionContext),
+        ]),
         new HyperVCheck(true),
       ),
     ];
@@ -638,15 +641,19 @@ class WinMemoryCheck extends BaseCheck {
   }
 }
 
-class VirtualMachinePlatformCheck extends BaseCheck {
+export class VirtualMachinePlatformCheck extends BaseCheck {
   title = 'Virtual Machine Platform Enabled';
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
       // set CurrentUICulture to force output in english
-      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-        '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
-      ]);
+      const { stdout: res } = await extensionApi.process.exec(
+        'powershell.exe',
+        [
+          '[System.Console]::OutputEncoding = [System.Text.Encoding]::Unicode; (Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
+        ],
+        { encoding: 'utf16le' },
+      );
       if (res.indexOf('VirtualMachinePlatform') >= 0) {
         return this.createSuccessfulResult();
       }

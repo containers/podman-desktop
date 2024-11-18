@@ -26,6 +26,7 @@ import type { ServiceUI } from './ServiceUI';
 
 test('Expect simple column styling', async () => {
   const service: ServiceUI = {
+    uid: '123',
     name: 'my-service',
     status: 'RUNNING',
     namespace: '',

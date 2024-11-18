@@ -27,6 +27,7 @@ import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 
 import App from './App.svelte';
+import { lastSubmenuPages } from './stores/breadcrumb';
 import { navigationRegistry, type NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
@@ -34,8 +35,8 @@ const mocks = vi.hoisted(() => ({
   RunImage: vi.fn(),
   ImagesList: vi.fn(),
   SubmenuNavigation: vi.fn(),
-  KubernetesEmptyPage: vi.fn(),
   DeploymentsList: vi.fn(),
+  KubernetesDashboard: vi.fn(),
 }));
 
 vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
@@ -67,8 +68,8 @@ vi.mock('./SubmenuNavigation.svelte', () => ({
   default: mocks.SubmenuNavigation,
 }));
 
-vi.mock('./lib/kube/KubernetesEmptyPage.svelte', () => ({
-  default: mocks.KubernetesEmptyPage,
+vi.mock('./lib/kube/KubernetesDashboard.svelte', () => ({
+  default: mocks.KubernetesDashboard,
 }));
 
 vi.mock('./lib/deployments/DeploymentsList.svelte', () => ({
@@ -123,7 +124,7 @@ test('receive context menu visible event from main', async () => {
   messages.get('context-menu:visible')?.(true);
 
   // wait for dispatch method to be called
-  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+  await waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
 
   const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
   expect((eventSent as Event).type).toBe('tooltip-hide');
@@ -135,7 +136,7 @@ test('receive context menu not visible event from main', async () => {
   messages.get('context-menu:visible')?.(false);
 
   //  wait for dispatch method to be called
-  waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
+  await waitFor(() => expect(dispatchEventMock).toHaveBeenCalledWith(expect.any(Event)));
 
   const eventSent = vi.mocked(dispatchEventMock).mock.calls[0][0];
   expect((eventSent as Event).type).toBe('tooltip-show');
@@ -166,7 +167,7 @@ test('do not display kubernetes empty screen if current context', async () => {
   render(App);
   router.goto('/kubernetes/deployments');
   await tick();
-  expect(mocks.KubernetesEmptyPage).not.toHaveBeenCalled();
+  expect(mocks.KubernetesDashboard).not.toHaveBeenCalled();
   expect(mocks.DeploymentsList).toHaveBeenCalled();
 });
 
@@ -180,7 +181,40 @@ test('displays kubernetes empty screen if no current context, without Kubernetes
   render(App);
   router.goto('/kubernetes/deployments');
   await tick();
-  expect(mocks.KubernetesEmptyPage).toHaveBeenCalled();
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
   expect(mocks.DeploymentsList).not.toHaveBeenCalled();
   expect(mocks.SubmenuNavigation).not.toHaveBeenCalled();
+});
+
+test('go to last kubernetes page when available', async () => {
+  lastSubmenuPages.set({ Kubernetes: '/kubernetes/deployments' });
+  render(App);
+  router.goto('/kubernetes');
+  await tick();
+  expect(mocks.DeploymentsList).toHaveBeenCalled();
+});
+
+test('go to dashboard page when last kubernetes page is /kubernetes', async () => {
+  lastSubmenuPages.set({ Kubernetes: '/kubernetes' });
+  render(App);
+  router.goto('/kubernetes');
+  await tick();
+
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
+});
+
+test('go to dashboard page when last kubernetes page not available', async () => {
+  lastSubmenuPages.set({});
+  render(App);
+  router.goto('/kubernetes');
+  await tick();
+  expect(mocks.KubernetesDashboard).toHaveBeenCalled();
+});
+
+test('receive show-release-notes event from main', async () => {
+  render(App);
+
+  messages.get('show-release-notes');
+
+  expect(mocks.DashboardPage).toBeCalled();
 });

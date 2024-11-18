@@ -27,7 +27,6 @@ let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
 let updateDownloadedDialog: Locator;
-const performUpdate = process.env.UPDATE_PODMAN_DESKTOP ? process.env.UPDATE_PODMAN_DESKTOP : false;
 
 test.skip(isLinux, 'Update is not supported on Linux');
 
@@ -44,56 +43,52 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Podman Desktop Update Update installation offering @update-install', () => {
-    test('Update is offered automatically on startup', async ({ welcomePage }) => {
-      await playExpect(updateAvailableDialog).toBeVisible();
-      const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
-      await playExpect(updateNowButton).toBeVisible();
-      const doNotshowButton = updateAvailableDialog.getByRole('button', { name: 'Do not show again' });
-      await playExpect(doNotshowButton).toBeVisible();
-      const cancelButton = updateAvailableDialog.getByRole('button', { name: 'Cancel' });
-      await playExpect(cancelButton).toBeVisible();
-      await cancelButton.click();
-      await playExpect(updateAvailableDialog).not.toBeVisible();
-      // handle welcome page now
-      await welcomePage.handleWelcomePage(true);
-    });
-
-    test('Version button is visible', async () => {
-      await playExpect(sBar.content).toBeVisible();
-      await playExpect(sBar.versionButton).toBeVisible();
-    });
-
-    test('User initiated update option is available', async ({ page }) => {
-      await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
-      await sBar.updateButtonTitle.click();
-      await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
-    });
+test.describe.serial('Podman Desktop Update installation', { tag: '@update-install' }, () => {
+  test('Update is offered automatically on startup', async ({ welcomePage }) => {
+    await playExpect(updateAvailableDialog).toBeVisible();
+    const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update Now' });
+    await playExpect(updateNowButton).toBeVisible();
+    const doNotshowButton = updateAvailableDialog.getByRole('button', { name: `Don't show again` });
+    await playExpect(doNotshowButton).toBeVisible();
+    const cancelButton = updateAvailableDialog.getByRole('button', { name: 'Cancel' });
+    await playExpect(cancelButton).toBeVisible();
+    await cancelButton.click();
+    await playExpect(updateAvailableDialog).not.toBeVisible();
+    // handle welcome page now
+    await welcomePage.handleWelcomePage(true);
   });
-test.describe
-  .serial('Podman Desktop Update installation can be performed', () => {
-    test.skip(!performUpdate, 'Update test does not run as UPDATE_PODMAN_DESKTOP env. var. is not set');
-    test('Update can be initiated', async () => {
-      await sBar.updateButtonTitle.click();
-      await playExpect(updateAvailableDialog).toBeVisible();
-      const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update now' });
-      await playExpect(updateNowButton).toBeVisible();
-      await updateNowButton.click();
-      await playExpect(updateAvailableDialog).not.toBeVisible();
-    });
 
-    test('Update is in progress', async ({ page }) => {
-      await sBar.updateButtonTitle.click();
-      await playExpect(updateDialog).toBeVisible();
-      await handleConfirmationDialog(page, 'Update', true, 'OK', 'Cancel');
-    });
-
-    test('Update is performed and restart offered', async ({ page }) => {
-      test.setTimeout(150000);
-      // now it takes some time to perform, in case of failure, PD gets closed
-      await playExpect(updateDownloadedDialog).toBeVisible({ timeout: 120000 });
-      // some buttons
-      await handleConfirmationDialog(page, 'Update Downloaded', false, 'Restart', 'Cancel');
-    });
+  test('Version button is visible', async () => {
+    await playExpect(sBar.content).toBeVisible();
+    await playExpect(sBar.versionButton).toBeVisible();
   });
+
+  test('User initiated update option is available', async ({ page }) => {
+    await playExpect(sBar.updateButtonTitle).toHaveText(await sBar.versionButton.innerText());
+    await sBar.updateButtonTitle.click();
+    await handleConfirmationDialog(page, 'Update Available now', false, '', 'Cancel');
+  });
+
+  test('Update can be initiated', async () => {
+    await sBar.updateButtonTitle.click();
+    await playExpect(updateAvailableDialog).toBeVisible();
+    const updateNowButton = updateAvailableDialog.getByRole('button', { name: 'Update now' });
+    await playExpect(updateNowButton).toBeVisible();
+    await updateNowButton.click();
+    await playExpect(updateAvailableDialog).not.toBeVisible();
+  });
+
+  test('Update is in progress', async ({ page }) => {
+    await sBar.updateButtonTitle.click();
+    await playExpect(updateDialog).toBeVisible();
+    await handleConfirmationDialog(page, 'Update', true, 'OK', 'Cancel');
+  });
+
+  test('Update is performed and restart offered', async ({ page }) => {
+    test.setTimeout(150000);
+    // now it takes some time to perform, in case of failure, PD gets closed
+    await playExpect(updateDownloadedDialog).toBeVisible({ timeout: 120000 });
+    // some buttons
+    await handleConfirmationDialog(page, 'Update Downloaded', false, 'Restart', 'Cancel');
+  });
+});

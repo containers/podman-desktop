@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Button, Checkbox, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -220,7 +220,7 @@ function getWarningText(): string {
           <WarningMessage class="flex flex-row w-full  mb-2" error={getWarningText()} />
         {/if}
         <div class="mb-2">
-          <span class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+          <span class="block font-semibold rounded text-[var(--pd-content-card-header-text)]"
             >Name of the pod:</span>
         </div>
         <div class="mb-4">
@@ -235,7 +235,7 @@ function getWarningText(): string {
 
         <div class="mb-2">
           <span
-            class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+            class="block font-semibold rounded text-[var(--pd-content-card-header-text)]"
             aria-label="Containers">Containers to replicate to the pod:</span>
         </div>
         <div class="w-full bg-[var(--pd-content-card-inset-bg)] mb-4 max-h-40 overflow-y-auto">
@@ -252,7 +252,7 @@ function getWarningText(): string {
         {#if mapPortExposed.size > 0}
           <div class="mb-2">
             <span
-              class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+              class="block font-semibold rounded text-[var(--pd-content-card-header-text)]"
               aria-label="Exposed ports">All selected ports will be exposed:</span>
           </div>
           <div class="bg-[var(--pd-content-card-inset-bg)] mb-4 max-h-40 overflow-y-auto">
@@ -273,16 +273,17 @@ function getWarningText(): string {
       {#if providerConnections.length > 1}
         <label
           for="providerConnectionName"
-          class="block mb-2 text-sm font-medium rounded text-[var(--pd-content-card-header-text)]"
-          >Container Engine</label>
-        <select
-          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+          class="block mb-2 font-semibold rounded text-[var(--pd-content-card-header-text)]"
+          >Container engine:</label>
+        <Dropdown
+          class="w-full"
           name="providerChoice"
-          bind:value={selectedProvider}>
-          {#each providerConnections as providerConnection}
-            <option value={providerConnection}>{providerConnection.name}</option>
-          {/each}
-        </select>
+          bind:value={selectedProvider}
+          options={providerConnections.map(providerConnection => ({
+            label: providerConnection.name,
+            value: providerConnection,
+          }))}>
+        </Dropdown>
       {/if}
       {#if providerConnections.length === 1 && selectedProviderConnection?.name}
         <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection.name} />
@@ -294,8 +295,8 @@ function getWarningText(): string {
           <Button
             icon={SolidPodIcon}
             bind:disabled={createInProgress}
-            on:click={() => {
-              createPodFromContainers();
+            on:click={async () => {
+              await createPodFromContainers();
             }}
             bind:inProgress={createInProgress}
             aria-label="Create pod">

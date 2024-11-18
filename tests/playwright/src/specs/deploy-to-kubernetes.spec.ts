@@ -38,12 +38,14 @@ const IMAGE_TAG: string = 'latest';
 const CONTAINER_NAME: string = 'alpine-container';
 const NAMESPACE: string = 'default';
 const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_CONTAINER_NAME} ${NAMESPACE}`;
-const CONTAINER_START_PARAMS: ContainerInteractiveParams = { attachTerminal: false };
+const CONTAINER_START_PARAMS: ContainerInteractiveParams = {
+  attachTerminal: false,
+};
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
-  test.setTimeout(250000);
+  test.setTimeout(350_000);
   runner.setVideoAndTraceName('deploy-to-k8s-e2e');
 
   await welcomePage.handleWelcomePage(true);
@@ -65,6 +67,7 @@ test.afterAll(async ({ runner, page }) => {
     await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
   } finally {
     await runner.close();
+    console.log('Runner closed');
   }
 });
 
@@ -73,31 +76,30 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.describe
-  .serial('Deploy a container to the Kind cluster', () => {
-    test('Pull an image and start a container', async ({ navigationBar }) => {
-      const imagesPage = await navigationBar.openImages();
-      const pullImagePage = await imagesPage.openPullImage();
-      await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
-      await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
-      const containersPage = await imagesPage.startContainerWithImage(
-        IMAGE_TO_PULL,
-        CONTAINER_NAME,
-        CONTAINER_START_PARAMS,
-      );
-      await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
-      const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
-      await playExpect(containerDetails.heading).toBeVisible();
-      await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
-    });
-
-    test('Deploy the container ', async ({ page, navigationBar }) => {
-      const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
-      await playExpect(containerDetailsPage.heading).toBeVisible();
-      const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
-      await deployToKubernetesPage.deployPod(CONTAINER_NAME, { useKubernetesServices: true }, KUBERNETES_CONTEXT);
-
-      const podsPage = await navigationBar.openPods();
-      await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
-    });
+test.describe.serial('Deploy a container to the Kind cluster', { tag: '@k8s_e2e' }, () => {
+  test('Pull an image and start a container', async ({ navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    const pullImagePage = await imagesPage.openPullImage();
+    await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
+    await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
+    const containersPage = await imagesPage.startContainerWithImage(
+      IMAGE_TO_PULL,
+      CONTAINER_NAME,
+      CONTAINER_START_PARAMS,
+    );
+    await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
+    const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
+    await playExpect(containerDetails.heading).toBeVisible();
+    await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);
   });
+
+  test('Deploy the container ', async ({ page, navigationBar }) => {
+    const containerDetailsPage = new ContainerDetailsPage(page, CONTAINER_NAME);
+    await playExpect(containerDetailsPage.heading).toBeVisible();
+    const deployToKubernetesPage = await containerDetailsPage.openDeployToKubernetesPage();
+    await deployToKubernetesPage.deployPod(CONTAINER_NAME, { useKubernetesServices: true }, KUBERNETES_CONTEXT);
+
+    const podsPage = await navigationBar.openPods();
+    await playExpect.poll(async () => podsPage.deployedPodExists(DEPLOYED_POD_NAME, 'kubernetes')).toBeTruthy();
+  });
+});

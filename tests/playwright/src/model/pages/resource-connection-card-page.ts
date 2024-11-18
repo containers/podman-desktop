@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, type Locator, type Page } from '@playwright/test';
+import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import type { ResourceElementActions } from '../core/operations';
 import { ResourceCardPage } from './resource-card-page';
@@ -37,7 +37,9 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
     this.resourceElementDetailsButton = this.resourceElement.getByRole('button', { name: 'details' });
     this.resourceElementConnectionStatus = this.resourceElement.getByLabel('Connection Status Label');
     this.resourceElementConnectionActions = this.resourceElement.getByRole('group', { name: 'Connection Actions' });
-    this.createButton = this.providerSetup.getByRole('button', { name: 'Create' });
+    this.createButton = this.providerSetup.getByRole('button', {
+      name: 'Create',
+    });
   }
 
   public async doesResourceElementExist(): Promise<boolean> {
@@ -45,10 +47,13 @@ export class ResourceConnectionCardPage extends ResourceCardPage {
   }
 
   public async performConnectionAction(operation: ResourceElementActions, timeout: number = 25000): Promise<void> {
-    const button = this.resourceElementConnectionActions.getByRole('button', { name: operation, exact: true });
-    await playExpect(button).toBeEnabled({ timeout: timeout });
-    // eslint-disable-next-line sonarjs/no-base-to-string
-    console.log(`Performing connection action '${operation}' on resource element '${this.resourceElement}'`);
-    await button.click();
+    return test.step(`Perform connection action '${operation}' on resource element '${this.resourceElement}'`, async () => {
+      const button = this.resourceElementConnectionActions.getByRole('button', {
+        name: operation,
+        exact: true,
+      });
+      await playExpect(button).toBeEnabled({ timeout: timeout });
+      await button.click();
+    });
   }
 }

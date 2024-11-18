@@ -47,6 +47,7 @@ export class KubectlDownload {
   async promptUserForVersion(currentKubectlTag?: string): Promise<KubectlGithubReleaseArtifactMetadata> {
     // Get the latest releases
     let lastReleasesMetadata = await this.kubectlGitHubReleases.grabLatestsReleasesMetadata();
+    lastReleasesMetadata.sort((a, b) => rcompare(a.tag, b.tag));
     // if the user already has an installed version, we remove it from the list
     if (currentKubectlTag) {
       lastReleasesMetadata = lastReleasesMetadata.filter(release => release.tag.slice(1) !== currentKubectlTag);

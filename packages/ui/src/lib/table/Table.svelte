@@ -274,8 +274,7 @@ function toggleChildren(name: string | undefined): void {
               {#if column.info.renderer}
                 <svelte:component
                   this={column.info.renderer}
-                  object={column.info.renderMapping ? column.info.renderMapping(object) : object}
-                  on:update />
+                  object={column.info.renderMapping ? column.info.renderMapping(object) : object} />
               {/if}
             </div>
           {/each}
@@ -312,8 +311,7 @@ function toggleChildren(name: string | undefined): void {
                   {#if column.info.renderer}
                     <svelte:component
                       this={column.info.renderer}
-                      object={column.info.renderMapping ? column.info.renderMapping(child) : child}
-                      on:update />
+                      object={column.info.renderMapping ? column.info.renderMapping(child) : child} />
                   {/if}
                 </div>
               {/each}

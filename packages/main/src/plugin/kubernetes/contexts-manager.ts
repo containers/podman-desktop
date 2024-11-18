@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 import type {
-  Cluster,
   Context,
+  CoreV1Event,
+  CoreV1EventList,
   Informer,
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
-  User,
   V1ConfigMap,
   V1ConfigMapList,
   V1Deployment,
@@ -58,15 +58,25 @@ import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
 import { Backoff } from './backoff.js';
-import { backoffInitialValue, backoffJitter, backoffLimit, connectTimeout } from './contexts-constants.js';
+import {
+  backoffInitialValue,
+  backoffJitter,
+  backoffLimit,
+  backoffLimitCurrentContext,
+  backoffMultiplier,
+  backoffMultiplierCurrentContext,
+  connectTimeout,
+} from './contexts-constants.js';
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
-import type { ContextInternalState } from './contexts-states-registry.js';
+import type { CancellableInformer, ContextInternalState } from './contexts-states-registry.js';
 import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
 import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 
 // If the number of contexts in the kubeconfig file is greater than this number,
 // only the connectivity to the current context will be checked
 const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
+
+const KINDS_WITH_EVENTS: Array<string | undefined> = ['Deployment', 'Pod', 'Node', 'Service'];
 
 interface CreateInformerOptions<T> {
   // resource name, for logging
@@ -96,7 +106,7 @@ interface CreateInformerOptions<T> {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   protected states: ContextsStatesRegistry;
-  private informers = new ContextsInformersRegistry();
+  protected informers = new ContextsInformersRegistry();
   private currentContext: KubeContext | undefined;
   private secondaryWatchers = new ResourceWatchersRegistry();
 
@@ -138,97 +148,38 @@ export class ContextsManager {
     return contextObj !== null && contextObj.cluster === context.cluster && contextObj.user === context.user;
   }
 
-  isContextChanged(kubeconfig: KubeConfig): boolean {
-    // if the current context name in the kubeconfig is different from the latest context we saved -> true
-    if (kubeconfig.currentContext !== this.currentContext?.name) {
-      return true;
-    }
-
-    // by retrieving the context from the kubeconfig, if the user is different from the latest context we saved -> true
-    const user = kubeconfig.getCurrentUser();
-    if (user?.name !== this.currentContext?.user) {
-      return true;
-    }
-
-    const ns = kubeconfig.getContexts()?.find(c => c.name === kubeconfig.currentContext)?.namespace;
-    if (ns !== this.currentContext?.namespace) {
-      return true;
-    }
-
-    // by retrieving the cluster from the kubeconfig, if the name or server url are different from the latest context we saved -> true
-    const cluster = kubeconfig.getCurrentCluster();
-    return (
-      cluster?.name !== this.currentContext?.cluster || cluster?.server !== this.currentContext?.clusterInfo?.server
-    );
-  }
-
-  compareObjects<T extends User | Cluster | null>(o1: T, o2: T): boolean {
-    const o = {};
-    const obj1 = o1 ?? o;
-    const obj2 = o2 ?? o;
-    return (
-      obj1 === obj2 ||
-      (Object.keys(obj1).length === Object.keys(obj2).length &&
-        Object.keys(obj1)
-          .filter(key => key !== 'name')
-          .every(
-            key =>
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (obj1 as any)[key] === (obj2 as any)[key],
-          ))
-    );
-  }
-
-  compareContexts(name: string, newc: KubeConfig, oldc: KubeConfig): boolean {
-    const newContext = newc.getContextObject(name);
-    const oldContext = oldc.getContextObject(name);
-    return (
-      newContext?.namespace === oldContext?.namespace && // do not compare user and cluster names
-      !!newContext &&
-      !!oldContext &&
-      this.compareObjects(newc.getUser(newContext.user), oldc.getUser(oldContext.user)) &&
-      this.compareObjects(newc.getCluster(newContext.cluster), oldc.getCluster(oldContext.cluster))
-    );
-  }
-
   async update(kubeconfig: KubeConfig): Promise<void> {
-    const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
-    const previousKubeConfig = this.kubeConfig;
+    // do nothing if the kubeconfig file has not changed since last time
+    if (JSON.stringify(kubeconfig) === JSON.stringify(this.kubeConfig)) {
+      return;
+    }
     this.kubeConfig = kubeconfig;
-    let contextChanged = false;
-    if (this.isContextChanged(kubeconfig)) {
-      contextChanged = true;
-      const currentCluster = kubeconfig.getCurrentCluster();
-      this.currentContext = {
-        name: kubeconfig.currentContext,
-        user: kubeconfig.getCurrentUser()?.name ?? '',
-        cluster: currentCluster?.name ?? '',
-        clusterInfo: {
-          name: currentCluster?.name ?? '',
-          server: currentCluster?.server ?? '',
-        },
-        namespace: kubeconfig.getContexts().find(c => c.name === kubeconfig.currentContext)?.namespace,
-      };
-    }
 
-    // Delete informers for removed contexts
-    // We also remove the state of the current context if it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
-    // We also delete informers for non-current contexts wif we are checking only current context
-    let removed = false;
+    // get current context
+    const currentCluster = kubeconfig.getCurrentCluster();
+    this.currentContext = {
+      name: kubeconfig.currentContext,
+      user: kubeconfig.getCurrentUser()?.name ?? '',
+      cluster: currentCluster?.name ?? '',
+      clusterInfo: {
+        name: currentCluster?.name ?? '',
+        server: currentCluster?.server ?? '',
+      },
+      namespace: kubeconfig.getContexts().find(c => c.name === kubeconfig.currentContext)?.namespace,
+    };
+
+    // Delete all informers
     for (const name of this.informers.getContextsNames()) {
-      if (
-        !this.kubeConfig.contexts.find(c => c.name === name) ||
-        (contextChanged && name === this.currentContext?.name) ||
-        (checkOnlyCurrentContext && name !== this.currentContext?.name)
-      ) {
-        await this.states.deleteContextState(name);
-        await this.informers.deleteContextInformers(name);
-        removed = true;
-      }
+      // primaries
+      await this.informers.deleteContextInformers(name);
+      await this.states.deleteContextState(name);
+      // secondaries
+      await this.informers.disposeSecondaryInformers(name);
+      await this.states.disposeSecondaryStates(name);
     }
 
-    // Add informers for new contexts (only current context if we are checking only it)
-    const added: string[] = [];
+    // Add primary informers for contexts (only for the current context if the number of contexts is too high)
+    const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
     for (const context of this.kubeConfig.contexts) {
       if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
         continue;
@@ -237,54 +188,16 @@ export class ContextsManager {
         const kubeContext: KubeContext = this.getKubeContext(context);
         const informers = this.createKubeContextInformers(kubeContext);
         this.informers.setInformers(context.name, informers);
-        added.push(context.name);
       }
     }
 
-    // Delete secondary informers (others than pods/deployments) on non-current contexts
-    if (contextChanged) {
-      const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext?.name);
-      for (const ctx of nonCurrentContexts) {
-        const contextName = ctx.name;
-        await this.informers.disposeSecondaryInformers(contextName);
-        await this.states.disposeSecondaryStates(contextName);
-      }
-
-      // Restart informers for secondary resources if watchers are subscribing for this resource
-      if (this.currentContext?.name) {
-        for (const resourceName of secondaryResources) {
-          if (this.secondaryWatchers.hasSubscribers(resourceName)) {
-            console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
-            this.startResourceInformer(this.currentContext.name, resourceName);
-          }
-        }
-      }
-    }
-
-    if (previousKubeConfig && !checkOnlyCurrentContext) {
-      // added and removed contexts were taken care of above
-      // lets find changed ones
-      for (const context of this.kubeConfig.contexts) {
-        if (added.includes(context.name)) continue;
-        if (!this.compareContexts(context.name, this.kubeConfig, previousKubeConfig)) {
-          await this.states.deleteContextState(context.name);
-          await this.informers.deleteContextInformers(context.name);
-          const kubeContext: KubeContext = this.getKubeContext(context);
-          const informers = this.createKubeContextInformers(kubeContext);
-          this.informers.setInformers(context.name, informers);
-        }
-      }
-    }
-
-    if (added.length || removed || contextChanged) {
-      this.states.dispatch({
-        checkingState: false,
-        contextsGeneralState: true,
-        currentContextGeneralState: true,
-        currentContext: this.kubeConfig.currentContext,
-        resources: dispatchAllResources,
-      });
-    }
+    this.states.dispatch({
+      checkingState: false,
+      contextsGeneralState: true,
+      currentContextGeneralState: true,
+      currentContext: this.kubeConfig.currentContext,
+      resources: dispatchAllResources,
+    });
   }
 
   createKubeContextInformers(context: KubeContext): ContextInternalState | undefined {
@@ -305,20 +218,25 @@ export class ContextsManager {
     });
 
     const ns = context.namespace ?? 'default';
-    const result = new Map<ResourceName, Informer<KubernetesObject>>();
+    const result = new Map<ResourceName, CancellableInformer>();
     result.set('pods', this.createPodInformer(kc, ns, context));
     result.set('deployments', this.createDeploymentInformer(kc, ns, context));
     return result;
   }
 
   startResourceInformer(contextName: string, resourceName: ResourceName): void {
+    // this function is called from many places, we cannot guarantee
+    // it is called only once, let's do nothing if the informer is already running
+    if (this.informers.hasInformer(contextName, resourceName)) {
+      return;
+    }
     const context = this.kubeConfig.contexts.find(c => c.name === contextName);
     if (!context) {
       throw new Error(`context ${contextName} not found`);
     }
     const kubeContext: KubeContext = this.getKubeContext(context);
     const ns = context.namespace ?? 'default';
-    let informer: Informer<KubernetesObject>;
+    let informer: CancellableInformer;
     switch (resourceName) {
       case 'services':
         informer = this.createServiceInformer(this.kubeConfig, ns, kubeContext);
@@ -341,6 +259,9 @@ export class ContextsManager {
       case 'secrets':
         informer = this.createSecretInformer(this.kubeConfig, ns, context);
         break;
+      case 'events':
+        informer = this.createEventInformer(this.kubeConfig, ns, context);
+        break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
         return;
@@ -359,7 +280,7 @@ export class ContextsManager {
     };
   }
 
-  private createPodInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Pod> {
+  private createPodInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PodList> => k8sApi.listNamespacedPod({ namespace });
     const path = `/api/v1/namespaces/${namespace}/pods`;
@@ -379,14 +300,20 @@ export class ContextsManager {
       checkReachable: true,
       resource: 'pods',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
           sendGeneral: true,
           currentContext: this.kubeConfig.currentContext,
           resources: { pods: true },
-          update: state => state.resources.pods.push(obj),
+          update: state => {
+            if (state.resources.pods.some(o => o.metadata?.uid !== obj.metadata?.uid)) {
+              console.debug(`pod ${obj.metadata?.name} already added in context ${context.name}`);
+            }
+            state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.pods.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -419,6 +346,28 @@ export class ContextsManager {
             state.checking = { state: 'waiting' };
             state.reachable = reachable;
             state.error = reachable ? undefined : state.error; // if reachable we remove error
+            if (reachable) {
+              // start secondary informers, for current context only
+              if (this.kubeConfig.currentContext === context.name) {
+                for (const resourceName of secondaryResources) {
+                  if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+                    this.startResourceInformer(context.name, resourceName);
+                  }
+                }
+              }
+            } else {
+              // Delete secondary informers
+              this.informers
+                .disposeSecondaryInformers(context.name)
+                .catch((err: unknown) =>
+                  console.error(`error disposing secondary informers for context ${context.name}: ${String(err)}`),
+                );
+              this.states
+                .disposeSecondaryStates(context.name)
+                .catch((err: unknown) =>
+                  console.error(`error disposing secondary states for context ${context.name}: ${String(err)}`),
+                );
+            }
           },
         });
       },
@@ -437,7 +386,7 @@ export class ContextsManager {
     });
   }
 
-  private createDeploymentInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Deployment> {
+  private createDeploymentInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(AppsV1Api);
     const listFn = (): Promise<V1DeploymentList> => k8sApi.listNamespacedDeployment({ namespace });
     const path = `/apis/apps/v1/namespaces/${namespace}/deployments`;
@@ -447,7 +396,7 @@ export class ContextsManager {
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       resource: 'deployments',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -484,7 +433,7 @@ export class ContextsManager {
     });
   }
 
-  public createConfigMapInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1ConfigMap> {
+  public createConfigMapInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ConfigMapList> => k8sApi.listNamespacedConfigMap({ namespace });
     const path = `/api/v1/namespaces/${namespace}/configmaps`;
@@ -494,7 +443,7 @@ export class ContextsManager {
     return this.createInformer<V1ConfigMap>(kc, context, path, listFn, {
       resource: 'configmaps',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -526,7 +475,7 @@ export class ContextsManager {
     });
   }
 
-  public createSecretInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Secret> {
+  public createSecretInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1SecretList> => k8sApi.listNamespacedSecret({ namespace });
     const path = `/api/v1/namespaces/${namespace}/secrets`;
@@ -536,7 +485,7 @@ export class ContextsManager {
     return this.createInformer<V1Secret>(kc, context, path, listFn, {
       resource: 'secrets',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -570,7 +519,7 @@ export class ContextsManager {
     kc: KubeConfig,
     namespace: string,
     context: KubeContext,
-  ): Informer<V1PersistentVolumeClaim> {
+  ): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PersistentVolumeClaimList> =>
       k8sApi.listNamespacedPersistentVolumeClaim({ namespace });
@@ -581,7 +530,7 @@ export class ContextsManager {
     return this.createInformer<V1PersistentVolumeClaim>(kc, context, path, listFn, {
       resource: 'persistentvolumeclaims',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -615,7 +564,7 @@ export class ContextsManager {
     });
   }
 
-  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): Informer<V1Node> {
+  public createNodeInformer(kc: KubeConfig, _ns: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NodeList> => k8sApi.listNode();
     const path = '/api/v1/nodes';
@@ -625,7 +574,7 @@ export class ContextsManager {
     return this.createInformer<V1Node>(kc, context, path, listFn, {
       resource: 'nodes',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -655,7 +604,7 @@ export class ContextsManager {
     });
   }
 
-  public createServiceInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Service> {
+  public createServiceInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ServiceList> => k8sApi.listNamespacedService({ namespace });
     const path = `/api/v1/namespaces/${namespace}/services`;
@@ -665,7 +614,7 @@ export class ContextsManager {
     return this.createInformer<V1Service>(kc, context, path, listFn, {
       resource: 'services',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -695,7 +644,7 @@ export class ContextsManager {
     });
   }
 
-  public createIngressInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Ingress> {
+  public createIngressInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
     const listFn = (): Promise<V1IngressList> => k8sNetworkingApi.listNamespacedIngress({ namespace });
     const path = `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`;
@@ -705,7 +654,7 @@ export class ContextsManager {
     return this.createInformer<V1Ingress>(kc, context, path, listFn, {
       resource: 'ingresses',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -735,7 +684,7 @@ export class ContextsManager {
     });
   }
 
-  public createRouteInformer(kc: KubeConfig, namespace: string, context: KubeContext): Informer<V1Route> {
+  public createRouteInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
     const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
     const listFn = (): Promise<KubernetesListObject<V1Route>> =>
       customObjectsApi.listNamespacedCustomObject({
@@ -751,7 +700,7 @@ export class ContextsManager {
     return this.createInformer<V1Route>(kc, context, path, listFn, {
       resource: 'routes',
       timer: timer,
-      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      backoff: this.getBackoffForContext(context.name),
       connectionDelay: connectionDelay,
       onAdd: obj => {
         this.states.setStateAndDispatch(context.name, {
@@ -785,13 +734,66 @@ export class ContextsManager {
     });
   }
 
+  public createEventInformer(kc: KubeConfig, namespace: string, context: KubeContext): CancellableInformer {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<CoreV1EventList> => k8sApi.listNamespacedEvent({ namespace });
+    const path = `/api/v1/namespaces/${namespace}/events`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('events', timer, connectionDelay);
+    return this.createInformer<CoreV1Event>(kc, context, path, listFn, {
+      resource: 'events',
+      timer: timer,
+      backoff: this.getBackoffForContext(context.name),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (KINDS_WITH_EVENTS.includes(obj.involvedObject.kind)) {
+              state.resources.events.push(obj);
+            }
+          },
+        });
+      },
+      onUpdate: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (KINDS_WITH_EVENTS.includes(obj.involvedObject.kind)) {
+              state.resources.events = state.resources.events.filter(
+                o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+              );
+              state.resources.events.push(obj);
+            }
+          },
+        });
+      },
+      onDelete: obj => {
+        this.states.setStateAndDispatch(context.name, {
+          currentContext: this.kubeConfig.currentContext,
+          resources: { events: true },
+          update: state => {
+            if (KINDS_WITH_EVENTS.includes(obj.involvedObject.kind)) {
+              state.resources.events = state.resources.events.filter(
+                d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+              );
+            }
+          },
+        });
+      },
+    });
+  }
+
   private createInformer<T extends KubernetesObject>(
     kc: KubeConfig,
     context: KubeContext,
     path: string,
     listPromiseFn: ListPromise<T>,
     options: CreateInformerOptions<T>,
-  ): Informer<T> {
+  ): CancellableInformer {
     const informer = makeInformer(kc, path, listPromiseFn);
 
     informer.on('add', (obj: T) => {
@@ -842,7 +844,12 @@ export class ContextsManager {
       });
     }
     this.restartInformer<T>(informer, context, options);
-    return informer;
+    return {
+      informer,
+      cancel: (): void => {
+        clearTimeout(options.timer);
+      },
+    };
   }
 
   private setReachableDelay<T extends KubernetesObject>(options: CreateInformerOptions<T>, reachable: boolean): void {
@@ -937,12 +944,13 @@ export class ContextsManager {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
-    if (!this.states.isReachable(this.currentContext.name)) {
+    // start secondary informers only if current context is reachable
+    if (this.states.isReachable(this.currentContext.name)) {
+      console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+      this.startResourceInformer(this.currentContext.name, resourceName);
+    } else {
       console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
-      return [];
     }
-    console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
-    this.startResourceInformer(this.currentContext.name, resourceName);
     return [];
   }
 
@@ -951,6 +959,33 @@ export class ContextsManager {
       this.secondaryWatchers.unsubscribe(resourceName);
     }
     return [];
+  }
+
+  /**
+   * Ask for getting the state of the context as soon as possible.
+   *
+   * This is done by stopping all the informers for this context
+   * and restarting the primary informers.
+   *
+   * @param contextName the context for which to refresh the state
+   */
+  public async refreshContextState(contextName: string): Promise<void> {
+    const context = this.kubeConfig.getContexts().find(c => c.name === contextName);
+    if (!context) {
+      throw new Error(`context ${contextName} not found`);
+    }
+    // stop previous ones
+    // primaries
+    await this.informers.deleteContextInformers(contextName);
+    await this.states.deleteContextState(contextName);
+    // secondaries
+    await this.informers.disposeSecondaryInformers(contextName);
+    await this.states.disposeSecondaryStates(contextName);
+
+    // start new ones
+    const kubeContext: KubeContext = this.getKubeContext(context);
+    const informers = this.createKubeContextInformers(kubeContext);
+    this.informers.setInformers(contextName, informers);
   }
 
   // for tests
@@ -966,6 +1001,24 @@ export class ContextsManager {
     }
     for (const timer of this.connectionDelayTimers.values()) {
       clearTimeout(timer);
+    }
+  }
+
+  private getBackoffForContext(contextName: string): Backoff {
+    if (contextName === this.kubeConfig.currentContext) {
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplierCurrentContext,
+        max: backoffLimitCurrentContext,
+        jitter: backoffJitter,
+      });
+    } else {
+      return new Backoff({
+        value: backoffInitialValue,
+        multiplier: backoffMultiplier,
+        max: backoffLimit,
+        jitter: backoffJitter,
+      });
     }
   }
 }

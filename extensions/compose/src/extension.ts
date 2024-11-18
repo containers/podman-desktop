@@ -65,6 +65,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const composeGitHubReleases = new ComposeGitHubReleases(octokit);
   const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleases, os);
 
+  // add a command to display the onboarding page
+  const openOnboardingCommand = extensionApi.commands.registerCommand('compose.openComposeOnboarding', async () => {
+    await extensionApi.navigation.navigateToOnboarding();
+  });
+
   // ONBOARDING: Command to check compose is downloaded
   const onboardingCheckDownloadCommand = extensionApi.commands.registerCommand(
     'compose.onboarding.checkDownloadedCommand',
@@ -198,6 +203,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Push the commands that will be used within the onboarding sequence
   extensionContext.subscriptions.push(
+    openOnboardingCommand,
     onboardingCheckDownloadCommand,
     onboardingPromptUserForVersionCommand,
     onboardingDownloadComposeCommand,
@@ -284,9 +290,73 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       installationSource,
     });
   }
+
+  // register the updater to allow users to upgrade/downgrade their cli
+  let releaseToUpdateTo: ComposeGithubReleaseArtifactMetadata | undefined;
+  let releaseVersionToUpdateTo: string | undefined;
+
+  let latestVersionAsset: ComposeGithubReleaseArtifactMetadata | undefined;
+  try {
+    latestVersionAsset = await composeDownload.getLatestVersionAsset();
+  } catch (error) {
+    console.log('Error when loading compose latest release meta.', error);
+  }
+
+  const latestVersion = latestVersionAsset ? removeVersionPrefix(latestVersionAsset.tag) : undefined;
+
+  const update = {
+    version: latestVersion,
+    selectVersion: async (): Promise<string> => {
+      const selected = await composeDownload.promptUserForVersion(binaryVersion);
+      releaseToUpdateTo = selected;
+      releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
+      return releaseVersionToUpdateTo;
+    },
+    doUpdate: async (): Promise<void> => {
+      if (!binaryVersion || !binaryPath) {
+        throw new Error(`Cannot update ${composeCliName}. No cli tool installed.`);
+      }
+      if (!releaseVersionToUpdateTo) {
+        // update request to latest version
+        if (latestVersionAsset) {
+          releaseToUpdateTo = latestVersionAsset;
+          releaseVersionToUpdateTo = latestVersion;
+        }
+      }
+      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
+        throw new Error(`Cannot update ${binaryInfo?.path} version ${binaryVersion}. No release selected.`);
+      }
+      if (!binaryInfo?.updatable) {
+        throw new Error(
+          `Cannot update ${binaryInfo?.path} version ${binaryVersion} to ${releaseVersionToUpdateTo} as it was not installed by podman-desktop`,
+        );
+      }
+
+      // download, install system wide and update cli version
+      await composeDownload.download(releaseToUpdateTo);
+      // get the binary in the extension folder
+      const storagePath = await detect.getStoragePath();
+      binaryPath = await installBinaryToSystem(storagePath, composeCliName);
+      composeCliTool?.updateVersion({
+        version: releaseVersionToUpdateTo,
+        path: binaryPath,
+        installationSource: 'extension',
+      });
+      binaryVersion = releaseVersionToUpdateTo;
+      if (releaseVersionToUpdateTo === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
+      releaseVersionToUpdateTo = undefined;
+      releaseToUpdateTo = undefined;
+    },
+  };
+
   // register installer
   let releaseToInstall: ComposeGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
+
   composeCliToolInstallerDisposable = composeCliTool.registerInstaller({
     selectVersion: async () => {
       const selected = await composeDownload.promptUserForVersion();
@@ -308,13 +378,18 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       await composeDownload.download(releaseToInstall);
       // get the binary in the extension folder
       const storagePath = await detect.getStoragePath();
-      await installBinaryToSystem(storagePath, composeCliName);
+      binaryPath = await installBinaryToSystem(storagePath, composeCliName);
       composeCliTool?.updateVersion({
         version: releaseVersionToInstall,
+        path: binaryPath,
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
-      binaryPath = storagePath;
+      if (releaseVersionToInstall === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
     },
@@ -341,44 +416,8 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   if (installationSource === 'external') {
     return;
   }
-  // register the updater to allow users to upgrade/downgrade their cli
-  let releaseToUpdateTo: ComposeGithubReleaseArtifactMetadata | undefined;
-  let releaseVersionToUpdateTo: string | undefined;
 
-  composeCliToolUpdaterDisposable = composeCliTool.registerUpdate({
-    selectVersion: async () => {
-      const selected = await composeDownload.promptUserForVersion(binaryVersion);
-      releaseToUpdateTo = selected;
-      releaseVersionToUpdateTo = removeVersionPrefix(selected.tag);
-      return releaseVersionToUpdateTo;
-    },
-    doUpdate: async _logger => {
-      if (!binaryVersion || !binaryPath) {
-        throw new Error(`Cannot update ${composeCliName}. No cli tool installed.`);
-      }
-      if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
-        throw new Error(`Cannot update ${binaryInfo?.path} version ${binaryVersion}. No release selected.`);
-      }
-      if (!binaryInfo?.updatable) {
-        throw new Error(
-          `Cannot update ${binaryInfo?.path} version ${binaryVersion} to ${releaseVersionToUpdateTo} as it was not installed by podman-desktop`,
-        );
-      }
-
-      // download, install system wide and update cli version
-      await composeDownload.download(releaseToUpdateTo);
-      // get the binary in the extension folder
-      const storagePath = await detect.getStoragePath();
-      await installBinaryToSystem(storagePath, composeCliName);
-      composeCliTool?.updateVersion({
-        version: releaseVersionToUpdateTo,
-        installationSource: 'extension',
-      });
-      binaryVersion = releaseVersionToUpdateTo;
-      releaseVersionToUpdateTo = undefined;
-      releaseToUpdateTo = undefined;
-    },
-  });
+  composeCliToolUpdaterDisposable = composeCliTool.registerUpdate(update);
 }
 
 async function deleteFile(filePath: string): Promise<void> {

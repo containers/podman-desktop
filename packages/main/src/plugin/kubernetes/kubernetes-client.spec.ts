@@ -17,8 +17,11 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { homedir } from 'node:os';
+import { resolve } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
+import * as clientNode from '@kubernetes/client-node';
 import {
   type AppsV1Api,
   BatchV1Api,
@@ -39,21 +42,33 @@ import {
   type V1Status,
   type Watch,
 } from '@kubernetes/client-node';
-import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
 import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
+import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
+import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
+import { type ForwardConfig, type ForwardOptions, WorkloadKind } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
-import type { ConfigurationRegistry } from '../configuration-registry.js';
+import type { ConfigurationRegistry, IConfigurationChangeEvent } from '../configuration-registry.js';
+import { Emitter } from '../events/emitter.js';
 import { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
+import { Uri } from '../types/uri.js';
 import type { PodCreationSource, ScalableControllerType } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
 import { ResizableTerminalWriter } from './kubernetes-exec-transmitter.js';
 
-const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
+const _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
+const configurationRegistry: ConfigurationRegistry = {
+  onDidChangeConfiguration: _onDidChangeConfiguration.event,
+  registerConfigurations: vi.fn(),
+  getConfiguration: vi.fn().mockReturnValue({
+    get: vi.fn().mockReturnValue(''),
+  }),
+} as unknown as ConfigurationRegistry;
+
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
 const telemetry: Telemetry = {
   track: vi.fn().mockImplementation(async () => {
@@ -252,6 +267,18 @@ const apiSender: ApiSenderType = {
   send: apiSenderSendMock,
   receive: vi.fn(),
 };
+
+vi.mock('/@/plugin/kubernetes/kubernetes-port-forward-service', async () => {
+  const singletonGetServiceMock = vi.fn();
+  return {
+    KubernetesPortForwardService: vi.fn(),
+    KubernetesPortForwardServiceProvider: vi.fn().mockImplementation(() => {
+      return {
+        getService: singletonGetServiceMock,
+      };
+    }),
+  };
+});
 
 const execMock = vi.fn();
 beforeAll(() => {
@@ -521,6 +548,27 @@ test('Check update with empty kubeconfig file', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   await client.refresh();
   expect(consoleErrorSpy).toBeCalledWith(expect.stringContaining('is empty. Skipping'));
+});
+
+test('test that blank kubeconfig path will be set to default one', async () => {
+  const client = createTestClient('fooNS');
+  vi.spyOn(client, 'refresh').mockImplementation(() => {
+    return Promise.resolve();
+  });
+  const setKubeconfigSpy = vi.spyOn(client, 'setKubeconfig');
+
+  await client.init();
+
+  // Set empty path
+  _onDidChangeConfiguration.fire({
+    key: 'kubernetes.Kubeconfig',
+    value: '',
+    scope: 'DEFAULT',
+  });
+
+  const kubeconfigPath = Uri.file(resolve(homedir(), '.kube', 'config'));
+  // Should be default kubeconfigpath
+  expect(setKubeconfigSpy).toBeCalledWith(kubeconfigPath);
 });
 
 test('kube watcher', () => {
@@ -1799,7 +1847,7 @@ test('Should return false if the timeout is reached but pods still exist', async
   const selector = 'app=test-app';
   const timeout = 1000;
 
-  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ items: [existingPodMock] });
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValue({ items: [existingPodMock] });
 
   const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector, timeout);
   expect(result).toBe(false);
@@ -2506,4 +2554,65 @@ test('test sync resources was called with no resourceVersion, uid, selfLink, or 
     undefined,
     'podman-desktop',
   );
+});
+
+describe('port forward', () => {
+  const serviceMock: KubernetesPortForwardService = {
+    createForward: vi.fn(),
+    startForward: vi.fn(),
+    deleteForward: vi.fn(),
+  } as unknown as KubernetesPortForwardService;
+
+  const DUMMY_FORWARD_OPTIONS: ForwardOptions = {
+    name: 'dummy-name',
+    namespace: 'dummy-ns',
+    kind: WorkloadKind.POD,
+    forward: {
+      localPort: 55_001,
+      remotePort: 80,
+    },
+  };
+
+  const DUMMY_FORWARD_CONFIG: ForwardConfig = {
+    ...DUMMY_FORWARD_OPTIONS,
+    id: 'dummy-id',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    const providerInstance = new KubernetesPortForwardServiceProvider();
+    vi.mocked(providerInstance.getService).mockReturnValue(serviceMock);
+  });
+
+  test('expect forward to be returned', async () => {
+    vi.mocked(serviceMock.createForward).mockResolvedValue(DUMMY_FORWARD_CONFIG);
+
+    const client = createTestClient('default');
+
+    const result = await client.createPortForward(DUMMY_FORWARD_OPTIONS);
+    expect(result).toBe(DUMMY_FORWARD_CONFIG);
+
+    expect(serviceMock.createForward).toHaveBeenCalledWith(DUMMY_FORWARD_OPTIONS);
+    expect(serviceMock.startForward).toHaveBeenCalledWith(DUMMY_FORWARD_CONFIG);
+  });
+
+  test('expect forward to be deleted if start failed', async () => {
+    vi.mocked(serviceMock.createForward).mockResolvedValue(DUMMY_FORWARD_CONFIG);
+    vi.mocked(serviceMock.startForward).mockRejectedValue(new Error('host not reachable error'));
+
+    const client = createTestClient('default');
+    await expect(async () => {
+      await client.createPortForward({
+        name: 'dummy-name',
+        namespace: 'dummy-ns',
+        kind: WorkloadKind.POD,
+        forward: {
+          localPort: 55_001,
+          remotePort: 80,
+        },
+      });
+    }).rejects.toThrowError('host not reachable error');
+
+    expect(serviceMock.deleteForward).toHaveBeenCalledWith(DUMMY_FORWARD_CONFIG);
+  });
 });

@@ -1,10 +1,9 @@
 <script lang="ts">
-import { EmptyScreen } from '@podman-desktop/ui-svelte';
-
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
 
 import NodeIcon from '../images/NodeIcon.svelte';
+import KubernetesEmptyScreen from '../kube/KubernetesEmptyScreen.svelte';
 
 // If the current context is CONNECTED and we are on this empty screen
 // say that you may not have permission to view the nodes on your cluster.
@@ -19,4 +18,4 @@ function getText(state: ContextGeneralState | undefined): string {
 $: text = getText($kubernetesCurrentContextState);
 </script>
 
-<EmptyScreen icon={NodeIcon} title="No nodes" message={text} />
+<KubernetesEmptyScreen icon={NodeIcon} title="No nodes" message={text} />

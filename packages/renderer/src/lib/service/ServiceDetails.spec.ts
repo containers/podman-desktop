@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { KubernetesObject, V1Service } from '@kubernetes/client-node';
+import type { CoreV1Event, KubernetesObject, V1Service } from '@kubernetes/client-node';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { router } from 'tinro';
@@ -28,11 +28,13 @@ import { lastPage } from '/@/stores/breadcrumb';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import ServiceDetails from './ServiceDetails.svelte';
+import * as serviceDetailsSummary from './ServiceDetailsSummary.svelte';
 
 const kubernetesDeleteServiceMock = vi.fn();
 
 const service: V1Service = {
   metadata: {
+    uid: '12345678',
     name: 'my-service',
     namespace: 'default',
   },
@@ -96,4 +98,45 @@ test('Expect redirect to previous page if service is deleted', async () => {
   // confirm updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('Expect ServiceDetailsSummary to be called with related events only', async () => {
+  const serviceDetailsSummarySpy = vi.spyOn(serviceDetailsSummary, 'default');
+  // mock object stores
+  const servicesStore = writable<KubernetesObject[]>([service]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextServices = servicesStore;
+
+  const events: CoreV1Event[] = [
+    {
+      metadata: {
+        name: 'event1',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event2',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event3',
+      },
+      involvedObject: { uid: '1234' },
+    },
+  ];
+  const eventsStore = writable<CoreV1Event[]>(events);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextEvents = eventsStore;
+
+  vi.mocked(window.kubernetesReadNamespacedService).mockResolvedValue(service);
+
+  render(ServiceDetails, { name: 'my-service', namespace: 'default' });
+  router.goto('summary');
+  await waitFor(() => {
+    expect(serviceDetailsSummarySpy).toHaveBeenCalledWith(expect.anything(), {
+      service: service,
+      events: [events[0], events[1]],
+    });
+  });
 });

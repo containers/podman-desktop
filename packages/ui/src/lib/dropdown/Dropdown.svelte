@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCaretDown, faCheck } from '@fortawesome/free-solid-svg-icons';
-import type { Snippet } from 'svelte';
+import { onMount, type Snippet } from 'svelte';
 import Fa from 'svelte-fa';
 
 interface Option {
@@ -39,6 +39,12 @@ let highlightIndex: number = $state(-1);
 let comp: HTMLElement;
 
 const pageStep: number = 10;
+
+onMount(() => {
+  if (!value && options?.length > 0) {
+    value = options[0].value;
+  }
+});
 
 $effect(() => {
   selectLabel = options.find(o => o.value === value)?.label ?? (typeof value === 'string' ? (value as string) : '');
@@ -131,12 +137,13 @@ function onSelect(e: Event, newValue: unknown): void {
   e.preventDefault();
 }
 
-function toggleOpen(): void {
+function toggleOpen(e: Event): void {
   if (opened) {
     close();
   } else {
     open();
   }
+  e.preventDefault();
 }
 
 function open(): void {
@@ -223,7 +230,7 @@ function onWindowClick(e: Event): void {
     </div>
   {/if}
 
-  <select use:buildOptions class="hidden" bind:value={value}>
+  <select use:buildOptions class="hidden" name={name} bind:value={value}>
     {@render children?.()}
   </select>
 </div>

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 import type { Locator, Page } from 'playwright';
 
 import { SettingsPage } from './settings-page';
@@ -34,7 +34,10 @@ export class CLIToolsPage extends SettingsPage {
     super(page, 'CLI Tools');
     this.main = page.getByRole('region', { name: 'CLI Tools' }); //check name
     this.header = this.main.getByRole('region', { name: 'Header' });
-    this.heading = this.header.getByRole('heading', { name: 'CLI Tools', exact: true });
+    this.heading = this.header.getByRole('heading', {
+      name: 'CLI Tools',
+      exact: true,
+    });
     this.content = this.main.getByRole('region', { name: 'Content' });
     this.toolsTable = this.content.getByRole('table', { name: 'cli-tools' });
     this.dropDownDialog = page.getByRole('dialog', {
@@ -64,24 +67,28 @@ export class CLIToolsPage extends SettingsPage {
   }
 
   public async getCurrentToolVersion(toolName: string): Promise<string> {
-    if ((await this.getToolRow(toolName).getByLabel('no-cli-version', { exact: true }).count()) > 0) {
-      return '';
-    }
+    return test.step(`Get current version of ${toolName}`, async () => {
+      if ((await this.getToolRow(toolName).getByLabel('no-cli-version', { exact: true }).count()) > 0) {
+        return '';
+      }
 
-    return await this.getToolRow(toolName).getByLabel('cli-version', { exact: true }).innerText();
+      return await this.getToolRow(toolName).getByLabel('cli-version', { exact: true }).innerText();
+    });
   }
 
   public async installTool(toolName: string, version: string = ''): Promise<this> {
-    await playExpect(this.getInstallButton(toolName)).toBeEnabled();
-    await this.getInstallButton(toolName).click();
-    await playExpect(this.dropDownDialog).toBeVisible();
-    if (!version) {
-      version = await this.getLatestVersionNumber();
-    }
+    return test.step(`Install ${toolName}`, async () => {
+      await playExpect(this.getInstallButton(toolName)).toBeEnabled();
+      await this.getInstallButton(toolName).click();
+      await playExpect(this.dropDownDialog).toBeVisible();
+      if (!version) {
+        version = await this.getLatestVersionNumber();
+      }
 
-    await playExpect(this.getVersionSelectionButton(version)).toBeEnabled();
-    await this.getVersionSelectionButton(version).click();
-    return this;
+      await playExpect(this.getVersionSelectionButton(version)).toBeEnabled();
+      await this.getVersionSelectionButton(version).click();
+      return this;
+    });
   }
 
   private async getLatestVersionNumber(): Promise<string> {

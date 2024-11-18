@@ -122,6 +122,7 @@ test('commands registered', async () => {
   await activate(extensionContextMock);
 
   [
+    'compose.openComposeOnboarding',
     'compose.onboarding.checkDownloadedCommand',
     'compose.onboarding.downloadCommand',
     'compose.onboarding.promptUserForVersion',

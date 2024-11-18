@@ -33,12 +33,8 @@ onMount(() => {
   return kubernetesCurrentContextPersistentVolumeClaims.subscribe(pvcs => {
     const matchingPVC = pvcs.find(pvc => pvc.metadata?.name === name && pvc.metadata?.namespace === namespace);
     if (matchingPVC) {
-      try {
-        pvc = pvcUtils.getPVCUI(matchingPVC);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      pvc = pvcUtils.getPVCUI(matchingPVC);
+      loadDetails().catch((err: unknown) => console.error(`Error getting PVC details ${pvc.name}`, err));
     } else if (detailsPage) {
       // the pvc has been deleted
       detailsPage.close();
@@ -62,7 +58,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <PVCActions pvc={pvc} detailed={true} on:update={() => (pvc = pvc)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={pvc.status} />
     </div>
     <svelte:fragment slot="tabs">

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment-resource
+  labels:
+    app: test-deployment-resource
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-deployment-resource
+  template:
+    metadata:
+      labels:
+        app: test-deployment-resource
+    spec:
+      containers:
+      - name: test-deployment-resource
+        image: quay.io/podman-desktop-demo/podify-demo-backend:v1
+        ports:
+        - containerPort: 80
+ 

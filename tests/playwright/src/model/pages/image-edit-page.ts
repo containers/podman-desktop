@@ -34,14 +34,20 @@ export class ImageEditPage extends BasePage {
     super(page);
     this.editDialog = page.getByRole('dialog', { name: 'Edit Image' });
     this.imageName = this.editDialog.getByLabel('imageName');
-    this.cancelButton = this.editDialog.getByRole('button', { name: 'Cancel', exact: true });
-    this.saveButton = this.editDialog.getByRole('button', { name: 'Save', exact: true });
+    this.cancelButton = this.editDialog.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
+    this.saveButton = this.editDialog.getByRole('button', {
+      name: 'Save',
+      exact: true,
+    });
     this.name = name;
     this.imageTag = this.editDialog.getByLabel('imageTag');
   }
 
   async renameImage(name: string): Promise<ImagesPage> {
-    return await test.step('Rename image', async () => {
+    return test.step('Rename image', async () => {
       if (!name) {
         throw Error(`Provide name is invalid!`);
       }

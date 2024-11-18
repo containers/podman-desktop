@@ -35,12 +35,10 @@ onMount(() => {
       secret => secret.metadata?.name === name && secret.metadata?.namespace === namespace,
     );
     if (matchingSecret) {
-      try {
-        secret = secretUtils.getConfigMapSecretUI(matchingSecret);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      secret = secretUtils.getConfigMapSecretUI(matchingSecret);
+      loadDetails().catch((err: unknown) =>
+        console.error(`Error getting config map secret ${secret.name} details`, err),
+      );
     } else if (detailsPage) {
       // the secret has been deleted
       detailsPage.close();
@@ -64,7 +62,7 @@ async function loadDetails() {
     <svelte:fragment slot="actions">
       <ConfigMapSecretActions configMapSecret={secret} detailed={true} on:update={() => (secret = secret)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={secret.status} />
     </div>
     <svelte:fragment slot="tabs">

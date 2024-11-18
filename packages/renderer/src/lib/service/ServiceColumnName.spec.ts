@@ -27,6 +27,7 @@ import ServiceColumnName from './ServiceColumnName.svelte';
 import type { ServiceUI } from './ServiceUI';
 
 const service: ServiceUI = {
+  uid: '123',
   name: 'my-service',
   status: 'RUNNING',
   namespace: 'default',

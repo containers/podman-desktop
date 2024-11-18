@@ -98,3 +98,20 @@ test('multiple tasks running should display them', async () => {
   expect(status).toBeDefined();
   expect(status.textContent).toBe('2 tasks running');
 });
+
+test('task with defined progress value should display it', async () => {
+  tasksInfo.set([
+    {
+      name: 'Dummy Task',
+      state: 'running',
+      status: 'in-progress',
+      started: 0,
+      id: 'dummy-task',
+      progress: 50,
+    },
+  ]);
+
+  const { getByText } = render(TaskIndicator);
+  const span = getByText('50%');
+  expect(span).toBeDefined();
+});

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { VolumesPage } from './volumes-page';
@@ -34,18 +34,22 @@ export class CreateVolumePage extends BasePage {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Create a volume' });
     this.closeLink = this.page.getByRole('link', { name: 'Close' });
-    this.volumeNameBox = this.page.getByRole('textbox', { name: 'Volume name' });
+    this.volumeNameBox = this.page.getByRole('textbox', {
+      name: 'Volume name',
+    });
     this.doneButton = this.page.getByRole('button', { name: 'Done' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
     this.createVolumeButton = this.page.getByRole('button', { name: 'Create' });
   }
 
   async createVolume(name: string): Promise<VolumesPage> {
-    await this.volumeNameBox.fill(name);
-    await playExpect(this.createVolumeButton).toBeEnabled();
-    await this.createVolumeButton.click();
-    await playExpect(this.doneButton).toBeEnabled({ timeout: 30000 });
-    await this.doneButton.click();
-    return new VolumesPage(this.page);
+    return test.step(`Create volume ${name}`, async () => {
+      await this.volumeNameBox.fill(name);
+      await playExpect(this.createVolumeButton).toBeEnabled();
+      await this.createVolumeButton.click();
+      await playExpect(this.doneButton).toBeEnabled({ timeout: 30000 });
+      await this.doneButton.click();
+      return new VolumesPage(this.page);
+    });
   }
 }

@@ -51,53 +51,52 @@ test.afterAll(async ({ runner, page }) => {
   }
 });
 
-test.describe
-  .serial('Pulling image from authenticated registry workflow verification', () => {
-    test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
+test.describe.serial('Pulling image from authenticated registry workflow verification', { tag: '@smoke' }, () => {
+  test('Cannot pull image from unauthenticated registry', async ({ page, navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible({ timeout: 10_000 });
+
+    const fullImageTitle = imageUrl.concat(':' + imageTag);
+    const errorAlert = page.getByLabel('Error Message Content');
+
+    const pullImagePage = await imagesPage.openPullImage();
+    await playExpect(pullImagePage.heading).toBeVisible({ timeout: 10_000 });
+
+    await pullImagePage.imageNameInput.pressSequentially(fullImageTitle, { delay: 25 });
+    await playExpect(pullImagePage.imageNameInput).toHaveValue(fullImageTitle);
+    await playExpect(pullImagePage.pullImageButton).toBeEnabled();
+    await pullImagePage.pullImageButton.click();
+
+    await playExpect(errorAlert).toBeVisible({ timeout: 10_000 });
+    await playExpect(errorAlert).toContainText('Error while pulling image from');
+    await playExpect(errorAlert).toContainText(fullImageTitle);
+    await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
+  });
+
+  test.describe.serial(() => {
+    test.skip(!canTestRegistry(), 'Registry tests are disabled');
+
+    test('Add registry', async ({ page, navigationBar }) => {
+      await navigationBar.openSettings();
+      const settingsBar = new SettingsBar(page);
+      const registryPage = await settingsBar.openTabPage(RegistriesPage);
+
+      await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
+
+      const registryBox = registryPage.registriesTable.getByLabel('GitHub');
+      const username = registryBox.getByText(registryUsername);
+      await playExpect(username).toBeVisible();
+    });
+
+    test('Image pulling from authenticated registry verification', async ({ navigationBar }) => {
       const imagesPage = await navigationBar.openImages();
-      await playExpect(imagesPage.heading).toBeVisible({ timeout: 10_000 });
 
       const fullImageTitle = imageUrl.concat(':' + imageTag);
-      const errorAlert = page.getByLabel('Error Message Content');
-
       const pullImagePage = await imagesPage.openPullImage();
-      await playExpect(pullImagePage.heading).toBeVisible({ timeout: 10_000 });
+      const updatedImages = await pullImagePage.pullImage(fullImageTitle);
 
-      await pullImagePage.imageNameInput.pressSequentially(fullImageTitle, { delay: 25 });
-      await playExpect(pullImagePage.imageNameInput).toHaveValue(fullImageTitle);
-      await playExpect(pullImagePage.pullImageButton).toBeEnabled();
-      await pullImagePage.pullImageButton.click();
-
-      await playExpect(errorAlert).toBeVisible({ timeout: 10_000 });
-      await playExpect(errorAlert).toContainText('Error while pulling image from');
-      await playExpect(errorAlert).toContainText(fullImageTitle);
-      await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
-    });
-
-    test.describe.serial(() => {
-      test.skip(!canTestRegistry(), 'Registry tests are disabled');
-
-      test('Add registry', async ({ page, navigationBar }) => {
-        await navigationBar.openSettings();
-        const settingsBar = new SettingsBar(page);
-        const registryPage = await settingsBar.openTabPage(RegistriesPage);
-
-        await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
-
-        const registryBox = registryPage.registriesTable.getByLabel('GitHub');
-        const username = registryBox.getByText(registryUsername);
-        await playExpect(username).toBeVisible();
-      });
-
-      test('Image pulling from authenticated registry verification', async ({ navigationBar }) => {
-        const imagesPage = await navigationBar.openImages();
-
-        const fullImageTitle = imageUrl.concat(':' + imageTag);
-        const pullImagePage = await imagesPage.openPullImage();
-        const updatedImages = await pullImagePage.pullImage(fullImageTitle);
-
-        const exists = await updatedImages.waitForImageExists(imageUrl);
-        playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
-      });
+      const exists = await updatedImages.waitForImageExists(imageUrl);
+      playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
     });
   });
+});

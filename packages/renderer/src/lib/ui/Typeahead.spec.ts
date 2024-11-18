@@ -17,10 +17,10 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen, within } from '@testing-library/svelte';
+import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import Typeahead from './Typeahead.svelte';
 
@@ -46,6 +46,10 @@ function assertItemSelected(items: HTMLElement[], r: number): void {
     }
   }
 }
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('a textbox is created', async () => {
   render(Typeahead);
@@ -98,7 +102,7 @@ test('should list the result after the delay, and display spinner during loading
   await new Promise(resolve => setTimeout(resolve, 5));
   assertIsListVisible(false);
   await new Promise(resolve => setTimeout(resolve, 10));
-  tick();
+  await tick();
   screen.getByRole('progressbar');
 
   await new Promise(resolve => setTimeout(resolve, 100));
@@ -111,6 +115,32 @@ test('should list the result after the delay, and display spinner during loading
   within(list).getByText('aze01');
   within(list).getByText('aze02');
   within(list).getByText('aze03');
+});
+
+test('should list items started with search term on top', async () => {
+  const searchFunction = async (s: string) => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return ['z1' + s, s + '01', 'z0', s + '02', 'z2', s + '03'];
+  };
+  render(Typeahead, {
+    initialFocus: true,
+    searchFunction,
+    delay: 10,
+  });
+
+  const input = screen.getByRole('textbox');
+
+  await userEvent.type(input, 'aze');
+
+  await waitFor(() => {
+    const list = screen.getByRole('row');
+    const items = within(list).getAllByRole('button');
+    expect(items.length).toBe(6);
+    expect(items[0].textContent).toBe('aze01');
+    expect(items[1].textContent).toBe('aze02');
+    expect(items[2].textContent).toBe('aze03');
+    expect(items[3].textContent).toBe('z0');
+  });
 });
 
 test('should navigate in list with keys', async () => {
@@ -195,4 +225,32 @@ test('should navigate in list with keys', async () => {
   assertIsListVisible(false);
   // copies the item in the input
   screen.getByDisplayValue('term03');
+});
+
+test('should show clasic border', async () => {
+  render(Typeahead, {
+    initialFocus: true,
+    error: false,
+    delay: 10,
+  });
+
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
+
+test('should show error border', async () => {
+  render(Typeahead, {
+    initialFocus: true,
+    error: true,
+    delay: 10,
+  });
+
+  const cellOutsideInput = screen.getByRole('textbox');
+  const parentInput = cellOutsideInput.parentElement;
+  expect(parentInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });

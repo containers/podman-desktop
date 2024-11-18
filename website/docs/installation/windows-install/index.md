@@ -99,8 +99,14 @@ To install the Podman Machine:
    Open the Command Prompt, and run:.
 
    ```shell-session
+   > wsl --update
    > wsl --install --no-distribution
    ```
+   :::note
+
+   If you run the Podman Desktop setup on a Windows 10 LTSC version, you require to install a specific WSL distribution. See [Troubleshooting Podman on Windows](/docs/troubleshooting/troubleshooting-podman-on-windows#windows-10-enterprise-ltsc-version-21h2-podman-desktop-is-unable-to-detect-wsl2-machine)
+
+   :::
 
 1. Restart your computer.
 

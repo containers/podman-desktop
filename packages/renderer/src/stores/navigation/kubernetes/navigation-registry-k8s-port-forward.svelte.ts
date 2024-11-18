@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { TestContext } from 'vitest';
+import NodeIcon from '/@/lib/images/KeyIcon.svelte';
 
-import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { kubernetesCurrentContextPortForwards } from '../../kubernetes-contexts-state';
+import type { NavigationRegistryEntry } from '../navigation-registry';
 
-export interface RunnerTestContext extends TestContext {
-  // to avoid compilation failures -> error TS2339: Property 'task' does not exist on type 'TestContext'.
-  // task: any;
-  pdRunner: PodmanDesktopRunner;
+let count = $state(0);
+
+export function createNavigationKubernetesPortForwardEntry(): NavigationRegistryEntry {
+  kubernetesCurrentContextPortForwards.subscribe(nodes => {
+    count = nodes.length;
+  });
+  return {
+    name: 'Port Forwarding',
+    icon: { iconComponent: NodeIcon },
+    link: '/kubernetes/portForward',
+    tooltip: 'Port Forwarding',
+    type: 'entry',
+    get counter() {
+      return count;
+    },
+  };
 }

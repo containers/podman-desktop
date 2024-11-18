@@ -216,6 +216,17 @@ export default [
       'sonarjs/no-lonely-if': 'off',
       'sonarjs/deprecation': 'off',
       'sonarjs/use-type-alias': 'off',
+      // already enabled by eslint
+      'sonarjs/no-async-constructor': 'off',
+      // already enabled by typescript
+      'sonarjs/no-misused-promises': 'off',
+      'sonarjs/no-redeclare': 'off',
+      'sonarjs/no-dead-store': 'off',
+
+      // consuming too much time
+      'sonarjs/aws-restricted-ip-admin-access': 'off',
+      'sonarjs/arguments-order': 'off',
+      'sonarjs/no-redundant-assignments': 'off',
 
       // failing with the AST parser
       'sonarjs/sonar-no-fallthrough': 'off',
@@ -225,6 +236,8 @@ export default [
       'etc/no-deprecated': 'off',
       // disable this rule as it's not compliant with eslint v9
       'etc/no-commented-out-code': 'off',
+      // disable as it's consuming too much time
+      'etc/no-internal': 'off',
 
       // redundant-undefined custom rules
       'redundant-undefined/redundant-undefined': 'error',
@@ -289,7 +302,6 @@ export default [
 
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       'no-undef': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',

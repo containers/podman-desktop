@@ -22,6 +22,7 @@ import { getTabUrl, isTabSelected } from '../ui/Util';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
+import PreferencesConnectionDetailsTerminal from './PreferencesConnectionDetailsTerminal.svelte';
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 import type { IConnectionRestart, IConnectionStatus } from './Util';
 import { getProviderConnectionName } from './Util';
@@ -70,7 +71,9 @@ onMount(async () => {
           action: 'restart',
           status: connectionInfo.status,
         };
-        startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey);
+        startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey).catch((err: unknown) =>
+          console.error(`Error starting provider ${connectionInfo?.name}`, err),
+        );
         loggerHandlerKey = undefined;
       } else {
         connectionStatus = {
@@ -160,6 +163,10 @@ function setNoLogs() {
       <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
       {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
         <Tab title="Logs" selected={isTabSelected($router.path, 'logs')} url={getTabUrl($router.path, 'logs')} />
+        <Tab
+          title="Terminal"
+          selected={isTabSelected($router.path, 'terminal')}
+          url={getTabUrl($router.path, 'terminal')} />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
@@ -177,6 +184,14 @@ function setNoLogs() {
             setNoLogs={setNoLogs}
             noLog={noLog} />
         </Route>
+        {#if providerInfo}
+          <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
+            <PreferencesConnectionDetailsTerminal
+              provider={providerInfo}
+              connectionInfo={connectionInfo}
+              screenReaderMode={true} />
+          </Route>
+        {/if}
       </div>
     </svelte:fragment>
   </DetailsPage>

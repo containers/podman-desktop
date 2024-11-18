@@ -1,5 +1,6 @@
 <script lang="ts">
 import SettingsPage from '../SettingsPage.svelte';
+import PreferencesDockerCompatibilityContributions from './PreferencesDockerCompatibilityContributions.svelte';
 import PreferencesDockerCompatibilityDockerContext from './PreferencesDockerCompatibilityDockerContext.svelte';
 import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDockerCompatibilitySocketMappingStatus.svelte';
 </script>
@@ -9,7 +10,7 @@ import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDock
     Podman Desktop provides compatibility with Docker, allowing you to use your existing Docker commands, images and
     workflows.
   </svelte:fragment>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col space-y-2">
     <div class="container" role="list">
       <div class="text-lg font-medium first-letter:uppercase">Docker Preferences</div>
       <PreferencesDockerCompatibilitySocketMappingStatus />
@@ -18,5 +19,9 @@ import PreferencesDockerCompatibilitySocketMappingStatus from './PreferencesDock
       <div class="text-lg font-medium first-letter:uppercase">Docker CLI Context</div>
       <PreferencesDockerCompatibilityDockerContext />
     </div>
+
+    <PreferencesDockerCompatibilityContributions />
+
   </div>
+
 </SettingsPage>

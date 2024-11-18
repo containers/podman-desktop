@@ -39,6 +39,7 @@ import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { HyperVCheck, PodmanInstall, WSL2Check, WSLVersionCheck } from './podman-install';
+import { ProviderConnectionShellAccessImpl } from './podman-machine-stream';
 import { PodmanRemoteConnections } from './podman-remote-connections';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
@@ -812,11 +813,14 @@ export async function registerProviderFor(
     };
   }
 
+  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+  storedExtensionContext?.subscriptions.push(providerConnectionShellAccess);
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: machineInfo.name,
     displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
+    shellAccess: providerConnectionShellAccess,
     lifecycle,
     endpoint: {
       socketPath,
@@ -1035,6 +1039,7 @@ export const PODMAN_MACHINE_DISK_SUPPORTED_KEY = 'podman.podmanMachineDiskSuppor
 export const PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY = 'podman.isLibkrunSupported';
 export const CREATE_WSL_MACHINE_OPTION_SELECTED_KEY = 'podman.isCreateWSLOptionSelected';
 export const WSL_HYPERV_ENABLED_KEY = 'podman.wslHypervEnabled';
+export const PODMAN_DOCKER_COMPAT_ENABLE_KEY = 'podman.podmanDockerCompatibilityEnabled';
 
 export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
@@ -1378,7 +1383,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Compatibility mode status bar item
   // only available for macOS
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     // Handle any configuration changes (for example, changing the boolean button for compatibility mode)
     extensionApi.configuration.onDidChangeConfiguration(async e => {
       if (e.affectsConfiguration(`podman.${configurationCompatibilityMode}`)) {
@@ -1386,8 +1391,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
     });
 
+    // register two commands to enable and disable compatibility mode
+    extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand('podman.disableCompatibilityMode', async () => {
+        await switchCompatibilityMode(false);
+      }),
+    );
+    extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand('podman.enableCompatibilityMode', async () => {
+        await switchCompatibilityMode(true);
+      }),
+    );
+
     // Get the socketCompatibilityClass for the current OS.
     const socketCompatibilityMode = getSocketCompatibility();
+    // update the initial context value
+    const compatibilityEnabled = socketCompatibilityMode.isEnabled();
+    extensionApi.context.setValue(PODMAN_DOCKER_COMPAT_ENABLE_KEY, compatibilityEnabled);
 
     // Create a status bar item to show the status of compatibility mode as well as
     // create a command so when you can disable / enable compatibility mode
@@ -1416,7 +1436,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Enable') {
-          await socketCompatibilityMode.enable();
+          await switchCompatibilityMode(true);
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
@@ -1426,7 +1446,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Disable') {
-          await socketCompatibilityMode.disable();
+          await switchCompatibilityMode(false);
         }
       }
       // Use tooltip text from class
@@ -1998,6 +2018,14 @@ export async function createMachine(
   } else if (params['podman.factory.machine.win.provider']) {
     provider = params['podman.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
+  } else {
+    if (isWindows()) {
+      provider = wslEnabled ? 'wsl' : 'hyperv';
+      telemetryRecords.provider = provider;
+    } else if (isMac()) {
+      provider = 'applehv';
+      telemetryRecords.provider = provider;
+    }
   }
 
   // cpus
@@ -2049,7 +2077,7 @@ export async function createMachine(
     // check if we have an embedded asset for the image path for macOS or Windows
     let suffix = '';
     if (isWindows()) {
-      suffix = `-${process.arch}.tar.xz`;
+      suffix = `-${process.arch}.tar.zst`;
     } else if (isMac()) {
       suffix = `-${process.arch}.zst`;
     }
@@ -2165,11 +2193,8 @@ function setupDisguisedPodmanSocketWatcher(
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
-  if (isLinux()) {
+  if (isLinux() || isMac()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
-  } else if (isMac()) {
-    // watch parent directory
-    socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
   }
 
   // only trigger if the watched file is the socket file
@@ -2226,13 +2251,20 @@ function getCompatibilityModeSetting(): boolean {
 // and retrieving the correct socket compatibility class as well
 export async function handleCompatibilityModeSetting(): Promise<void> {
   const compatibilityMode = getCompatibilityModeSetting();
+
+  await switchCompatibilityMode(compatibilityMode);
+}
+
+async function switchCompatibilityMode(enabled: boolean): Promise<void> {
   const socketCompatibilityMode = getSocketCompatibility();
 
-  if (compatibilityMode) {
+  if (enabled) {
     await socketCompatibilityMode.enable();
   } else {
     await socketCompatibilityMode.disable();
   }
+  // update the context value
+  extensionApi.context.setValue(PODMAN_DOCKER_COMPAT_ENABLE_KEY, socketCompatibilityMode.isEnabled());
 }
 
 export function updateWSLHyperVEnabledContextValue(value: boolean): void {

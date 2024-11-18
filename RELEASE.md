@@ -210,7 +210,7 @@ An example of a previous post: https://www.reddit.com/r/podman/comments/10moat6/
 #### Email announcement
 
 1. Send email to devtools-team at redhat.com, Podman-Desktop at redhat.com
-1. Send email to product-announce at redhat.com (high level)
+1. Check in with the Product Manager (PM) about the product-announce announcement (high level)
 1. Send email to podman-desktop at lists.podman.io (no links to Red Hat internal slack, etc.)
 
 ## Release notes template
@@ -224,7 +224,7 @@ authors: [YOURUSERNAME]
 tags: [podman-desktop, release, kubernetes, openshift]
 hide_table_of_contents: false
 <!-- This image link is used for social media previews / thumbnails. Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
-image: /blog/img/podman-desktop-release-1.X/X.png
+image: /img/blog/podman-desktop-release-1.X/X.png
 ---
 
 <!-- ADD IMPORT REACTPLAYER IF USING VIDEO -->
@@ -251,7 +251,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Release Details
+## Release details
 
 <!-- DESCRIBE MAJOR CHANGES, INCLUDE IMAGES / VIDEO IF APPLICABLE -->
 
@@ -265,7 +265,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Other Notable Enhancements
+## Other notable enhancements
 
 <!-- CATCHALL SECTION FOR MINOR ENHANCEMENTS -- >
 <!-- USE BULLET POINTS -->
@@ -274,7 +274,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Notable Bug Fixes
+## Notable bug fixes
 
 <!-- CATCHALL SECTION FOR BUG FIXES -- >
 <!-- USE BULLET POINTS -->
@@ -283,7 +283,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 
 ---
 
-## Community Thank You
+## Community thank you
 
 🎉 We’d like to say a big thank you to everyone who helped to make Podman Desktop even better. In this
 release we received pull requests from the following people:

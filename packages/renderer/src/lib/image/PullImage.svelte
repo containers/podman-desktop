@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Checkbox, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
@@ -14,9 +14,11 @@ import { providerInfos } from '../../stores/providers';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import Typeahead from '../ui/Typeahead.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 const DOCKER_PREFIX = 'docker.io';
+const DOCKER_PREFIX_WITH_SLASH = DOCKER_PREFIX + '/';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -175,8 +177,8 @@ async function searchImages(value: string): Promise<string[]> {
     const parts = value.split(':');
     const originalImage = parts[0];
     let image = parts[0];
-    if (image.startsWith(DOCKER_PREFIX + '/')) {
-      image = image.slice(DOCKER_PREFIX.length + 1);
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
     allTags = tags.map(t => `${originalImage}:${t}`);
@@ -204,6 +206,29 @@ async function searchImages(value: string): Promise<string[]> {
   });
   return result;
 }
+
+let latestTagMessage: string | undefined = undefined;
+async function searchLatestTag(): Promise<void> {
+  if (imageNameIsInvalid || !imageToPull || imageToPull.includes(':')) {
+    latestTagMessage = undefined;
+    return;
+  }
+  try {
+    let image = imageToPull;
+    if (image.startsWith(DOCKER_PREFIX_WITH_SLASH)) {
+      image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
+    }
+    const tags = await window.listImageTagsInRegistry({ image });
+    const latestFound = tags.includes('latest');
+    if (!latestFound) {
+      latestTagMessage = '"latest" tag not found. You can search a tag by appending ":" to the image name';
+    } else {
+      latestTagMessage = undefined;
+    }
+  } catch {
+    latestTagMessage = undefined;
+  }
+}
 </script>
 
 <EngineFormPage
@@ -220,7 +245,7 @@ async function searchImages(value: string): Promise<string[]> {
 
   <div slot="content" class="space-y-6">
     <div class="w-full">
-      <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="imageName" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
       <div class="flex flex-col">
         <Typeahead
@@ -228,9 +253,10 @@ async function searchImages(value: string): Promise<string[]> {
           name="imageName"
           placeholder="Image name"
           searchFunction={searchImages}
-          onChange={(s: string) => {
+          onChange={async (s: string) => {
             validateImageName(s);
-            resolveShortname();
+            await resolveShortname();
+            await searchLatestTag();
           }}
           onEnter={pullImage}
           disabled={pullFinished || pullInProgress}
@@ -239,7 +265,7 @@ async function searchImages(value: string): Promise<string[]> {
         {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
           <div class="absolute mt-2 ml-[-18px] self-start">
             <Tooltip tip="Shortname images will be pulled from Docker Hub" topRight>
-              <Fa id="shortname-warning" size="1.1x" class="text-amber-400" icon={faTriangleExclamation} />
+              <Fa id="shortname-warning" size="1.1x" class="text-[var(--pd-state-warning)]" icon={faTriangleExclamation} />
             </Tooltip>
           </div>
         {/if}
@@ -251,20 +277,23 @@ async function searchImages(value: string): Promise<string[]> {
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}
+      {#if latestTagMessage}
+        <WarningMessage error={latestTagMessage} />
+      {/if}
 
       {#if providerConnections.length > 1}
         <div class="pt-4">
-          <label for="providerChoice" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
-            >Container Engine:</label>
-          <select
+          <label for="providerChoice" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Container Engine</label>
+          <Dropdown
             id="providerChoice"
-            class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
             name="providerChoice"
-            bind:value={selectedProviderConnection}>
-            {#each providerConnections as providerConnection}
-              <option value={providerConnection}>{providerConnection.name}</option>
-            {/each}
-          </select>
+            bind:value={selectedProviderConnection}
+            options={providerConnections.map(providerConnection => ({
+              label: providerConnection.name,
+              value: providerConnection,
+            }))}>
+          </Dropdown>
         </div>
       {/if}
       {#if providerConnections.length === 1}

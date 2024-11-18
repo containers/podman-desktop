@@ -45,17 +45,20 @@ onMount(() => {
     if (matchingContainer) {
       container = containerUtils.getContainerInfoUI(matchingContainer);
       // look if tty is supported by this container
-      window.getContainerInspect(container.engineId, container.id).then(inspect => {
-        displayTty = (inspect.Config.Tty || false) && (inspect.Config.OpenStdin || false);
-        // if we comes with a / redirect to /logs or to /tty if tty is supported
-        if (currentRouterPath.endsWith('/')) {
-          if (displayTty) {
-            router.goto(`${currentRouterPath}tty`);
-          } else {
-            router.goto(`${currentRouterPath}logs`);
+      window
+        .getContainerInspect(container.engineId, container.id)
+        .then(inspect => {
+          displayTty = (inspect.Config.Tty || false) && (inspect.Config.OpenStdin || false);
+          // if we comes with a / redirect to /logs or to /tty if tty is supported
+          if (currentRouterPath.endsWith('/')) {
+            if (displayTty) {
+              router.goto(`${currentRouterPath}tty`);
+            } else {
+              router.goto(`${currentRouterPath}logs`);
+            }
           }
-        }
-      });
+        })
+        .catch((err: unknown) => console.error(`Error getting container inspect ${container.id}`, err));
     } else if (detailsPage) {
       // the container has been deleted
       detailsPage.close();
@@ -86,7 +89,7 @@ onMount(() => {
       </div>
       <ContainerActions container={container} detailed={true} on:update={() => (container = container)} />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
       <StateChange state={container.state} />
       <ContainerStatistics container={container} />
     </div>

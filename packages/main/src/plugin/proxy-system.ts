@@ -60,7 +60,7 @@ async function getWindowsProxySettings(): Promise<ProxySettings | undefined> {
           } else if (item.startsWith('https=')) {
             httpsProxy = `http://${item.substring(6)}`;
           } else {
-            httpProxy = httpsProxy = `http:${item}`;
+            httpProxy = httpsProxy = `http://${item}`;
           }
         });
       } else if (key.name === 'ProxyOverride') {

@@ -18,9 +18,12 @@
 
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
+import { get } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
+import { lastSubmenuPages } from './stores/breadcrumb';
 import type { NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
 
@@ -45,6 +48,7 @@ test('SubmenuNavigation displays a title and builds SettingsNavItem components',
     meta: {
       url: '/link1/subpath',
     } as TinroRouteMeta,
+    link: '/link',
   });
 
   // title should be displayed
@@ -56,10 +60,27 @@ test('SubmenuNavigation displays a title and builds SettingsNavItem components',
     title: 'entry 1',
     href: '/link1',
     selected: true,
+    onClick: expect.any(Function),
   });
   expect(SettingsNavItemMock).toHaveBeenNthCalledWith(2, expect.anything(), {
     title: 'entry 2',
     href: '/link2',
     selected: false,
+    onClick: expect.any(Function),
   });
+});
+
+test('set up and update lastSubmenuPages store for each submenu', async () => {
+  lastSubmenuPages.set({});
+  render(SubmenuNavigation, {
+    title: 'page 1',
+    items: [],
+    meta: {
+      url: '/link1/subpath',
+    } as TinroRouteMeta,
+    link: '/page1',
+  });
+  await tick();
+
+  expect(get(lastSubmenuPages)['page 1']).toBe('/page1');
 });

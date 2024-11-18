@@ -41,78 +41,85 @@ test.beforeAll(async ({ runner, welcomePage }) => {
 });
 
 test.afterAll(async ({ runner }) => {
-  test.setTimeout(120000);
+  test.setTimeout(120_000);
   await runner.close();
 });
 
-test.describe
-  .serial('Verification of kube context management @smoke', () => {
-    test('Load custom kubeconfig in Preferences', async ({ navigationBar }) => {
-      // open preferences page
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.expandPreferencesTab();
-      const preferencesPage = await settingsBar.openTabPage(PreferencesPage);
-      await playExpect(preferencesPage.heading).toBeVisible();
+test.describe.serial('Verification of kube context management', { tag: ['@k8s_e2e', '@smoke'] }, () => {
+  test('Load custom kubeconfig in Preferences', async ({ navigationBar }) => {
+    // open preferences page
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.expandPreferencesTab();
+    const preferencesPage = await settingsBar.openTabPage(PreferencesPage);
+    await playExpect(preferencesPage.heading).toBeVisible();
 
-      const kubeConfigPathDst = path.resolve(__dirname, '..', '..', 'resources', 'kube-config');
-      await preferencesPage.selectKubeFile(kubeConfigPathDst);
-    });
-
-    test('Can load kube contexts in Kubernetes page', async ({ navigationBar }) => {
-      const settingsBar = await navigationBar.openSettings();
-      const kubePage = await settingsBar.openTabPage(KubeContextPage);
-      await playExpect(kubePage.heading).toBeVisible();
-
-      await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 10000 }).toBeFalsy();
-      for (const context of testContexts) {
-        const row = await kubePage.getContextRowByName(context);
-        await playExpect(row).toBeVisible();
-        playExpect(await kubePage.getContextName(context)).toBe(context);
-        playExpect(await kubePage.getContextCluster(context)).toBe(context + '-cluster');
-        playExpect(await kubePage.getContextServer(context)).toBe(context + '-server');
-        playExpect(await kubePage.getContextUser(context)).toBe(context + '-user');
-
-        if (context === 'context-1') {
-          // check if the context is default
-          await playExpect.poll(async () => await kubePage.isContextDefault(context), { timeout: 10000 }).toBeTruthy();
-          await playExpect(await kubePage.getSetCurrentContextButton(context)).not.toBeVisible();
-          playExpect(await kubePage.getContextNamespace(context)).toBe(context + '-namespace');
-        } else {
-          await playExpect(await kubePage.getSetCurrentContextButton(context)).toBeVisible();
-        }
-      }
-    });
-
-    test('Can switch default context', async ({ navigationBar }) => {
-      const settingsBar = await navigationBar.openSettings();
-      const kubePage = await settingsBar.openTabPage(KubeContextPage);
-      await playExpect(kubePage.heading).toBeVisible();
-
-      await kubePage.setDefaultContext('context-2');
-      // check that switch worked - current context banner should be visible
-      playExpect(await kubePage.isContextDefault('context-1')).toBeFalsy();
-      await playExpect.poll(async () => await kubePage.isContextDefault('context-2'), { timeout: 10000 }).toBeTruthy();
-      playExpect(await kubePage.isContextDefault('context-3')).toBeFalsy();
-    });
-
-    test('Can delete all contexts from Kubernetes Contexts page', async ({ navigationBar }) => {
-      const settingsBar = await navigationBar.openSettings();
-      const kubePage = await settingsBar.openTabPage(KubeContextPage);
-      await playExpect(kubePage.heading).toBeVisible();
-
-      for (const context of testContexts) {
-        // confirmation only pops up if the context is default
-        if (await kubePage.isContextDefault(context)) {
-          await kubePage.deleteContext(context);
-        } else {
-          await kubePage.deleteContext(context, false);
-        }
-      }
-
-      for (const context of testContexts) {
-        await playExpect(await kubePage.getContextRowByName(context)).not.toBeVisible();
-      }
-      // check that the page is empty
-      await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 10000 }).toBeTruthy();
-    });
+    const kubeConfigPathDst = path.resolve(__dirname, '..', '..', 'resources', 'kube-config');
+    await preferencesPage.selectKubeFile(kubeConfigPathDst);
   });
+
+  test('Can load kube contexts in Kubernetes page', async ({ navigationBar }) => {
+    const settingsBar = await navigationBar.openSettings();
+    const kubePage = await settingsBar.openTabPage(KubeContextPage);
+    await playExpect(kubePage.heading).toBeVisible();
+
+    await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 30_000 }).toBeFalsy();
+    for (const context of testContexts) {
+      const row = await kubePage.getContextRowByName(context);
+      await playExpect(row).toBeVisible();
+      playExpect(await kubePage.getContextName(context)).toBe(context);
+      playExpect(await kubePage.getContextCluster(context)).toBe(context + '-cluster');
+      playExpect(await kubePage.getContextServer(context)).toBe(context + '-server');
+      playExpect(await kubePage.getContextUser(context)).toBe(context + '-user');
+
+      if (context === 'context-1') {
+        // check if the context is default
+        await playExpect
+          .poll(async () => await kubePage.isContextDefault(context), {
+            timeout: 10000,
+          })
+          .toBeTruthy();
+        await playExpect(await kubePage.getSetCurrentContextButton(context)).not.toBeVisible();
+        playExpect(await kubePage.getContextNamespace(context)).toBe(context + '-namespace');
+      } else {
+        await playExpect(await kubePage.getSetCurrentContextButton(context)).toBeVisible();
+      }
+    }
+  });
+
+  test('Can switch default context', async ({ navigationBar }) => {
+    const settingsBar = await navigationBar.openSettings();
+    const kubePage = await settingsBar.openTabPage(KubeContextPage);
+    await playExpect(kubePage.heading).toBeVisible();
+
+    await kubePage.setDefaultContext('context-2');
+    // check that switch worked - current context banner should be visible
+    playExpect(await kubePage.isContextDefault('context-1')).toBeFalsy();
+    await playExpect
+      .poll(async () => await kubePage.isContextDefault('context-2'), {
+        timeout: 10_000,
+      })
+      .toBeTruthy();
+    playExpect(await kubePage.isContextDefault('context-3')).toBeFalsy();
+  });
+
+  test('Can delete all contexts from Kubernetes Contexts page', async ({ navigationBar }) => {
+    const settingsBar = await navigationBar.openSettings();
+    const kubePage = await settingsBar.openTabPage(KubeContextPage);
+    await playExpect(kubePage.heading).toBeVisible();
+
+    for (const context of testContexts) {
+      // confirmation only pops up if the context is default
+      if (await kubePage.isContextDefault(context)) {
+        await kubePage.deleteContext(context);
+      } else {
+        await kubePage.deleteContext(context, false);
+      }
+    }
+
+    for (const context of testContexts) {
+      await playExpect(await kubePage.getContextRowByName(context)).not.toBeVisible({ timeout: 10_000 });
+    }
+    // check that the page is empty
+    await playExpect.poll(async () => await kubePage.pageIsEmpty(), { timeout: 10_000 }).toBeTruthy();
+  });
+});

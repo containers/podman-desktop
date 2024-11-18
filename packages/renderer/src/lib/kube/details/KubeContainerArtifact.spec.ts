@@ -20,9 +20,14 @@ import '@testing-library/jest-dom/vitest';
 
 import type { V1Container } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { readable } from 'svelte/store';
+import { beforeEach, expect, test, vi } from 'vitest';
 
-import KubeContainerArtifact from './KubeContainerArtifact.svelte'; // Adjust the import path as necessary
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state'; // Adjust the import path as necessary
+
+import KubeContainerArtifact from './KubeContainerArtifact.svelte';
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
 
 const fakeContainer: V1Container = {
   name: 'fakeContainerName',
@@ -42,6 +47,12 @@ const fakeContainer: V1Container = {
   ],
 };
 
+beforeEach(() => {
+  vi.resetAllMocks();
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable([]);
+});
+
 test('Container artifact renders with correct values', async () => {
   render(KubeContainerArtifact, { artifact: fakeContainer });
 
@@ -54,13 +65,6 @@ test('Container artifact renders with correct values', async () => {
 
   expect(screen.getByText('Image Pull Policy')).toBeInTheDocument();
   expect(screen.getByText('IfNotPresent')).toBeInTheDocument();
-
-  // Check if ports are displayed correctly
-  if (fakeContainer.ports && fakeContainer.ports.length > 0) {
-    const portsText = fakeContainer.ports.map(port => `${port.containerPort}/${port.protocol}`).join(', ');
-    expect(screen.getByText('Ports')).toBeInTheDocument();
-    expect(screen.getByText(portsText)).toBeInTheDocument();
-  }
 
   // Check if environment variables are displayed correctly
   if (fakeContainer.env && fakeContainer.env.length > 0) {

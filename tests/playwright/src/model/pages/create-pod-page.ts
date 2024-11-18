@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { type Locator, type Page, test } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
@@ -30,16 +30,22 @@ export class CreatePodsPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = this.page.getByRole('heading', { name: 'Copy containers to a pod' });
+    this.heading = this.page.getByRole('heading', {
+      name: 'Copy containers to a pod',
+    });
     this.closeLink = this.page.getByRole('link', { name: 'Close' });
     this.podNameBox = this.page.getByRole('textbox', { name: 'Pod name' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
-    this.createPodButton = this.page.getByRole('button', { name: 'Create Pod' });
+    this.createPodButton = this.page.getByRole('button', {
+      name: 'Create Pod',
+    });
   }
 
   async createPod(podName: string): Promise<PodsPage> {
-    await this.podNameBox.fill(podName);
-    await this.createPodButton.click();
-    return new PodsPage(this.page);
+    return test.step(`Create pod ${podName}`, async () => {
+      await this.podNameBox.fill(podName);
+      await this.createPodButton.click();
+      return new PodsPage(this.page);
+    });
   }
 }

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 export interface DeploymentUI {
+  uid: string;
   name: string;
   status: string;
   namespace: string;

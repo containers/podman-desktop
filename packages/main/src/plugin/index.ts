@@ -87,6 +87,7 @@ import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -653,6 +654,7 @@ export class PluginSystem {
       providerRegistry,
       webviewRegistry,
       commandRegistry,
+      onboardingRegistry,
     );
 
     this.extensionLoader = new ExtensionLoader(
@@ -1088,9 +1090,18 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'container-provider-registry:logsContainer',
-      async (_listener, engine: string, containerId: string, onDataId: number): Promise<void> => {
-        return containerProviderRegistry.logsContainer(engine, containerId, (name: string, data: string) => {
-          this.getWebContentsSender().send('container-provider-registry:logsContainer-onData', onDataId, name, data);
+      async (_listener, logsParams: { engineId: string; containerId: string; onDataId: number }): Promise<void> => {
+        return containerProviderRegistry.logsContainer({
+          engineId: logsParams.engineId,
+          id: logsParams.containerId,
+          callback: (name: string, data: string) => {
+            this.getWebContentsSender().send(
+              'container-provider-registry:logsContainer-onData',
+              logsParams.onDataId,
+              name,
+              data,
+            );
+          },
         });
       },
     );
@@ -1141,6 +1152,76 @@ export class PluginSystem {
         if (callback) {
           callback.resize(width, height);
         }
+      },
+    );
+
+    const providerRegistryShellInProviderConnectionSendCallback = new Map<
+      number,
+      {
+        write: (param: string) => void;
+        resize: (dimensions: containerDesktopAPI.ProviderConnectionShellDimensions) => void;
+        close: () => void;
+      }
+    >();
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnection',
+      async (
+        _listener,
+        internalProviderId: string,
+        connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        onDataId: number,
+      ): Promise<number> => {
+        // provide the data content to the remote side
+        const shellInProviderConnectionInvocation = await providerRegistry.shellInProviderConnection(
+          internalProviderId,
+          connectionInfo,
+          (content: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onData', onDataId, content);
+          },
+          (error: string) => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onError', onDataId, error);
+          },
+          () => {
+            this.getWebContentsSender().send('provider-registry:shellInProviderConnection-onEnd', onDataId);
+            // delete the callback
+            providerRegistryShellInProviderConnectionSendCallback.delete(onDataId);
+          },
+        );
+        // store the callback
+        providerRegistryShellInProviderConnectionSendCallback.set(onDataId, shellInProviderConnectionInvocation);
+        return onDataId;
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionSend',
+      async (_listener, onDataId: number, content: string): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        if (callback) {
+          callback.write(content);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionResize',
+      async (
+        _listener,
+        onDataId: number,
+        dimensions: containerDesktopAPI.ProviderConnectionShellDimensions,
+      ): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        if (callback) {
+          callback.resize(dimensions);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:shellInProviderConnectionClose',
+      async (_listener, onDataId: number): Promise<void> => {
+        const callback = providerRegistryShellInProviderConnectionSendCallback.get(onDataId);
+        callback?.close();
       },
     );
 
@@ -2383,6 +2464,21 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:getPortForwards', async (_listener): Promise<ForwardConfig[]> => {
+      return kubernetesClient.getPortForwards();
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:createPortForward',
+      async (_listener, options: ForwardOptions): Promise<ForwardConfig> => {
+        return kubernetesClient.createPortForward(options);
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:deletePortForward', async (_listener, config: ForwardConfig): Promise<void> => {
+      return kubernetesClient.deletePortForward(config);
+    });
+
     this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
@@ -2518,6 +2614,10 @@ export class PluginSystem {
         }
       },
     );
+
+    this.ipcHandle('kubernetes-client:refreshContextState', async (_listener, context: string): Promise<void> => {
+      return kubernetesClient.refreshContextState(context);
+    });
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);

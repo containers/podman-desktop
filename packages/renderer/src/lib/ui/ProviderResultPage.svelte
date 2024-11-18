@@ -122,14 +122,14 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected={true}
           disabled={countBySeverity.critical === 0}
           icon={faExclamationCircle}
-          iconClass="text-red-600"
+          iconClass="text-[var(--pd-state-error)]"
           on:click={event => onSeverityClicked('critical', event.detail)}
           >Critical ({countBySeverity.critical})</ToggleButton>
         <ToggleButton
           selected={true}
           disabled={countBySeverity.high === 0}
           icon={faExclamationTriangle}
-          iconClass="text-amber-500"
+          iconClass="text-[var(--pd-state-warning)]"
           on:click={event => onSeverityClicked('high', event.detail)}>High ({countBySeverity.high})</ToggleButton>
         <ToggleButton
           selected={true}
@@ -147,7 +147,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected={true}
           disabled={countBySeverity.success === 0}
           icon={faCheckSquare}
-          iconClass="text-green-500"
+          iconClass="text-[var(--pd-state-success)]"
           on:click={event => onSeverityClicked('success', event.detail)}
           >Passed ({countBySeverity.success})</ToggleButton>
       </ToggleButtonGroup>
@@ -193,18 +193,18 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
         <div
           role="row"
           class="rounded-r-lg bg-[var(--pd-content-bg)] mb-4 mr-4 p-4 border-l-2"
-          class:border-l-red-600={result.check.severity === 'critical'}
-          class:border-l-amber-500={result.check.severity === 'high'}
+          class:border-l-[var(--pd-state-error)]={result.check.severity === 'critical'}
+          class:border-l-[var(--pd-state-warning)]={result.check.severity === 'high'}
           class:border-l-gray-800={result.check.severity === 'medium'}
           class:border-l-gray-500={result.check.severity === 'low'}
-          class:border-l-green-500={result.check.status === 'success'}>
+          class:border-l-[var(--pd-state-success)]={result.check.status === 'success'}>
           <div class="flex flex-row space-x-2">
             <span
-              class:text-red-600={result.check.severity === 'critical'}
-              class:text-amber-500={result.check.severity === 'high'}
+              class:text-[var(--pd-state-error)]={result.check.severity === 'critical'}
+              class:text-[var(--pd-state-warning)]={result.check.severity === 'high'}
               class:text-gray-800={result.check.severity === 'medium'}
               class:text-gray-500={result.check.severity === 'low'}
-              class:text-green-500={result.check.status === 'success'}
+              class:text-[var(--pd-state-success)]={result.check.status === 'success'}
               ><Fa size="1.1x" class="mt-1" icon={getIcon(result.check)} />
             </span>
             <div class="font-bold">{result.check.name}</div>

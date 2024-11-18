@@ -42,7 +42,8 @@ import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
-import KubernetesEmptyPage from './lib/kube/KubernetesEmptyPage.svelte';
+import KubernetesDashboard from './lib/kube/KubernetesDashboard.svelte';
+import PortForwardingList from './lib/kubernetes-port-forward/PortForwardingList.svelte';
 import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import NodeDetails from './lib/node/NodeDetails.svelte';
 import NodesList from './lib/node/NodesList.svelte';
@@ -60,6 +61,7 @@ import StatusBar from './lib/statusbar/StatusBar.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
+import ToastTaskNotifications from './lib/toast/ToastTaskNotifications.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
@@ -69,6 +71,7 @@ import Webview from './lib/webview/Webview.svelte';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
+import { lastSubmenuPages } from './stores/breadcrumb';
 import { kubernetesCurrentContextState } from './stores/kubernetes-contexts-state';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
@@ -89,6 +92,10 @@ window.events?.receive('context-menu:visible', visible => {
   } else {
     window.dispatchEvent(new Event('tooltip-show'));
   }
+});
+
+window.events?.receive('show-release-notes', () => {
+  router.goto('/');
 });
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
@@ -117,7 +124,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
       {/if}
       {#each $navigationRegistry.filter(item => item.type === 'submenu') as navigationRegistryItem}
         {#if meta.url.startsWith(navigationRegistryItem.link) && navigationRegistryItem.items?.length}
-          <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} items={navigationRegistryItem.items} />
+          <SubmenuNavigation meta={meta} title={navigationRegistryItem.tooltip} link={navigationRegistryItem.link} items={navigationRegistryItem.items} />
         {/if}
       {/each}
 
@@ -128,6 +135,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
+        <ToastTaskNotifications />
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
@@ -229,14 +237,17 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         {#if $kubernetesCurrentContextState.error === NO_CURRENT_CONTEXT_ERROR}
           <Route path="/kubernetes/*" breadcrumb="Kubernetes" navigationHint="root">
-            <KubernetesEmptyPage />
+            <KubernetesDashboard />
           </Route>
         {:else}
-          <!-- Redirect /kubernetes to nodes if we end up on /kubernetes without a context error 
-           we use router.goto to preserve the navbar remembering the navigation location. 
+          <!-- Redirect /kubernetes to dashboard if we end up on /kubernetes without a context error
+           we use router.goto to preserve the navbar remembering the navigation location.
            TODO: Remove after https://github.com/containers/podman-desktop/issues/8825 is implemented -->
           <Route path="/kubernetes" breadcrumb="Kubernetes" navigationHint="root">
-            {router.goto('/kubernetes/nodes')}
+            {router.goto($lastSubmenuPages['Kubernetes'] === '/kubernetes' ? '/kubernetes/dashboard' : ($lastSubmenuPages['Kubernetes'] ?? '/kubernetes/dashboard'))}
+          </Route>
+          <Route path="/kubernetes/dashboard" breadcrumb="Dashboard" navigationHint="root">
+            <KubernetesDashboard />
           </Route>
           <Route path="/kubernetes/nodes" breadcrumb="Nodes" navigationHint="root">
             <NodesList />
@@ -307,6 +318,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
             let:meta
             navigationHint="details">
             <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+          </Route>
+          <Route path="/kubernetes/portForward" breadcrumb="Port Forwarding" navigationHint="root">
+            <PortForwardingList />
           </Route>
         {/if}
         <Route path="/preferences/*" breadcrumb="Settings">

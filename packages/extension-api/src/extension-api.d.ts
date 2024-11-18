@@ -393,6 +393,7 @@ declare module '@podman-desktop/api' {
     displayName?: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
+    shellAccess?: ProviderConnectionShellAccess;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     vmType?: string;
@@ -786,6 +787,75 @@ declare module '@podman-desktop/api' {
   export interface ProviderContainerConnection {
     providerId: string;
     connection: ContainerProviderConnection;
+  }
+
+  /**
+   * Callback for openning shell session
+   */
+  export interface ProviderConnectionShellAccess {
+    /**
+     * Opens new session using ProviderConnectionShellAccessImpl class
+     * @example
+     * import * as api from '@podman-desktop/api';
+     *
+     * class ProviderConnectionShellAccessImpl implements ProviderConnectionShellAccess {
+     *  open(): ProviderConnectionShellAccessSession {
+     *    // This is client that will connect to your shell
+     *    #client = new Client();
+     *
+     *    // You need to listen to events from client and forward them to the caller by using the object returned below
+     *
+     *    return {
+     *      onData,
+     *      onError,
+     *      onEnd,
+     *      write,
+     *      resize,
+     *      close,
+     *    };
+     *  }
+     * }
+     *
+     * export async function activate(extensionContext: api.ExtensionContext): Promise<void> {
+     *  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+     *
+     *  // Create containerProviderConnection object
+     *  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+     *    ...
+     *    shellAccess: providerConnectionShellAccess,
+     *    ...
+     *  };
+     *
+     *  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+     *  extensionContext.subscriptions.push(disposable);
+     * }
+     */
+    open(): ProviderConnectionShellAccessSession;
+  }
+
+  /**
+   * Callbacks for interaction with shell session
+   */
+  export interface ProviderConnectionShellAccessSession {
+    onData: Event<ProviderConnectionShellAccessData>;
+    onError: Event<ProviderConnectionShellAccessError>;
+    onEnd: Event<void>;
+    write(data: string | Uint8Array): void;
+    resize(dimensions: ProviderConnectionShellDimensions): void;
+    close(): void;
+  }
+
+  export interface ProviderConnectionShellDimensions {
+    rows: number;
+    cols: number;
+  }
+
+  export interface ProviderConnectionShellAccessError {
+    error: string;
+  }
+
+  export interface ProviderConnectionShellAccessData {
+    data: string;
   }
 
   /**
@@ -4726,6 +4796,12 @@ declare module '@podman-desktop/api' {
      * Navigate to the Edit Provider Container Connection page
      */
     export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
+
+    /**
+     *  Navigate to a specific onboarding page referenced by its extensionId
+     * @param extensionId The id of the extension to navigate to or if missing, default to the extension calling the method
+     */
+    export function navigateToOnboarding(extensionId?: string): Promise<void>;
 
     /**
      * Allow to define custom route for an extension.

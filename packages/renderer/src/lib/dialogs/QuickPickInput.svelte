@@ -101,7 +101,9 @@ const showQuickPickCallback = (quickpickParameter: unknown) => {
     onSelectCallbackEnabled = true;
     // if there is one item, notify that focus will be on it
     if (quickPickItems.length > 0) {
-      window.sendShowQuickPickOnSelect(currentId, 0);
+      window
+        .sendShowQuickPickOnSelect(currentId, 0)
+        .catch((err: unknown) => console.error(`Error sending show quickpick ${currentId}`, err));
     }
   }
 
@@ -126,14 +128,14 @@ onMount(() => {
   window.events?.receive('showQuickPick:add', showQuickPickCallback);
 });
 
-const onClose = () => {
+const onClose = async () => {
   if (validationError) {
     return;
   }
   if (mode === 'QuickPick') {
-    window.sendShowQuickPickValues(currentId);
+    await window.sendShowQuickPickValues(currentId);
   } else if (mode === 'InputBox') {
-    window.sendShowInputBoxValue(currentId, undefined, undefined);
+    await window.sendShowInputBoxValue(currentId, undefined, undefined);
   }
   cleanup();
 };
@@ -150,7 +152,7 @@ async function onInputChange(event: any) {
       quickPickSelectedIndex = -1;
     }
     if (onSelectCallbackEnabled) {
-      window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
+      await window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
     }
     return;
   }
@@ -184,30 +186,30 @@ function cleanup() {
   ignoreFocusOut = false;
 }
 
-function validateQuickPick() {
+async function validateQuickPick() {
   if (mode === 'InputBox') {
     // needs to convert the index from the filtered index to the original index
     const originalIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedIndex]);
 
-    window.sendShowQuickPickValues(currentId, [originalIndex]);
+    await window.sendShowQuickPickValues(currentId, [originalIndex]);
   } else {
     // grab all selected items
     if (quickPickCanPickMany) {
       const selectedItems = quickPickItems.filter(item => item.checkbox);
-      window.sendShowQuickPickValues(
+      await window.sendShowQuickPickValues(
         currentId,
         selectedItems.map(item => quickPickItems.indexOf(item)),
       );
     } else if (quickPickSelectedIndex >= 0) {
-      window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
+      await window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
     } else {
-      window.sendShowQuickPickValues(currentId, []);
+      await window.sendShowQuickPickValues(currentId, []);
     }
   }
   cleanup();
 }
 
-function clickQuickPickItem(item: any, index: number) {
+async function clickQuickPickItem(item: any, index: number) {
   if (quickPickCanPickMany) {
     // reset index as we clicked
     quickPickSelectedFilteredIndex = -1;
@@ -217,11 +219,11 @@ function clickQuickPickItem(item: any, index: number) {
   } else {
     // select the index from the cursor
     quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[index]);
-    validateQuickPick();
+    await validateQuickPick();
   }
 }
 
-function handleKeydown(e: KeyboardEvent) {
+async function handleKeydown(e: KeyboardEvent) {
   if (!display) {
     return;
   }
@@ -233,12 +235,12 @@ function handleKeydown(e: KeyboardEvent) {
         e.preventDefault();
         return;
       }
-      window.sendShowInputBoxValue(currentId, inputValue, undefined);
+      await window.sendShowInputBoxValue(currentId, inputValue, undefined);
       cleanup();
       e.preventDefault();
       return;
     } else if (mode === 'QuickPick') {
-      validateQuickPick();
+      await validateQuickPick();
       e.preventDefault();
       return;
     }
@@ -261,7 +263,7 @@ function handleKeydown(e: KeyboardEvent) {
       quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
       e.preventDefault();
       if (onSelectCallbackEnabled) {
-        window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
+        await window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
       }
       return;
     } else if (e.key === 'ArrowUp') {
@@ -272,7 +274,7 @@ function handleKeydown(e: KeyboardEvent) {
       }
       quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
       if (onSelectCallbackEnabled) {
-        window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
+        await window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
       }
       e.preventDefault();
       return;
@@ -288,7 +290,7 @@ function handleKeydown(e: KeyboardEvent) {
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this={outerDiv}
-        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-[var(--pd-input-field-stroke)] text-sm overflow-hidden">
         {#if title}
           <div
             aria-label="title"
@@ -303,7 +305,7 @@ function handleKeydown(e: KeyboardEvent) {
               on:input={event => onInputChange(event)}
               bind:value={inputValue}
               class="px-1 w-full h-20 text-[var(--pd-input-select-hover-text)] border {validationError
-                ? 'border-red-700'
+                ? 'border-[var(--pd-input-field-stroke-error)]'
                 : 'bg-[var(--pd-input-field-focused-bg)] border-[var(--pd-input-field-focused-bg)]'} focus:outline-none"
               placeholder={placeHolder}></textarea>
           {:else}
@@ -313,18 +315,18 @@ function handleKeydown(e: KeyboardEvent) {
               type="text"
               bind:value={inputValue}
               class="px-1 w-full text-[var(--pd-input-select-hover-text)] border {validationError
-                ? 'border-red-700'
+                ? 'border-[var(--pd-input-field-stroke-error)]'
                 : 'bg-[var(--pd-input-field-focused-bg)] border-[var(--pd-input-field-focused-bg)]'} focus:outline-none"
               placeholder={placeHolder} />
           {/if}
           {#if quickPickCanPickMany}
-            <Button on:click={() => validateQuickPick()} class="px-1">OK</Button>
+            <Button on:click={validateQuickPick} class="px-1">OK</Button>
           {/if}
         </div>
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-[var(--pd-modal-dropdown-text)] border border-red-700 relative w-full bg-red-700 px-1">
+            <div class="text-[var(--pd-modal-dropdown-text)] border border-[var(--pd-input-field-stroke-error)] relative w-full bg-[var(--pd-input-field-stroke-error)] px-1">
               {validationError}
             </div>
           {:else}
@@ -344,12 +346,13 @@ function handleKeydown(e: KeyboardEvent) {
                 <Checkbox class="mx-1 my-auto" bind:checked={item.checkbox} />
               {/if}
               <button
-                on:click={() => clickQuickPickItem(item, i)}
+                title="Select {item.value}"
+                on:click={async () => await clickQuickPickItem(item, i)}
                 class="text-[var(--pd-modal-dropdown-text)] text-left relative my-1 w-full px-1">
                 <div class="flex flex-col w-full">
                   <!-- first row is Value + optional description-->
                   <div class="flex flex-row w-full max-w-[700px] truncate">
-                    <div class="font-bold">{item.value}</div>
+                    <div class="font-bold overflow-hidden text-ellipsis">{item.value}</div>
                     {#if item.description}
                       <div class="text-[var(--pd-modal-dropdown-text)] text-xs ml-2">{item.description}</div>
                     {/if}

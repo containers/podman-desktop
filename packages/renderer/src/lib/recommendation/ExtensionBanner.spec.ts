@@ -95,28 +95,28 @@ describe('backgrounds', () => {
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
-    expect(card.classList).toContain('bg-charcoal-800');
+    expect(card.classList).toContain('bg-[var(--pd-modal-bg)]');
     expect(card.attributes.getNamedItem('style')?.value).toBeUndefined();
   });
 
-  test('expect linear gradient background', () => {
+  test('expect linear gradient background', async () => {
     render(ExtensionBanner, {
       banner: gradientBackground,
       isDark: true,
     });
-    tick();
+    await tick();
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
     expect(card.attributes.getNamedItem('style')?.value).toBe('background: linear-gradient(#fff, #000);');
   });
 
-  test('expect image background for dark theme', () => {
+  test('expect image background for dark theme', async () => {
     render(ExtensionBanner, {
       banner: imageBackground,
       isDark: true,
     });
-    tick();
+    await tick();
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();
@@ -125,12 +125,12 @@ describe('backgrounds', () => {
     );
   });
 
-  test('expect image background for light theme', () => {
+  test('expect image background for light theme', async () => {
     render(ExtensionBanner, {
       banner: imageBackground,
       isDark: false,
     });
-    tick();
+    await tick();
 
     const card = screen.getByLabelText('Recommended extension');
     expect(card).toBeDefined();

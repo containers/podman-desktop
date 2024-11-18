@@ -34,7 +34,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe('Image search verification @smoke', () => {
+test.describe('Image search verification', { tag: '@smoke' }, () => {
   test('Search for image and then clear field', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
@@ -62,8 +62,7 @@ test.describe('Image search verification @smoke', () => {
     playExpect(searchResults.length).toBe(4);
   });
 
-  // TODO: This test is failing because the search results are not sorted by relevance as per https://github.com/containers/podman-desktop/issues/8929
-  test.fail('First search result needs to be the most relevant', async ({ navigationBar }) => {
+  test('First search result needs to be the most relevant', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 

@@ -44,30 +44,33 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Verification of Podman extension @smoke', () => {
-    test('Podman is enabled and present', async () => {
-      await verifyPodmanExtensionStatus(true);
-    });
-    test('Podman extension can be disabled from Podman Extension Page', async () => {
-      const podmanExtensionPage = await openExtensionsPodmanPage();
-      await podmanExtensionPage.disableExtension();
-      await verifyPodmanExtensionStatus(false);
-    });
-    test('Podman extension can be re-enabled from Extension Page', async () => {
-      const podmanExtensionPage = await openExtensionsPodmanPage(); // enable the extension
-      await podmanExtensionPage.enableExtension();
-      await verifyPodmanExtensionStatus(true);
-    });
+test.describe.serial('Verification of Podman extension', { tag: '@smoke' }, () => {
+  test('Podman is enabled and present', async () => {
+    await verifyPodmanExtensionStatus(true);
   });
+  test('Podman extension can be disabled from Podman Extension Page', async () => {
+    const podmanExtensionPage = await openExtensionsPodmanPage();
+    await podmanExtensionPage.disableExtension();
+    await verifyPodmanExtensionStatus(false);
+  });
+  test('Podman extension can be re-enabled from Extension Page', async () => {
+    const podmanExtensionPage = await openExtensionsPodmanPage(); // enable the extension
+    await podmanExtensionPage.enableExtension();
+    await verifyPodmanExtensionStatus(true);
+  });
+});
 
 async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();
 
   if (enabled) {
-    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible();
+    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible({
+      timeout: 15_000,
+    });
   } else {
-    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible();
+    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible({
+      timeout: 15_000,
+    });
   }
   // always present and visible
   // go to the details of the extension
@@ -85,9 +88,9 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // --------------------------
 
   if (enabled) {
-    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_ACTIVE, { timeout: 10000 });
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_ACTIVE, { timeout: 20_000 });
   } else {
-    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_DISABLED, { timeout: 10000 });
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_DISABLED, { timeout: 20_000 });
   }
   // always present and visible
   const extensionsPageAfter = await navigationBar.openExtensions();
@@ -99,12 +102,20 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
 
   // --------------------------
   if (enabled) {
-    await playExpect(podmanExtensionPage.enableButton).not.toBeVisible({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.disableButton).toBeVisible({ timeout: 10000 });
+    await playExpect(podmanExtensionPage.enableButton).not.toBeVisible({
+      timeout: 10_000,
+    });
+    await playExpect(podmanExtensionPage.disableButton).toBeVisible({
+      timeout: 10_000,
+    });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_ACTIVE)).toBeVisible();
   } else {
-    await playExpect(podmanExtensionPage.enableButton).toBeVisible({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.disableButton).not.toBeVisible({ timeout: 10000 });
+    await playExpect(podmanExtensionPage.enableButton).toBeVisible({
+      timeout: 10_000,
+    });
+    await playExpect(podmanExtensionPage.disableButton).not.toBeVisible({
+      timeout: 10_000,
+    });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_DISABLED)).toBeVisible();
   }
 

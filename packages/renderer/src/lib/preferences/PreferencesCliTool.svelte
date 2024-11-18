@@ -137,7 +137,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
   role="row"
   class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex flex-col"
   aria-label={cliTool.displayName}>
-  <div class="divide-x divide-gray-900 flex flex-row">
+  <div class="divide-x divide-[var(--pd-content-divider)] flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->
       <div class="min-w-[170px] max-w-[200px] h-full flex flex-col justify-between">
@@ -167,9 +167,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="install"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canInstall) {
-                    install(cliTool);
+                    await install(cliTool);
                   }
                 }}
                 icon={faCircleArrowDown}
@@ -183,9 +183,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="update"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canUpdate) {
-                    update(cliTool);
+                    await update(cliTool);
                   }
                 }}
                 icon={faCircleArrowUp}
@@ -203,9 +203,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
             <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
               <LoadingIconButton
                 action="uninstall"
-                clickAction={() => {
+                clickAction={async () => {
                   if (cliTool.canInstall) {
-                    uninstall(cliTool);
+                    await uninstall(cliTool);
                   }
                 }}
                 icon={faTrash}
@@ -219,7 +219,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
       </div>
     </div>
     <!-- cli-tools columns -->
-    <div class="grow flex-column divide-gray-900 ml-2">
+    <div class="grow flex-column divide-[var(--pd-content-divider)] ml-2">
       <span class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]" aria-label="cli-display-name"
         >{cliTool.displayName}</span>
       <div
@@ -228,7 +228,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
       </div>
-      <div role="region" class="ml-3 mt-2 text-gray-300">
+      <div role="region" class="ml-3 mt-2 text-[var(--pd-invert-content-card-text)]">
         <div class="text-[var(--pd-invert-content-card-text)]">
           <Markdown markdown={cliTool.description} />
         </div>
@@ -247,9 +247,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 type="link"
                 class="underline"
                 padding="p-0"
-                on:click={() => {
+                on:click={async () => {
                   if (cliTool.canUpdate) {
-                    update(cliTool);
+                    await update(cliTool);
                   }
                 }}
                 title={`${cliTool.displayName} will be updated`}
@@ -272,9 +272,9 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 type="link"
                 class="underline"
                 padding="p-0"
-                on:click={() => {
+                on:click={async () => {
                   if (cliTool.canInstall) {
-                    install(cliTool);
+                    await install(cliTool);
                   }
                 }}
                 title={`${cliTool.displayName} will be installed`}
@@ -289,8 +289,8 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
     </div>
   </div>
   {#if showError}
-    <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
-      <Fa icon={faCircleXmark} class="mr-1 text-red-500" />
+    <div class="flex flex-row items-center text-xs text-[var(--pd-state-error)] ml-[200px] mt-2">
+      <Fa icon={faCircleXmark} class="mr-1 text-[var(--pd-state-error)]" />
       <span>{errorMessage}</span>
       <Button
         type="link"

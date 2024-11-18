@@ -26,6 +26,7 @@ import NodeColumnName from './NodeColumnName.svelte';
 import type { NodeUI } from './NodeUI';
 
 const node: NodeUI = {
+  uid: '123',
   name: 'my-node',
   status: '',
   role: 'control-plane',
@@ -52,7 +53,7 @@ test('Expect clicking works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/nodes/my-node/summary');
 });

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-configmap-resource
+data:
+  configmap-username: test-configmap
+ 

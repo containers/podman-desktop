@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { readable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
@@ -27,12 +28,17 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import type { ContributionInfo } from '/@api/contribution-info';
 import type { ContextGeneralState } from '/@api/kubernetes-contexts-states';
+import type { ForwardConfig } from '/@api/kubernetes-port-forward-model';
 
+import { AppearanceSettings } from '../../main/src/plugin/appearance-settings';
 import AppNavigation from './AppNavigation.svelte';
+import { onDidChangeConfiguration } from './stores/configurationProperties';
 import { contributions } from './stores/contribs';
 import { fetchNavigationRegistries } from './stores/navigation/navigation-registry';
 
 const eventsMock = vi.fn();
+
+const callbacks = new Map<string, any>();
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {};
@@ -43,6 +49,9 @@ beforeAll(() => {
   (window as any).events = eventsMock;
   (window as any).getConfigurationValue = vi.fn();
   (window as any).sendNavigationItems = vi.fn();
+  onDidChangeConfiguration.addEventListener = vi.fn().mockImplementation((message: string, callback: any) => {
+    callbacks.set(message, callback);
+  });
 });
 
 test('Test rendering of the navigation bar with empty items', async () => {
@@ -59,6 +68,7 @@ test('Test rendering of the navigation bar with empty items', async () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextPortForwards = readable<ForwardConfig[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextState = readable<ContextGeneralState>({} as ContextGeneralState);
 
   // init navigation registry
@@ -111,4 +121,30 @@ test('Test contributions', () => {
     meta,
     exitSettingsCallback: () => {},
   });
+});
+
+test('NAV_BAR_LAYOUT updates on configuration change', async () => {
+  const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
+  // init navigation registry
+  await fetchNavigationRegistries();
+
+  render(AppNavigation, {
+    meta,
+    exitSettingsCallback: () => {},
+  });
+  await tick();
+
+  callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.IconAndTitle } });
+  await tick();
+  expect(screen.getByLabelText('Dashboard title')).toBeInTheDocument();
+  expect(screen.getByRole('navigation')).toHaveClass('min-w-fit');
+
+  callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: NAV_BAR_LAYOUT, value: AppearanceSettings.Icon } });
+  await tick();
+  expect(screen.queryByLabelText('Dashboard title')).not.toBeInTheDocument();
+  expect(screen.getByRole('navigation')).toHaveClass('min-w-leftnavbar');
 });

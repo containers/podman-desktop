@@ -26,6 +26,7 @@ import DeploymentColumnName from './DeploymentColumnName.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
 const deployment: DeploymentUI = {
+  uid: '123',
   name: 'my-deployment',
   status: '',
   namespace: 'default',
@@ -52,7 +53,7 @@ test('Expect clicking works', async () => {
   // test click
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  fireEvent.click(text);
+  await fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/kubernetes/deployments/my-deployment/default/summary');
 });

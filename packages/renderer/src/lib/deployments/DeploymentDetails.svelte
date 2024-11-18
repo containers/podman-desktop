@@ -5,10 +5,14 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
 
-import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
+import {
+  kubernetesCurrentContextDeployments,
+  kubernetesCurrentContextEvents,
+} from '/@/stores/kubernetes-contexts-state';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { EventUI } from '../events/EventUI';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -26,6 +30,8 @@ let detailsPage: DetailsPage;
 let kubeDeployment: V1Deployment | undefined;
 let kubeError: string;
 
+let events: EventUI[] = [];
+
 onMount(() => {
   const deploymentUtils = new DeploymentUtils();
   // loading deployment info
@@ -34,12 +40,9 @@ onMount(() => {
       dep => dep.metadata?.name === name && dep.metadata?.namespace === namespace,
     );
     if (matchingDeployment) {
-      try {
-        deployment = deploymentUtils.getDeploymentUI(matchingDeployment);
-        loadDetails();
-      } catch (err) {
-        console.error(err);
-      }
+      deployment = deploymentUtils.getDeploymentUI(matchingDeployment);
+      events = $kubernetesCurrentContextEvents.filter(ev => ev.involvedObject.uid === deployment.uid);
+      loadDetails().catch((err: unknown) => console.error(`Error getting deployment details ${deployment.name}`, err));
     } else if (detailsPage) {
       // the deployment has been deleted
       detailsPage.close();
@@ -70,7 +73,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <DeploymentDetailsSummary deployment={kubeDeployment} kubeError={kubeError} />
+        <DeploymentDetailsSummary deployment={kubeDeployment} kubeError={kubeError} events={events} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content={JSON.stringify(kubeDeployment, undefined, 2)} language="json" />

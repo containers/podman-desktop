@@ -12,10 +12,10 @@ export let preflightChecks: CheckStatus[];
 export let closeCallback: () => void;
 export let doCreateNew: (provider: ProviderInfo, displayName: string) => void;
 
-function openLink(e: MouseEvent, url: string): void {
+async function openLink(e: MouseEvent, url: string): Promise<void> {
   e.preventDefault();
   e.stopPropagation();
-  window.openExternal(url);
+  await window.openExternal(url);
 }
 </script>
 
@@ -36,10 +36,10 @@ function openLink(e: MouseEvent, url: string): void {
               class="mx-auto max-h-12" />
           </div>
           <div class="flex flex-row mx-auto text-md">Some system requirements are missing.</div>
-          <div class="flex flex-col min-h-[150px] mt-5 mx-auto py-4 px-10 rounded-md bg-charcoal-800">
+          <div class="flex flex-col min-h-[150px] mt-5 mx-auto py-4 px-10 rounded-md bg-[var(--pd-content-card-bg)]">
             {#each preflightChecks as preCheck}
               <div class="flex flex-row mb-2 mx-auto">
-                <Fa icon={faCircleXmark} class="text-red-500 mt-0.5" />
+                <Fa icon={faCircleXmark} class="text-[var(--pd-state-error)] mt-0.5" />
                 <div class="flex flex-col ml-1 text-sm">
                   {#if preCheck.description}
                     <span class="w-full" aria-label={preCheck.description}>{preCheck.description}</span>
@@ -47,7 +47,7 @@ function openLink(e: MouseEvent, url: string): void {
                       <div class="flex flex-row mt-0.5">
                         <span class="mr-1">See:</span>
                         {#each preCheck.docLinks as link}
-                          <a href={link.url} target="_blank" class="mr-1" on:click={e => openLink(e, link.url)}
+                          <a href={link.url} target="_blank" class="mr-1" on:click={async e => await openLink(e, link.url)}
                             >{link.title}</a>
                         {/each}
                       </div>
@@ -59,7 +59,7 @@ function openLink(e: MouseEvent, url: string): void {
               </div>
             {/each}
           </div>
-          <div class="text-xs text-gray-800 mt-2 text-center">
+          <div class="text-xs text-[var(--pd-content-text)] mt-2 text-center">
             Be sure that your system fulfills all the requirements above before proceeding
           </div>
           <div class="flex flex-row justify-end w-full pt-2">

@@ -2,7 +2,7 @@
   "name": "kube-context",
   "displayName": "Kube Context",
   "description": "Easily switch between Kubernetes contexts",
-  "version": "1.14.0-next",
+  "version": "1.15.0-next",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
@@ -45,7 +45,7 @@
     "adm-zip": "^0.5.16",
     "@types/js-yaml": "^4.0.9",
     "mkdirp": "^3.0.1",
-    "vite": "^5.4.9",
-    "vitest": "^2.1.2"
+    "vite": "^5.4.11",
+    "vitest": "^2.1.4"
   }
 }

@@ -20,6 +20,7 @@ import type { Informer, KubernetesObject } from '@kubernetes/client-node';
 import { describe, expect, test } from 'vitest';
 
 import { ContextsInformersRegistry } from './contexts-informers-registry.js';
+import type { CancellableInformer } from './contexts-states-registry.js';
 import { TestInformer } from './test-informer.js';
 
 describe('ContextsInformers tests', () => {
@@ -27,7 +28,15 @@ describe('ContextsInformers tests', () => {
     const client = new ContextsInformersRegistry();
     client.setInformers(
       'context1',
-      new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([
+        [
+          'pods',
+          {
+            informer: new TestInformer('context1', '/path/to/resource', 0, undefined, [], []),
+            cancel: (): void => {},
+          },
+        ],
+      ]),
     );
     expect(client.hasInformer('context1', 'pods')).toBeTruthy();
     expect(client.hasInformer('context1', 'deployments')).toBeFalsy();
@@ -39,11 +48,27 @@ describe('ContextsInformers tests', () => {
     const client = new ContextsInformersRegistry();
     client.setInformers(
       'context1',
-      new Map([['pods', new TestInformer('context1', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([
+        [
+          'pods',
+          {
+            informer: new TestInformer('context1', '/path/to/resource', 0, undefined, [], []),
+            cancel: (): void => {},
+          },
+        ],
+      ]),
     );
     client.setInformers(
       'context2',
-      new Map([['pods', new TestInformer('context2', '/path/to/resource', 0, undefined, [], [])]]),
+      new Map([
+        [
+          'pods',
+          {
+            informer: new TestInformer('context2', '/path/to/resource', 0, undefined, [], []),
+            cancel: (): void => {},
+          },
+        ],
+      ]),
     );
     expect(Array.from(client.getContextsNames())).toEqual(['context1', 'context2']);
   });
@@ -66,12 +91,18 @@ describe('ContextsInformers tests', () => {
     expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
     expect(states.hasInformer('ctx1', 'pods')).toBeFalsy();
 
-    states.setResourceInformer('ctx1', 'pods', {} as Informer<KubernetesObject>);
+    states.setResourceInformer('ctx1', 'pods', {} as CancellableInformer);
     expect(states.hasContext('ctx1')).toBeTruthy();
     expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
     expect(states.hasInformer('ctx1', 'pods')).toBeTruthy();
 
-    expect(() => states.setResourceInformer('ctx2', 'pods', {} as Informer<KubernetesObject>)).toThrow(
+    states.setResourceInformer('ctx1', 'events', {} as CancellableInformer);
+    expect(states.hasContext('ctx1')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'services')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'pods')).toBeTruthy();
+    expect(states.hasInformer('ctx1', 'events')).toBeTruthy();
+
+    expect(() => states.setResourceInformer('ctx2', 'pods', {} as CancellableInformer)).toThrow(
       'watchers for context ctx2 not found',
     );
   });

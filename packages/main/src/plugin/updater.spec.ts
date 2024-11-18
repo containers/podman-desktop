@@ -419,7 +419,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 2,
-      buttons: ['Update now', 'View release notes', 'Remind me later', 'Do not show again'],
+      buttons: ['Update now', `What's new`, 'Remind me later', `Don't show again`],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -435,7 +435,7 @@ describe('expect update command to depends on context', async () => {
 
     expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
       cancelId: 2,
-      buttons: ['Update now', 'View release notes', 'Cancel'],
+      buttons: ['Update now', `What's new`, 'Cancel'],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
       title: 'Update Available now',
@@ -600,6 +600,10 @@ test('open release notes from podman-desktop.io', async () => {
   expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.1');
   await updater.openReleaseNotes('latest');
   expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-1.2');
+  await updater.openReleaseNotes('v0.1.1');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-0.1');
+  await updater.openReleaseNotes('0.2.1');
+  expect(shell.openExternal).toBeCalledWith('appHomepage/blog/podman-desktop-release-0.2');
 });
 
 test('open release notes from GitHub', async () => {
@@ -627,6 +631,10 @@ test('open release notes from GitHub', async () => {
   expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.20.0');
   await updater.openReleaseNotes('latest');
   expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v0.21.0');
+  await updater.openReleaseNotes('v1.1.1');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v1.1.1');
+  await updater.openReleaseNotes('1.1.2');
+  expect(shell.openExternal).toBeCalledWith('appRepo/releases/tag/v1.1.2');
 });
 
 test('get release notes', async () => {
@@ -703,4 +711,141 @@ test('get release notes in dev mode', async () => {
   } finally {
     vi.unstubAllEnvs();
   }
+});
+
+test('update is available when next version is greater then current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.1',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.0');
+
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+  expect(updater.updateAvailable()).toBeTruthy();
+});
+
+test('update is not available when next version is the same as the current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.0');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update is not available when next version is less than the current version', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5.0',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update is not available when next version empty', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.5.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeFalsy();
+});
+
+test('update version is not full semver', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '1.5',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('1.4.1');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
+});
+
+test('versions are not numbered versions', async () => {
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: 'foo',
+    },
+  } as unknown as UpdateCheckResult);
+
+  vi.mocked(app.getVersion).mockReturnValue('bar');
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  );
+  updater.init();
+
+  await vi.waitFor(() => expect(autoUpdater.checkForUpdates).toBeCalled());
+
+  expect(updater.updateAvailable()).toBeTruthy();
 });

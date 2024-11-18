@@ -74,6 +74,7 @@ test.afterAll(async ({ runner, page }) => {
 test.describe
   .serial('Rootless Podman machine Verification', () => {
     test('Check data for available Podman Machine and stop machine', async ({ page, navigationBar }) => {
+      test.setTimeout(120_000);
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
 
@@ -91,10 +92,10 @@ test.describe
 
       const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
 
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 50_000 });
+      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
       await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
       await podmanMachineDetails.podmanMachineStopButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 50_000 });
+      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
     });
 
     test('Create a rootless machine', async ({ page, navigationBar }) => {
@@ -130,7 +131,7 @@ test.describe
       await handleConfirmationDialog(page, 'Podman', true, 'Yes');
       await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
 
       await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
       await podmanMachineDetails.podmanMachineStopButton.click();
@@ -163,7 +164,7 @@ test.describe
       await handleConfirmationDialog(page, 'Podman', true, 'Yes');
       await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
     });
 
     test('Clean up rootless machine', async ({ page }) => {

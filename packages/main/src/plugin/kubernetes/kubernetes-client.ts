@@ -67,8 +67,11 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 import { parseAllDocuments } from 'yaml';
 
+import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
+import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -176,6 +179,10 @@ export class KubernetesClient {
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
     this._onDidUpdateKubeconfig.event;
 
+  static readonly portForwardServiceProvider = new KubernetesPortForwardServiceProvider();
+
+  #portForwardService?: KubernetesPortForwardService;
+
   constructor(
     private readonly apiSender: ApiSenderType,
     private readonly configurationRegistry: ConfigurationRegistry,
@@ -225,7 +232,10 @@ export class KubernetesClient {
     // Update the property on change
     this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'kubernetes.Kubeconfig') {
-        const val = e.value as string;
+        let val = e.value as string;
+        if (!val?.trim()) {
+          val = defaultKubeconfigPath;
+        }
         this.setupWatcher(val);
         await this.setKubeconfig(Uri.file(val));
       }
@@ -419,6 +429,10 @@ export class KubernetesClient {
     await fs.promises.writeFile(this.kubeconfigPath, yamlString);
   }
 
+  getKubeConfig(): KubeConfig {
+    return this.kubeConfig;
+  }
+
   private async getDefaultNamespace(context: Context): Promise<string> {
     if (context.namespace) {
       return context.namespace;
@@ -487,6 +501,8 @@ export class KubernetesClient {
     }
     this.setupKubeWatcher();
     this.apiResources.clear();
+    this.#portForwardService?.dispose();
+    this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this, this.apiSender);
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
@@ -831,7 +847,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
+  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod({ name, namespace });
@@ -845,7 +861,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment | undefined> {
+  async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment> {
     const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
     try {
       const res = await k8sAppsApi.readNamespacedDeployment({ name, namespace });
@@ -925,7 +941,7 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedService(name: string, namespace: string): Promise<V1Service | undefined> {
+  async readNamespacedService(name: string, namespace: string): Promise<V1Service> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedService({ name, namespace });
@@ -1721,5 +1737,47 @@ export class KubernetesClient {
     // possible check is also in pod-template-hash label:
     // pod.metadata?.labels && 'pod-template-hash' in pod.metadata.labels
     return podMetadata.ownerReferences?.find((ref: V1OwnerReference) => ref.controller === true);
+  }
+
+  /**
+   * Ask for getting the state of the context as soon as possible.
+   *
+   * Because the connection to a context is tested with a backoff,
+   * it can take time to know if a context is reachable or not.
+   * By calling this method, the connection will be tested immediately,
+   * and the result sent as soon as the connection status is known.
+   *
+   * @param context name of the context for which we want to get state ASAP
+   * @returns
+   */
+  public async refreshContextState(context: string): Promise<void> {
+    return this.contextsState.refreshContextState(context);
+  }
+
+  protected ensurePortForwardService(): KubernetesPortForwardService {
+    if (!this.#portForwardService) {
+      this.#portForwardService = KubernetesClient.portForwardServiceProvider.getService(this, this.apiSender);
+    }
+    return this.#portForwardService;
+  }
+
+  public async getPortForwards(): Promise<ForwardConfig[]> {
+    return this.ensurePortForwardService().listForwards();
+  }
+
+  public async createPortForward(config: ForwardOptions): Promise<ForwardConfig> {
+    const service = this.ensurePortForwardService();
+    const newConfig = await service.createForward(config);
+    try {
+      await service.startForward(newConfig);
+      return newConfig;
+    } catch (err: unknown) {
+      await service.deleteForward(newConfig);
+      throw err;
+    }
+  }
+
+  public async deletePortForward(config: ForwardConfig): Promise<void> {
+    return this.ensurePortForwardService().deleteForward(config);
   }
 }

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ExtensionDetailsPage } from './extension-details-page';
@@ -43,20 +43,37 @@ export class ExtensionCardPage extends BasePage {
     this.parent = this.page.getByRole('region', { name: 'content' });
     this.extensionName = extensionName;
     this.extensionLabel = extensionLabel;
-    this.card = this.parent.getByRole('region', { name: this.extensionLabel, exact: true });
+    this.card = this.parent.getByRole('region', {
+      name: this.extensionLabel,
+      exact: true,
+    });
     this.leftActions = this.card.getByRole('region', { name: 'left actions' });
-    this.rightActions = this.card.getByRole('region', { name: 'right actions' });
+    this.rightActions = this.card.getByRole('region', {
+      name: 'right actions',
+    });
     this.detailsLink = this.rightActions.getByRole('button', {
       name: `${this.extensionName} extension details`,
       exact: true,
     });
-    this.extensionActions = this.leftActions.getByRole('group', { name: 'Extension Actions' });
-    this.onboardingButton = this.leftActions.getByRole('button', { name: 'Onboarding bootc' });
-    this.editButton = this.leftActions.getByRole('button', { name: `Edit properties of ${extensionName} extension` });
+    this.extensionActions = this.leftActions.getByRole('group', {
+      name: 'Extension Actions',
+    });
+    this.onboardingButton = this.leftActions.getByRole('button', {
+      name: 'Onboarding bootc',
+    });
+    this.editButton = this.leftActions.getByRole('button', {
+      name: `Edit properties of ${extensionName} extension`,
+    });
     this.status = this.leftActions.getByLabel('Extension Status Label');
-    this.enableButton = this.extensionActions.getByRole('button', { name: 'Start' });
-    this.disableButton = this.extensionActions.getByRole('button', { name: 'Stop' });
-    this.removeButton = this.extensionActions.getByRole('button', { name: 'Delete' });
+    this.enableButton = this.extensionActions.getByRole('button', {
+      name: 'Start',
+    });
+    this.disableButton = this.extensionActions.getByRole('button', {
+      name: 'Stop',
+    });
+    this.removeButton = this.extensionActions.getByRole('button', {
+      name: 'Delete',
+    });
   }
 
   public async openExtensionDetails(heading: string): Promise<ExtensionDetailsPage> {
@@ -68,24 +85,30 @@ export class ExtensionCardPage extends BasePage {
   }
 
   async disableExtension(): Promise<this> {
-    if ((await this.status.innerText()) === 'DISABLED') return this;
+    return test.step(`Disable extension: ${this.extensionName}`, async () => {
+      if ((await this.status.innerText()) === 'DISABLED') return this;
 
-    await this.disableButton.click();
-    await playExpect(this.status).toHaveText('DISABLED');
-    return this;
+      await this.disableButton.click();
+      await playExpect(this.status).toHaveText('DISABLED');
+      return this;
+    });
   }
 
   async enableExtension(): Promise<this> {
-    if ((await this.status.innerText()) === 'ACTIVE') return this;
+    return test.step(`Enable extension: ${this.extensionName}`, async () => {
+      if ((await this.status.innerText()) === 'ACTIVE') return this;
 
-    await this.enableButton.click();
-    await playExpect(this.status).toHaveText('ACTIVE');
-    return this;
+      await this.enableButton.click();
+      await playExpect(this.status).toHaveText('ACTIVE');
+      return this;
+    });
   }
 
   async removeExtension(): Promise<ExtensionsPage> {
-    await this.disableExtension();
-    await this.removeButton.click();
-    return new ExtensionsPage(this.page);
+    return test.step(`Remove extension: ${this.extensionName}`, async () => {
+      await this.disableExtension();
+      await this.removeButton.click();
+      return new ExtensionsPage(this.page);
+    });
   }
 }

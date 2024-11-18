@@ -31,9 +31,12 @@ const getConfigurationValueMock = vi.fn();
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  (window as any).getKubernetesPortForwards = vi.fn();
   (window as any).window.kubernetesGetCurrentContextGeneralState = kubernetesGetCurrentContextGeneralStateMock;
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).sendNavigationItems = vi.fn();
+
+  vi.mocked(window.getKubernetesPortForwards).mockResolvedValue([]);
 });
 
 test('check navigation registry items', async () => {

@@ -28,7 +28,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe('Basic e2e verification of podman desktop start @smoke', () => {
+test.describe('Basic e2e verification of podman desktop start', { tag: '@smoke' }, () => {
   test.describe('Welcome page handling', () => {
     test('Check the Welcome page is displayed', async ({ welcomePage }) => {
       await playExpect(welcomePage.welcomeMessage).toBeVisible();

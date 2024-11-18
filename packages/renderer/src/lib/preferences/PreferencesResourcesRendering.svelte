@@ -1,7 +1,7 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faGear, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
-import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
@@ -103,7 +103,9 @@ onMount(() => {
               action: 'restart',
               status: container.status,
             });
-            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${container.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -129,7 +131,9 @@ onMount(() => {
               action: 'restart',
               status: connection.status,
             });
-            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey).catch((err: unknown) =>
+              console.error(`Error starting connection provider ${connection.name}`, err),
+            );
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -218,7 +222,9 @@ $: Promise.all(
     );
     return providerContainer.flat();
   }),
-).then(value => (tmpProviderContainerConfiguration = value.flat()));
+)
+  .then(value => (tmpProviderContainerConfiguration = value.flat()))
+  .catch((err: unknown) => console.error('Error collecting providers', err));
 
 $: providerContainerConfiguration = tmpProviderContainerConfiguration
   .filter(configurationKey => configurationKey.value !== undefined)
@@ -280,9 +286,9 @@ async function doCreateNew(provider: ProviderInfo, displayName: string) {
     providerInstallationInProgress = providerInstallationInProgress;
     providerToBeInstalled = { provider, displayName };
     doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
-    performInstallation(provider);
+    await performInstallation(provider);
   } else {
-    window.telemetryTrack('createNewProviderConnectionPageRequested', {
+    await window.telemetryTrack('createNewProviderConnectionPageRequested', {
       providerId: provider.id,
       name: provider.name,
     });
@@ -361,7 +367,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
   <span slot="subtitle" class:hidden={providers.length === 0}>
     Additional provider information is available under <a
       href="/extensions"
-      class="text-gray-700 underline underline-offset-2">Extensions</a>
+      class="text-[var(--pd-content-text)] underline underline-offset-2">Extensions</a>
   </span>
   <div class="h-full" role="region" aria-label="Featured Provider Resources">
     <EmptyScreen
@@ -373,7 +379,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
     {#each providers as provider}
       <div
-        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-[var(--pd-content-divider)] flex"
         role="region"
         aria-label={provider.id}>
         <div role="region" aria-label="Provider Setup">
@@ -446,7 +452,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
         </div>
         <!-- providers columns -->
         <div
-          class="grow flex flex-wrap divide-gray-900 ml-2 text-[var(--pd-invert-content-card-text)]"
+          class="grow flex flex-wrap divide-[var(--pd-content-divider)] ml-2 text-[var(--pd-invert-content-card-text)]"
           role="region"
           aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
@@ -470,7 +476,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   </button>
                 </Tooltip>
               </div>
-              <div class="{container.status !== 'started' ? 'text-gray-900' : ''} font-semibold">
+              <div class="{container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''} font-semibold">
                 {container.displayName}
               </div>
               <div class="flex" aria-label="Connection Status">
@@ -480,16 +486,16 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <ConnectionErrorInfoButton status={status} />
                 {/if}
               </div>
-              <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
+              <div class="mt-2 text-[var(--pd-content-text)] text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
               <PreferencesResourcesRenderingCopyButton
-                class={container.status !== 'started' ? 'text-gray-900' : ''}
+                class={container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''}
                 path={container.endpoint.socketPath} />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) ?? []}
                 <div
-                  class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
+                  class="flex mt-3 {container.status !== 'started' ? 'text-[var(--pd-content-sub-header)]' : ''}"
                   role="group"
                   aria-label="Provider Configuration">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
@@ -530,8 +536,19 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connection={container}
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
-                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
-              <div class="mt-1.5 text-gray-900 text-[9px] flex justify-between">
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue}>
+                <span slot="advanced-actions" class:hidden={providers.length === 0}>
+                  <Tooltip bottom tip="More Options">
+                    <DropdownMenu>
+                      <DropdownMenu.Item title="Open Terminal" icon={faTerminal} onClick={() => {router.goto(
+                        `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                          container.name,
+                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/terminal`);}}/>
+                    </DropdownMenu>
+                  </Tooltip>
+                </span>
+              </PreferencesConnectionActions>
+              <div class="mt-1.5 text-[var(--pd-content-sub-header)] text-[9px] flex justify-between">
                 <div aria-label="Connection Version">
                   {provider.name}
                   {provider.version ? `v${provider.version}` : ''}
@@ -564,9 +581,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 <ConnectionStatus status={kubeConnection.status} />
               </div>
               <div class="mt-2">
-                <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
+                <div class="text-[var(--pd-content-text)] text-xs">Kubernetes endpoint</div>
                 <div class="mt-1">
-                  <span class="my-auto text-xs" class:text-gray-900={kubeConnection.status !== 'started'}
+                  <span class="my-auto text-xs" class:text-[var(--pd-content-sub-header)]={kubeConnection.status !== 'started'}
                     >{kubeConnection.endpoint.apiURL}</span>
                 </div>
               </div>

@@ -24,7 +24,7 @@ $: {
     (refContainer.id !== container.id || (refContainer.state !== container.state && container.state !== 'EXITED'))
   ) {
     logsTerminal?.clear();
-    fetchContainerLogs();
+    fetchContainerLogs().catch((err: unknown) => console.error(`Error fetching container logs ${container.id}`, err));
   }
   refContainer = container;
 }
@@ -51,11 +51,11 @@ function callback(name: string, data: string) {
 
 async function fetchContainerLogs() {
   // grab logs of the container
-  await window.logsContainer(container.engineId, container.id, callback);
+  await window.logsContainer({ engineId: container.engineId, containerId: container.id, callback });
 }
 
 onMount(async () => {
-  fetchContainerLogs();
+  await fetchContainerLogs();
 });
 </script>
 

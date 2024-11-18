@@ -29,8 +29,12 @@ import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '/@api/kubernetes-c
 import type { ApiSenderType } from '../api.js';
 import { dispatchTimeout } from './contexts-constants.js';
 
+export interface CancellableInformer {
+  informer: Informer<KubernetesObject>;
+  cancel: () => void;
+}
 // ContextInternalState stores informers for a kube context
-export type ContextInternalState = Map<ResourceName, Informer<KubernetesObject>>;
+export type ContextInternalState = Map<ResourceName, CancellableInformer>;
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -59,6 +63,7 @@ export const dispatchAllResources: ResourcesDispatchOptions = {
   routes: true,
   configmaps: true,
   secrets: true,
+  events: true,
   // add new resources here when adding new informers
 };
 
@@ -210,6 +215,7 @@ export class ContextsStatesRegistry {
           routes: [],
           configmaps: [],
           secrets: [],
+          events: [],
           // add new resources here when adding new informers
         },
       });

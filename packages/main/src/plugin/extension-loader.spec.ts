@@ -33,6 +33,7 @@ import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
 import { NavigationPage } from '/@api/navigation-page.js';
+import type { OnboardingInfo } from '/@api/onboarding.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
 import { getBase64Image } from '../util.js';
@@ -179,7 +180,9 @@ const authenticationProviderRegistry: AuthenticationImpl = {
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 
-const onboardingRegistry: OnboardingRegistry = {} as unknown as OnboardingRegistry;
+const onboardingRegistry: OnboardingRegistry = {
+  getOnboarding: vi.fn(),
+} as unknown as OnboardingRegistry;
 
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
@@ -233,6 +236,7 @@ const navigationManager: NavigationManager = new NavigationManager(
   providerRegistry,
   webviewRegistry,
   commandRegistry,
+  onboardingRegistry,
 );
 
 const colorRegistry = {
@@ -758,6 +762,67 @@ test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
   // do we have missingDependencies field for extension 3 as it's missing
   expect(analyzedExtension1.missingDependencies).toStrictEqual([]);
   expect(analyzedExtension2.missingDependencies).toStrictEqual([]);
+  expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
+});
+
+test('Verify searchForMissingDependencies(analyzedExtensions); with already loaded extensions', async () => {
+  // Check if missing dependencies are found
+  const extensionId1 = 'foo.extension1';
+  const extensionId2 = 'foo.extension2';
+  const extensionId3 = 'foo.extension3';
+  const extensionId4 = 'foo.extension4';
+  const unknownExtensionId = 'foo.unknown';
+
+  // extension1 has no dependencies and has already been loaded
+  const analyzedExtension1: AnalyzedExtension = {
+    id: extensionId1,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension2 has no dependencies and has already been loaded
+  const analyzedExtension2: AnalyzedExtension = {
+    id: extensionId2,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension3 depends on unknown extension unknown
+  const analyzedExtension3: AnalyzedExtension = {
+    id: extensionId3,
+    manifest: {
+      extensionDependencies: [unknownExtensionId],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension4 depends on extension1
+  const analyzedExtension4: AnalyzedExtension = {
+    id: extensionId4,
+    manifest: {
+      extensionDependencies: [extensionId1],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  const analyzedExtensions = new Map<string, AnalyzedExtension>();
+
+  analyzedExtensions.set(extensionId1, analyzedExtension1);
+  analyzedExtensions.set(extensionId2, analyzedExtension2);
+
+  extensionLoader['analyzedExtensions'] = analyzedExtensions;
+
+  expect(analyzedExtension1.missingDependencies).toBeUndefined();
+  expect(analyzedExtension2.missingDependencies).toBeUndefined();
+  expect(analyzedExtension3.missingDependencies).toBeUndefined();
+  expect(analyzedExtension4.missingDependencies).toBeUndefined();
+
+  extensionLoader.searchForMissingDependencies([analyzedExtension3, analyzedExtension4]);
+
+  // do we have missingDependencies field for extension 3 as it's missing
+  expect(analyzedExtension4.missingDependencies).toStrictEqual([]);
   expect(analyzedExtension3.missingDependencies).toStrictEqual([unknownExtensionId]);
 });
 
@@ -1722,6 +1787,95 @@ describe('Navigation', async () => {
     });
 
     expect(vi.mocked(webviewRegistry.listWebviews)).toHaveBeenCalled();
+  });
+
+  test('navigateToOnboarding without parameter', async () => {
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue({
+      extension: 'foo',
+    } as OnboardingInfo);
+
+    await api.navigation.navigateToOnboarding();
+    expect(vi.mocked(apiSender.send)).toBeCalledWith('navigate', {
+      page: NavigationPage.ONBOARDING,
+      parameters: {
+        extensionId: 'publisher.name',
+      },
+    });
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('publisher.name');
+  });
+
+  test('navigateToOnboarding with parameter', async () => {
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue({
+      extension: 'foo',
+    } as OnboardingInfo);
+
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    // Call the method provided
+    await api.navigation.navigateToOnboarding('my.extension');
+
+    // Ensure the send method is called properly
+    expect(vi.mocked(apiSender.send)).toBeCalledWith('navigate', {
+      page: NavigationPage.ONBOARDING,
+      parameters: {
+        extensionId: 'my.extension',
+      },
+    });
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('my.extension');
+  });
+
+  test('navigateToOnboarding but no onboarding available', async () => {
+    vi.mocked(onboardingRegistry.getOnboarding).mockReturnValue(undefined);
+
+    const api = extensionLoader.createApi(
+      'path',
+      {
+        name: 'name',
+        publisher: 'publisher',
+        version: '1',
+        displayName: 'dname',
+      },
+      [],
+    );
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToOnboarding('do.not-exists');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is never called
+    expect(vi.mocked(apiSender.send)).not.toHaveBeenCalled();
+
+    // checked on onboarding registry
+    expect(vi.mocked(onboardingRegistry.getOnboarding)).toHaveBeenCalledWith('do.not-exists');
   });
 });
 

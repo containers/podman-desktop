@@ -20,7 +20,7 @@ if (pod?.status?.startTime) {
     <table class="w-full">
       <tbody>
         <tr>
-          <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Pod {pod.metadata?.name}</td>
+          <td class="py-2 px-4 text-lg pl-1 font-semibold text-[var(--pd-table-body-text-sub-secondary)]" colspan="2">Pod {pod.metadata?.name}</td>
         </tr>
         <tr>
           <td class="py-2 px-4">Name</td>
@@ -80,7 +80,7 @@ if (pod?.status?.startTime) {
         </tr>
 
         <tr>
-          <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Networking</td>
+          <td class="py-2 px-4 text-lg pl-1 font-semibold text-[var(--pd-table-body-text-sub-secondary)]" colspan="2">Networking</td>
         </tr>
         <tr>
           <td class="py-2 px-4">Pod IP</td>
@@ -93,11 +93,11 @@ if (pod?.status?.startTime) {
 
         {#if pod.spec?.containers?.length}
           <tr>
-            <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Containers</td>
+            <td class="py-2 px-4 text-lg pl-1 font-semibold text-[var(--pd-table-body-text-sub-secondary)]" colspan="2">Containers</td>
           </tr>
           {#each pod.spec.containers as container}
             <tr>
-              <td class="py-2 px-4 text-md pl-2 font-semibold text-purple-300" colspan="2">{container.name}</td>
+              <td class="py-2 px-4 text-md pl-2 font-semibold text-[var(--pd-table-body-text-sub-secondary)]" colspan="2">{container.name}</td>
             </tr>
             <tr>
               <td class="py-2 px-4">Name</td>
@@ -140,7 +140,7 @@ if (pod?.status?.startTime) {
         <!-- Volumes section -->
         {#if pod.spec?.volumes?.length}
           <tr>
-            <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Volumes</td>
+            <td class="py-2 px-4 text-lg pl-1 font-semibold text-[var(--pd-table-body-text-sub-secondary)]" colspan="2">Volumes</td>
           </tr>
           {#each pod.spec.volumes as volume}
             <KubeVolumeArtifact artifact={volume} />
@@ -149,6 +149,6 @@ if (pod?.status?.startTime) {
       </tbody>
     </table>
   {:else}
-    <p class="text-purple-500 font-medium">Loading ...</p>
+    <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
   {/if}
 </div>

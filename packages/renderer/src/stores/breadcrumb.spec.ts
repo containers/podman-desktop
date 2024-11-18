@@ -20,12 +20,13 @@ import { get } from 'svelte/store';
 import type { TinroBreadcrumb } from 'tinro';
 import { expect, test } from 'vitest';
 
-import { currentPage, history, lastPage } from './breadcrumb';
+import { currentPage, history, lastPage, lastSubmenuPages } from './breadcrumb';
 
 export function mockBreadcrumb() {
   history.set([{ name: 'List', path: '/list' } as TinroBreadcrumb]);
   lastPage.set({ name: 'Previous', path: '/last' } as TinroBreadcrumb);
   currentPage.set({ name: 'Current', path: '/current' } as TinroBreadcrumb);
+  lastSubmenuPages.set({ 'page 1': '/page1', 'page 2': '/page2' });
 }
 
 test('Confirm mock values', async () => {
@@ -39,4 +40,8 @@ test('Confirm mock values', async () => {
 
   const hist = get(history);
   expect(hist[0].name).toBe('List');
+
+  const submenuPages = get(lastSubmenuPages);
+  expect(submenuPages['page 1']).toBe('/page1');
+  expect(submenuPages['page 2']).toBe('/page2');
 });

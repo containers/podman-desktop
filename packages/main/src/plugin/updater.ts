@@ -26,6 +26,7 @@ import {
   type UpdateDownloadedEvent,
   type UpdateInfo,
 } from 'electron-updater';
+import { compare, valid } from 'semver';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -72,8 +73,13 @@ export class Updater {
     if (version === 'current') {
       version = app.getVersion();
     } else if (version === 'latest') {
-      version = this.#nextVersion?.substring(1) ?? '';
+      version = this.#nextVersion ?? '';
     }
+
+    if (version.startsWith('v')) {
+      version = version.substring(1);
+    }
+
     const urlVersionFormat = version.split('.', 2).join('.');
     let notesURL = `${homepage}/blog/podman-desktop-release-${urlVersionFormat}`;
     https.get(notesURL, res => {
@@ -171,7 +177,7 @@ export class Updater {
         title: 'Version',
         message: `Using version ${this.#currentVersion}`,
         detail: detailMessage,
-        buttons: ['View release notes'],
+        buttons: ['View release notes banner'],
       });
       if (result.response === 0) {
         await this.configurationRegistry.updateConfigurationValue(`releaseNotesBanner.show`, 'show');
@@ -214,9 +220,9 @@ export class Updater {
 
       let buttons: string[];
       if (context === 'startup') {
-        buttons = ['Update now', 'View release notes', 'Remind me later', 'Do not show again'];
+        buttons = ['Update now', `What's new`, 'Remind me later', `Don't show again`];
       } else {
-        buttons = ['Update now', 'View release notes', 'Cancel'];
+        buttons = ['Update now', `What's new`, 'Cancel'];
       }
 
       const result = await this.messageBox.showMessageBox({
@@ -272,6 +278,7 @@ export class Updater {
         console.error('Something went wrong while executing update command', err);
       });
     }
+    this.apiSender.send('app-update-available', true);
   }
 
   /**
@@ -327,6 +334,7 @@ export class Updater {
 
     // Update the 'version' entry in the status bar to show that no update is available
     this.defaultVersionEntry();
+    this.apiSender.send('app-update-available', false);
   }
 
   /**
@@ -375,6 +383,7 @@ export class Updater {
       return;
     }
     console.error('unable to check for updates', error);
+    this.apiSender.send('app-update-available', false);
   }
 
   /**
@@ -395,7 +404,13 @@ export class Updater {
       .checkForUpdates()
       .then(result => {
         this.#updateCheckResult = result ?? undefined;
-        this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+        if (
+          !valid(app.getVersion()) ||
+          !valid(this.#updateCheckResult?.updateInfo.version ?? '') ||
+          compare(app.getVersion(), this.#updateCheckResult?.updateInfo.version ?? '') === -1
+        ) {
+          this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+        }
       })
       .catch((error: unknown) => {
         console.log('unable to check for updates', error);
@@ -403,7 +418,7 @@ export class Updater {
   }
 
   public updateAvailable(): boolean {
-    return this.#updateCheckResult !== undefined;
+    return !!this.#nextVersion;
   }
 
   public init(): Disposable {

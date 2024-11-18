@@ -28,6 +28,7 @@ import {
   getBundledPodmanVersion,
   HyperVCheck,
   PodmanInstall,
+  VirtualMachinePlatformCheck,
   WinInstaller,
   WSL2Check,
   WSLVersionCheck,
@@ -295,10 +296,11 @@ test('expect winVirtualMachine preflight check return successful result if the v
     }),
   );
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winVirtualMachinePlatformCheck = preflights[3];
+  const winVirtualMachinePlatformCheck = new VirtualMachinePlatformCheck();
   const result = await winVirtualMachinePlatformCheck.execute();
+  expect(extensionApi.process.exec).toBeCalledWith(expect.anything(), expect.arrayContaining([expect.anything()]), {
+    encoding: 'utf16le',
+  });
   expect(result.successful).toBeTruthy();
 });
 
@@ -311,9 +313,7 @@ test('expect winVirtualMachine preflight check return successful result if the v
     }),
   );
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winVirtualMachinePlatformCheck = preflights[3];
+  const winVirtualMachinePlatformCheck = new VirtualMachinePlatformCheck();
   const result = await winVirtualMachinePlatformCheck.execute();
   expect(result.description).equal('Virtual Machine Platform should be enabled to be able to run Podman.');
   expect(result.docLinksDescription).equal('Learn about how to enable the Virtual Machine Platform feature:');
@@ -328,9 +328,7 @@ test('expect winVirtualMachine preflight check return successful result if there
     throw new Error();
   });
 
-  const installer = new WinInstaller(extensionContext);
-  const preflights = installer.getPreflightChecks();
-  const winVirtualMachinePlatformCheck = preflights[3];
+  const winVirtualMachinePlatformCheck = new VirtualMachinePlatformCheck();
   const result = await winVirtualMachinePlatformCheck.execute();
   expect(result.description).equal('Virtual Machine Platform should be enabled to be able to run Podman.');
   expect(result.docLinksDescription).equal('Learn about how to enable the Virtual Machine Platform feature:');

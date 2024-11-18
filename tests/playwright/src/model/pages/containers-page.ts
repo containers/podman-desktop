@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect as playExpect } from '@playwright/test';
+import test, { expect as playExpect } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
 import { ContainerState } from '../core/states';
@@ -33,64 +33,88 @@ export class ContainersPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'containers');
-    this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune' });
-    this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create' });
-    this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
-    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
+    this.pruneContainersButton = this.additionalActions.getByRole('button', {
+      name: 'Prune',
+    });
+    this.createContainerButton = this.additionalActions.getByRole('button', {
+      name: 'Create',
+    });
+    this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', {
+      name: 'Play Kubernetes YAML',
+    });
+    this.pruneConfirmationButton = this.page.getByRole('button', {
+      name: 'Yes',
+    });
   }
 
   async openContainersDetails(name: string): Promise<ContainerDetailsPage> {
-    const containerRow = await this.getContainerRowByName(name);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${name}' does not exist`);
-    }
-    const containerRowName = containerRow.getByRole('cell').nth(3);
-    await containerRowName.click();
-    return new ContainerDetailsPage(this.page, name);
+    return test.step(`Open Container: ${name} details`, async () => {
+      const containerRow = await this.getContainerRowByName(name);
+      if (containerRow === undefined) {
+        throw Error(`Container: '${name}' does not exist`);
+      }
+      const containerRowName = containerRow.getByRole('cell').nth(3);
+      await containerRowName.click();
+      return new ContainerDetailsPage(this.page, name);
+    });
   }
 
   async startContainer(containerName: string): Promise<ContainersPage> {
-    const containerRow = await this.getContainerRowByName(containerName);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${containerName}' does not exist`);
-    }
-    const containerRowStartButton = containerRow.getByRole('button', { name: 'Start Container' });
-    await playExpect(containerRowStartButton).toBeVisible();
-    await containerRowStartButton.click();
-    return this;
+    return test.step(`Start Container: ${containerName}`, async () => {
+      const containerRow = await this.getContainerRowByName(containerName);
+      if (containerRow === undefined) {
+        throw Error(`Container: '${containerName}' does not exist`);
+      }
+      const containerRowStartButton = containerRow.getByRole('button', {
+        name: 'Start Container',
+      });
+      await playExpect(containerRowStartButton).toBeVisible();
+      await containerRowStartButton.click();
+      return this;
+    });
   }
 
   async stopContainer(containerName: string): Promise<ContainersPage> {
-    const containerRow = await this.getContainerRowByName(containerName);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${containerName}' does not exist`);
-    }
-    const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
-    await playExpect(containerRowStopButton).toBeVisible();
-    await containerRowStopButton.click();
-    return this;
+    return test.step(`Stop Container: ${containerName}`, async () => {
+      const containerRow = await this.getContainerRowByName(containerName);
+      if (containerRow === undefined) {
+        throw Error(`Container: '${containerName}' does not exist`);
+      }
+      const containerRowStopButton = containerRow.getByRole('button', {
+        name: 'Stop Container',
+      });
+      await playExpect(containerRowStopButton).toBeVisible();
+      await containerRowStopButton.click();
+      return this;
+    });
   }
 
   async deleteContainer(containerName: string): Promise<ContainersPage> {
-    const containerRow = await this.getContainerRowByName(containerName);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${containerName}' does not exist`);
-    }
-    const containerRowDeleteButton = containerRow.getByRole('button', { name: 'Delete Container' });
-    await playExpect(containerRowDeleteButton).toBeVisible();
-    await playExpect(containerRowDeleteButton).toBeEnabled();
-    await containerRowDeleteButton.click();
-    await handleConfirmationDialog(this.page);
-    return new ContainersPage(this.page);
+    return test.step(`Delete Container: ${containerName}`, async () => {
+      const containerRow = await this.getContainerRowByName(containerName);
+      if (containerRow === undefined) {
+        throw Error(`Container: '${containerName}' does not exist`);
+      }
+      const containerRowDeleteButton = containerRow.getByRole('button', {
+        name: 'Delete Container',
+      });
+      await playExpect(containerRowDeleteButton).toBeVisible();
+      await playExpect(containerRowDeleteButton).toBeEnabled();
+      await containerRowDeleteButton.click();
+      await handleConfirmationDialog(this.page);
+      return new ContainersPage(this.page);
+    });
   }
 
   async stopContainerFromDetails(container: string): Promise<ContainerDetailsPage> {
-    const containerDetailsPage = await this.openContainersDetails(container);
-    await playExpect(containerDetailsPage.heading).toBeVisible();
-    await playExpect(containerDetailsPage.heading).toContainText(container);
-    playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running);
-    await containerDetailsPage.stopContainer();
-    return containerDetailsPage;
+    return test.step(`Stop Container ${container} from details page`, async () => {
+      const containerDetailsPage = await this.openContainersDetails(container);
+      await playExpect(containerDetailsPage.heading).toBeVisible();
+      await playExpect(containerDetailsPage.heading).toContainText(container);
+      playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running);
+      await containerDetailsPage.stopContainer();
+      return containerDetailsPage;
+    });
   }
 
   async getContainerRowByName(name: string): Promise<Locator | undefined> {
@@ -98,30 +122,32 @@ export class ContainersPage extends MainPage {
   }
 
   async uncheckAllContainers(): Promise<void> {
-    let containersTable;
-    try {
-      containersTable = await this.getTable();
-      await playExpect(containersTable).toBeVisible();
-      const controlRow = containersTable.getByRole('row').first();
-      await playExpect(controlRow).toBeAttached();
-      const checkboxColumnHeader = controlRow.getByRole('columnheader').nth(1);
-      await playExpect(checkboxColumnHeader).toBeAttached();
-      const containersToggle = checkboxColumnHeader.getByTitle('Toggle all');
-      await playExpect(containersToggle).toBeAttached();
-      // <svg> cannot be resolved using getByRole('img') ; const containersToggleSvg = containersToggle.getByRole('img');
+    return test.step('Uncheck all containers', async () => {
+      let containersTable;
+      try {
+        containersTable = await this.getTable();
+        await playExpect(containersTable).toBeVisible();
+        const controlRow = containersTable.getByRole('row').first();
+        await playExpect(controlRow).toBeAttached();
+        const checkboxColumnHeader = controlRow.getByRole('columnheader').nth(1);
+        await playExpect(checkboxColumnHeader).toBeAttached();
+        const containersToggle = checkboxColumnHeader.getByTitle('Toggle all');
+        await playExpect(containersToggle).toBeAttached();
+        // <svg> cannot be resolved using getByRole('img') ; const containersToggleSvg = containersToggle.getByRole('img');
 
-      if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-indeterminate')) {
-        await containersToggle.click();
+        if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-indeterminate')) {
+          await containersToggle.click();
+        }
+
+        if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-checked')) {
+          await containersToggle.click();
+        }
+
+        playExpect(await containersToggle.innerHTML()).toContain('pd-input-checkbox-unchecked');
+      } catch (err) {
+        console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
       }
-
-      if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-checked')) {
-        await containersToggle.click();
-      }
-
-      playExpect(await containersToggle.innerHTML()).toContain('pd-input-checkbox-unchecked');
-    } catch (err) {
-      console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
-    }
+    });
   }
 
   async containerExists(name: string): Promise<boolean> {
@@ -129,20 +155,24 @@ export class ContainersPage extends MainPage {
   }
 
   async openCreatePodPage(names: string[]): Promise<CreatePodsPage> {
-    for (const containerName of names) {
-      const row = await this.getContainerRowByName(containerName);
-      if (row === undefined) {
-        throw Error('Container cannot be podified');
+    return test.step(`Open Create Pod page for containers: ${names}`, async () => {
+      for (const containerName of names) {
+        const row = await this.getContainerRowByName(containerName);
+        if (row === undefined) {
+          throw Error('Container cannot be podified');
+        }
+        await row.getByRole('cell').nth(1).click();
       }
-      await row.getByRole('cell').nth(1).click();
-    }
-    await this.page.getByRole('button', { name: `Create Pod` }).click();
-    return new CreatePodsPage(this.page);
+      await this.page.getByRole('button', { name: `Create Pod` }).click();
+      return new CreatePodsPage(this.page);
+    });
   }
 
   async pruneContainers(): Promise<ContainersPage> {
-    await this.pruneContainersButton.click();
-    await handleConfirmationDialog(this.page, 'Prune');
-    return this;
+    return test.step('Prune Containers', async () => {
+      await this.pruneContainersButton.click();
+      await handleConfirmationDialog(this.page, 'Prune');
+      return this;
+    });
   }
 }

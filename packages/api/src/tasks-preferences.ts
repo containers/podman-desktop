@@ -19,4 +19,5 @@
 export enum ExperimentalTasksSettings {
   SectionName = 'tasks',
   StatusBar = 'StatusBar',
+  Toast = 'Toast',
 }

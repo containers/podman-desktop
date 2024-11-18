@@ -25,3 +25,5 @@ export const currentPage: Writable<TinroBreadcrumb> = writable(home);
 export const lastPage: Writable<TinroBreadcrumb> = writable(home);
 
 export const history: Writable<TinroBreadcrumb[]> = writable([home]);
+
+export const lastSubmenuPages: Writable<{ [page: string]: string }> = writable({});

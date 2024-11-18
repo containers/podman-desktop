@@ -13,10 +13,32 @@ export let container: ContainerInfoUI;
 export let screenReaderMode = false;
 let attachContainerTerminal: Terminal;
 let closed = false;
+let callbackId: number;
+
+let listened = false;
+$: listenTerminalData(attachContainerTerminal, callbackId);
+
+// listenTerminalData only when attachContainerTerminal is bound from TerminalWindow component
+// and callbackId is defined
+function listenTerminalData(terminal: Terminal, cbId: number) {
+  if (!attachContainerTerminal || !cbId) {
+    return;
+  }
+  if (listened) {
+    return;
+  }
+  listened = true;
+  // pass data from xterm to container
+  terminal.onData(data => {
+    window
+      .attachContainerSend(callbackId, data)
+      .catch((err: unknown) => console.log(`Error sending data to container ${container.id}`, err));
+  });
+}
 
 // update terminal when receiving data
 function receiveDataCallback(data: Buffer) {
-  attachContainerTerminal.write(data.toString());
+  attachContainerTerminal?.write(data.toString());
 }
 
 function receiveEndCallback() {
@@ -30,7 +52,7 @@ async function attachToContainer() {
   }
 
   // attach to the container
-  const callbackId = await window.attachContainer(
+  callbackId = await window.attachContainer(
     container.engineId,
     container.id,
     receiveDataCallback,
@@ -39,8 +61,8 @@ async function attachToContainer() {
   );
 
   // pass data from xterm to container
-  attachContainerTerminal?.onData(data => {
-    window.attachContainerSend(callbackId, data);
+  attachContainerTerminal?.onData(async data => {
+    await window.attachContainerSend(callbackId, data);
   });
 }
 
@@ -50,7 +72,7 @@ onMount(async () => {
 </script>
 
 <div class="h-full" class:hidden={container.state !== 'RUNNING'}>
-  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} screenReaderMode={screenReaderMode} />
+  <TerminalWindow class="h-full" bind:terminal={attachContainerTerminal} screenReaderMode={screenReaderMode} disableStdIn={false} showCursor={true} />
 </div>
 
 <EmptyScreen

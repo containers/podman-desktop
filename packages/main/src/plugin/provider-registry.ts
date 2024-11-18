@@ -28,6 +28,9 @@ import type {
   ProviderCleanup,
   ProviderCleanupAction,
   ProviderCleanupExecuteOptions,
+  ProviderConnectionShellAccess,
+  ProviderConnectionShellAccessSession,
+  ProviderConnectionShellDimensions,
   ProviderConnectionStatus,
   ProviderContainerConnection,
   ProviderDetectionCheck,
@@ -1263,5 +1266,63 @@ export class ProviderRegistry {
       clearInterval(timer);
       this.apiSender.send('provider-change', {});
     });
+  }
+
+  async shellInProviderConnection(
+    internalProviderId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    onData: (data: string) => void,
+    onError: (error: string) => void,
+    onEnd: () => void,
+  ): Promise<{
+    write: (param: string) => void;
+    resize: (dimensions: ProviderConnectionShellDimensions) => void;
+    close: () => void;
+  }> {
+    try {
+      const containerConnection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+      let shellAccess: ProviderConnectionShellAccess | undefined;
+      let connection: ProviderConnectionShellAccessSession | undefined;
+      const disposables: Disposable[] = [];
+      if (this.isContainerConnection(containerConnection) && providerConnectionInfo.status === 'started') {
+        shellAccess = containerConnection.shellAccess;
+        connection = shellAccess?.open();
+        connection?.onData(
+          data => {
+            onData(data.data);
+          },
+          {},
+          disposables,
+        );
+
+        connection?.onError(
+          error => {
+            onError(error.error);
+          },
+          {},
+          disposables,
+        );
+
+        connection?.onEnd(onEnd, {}, disposables);
+      }
+
+      return {
+        write: (data: string): void => {
+          connection?.write(data);
+        },
+        resize: (dimension: ProviderConnectionShellDimensions): void => {
+          connection?.resize(dimension);
+        },
+        close: (): void => {
+          disposables.forEach(dispose => {
+            dispose.dispose();
+          });
+          connection?.close();
+        },
+      };
+    } catch (error) {
+      this.telemetryService.track('shellInProviderConnection.error', error);
+      throw error;
+    }
   }
 }

@@ -273,3 +273,60 @@ test('addConfigurationEnum with a previous default value', async () => {
   const val = configurationRegistry.getConfiguration('my.fake')?.get<string>('enum.property');
   expect(val).toEqual('myValue1');
 });
+
+test('check to be able to register a property with a group', async () => {
+  const node: IConfigurationNode = {
+    id: 'custom',
+    title: 'Fake Property',
+    properties: {
+      'my.fake.property': {
+        description: 'property being part of a group',
+        type: 'string',
+        group: 'myGroup',
+        default: 'myDefault',
+      },
+    },
+  };
+
+  configurationRegistry.registerConfigurations([node]);
+
+  const records = configurationRegistry.getConfigurationProperties();
+  const record = records['my.fake.property'];
+  expect(record).toBeDefined();
+  expect(record?.group).toEqual('myGroup');
+});
+
+test('check to be able to register a property with DockerCompatibility scope', async () => {
+  const node: IConfigurationNode = {
+    id: 'custom',
+    title: 'Fake Property',
+    properties: {
+      'my.fake.property': {
+        description: 'property being part of a group',
+        type: 'string',
+        scope: 'DockerCompatibility',
+        default: 'myDefault',
+      },
+    },
+  };
+
+  configurationRegistry.registerConfigurations([node]);
+
+  const records = configurationRegistry.getConfigurationProperties();
+  const record = records['my.fake.property'];
+  expect(record).toBeDefined();
+  expect(record?.scope).toEqual('DockerCompatibility');
+});
+
+describe('should be notified when a configuration is updated', async () => {
+  test('expect correct properties', async () => {
+    const listener = vi.fn();
+    configurationRegistry.onDidUpdateConfiguration(listener);
+    const config = configurationRegistry.getConfiguration('my.fake.property', 'myValue');
+    await config.update('myKey', 'myValue');
+
+    expect(listener).toBeTruthy();
+    expect(listener).toBeCalledWith({ properties: ['myKey'] });
+    expect(config.get('myKey')).toBe('myValue');
+  });
+});

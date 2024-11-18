@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { KubernetesObject, V1Deployment } from '@kubernetes/client-node';
+import type { CoreV1Event, KubernetesObject, V1Deployment } from '@kubernetes/client-node';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { router } from 'tinro';
@@ -28,6 +28,7 @@ import { lastPage } from '/@/stores/breadcrumb';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import DeploymentDetails from './DeploymentDetails.svelte';
+import * as deploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
 
 const kubernetesDeleteDeploymentMock = vi.fn();
 
@@ -35,6 +36,7 @@ const deployment: V1Deployment = {
   apiVersion: 'apps/v1',
   kind: 'Deployment',
   metadata: {
+    uid: '12345678',
     name: 'my-deployment',
     namespace: 'default',
   },
@@ -48,6 +50,7 @@ const deployment: V1Deployment = {
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {
     kubernetesCurrentContextDeployments: vi.fn(),
+    kubernetesCurrentContextEvents: vi.fn(),
   };
 });
 
@@ -63,9 +66,11 @@ test('Expect redirect to previous page if deployment is deleted', async () => {
 
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
-  // mock object store
+  // mock object stores
   const deployments = writable<KubernetesObject[]>([deployment]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = deployments;
+  const events = writable<CoreV1Event[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextEvents = events;
 
   // remove deployment from the store when we call delete
   kubernetesDeleteDeploymentMock.mockImplementation(() => {
@@ -101,4 +106,45 @@ test('Expect redirect to previous page if deployment is deleted', async () => {
   // confirm updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('Expect DeploymentDetails to be called with related events only', async () => {
+  const deploymentDetailsSummarySpy = vi.spyOn(deploymentDetailsSummary, 'default');
+  // mock object stores
+  const deploymentsStore = writable<KubernetesObject[]>([deployment]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = deploymentsStore;
+
+  const events: CoreV1Event[] = [
+    {
+      metadata: {
+        name: 'event1',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event2',
+      },
+      involvedObject: { uid: '12345678' },
+    },
+    {
+      metadata: {
+        name: 'event3',
+      },
+      involvedObject: { uid: '1234' },
+    },
+  ];
+  const eventsStore = writable<CoreV1Event[]>(events);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextEvents = eventsStore;
+
+  vi.mocked(window.kubernetesReadNamespacedDeployment).mockResolvedValue(deployment);
+
+  render(DeploymentDetails, { name: 'my-deployment', namespace: 'default' });
+  router.goto('summary');
+  await waitFor(() => {
+    expect(deploymentDetailsSummarySpy).toHaveBeenCalledWith(expect.anything(), {
+      deployment: deployment,
+      events: [events[0], events[1]],
+    });
+  });
 });

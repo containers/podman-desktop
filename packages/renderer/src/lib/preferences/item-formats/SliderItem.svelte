@@ -6,10 +6,10 @@ export let record: IConfigurationPropertyRecordedSchema;
 export let value: number;
 export let onChange = async (_id: string, _value: number) => {};
 
-function onInput(event: Event) {
+async function onInput(event: Event) {
   const target = event.currentTarget as HTMLInputElement;
   const _value = uncertainStringToNumber(target.value);
-  if (record.id && _value !== value) onChange(record.id, _value);
+  if (record.id && _value !== value) await onChange(record.id, _value);
 }
 </script>
 
@@ -23,4 +23,4 @@ function onInput(event: Event) {
   value={value}
   aria-label={record.description}
   on:input={onInput}
-  class="w-full h-1 bg-violet-600 rounded-lg appearance-none accent-violet-600 cursor-pointer range-xs mt-2" />
+  class="w-full h-1 bg-[var(--pd-input-toggle-on-bg)] rounded-lg appearance-none accent-[var(--pd-input-toggle-on-bg)] cursor-pointer range-xs mt-2" />

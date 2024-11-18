@@ -2455,7 +2455,7 @@ test('container logs callback notified when messages arrive', async () => {
   const callback = vi.fn().mockImplementation(() => {
     deferredResolve(undefined);
   });
-  await containerRegistry.logsContainer('podman', 'containerId', callback);
+  await containerRegistry.logsContainer({ engineId: 'podman', id: 'containerId', callback });
 
   setTimeout(() => {
     stream.emit('data', 'log message');

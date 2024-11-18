@@ -256,6 +256,8 @@ export class ColorRegistry {
     this.initStates();
     this.initFiles();
     this.initTerminal();
+    this.initProgressBar();
+    this.initBadge();
   }
 
   protected initDefaults(): void {
@@ -331,6 +333,11 @@ export class ColorRegistry {
     this.registerColor('titlebar-icon', {
       dark: colorPalette.white,
       light: colorPalette.purple[900],
+    });
+
+    this.registerColor('titlebar-hover-bg', {
+      dark: colorPalette.charcoal[300],
+      light: colorPalette.gray[300],
     });
 
     this.registerColor('titlebar-windows-hover-exit-bg', {
@@ -1426,6 +1433,58 @@ export class ColorRegistry {
     this.registerColor(`${terminal}ansiBrightWhite`, {
       dark: colorPalette.white,
       light: colorPalette.white,
+    });
+  }
+
+  protected initProgressBar(): void {
+    const pb = 'progressBar-';
+    this.registerColor(`${pb}bg`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[700],
+    });
+    this.registerColor(`${pb}in-progress-bg`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${pb}text`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+  }
+
+  protected initBadge(): void {
+    const badge = 'badge-';
+    this.registerColor(`${badge}builtin-extension-bg`, {
+      dark: colorPalette.sky[200],
+      light: colorPalette.sky[200],
+    });
+    this.registerColor(`${badge}text`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.charcoal[800],
+    });
+    this.registerColor(`${badge}dd-extension-bg`, {
+      dark: colorPalette.sky[600],
+      light: colorPalette.sky[600],
+    });
+    this.registerColor(`${badge}dd-extension-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${badge}sky`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${badge}purple`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${badge}fuschia`, {
+      dark: colorPalette.fuschia[600],
+      light: colorPalette.fuschia[600],
+    });
+    this.registerColor(`${badge}gray`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[600],
     });
   }
 }
