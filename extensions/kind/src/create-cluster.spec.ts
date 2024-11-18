@@ -84,14 +84,14 @@ test('expect cluster to be created', async () => {
   expect(extensionApi.kubernetes.createResources).not.toBeCalled();
 });
 
-test('expect cluster to be created with ingress', async () => {
+test('expect cluster to be created with contour ingress', async () => {
   (extensionApi.process.exec as Mock).mockReturnValue({} as extensionApi.RunResult);
   const logger = {
     log: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
   };
-  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger);
+  await createCluster({ 'kind.cluster.creation.ingress': 'contour' }, '', telemetryLoggerMock, logger);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
@@ -110,7 +110,7 @@ test('expect error if Kubernetes reports error', async () => {
       warn: vi.fn(),
     };
     (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(error);
-    await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger);
+    await createCluster({ 'kind.cluster.creation.ingress': 'contour' }, '', telemetryLoggerMock, logger);
   } catch (err) {
     expect(extensionApi.kubernetes.createResources).toBeCalled();
     expect(err).to.be.a('Error');
