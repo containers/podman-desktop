@@ -26,7 +26,8 @@ import * as streamPromises from 'node:stream/promises';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 import moment from 'moment';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer, type SetupServerApi } from 'msw/node';
 import type { PackOptions } from 'tar-fs';
 import * as tarstream from 'tar-stream';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -316,6 +317,8 @@ const fakeContainerInspectInfoWithVolume = {
   },
 };
 
+let server: SetupServerApi | undefined = undefined;
+
 class TestContainerProviderRegistry extends ContainerProviderRegistry {
   public override extractContainerEnvironment(container: ContainerInspectInfo): { [key: string]: string } {
     return super.extractContainerEnvironment(container);
@@ -418,7 +421,6 @@ vi.mock('node:stream/promises', async () => {
 vi.mock('node:fs/promises');
 
 beforeEach(() => {
-  nock.cleanAll();
   vi.mocked(apiSender.receive).mockClear();
   vi.mocked(apiSender.send).mockClear();
 
@@ -438,6 +440,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+  server?.close();
 });
 
 test('tag should reject if no provider', async () => {
@@ -921,11 +924,13 @@ describe('listContainers', () => {
       },
     ];
 
-    nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, containersWithPodmanAPI);
+    const handlers = [
+      http.get('http://localhost/v4.2.0/libpod/containers/json', () => HttpResponse.json(containersWithPodmanAPI)),
 
-    // mock listPods
-
-    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+      http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1026,11 +1031,13 @@ describe('listContainers', () => {
       },
     ];
 
-    nock('http://localhost').get('/containers/json?all=true').reply(200, containersWithDockerAPI);
+    const handlers = [
+      http.get('http://localhost/containers/json', () => HttpResponse.json(containersWithDockerAPI)),
 
-    // mock listPods
-
-    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+      http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1127,11 +1134,13 @@ describe('listContainers', () => {
       },
     ];
 
-    nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, containersWithPodmanAPI);
+    const handlers = [
+      http.get('http://localhost/v4.2.0/libpod/containers/json', () => HttpResponse.json(containersWithPodmanAPI)),
 
-    // mock listPods
-
-    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+      http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1982,9 +1991,15 @@ describe('listVolumes', () => {
       },
     ];
 
-    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
-    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
-    nock('http://localhost').get('/system/df').reply(200, systemDfDataMock);
+    const handlers = [
+      http.get('http://localhost/volumes', () => HttpResponse.json(volumesDataMock)),
+
+      http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
+
+      http.get('http://localhost/system/df', () => HttpResponse.json(systemDfDataMock)),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2104,9 +2119,14 @@ describe('listVolumes', () => {
         Mounts: [],
       },
     ];
+    const handlers = [
+      http.get('http://localhost/volumes', () => HttpResponse.json(volumesDataMock)),
 
-    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
-    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
+      http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
+
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
     // set provider
@@ -2178,8 +2198,14 @@ describe('listVolumes', () => {
       },
     ];
 
-    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
-    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
+    const handlers = [
+      http.get('http://localhost/volumes', () => HttpResponse.json(volumesDataMock)),
+
+      http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
+
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
     // set provider
@@ -2273,7 +2299,9 @@ describe('listNetworks', () => {
       },
     ];
 
-    nock('http://localhost').get('/networks').reply(200, networksDataMock);
+    server = setupServer(http.get('http://localhost/networks', () => HttpResponse.json(networksDataMock)));
+    server.listen({ onUnhandledRequest: 'error' });
+
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
     // set provider
@@ -2303,7 +2331,8 @@ describe('listNetworks', () => {
 
 describe('createVolume', () => {
   test('provided name', async () => {
-    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+    server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2334,12 +2363,13 @@ describe('createVolume', () => {
     // set provider
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
 
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.createVolume(providerConnectionInfo, { Name: 'myFirstVolume' });
   });
 
   test('no name', async () => {
-    nock('http://localhost').post('/volumes/create').reply(200, '');
+    server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2370,12 +2400,13 @@ describe('createVolume', () => {
     // set provider
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
 
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.createVolume(providerConnectionInfo, {});
   });
 
   test('provided user API connection', async () => {
-    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+    server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2406,12 +2437,16 @@ describe('createVolume', () => {
     // set provider
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
 
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.createVolume(containerProviderConnection, { Name: 'myFirstVolume' });
   });
 
   test('no provider', async () => {
-    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+    server = setupServer(
+      http.post('http://localhost/volumes/create', () => HttpResponse.json('')),
+      http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
+    );
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2454,14 +2489,19 @@ describe('createVolume', () => {
 
     containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
 
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.createVolume(undefined, { Name: 'myFirstVolume' });
   });
 });
 
 describe('deleteVolume', () => {
   test('no provider', async () => {
-    nock('http://localhost').delete('/volumes/myFirstVolume').reply(204, '');
+    const handlers = [
+      http.delete('http://localhost/volumes/myFirstVolume', () => new HttpResponse(undefined, { status: 204 })),
+      http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2503,12 +2543,17 @@ describe('deleteVolume', () => {
 
     containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
 
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.deleteVolume('myFirstVolume');
   });
 
   test('provided connection', async () => {
-    nock('http://localhost').delete('/volumes/myFirstVolume').reply(204, '');
+    const handlers = [
+      http.delete('http://localhost/volumes/myFirstVolume', () => new HttpResponse(undefined, { status: 204 })),
+      http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2538,7 +2583,7 @@ describe('deleteVolume', () => {
 
     // set provider
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
-    // check that it's calling the right nock method
+    // check that it's calling the right mock method
     await containerRegistry.deleteVolume('myFirstVolume', { provider: containerProviderConnection });
   });
 });
@@ -3158,7 +3203,8 @@ describe('attachToContainer', () => {
 });
 
 test('createNetwork', async () => {
-  nock('http://localhost').post('/networks/create?Name=myNetwork').reply(200, '');
+  server = setupServer(http.post('http://localhost/networks/create', () => new HttpResponse('', { status: 200 })));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -3189,15 +3235,19 @@ test('createNetwork', async () => {
   // set provider
   containerRegistry.addInternalProvider('podman', internalContainerProvider);
 
-  // check that it's calling the right nock method
+  // check that it's calling the right mock method
   await containerRegistry.createNetwork(providerConnectionInfo, { Name: 'myNetwork' });
 });
 
 test('setupConnectionAPI with errors', async () => {
-  // create a stream that we return to nock
+  // create a stream that we return to mock
   const stream = new PassThrough();
+
   // need to reply with a stream
-  nock('http://localhost').get('/events').reply(200, stream);
+  server = setupServer(
+    http.get('http://localhost/events', () => new HttpResponse(stream as unknown as ReadableStream)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const internalContainerProvider: InternalContainerProvider = {
     name: 'podman',
@@ -3243,16 +3293,16 @@ test('setupConnectionAPI with errors', async () => {
   stream.end();
 
   // we should not have the api anymore
-  expect(internalContainerProvider.api).toBeUndefined();
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeUndefined());
 
-  // and it should try to reconnect to the nock
+  // and it should try to reconnect to the mock
 
-  // wait 0.5s
+  // wait 0.5s before providing a new stream
   await new Promise(resolve => setTimeout(resolve, 500));
 
   // mock again /events
   const stream2 = new PassThrough();
-  nock('http://localhost').get('/events').reply(200, stream2);
+  server.use(http.get('http://localhost/events', () => new HttpResponse(stream2 as unknown as ReadableStream)));
 
   // emit a container start event, we should proceed it as expected
   const fakeId = '123456';
@@ -3722,7 +3772,8 @@ test('list pods', async () => {
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, podsList);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json(podsList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4124,8 +4175,8 @@ test('list images with podmanListImages correctly', async () => {
       Digest: 'fooDigest',
     },
   ];
-
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4158,7 +4209,8 @@ test('expect images with podmanListImages to also include History as well as eng
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4191,7 +4243,8 @@ test('expect images with podmanListImages to also include Digest as engineId and
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4225,7 +4278,8 @@ test('If image does not have Digest in list images, expect the Digest to be sha2
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4263,9 +4317,11 @@ test('expect to fall back to compat api images if podman provider does not have 
       Id: 'dummyImageId2',
     },
   ];
-
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
-  nock('http://localhost').get('/images/json?all=false').reply(200, imagesList2);
+  server = setupServer(
+    http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)),
+    http.get('http://localhost/images/json', () => HttpResponse.json(imagesList2)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -4895,7 +4951,10 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
     manifestImageWithIsManifestListFalse,
     manifestImageWithIsManifestListTrue,
   ];
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
   const fakeLibPod = {
@@ -4963,7 +5022,8 @@ test('if configuration setting is disabled for using libpodApi, it should fall b
     },
   ];
 
-  nock('http://localhost').get('/images/json?all=false').reply(200, imagesList);
+  server = setupServer(http.get('http://localhost/images/json', () => HttpResponse.json(imagesList)));
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5413,9 +5473,13 @@ describe('extractContainerEnvironment', () => {
 
 test('resolve Podman image shortname to FQN', async () => {
   const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
-  nock('http://localhost')
-    .get('/v5.0.0/libpod/images/shortname/resolve')
-    .reply(200, { Names: ['someregistry/shortname', 'docker.io/shortname', 'quay.io/shortname'] });
+
+  server = setupServer(
+    http.get('http://localhost/v5.0.0/libpod/images/shortname/resolve', () =>
+      HttpResponse.json({ Names: ['someregistry/shortname', 'docker.io/shortname', 'quay.io/shortname'] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5445,7 +5509,9 @@ test('resolve Podman image shortname to FQN', async () => {
   expect(imagesNames[1]).toBe('docker.io/shortname');
   expect(imagesNames[2]).toBe('quay.io/shortname');
 
-  nock('http://localhost').get('/v5.0.0/libpod/images/shortname/resolve').reply(200, { Names: [] });
+  server.use(
+    http.get('http://localhost/v5.0.0/libpod/images/shortname/resolve', () => HttpResponse.json({ Names: [] })),
+  );
   imagesNames = await containerRegistry.resolveShortnameImage(
     {} as unknown as ProviderContainerConnectionInfo,
     'shortname',

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach } from 'node:test';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { setupServer, SetupServerApi } from 'msw/node';
+import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
 import {
   DownloadAndCheck,
   Podman5DownloadFedoraImage,
@@ -26,7 +26,7 @@ import {
   ShaCheck,
 } from './podman-download';
 import * as podman5JSON from '../src/podman5.json';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import { Octokit } from 'octokit';
 import { Readable, Writable } from 'node:stream';
@@ -73,6 +73,12 @@ class TestPodmanDownload extends PodmanDownload {
     return super.getDownloadAndCheck();
   }
 }
+
+let server: SetupServerApi | undefined = undefined;
+
+afterEach(() => {
+  server?.close();
+});
 
 describe('macOS platform', () => {
   let currentPlatform: string;
@@ -276,28 +282,44 @@ test('downloadAndCheckSha', async () => {
       },
     ],
   };
-
-  nock('https://api.github.com').get('/repos/containers/podman/releases/tags/vFakeVersion').reply(200, response);
-
-  // shasums content
   const shasumContent = 'fake-sha podman-fake-binary\n';
-  nock('https://api.github.com')
-    .get('/repos/containers/podman/releases/assets/789')
-    .reply(200, shasumContent, {
-      'content-type': 'application/octet-stream',
-      'content-length': `${shasumContent.length}`,
-      'content-disposition': 'attachment; filename=binary.zip',
-    });
-
-  // podman-binary content
   const podmanBinaryContent = 'fake-binary-content';
-  nock('https://api.github.com')
-    .get('/repos/containers/podman/releases/assets/456')
-    .reply(200, podmanBinaryContent, {
-      'content-type': 'application/octet-stream',
-      'content-length': `${podmanBinaryContent.length}`,
-      'content-disposition': 'attachment; filename=binary.zip',
-    });
+
+  const handlers = [
+    http.get('https://api.github.com/repos/containers/podman/releases/tags/vFakeVersion', () =>
+      HttpResponse.json(response),
+    ),
+
+    http.get(
+      'https://api.github.com/repos/containers/podman/releases/assets/789',
+      () =>
+        new HttpResponse(shasumContent, {
+          status: 200,
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-length': `${shasumContent.length}`,
+            'content-disposition': 'attachment; filename=binary.zip',
+          },
+        }),
+    ),
+
+    // podman-binary content
+    http.get(
+      'https://api.github.com/repos/containers/podman/releases/assets/456',
+      () =>
+        new HttpResponse(podmanBinaryContent, {
+          status: 200,
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-length': `${podmanBinaryContent.length}`,
+            'content-disposition': 'attachment; filename=binary.zip',
+          },
+        }),
+    ),
+  ];
+
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const octokit = new Octokit();
 
@@ -438,83 +460,96 @@ describe('Podman5DownloadMachineOS', () => {
       ],
     };
 
-    nock('https://quay.io').get('/v2/podman/machine-os/manifests/1.0-fake').reply(200, rootManifest);
-
-    // fake digest for amd64
-    nock('https://quay.io')
-      .get('/v2/podman/machine-os/manifests/sha256:123amd64')
-      .reply(200, {
-        schemaVersion: 2,
-        mediaType: 'application/vnd.oci.image.manifest.v1+json',
-        config: {
-          mediaType: 'application/vnd.oci.empty.v1+json',
-          digest: 'sha256:1234',
-          size: 2,
-          data: 'e30=',
-        },
-        layers: [
-          {
-            mediaType: 'application/zstd',
-            digest: 'sha256:zstfakeamd64digest',
-            size: 1233263850,
-            annotations: {
-              'org.opencontainers.image.title': 'podman-machine-daily.amd64.applehv.raw.zst',
-            },
-          },
-        ],
-      });
-
-    // fake digest for arm64
-    nock('https://quay.io')
-      .get('/v2/podman/machine-os/manifests/sha256:456arm64')
-      .reply(200, {
-        schemaVersion: 2,
-        mediaType: 'application/vnd.oci.image.manifest.v1+json',
-        config: {
-          mediaType: 'application/vnd.oci.empty.v1+json',
-          digest: 'sha256:1234',
-          size: 2,
-          data: 'e30=',
-        },
-        layers: [
-          {
-            mediaType: 'application/zstd',
-            digest: 'sha256:zstfakearm64digest',
-            size: 1233263850,
-            annotations: {
-              'org.opencontainers.image.title': 'podman-machine-daily.aarch64.applehv.raw.zst',
-            },
-          },
-        ],
-      });
-
-    // now do the digests for blobs
-    nock('https://quay.io')
-      .get('/v2/podman/machine-os/blobs/sha256:zstfakeamd64digest')
-      .reply(200, 'fake-amd64-content');
-
     const zstdArchiveFakeContent = 'blablabla-ARM64\n';
-    nock('https://quay.io')
-      .get('/v2/podman/machine-os/blobs/sha256:zstfakearm64digest')
-      .reply(200, zstdArchiveFakeContent, {
-        'content-type': 'application/octet-stream',
-        'content-length': `${zstdArchiveFakeContent.length}`,
-        'content-disposition': 'attachment; filename=binary.zip',
-      });
-
     const fakeContent = 'blablabla-ARM64\n';
 
     const processArm64File = (): Buffer => {
       return Buffer.from(fakeContent);
     };
 
-    nock('https://quay.io')
-      .get('/v2/podman/machine-os/blobs/sha256:zstfakearm64digest')
-      .reply(200, processArm64File(), {
-        'content-type': 'application/octet-stream',
-        'content-length': `${fakeContent.length}`,
-        'content-disposition': 'attachment; filename=foo.raw.std',
-      });
+    const handlers = [
+      http.get('https://quay.io/v2/podman/machine-os/manifests/1.0-fake', () => HttpResponse.json(rootManifest)),
+
+      // fake digest for amd64
+      http.get('https://quay.io/v2/podman/machine-os/manifests/sha256:123amd64', () =>
+        HttpResponse.json({
+          schemaVersion: 2,
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          config: {
+            mediaType: 'application/vnd.oci.empty.v1+json',
+            digest: 'sha256:1234',
+            size: 2,
+            data: 'e30=',
+          },
+          layers: [
+            {
+              mediaType: 'application/zstd',
+              digest: 'sha256:zstfakeamd64digest',
+              size: 1233263850,
+              annotations: {
+                'org.opencontainers.image.title': 'podman-machine-daily.amd64.applehv.raw.zst',
+              },
+            },
+          ],
+        }),
+      ),
+
+      // fake digest for arm64
+      http.get('https://quay.io/v2/podman/machine-os/manifests/sha256:456arm64', () =>
+        HttpResponse.json({
+          schemaVersion: 2,
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          config: {
+            mediaType: 'application/vnd.oci.empty.v1+json',
+            digest: 'sha256:1234',
+            size: 2,
+            data: 'e30=',
+          },
+          layers: [
+            {
+              mediaType: 'application/zstd',
+              digest: 'sha256:zstfakearm64digest',
+              size: 1233263850,
+              annotations: {
+                'org.opencontainers.image.title': 'podman-machine-daily.aarch64.applehv.raw.zst',
+              },
+            },
+          ],
+        }),
+      ),
+
+      // now do the digests for blobs
+      http.get('https://quay.io/v2/podman/machine-os/blobs/sha256:zstfakeamd64digest', () =>
+        HttpResponse.text('fake-amd64-content'),
+      ),
+
+      http.get(
+        'https://quay.io/v2/podman/machine-os/blobs/sha256:zstfakearm64digest',
+        () =>
+          new HttpResponse(zstdArchiveFakeContent, {
+            headers: {
+              'content-type': 'application/octet-stream',
+              'content-length': `${zstdArchiveFakeContent.length}`,
+              'content-disposition': 'attachment; filename=binary.zip',
+            },
+          }),
+      ),
+
+      http.get(
+        'https://quay.io/v2/podman/machine-os/blobs/sha256:zstfakearm64digest',
+        () =>
+          new HttpResponse(processArm64File(), {
+            headers: {
+              'content-type': 'application/octet-stream',
+              'content-length': `${fakeContent.length}`,
+              'content-disposition': 'attachment; filename=foo.raw.std',
+            },
+          }),
+      ),
+    ];
+
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
 
     const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 

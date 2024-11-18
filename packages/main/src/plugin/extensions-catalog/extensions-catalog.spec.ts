@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { Configuration, ProxySettings } from '@podman-desktop/api';
-import nock from 'nock';
+import { delay, http, HttpResponse } from 'msw';
+import { setupServer, type SetupServerApi } from 'msw/node';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -39,6 +40,8 @@ const apiSender: ApiSenderType = {
   send: vi.fn(),
   receive: vi.fn(),
 };
+
+let server: SetupServerApi | undefined = undefined;
 
 // unlisted field is not present (assuming it should be listed then)
 const fakePublishedExtension1 = {
@@ -138,17 +141,16 @@ beforeEach(() => {
 
 afterEach(() => {
   console.error = originalConsoleError;
+  server?.close();
 });
 
 test('should fetch fetchable extensions', async () => {
-  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
-  const host = url.origin;
-  const pathname = url.pathname;
-  nock(host)
-    .get(pathname)
-    .reply(200, {
-      extensions: [fakePublishedExtension1],
-    });
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [fakePublishedExtension1] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
   expect(fetchableExtensions).toBeDefined();
@@ -163,15 +165,13 @@ test('should fetch fetchable extensions', async () => {
 });
 
 test('should not fetch fetchable extensions if internet connection is taking too much time', async () => {
-  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
-  const host = url.origin;
-  const pathname = url.pathname;
-  nock(host)
-    .get(pathname)
-    .delay(3000) // 3 seconds delay will be applied to the response header.
-    .reply(200, {
-      extensions: [fakePublishedExtension1],
-    });
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, async () => {
+      await delay(3_000);
+      return HttpResponse.json({ extensions: [fakePublishedExtension1] });
+    }),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   // no error, but array should be empty as it is taking too much time to download
   const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
@@ -217,14 +217,12 @@ test('check getHttpOptions with Proxy', async () => {
 });
 
 test('should get all extensions', async () => {
-  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
-  const host = url.origin;
-  const pathname = url.pathname;
-  nock(host)
-    .get(pathname)
-    .reply(200, {
-      extensions: [fakePublishedExtension1],
-    });
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [fakePublishedExtension1] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const allExtensions = await extensionsCatalog.getExtensions();
   expect(allExtensions).toBeDefined();
@@ -252,14 +250,12 @@ test('should get all extensions', async () => {
 });
 
 test('should get proper unlisted fields', async () => {
-  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
-  const host = url.origin;
-  const pathname = url.pathname;
-  nock(host)
-    .get(pathname)
-    .reply(200, {
-      extensions: [fakePublishedExtension1, fakePublishedExtension2, fakePublishedExtension3],
-    });
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [fakePublishedExtension1, fakePublishedExtension2, fakePublishedExtension3] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const allExtensions = await extensionsCatalog.getExtensions();
   expect(allExtensions).toBeDefined();
@@ -284,14 +280,11 @@ test('should get proper unlisted fields', async () => {
 
 test('should fetch alternate link', async () => {
   const customPathToCatalog = 'https://my-dummy-podman-desktop.com/catalog.json';
-  const url = new URL(customPathToCatalog);
-  const host = url.origin;
-  const pathname = url.pathname;
-  nock(host)
-    .get(pathname)
-    .reply(200, {
-      extensions: [fakePublishedExtension1],
-    });
+
+  server = setupServer(
+    http.get(customPathToCatalog, () => HttpResponse.json({ extensions: [fakePublishedExtension1] })),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   // change the configuration reply to be our custom path
   vi.mocked(configurationRegistry.getConfiguration).mockClear();
