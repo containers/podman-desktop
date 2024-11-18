@@ -1,13 +1,13 @@
 ---
 sidebar_position: 10
-title: Podman Desktop
+title: Podman
 description: How to investigate when Podman does not work as expected.
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Troubleshooting Podman Desktop
+# Troubleshooting Podman
 
 ## Podman Desktop does not find your Podman installation
 
