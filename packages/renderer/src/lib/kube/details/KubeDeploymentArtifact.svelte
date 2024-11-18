@@ -2,9 +2,18 @@
 import type { V1DeploymentSpec } from '@kubernetes/client-node';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
+import Subtitle from '/@/lib/details/DetailsSubtitle.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
+import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
-export let artifact: V1DeploymentSpec | undefined;
+import Container from './KubeContainerArtifact.svelte';
+
+interface Props {
+  artifact?: V1DeploymentSpec;
+  deploymentName?: string;
+  namespace?: string;
+}
+let { artifact, deploymentName, namespace }: Props = $props();
 </script>
 
 {#if artifact}
@@ -31,4 +40,16 @@ export let artifact: V1DeploymentSpec | undefined;
       <Cell>{artifact.strategy.type}</Cell>
     </tr>
   {/if}
+  {#if artifact.template.spec?.containers}
+    <tr>
+      <Title>Containers</Title>
+    </tr>
+    {#each artifact.template.spec?.containers as container}
+      <tr>
+        <Subtitle>{container.name}</Subtitle>
+      </tr>
+      <Container kind={WorkloadKind.DEPLOYMENT} namespace={namespace} resourceName={deploymentName} artifact={container} />
+    {/each}
+  {/if}
+
 {/if}
