@@ -7,6 +7,8 @@ tags: [podman-desktop, extension, ai, llm, local]
 hide_table_of_contents: false
 ---
 
+![banner](img/ai-lab-first-app/banner.png)
+
 Red Hat provides an extension to Podman Desktop, Podman AI Lab, which lets developers discover examples of applications by using large language models (LLMs), and gives them a framework to create their own AI-based applications and share them with their team.
 
 We will discover, through this article, the different steps to create our first AI application, and to add it to the catalog of recipes of Podman AI Lab.
