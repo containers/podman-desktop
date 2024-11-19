@@ -20,6 +20,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, type RenderResult } from '@testing-library/svelte';
+import type { Component, ComponentProps } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
@@ -56,8 +57,8 @@ function getRootElementClassesValue(container: HTMLElement): string | undefined 
   return getRootElement(container).classList.value;
 }
 
-async function awaitRender(): Promise<RenderResult<Appearance>> {
-  const result = render(Appearance);
+async function awaitRender(): Promise<RenderResult<Component<ComponentProps<Appearance>>>> {
+  const result = render<Component<ComponentProps<Appearance>>>(Appearance);
   // wait end of asynchrounous onMount
   // wait 200ms
   await new Promise(resolve => setTimeout(resolve, 200));
