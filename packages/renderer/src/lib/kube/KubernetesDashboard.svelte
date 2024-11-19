@@ -73,7 +73,7 @@ async function openKubernetesDocumentation(): Promise<void> {
     {#if noContexts}
       <KubernetesEmptyPage />
     {:else}
-      <!-- Details - colapsible -->
+      <!-- Details - collapsible -->
       <div class="flex flex-1 flex-col">
         <div class="flex flex-row w-full px-5 pb-2">
           <button onclick={() => (expandedDetails = !expandedDetails)}>
@@ -113,7 +113,7 @@ async function openKubernetesDocumentation(): Promise<void> {
           <div class="flex flex-col space-y-4 min-w-full overflow-y-auto">
             <div class="flex flex-col gap-4 bg-[var(--pd-content-card-bg)] grow p-5">
               {#if currentContextName}
-                <!-- Metrics - non-colapsible -->
+                <!-- Metrics - non-collapsible -->
                 <div class="text-xl pt-2">Metrics</div>
                 <div class="grid grid-cols-4 gap-4">
                     <KubernetesDashboardResourceCard type='Nodes' Icon={NodeIcon} activeCount={activeNodeCount} count={nodeCount} link='/kubernetes/nodes'/>
@@ -126,7 +126,7 @@ async function openKubernetesDocumentation(): Promise<void> {
                 <!-- Graphs -->
                 
               {/if}
-              <!-- Articles and blog posts - colapsible -->
+              <!-- Articles and blog posts - collapsible -->
               <div class="flex flex-1 flex-col pt-2">
                 <div>
                   <button onclick={() => (expandedGuide = !expandedGuide)}>
