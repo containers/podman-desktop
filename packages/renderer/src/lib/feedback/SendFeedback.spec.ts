@@ -62,5 +62,19 @@ test('Expect GitHubIssue feedback form to be rendered if category is not develop
   expect(bugCategory).toBeInTheDocument();
   await fireEvent.click(bugCategory);
   // click on a smiley
-  expect(vi.mocked(GitHubIssueFeedback)).toBeCalled();
+  expect(vi.mocked(GitHubIssueFeedback)).toHaveBeenNthCalledWith(1, expect.anything(), {
+    onCloseForm: expect.any(Function),
+    category: 'bug',
+  });
+
+  categorySelect.focus();
+
+  // select the Feature request category
+  await userEvent.keyboard('[ArrowDown]');
+  const featureCategory = screen.getByRole('button', { name: /Feature/ });
+  await fireEvent.click(featureCategory);
+  expect(vi.mocked(GitHubIssueFeedback)).toHaveBeenNthCalledWith(2, expect.anything(), {
+    onCloseForm: expect.any(Function),
+    category: 'feature',
+  });
 });
