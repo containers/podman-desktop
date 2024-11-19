@@ -1220,6 +1220,37 @@ test('pull unknown image fails with error 403', async () => {
   );
 });
 
+test('pulling an image with platform=linux/arm64 will add the platform to the pull options', async () => {
+  const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
+
+  const pullMock = vi.fn();
+
+  const fakeDockerode = {
+    pull: pullMock,
+    modem: {
+      followProgress: vi.fn(),
+    },
+  } as unknown as Dockerode;
+
+  getMatchingEngineFromConnectionSpy.mockReturnValue(fakeDockerode);
+
+  const containerConnectionInfo = {} as ProviderContainerConnectionInfo;
+
+  pullMock.mockResolvedValue({ statusCode: 201 });
+
+  const callback = vi.fn();
+
+  // Ignore no floating promises warning as we just care about the pullMock call, not the promise
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback, 'linux/arm64');
+
+  expect(pullMock).toHaveBeenCalledWith('unknown-image', {
+    abortSignal: undefined,
+    authconfig: undefined,
+    platform: 'linux/arm64',
+  });
+});
+
 test('pull unknown image fails with error 401', async () => {
   const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
 

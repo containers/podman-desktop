@@ -1082,10 +1082,16 @@ export class PluginSystem {
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
         imageName: string,
         callbackId: number,
+        platform?: string,
       ): Promise<void> => {
-        return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, (event: PullEvent) => {
-          this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
-        });
+        return containerProviderRegistry.pullImage(
+          providerContainerConnectionInfo,
+          imageName,
+          (event: PullEvent) => {
+            this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
+          },
+          platform,
+        );
       },
     );
     this.ipcHandle(
