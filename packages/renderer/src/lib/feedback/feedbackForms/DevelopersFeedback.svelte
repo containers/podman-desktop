@@ -9,12 +9,16 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
+import { type FeedbackDevelopers, getFeedback, storeFeedback } from '/@/stores/feedback-store';
 import type { FeedbackProperties } from '/@api/feedback';
 
 import WarningMessage from '../../ui/WarningMessage.svelte';
+
+const DEVELOPERS = 'developers';
 
 // feedback of the user
 let smileyRating = 0;
@@ -56,6 +60,29 @@ async function openGitHub(): Promise<void> {
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
+
+onMount(() => {
+  const feedback = getFeedback(DEVELOPERS);
+  if (!feedback) {
+    return;
+  }
+
+  if (feedback.category === DEVELOPERS) {
+    smileyRating = feedback.smiley;
+    tellUsWhyFeedback = feedback.tellUsWhy;
+    contactInformation = feedback.contactInformation;
+  }
+});
+
+onDestroy(() => {
+  const feedback: FeedbackDevelopers = {
+    smiley: smileyRating,
+    tellUsWhy: tellUsWhyFeedback,
+    contactInformation: contactInformation,
+    category: DEVELOPERS,
+  };
+  storeFeedback(feedback);
+});
 </script>
 
 <FeedbackForm>

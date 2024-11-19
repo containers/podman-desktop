@@ -1,6 +1,7 @@
 <script lang="ts">
 import { CloseButton, Dropdown, Modal } from '@podman-desktop/ui-svelte';
 
+import { getFeedback } from '/@/stores/feedback-store';
 import type { FeedbackCategory } from '/@api/feedback';
 
 import DevelopersFeedback from './feedbackForms/DevelopersFeedback.svelte';
@@ -18,13 +19,17 @@ const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
 
 window.events?.receive('display-feedback', () => {
   displayModal = true;
+
+  const feedback = getFeedback(category);
+  if (!feedback) {
+    return;
+  }
+
+  category = feedback.category;
 });
 
 function hideModal(): void {
   displayModal = false;
-
-  // reset fields
-  category = DEFAULT_CATEGORY;
 }
 </script>
 
@@ -46,7 +51,7 @@ function hideModal(): void {
     {#if category === 'developers'}
       <DevelopersFeedback onCloseForm={hideModal}/>
     {:else}
-      <GitHubIssueFeedback onCloseForm={hideModal}/>
+      <GitHubIssueFeedback onCloseForm={hideModal} bind:category={category}/>
     {/if}
   </Modal>
 {/if}

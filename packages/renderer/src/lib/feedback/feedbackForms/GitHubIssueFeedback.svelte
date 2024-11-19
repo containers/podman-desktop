@@ -1,11 +1,20 @@
 <script lang="ts">
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { onDestroy, onMount } from 'svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
+import {
+  type FeedbackGitHubIssue,
+  type FeedbackGitHubIssueCategories,
+  getFeedback,
+  storeFeedback,
+} from '/@/stores/feedback-store';
 
 let issueTitle = '';
 let issueDescription = '';
 let issueValidaionError = '';
+
+const FEATURE = 'feature';
 
 $: if (!issueTitle) {
   if (!issueDescription) {
@@ -20,11 +29,35 @@ $: if (!issueTitle) {
 }
 
 export let onCloseForm = () => {};
+export let category: FeedbackGitHubIssueCategories = FEATURE;
 
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
   await window.openExternal('https://github.com/podman-desktop/podman-desktop/issues');
 }
+
+onMount(() => {
+  const feedback = getFeedback(category);
+  if (!feedback) {
+    return;
+  }
+
+  if (feedback.category === category) {
+    issueTitle = feedback.title;
+    issueDescription = feedback.issueDescription;
+  }
+});
+
+onDestroy(() => {
+  if (category === FEATURE || category === 'bug') {
+    const feedback: FeedbackGitHubIssue = {
+      title: issueTitle,
+      issueDescription: issueDescription,
+      category: category,
+    };
+    storeFeedback(feedback);
+  }
+});
 </script>
 
 <FeedbackForm>
