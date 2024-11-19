@@ -362,3 +362,47 @@ test('Expect latest tag warning is not displayed when the image has latest tag',
   const errorMesssage = screen.queryByRole('alert', { name: 'Warning Message Content' });
   expect(errorMesssage).toBeNull();
 });
+
+test('Expect isValidName to be truthy === error to be falsy', async () => {
+  setup();
+  const pullImage = render(PullImage);
+
+  listImageTagsInRegistryMock.mockResolvedValue(['latest', 'other']);
+  await userEvent.keyboard('my-registry/image');
+
+  const cellOutsideInput = pullImage.getAllByRole('textbox');
+  const parentInput = cellOutsideInput[0].parentElement;
+  expect(parentInput).not.toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
+
+test('Expect isValidName to be falsy === error to be truthy', async () => {
+  setup();
+  const pullImage = render(PullImage);
+
+  listImageTagsInRegistryMock.mockResolvedValue({});
+  await userEvent.keyboard('my-registry/image');
+
+  const cellOutsideInput = pullImage.getAllByRole('textbox');
+  const parentInput = cellOutsideInput[0].parentElement;
+  expect(parentInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
+
+test('Expect isValidName to be falsy by error === error variable should be truthy', async () => {
+  setup();
+  const pullImage = render(PullImage);
+
+  listImageTagsInRegistryMock.mockImplementation(() => {
+    throw Error('Error msg');
+  });
+  await userEvent.keyboard('my-registry/image');
+
+  const cellOutsideInput = pullImage.getAllByRole('textbox');
+  const parentInput = cellOutsideInput[0].parentElement;
+  expect(parentInput).toHaveClass('border-b-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).toHaveClass('focus-within:border-[var(--pd-input-field-stroke-error)]');
+  expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
+});
