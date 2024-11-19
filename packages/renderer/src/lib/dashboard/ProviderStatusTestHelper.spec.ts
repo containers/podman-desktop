@@ -18,22 +18,15 @@
 
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
-import type { ComponentProps, SvelteComponent } from 'svelte';
-import type Svelte from 'svelte';
+import type { Component } from 'svelte';
 import { expect, test } from 'vitest';
 
-import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
+import { type InitializationContext, InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
 import type { ProviderInfo } from '/@api/provider-info';
 
-type SComponentType<C> = C extends Svelte.SvelteComponent ? Svelte.ComponentType<C> : C;
-
-type SvelteComponentOptions<C extends SvelteComponent> = ComponentProps<C> | { props: ComponentProps<C> };
-
-export function verifyStatus<C extends SvelteComponent>(
-  component: SComponentType<C>,
-  status: ProviderStatus,
-  sameVersions: boolean,
-): void {
+export function verifyStatus<
+  C extends Component<{ provider: ProviderInfo; initializationContext: InitializationContext }>,
+>(component: C, status: ProviderStatus, sameVersions: boolean): void {
   const provider: ProviderInfo = {
     containerConnections: [],
     containerProviderConnectionCreation: false,
@@ -58,11 +51,11 @@ export function verifyStatus<C extends SvelteComponent>(
     cleanupSupport: false,
   };
 
-  const initializationContext = { mode: InitializeAndStartMode };
-  render(component, {
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  render<Component<{ provider: ProviderInfo; initializationContext: InitializationContext }>>(component, {
     provider: provider,
     initializationContext: initializationContext,
-  } as unknown as SvelteComponentOptions<C>);
+  });
 
   const updateButton = screen.queryByRole('button', { name: 'Update to 1.0.1' });
   if (sameVersions) {
