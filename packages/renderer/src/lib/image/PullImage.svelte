@@ -210,7 +210,7 @@ async function searchImages(value: string): Promise<string[]> {
 
 let latestTagMessage: string | undefined = undefined;
 async function searchLatestTag(): Promise<void> {
-  if (imageNameIsInvalid || !imageToPull || imageToPull.includes(':')) {
+  if (imageNameIsInvalid || !imageToPull) {
     latestTagMessage = undefined;
     return;
   }
@@ -220,10 +220,16 @@ async function searchLatestTag(): Promise<void> {
       image = image.slice(DOCKER_PREFIX_WITH_SLASH.length);
     }
     const tags = await window.listImageTagsInRegistry({ image });
+    if (imageToPull.includes(':')) {
+      latestTagMessage = undefined;
+      checkIfTagExist(image, tags);
+      return;
+    }
     isValidName = Boolean(tags);
     const latestFound = tags.includes('latest');
     if (!latestFound) {
       latestTagMessage = '"latest" tag not found. You can search a tag by appending ":" to the image name';
+      isValidName = false;
     } else {
       latestTagMessage = undefined;
     }
@@ -231,6 +237,12 @@ async function searchLatestTag(): Promise<void> {
     isValidName = false;
     latestTagMessage = undefined;
   }
+}
+
+function checkIfTagExist(image: string, tags: string[]): void {
+  const tag = image.split(':')[1];
+
+  isValidName = tags.some(t => t === tag);
 }
 </script>
 
