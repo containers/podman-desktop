@@ -26,6 +26,8 @@ import {
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 
+import { homepage, repository } from '../../../../../package.json';
+
 export enum ActionKind {
   LINK,
   COMMAND,
@@ -51,7 +53,7 @@ export const Items: readonly ItemInfo[] = [
     enabled: true,
     action: {
       kind: ActionKind.LINK,
-      parameter: 'https://podman-desktop.io/docs/intro',
+      parameter: `${homepage}/docs/intro`,
     },
   },
   {
@@ -69,7 +71,7 @@ export const Items: readonly ItemInfo[] = [
     enabled: true,
     action: {
       kind: ActionKind.LINK,
-      parameter: 'https://github.com/podman-desktop/podman-desktop/issues/new/choose',
+      parameter: `${repository}/issues/new/choose`,
     },
   },
   {
