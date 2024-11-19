@@ -236,6 +236,8 @@ export default [
       'etc/no-deprecated': 'off',
       // disable this rule as it's not compliant with eslint v9
       'etc/no-commented-out-code': 'off',
+      'sonarjs/no-unused-expressions': 'off',
+
       // disable as it's consuming too much time
       'etc/no-internal': 'off',
 
