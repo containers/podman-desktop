@@ -130,12 +130,15 @@ function dragMe(node: any) {
 {#if display}
   <!-- Create overlay-->
   <div
-    class="fixed top-0 left-0 right-0 bottom-0 bg-black pt-8 pb-3 bg-opacity-60 bg-blend-multiply h-full grid z-50 overflow-y-auto">
+    class="fixed top-0 left-0 right-0 bottom-0 pt-8 pb-3 h-full grid z-50 overflow-y-auto">
     <div
-      class="flex flex-col place-self-center w-[650px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40">
+    </div>
+    <div
+      class="flex flex-col place-self-center w-[650px] rounded-xl bg-[var(--pd-card-bg)] shadow-xl shadow-black z-50"
       class:w-[650px]={colsPerRow === 2}
       class:w-[800px]={colsPerRow === 3}>
-      <div class="flex flex-col items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
+      <div class="flex flex-col items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-content-card-text)]">
         {#if icon}
           <div class="mb-2">
             {#if typeof icon === 'string'}
@@ -173,23 +176,23 @@ function dragMe(node: any) {
                   on:mousedown={e => handleSelection(e, innerItem)}>
                   {#if innerItem.selected}
                     <div class="relative">
-                      <div class="absolute right-0 m-3 text-xl text-purple-500">
+                      <div class="absolute right-0 m-3 text-xl text-[var(--pd-invert-content-info-icon)]">
                         <Fa icon={faCircleCheck} />
                       </div>
                     </div>
                   {/if}
 
                   <div
-                    class="px-4 pt-4 pb-2 bg-charcoal-500 group-hover:bg-purple-800 hover:bg-purple-800 group-hover:border-purple-500 hover:border-purple-500 rounded-t-md group-[.is-selected]:bg-purple-800 border-t-2 border-x-2 border-transparent"
+                    class="px-4 pt-4 pb-2 bg-[var(--pd-invert-content-card-bg)] group-hover:bg-[var(--pd-modal-dropdown-highlight)] hover:bg-[var(--pd-modal-dropdown-highlight)] group-hover:border-[var(--pd-tab-highlight)] hover:border-[var(--pd-tab-highlight)] rounded-t-md group-[.is-selected]:bg-[var(--pd-modal-dropdown-highlight)] border-t-2 border-x-2 border-transparent"
                     class:border-b-2={usePopperForDetails ||
                       itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
                     class:rounded-b-md={usePopperForDetails ||
                       itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
-                    class:bg-purple-800={innerItem.selected}>
+                    class:bg-[var(--pd-modal-dropdown-highlight)]={innerItem.selected}>
                     <div class="flex flex-row mb-1 gap-x-1">
                       <span class="text-md font-bold">{innerItem.title}</span>
                       {#if innerItem.description}
-                        <span class="text-xs text-gray-700">{innerItem.description}</span>
+                        <span class="text-xs text-[var(--pd-content-text)]">{innerItem.description}</span>
                       {/if}
                     </div>
 
@@ -230,7 +233,7 @@ function dragMe(node: any) {
                         class:left-[90px]={usePopperForDetails}
                         class:z-10={usePopperForDetails}
                         class:border-2={usePopperForDetails}
-                        class:border-purple-500={usePopperForDetails}
+                        class:border-[var(--pd-tab-highlight)]={usePopperForDetails}
                         class:w-[300px]={usePopperForDetails && colsPerRow === 2}
                         class:w-[250px]={usePopperForDetails && colsPerRow === 3}
                         use:dragMe>
@@ -242,20 +245,20 @@ function dragMe(node: any) {
                               </button>
                             </div>
                           </div>
-                          <div class="flex justify-center py-2 font-bold rounded-t-md bg-charcoal-800">
+                          <div class="flex justify-center py-2 font-bold rounded-t-md bg-[var(--pd-card-bg)]">
                             {innerItem.title}
                           </div>
                         {/if}
 
                         {#each innerItem.sections as section, i}
                           <div
-                            class="flex justify-center py-2 text-xs font-bold group-[.is-selected]:bg-purple-600 group-hover:bg-purple-600 border-x-2 border-transparent group-hover:border-purple-500
-                    bg-charcoal-300">
+                            class="flex justify-center py-2 text-xs font-bold group-[.is-selected]:bg-[var(--pd-tab-highlight)] group-hover:bg-[var(--pd-tab-highlight)] border-x-2 border-transparent group-hover:border-[var(--pd-tab-highlight)]
+                    bg-[var(--pd-label-bg)]">
                             {section.title}
                           </div>
                           {#if section.content}
                             <div
-                              class="bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs items-center border-x-2 border-transparent group-hover:border-purple-500"
+                              class="bg-[var(--pd-invert-content-card-bg)] group-hover:bg-[var(--pd-modal-dropdown-highlight)] group-[.is-selected]:bg-[var(--pd-modal-dropdown-highlight)] px-4 py-2 flex flex-col text-xs items-center border-x-2 border-transparent group-hover:border-[var(--pd-tab-highlight)]"
                               class:rounded-b-md={usePopperForDetails &&
                                 !section.markDownContent &&
                                 i === innerItem.sections.length - 1}>
@@ -264,7 +267,7 @@ function dragMe(node: any) {
                           {/if}
                           {#if section.markDownContent}
                             <div
-                              class="bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs border-x-2 border-transparent group-hover:border-purple-500"
+                              class="bg-[var(--pd-invert-content-card-bg)] group-hover:bg-[var(--pd-modal-dropdown-highlight)] group-[.is-selected]:bg-[var(--pd-modal-dropdown-highlight)] px-4 py-2 flex flex-col text-xs border-x-2 border-transparent group-hover:border-[var(--pd-tab-highlight)]"
                               class:rounded-b-md={usePopperForDetails && i === innerItem.sections.length - 1}>
                               <Markdown markdown={section.markDownContent} />
                             </div>
@@ -272,7 +275,7 @@ function dragMe(node: any) {
                         {/each}
                         {#if !usePopperForDetails && innerItem.sections.length > 0 && !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
                           <div
-                            class="p-4 bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 rounded-b-md text-xs flex justify-center border-x-2 border-b-2 border-transparent group-hover:border-purple-500">
+                            class="p-4 bg-[var(--pd-invert-content-card-bg)] group-hover:bg-[var(--pd-modal-dropdown-highlight)] group-[.is-selected]:bg-[var(--pd-modal-dropdown-highlight)] rounded-b-md text-xs flex justify-center border-x-2 border-b-2 border-transparent group-hover:border-[var(--pd-tab-highlight)]">
                             <Button
                               type="link"
                               aria-label="Less detail"
