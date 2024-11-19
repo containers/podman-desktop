@@ -4,6 +4,7 @@ import type { V1PodSpec } from '@kubernetes/client-node';
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import Subtitle from '/@/lib/details/DetailsSubtitle.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
+import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import Container from './KubeContainerArtifact.svelte';
 import Volume from './KubeVolumeArtifact.svelte';
@@ -45,7 +46,7 @@ let { artifact, podName, namespace }: Props = $props();
       <tr>
         <Subtitle>{container.name}</Subtitle>
       </tr>
-      <Container namespace={namespace} podName={podName} artifact={container} />
+      <Container kind={WorkloadKind.POD} namespace={namespace} resourceName={podName} artifact={container} />
     {/each}
   {/if}
 

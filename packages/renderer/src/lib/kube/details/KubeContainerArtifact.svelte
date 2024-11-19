@@ -2,16 +2,17 @@
 import type { V1Container } from '@kubernetes/client-node';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
-import { WorkloadKind } from '/@api/kubernetes-port-forward-model';
+import type { WorkloadKind } from '/@api/kubernetes-port-forward-model';
 
 import KubePortsList from './KubePortsList.svelte';
 
 interface Props {
+  kind: WorkloadKind.POD | WorkloadKind.DEPLOYMENT;
   artifact?: V1Container;
-  podName?: string;
+  resourceName?: string;
   namespace?: string;
 }
-let { artifact, podName, namespace }: Props = $props();
+let { kind, artifact, resourceName, namespace }: Props = $props();
 </script>
 
 {#if artifact}
@@ -27,7 +28,7 @@ let { artifact, podName, namespace }: Props = $props();
     <Cell>Image Pull Policy</Cell>
     <Cell>{artifact.imagePullPolicy}</Cell>
   </tr>
-  <KubePortsList namespace={namespace} resourceName={podName} kind={WorkloadKind.POD} ports={artifact.ports?.map((port) => ({
+  <KubePortsList namespace={namespace} resourceName={resourceName} kind={kind} ports={artifact.ports?.map((port) => ({
     name: port.name,
     value: port.containerPort,
     protocol: port.protocol,

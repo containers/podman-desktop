@@ -25,7 +25,7 @@ basic information -->
   {#if deployment}
     <KubeObjectMetaArtifact artifact={deployment.metadata} />
     <KubeDeploymentStatusArtifact artifact={deployment.status} />
-    <KubeDeploymentArtifact artifact={deployment.spec} />
+    <KubeDeploymentArtifact deploymentName={deployment.metadata?.name} namespace={deployment.metadata?.namespace} artifact={deployment.spec} />
     <KubeEventsArtifact events={events} />
   {:else}
     <p class="text-[var(--pd-state-info)] font-medium">Loading ...</p>
