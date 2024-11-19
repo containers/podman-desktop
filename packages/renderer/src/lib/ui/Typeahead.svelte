@@ -45,6 +45,7 @@ function onInput(): void {
 }
 
 function onKeyDown(e: KeyboardEvent): void {
+  onChange(value);
   switch (e.key) {
     case 'ArrowDown':
       onDownKey(e);
