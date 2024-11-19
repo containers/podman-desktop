@@ -22,15 +22,13 @@ function onWindowClick(e: any): void {
   showMenu = outsideWindow.contains(e.target);
 }
 
-function createOnClick(action?: ItemAction): () => void | undefined {
-  return () => {
-    toggleMenu();
-    if (action?.kind === ActionKind.LINK) {
-      window.openExternal(action.parameter).catch(console.error);
-    } else if (action?.kind === ActionKind.COMMAND) {
-      window.executeCommand(action.parameter).catch(console.error);
-    }
-  };
+async function onClick(action?: ItemAction): Promise<void> {
+  toggleMenu();
+  if (action?.kind === ActionKind.LINK) {
+    await window.openExternal(action.parameter).catch(console.error);
+  } else if (action?.kind === ActionKind.COMMAND) {
+    await window.executeCommand(action.parameter).catch(console.error);
+  }
 }
 </script>
   
@@ -45,7 +43,7 @@ function createOnClick(action?: ItemAction): () => void | undefined {
         tooltip={item.tooltip}
         icon={item.icon}
         enabled={item.enabled}
-        onClick={createOnClick(item.action)}
+        onClick={() => onClick(item.action)}
       />
       {/each}
     </HelpMenu>
