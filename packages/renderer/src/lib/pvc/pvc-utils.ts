@@ -29,13 +29,14 @@ export class PVCUtils {
     // PVC's only have "Pending", "Bound" and "Lost" as phases.
     // However, we can also determine if it is in the middle of deleting by
     // checking if the phase is "Terminating" through checking if the object has deletionTimestamp.
+    //
+    // Note: If it is "Pending" it will be considered as "STOPPED" as it is not yet bound, this
+    // is similar to how we handle Deployment statuses.
     let status = 'STOPPED';
     if (pvc.metadata?.deletionTimestamp) {
       status = 'TERMINATING';
     } else if (pvc.status?.phase === 'Bound') {
       status = 'RUNNING';
-    } else if (pvc.status?.phase === 'Pending') {
-      status = 'STARTING';
     } else if (pvc.status?.phase === 'Lost') {
       status = 'DEGRADED';
     }
