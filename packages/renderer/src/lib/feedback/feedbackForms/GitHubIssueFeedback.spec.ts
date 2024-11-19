@@ -68,6 +68,7 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
   let issueDescription = screen.getByTestId('issueDescription');
   expect(issueDescription).toBeInTheDocument();
   expect(issueDescription).toHaveProperty('placeholder', 'Bug description');
+
   renderObject.unmount();
 
   render(GitHubIssueFeedback, { category: 'feature' });
@@ -79,4 +80,25 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
   issueDescription = screen.getByTestId('issueDescription');
   expect(issueDescription).toBeInTheDocument();
   expect(issueDescription).toHaveProperty('placeholder', 'Feature description');
+});
+
+test('Expect to have different existing GitHub issues links for bug and feature categories', async () => {
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let existingIssues = screen.getByLabelText('GitHub issues');
+  expect(existingIssues).toBeInTheDocument();
+
+  await userEvent.click(existingIssues);
+  expect(window.openExternal).toHaveBeenCalledWith(
+    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
+  );
+  renderObject.unmount();
+
+  render(GitHubIssueFeedback, { category: 'feature' });
+  existingIssues = screen.getByLabelText('GitHub issues');
+  expect(existingIssues).toBeInTheDocument();
+
+  await userEvent.click(existingIssues);
+  expect(window.openExternal).toHaveBeenCalledWith(
+    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
+  );
 });
