@@ -18,6 +18,7 @@ import WarningMessage from '../../ui/WarningMessage.svelte';
 
 interface Props {
   onCloseForm?: () => void;
+  contentChange: (e: boolean) => void;
 }
 
 // feedback of the user
@@ -29,7 +30,9 @@ let hasFeedback = $derived(
     (contactInformation && contactInformation.trim().length > 4),
 );
 
-let { onCloseForm = () => {} }: Props = $props();
+let { onCloseForm = () => {}, contentChange }: Props = $props();
+
+$effect(() => contentChange(Boolean(smileyRating || tellUsWhyFeedback || contactInformation)));
 
 function selectSmiley(item: number): void {
   smileyRating = item;

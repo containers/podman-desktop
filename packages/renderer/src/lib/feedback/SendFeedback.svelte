@@ -9,6 +9,7 @@ import GitHubIssueFeedback from './feedbackForms/GitHubIssueFeedback.svelte';
 let displayModal = false;
 const DEFAULT_CATEGORY: FeedbackCategory = 'developers';
 let category: FeedbackCategory = DEFAULT_CATEGORY;
+let hasContent: boolean = false;
 
 const FEEDBACK_CATEGORIES = new Map<FeedbackCategory, string>([
   ['developers', '💬 Direct your words to the developers'],
@@ -20,20 +21,34 @@ window.events?.receive('display-feedback', () => {
   displayModal = true;
 });
 
+function closeModal(): void {
+  displayModal = false;
+  // reset fields
+  category = DEFAULT_CATEGORY;
+}
+
 async function hideModal(): Promise<void> {
+  // If all of the form fields are empty/ in default state dont show the dialog
+  if (!hasContent) {
+    closeModal();
+    return;
+  }
+
   const result = await window.showMessageBox({
     title: 'Close Feedback Form',
-    message: 'Do you want to close the Feedback Form?\nClosing will erase your input.',
+    message: 'Do you want to close the Feedback form?\nClosing will erase your input.',
     type: 'warning',
     buttons: ['Yes', 'No'],
   });
 
   if (result && result.response === 0) {
-    displayModal = false;
-
-    // reset fields
-    category = DEFAULT_CATEGORY;
+    closeModal();
+    hasContent = false;
   }
+}
+
+function handleUpdate(e: boolean): void {
+  hasContent = !hasContent && e;
 }
 </script>
 
@@ -54,11 +69,11 @@ async function hideModal(): Promise<void> {
     </div>
 
     {#if category === 'developers'}
-      <DevelopersFeedback onCloseForm={hideModal}/>
+      <DevelopersFeedback onCloseForm={hideModal} contentChange={handleUpdate}/>
     {:else if category === 'bug'}
-      <GitHubIssueFeedback onCloseForm={hideModal} category="bug"/>
+      <GitHubIssueFeedback onCloseForm={hideModal} category="bug" contentChange={handleUpdate}/>
     {:else if category === 'feature'}
-      <GitHubIssueFeedback onCloseForm={hideModal} category="feature"/>
+      <GitHubIssueFeedback onCloseForm={hideModal} category="feature" contentChange={handleUpdate}/>
     {/if}
   </Modal>
 </div>
