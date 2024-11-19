@@ -7,9 +7,10 @@ import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
 interface Props {
   onCloseForm: () => void;
   category: FeedbackCategory;
+  contentChange: (e: boolean) => void;
 }
 
-let { onCloseForm = () => {}, category = 'bug' }: Props = $props();
+let { onCloseForm = () => {}, category = 'bug', contentChange }: Props = $props();
 
 let issueTitle = $state('');
 let issueDescription = $state('');
@@ -35,6 +36,8 @@ let existingIssuesLink = $state(
     ? 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22'
     : 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
 );
+
+$effect(() => contentChange(Boolean(issueTitle || issueDescription)));
 
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
