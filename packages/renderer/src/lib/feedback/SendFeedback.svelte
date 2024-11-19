@@ -20,15 +20,25 @@ window.events?.receive('display-feedback', () => {
   displayModal = true;
 });
 
-function hideModal(): void {
-  displayModal = false;
+async function hideModal(): Promise<void> {
+  const result = await window.showMessageBox({
+    title: 'Close Feedback Form',
+    message: 'Do you want to close the Feedback Form?\nClosing will erase your input.',
+    type: 'warning',
+    buttons: ['Yes', 'No'],
+  });
 
-  // reset fields
-  category = DEFAULT_CATEGORY;
+  if (result && result.response === 0) {
+    displayModal = false;
+
+    // reset fields
+    category = DEFAULT_CATEGORY;
+  }
 }
 </script>
 
 {#if displayModal}
+<div class='z-40'>
   <Modal name="Share your feedback" on:close={hideModal}>
     <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
       <h1 class="grow text-lg font-bold capitalize">Share your feedback</h1>
@@ -51,4 +61,5 @@ function hideModal(): void {
       <GitHubIssueFeedback onCloseForm={hideModal} category="feature"/>
     {/if}
   </Modal>
+</div>
 {/if}
