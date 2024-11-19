@@ -363,7 +363,7 @@ test('Expect latest tag warning is not displayed when the image has latest tag',
   expect(errorMesssage).toBeNull();
 });
 
-test('Expect isValidName to be truthy === error to be falsy', async () => {
+test('input component should not raise an error when the input is valid', async () => {
   setup();
   const pullImage = render(PullImage);
 
@@ -377,7 +377,7 @@ test('Expect isValidName to be truthy === error to be falsy', async () => {
   expect(parentInput).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
 
-test('Expect isValidName to be falsy === error to be truthy', async () => {
+test('input component should raise an error when the input is not valid', async () => {
   setup();
   const pullImage = render(PullImage);
 
@@ -391,7 +391,7 @@ test('Expect isValidName to be falsy === error to be truthy', async () => {
   expect(parentInput).not.toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
 
-test('Expect isValidName to be falsy by error === error variable should be truthy', async () => {
+test('input component should raise an error when the input is not valid - error', async () => {
   setup();
   const pullImage = render(PullImage);
 
