@@ -20,7 +20,7 @@ import type { KubeConfig, KubernetesObject } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
-export class ContextsManagerV2 {
+export class ContextsManagerExperimental {
   async update(_kubeconfig: KubeConfig): Promise<void> {}
 
   getContextsGeneralState(): Map<string, ContextGeneralState> {

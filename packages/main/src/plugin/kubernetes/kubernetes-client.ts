@@ -82,7 +82,7 @@ import type { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
 import { Uri } from '../types/uri.js';
 import { ContextsManager } from './contexts-manager.js';
-import { ContextsManagerV2 } from './contexts-manager-v2.js';
+import { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
 
 interface ContextsManagerInterface {
@@ -228,7 +228,7 @@ export class KubernetesClient {
           format: 'file',
           readonly: false,
         },
-        ['kubernetes.statesV2']: {
+        ['kubernetes.statesExperimental']: {
           description: 'Use new version of Kubernetes states',
           type: 'boolean',
           default: false,
@@ -253,9 +253,9 @@ export class KubernetesClient {
       }
     }
 
-    const statesV2 = kubernetesConfiguration.get<boolean>('statesV2');
-    if (statesV2) {
-      this.contextsState = new ContextsManagerV2();
+    const statesExperimental = kubernetesConfiguration.get<boolean>('statesExperimental');
+    if (statesExperimental) {
+      this.contextsState = new ContextsManagerExperimental();
     }
 
     // Update the property on change
