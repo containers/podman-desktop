@@ -4,32 +4,38 @@ import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
 
-export let category: FeedbackCategory = 'bug';
-let issueTitle = '';
-let issueDescription = '';
-let issueValidaionError = '';
-
-let titlePlaceholder = category === 'bug' ? 'Bug Report Title' : 'Feature name';
-let descriptionPlaceholder = category === 'bug' ? 'Bug description' : 'Feature description';
-
-let existingIssuesLink =
-  category === 'bug'
-    ? 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22'
-    : 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22';
-
-$: if (!issueTitle) {
-  if (!issueDescription) {
-    issueValidaionError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'} and description`;
-  } else {
-    issueValidaionError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'}`;
-  }
-} else {
-  if (!issueDescription) {
-    issueValidaionError = `Please enter ${category} description`;
-  }
+interface Props {
+  onCloseForm: () => void;
+  category: FeedbackCategory;
 }
 
-export let onCloseForm = () => {};
+let { onCloseForm = () => {}, category = 'bug' }: Props = $props();
+
+let issueTitle = $state('');
+let issueDescription = $state('');
+let issueValidationError = $state('');
+let titlePlaceholder = $state(category === 'bug' ? 'Bug Report Title' : 'Feature name');
+let descriptionPlaceholder = $state(category === 'bug' ? 'Bug description' : 'Feature description');
+
+let existingIssuesLink = $state(
+  category === 'bug'
+    ? 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22'
+    : 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
+);
+
+$effect(() => {
+  if (!issueTitle) {
+    if (!issueDescription) {
+      issueValidationError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'} and description`;
+    } else {
+      issueValidationError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'}`;
+    }
+  } else {
+    if (!issueDescription) {
+      issueValidationError = `Please enter ${category} description`;
+    }
+  }
+});
 
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
@@ -71,7 +77,7 @@ async function previewOnGitHub(): Promise<void> {
   </svelte:fragment>
   <svelte:fragment slot="validation">
     {#if !issueTitle || !issueDescription}
-      <ErrorMessage class="text-xs" error={issueValidaionError}/>
+      <ErrorMessage class="text-xs" error={issueValidationError}/>
     {/if}
   </svelte:fragment>
   <svelte:fragment slot="buttons">
