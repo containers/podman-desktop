@@ -82,7 +82,25 @@ import type { FilesystemMonitoring } from '../filesystem-monitoring.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
 import { Uri } from '../types/uri.js';
 import { ContextsManager } from './contexts-manager.js';
+import { ContextsManagerV2 } from './contexts-manager-v2.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
+
+interface ContextsManagerInterface {
+  // indicate to the manager that the kubeconfig has changed
+  update(kubeconfig: KubeConfig): Promise<void>;
+  // get the general state of contexts
+  getContextsGeneralState(): Map<string, ContextGeneralState>;
+  // get the general state of the current context
+  getCurrentContextGeneralState(): ContextGeneralState;
+  // register for `resource` state in current context
+  registerGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[];
+  // unregister from `resource` state in current context
+  unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[];
+  // dispose resources created by the manager
+  dispose(): void;
+  // force the manager to refresh the state for the given context
+  refreshContextState(contextName: string): Promise<void>;
+}
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -173,7 +191,7 @@ export class KubernetesClient {
    */
   private apiResources = new Map<string, Array<V1APIResource>>();
 
-  private contextsState: ContextsManager;
+  private contextsState: ContextsManagerInterface;
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -210,6 +228,12 @@ export class KubernetesClient {
           format: 'file',
           readonly: false,
         },
+        ['kubernetes.statesV2']: {
+          description: 'Use new version of Kubernetes states',
+          type: 'boolean',
+          default: false,
+          hidden: true,
+        },
       },
     };
 
@@ -227,6 +251,11 @@ export class KubernetesClient {
       } else {
         console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
       }
+    }
+
+    const statesV2 = kubernetesConfiguration.get<boolean>('statesV2');
+    if (statesV2) {
+      this.contextsState = new ContextsManagerV2();
     }
 
     // Update the property on change
