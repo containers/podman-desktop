@@ -19,6 +19,10 @@
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import Dockerode from 'dockerode';
 import { http, HttpResponse } from 'msw';
 import { setupServer, type SetupServerApi } from 'msw/node';
@@ -352,4 +356,30 @@ test('Test remove manifest', async () => {
 
   // Check that the response is correct
   expect(response).toBeDefined();
+});
+
+test('check correct header is provided for playKube', async () => {
+  // Create a dummy yaml file in the tmp directory using os.tmpdir()
+  const tmpFile = path.join(tmpdir(), 'test-apply-kube.yaml');
+  // write some content to the file
+  const content = 'apiVersion: v1\nkind: Pod\nmetadata:\n  name: test\n';
+  await writeFile(tmpFile, content);
+
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/play/kube', info => {
+      // check that the header is yaml
+      expect(info.request.headers.get('content-type')).toBe('application/yaml');
+      return HttpResponse.json({}, { status: 200 });
+    }),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await (api as unknown as LibPod).playKube(tmpFile);
+
+  // Check that the response is correct
+  expect(response).toBeDefined();
+
+  // Cleanup the file
+  await rm(tmpFile);
 });
