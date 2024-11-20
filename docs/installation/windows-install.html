@@ -13,7 +13,7 @@
 
 <link rel="preconnect" href="https://podman-desktop-website.goatcounter.com">
 <script async src="//gc.zgo.at/count.js" data-goatcounter="https://podman-desktop-website.goatcounter.com/count"></script><link rel="stylesheet" href="/assets/css/styles.ddfd3797.css">
-<script src="/assets/js/runtime~main.4e4d9803.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.c084d319.js" defer="defer"></script>
 <script src="/assets/js/main.86009442.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -102,8 +102,14 @@
 <li>
 <p>The <strong>Dashboard</strong> screen displays: <em><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="info" class="svg-inline--fa fa-info fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512"><path fill="currentColor" d="M48 80a48 48 0 1 1 96 0A48 48 0 1 1 48 80zM0 224c0-17.7 14.3-32 32-32l64 0c17.7 0 32 14.3 32 32l0 224 32 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 512c-17.7 0-32-14.3-32-32s14.3-32 32-32l32 0 0-192-32 0c-17.7 0-32-14.3-32-32z"></path></svg> Podman needs to be set up</em>.</p>
 <p><img decoding="async" loading="lazy" alt="Podman needs set up screen" src="/assets/images/dashboard-podman-needs-set-up-c4b3ae1664f8cd2764af6579522285f5.png" width="1920" height="1029" class="img_SS3x"></p>
+</li>
+<li>
 <p>Click the <strong>Set up</strong> button.</p>
-<p>Review and validate all confirmation screens to set up the Podman Machine.</p>
+</li>
+<li>
+<p>Review and validate all confirmation screens to set up the Podman machine.</p>
+</li>
+<li>
 <p>When necessary, follow the instructions to install system prerequisites.</p>
 </li>
 </ol>
@@ -115,17 +121,53 @@
 </li>
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_JmGV" id="use-hyper-v-as-machine-provider">Use Hyper-V as machine provider<a href="#use-hyper-v-as-machine-provider" class="hash-link" aria-label="Direct link to Use Hyper-V as machine provider" title="Direct link to Use Hyper-V as machine provider">​</a></h3>
-<p>In order to tell podman to use Hyper-V when creating a podman machine, one needs to setup either:</p>
+<p>Before creating a Podman machine, you can use one of the following ways to enable it to use Hyper-V:</p>
+<p><strong><em>Configuring an environment variable</em></strong></p>
+<ol>
+<li>
+<p>Perform one of the following steps:</p>
 <ul>
-<li>environment variable: <code>CONTAINERS_MACHINE_PROVIDER=hyperv</code> on the terminal session or as system environment variable.
-OR</li>
-<li>configure containers.conf file attribute provider before creating a machine, the file might be placed under <code>AppData</code>: <code>C:\Users\myuser\AppData\Roaming\containers\containers.conf</code></li>
+<li>
+<p>As a normal user, set the following variable at session level:</p>
+<div class="language-shell-session codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-shell-session codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token output">&gt; $env:CONTAINERS_MACHINE_PROVIDER = &#x27;hyperv&#x27;</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+<li>
+<p>As an admin user, set the following variable at system level:</p>
+<div class="language-shell-session codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-shell-session codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token command shell-symbol important">#</span><span class="token command"> </span><span class="token command bash language-bash">[System.Environment]::SetEnvironmentVariable(&#x27;CONTAINERS_MACHINE_PROVIDER&#x27;,&#x27;hyperv&#x27;)</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
 </ul>
-<div class="language-powershell codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-powershell codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token plain">cat C:\Users\myuser\AppData\Roaming\containers\containers.conf</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">[machine]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">provider = &quot;hyperv&quot;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">...</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
-<p>Succesfull setup should show string like this in the start up log:</p>
+</li>
+<li>
+<p><a href="/docs/podman/creating-a-podman-machine">Create and start a Podman machine</a> using UI.</p>
+</li>
+</ol>
+<p><strong><em>Configuring the <code>containers.conf</code> file</em></strong></p>
+<ol>
+<li>
+<p>Open the <code>containers.conf</code> file on your machine. The file is usually placed at <code>C:\Users\myuser\AppData\Roaming\containers\</code>.</p>
+</li>
+<li>
+<p>Add the <code>provider</code> attribute and set its value to <code>hyperv</code> in the file.</p>
+<div class="language-vim codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-vim codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token plain">...</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">[machine]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">provider = &quot;hyperv&quot;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">...</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+<li>
+<p><a href="/docs/podman/creating-a-podman-machine">Create and start a Podman machine</a> using UI.</p>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_JmGV" id="verification">Verification<a href="#verification" class="hash-link" aria-label="Direct link to Verification" title="Direct link to Verification">​</a></h4>
+<p>After configuration, you can confirm whether you are using a Podman machine with Hyper-V virtualization provider.</p>
+<ol>
+<li>
+<p>Go to <strong>Settings &gt; Resources</strong>.</p>
+</li>
+<li>
+<p>Click the <strong>Podman details</strong> icon in the Podman tile.</p>
+</li>
+<li>
+<p>Select the <strong>Logs</strong> tab to view the following notification message:</p>
 <div class="codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-text codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token plain">time=&quot;2023-05-09T21:16:08+03:00&quot; level=debug msg=&quot;Using Podman machine with `hyperv` virtualization provider&quot;</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
-<p>Full example then could looks like this, open powershell with admin provileges:</p>
-<div class="codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-text codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token plain">PS C:\Windows\system32&gt; $env:CONTAINERS_MACHINE_PROVIDER = &#x27;hyperv&#x27;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PS C:\Windows\system32&gt; $env:CONTAINERS_MACHINE_PROVIDER</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">hyperv</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># or alternatively</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># [System.Environment]::SetEnvironmentVariable(&#x27;CONTAINERS_MACHINE_PROVIDER&#x27;,&#x27;hyperv&#x27;)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># [System.Environment]::GetEnvironmentVariable(&#x27;CONTAINERS_MACHINE_PROVIDER)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">podman machine init</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">podman machine start</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+</ol>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="next-steps">Next steps<a href="#next-steps" class="hash-link" aria-label="Direct link to Next steps" title="Direct link to Next steps">​</a></h4>
 <ul>
 <li><a href="/docs/containers">Work with containers</a>.</li>
