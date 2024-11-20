@@ -178,7 +178,7 @@
     "@kubernetes/client-node": "^1.0.0-rc7",
     "@segment/analytics-node": "^2.2.0",
     "@types/semver": "^7.5.8",
-    "@types/stream-json": "^1.7.7",
+    "@types/stream-json": "^1.7.8",
     "@types/winreg": "^1.2.36",
     "adm-zip": "^0.5.16",
     "check-disk-space": "^3.4.0",

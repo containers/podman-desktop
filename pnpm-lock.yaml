@@ -35,8 +35,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       '@types/stream-json':
-        specifier: ^1.7.7
-        version: 1.7.7
+        specifier: ^1.7.8
+        version: 1.7.8
       '@types/winreg':
         specifier: ^1.2.36
         version: 1.2.36
@@ -4336,8 +4336,8 @@ packages:
   '@types/stream-chain@2.1.0':
     resolution: {integrity: sha512-guDyAl6s/CAzXUOWpGK2bHvdiopLIwpGu8v10+lb9hnQOyo4oj/ZUQFOvqFjKGsE3wJP1fpIesCcMvbXuWsqOg==}
 
-  '@types/stream-json@1.7.7':
-    resolution: {integrity: sha512-hHG7cLQ09H/m9i0jzL6UJAeLLxIWej90ECn0svO4T8J0nGcl89xZDQ2ujT4WKlvg0GWkcxJbjIDzW/v7BYUM6Q==}
+  '@types/stream-json@1.7.8':
+    resolution: {integrity: sha512-MU1OB1eFLcYWd1LjwKXrxdoPtXSRzRmAnnxs4Js/ayB5O/NvHraWwuOaqMWIebpYwM6khFlsJOHEhI9xK/ab4Q==}
 
   '@types/tar-fs@2.0.4':
     resolution: {integrity: sha512-ipPec0CjTmVDWE+QKr9cTmIIoTl7dFG/yARCM5MqK8i6CNLIG1P8x4kwDsOQY1ChZOZjH0wO9nvfgBvWl4R3kA==}
@@ -16436,7 +16436,7 @@ snapshots:
     dependencies:
       '@types/node': 20.17.6
 
-  '@types/stream-json@1.7.7':
+  '@types/stream-json@1.7.8':
     dependencies:
       '@types/node': 20.17.6
       '@types/stream-chain': 2.1.0
