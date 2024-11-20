@@ -116,8 +116,8 @@ importers:
         specifier: ^1.2.5
         version: 1.2.5
       yaml:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -356,8 +356,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       yaml:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
     devDependencies:
       adm-zip:
         specifier: ^0.5.16
@@ -654,7 +654,7 @@ importers:
         version: 8.4.49
       postcss-load-config:
         specifier: ^6.0.1
-        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0)
+        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1)
       svelte:
         specifier: 5.2.3
         version: 5.2.3
@@ -689,8 +689,8 @@ importers:
         specifier: ^0.3.3
         version: 0.3.3(vitest@2.1.4(@types/node@22.7.5)(jsdom@25.0.1)(msw@2.6.5(@types/node@22.7.5)(typescript@5.6.3))(terser@5.31.6))
       yaml:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
 
   packages/ui:
     dependencies:
@@ -754,7 +754,7 @@ importers:
         version: 8.4.49
       postcss-load-config:
         specifier: ^6.0.1
-        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0)
+        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1)
       svelte:
         specifier: 5.2.3
         version: 5.2.3
@@ -826,7 +826,7 @@ importers:
         version: 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)
       '@storybook/svelte-vite':
         specifier: ^8.4.4
-        version: 8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
+        version: 8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@storybook/test':
         specifier: ^8.4.4
         version: 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
@@ -856,7 +856,7 @@ importers:
         version: 8.4.49
       postcss-load-config:
         specifier: ^6.0.1
-        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0)
+        version: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -11771,8 +11771,8 @@ packages:
     engines: {node: '>= 14'}
     hasBin: true
 
-  yaml@2.6.0:
-    resolution: {integrity: sha512-a6ae//JvKDEra2kdi1qzCyrJW/WZCgFi8ydDV+eXExl95t+5R+ijnqHJbz9tmMh8FUjx3iv2fCQ4dclAQlO2UQ==}
+  yaml@2.6.1:
+    resolution: {integrity: sha512-7r0XPzioN/Q9kXBro/XPnA6kznR73DHq+GXh5ON7ZozRO6aMjbmiBuKste2wslTFkC5d1dw0GooOCepZXJ2SAg==}
     engines: {node: '>= 14'}
     hasBin: true
 
@@ -15888,7 +15888,7 @@ snapshots:
       react-dom: 18.3.1(react@18.2.0)
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
 
-  '@storybook/svelte-vite@8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
+  '@storybook/svelte-vite@8.4.4(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.1(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1))(postcss@8.4.49)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))':
     dependencies:
       '@storybook/builder-vite': 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(vite@5.4.11(@types/node@22.7.5)(terser@5.31.6))
       '@storybook/svelte': 8.4.4(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.2.3)
@@ -15896,7 +15896,7 @@ snapshots:
       magic-string: 0.30.12
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
       svelte: 5.2.3
-      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(svelte@5.2.3)(typescript@5.6.3)
+      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1))(postcss@8.4.49)(svelte@5.2.3)(typescript@5.6.3)
       svelte2tsx: 0.7.16(svelte@5.2.3)(typescript@5.6.3)
       sveltedoc-parser: 4.2.1
       ts-dedent: 2.2.0
@@ -23026,18 +23026,18 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.4.49):
     dependencies:
       lilconfig: 3.1.2
-      yaml: 2.6.0
+      yaml: 2.6.1
     optionalDependencies:
       postcss: 8.4.49
 
-  postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0):
+  postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1):
     dependencies:
       lilconfig: 3.1.2
     optionalDependencies:
       jiti: 1.21.6
       postcss: 8.4.49
       tsx: 4.19.2
-      yaml: 2.6.0
+      yaml: 2.6.1
 
   postcss-loader@7.3.4(postcss@8.4.49)(typescript@5.6.3)(webpack@5.96.1):
     dependencies:
@@ -24572,7 +24572,7 @@ snapshots:
     dependencies:
       svelte: 5.2.3
 
-  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0))(postcss@8.4.49)(svelte@5.2.3)(typescript@5.6.3):
+  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1))(postcss@8.4.49)(svelte@5.2.3)(typescript@5.6.3):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -24583,7 +24583,7 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.25.2
       postcss: 8.4.49
-      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.0)
+      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.49)(tsx@4.19.2)(yaml@2.6.1)
       typescript: 5.6.3
 
   svelte-steps@2.4.1: {}
@@ -24967,7 +24967,7 @@ snapshots:
       minimatch: 9.0.5
       shiki: 1.16.2
       typescript: 5.6.3
-      yaml: 2.6.0
+      yaml: 2.6.1
 
   typescript-eslint@8.15.0(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3):
     dependencies:
@@ -25770,7 +25770,7 @@ snapshots:
 
   yaml@2.5.1: {}
 
-  yaml@2.6.0: {}
+  yaml@2.6.1: {}
 
   yargs-parser@20.2.9: {}
 
