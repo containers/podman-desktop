@@ -139,7 +139,7 @@ async function buildSinglePlatformImage(): Promise<void> {
 
   if (containerFilePath && selectedProvider) {
     // Extract the relative path from the containerFilePath and containerBuildContextDirectory
-    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+    const relativeContainerfilePath = await window.pathRelative(containerBuildContextDirectory, containerFilePath);
     buildImageInfo = startBuild(containerImageName, getTerminalCallback());
 
     // Store the key

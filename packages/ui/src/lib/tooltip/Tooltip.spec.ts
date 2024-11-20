@@ -39,3 +39,11 @@ test('tooltip is not empty string when tooltipHidden value false', async () => {
   await tick();
   expect(screen.queryByText('test 1')).toBeInTheDocument();
 });
+
+test('tooltip z order', async () => {
+  render(Tooltip, { tip: 'my tooltip' });
+
+  // get the tooltip
+  const tooltip = screen.getByText('my tooltip');
+  expect(tooltip.parentElement).toHaveClass('z-[60]');
+});

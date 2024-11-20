@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import '@testing-library/jest-dom/vitest';
+
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
@@ -114,4 +116,23 @@ test('task with defined progress value should display it', async () => {
   const { getByText } = render(TaskIndicator);
   const span = getByText('50%');
   expect(span).toBeDefined();
+});
+
+test('task with undefined progress value should show indeterminate progress', async () => {
+  tasksInfo.set([
+    {
+      name: 'Dummy Task',
+      state: 'running',
+      status: 'in-progress',
+      started: 0,
+      id: 'dummy-task',
+      progress: undefined, // indeterminate
+    },
+  ]);
+
+  const { getByRole } = render(TaskIndicator);
+
+  // expect the progress bar to have the indeterminate class
+  const progressBar = getByRole('progressbar');
+  expect(progressBar).toHaveClass('progress-bar-indeterminate');
 });

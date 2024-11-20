@@ -53,7 +53,7 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]={!selected || inSection}
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]={!selected || inSection}
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]={!selected && !inSection}>
-    <Tooltip right tip={tooltipText}>
+    <Tooltip right tip={tooltipText} class="flex flex-col items-center">
       <slot />
     </Tooltip>
   </div>

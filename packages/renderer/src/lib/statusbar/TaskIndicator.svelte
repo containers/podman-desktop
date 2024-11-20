@@ -13,8 +13,8 @@ let title: string | undefined = $derived.by(() => {
 });
 
 let progress: number | undefined = $derived.by(() => {
-  if (runningTasks.length === 0) return undefined;
-  return runningTasks[0].progress ?? 0;
+  if (runningTasks.length !== 1) return undefined; // return indeterminate
+  return runningTasks[0].progress; // return task's progress value
 });
 
 function toggleTaskManager(): void {
@@ -28,9 +28,7 @@ function toggleTaskManager(): void {
       <button aria-label="Toggle Task Manager" onclick={toggleTaskManager}>
         <div class="flex items-center gap-x-2">
           <span role="status" class="max-w-32 text-ellipsis overflow-hidden whitespace-nowrap">{title}</span>
-          {#if (progress ?? 0) >= 0}
-            <ProgressBar class="items-center" height="h-1" width="w-20" progress={progress} />
-          {/if}
+          <ProgressBar class="items-center" height="h-1" width="w-20" progress={progress} />
         </div>
       </button>
     </Tooltip>

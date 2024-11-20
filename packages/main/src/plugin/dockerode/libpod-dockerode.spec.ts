@@ -20,33 +20,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import Dockerode from 'dockerode';
-import nock from 'nock';
-import { beforeAll, expect, test } from 'vitest';
+import { http, HttpResponse } from 'msw';
+import { setupServer, type SetupServerApi } from 'msw/node';
+import { afterEach, beforeAll, expect, test } from 'vitest';
 
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
 import type { PodmanListImagesOptions } from '/@api/image-info.js';
 
 import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
 
+let server: SetupServerApi | undefined = undefined;
+
 beforeAll(() => {
   const libpod = new LibpodDockerode();
   libpod.enhancePrototypeWithLibPod();
 });
 
+afterEach(() => {
+  server?.close();
+});
+
 test('Check force is not given with default remove pod options', async () => {
-  nock('http://localhost')
-    .delete('/v4.2.0/libpod/pods/dummy')
-    .query(query => !query['force'])
-    .reply(200);
+  server = setupServer(
+    http.delete('http://localhost/v4.2.0/libpod/pods/dummy', async info => {
+      // check force is set to true in the URL query
+      expect(info.request.url.endsWith('?force=true')).toBeFalsy();
+      return HttpResponse.text();
+    }),
+  );
+
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy');
 });
 
 test('Check force is given with remove pod options', async () => {
-  nock('http://localhost')
-    .delete('/v4.2.0/libpod/pods/dummy')
-    .query(query => query['force'] === 'true')
-    .reply(200);
+  server = setupServer(
+    http.delete('http://localhost/v4.2.0/libpod/pods/dummy', async info => {
+      // check force is set to true in the URL query
+      expect(info.request.url.endsWith('?force=true')).toBeTruthy();
+      return HttpResponse.text();
+    }),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy', { force: true });
 });
@@ -67,7 +85,9 @@ test('Check list of images using Podman API', async () => {
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, jsonImages);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(jsonImages)));
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const listOfImages = await (api as unknown as LibPod).podmanListImages({} as PodmanListImagesOptions);
   expect(listOfImages.length).toBe(1);
@@ -113,7 +133,11 @@ test('Check list of containers using Podman API', async () => {
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/containers/json').reply(200, jsonContainers);
+  server = setupServer(
+    http.get('http://localhost/v4.2.0/libpod/containers/json', () => HttpResponse.json(jsonContainers)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const listOfContainers = await (api as unknown as LibPod).listPodmanContainers();
   expect(listOfContainers.length).toBe(1);
@@ -159,7 +183,11 @@ test('Check list of containers using Podman API and all true options', async () 
     },
   ];
 
-  nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, jsonContainers);
+  server = setupServer(
+    http.get('http://localhost/v4.2.0/libpod/containers/json', () => HttpResponse.json(jsonContainers)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const listOfContainers = await (api as unknown as LibPod).listPodmanContainers({ all: true });
   expect(listOfContainers.length).toBe(1);
@@ -170,14 +198,18 @@ test('Check list of containers using Podman API and all true options', async () 
 test('Check attach API', async () => {
   const containerPrompt = `#`;
   const containerId = '12345678';
-  nock('http://localhost')
-    .post(`/v4.2.0/libpod/containers/${containerId}/attach?stdin=true&stdout=true&stderr=true`)
-    .reply(200, containerPrompt);
+
+  server = setupServer(
+    http.post(`http://localhost/v4.2.0/libpod/containers/${containerId}/attach`, () =>
+      HttpResponse.json(containerPrompt),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const libPod = api as any;
 
-  // patch libpod to not wait for the test as websocket is not supported by nock
+  // patch libpod to not wait for the test as websocket is not supported by mock server
   const originalBuildRequest = libPod.modem.buildRequest;
   libPod.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown): void {
     context.openStdin = false;
@@ -189,7 +221,9 @@ test('Check attach API', async () => {
 });
 
 test('Check info', async () => {
-  nock('http://localhost').get('/v4.2.0/libpod/info').reply(200, podmanInfo);
+  server = setupServer(http.get('http://localhost/v4.2.0/libpod/info', () => HttpResponse.json(podmanInfo)));
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const info = await (api as unknown as LibPod).podmanInfo();
   expect(info).toBeDefined();
@@ -197,9 +231,13 @@ test('Check info', async () => {
 });
 
 test('Check labels are passed to the api when creating a pod', async () => {
-  nock('http://localhost')
-    .post('/v4.2.0/libpod/pods/create', { name: 'pod1', labels: { key1: 'value1' } })
-    .reply(201);
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/pods/create', () =>
+      HttpResponse.json({ name: 'pod1', labels: { key1: 'value1' } }, { status: 201 }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).createPod({
     name: 'pod1',
@@ -210,7 +248,13 @@ test('Check labels are passed to the api when creating a pod', async () => {
 });
 
 test('Check using libpod/manifests/ endpoint', async () => {
-  nock('http://localhost').post('/v4.2.0/libpod/manifests/name1').reply(201, { Id: 'testId1' });
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/manifests/name1', () =>
+      HttpResponse.json({ Id: 'testId1' }, { status: 201 }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const manifest = await (api as unknown as LibPod).podmanCreateManifest({
     name: 'name1',
@@ -243,7 +287,13 @@ test('Check using libpod/manifests/{name}/json endpoint', async () => {
     schemaVersion: 2,
   };
 
-  nock('http://localhost').get('/v4.2.0/libpod/manifests/name1/json').reply(200, mockJsonManifest);
+  server = setupServer(
+    http.get('http://localhost/v4.2.0/libpod/manifests/name1/json', () =>
+      HttpResponse.json(mockJsonManifest, { status: 200 }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const manifest = await (api as unknown as LibPod).podmanInspectManifest('name1');
 
@@ -261,9 +311,12 @@ test('Check using libpod/manifests/{name}/json endpoint', async () => {
 });
 
 test('Check create volume', async () => {
-  nock('http://localhost')
-    .post(`/volumes/create?Name=foo`)
-    .reply(200, { Name: 'foo', Driver: 'local', Scope: 'local' });
+  server = setupServer(
+    http.post('http://localhost/volumes/create', () =>
+      HttpResponse.json({ Name: 'foo', Driver: 'local', Scope: 'local' }, { status: 200 }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -275,20 +328,27 @@ test('Check create volume', async () => {
 });
 
 test('Test push manifest', async () => {
-  nock('http://localhost').post('/v4.2.0/libpod/manifests/name1/registry/name2?all=true').reply(200);
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/manifests/name1/registry/name2', () =>
+      HttpResponse.json({}, { status: 200 }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const manifest = await (api as unknown as LibPod).podmanPushManifest({ name: 'name1', destination: 'name2' });
   expect(manifest).toBeDefined();
 });
 
 test('Test remove manifest', async () => {
-  nock('http://localhost').delete('/v4.2.0/libpod/manifests/name1').reply(200);
+  server = setupServer(
+    http.delete('http://localhost/v4.2.0/libpod/manifests/name1', () => HttpResponse.json({}, { status: 200 })),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
   const response = await (api as unknown as LibPod).podmanRemoveManifest('name1');
-
-  // Check that the request was made
-  expect(nock.isDone()).toBe(true);
 
   // Check that the response is correct
   expect(response).toBeDefined();

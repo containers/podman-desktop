@@ -8,6 +8,7 @@ import NavItem from '/@/lib/ui/NavItem.svelte';
 import { webviews } from '/@/stores/webviews';
 
 export let meta: TinroRouteMeta;
+export let iconWithTitle = true;
 </script>
 
 {#each $webviews as webview (webview.id)}
@@ -16,6 +17,11 @@ export let meta: TinroRouteMeta;
       <Fa icon={faPuzzlePiece} size="1.5x" />
     {:else}
       <IconImage image={webview?.icon} alt={webview.name} class="max-h-6 max-w-[24px]" />
+    {/if}
+    {#if iconWithTitle}
+      <div class="text-xs text-center" aria-label={`${webview.name} title`}>
+        {webview.name}
+      </div>
     {/if}
   </NavItem>
 {/each}

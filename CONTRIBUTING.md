@@ -58,7 +58,7 @@ You can develop on either: `Windows`, `macOS` or `Linux`.
 Requirements:
 
 - [Node.js 20+](https://nodejs.org/en/)
-- [pnpm v9.x](https://pnpm.io/installation) (`corepack enable pnpm)
+- [pnpm v9.x](https://pnpm.io/installation) (`corepack enable pnpm`)
 
 Optional Linux requirements:
 
@@ -315,6 +315,30 @@ Legal name must be used (no pseudonyms or anonymous contributions)
 
 If you set your `user.name` and `user.email` git configs, you can sign your
 commit automatically with `git commit -s`.
+
+
+### Skipping Jobs for Draft Pull Requests on GitHub
+
+When creating a pull request in **draft mode** on GitHub, all CI/CD jobs are **skipped by default**. This behavior is intentional to avoid triggering unnecessary workflows while the pull request is still in progress.
+
+#### Triggering Jobs in Draft Mode
+
+If you want to run jobs for a pull request in **draft mode**, you need to manually apply the `area/ci` label to the pull request. Applying this label signals the CI system to execute the associated workflows, even though the pull request remains in draft.
+
+#### Steps to Trigger Jobs in Draft Mode
+
+1. Open your pull request in draft mode.
+2. Navigate to the **Labels** section in the right-hand sidebar.
+3. Apply the `area/ci` label.
+
+This action will trigger the configured CI/CD workflows for your draft pull request.
+
+#### Example Scenario
+
+- **Without the `area/ci` label**: No jobs will run for your draft pull request.
+- **With the `area/ci` label**: Jobs will be triggered, allowing you to validate your work in progress.
+
+This ensures that CI resources are used efficiently while still providing flexibility for testing during the draft stage.
 
 ### Review process
 

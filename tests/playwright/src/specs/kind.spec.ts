@@ -25,7 +25,7 @@ import { expect as playExpect, test } from '../utility/fixtures';
 import {
   createKindCluster,
   deleteKindCluster,
-  ensureKindCliInstalled,
+  ensureCliInstalled,
   getVolumeNameForContainer,
 } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
@@ -65,7 +65,7 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
         const settingsBar = await navigationBar.openSettings();
         await settingsBar.cliToolsTab.click();
 
-        await ensureKindCliInstalled(page);
+        await ensureCliInstalled(page, 'Kind');
       });
 
       test('Kind extension lifecycle', async ({ navigationBar }) => {

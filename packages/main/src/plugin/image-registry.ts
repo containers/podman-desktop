@@ -590,11 +590,11 @@ export class ImageRegistry {
       const unpackedFileName = tmpFileName.replace('.zst', '.tar');
       await fs.promises.writeFile(unpackedFileName, decompressed);
       await nodeTar.extract({ file: unpackedFileName, cwd: destFolder });
-      // remove the temporary file
-      await fs.promises.rm(tmpFileName);
     } else {
       await nodeTar.extract({ file: tmpFileName, cwd: destFolder });
     }
+    // remove the temporary file
+    await fs.promises.rm(tmpFileName);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -294,21 +294,21 @@ export async function getVolumeNameForContainer(page: Page, containerName: strin
   });
 }
 
-export async function ensureKindCliInstalled(page: Page, timeout = 60_000): Promise<void> {
-  return test.step('Ensure Kind CLI is installed', async () => {
+export async function ensureCliInstalled(page: Page, resourceName: string, timeout = 60_000): Promise<void> {
+  return test.step(`Ensure ${resourceName} CLI is installed`, async () => {
     const cliToolsPage = new CLIToolsPage(page);
     await playExpect(cliToolsPage.toolsTable).toBeVisible({ timeout: 10_000 });
     await playExpect.poll(async () => await cliToolsPage.toolsTable.count()).toBeGreaterThan(0);
-    await playExpect(cliToolsPage.getToolRow('Kind')).toBeVisible({
+    await playExpect(cliToolsPage.getToolRow(resourceName)).toBeVisible({
       timeout: 10_000,
     });
 
-    if (!(await cliToolsPage.getCurrentToolVersion('Kind'))) {
-      await cliToolsPage.installTool('Kind');
+    if (!(await cliToolsPage.getCurrentToolVersion(resourceName))) {
+      await cliToolsPage.installTool(resourceName);
     }
 
     await playExpect
-      .poll(async () => await cliToolsPage.getCurrentToolVersion('Kind'), {
+      .poll(async () => await cliToolsPage.getCurrentToolVersion(resourceName), {
         timeout: timeout,
       })
       .toBeTruthy();

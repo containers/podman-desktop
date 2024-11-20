@@ -19,7 +19,7 @@
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -30,6 +30,7 @@ import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
 import moment from 'moment';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
+import type { Pack, PackOptions } from 'tar-fs';
 
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import type {
@@ -80,7 +81,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 import { guessIsManifest } from './util/manifest.js';
 
-const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
+const tar: { pack: (dir: string, opts?: PackOptions) => NodeJS.ReadableStream } = require('tar-fs');
 
 export interface InternalContainerProvider {
   name: string;
@@ -2426,9 +2427,28 @@ export class ContainerProviderRegistry {
         'stream',
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
-      const tarStream = tar.pack(containerBuildContextDirectory);
       if (isWindows() && options?.containerFile !== undefined) {
         options.containerFile = options.containerFile.replace(/\\/g, '/');
+      }
+
+      let tarStream: NodeJS.ReadableStream;
+      if (options?.containerFile?.startsWith('../')) {
+        // If containerfile is outside the context, we add it to the tar archive, without overriding an existing one
+        const containerFileContent = await readFile(path.join(containerBuildContextDirectory, options.containerFile));
+        let i: number = 0;
+        while (fs.existsSync(path.join(containerBuildContextDirectory, `Containerfile.${i}`))) {
+          i++;
+        }
+        options.containerFile = `./Containerfile.${i}`;
+        tarStream = tar.pack(containerBuildContextDirectory, {
+          finalize: false,
+          finish(myStream: Pack) {
+            myStream.entry({ name: `Containerfile.${i}` }, containerFileContent);
+            myStream.finalize();
+          },
+        });
+      } else {
+        tarStream = tar.pack(containerBuildContextDirectory);
       }
 
       let streamingPromise: NodeJS.ReadableStream;

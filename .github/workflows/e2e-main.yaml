@@ -101,12 +101,19 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
-      - name: Run E2E tests
+      - name: Run E2E tests in Production Mode
         env:
           PODMANDESKTOP_CI_BOT_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
           TEST_PODMAN_MACHINE: 'true'
           SKIP_KIND_INSTALL: 'true'
-        run: pnpm test:e2e
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          echo "Compiling the Podman Desktop in production mode"
+          pnpm compile:current --linux dir
+          path=$(realpath ./dist/linux-unpacked/podman-desktop)
+          echo "Podman Desktop built binary: $path"
+          export PODMAN_DESKTOP_BINARY_PATH=$path
+          pnpm test:e2e
 
       - uses: actions/upload-artifact@v4
         if: always()

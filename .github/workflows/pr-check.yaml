@@ -19,7 +19,7 @@ name: pr-check
 
 on:
   pull_request:
-    types: [labeled, synchronize, opened, reopened]
+    types: [labeled, synchronize, opened, ready_for_review, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   windows:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Windows
     runs-on: windows-2022
     timeout-minutes: 60
@@ -76,6 +77,7 @@ jobs:
           path: ./dist/podman-desktop*-next-arm64.exe
 
   linux:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Linux
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -124,6 +126,7 @@ jobs:
           path: ./dist/podman-desktop-*.flatpak
 
   darwin:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: macOS
     runs-on: macos-14
     timeout-minutes: 40
@@ -166,6 +169,7 @@ jobs:
           path: ./dist/podman-desktop-*universal.dmg
 
   website-build:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: build website
     runs-on: ubuntu-24.04
     steps:
@@ -201,6 +205,7 @@ jobs:
             PR_SHA
 
   lint-format:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: linter, formatters
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -234,6 +239,7 @@ jobs:
           fi
 
   typecheck:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: typecheck
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -259,6 +265,7 @@ jobs:
         run: pnpm svelte:check
 
   unit-tests:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: unit tests / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
@@ -285,6 +292,7 @@ jobs:
         run: pnpm test:unit
 
   smoke-e2e-tests:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: smoke e2e tests
     runs-on: ubuntu-24.04
     strategy:
@@ -326,7 +334,7 @@ jobs:
           [engine]
           cgroup_manager="cgroupfs"
           EOT
-          podman info 
+          podman info
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -341,20 +349,17 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
-      - name: Build and Run Podman Desktop E2E tests in Production Mode
-        if: ${{ matrix.mode == 'production' }}
-        env:
-          ELECTRON_ENABLE_INSPECT: true
+      - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
         run: |
-          pnpm compile:current --linux dir
-          path=$(realpath ./dist/linux-unpacked/podman-desktop)
-          echo "Podman Desktop built binary: $path"
-          export PODMAN_DESKTOP_BINARY_PATH=$path
+          if [ ${{ matrix.mode }} == 'production' ]; then
+            echo "Compiling the Podman Desktop in production mode"
+            export ELECTRON_ENABLE_INSPECT=true
+            pnpm compile:current --linux dir
+            path=$(realpath ./dist/linux-unpacked/podman-desktop)
+            echo "Podman Desktop built binary: $path"
+            export PODMAN_DESKTOP_BINARY_PATH=$path
+          fi
           pnpm test:e2e:smoke
-
-      - name: Run Smoke E2E tests in Development mode
-        if: ${{ matrix.mode == 'development' }}
-        run: pnpm test:e2e:smoke
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -365,6 +370,7 @@ jobs:
             !./tests/**/traces/raw
 
   detect_pnpm_changes:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: Detect pnpm lock or pr-check files changes
     runs-on: ubuntu-24.04
     outputs:

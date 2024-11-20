@@ -25,9 +25,10 @@ import * as path from 'node:path';
 
 import type { Registry } from '@podman-desktop/api';
 import * as fzstd from 'fzstd';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer, type SetupServerApi } from 'msw/node';
 import * as nodeTar from 'tar';
-import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 
 import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
 import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
@@ -41,6 +42,7 @@ import type { EventType, Telemetry } from './telemetry/telemetry.js';
 import type { Disposable } from './types/disposable.js';
 
 let imageRegistry: ImageRegistry;
+let server: SetupServerApi | undefined = undefined;
 
 const pxoxyIsEnabledMock = vi.fn();
 const proxyGetProxyMock = vi.fn();
@@ -71,6 +73,10 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  server?.close();
 });
 
 vi.mock('fzstd', () => {
@@ -204,10 +210,13 @@ describe('extract auth info', () => {
 
   test('getAuthInfo with basic auth', async () => {
     // reply a 401 Unauthorized error with a custom header having the www-authenticate field
-    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
-      'Www-Authenticate': 'Basic realm="Registry Realm"',
-    });
-
+    server = setupServer(
+      http.get(
+        'https://my-podman-desktop-fake-registry.io/v2',
+        () => new HttpResponse('', { status: 401, headers: { 'Www-Authenticate': 'Basic realm="Registry Realm"' } }),
+      ),
+    );
+    server.listen({ onUnhandledRequest: 'error' });
     const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
     expect(value).toBeDefined();
     expect(value?.authUrl).toBe('https://my-podman-desktop-fake-registry.io/v2/');
@@ -216,9 +225,17 @@ describe('extract auth info', () => {
 
   test('getAuthInfo from docker.io with bearer', async () => {
     // reply a 401 Unauthorized error with a custom header having the www-authenticate field
-    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
-      'www-authenticate': 'Bearer realm="https://auth.docker.io/token",service="registry.docker.io"',
-    });
+    server = setupServer(
+      http.get(
+        'https://my-podman-desktop-fake-registry.io/v2',
+        () =>
+          new HttpResponse('', {
+            status: 401,
+            headers: { 'www-authenticate': 'Bearer realm="https://auth.docker.io/token",service="registry.docker.io"' },
+          }),
+      ),
+    );
+    server.listen({ onUnhandledRequest: 'error' });
 
     const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
     expect(value).toBeDefined();
@@ -324,22 +341,24 @@ test('expect getImageConfigLabels works', async () => {
   const spyGetToken = vi.spyOn(imageRegistry, 'getToken');
   spyGetToken.mockResolvedValue('12345');
 
-  // use nock to mock http responses
+  // mock http responses
+  const handlers = [
+    http.get('https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/latest', () =>
+      HttpResponse.json(imageRegistryManifestMultiArchJson),
+    ),
 
-  // multi-arch index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/latest')
-    .reply(200, imageRegistryManifestMultiArchJson);
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0',
+      () => HttpResponse.json(imageRegistryManifestJson),
+    ),
 
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0')
-    .reply(200, imageRegistryManifestJson);
-
-  // config blob
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/blobs/sha256:2f65da9a67deadfb588660ad7da746c4facba696ea5cf8ab844b281f1c14bb01')
-    .reply(200, imageRegistryConfigJson);
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/blobs/sha256:2f65da9a67deadfb588660ad7da746c4facba696ea5cf8ab844b281f1c14bb01',
+      () => HttpResponse.json(imageRegistryConfigJson),
+    ),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const labels = await imageRegistry.getImageConfigLabels('my-podman-desktop-fake-registry.io/my/extension');
   expect(labels).toBeDefined();
@@ -359,18 +378,6 @@ test('expect downloadAndExtractImage works', async () => {
   // need to mock the http request
   const spyGetToken = vi.spyOn(imageRegistry, 'getToken');
   spyGetToken.mockResolvedValue('12345');
-
-  // use nock to mock http responses
-
-  // multi-arch index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/latest')
-    .reply(200, imageRegistryManifestMultiArchJson);
-
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0')
-    .reply(200, imageRegistryManifestJson);
 
   // create a tar file with a package.json file inside
   const tmpTarFolder = path.resolve(os.tmpdir(), 'tar-test-folder');
@@ -395,26 +402,47 @@ test('expect downloadAndExtractImage works', async () => {
   fs.writeFileSync(readmeMd, readmeMdContent);
   await nodeTar.create({ gzip: true, file: tmpTar2File, cwd: tmpTar2Folder }, ['README.MD']);
 
-  const readTarFile1 = (): Buffer => {
-    return fs.readFileSync(tmpTar1File);
-  };
-  const readTarFile2 = (): Buffer => {
-    return fs.readFileSync(tmpTar2File);
-  };
+  const blobFile1 = fs.readFileSync(tmpTar1File);
+  const blobFile2 = fs.readFileSync(tmpTar2File);
 
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/blobs/sha256:ec4d84bbb887a9dba10a4551252dde152bbb42e3b02e501b44218c9c5425eac4')
-    .reply(200, readTarFile1(), {
-      'content-type': 'application/octet-stream',
-      'content-disposition': 'attachment; filename=reply_file_2.tar.gz',
-    });
+  // mock http responses
+  const handlers = [
+    // multi-arch index
 
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/blobs/sha256:dc0c1d0e36ea3e0b94af099c9b96012743ae22e1797eaff3308895335513d454')
-    .reply(200, readTarFile2(), {
-      'content-type': 'application/octet-stream',
-      'content-disposition': 'attachment; filename=reply_file_2.tar.gz',
-    });
+    http.get('https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/latest', () =>
+      HttpResponse.json(imageRegistryManifestMultiArchJson),
+    ),
+
+    // image index
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0',
+      () => HttpResponse.json(imageRegistryManifestJson),
+    ),
+
+    // file 2
+    http.get('https://my-podman-desktop-fake-registry.io/v2/my/extension/blobs/*', info => {
+      const sha = info.params['0'];
+      if (sha === 'sha256:dc0c1d0e36ea3e0b94af099c9b96012743ae22e1797eaff3308895335513d454') {
+        return new HttpResponse(blobFile2, {
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-disposition': 'attachment; filename=reply_file_2.tar.gz',
+          },
+        });
+      }
+      if (sha === 'sha256:ec4d84bbb887a9dba10a4551252dde152bbb42e3b02e501b44218c9c5425eac4') {
+        return new HttpResponse(blobFile1, {
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-disposition': 'attachment; filename=reply_file_1.tar.gz',
+          },
+        });
+      }
+      return new HttpResponse('', { status: 404 });
+    }),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const destFolder = path.resolve(os.tmpdir(), 'test-folder');
   const logFn = vi.fn();
@@ -475,29 +503,45 @@ test('expect downloadAndExtractImage works with zstd', async () => {
     return fs.readFileSync(tmpZstFile);
   };
 
-  // multi-arch index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/latest')
-    .reply(200, imageRegistryManifestMultiArchJson);
+  // mock http responses
+  const handlers = [
+    // multi-arch index
 
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0')
-    .reply(200, imageRegistryManifestZstdJson);
+    http.get('https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/latest', () =>
+      HttpResponse.json(imageRegistryManifestMultiArchJson),
+    ),
+    // image index
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0',
+      () => HttpResponse.json(imageRegistryManifestZstdJson),
+    ),
 
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/blobs/sha256:ec4d84bbb887a9dba10a4551252dde152bbb42e3b02e501b44218c9c5425eac4')
-    .reply(200, readTarZstFile(), {
-      'content-type': 'application/octet-stream',
-      'content-disposition': 'attachment; filename=reply_file_2.tar.zst',
-    });
+    // file 1
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/blobs/sha256:ec4d84bbb887a9dba10a4551252dde152bbb42e3b02e501b44218c9c5425eac4',
+      () =>
+        new HttpResponse(readTarZstFile(), {
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-disposition': 'attachment; filename=reply_file_1.tar.gz',
+          },
+        }),
+    ),
 
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/my/extension/blobs/sha256:dc0c1d0e36ea3e0b94af099c9b96012743ae22e1797eaff3308895335513d454')
-    .reply(200, readTarZstFile(), {
-      'content-type': 'application/octet-stream',
-      'content-disposition': 'attachment; filename=reply_file_2.tar.zst',
-    });
+    // file 2
+    http.get(
+      'https://my-podman-desktop-fake-registry.io/v2/my/extension/blobs/sha256:dc0c1d0e36ea3e0b94af099c9b96012743ae22e1797eaff3308895335513d454',
+      () =>
+        new HttpResponse(readTarZstFile(), {
+          headers: {
+            'content-type': 'application/octet-stream',
+            'content-disposition': 'attachment; filename=reply_file_2.tar.gz',
+          },
+        }),
+    ),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const destFolder = path.resolve(os.tmpdir(), 'test-folder');
   const logFn = vi.fn();
@@ -722,13 +766,20 @@ test('getManifestFromUrl returns the expected manifest with mediaType', async ()
     manifests: [],
   };
 
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+  // mock http responses
+  const handlers = [
+    // image index
 
-  // digest
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/foo/bar/manifests/1234')
-    .reply(200, JSON.stringify({ endManifest: true }));
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/latest', () =>
+      HttpResponse.json(fakeManifest),
+    ),
+    // image index
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/1234', () =>
+      HttpResponse.json({ endManifest: true }),
+    ),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -761,13 +812,20 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
     ],
   };
 
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+  // mock http responses
+  const handlers = [
+    // image index
 
-  // digest
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/foo/bar/manifests/1234')
-    .reply(200, JSON.stringify({ endManifest: true }));
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/latest', () =>
+      HttpResponse.json(fakeManifest),
+    ),
+    // image index
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/1234', () =>
+      HttpResponse.json({ endManifest: true }),
+    ),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -806,13 +864,20 @@ test('getManifestFromUrl returns the expected manifest with docker manifest v2',
     ],
   };
 
-  // image index
-  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+  // mock http responses
+  const handlers = [
+    // image index
 
-  // digest
-  nock('https://my-podman-desktop-fake-registry.io')
-    .get('/v2/foo/bar/manifests/1234')
-    .reply(200, JSON.stringify({ endManifest: true }));
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/latest', () =>
+      HttpResponse.json(fakeManifest),
+    ),
+    // image index
+    http.get('https://my-podman-desktop-fake-registry.io/v2/foo/bar/manifests/1234', () =>
+      HttpResponse.json({ endManifest: true }),
+    ),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -875,16 +940,18 @@ test('getToken with registry auth', async () => {
     source: 'podman-desktop',
   });
 
-  // expect that the authorization header will be set by the getToken method
-  nock('https://my-podman-desktop-fake-registry.io', {
-    reqheaders: {
-      authorization: 'Basic Zm9vOm15LXNlY3JldA==',
-    },
-  })
-    .get('/?scope=repository%3Afoo%2Fbar%3Apull')
-    .reply(200, {
-      token: '12345',
-    });
+  // mock http responses
+  const handlers = [
+    // image index
+
+    http.get('https://my-podman-desktop-fake-registry.io', info => {
+      // expect that the authorization header will be set by the getToken method
+      expect(info.request.headers.get('authorization')).toBe('Basic Zm9vOm15LXNlY3JldA==');
+      return HttpResponse.json({ token: '12345' });
+    }),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const token = await imageRegistry.getToken(
     {
@@ -904,9 +971,14 @@ test('getToken with registry auth', async () => {
 });
 
 test('getToken without registry auth', async () => {
-  nock('https://my-podman-desktop-fake-registry.io').get('/?scope=repository%3Afoo%2Fbar%3Apull').reply(200, {
-    token: '12345',
-  });
+  // mock http responses
+  const handlers = [
+    // image index
+
+    http.get('https://my-podman-desktop-fake-registry.io/', () => HttpResponse.json({ token: '12345' })),
+  ];
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
 
   const token = await imageRegistry.getToken(
     {
@@ -935,21 +1007,29 @@ test('getOptions uses proxy settings', () => {
   imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
   const options = imageRegistry.getOptions();
   expect(options.agent).toBeDefined();
-  expect(options.agent!.http).toBeDefined();
-  expect(options.agent!.https).toBeDefined();
+  expect(options.agent?.http).toBeDefined();
+  expect(options.agent?.https).toBeDefined();
 });
 
 test('searchImages with proxy', async () => {
   pxoxyIsEnabledMock.mockReturnValue(true);
   proxyGetProxyMock.mockReturnValue({
-    httpProxy: 'http://myproxy.com:3128',
-    httpsProxy: 'http://myproxy.com:3128',
+    httpProxy: 'http://localhost:9128',
+    httpsProxy: 'http://locahost:9128',
+
     noProxy: '',
   });
   imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
-  nock('http://myproxy.com:3128')
-    .intercept(r => r.includes('index.docker.io:443'), 'CONNECT')
-    .replyWithError('a proxy error');
+
+  const handlers = [
+    http.get('https://index.docker.io/v1/search', () => {
+      return new HttpResponse('', { status: 500, statusText: 'a proxy error' });
+    }),
+  ];
+
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'error' });
+
   await expect(imageRegistry.searchImages({ query: 'anything' })).rejects.toThrow('a proxy error');
 });
 
@@ -960,9 +1040,8 @@ test('searchImages without registry', async () => {
       description: 'desc',
     },
   ];
-  nock('https://index.docker.io').get('/v1/search?q=http&n=10').reply(200, {
-    results: list,
-  });
+  server = setupServer(http.get('https://index.docker.io/v1/search', () => HttpResponse.json({ results: list })));
+  server.listen({ onUnhandledRequest: 'error' });
   const result = await imageRegistry.searchImages({ query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -974,9 +1053,8 @@ test('searchImages without limit', async () => {
       description: 'desc',
     },
   ];
-  nock('https://index.docker.io').get('/v1/search?q=http&n=25').reply(200, {
-    results: list,
-  });
+  server = setupServer(http.get('https://index.docker.io/v1/search', () => HttpResponse.json({ results: list })));
+  server.listen({ onUnhandledRequest: 'error' });
   const result = await imageRegistry.searchImages({ query: 'http' });
   expect(result).toEqual(list);
 });
@@ -988,9 +1066,8 @@ test('searchImages with docker.io registry', async () => {
       description: 'desc',
     },
   ];
-  nock('https://index.docker.io').get('/v1/search?q=http&n=10').reply(200, {
-    results: list,
-  });
+  server = setupServer(http.get('https://index.docker.io/v1/search', () => HttpResponse.json({ results: list })));
+  server.listen({ onUnhandledRequest: 'error' });
   const result = await imageRegistry.searchImages({ registry: 'docker.io', query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -1002,9 +1079,8 @@ test('searchImages without https', async () => {
       description: 'desc',
     },
   ];
-  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
-    results: list,
-  });
+  server = setupServer(http.get('https://quay.io/v1/search', () => HttpResponse.json({ results: list })));
+  server.listen({ onUnhandledRequest: 'error' });
   const result = await imageRegistry.searchImages({ registry: 'quay.io', query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -1016,9 +1092,8 @@ test('searchImages with https', async () => {
       description: 'desc',
     },
   ];
-  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
-    results: list,
-  });
+  server = setupServer(http.get('https://quay.io/v1/search', () => HttpResponse.json({ results: list })));
+  server.listen({ onUnhandledRequest: 'error' });
   const result = await imageRegistry.searchImages({ registry: 'https://quay.io', query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -1036,15 +1111,11 @@ test('listImageTags', async () => {
   });
   vi.spyOn(imageRegistry, 'getOptions').mockReturnValue({});
   vi.spyOn(imageRegistry, 'getToken').mockResolvedValue('a.token');
-  nock('https://registry.example.com', {
-    reqheaders: {
-      Authorization: 'Bearer a.token',
-    },
-  })
-    .get('/v2/a-name/tags/list')
-    .reply(200, {
-      tags: ['1', '2', '3'],
-    });
+  server = setupServer(
+    http.get('https://registry.example.com/v2/a-name/tags/list', () => HttpResponse.json({ tags: ['1', '2', '3'] })),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
   const result = await imageRegistry.listImageTags({ image: 'an-image' });
   expect(result).toEqual(['1', '2', '3']);
 });
