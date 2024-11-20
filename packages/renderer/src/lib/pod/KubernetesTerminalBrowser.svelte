@@ -30,7 +30,7 @@ onMount(() => {
   key++;
 });
 
-function handleSelectionChange(value: unknown) {
+function handleSelectionChange(value: unknown): void {
   currentContainerName = String(value);
   terminalService.ensureTerminalExists(pod.name, currentContainerName);
   key++;
