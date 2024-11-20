@@ -33,16 +33,17 @@ export let onCloseForm = () => {};
 
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
-<<<<<<< HEAD
   await window.openExternal(existingIssuesLink);
-=======
+}
+
+async function previewOnGitHub(): Promise<void> {
+  onCloseForm();
   const issueProperties: GitHubIssueProperties = {
-    category: 'bug',
+    category: category,
     issueTitle: issueTitle,
     issueDescription: issueDescription,
   };
   await window.previewOnGitHub(issueProperties);
->>>>>>> 7b1b0dc8 (chore: add Preview on GitHub functionality)
 }
 </script>
 
@@ -71,6 +72,6 @@ async function openGitHubIssues(): Promise<void> {
   </svelte:fragment>
   <svelte:fragment slot="buttons">
     <Button class="underline" type="link" aria-label="Cancel" on:click={() => onCloseForm()}>Cancel</Button>
-    <Button aria-label="Preview on GitHub" on:click={() => openGitHubIssues()} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
+    <Button aria-label="Preview on GitHub" on:click={previewOnGitHub} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
   </svelte:fragment>
 </FeedbackForm>
