@@ -19,6 +19,10 @@
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import Dockerode from 'dockerode';
 import nock from 'nock';
 import { beforeAll, expect, test } from 'vitest';
@@ -292,4 +296,24 @@ test('Test remove manifest', async () => {
 
   // Check that the response is correct
   expect(response).toBeDefined();
+});
+
+test('check correct header is provided for playKube', async () => {
+  // Create a dummy yaml file in the tmp directory using os.tmpdir()
+  const tmpFile = path.join(tmpdir(), 'test-apply-kube.yaml');
+  // write some content to the file
+  const content = 'apiVersion: v1\nkind: Pod\nmetadata:\n  name: test\n';
+  await writeFile(tmpFile, content);
+
+  nock('http://localhost').post('/v4.2.0/libpod/play/kube').reply(200);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await (api as unknown as LibPod).playKube(tmpFile);
+
+  // Check that the response is correct
+  expect(response).toBeDefined();
+
+  // Cleanup the file
+  await rm(tmpFile);
 });
