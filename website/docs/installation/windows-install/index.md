@@ -114,11 +114,11 @@ To install the Podman Machine:
 
    ![Podman needs set up screen](img/dashboard-podman-needs-set-up.png)
 
-   Click the **Set up** button.
+1. Click the **Set up** button.
 
-   Review and validate all confirmation screens to set up the Podman Machine.
+1. Review and validate all confirmation screens to set up the Podman machine.
 
-   When necessary, follow the instructions to install system prerequisites.
+1. When necessary, follow the instructions to install system prerequisites.
 
 To verify that Podman is set up:
 
@@ -128,40 +128,49 @@ To verify that Podman is set up:
 
 ### Use Hyper-V as machine provider
 
-In order to tell podman to use Hyper-V when creating a podman machine, one needs to setup either:
+Before creating a Podman machine, you can use one of the following ways to enable it to use Hyper-V:
 
-- environment variable: `CONTAINERS_MACHINE_PROVIDER=hyperv` on the terminal session or as system environment variable.
-  OR
-- configure containers.conf file attribute provider before creating a machine, the file might be placed under `AppData`: `C:\Users\myuser\AppData\Roaming\containers\containers.conf`
+**_Configuring an environment variable_**
 
-```powershell
-cat C:\Users\myuser\AppData\Roaming\containers\containers.conf
-[machine]
+1. Perform one of the following steps:
+   - As a normal user, set the following variable at session level:
 
-provider = "hyperv"
-...
-```
+      ```shell-session
+      > $env:CONTAINERS_MACHINE_PROVIDER = 'hyperv'
+      ```
+   - As an admin user, set the following variable at system level:
 
-Succesfull setup should show string like this in the start up log:
+      ```shell-session
+      # [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','hyperv')
+      ```
 
-```
-time="2023-05-09T21:16:08+03:00" level=debug msg="Using Podman machine with `hyperv` virtualization provider"
-```
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using UI.
 
-Full example then could looks like this, open powershell with admin provileges:
+**_Configuring the `containers.conf` file_**
 
-```
-PS C:\Windows\system32> $env:CONTAINERS_MACHINE_PROVIDER = 'hyperv'
-PS C:\Windows\system32> $env:CONTAINERS_MACHINE_PROVIDER
-hyperv
+1. Open the `containers.conf` file on your machine. The file is usually placed at `C:\Users\myuser\AppData\Roaming\containers\`. 
+1. Add the `provider` attribute and set its value to `hyperv` in the file.
 
-# or alternatively
-# [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','hyperv')
-# [System.Environment]::GetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER)
+   ```vim
+   ...
+   [machine]
 
-podman machine init
-podman machine start
-```
+   provider = "hyperv"
+   ...
+   ```
+
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using UI.  
+
+#### Verification
+After configuration, you can confirm whether you are using a Podman machine with Hyper-V virtualization provider.
+
+1. Go to **Settings > Resources**.
+1. Click the **Podman details** icon in the Podman tile.
+1. Select the **Logs** tab to view the following notification message:
+
+   ```
+   time="2023-05-09T21:16:08+03:00" level=debug msg="Using Podman machine with `hyperv` virtualization provider"
+   ```
 
 #### Next steps
 
