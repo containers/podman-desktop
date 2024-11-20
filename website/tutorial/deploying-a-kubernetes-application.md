@@ -18,8 +18,8 @@ This tutorial covers the following end-to-end tasks required to deploy an applic
 If you have multiple Kubernetes contexts, you must set the correct context in which you want to create your application resources. Within a Kubernetes cluster, you can access the application by its internal IP address. However, if you want to make your application accessible from an outside network, you must expose the pod containing your application as a Kubernetes service.
 To access the service running on your Kubernetes cluster, you can use one of the following options:
 
-- Port forwarding with CLI (covered in this tutorial)
-- [Create an ingress controller with UI](/docs/kind/building-an-image-and-testing-it-in-kind)
+- Configure port forwarding
+- [Create an ingress controller](/docs/kind/building-an-image-and-testing-it-in-kind)
 
 ## Before you begin
 
@@ -107,13 +107,9 @@ This YAML configuration creates a service named `my-nginx` to expose the Nginx d
 
 ## Verifying the service: port forwarding
 
-1. Use the `kubectl port-forward` command to forward a local port to the service. The following example uses the local port `20000`.
-
-```sh
-$ kubectl port-forward service/my-nginx 20000:80
-```
-
-2. Open a web browser.
-3. Enter the local host address, for example, _http://localhost:20000_.
-4. View the Nginx welcome page.
+1. In the Kubernetes explorer, go to **Services**. 
+1. Click the name of the `my-nginx` service.
+1. Click **Forward...**.
+  ![forward button](img/forward-button.png)
+1. Click **Open** to view the Nginx welcome page in a web browser.
    ![welcome page](img/welcome-page.png)
