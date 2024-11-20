@@ -111,10 +111,19 @@ export const handleOpenUrl = (url: string): void => {
 };
 
 // do not use _args as it may contain additional arguments
-app.on('second-instance', (_event, _args, _workingDirectory, additionalData: unknown) => {
-  // if we are on Windows, we need to handle the protocol
-  if ((isWindows() || isLinux()) && additionalData && (additionalData as AdditionalData).argv) {
+app.on('second-instance', (_event, commandLine, _workingDirectory, additionalData: unknown) => {
+  /**
+   * Windows directly provide the extra argument in the additionalData.argv
+   */
+  if (isWindows() && additionalData && (additionalData as AdditionalData).argv) {
     handleAdditionalProtocolLauncherArgs((additionalData as AdditionalData).argv);
+  }
+
+  /**
+   * Linux provide an empty additionalData, so we use the commandLine
+   */
+  if (isLinux()) {
+    handleAdditionalProtocolLauncherArgs(commandLine);
   }
 
   restoreWindow().catch((error: unknown) => {

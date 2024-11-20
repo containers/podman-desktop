@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { App } from 'electron';
 import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { aboutMenuItem } from 'electron-util/main';
-import { afterEach, assert, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import {
   handleAdditionalProtocolLauncherArgs,
@@ -43,6 +42,7 @@ const constants = vi.hoisted(() => {
       resolveFn = resolve;
     }),
     resolveFn,
+    appListeners: new Map<string, (...args: unknown[]) => void>(),
   };
 });
 
@@ -138,7 +138,9 @@ vi.mock('electron', async () => {
       disableHardwareAcceleration: vi.fn(),
       requestSingleInstanceLock: vi.fn().mockReturnValue(true),
       quit: vi.fn(),
-      on: vi.fn(),
+      on: (event: string, listener: () => void): void => {
+        constants.appListeners.set(event, listener);
+      },
       once: vi.fn(),
       whenReady: vi.fn().mockReturnValue(constants.appReadyDeferredPromise),
       setAppUserModelId: vi.fn(),
@@ -209,16 +211,8 @@ test('app-ready event with activate event', async () => {
   const spyShow = vi.spyOn(window, 'show');
   const spyFocus = vi.spyOn(window, 'focus');
 
-  let activateCallback: ((event: unknown) => void) | undefined = undefined;
-
-  // capture activate event
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  vi.mocked(app.on).mockImplementation((event: string, callback: Function): App => {
-    if (event === 'activate') {
-      activateCallback = callback as (event: unknown) => void;
-    }
-    return app;
-  });
+  // avoid side effect
+  constants.appListeners.delete('activate');
 
   if (constants.resolveFn) {
     const appReady: (value: void | Promise<void>) => void = constants.resolveFn;
@@ -229,9 +223,9 @@ test('app-ready event with activate event', async () => {
     assert.fail('constants.resolveFn is undefined');
   }
   // wait activateCallback being set
-  await vi.waitUntil(() => activateCallback !== undefined);
+  await vi.waitUntil(() => constants.appListeners.has('activate'));
   // now, check that we called
-  activateCallback!({});
+  constants.appListeners.get('activate')!({});
 
   // expect show and focus have been called
   expect(spyShow).toHaveBeenCalled();
@@ -356,4 +350,64 @@ test('handle sanitizeProtocolForExtension', () => {
 test('handle sanitizeProtocolForExtension noop', () => {
   const sanitizedLink = 'podman-desktop:extension/my.extension';
   expect(sanitizeProtocolForExtension(sanitizedLink)).toEqual(sanitizedLink);
+});
+
+function getSecondInstanceListener(): (
+  event: Event,
+  argv: string[],
+  workingDirectory: string,
+  additionalData: unknown,
+) => void {
+  const listener = constants.appListeners.get('second-instance');
+  if (listener === undefined) throw new Error('cannot find second instance call');
+  return listener;
+}
+
+describe('second instance', () => {
+  test('expect commandLine argument to be used on linux', async () => {
+    // mock linux
+    vi.spyOn(util, 'isWindows').mockReturnValue(false);
+    vi.spyOn(util, 'isLinux').mockReturnValue(true);
+
+    const listener = getSecondInstanceListener();
+
+    expect(fakeWindow.webContents.send).not.toHaveBeenCalled();
+
+    listener(
+      new Event('second-instance'),
+      // real value gotten on fedora 40 installed through flatpak
+      ['podman-desktop', '--allow-file-access-from-files', 'podman-desktop:extension/podman-desktop.minikube'],
+      '/home/example',
+      // empty on flatpak fedora 40
+      {},
+    );
+
+    await vi.waitFor(() => {
+      expect(fakeWindow.webContents.send).toHaveBeenCalledWith(
+        'podman-desktop-protocol:install-extension',
+        'podman-desktop.minikube',
+      );
+    });
+  });
+
+  test('expect additionalData argument to be used on windows', async () => {
+    // mock isWindows
+    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.spyOn(util, 'isLinux').mockReturnValue(false);
+
+    const listener = getSecondInstanceListener();
+
+    expect(fakeWindow.webContents.send).not.toHaveBeenCalled();
+
+    listener(new Event('second-instance'), [], '/home/example', {
+      argv: ['podman-desktop:extension/podman-desktop.minikube'],
+    });
+
+    await vi.waitFor(() => {
+      expect(fakeWindow.webContents.send).toHaveBeenCalledWith(
+        'podman-desktop-protocol:install-extension',
+        'podman-desktop.minikube',
+      );
+    });
+  });
 });
