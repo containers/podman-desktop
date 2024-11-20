@@ -24,15 +24,19 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import DevelopersFeedback from './DevelopersFeedback.svelte';
 
+const openExternalMock = vi.fn();
+const telemetryTrackMock = vi.fn();
+const sendFeedbackMock = vi.fn();
+
 beforeAll(() => {
   Object.defineProperty(window, 'openExternal', {
-    value: vi.fn(),
+    value: openExternalMock,
   });
   Object.defineProperty(window, 'telemetryTrack', {
-    value: vi.fn(),
+    value: telemetryTrackMock,
   });
   Object.defineProperty(window, 'sendFeedback', {
-    value: vi.fn(),
+    value: sendFeedbackMock,
   });
 });
 
@@ -158,8 +162,8 @@ test('Expect GitHub dialog visible when very-happy-smiley selected', async () =>
   await fireEvent.click(link);
 
   await vi.waitFor(() => {
-    expect(window.telemetryTrack).toHaveBeenCalledWith('feedback.openGitHub');
-    expect(window.openExternal).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
+    expect(telemetryTrackMock).toHaveBeenCalledWith('feedback.openGitHub');
+    expect(openExternalMock).toHaveBeenCalledWith('https://github.com/containers/podman-desktop');
   });
 });
 
@@ -176,8 +180,10 @@ test('Expect category to be sent', async () => {
   expect(button).toBeEnabled();
   await fireEvent.click(button);
 
-  expect(window.sendFeedback).toHaveBeenCalledWith({
-    category: 'developers',
-    rating: 4,
+  await vi.waitFor(() => {
+    expect(sendFeedbackMock).toHaveBeenCalledWith({
+      category: 'developers',
+      rating: 4,
+    });
   });
 });

@@ -16,16 +16,23 @@ import type { FeedbackProperties } from '/@api/feedback';
 
 import WarningMessage from '../../ui/WarningMessage.svelte';
 
+interface Props {
+  onCloseForm: () => void;
+}
+
 // feedback of the user
-let smileyRating = 0;
-let tellUsWhyFeedback = '';
-let contactInformation = '';
+let smileyRating = $state(0);
+let tellUsWhyFeedback = $state('');
+let contactInformation = $state('');
+let hasFeedback = $state();
 
-$: hasFeedback =
-  (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
-  (contactInformation && contactInformation.trim().length > 4);
+let { onCloseForm = () => {} }: Props = $props();
 
-export let onCloseForm = () => {};
+$effect(() => {
+  hasFeedback =
+    (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
+    (contactInformation && contactInformation.trim().length > 4);
+});
 
 function selectSmiley(item: number): void {
   smileyRating = item;
@@ -63,7 +70,7 @@ async function openGitHub(): Promise<void> {
     <label for="smiley" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
       >How was your experience with Podman Desktop?</label>
     <div class="flex space-x-4">
-      <button aria-label="very-sad-smiley" on:click={() => selectSmiley(1)}>
+      <button aria-label="very-sad-smiley" onclick={() => selectSmiley(1)}>
         <Fa
           size="1.5x"
           class="cursor-pointer {smileyRating === 1
@@ -71,7 +78,7 @@ async function openGitHub(): Promise<void> {
             : 'text-[var(--pd-button-disabled-text)]'}"
           icon={faFrown} />
       </button>
-      <button aria-label="sad-smiley" on:click={() => selectSmiley(2)}>
+      <button aria-label="sad-smiley" onclick={() => selectSmiley(2)}>
         <Fa
           size="1.5x"
           class="cursor-pointer {smileyRating === 2
@@ -79,7 +86,7 @@ async function openGitHub(): Promise<void> {
             : 'text-[var(--pd-button-disabled-text)]'}"
           icon={faMeh} />
       </button>
-      <button aria-label="happy-smiley" on:click={() => selectSmiley(3)}>
+      <button aria-label="happy-smiley" onclick={() => selectSmiley(3)}>
         <Fa
           size="1.5x"
           class="cursor-pointer {smileyRating === 3
@@ -87,7 +94,7 @@ async function openGitHub(): Promise<void> {
             : 'text-[var(--pd-button-disabled-text)]'}"
           icon={faSmile} />
       </button>
-      <button aria-label="very-happy-smiley" on:click={() => selectSmiley(4)}>
+      <button aria-label="very-happy-smiley" onclick={() => selectSmiley(4)}>
         <Fa
           size="1.5x"
           class="cursor-pointer {smileyRating === 4
