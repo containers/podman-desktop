@@ -65,6 +65,7 @@ beforeAll(() => {
   (window as any).getCancellableTokenSource = vi.fn();
   (window as any).auditConnectionParameters = vi.fn();
   (window as any).telemetryTrack = vi.fn();
+  (window as any).openDialog = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -388,6 +389,59 @@ describe.each([
     await fireEvent.input(inputElement as Element, { target: { value: '2' } });
     await vi.waitFor(() => expect(vi.mocked(window as any).auditConnectionParameters).toBeCalledTimes(2));
     await vi.waitFor(() => expect(createButton).toBeEnabled());
+  });
+});
+
+test(`Check itemsAudit receive updated values`, async () => {
+  const callback = mockCallback(async () => {});
+  const auditSpy = vi.spyOn(window as any, 'auditConnectionParameters').mockImplementation(() => ({ records: [] }));
+  vi.spyOn(window as any, 'openDialog').mockResolvedValue(['somefile']);
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  render(PreferencesConnectionCreationOrEditRendering, {
+    properties: [
+      {
+        id: 'test.fileProperty',
+        title: 'FileProperty',
+        parentId: '',
+        description: 'test.fileProperty',
+        scope: 'ContainerProviderConnectionFactory',
+        type: 'string',
+        format: 'file',
+      },
+      {
+        title: 'FactoryProperty',
+        parentId: '',
+        scope: 'ContainerProviderConnectionFactory',
+        id: 'test.factoryProperty',
+        type: 'number',
+        description: 'test.factoryProperty',
+      },
+    ],
+    providerInfo,
+    connectionInfo: undefined,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
+
+  await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
+  const inputElement = screen.queryByRole('textbox', { name: 'test.factoryProperty' });
+  expect(inputElement).toBeDefined();
+  await fireEvent.input(inputElement as Element, { target: { value: '2' } });
+  await vi.waitFor(() =>
+    expect(auditSpy).toBeCalledWith('test', {
+      'test.factoryProperty': '2',
+      'test.fileProperty': '',
+    }),
+  );
+
+  const browseButton = screen.getByRole('button', { name: 'browse' });
+  expect(browseButton).toBeInTheDocument();
+  await fireEvent.click(browseButton);
+
+  expect(auditSpy).toBeCalledWith('test', {
+    'test.factoryProperty': '2',
+    'test.fileProperty': 'somefile',
   });
 });
 
