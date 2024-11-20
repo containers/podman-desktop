@@ -104,13 +104,12 @@ function Hero(): JSX.Element {
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center">
           <div className="bg-white/30 dark:bg-transparent">
-            <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white leading-[1.2]">
-              Best Free &amp; Open Source Tool for Containers &amp; Kubernetes - Podman Desktop
+            <h1 className="title-font text-4xl leading-[3rem] lg:text-5xl lg:leading-[4rem] font-bold text-gray-900 dark:text-white mt-[96px]">
+              Best Free &amp; Open Source Tool for Containers &amp; Kubernetes
             </h1>
-            <p className="text-base md:text-lg">
-              Podman Desktop is the best free and open source tool to work with Containers and Kubernetes for
-              developers. Get an intuitive and user-friendly interface to effortlessly bridge the gap between local
-              development and Kubernetes clusters. Build, manage, and deploy everywhere with ease from a single tool.
+            <p className="text-base leading-[1.9rem] md:text-lg md:leading-[1.9rem] mt-[88px]">
+              Effortlessly bridge the gap between local development and Kubernetes clusters. Build, manage, and deploy
+              everywhere with ease from a single tool.
             </p>
             <div className="flex-none">
               {/* With client mode, provides the link to the client browser */}
@@ -396,7 +395,7 @@ function RunAnywhere(): JSX.Element {
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
-          <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
+          <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Available on Windows, Mac and Linux
           </h2>
           <p className="text-base text-gray-900 md:text-lg dark:text-gray-400">

@@ -8,14 +8,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* montserrat-regular - latin */
+/* manrope variable font */
 @font-face {
-  font-family: 'Montserrat';
+  font-family: 'Manrope';
   font-style: normal;
   font-weight: normal;
-  src: url('../../static/fonts/montserrat-v25-latin-regular.woff2') format('woff2'),
-    url('../../static/fonts/montserrat-v25-latin-regular.woff') format('woff'),
-    url('../../static/fonts/montserrat-v25-latin-regular.ttf') format('truetype');
+  src: url('../../static/fonts/manrope.ttf') format('truetype');
 }
 
 /* Apply default style for markdown*/
@@ -53,7 +51,7 @@ Apply style on documentation
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-font-family-base: 'Montserrat', sans-serif;
+  --ifm-font-family-base: 'Manrope', sans-serif;
   --ifm-color-primary: #6d28d9;
   --ifm-color-primary-dark: #7c3aed;
   --ifm-color-primary-darker: #5c21ba;
