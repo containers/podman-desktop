@@ -24,15 +24,12 @@ interface Props {
 let smileyRating = $state(0);
 let tellUsWhyFeedback = $state('');
 let contactInformation = $state('');
-let hasFeedback = $state();
+let hasFeedback = $derived(
+  (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
+    (contactInformation && contactInformation.trim().length > 4),
+);
 
 let { onCloseForm = () => {} }: Props = $props();
-
-$effect(() => {
-  hasFeedback =
-    (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
-    (contactInformation && contactInformation.trim().length > 4);
-});
 
 function selectSmiley(item: number): void {
   smileyRating = item;
