@@ -45,8 +45,10 @@ function hideModal(): void {
 
     {#if category === 'developers'}
       <DevelopersFeedback onCloseForm={hideModal}/>
-    {:else}
-      <GitHubIssueFeedback onCloseForm={hideModal}/>
+    {:else if category === 'bug'}
+      <GitHubIssueFeedback onCloseForm={hideModal} category="bug"/>
+    {:else if category === 'feature'}
+      <GitHubIssueFeedback onCloseForm={hideModal} category="feature"/>
     {/if}
   </Modal>
 {/if}

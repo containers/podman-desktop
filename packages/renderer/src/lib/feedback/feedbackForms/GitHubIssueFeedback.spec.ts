@@ -35,15 +35,15 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('Expect feedback form to to be bug feedback form', async () => {
-  render(GitHubIssueFeedback, {});
+test('Expect feedback form to to be GitHub issue feedback form', async () => {
+  render(GitHubIssueFeedback, { category: 'bug' });
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
 });
 
 test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
-  render(GitHubIssueFeedback, {});
+  render(GitHubIssueFeedback, { category: 'bug' });
 
   expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeDisabled();
 
@@ -57,4 +57,48 @@ test('Expect Preview on GitHub button to be disabled if there is no title or des
 
   await tick();
   expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeEnabled();
+});
+
+test('Expect to have different placeholders for bug vs feaure', async () => {
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let issueTitle = screen.getByTestId('issueTitle');
+  expect(issueTitle).toBeInTheDocument();
+  expect(issueTitle).toHaveProperty('placeholder', 'Bug Report Title');
+
+  let issueDescription = screen.getByTestId('issueDescription');
+  expect(issueDescription).toBeInTheDocument();
+  expect(issueDescription).toHaveProperty('placeholder', 'Bug description');
+
+  renderObject.unmount();
+
+  render(GitHubIssueFeedback, { category: 'feature' });
+
+  issueTitle = screen.getByTestId('issueTitle');
+  expect(issueTitle).toBeInTheDocument();
+  expect(issueTitle).toHaveProperty('placeholder', 'Feature name');
+
+  issueDescription = screen.getByTestId('issueDescription');
+  expect(issueDescription).toBeInTheDocument();
+  expect(issueDescription).toHaveProperty('placeholder', 'Feature description');
+});
+
+test('Expect to have different existing GitHub issues links for bug and feature categories', async () => {
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let existingIssues = screen.getByLabelText('GitHub issues');
+  expect(existingIssues).toBeInTheDocument();
+
+  await userEvent.click(existingIssues);
+  expect(window.openExternal).toHaveBeenCalledWith(
+    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
+  );
+  renderObject.unmount();
+
+  render(GitHubIssueFeedback, { category: 'feature' });
+  existingIssues = screen.getByLabelText('GitHub issues');
+  expect(existingIssues).toBeInTheDocument();
+
+  await userEvent.click(existingIssues);
+  expect(window.openExternal).toHaveBeenCalledWith(
+    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
+  );
 });
