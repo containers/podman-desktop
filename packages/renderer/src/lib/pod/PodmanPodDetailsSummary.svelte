@@ -1,6 +1,8 @@
 <script lang="ts">
 import { Link } from '@podman-desktop/ui-svelte';
-import { router } from 'tinro';
+
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import DetailsCell from '../details/DetailsCell.svelte';
 import DetailsSubtitle from '../details/DetailsSubtitle.svelte';
@@ -50,7 +52,7 @@ if (pod) {
       {#each pod.containers as container}
         <tr>
           <DetailsSubtitle>
-            <Link on:click={() => router.goto(`/containers/${container.Id}/logs`)}>
+            <Link on:click={handleNavigation.bind(undefined, {page: NavigationPage.CONTAINER_LOGS,parameters: {id: container.Id }})}>
               {container.Names}
             </Link>
           </DetailsSubtitle>

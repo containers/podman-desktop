@@ -1,6 +1,8 @@
 <script lang="ts">
 import { Link } from '@podman-desktop/ui-svelte';
-import { router } from 'tinro';
+
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import DetailsCell from '../details/DetailsCell.svelte';
 import DetailsTable from '../details/DetailsTable.svelte';
@@ -11,7 +13,12 @@ export let volume: VolumeInfoUI;
 const createdTime: Date = new Date(volume.created);
 
 function openContainer(containerID: string) {
-  router.goto(`/containers/${containerID}/logs`);
+  handleNavigation({
+    page: NavigationPage.CONTAINER_LOGS,
+    parameters: {
+      id: containerID,
+    },
+  });
 }
 </script>
 
