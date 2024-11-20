@@ -17,7 +17,7 @@ import type { FeedbackProperties } from '/@api/feedback';
 import WarningMessage from '../../ui/WarningMessage.svelte';
 
 interface Props {
-  onCloseForm: () => void;
+  onCloseForm?: () => void;
 }
 
 // feedback of the user
@@ -52,11 +52,11 @@ async function sendFeedback(): Promise<void> {
   // send
   await window.sendFeedback(properties);
   // close the form
-  onCloseForm();
+  onCloseForm?.();
 }
 
 async function openGitHub(): Promise<void> {
-  onCloseForm();
+  onCloseForm?.();
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
@@ -137,7 +137,7 @@ async function openGitHub(): Promise<void> {
         <span aria-label="Like Podman Desktop? Give us a star on GitHub" class="flex items-center">
           <Fa class="px-1 text-[var(--pd-invert-content-info-icon)]" icon={faHeart} />{smileyRating === 3 ? 'Like' : 'Love'} It? Give us a <Fa
             class="px-1 text-[var(--pd-state-warning)]"
-            icon={faStar} />on <Link aria-label="GitHub" onclick={openGitHub}>GitHub</Link>
+            icon={faStar} />on <Link aria-label="GitHub" on:click={openGitHub}>GitHub</Link>
         </span>
       </div>
     {/if}

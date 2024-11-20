@@ -13,32 +13,31 @@ let { onCloseForm = () => {}, category = 'bug' }: Props = $props();
 
 let issueTitle = $state('');
 let issueDescription = $state('');
-let issueValidationError = $state('');
+let issueValidationError = $derived.by(() => {
+  if (!issueTitle) {
+    if (!issueDescription) {
+      return `Please enter ${category} ${category === 'bug' ? 'title' : 'name'} and description`;
+    } else {
+      return `Please enter ${category} ${category === 'bug' ? 'title' : 'name'}`;
+    }
+  } else {
+    if (!issueDescription) {
+      return `Please enter ${category} description`;
+    }
+    return '';
+  }
+});
+
 let titlePlaceholder = $state(category === 'bug' ? 'Bug Report Title' : 'Feature name');
 let descriptionPlaceholder = $state(category === 'bug' ? 'Bug description' : 'Feature description');
-
 let existingIssuesLink = $state(
   category === 'bug'
     ? 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22'
     : 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
 );
 
-$effect(() => {
-  if (!issueTitle) {
-    if (!issueDescription) {
-      issueValidationError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'} and description`;
-    } else {
-      issueValidationError = `Please enter ${category} ${category === 'bug' ? 'title' : 'name'}`;
-    }
-  } else {
-    if (!issueDescription) {
-      issueValidationError = `Please enter ${category} description`;
-    }
-  }
-});
-
 async function openGitHubIssues(): Promise<void> {
-  onCloseForm();
+  onCloseForm?.();
   await window.openExternal(existingIssuesLink);
 }
 
