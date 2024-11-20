@@ -42,7 +42,7 @@
     "react-dom": "18.3.1",
     "storybook": "^8.2.9",
     "storybook-dark-mode": "^4.0.2",
-    "svelte": "5.2.3",
+    "svelte": "5.2.4",
     "svelte-check": "^4.0.9",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
