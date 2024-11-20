@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { shell } from 'electron';
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { GitHubIssueProperties } from '/@api/feedback.js';
 
@@ -29,15 +29,30 @@ vi.mock('electron', () => ({
   },
 }));
 
-const issueProperties: GitHubIssueProperties = {
-  category: 'bug',
-  issueTitle: 'PD is not working',
-  issueDescription: 'bug description',
-};
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
-const queryParams = 'template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description';
+test('Expect openExternal to be called with queryParams and bug report template', async () => {
+  const issueProperties: GitHubIssueProperties = {
+    category: 'bug',
+    issueTitle: 'PD is not working',
+    issueDescription: 'bug description',
+  };
+  const queryParams = 'template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description';
+  const feedbackHandler = new FeedbackHandler();
+  await feedbackHandler.openGitHubIssue(issueProperties);
+  expect(shell.openExternal).toBeCalledWith(`https://github.com/containers/podman-desktop/issues/new?${queryParams}`);
+});
 
-test('Expect openExternal to be called with queryParams', async () => {
+test('Expect openExternal to be called with queryParams and feature request template', async () => {
+  const issueProperties: GitHubIssueProperties = {
+    category: 'feature',
+    issueTitle: 'new feature',
+    issueDescription: 'feature description',
+  };
+  issueProperties.category = 'feature';
+  const queryParams = 'template=feature_request.yml&title=new+feature&solution=feature+description';
   const feedbackHandler = new FeedbackHandler();
   await feedbackHandler.openGitHubIssue(issueProperties);
   expect(shell.openExternal).toBeCalledWith(`https://github.com/containers/podman-desktop/issues/new?${queryParams}`);

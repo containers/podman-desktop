@@ -30,6 +30,13 @@ export class FeedbackHandler {
         'bug-description': issueProperties.issueDescription,
       };
       urlSearchParams = new URLSearchParams(params).toString();
+    } else if (issueProperties.category === 'feature') {
+      const params = {
+        template: 'feature_request.yml',
+        title: issueProperties.issueTitle,
+        solution: issueProperties.issueDescription,
+      };
+      urlSearchParams = new URLSearchParams(params).toString();
     }
     const link = `https://github.com/containers/podman-desktop/issues/new?${urlSearchParams}`;
     await shell.openExternal(link);
