@@ -30,9 +30,8 @@ onMount(() => {
   key++;
 });
 
-function handleSelectionChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  currentContainerName = target.value;
+function handleSelectionChange(value: unknown) {
+  currentContainerName = String(value);
   terminalService.ensureTerminalExists(pod.name, currentContainerName);
   key++;
 }
@@ -54,7 +53,7 @@ function handleSelectionChange(event: Event) {
     <div class="w-full">
       {#if pod.containers.length > 1}
         <Dropdown
-          on:change={handleSelectionChange}
+          onChange={handleSelectionChange}
           class="w-48"
           name={pod.name}
           id="input-standard-{pod.name}"
