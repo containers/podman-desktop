@@ -24,7 +24,7 @@ function openExtensionDetails() {
   <!-- if featured need to display a top banner -->
 
   {#if catalogExtensionUI.isFeatured}
-    <div class="bg-[var(--pd-content-card-border-selected)] text-[var(--pd-card-header-text)] rounded-t-md px-2 font-light text-sm min-h-6 flex flex-row items-center">
+    <div class="bg-[var(--pd-badge-purple)] text-[var(--pd-card-header-text)] rounded-t-md px-2 font text-sm min-h-6 flex flex-row items-center">
       Featured
     </div>
   {/if}
