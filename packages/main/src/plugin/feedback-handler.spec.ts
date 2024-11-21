@@ -19,7 +19,7 @@
 import { shell } from 'electron';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { GitHubIssueProperties } from '/@api/feedback.js';
+import type { GitHubIssue } from '/@api/feedback.js';
 
 import { FeedbackHandler } from './feedback-handler.js';
 
@@ -34,10 +34,10 @@ beforeEach(() => {
 });
 
 test('Expect openExternal to be called with queryParams and bug report template', async () => {
-  const issueProperties: GitHubIssueProperties = {
+  const issueProperties: GitHubIssue = {
     category: 'bug',
-    issueTitle: 'PD is not working',
-    issueDescription: 'bug description',
+    title: 'PD is not working',
+    description: 'bug description',
   };
   const queryParams = 'template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description';
   const feedbackHandler = new FeedbackHandler();
@@ -46,10 +46,10 @@ test('Expect openExternal to be called with queryParams and bug report template'
 });
 
 test('Expect openExternal to be called with queryParams and feature request template', async () => {
-  const issueProperties: GitHubIssueProperties = {
+  const issueProperties: GitHubIssue = {
     category: 'feature',
-    issueTitle: 'new feature',
-    issueDescription: 'feature description',
+    title: 'new feature',
+    description: 'feature description',
   };
   issueProperties.category = 'feature';
   const queryParams = 'template=feature_request.yml&title=new+feature&solution=feature+description';

@@ -23,7 +23,7 @@ import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { GitHubIssueProperties } from '/@api/feedback';
+import type { GitHubIssue } from '/@api/feedback';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
 
@@ -123,10 +123,10 @@ test('Expect to have different existing GitHub issues links for bug and feature 
 });
 
 test('Expect the right category to be included in previewOnGitHub call', async () => {
-  const issueProperties: GitHubIssueProperties = {
+  const issueProperties: GitHubIssue = {
     category: 'bug',
-    issueTitle: 'Bug title',
-    issueDescription: 'Bug description',
+    title: 'Bug title',
+    description: 'Bug description',
   };
   const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
   const previewButton = screen.getByRole('button', { name: 'Preview on GitHub' });

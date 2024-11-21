@@ -78,7 +78,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
 import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
-import type { GitHubIssueProperties } from '/@api/feedback.js';
+import type { GitHubIssue } from '/@api/feedback.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
 import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
@@ -2627,7 +2627,7 @@ export class PluginSystem {
       return telemetry.sendFeedback(feedbackProperties);
     });
 
-    this.ipcHandle('feedback:GitHubPreview', async (_listener, properties: GitHubIssueProperties): Promise<void> => {
+    this.ipcHandle('feedback:GitHubPreview', async (_listener, properties: GitHubIssue): Promise<void> => {
       return feedback.openGitHubIssue(properties);
     });
 

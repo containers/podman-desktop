@@ -25,10 +25,10 @@ export interface FeedbackProperties {
   contact?: string;
 }
 
-export interface GitHubIssueProperties {
+export interface GitHubIssue {
   category: FeedbackCategory;
-  issueTitle: string;
-  issueDescription: string;
+  title: string;
+  description: string;
   includeSystemInfo?: boolean;
   includeExtensionInfo?: boolean;
 }

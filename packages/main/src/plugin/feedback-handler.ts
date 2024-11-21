@@ -18,27 +18,31 @@
 
 import { shell } from 'electron';
 
-import type { GitHubIssueProperties } from '/@api/feedback.js';
+import type { GitHubIssue } from '/@api/feedback.js';
 
 export class FeedbackHandler {
-  async openGitHubIssue(issueProperties: GitHubIssueProperties): Promise<void> {
-    let urlSearchParams = '';
-    if (issueProperties.category === 'bug') {
-      const params = {
-        template: 'bug_report.yml',
-        title: issueProperties.issueTitle,
-        'bug-description': issueProperties.issueDescription,
-      };
-      urlSearchParams = new URLSearchParams(params).toString();
-    } else if (issueProperties.category === 'feature') {
-      const params = {
-        template: 'feature_request.yml',
-        title: issueProperties.issueTitle,
-        solution: issueProperties.issueDescription,
-      };
-      urlSearchParams = new URLSearchParams(params).toString();
-    }
+  async openGitHubIssue(issueProperties: GitHubIssue): Promise<void> {
+    const urlSearchParams = new URLSearchParams(this.toQueryParameters(issueProperties)).toString();
     const link = `https://github.com/containers/podman-desktop/issues/new?${urlSearchParams}`;
     await shell.openExternal(link);
+  }
+
+  protected toQueryParameters(issue: GitHubIssue): Record<string, string> {
+    switch (issue.category) {
+      case 'feature':
+        return {
+          template: 'feature_request.yml',
+          title: issue.title,
+          solution: issue.description,
+        };
+      case 'bug':
+        return {
+          template: 'bug_report.yml',
+          title: issue.title,
+          'bug-description': issue.description,
+        };
+      default:
+        throw new Error(`unknown category ${issue.category}`);
+    }
   }
 }

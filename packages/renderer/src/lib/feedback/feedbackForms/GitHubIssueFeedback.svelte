@@ -2,7 +2,7 @@
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
-import type { FeedbackCategory, GitHubIssueProperties } from '/@api/feedback';
+import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
 
 export let category: FeedbackCategory = 'bug';
 let issueTitle = '';
@@ -37,13 +37,17 @@ async function openGitHubIssues(): Promise<void> {
 }
 
 async function previewOnGitHub(): Promise<void> {
-  onCloseForm();
-  const issueProperties: GitHubIssueProperties = {
+  const issueProperties: GitHubIssue = {
     category: category,
-    issueTitle: issueTitle,
-    issueDescription: issueDescription,
+    title: issueTitle,
+    description: issueDescription,
   };
-  await window.previewOnGitHub(issueProperties);
+  try {
+    await window.previewOnGitHub(issueProperties);
+    onCloseForm();
+  } catch (error: unknown) {
+    console.error('There was a problem with preview on GitHub', error);
+  }
 }
 </script>
 

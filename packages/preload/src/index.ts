@@ -58,7 +58,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import type { ContributionInfo } from '/@api/contribution-info';
 import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info';
 import type { ExtensionInfo } from '/@api/extension-info';
-import type { FeedbackProperties, GitHubIssueProperties } from '/@api/feedback';
+import type { FeedbackProperties, GitHubIssue } from '/@api/feedback';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
@@ -2188,7 +2188,7 @@ export function initExposure(): void {
     return ipcInvoke('feedback:send', feedback);
   });
 
-  contextBridge.exposeInMainWorld('previewOnGitHub', async (feedback: GitHubIssueProperties): Promise<void> => {
+  contextBridge.exposeInMainWorld('previewOnGitHub', async (feedback: GitHubIssue): Promise<void> => {
     return ipcInvoke('feedback:GitHubPreview', feedback);
   });
 
