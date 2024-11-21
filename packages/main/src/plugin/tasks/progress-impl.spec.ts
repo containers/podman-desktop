@@ -18,14 +18,14 @@
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import type { Event } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import type { TaskAction } from '/@/plugin/tasks/tasks.js';
 import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
+import { TaskImpl } from './task-impl.js';
 import type { TaskManager } from './task-manager.js';
 
 const taskManager = {
@@ -37,26 +37,11 @@ const navigationManager = {
   navigateToRoute: vi.fn(),
 } as unknown as NavigationManager;
 
-class TestTaskImpl implements Task {
-  constructor(
-    public readonly id: string,
-    public name: string,
-    public state: TaskState,
-    public status: TaskStatus,
-  ) {
-    this.started = 0;
-  }
-
-  started: number;
-  error?: string;
-  progress?: number;
-  action?: TaskAction;
-
-  get onUpdate(): Event<TaskUpdateEvent> {
-    throw new Error('not implemented');
-  }
-  dispose(): void {
-    throw new Error('not implemented');
+class TestTaskImpl extends TaskImpl {
+  constructor(id: string, name: string, state: TaskState, status: TaskStatus) {
+    super(id, name);
+    this.state = state;
+    this.status = status;
   }
 }
 
