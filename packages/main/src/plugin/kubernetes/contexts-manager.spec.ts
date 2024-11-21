@@ -1526,6 +1526,58 @@ describe('update', async () => {
       expect(informerStopMock).toHaveBeenCalledWith('context1', informerPath);
       expect(client.getContextResources('context1', resource as ResourceName).length).toBe(0);
     });
+
+    test('check log message contains context name', async () => {
+      vi.useFakeTimers();
+      const makeInformerMock = vi.mocked(makeInformer);
+      makeInformerMock.mockImplementation(
+        (
+          kubeconfig: kubeclient.KubeConfig,
+          path: string,
+          _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+        ) => {
+          return new TestInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+        },
+      );
+      client = new TestContextsManager(apiSender);
+      const kubeConfig = new kubeclient.KubeConfig();
+      const config = {
+        clusters: [
+          {
+            name: 'cluster1',
+            server: 'server1',
+          },
+        ],
+        users: [
+          {
+            name: 'user1',
+          },
+        ],
+        contexts: [
+          {
+            name: 'context1',
+            cluster: 'cluster1',
+            user: 'user1',
+            namespace: 'ns1',
+          },
+        ],
+        currentContext: 'context1',
+      };
+      kubeConfig.loadFromOptions(config);
+      await client.update(kubeConfig);
+      client.registerGetCurrentContextResources(resource as ResourceName);
+      expect(consoleDebugMock).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /skip watching \w* in kubernetes context named "context1", as the context is not reachable/,
+        ),
+      );
+      vi.advanceTimersToNextTimer();
+      vi.advanceTimersToNextTimer();
+      client.registerGetCurrentContextResources(resource as ResourceName);
+      expect(consoleDebugMock).toHaveBeenCalledWith(
+        expect.stringMatching(/already watching \w* in kubernetes context named "context1"/),
+      );
+    });
   });
 
   describe.each([

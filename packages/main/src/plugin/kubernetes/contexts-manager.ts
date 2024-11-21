@@ -941,15 +941,17 @@ export class ContextsManager {
       return [];
     }
     if (this.informers.hasInformer(this.currentContext.name, resourceName)) {
-      console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
+      console.debug(`already watching ${resourceName} in kubernetes context named "${this.currentContext.name}"`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
     // start secondary informers only if current context is reachable
     if (this.states.isReachable(this.currentContext.name)) {
-      console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+      console.debug(`start watching ${resourceName} in kubernetes context named "${this.currentContext.name}"`);
       this.startResourceInformer(this.currentContext.name, resourceName);
     } else {
-      console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
+      console.debug(
+        `skip watching ${resourceName} in kubernetes context named "${this.currentContext.name}", as the context is not reachable`,
+      );
     }
     return [];
   }
