@@ -53,3 +53,10 @@ test('Expect aria-label to be propagated', async () => {
   const container = getByLabelText('hello-world');
   expect(container).toBeDefined();
 });
+
+test('Expect progress to be rounded', async () => {
+  const { getByText } = render(ProgressBar, { progress: 5 / 3, 'aria-label': 'hello-world' });
+
+  const progress = getByText('2%');
+  expect(progress).toBeDefined();
+});
