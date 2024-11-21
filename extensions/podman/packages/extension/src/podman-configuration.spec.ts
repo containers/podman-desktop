@@ -22,6 +22,20 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { PodmanConfiguration } from './podman-configuration';
 
+// mock the API
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    process: {
+      exec: vi.fn(),
+    },
+    env: {
+      isWindows: false,
+      isMac: false,
+      isLinux: false,
+    },
+  };
+});
+
 // allows to call protected methods
 class TestPodmanConfiguration extends PodmanConfiguration {
   readContainersConfigFile(): Promise<string> {

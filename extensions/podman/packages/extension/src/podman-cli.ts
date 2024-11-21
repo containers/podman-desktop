@@ -17,13 +17,13 @@
  ***********************************************************************/
 import * as extensionApi from '@podman-desktop/api';
 
-import { isMac, isWindows } from './util';
+import { isMac } from './util';
 
 const macosExtraPath = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 
 export function getInstallationPath(): string | undefined {
   const env = process.env;
-  if (isWindows()) {
+  if (extensionApi.env.isWindows) {
     return `c:\\Program Files\\RedHat\\Podman;${env.PATH}`;
   } else if (isMac()) {
     if (!env.PATH) {
@@ -43,7 +43,7 @@ export function getPodmanCli(): string {
     return customBinaryPath;
   }
 
-  if (isWindows()) {
+  if (extensionApi.env.isWindows) {
     return 'podman.exe';
   }
   return 'podman';
