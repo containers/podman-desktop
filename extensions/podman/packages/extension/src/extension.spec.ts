@@ -333,7 +333,7 @@ beforeEach(() => {
 
   (extensionApi.env.isMac as boolean) = true;
   (extensionApi.env.isLinux as boolean) = false;
-  (extensionApi.env.isWindows as boolean) = false;
+  vi.mocked(extensionApi.env).isWindows = false;
 
   const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
   mock.mockReturnValue({
@@ -2233,7 +2233,7 @@ describe('calcPodmanMachineSetting', () => {
   });
 
   test('setValue to true if OS is MacOS', async () => {
-    (extensionApi.env.isWindows as boolean) = false;
+    vi.mocked(extensionApi.env).isWindows = false;
     await extension.calcPodmanMachineSetting();
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
@@ -2439,7 +2439,7 @@ describe('sendTelemetryRecords', () => {
     );
     (extensionApi.env.isLinux as boolean) = true;
     (extensionApi.env.isMac as boolean) = false;
-    (extensionApi.env.isWindows as boolean) = false;
+    vi.mocked(extensionApi.env).isWindows = false;
 
     mocks.getQemuVersionMock.mockResolvedValue('5.5.5');
 
@@ -2467,7 +2467,7 @@ describe('sendTelemetryRecords', () => {
     );
     (extensionApi.env.isLinux as boolean) = true;
     (extensionApi.env.isMac as boolean) = false;
-    (extensionApi.env.isWindows as boolean) = false;
+    vi.mocked(extensionApi.env).isWindows = false;
 
     mocks.getQemuVersionMock.mockRejectedValue('command not found');
 
@@ -2609,7 +2609,7 @@ async function testAudit(path: string, uri: string, condition: typeof expect | t
 
 test('activate on mac register commands for setting compatibility moide ', async () => {
   vi.mocked(isMac).mockReturnValue(true);
-  (extensionApi.env.isWindows as boolean) = false;
+  vi.mocked(extensionApi.env).isWindows = false;
   vi.mocked(isLinux).mockReturnValue(false);
   vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
     hasUpdate: false,
@@ -2722,7 +2722,7 @@ describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %
 });
 
 test('isHypervEnabled should return false if it is not windows', async () => {
-  (extensionApi.env.isWindows as boolean) = false;
+  vi.mocked(extensionApi.env).isWindows = false;
   const hypervEnabled = await extension.isHyperVEnabled();
   expect(hypervEnabled).toBeFalsy();
 });
@@ -2754,7 +2754,7 @@ test('isHypervEnabled should return true if hyperv is enabled', async () => {
 });
 
 test('isWSLEnabled should return false if it is not windows', async () => {
-  (extensionApi.env.isWindows as boolean) = false;
+  vi.mocked(extensionApi.env).isWindows = false;
   const wslEnabled = await extension.isWSLEnabled();
   expect(wslEnabled).toBeFalsy();
 });
