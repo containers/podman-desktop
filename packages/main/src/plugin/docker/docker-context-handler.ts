@@ -36,19 +36,43 @@ export interface DockerContextParsingInfo extends Omit<DockerContextInfo, 'isCur
  * Handle the `docker context`, allowing to list them and switch between them.
  */
 export class DockerContextHandler {
-  protected getDockerConfigPath(): string {
-    return join(homedir(), '.docker', 'config.json');
+  protected getDockerConfig(): string {
+    // DOCKER_CONFIG is defines path to docker client configuration files
+    // Docker uses ~/.docker if DOCKER_CONFIG is not set
+    // see: https://docs.docker.com/reference/cli/docker/ for more details
+    const dockerConfig = process.env['DOCKER_CONFIG'];
+    if (dockerConfig) {
+      return dockerConfig;
+    }
+    return join(homedir(), '.docker');
   }
 
-  protected async getCurrentContext(): Promise<string> {
+  protected getDockerContext(): string | undefined {
+    return process.env['DOCKER_CONTEXT'];
+  }
+
+  protected getDockerHost(): string | undefined {
+    return process.env['DOCKER_HOST'];
+  }
+
+  protected getDockerConfigFile(): string {
+    return join(this.getDockerConfig(), 'config.json');
+  }
+
+  protected async getCurrentContextFromConfiguration(): Promise<string> {
+    const dockerContext = this.getDockerContext();
+    if (dockerContext) {
+      return dockerContext;
+    }
+
     let currentContext: string = 'default';
 
     // if $HOME/.docker/config.json exists, read it and get the current context
-    const dockerConfigExists = existsSync(this.getDockerConfigPath());
+    const dockerConfigExists = existsSync(this.getDockerConfigFile());
     if (dockerConfigExists) {
       // read the file and get the current context
       // if there is a current context, add it to the list
-      const content = await promises.readFile(this.getDockerConfigPath(), 'utf-8');
+      const content = await promises.readFile(this.getDockerConfigFile(), 'utf-8');
       try {
         const config = JSON.parse(content);
         // only set the name if it is not empty
@@ -82,8 +106,8 @@ export class DockerContextHandler {
       },
     });
 
-    // now, read the ~/.docker/contexts/meta directory if it exists
-    const dockerContextsMetaPath = join(homedir(), '.docker', 'contexts', 'meta');
+    // now, read the ${DOCKER_CONFIG:~/.docker}/contexts/meta directory if it exists
+    const dockerContextsMetaPath = join(this.getDockerConfig(), 'contexts', 'meta');
     const dockerContextsMetaExists = existsSync(dockerContextsMetaPath);
     // no directories, no contexts !
     if (!dockerContextsMetaExists) {
@@ -136,22 +160,38 @@ export class DockerContextHandler {
   }
 
   async listContexts(): Promise<DockerContextInfo[]> {
-    const currentContext = await this.getCurrentContext();
+    // DOCKER_CONTEXT env variable always overrides both DOCKER_HOST and currentContext inside config.json
+    // see: https://docs.docker.com/reference/cli/docker/ for more details
+    const dockerContext = this.getDockerContext();
+
+    const dockerHost = dockerContext ? undefined : this.getDockerHost();
+
+    const currentContext = dockerContext ? undefined : await this.getCurrentContextFromConfiguration();
+
+    const isCurrentContext: (context: DockerContextParsingInfo) => boolean = function (
+      context: DockerContextParsingInfo,
+    ) {
+      return (
+        (dockerContext && context.name === dockerContext) ||
+        context.endpoints.docker.host === dockerHost ||
+        context.name === currentContext
+      );
+    };
 
     const readContexts = await this.getContexts();
     // update the isCurrentContext field
     return readContexts.map(context => {
       return {
         ...context,
-        isCurrentContext: context.name === currentContext,
+        isCurrentContext: isCurrentContext(context),
       };
     });
   }
 
   async switchContext(contextName: string): Promise<void> {
-    const dockerConfigExists = existsSync(this.getDockerConfigPath());
+    const dockerConfigExists = existsSync(this.getDockerConfigFile());
     if (!dockerConfigExists) {
-      throw new Error(`Docker config file ${this.getDockerConfigPath()} does not exist`);
+      throw new Error(`Docker config file ${this.getDockerConfigFile()} does not exist`);
     }
 
     // check if the context exists
@@ -163,9 +203,9 @@ export class DockerContextHandler {
       throw new Error(`Context ${contextName} not found`);
     }
 
-    // now, write the context name to the ~/.docker/config.json file
+    // now, write the context name to the ${DOCKER_CONFIG:~/.docker}/config.json file
     // read current content
-    const content = await promises.readFile(this.getDockerConfigPath(), 'utf-8');
+    const content = await promises.readFile(this.getDockerConfigFile(), 'utf-8');
     let config;
     try {
       config = JSON.parse(content);
@@ -180,6 +220,6 @@ export class DockerContextHandler {
     }
 
     // write back the file with the current context and using tabs for indentation
-    await promises.writeFile(this.getDockerConfigPath(), JSON.stringify(config, null, '\t'));
+    await promises.writeFile(this.getDockerConfigFile(), JSON.stringify(config, null, '\t'));
   }
 }
