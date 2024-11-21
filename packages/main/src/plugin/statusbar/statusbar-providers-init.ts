@@ -27,7 +27,7 @@ export class StatusbarProvidersInit {
       title: 'Experimental (Statusbar Providers)',
       type: 'object',
       properties: {
-        [`statusbarProviders.show`]: {
+        [`statusbarProviders.showProviders`]: {
           description: 'Show providers in statusbar',
           type: 'boolean',
           default: import.meta.env.DEV ? true : false,
