@@ -814,7 +814,7 @@ export class ContextsManager {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
         console.debug(
-          `Trying to watch ${options.resource} on the Kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s. ${String(err)})`,
+          `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s. ${String(err)})`,
         );
         options.onConnectionError?.(String(err));
       }
@@ -901,7 +901,7 @@ export class ContextsManager {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
         console.debug(
-          `Trying to watch ${options.resource} on the Kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s. ${String(err)})`,
+          `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s. ${String(err)})`,
         );
         options.onConnectionError?.(String(err));
       }
@@ -941,16 +941,16 @@ export class ContextsManager {
       return [];
     }
     if (this.informers.hasInformer(this.currentContext.name, resourceName)) {
-      console.debug(`already watching ${resourceName} in Kubernetes context named "${this.currentContext.name}"`);
+      console.debug(`already watching ${resourceName} in kubernetes context named "${this.currentContext.name}"`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
     // start secondary informers only if current context is reachable
     if (this.states.isReachable(this.currentContext.name)) {
-      console.debug(`start watching ${resourceName} in Kubernetes context named "${this.currentContext.name}"`);
+      console.debug(`start watching ${resourceName} in kubernetes context named "${this.currentContext.name}"`);
       this.startResourceInformer(this.currentContext.name, resourceName);
     } else {
       console.debug(
-        `skip watching ${resourceName} in Kubernetes context named "${this.currentContext.name}", as the context is not reachable`,
+        `skip watching ${resourceName} in kubernetes context named "${this.currentContext.name}", as the context is not reachable`,
       );
     }
     return [];
