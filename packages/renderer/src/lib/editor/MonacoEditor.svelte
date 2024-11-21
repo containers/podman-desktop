@@ -33,6 +33,8 @@ async function updateTheme(isDarkTheme: boolean) {
     rules: [{ token: 'custom-color', background: bgColor }],
     colors: {
       'editor.background': bgColor,
+      // make the --vscode-focusBorder transparent
+      focusBorder: '#00000000',
     },
   });
 }
