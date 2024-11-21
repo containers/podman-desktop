@@ -240,7 +240,7 @@ async function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
 
   <div class="container bg-[var(--pd-invert-content-card-bg)] rounded-md p-3">
     <!-- Registries table start -->
-    <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
+    <div class="w-full border-t border-b border-[var(--pd-content-text)]" role="table" aria-label="Registries">
       <div
         class="flex w-full space-x-2 text-sm font-semibold text-[var(--pd-table-header-text)]"
         role="rowgroup"
@@ -254,7 +254,7 @@ async function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       {#each $registriesInfos as registry}
         <!-- containerDesktopAPI.Registry row start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]"
+          class="flex flex-col w-full border-t border-[var(--pd-content-text)] text-[var(--pd-invert-content-card-text)]"
           role="row"
           aria-label={registry.name ? registry.name : registry.serverUrl}>
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
@@ -381,7 +381,7 @@ async function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]"
+          class="flex flex-col w-full border-t border-[var(--pd-content-text)] text-[var(--pd-invert-content-card-text)]"
           role="row"
           aria-label={registry.name ? registry.name : registry.url}>
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
