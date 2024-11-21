@@ -52,7 +52,6 @@ import {
   getProviderLabel,
   isLinux,
   isMac,
-  isWindows,
   LoggerDelegator,
   VMTYPE,
 } from './util';
@@ -274,7 +273,7 @@ export async function updateMachines(
       podmanMachinesStatuses.set(machine.Name, status);
     }
 
-    const userModeNetworking = isWindows() ? !!machine.UserModeNetworking : true;
+    const userModeNetworking = extensionApi.env.isWindows ? !!machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
       memory: machineInfo?.memory ? machineInfo.memory : Number(machine.Memory),
@@ -326,7 +325,7 @@ export async function updateMachines(
       // podman.sock link
       let socketPath;
       try {
-        if (isWindows()) {
+        if (extensionApi.env.isWindows) {
           const { stdout: socket } = await extensionApi.process.exec(getPodmanCli(), [
             'machine',
             'inspect',
@@ -351,7 +350,7 @@ export async function updateMachines(
           socketPath = calcMacosSocketPath(machineName);
         } else if (isLinux()) {
           socketPath = calcLinuxSocketPath(machineName);
-        } else if (isWindows()) {
+        } else if (extensionApi.env.isWindows) {
           socketPath = calcWinPipeName(machineName);
         }
       }
@@ -1180,7 +1179,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
     if (installedPodman?.version.startsWith('5.')) {
       if (isMac()) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'applehv');
-      } else if (isWindows()) {
+      } else if (extensionApi.env.isWindows) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'wsl');
       }
     }
@@ -1231,7 +1230,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
         }
         for (const machine of invalidMachines) {
           fileAndFoldersToRemove.push(machine.machineFile);
-          if (machine.machineFile.includes('wsl') && isWindows()) {
+          if (machine.machineFile.includes('wsl') && extensionApi.env.isWindows) {
             wslMachinesToUnregister.push(machine.machineName);
           }
         }
@@ -1472,7 +1471,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (isMac()) {
     provider.registerCleanup(new PodmanCleanupMacOS());
-  } else if (isWindows()) {
+  } else if (extensionApi.env.isWindows) {
     provider.registerCleanup(new PodmanCleanupWindows());
   }
 
@@ -1526,7 +1525,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // NOT packaged with qemu + kvm by default. So, we don't want to
   // create machines on Linux via Podman Desktop, however we will still support
   // the lifecycle management of one.
-  if (isMac() || isWindows()) {
+  if (isMac() || extensionApi.env.isWindows) {
     provider.setContainerProviderConnectionFactory(
       {
         initialize: () => createMachine({}),
@@ -1750,7 +1749,7 @@ export async function calcPodmanMachineSetting(): Promise<void> {
   let memorySupported = true;
   let diskSupported = true;
 
-  if (isWindows()) {
+  if (extensionApi.env.isWindows) {
     const isHyperV = await isHyperVEnabled();
     cpuSupported = isHyperV;
     memorySupported = isHyperV;
@@ -1880,7 +1879,9 @@ const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
 
 // Checks if user mode networking is supported. Only Windows platform allows this parameter to be tuned
 export function isUserModeNetworkingSupported(podmanVersion: string): boolean {
-  return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
+  return (
+    extensionApi.env.isWindows && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0
+  );
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT = '5.2.0-rc1';
@@ -1896,7 +1897,7 @@ export function setWSLEnabled(enabled: boolean): void {
 }
 
 export async function isWSLEnabled(): Promise<boolean> {
-  if (!isWindows()) {
+  if (!extensionApi.env.isWindows) {
     return false;
   }
   const wslCheck = new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check()]);
@@ -1905,7 +1906,7 @@ export async function isWSLEnabled(): Promise<boolean> {
 }
 
 export async function isHyperVEnabled(): Promise<boolean> {
-  if (!isWindows()) {
+  if (!extensionApi.env.isWindows) {
     return false;
   }
   const hyperVCheck = new HyperVCheck();
@@ -2019,7 +2020,7 @@ export async function createMachine(
     provider = params['podman.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
   } else {
-    if (isWindows()) {
+    if (extensionApi.env.isWindows) {
       provider = wslEnabled ? 'wsl' : 'hyperv';
       telemetryRecords.provider = provider;
     } else if (isMac()) {
@@ -2073,10 +2074,10 @@ export async function createMachine(
       parameters.push(`docker://${imageUri}`);
       telemetryRecords.imagePath = 'custom-registry';
     }
-  } else if (isMac() || isWindows()) {
+  } else if (isMac() || extensionApi.env.isWindows) {
     // check if we have an embedded asset for the image path for macOS or Windows
     let suffix = '';
-    if (isWindows()) {
+    if (extensionApi.env.isWindows) {
       suffix = `-${process.arch}.tar.zst`;
     } else if (isMac()) {
       suffix = `-${process.arch}.zst`;

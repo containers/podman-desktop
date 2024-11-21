@@ -24,7 +24,7 @@ import type { ProxySettings } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as toml from 'smol-toml';
 
-import { isLinux, isMac, isWindows } from './util';
+import { isLinux, isMac } from './util';
 
 const configurationRosetta = 'setting.rosetta';
 
@@ -319,7 +319,7 @@ export class PodmanConfiguration {
 
     if (isMac()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config', 'containers');
-    } else if (isWindows()) {
+    } else if (extensionApi.env.isWindows) {
       podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');
     } else if (isLinux()) {
       const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';

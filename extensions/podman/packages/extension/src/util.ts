@@ -23,10 +23,6 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { getPodmanCli } from './podman-cli';
 
-const windows = os.platform() === 'win32';
-export function isWindows(): boolean {
-  return windows;
-}
 const mac = os.platform() === 'darwin';
 export function isMac(): boolean {
   return mac;
