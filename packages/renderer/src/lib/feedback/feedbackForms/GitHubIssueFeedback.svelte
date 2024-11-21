@@ -37,7 +37,7 @@ let existingIssuesLink = $state(
 );
 
 async function openGitHubIssues(): Promise<void> {
-  onCloseForm?.();
+  onCloseForm();
   await window.openExternal(existingIssuesLink);
 }
 
