@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import type { IConfigurationNode, IConfigurationRegistry } from '../configuration-registry.js';
 
 export class StatusbarProvidersInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
