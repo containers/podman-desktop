@@ -23,7 +23,7 @@ export let onbreadcrumbClick: () => void = () => {};
   <div slot="content" class="h-full bg-[var(--pd-details-bg)] min-h-0">
     <slot name="content" />
   </div>
-  <div slot="tabs" class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
+  <div slot="tabs" class="flex flex-row px-2">
     <slot name="tabs" />
   </div>
   <svelte:fragment slot="icon">
