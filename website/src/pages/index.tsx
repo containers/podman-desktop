@@ -204,24 +204,24 @@ function Extensibility(): JSX.Element {
             </p>
             <ul className="list-disc list-inside text-center">
               <li>
-                Explore our
+                Explore our{' '}
                 <Link title="catalog of extensions" to="/extensions">
                   catalog of extensions
                 </Link>
                 .
               </li>
               <li>
-                Learn to
+                Learn to{' '}
                 <Link title="develop your own extensions" to="/docs/extensions/developing">
                   develop your own extensions
                 </Link>
                 .
               </li>
               <li>
-                Want to use a Docker Desktop extension? Extensions such as
+                Want to use a Docker Desktop extension? Extensions such as{' '}
                 <Link title="trivy" to="https://github.com/aquasecurity/trivy-docker-extension">
                   Trivy
-                </Link>
+                </Link>{' '}
                 work out of the box with Podman Desktop.
               </li>
             </ul>
