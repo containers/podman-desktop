@@ -45,15 +45,16 @@ class TestTaskImpl extends TaskImpl {
   }
 }
 
+let progress: ProgressImpl;
 beforeEach(() => {
   vi.clearAllMocks();
+  progress = new ProgressImpl(taskManager, navigationManager);
 });
 
 test('Should create a task and report update', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager, navigationManager);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
 
   expect(task.status).toBe('success');
@@ -63,7 +64,6 @@ test('Should create a task and report progress', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager, navigationManager);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ increment: 50 });
   });
@@ -75,8 +75,6 @@ test('Should create a task and report progress', async () => {
 test('Should create a task and propagate the exception', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
-
-  const progress = new ProgressImpl(taskManager, navigationManager);
 
   await expect(
     progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
@@ -91,8 +89,6 @@ test('Should create a task and propagate the exception', async () => {
 test('Should create a task and propagate the result', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
-
-  const progress = new ProgressImpl(taskManager, navigationManager);
 
   const result: string = await progress.withProgress<string>(
     { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
@@ -109,8 +105,6 @@ test('Should update the task name', async () => {
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
   vi.mocked(taskManager.createTask).mockReturnValue(task);
 
-  const progress = new ProgressImpl(taskManager, navigationManager);
-
   await progress.withProgress<void>({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ message: 'New title' });
   });
@@ -123,7 +117,6 @@ test('Should create a task with a navigation action', async () => {
   vi.mocked(navigationManager.hasRoute).mockReturnValue(true);
 
   const task = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
-  const progress = new ProgressImpl(taskManager, navigationManager);
 
   let taskAction: TaskAction | undefined;
   vi.mocked(taskManager.createTask).mockImplementation(options => {
