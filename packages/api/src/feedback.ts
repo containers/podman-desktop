@@ -24,3 +24,11 @@ export interface FeedbackProperties {
   comment?: string;
   contact?: string;
 }
+
+export interface GitHubIssue {
+  category: FeedbackCategory;
+  title: string;
+  description: string;
+  includeSystemInfo?: boolean;
+  includeExtensionInfo?: boolean;
+}

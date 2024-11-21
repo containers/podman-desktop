@@ -2,7 +2,7 @@
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
-import type { FeedbackCategory } from '/@api/feedback';
+import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
 
 export let category: FeedbackCategory = 'bug';
 let issueTitle = '';
@@ -35,6 +35,20 @@ async function openGitHubIssues(): Promise<void> {
   onCloseForm();
   await window.openExternal(existingIssuesLink);
 }
+
+async function previewOnGitHub(): Promise<void> {
+  const issueProperties: GitHubIssue = {
+    category: category,
+    title: issueTitle,
+    description: issueDescription,
+  };
+  try {
+    await window.previewOnGitHub(issueProperties);
+    onCloseForm();
+  } catch (error: unknown) {
+    console.error('There was a problem with preview on GitHub', error);
+  }
+}
 </script>
 
 <FeedbackForm>
@@ -62,6 +76,6 @@ async function openGitHubIssues(): Promise<void> {
   </svelte:fragment>
   <svelte:fragment slot="buttons">
     <Button class="underline" type="link" aria-label="Cancel" on:click={() => onCloseForm()}>Cancel</Button>
-    <Button aria-label="Preview on GitHub" on:click={() => openGitHubIssues()} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
+    <Button aria-label="Preview on GitHub" on:click={previewOnGitHub} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
   </svelte:fragment>
 </FeedbackForm>

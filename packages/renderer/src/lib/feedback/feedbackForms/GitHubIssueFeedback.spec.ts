@@ -23,11 +23,25 @@ import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
+import type { GitHubIssue } from '/@api/feedback';
+
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
 
+const openExternalMock = vi.fn();
+const previewOnGitHubMock = vi.fn();
+
 beforeAll(() => {
-  Object.defineProperty(window, 'openExternal', {
-    value: vi.fn(),
+  Object.defineProperty(global, 'window', {
+    value: {
+      openExternal: openExternalMock,
+      previewOnGitHub: previewOnGitHubMock,
+      navigator: {
+        clipboard: {
+          writeText: vi.fn(),
+        },
+      },
+    },
+    writable: true,
   });
 });
 
@@ -36,14 +50,15 @@ beforeEach(() => {
 });
 
 test('Expect feedback form to to be GitHub issue feedback form', async () => {
-  render(GitHubIssueFeedback, { category: 'bug' });
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
+  renderObject.unmount();
 });
 
 test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
-  render(GitHubIssueFeedback, { category: 'bug' });
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
 
   expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeDisabled();
 
@@ -57,10 +72,12 @@ test('Expect Preview on GitHub button to be disabled if there is no title or des
 
   await tick();
   expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeEnabled();
+  renderObject.unmount();
 });
 
 test('Expect to have different placeholders for bug vs feaure', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+
   let issueTitle = screen.getByTestId('issueTitle');
   expect(issueTitle).toBeInTheDocument();
   expect(issueTitle).toHaveProperty('placeholder', 'Bug Report Title');
@@ -71,7 +88,7 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
 
   renderObject.unmount();
 
-  render(GitHubIssueFeedback, { category: 'feature' });
+  renderObject = render(GitHubIssueFeedback, { category: 'feature' });
 
   issueTitle = screen.getByTestId('issueTitle');
   expect(issueTitle).toBeInTheDocument();
@@ -80,25 +97,50 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
   issueDescription = screen.getByTestId('issueDescription');
   expect(issueDescription).toBeInTheDocument();
   expect(issueDescription).toHaveProperty('placeholder', 'Feature description');
+  renderObject.unmount();
 });
 
 test('Expect to have different existing GitHub issues links for bug and feature categories', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let renderObject = render(GitHubIssueFeedback, { category: 'bug' });
   let existingIssues = screen.getByLabelText('GitHub issues');
   expect(existingIssues).toBeInTheDocument();
 
   await userEvent.click(existingIssues);
-  expect(window.openExternal).toHaveBeenCalledWith(
+  expect(openExternalMock).toHaveBeenCalledWith(
     'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
   );
   renderObject.unmount();
 
-  render(GitHubIssueFeedback, { category: 'feature' });
+  renderObject = render(GitHubIssueFeedback, { category: 'feature' });
   existingIssues = screen.getByLabelText('GitHub issues');
   expect(existingIssues).toBeInTheDocument();
 
   await userEvent.click(existingIssues);
-  expect(window.openExternal).toHaveBeenCalledWith(
+  expect(openExternalMock).toHaveBeenCalledWith(
     'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
   );
+  renderObject.unmount();
+});
+
+test('Expect the right category to be included in previewOnGitHub call', async () => {
+  const issueProperties: GitHubIssue = {
+    category: 'bug',
+    title: 'Bug title',
+    description: 'Bug description',
+  };
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  const previewButton = screen.getByRole('button', { name: 'Preview on GitHub' });
+
+  const issueTitle = screen.getByTestId('issueTitle');
+  expect(issueTitle).toBeInTheDocument();
+  await userEvent.type(issueTitle, 'Bug title');
+
+  const issueDescription = screen.getByTestId('issueDescription');
+  expect(issueDescription).toBeInTheDocument();
+  await userEvent.type(issueDescription, 'Bug description');
+
+  await userEvent.click(previewButton);
+
+  expect(previewOnGitHubMock).toHaveBeenCalledWith(issueProperties);
+  renderObject.unmount();
 });

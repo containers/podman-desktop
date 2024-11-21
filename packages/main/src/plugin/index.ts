@@ -78,6 +78,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
 import type { DockerContextInfo, DockerSocketMappingStatusInfo } from '/@api/docker-compatibility-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
+import type { GitHubIssue } from '/@api/feedback.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
 import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
@@ -146,6 +147,7 @@ import type { CatalogExtension } from './extensions-catalog/extensions-catalog-a
 import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
 import { Featured } from './featured/featured.js';
 import type { FeaturedExtension } from './featured/featured-api.js';
+import { FeedbackHandler } from './feedback-handler.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { IconRegistry } from './icon-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
@@ -469,6 +471,8 @@ export class PluginSystem {
 
     const telemetry = new Telemetry(configurationRegistry);
     await telemetry.init();
+
+    const feedback = new FeedbackHandler();
 
     const exec = new Exec(proxy);
 
@@ -2621,6 +2625,10 @@ export class PluginSystem {
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
+    });
+
+    this.ipcHandle('feedback:GitHubPreview', async (_listener, properties: GitHubIssue): Promise<void> => {
+      return feedback.openGitHubIssue(properties);
     });
 
     this.ipcHandle('cancellableTokenSource:create', async (): Promise<number> => {
