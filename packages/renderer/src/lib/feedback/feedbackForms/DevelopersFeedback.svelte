@@ -52,11 +52,11 @@ async function sendFeedback(): Promise<void> {
   // send
   await window.sendFeedback(properties);
   // close the form
-  onCloseForm?.();
+  onCloseForm();
 }
 
 async function openGitHub(): Promise<void> {
-  onCloseForm?.();
+  onCloseForm();
   await window.telemetryTrack('feedback.openGitHub');
   await window.openExternal('https://github.com/containers/podman-desktop');
 }
