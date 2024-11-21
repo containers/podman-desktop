@@ -3,11 +3,11 @@ import { router } from 'tinro';
 
 import type { ProviderInfo } from '/@api/provider-info';
 
-import ProviderIcons from './ProviderIcons.svelte';
+import IconImage from '../appearance/IconImage.svelte';
 
 let { entry, command = () => router.goto('/preferences/resources') }: { entry: ProviderInfo; command?: () => void } =
   $props();
-let statusStyle = $state('bg-gray-900 text-gray-900');
+let statusStyle = $state('bg-[var(--pd-status-not-running)] text-[var(--pd-status-not-running)]');
 
 function tooltipText(entry: ProviderInfo): string {
   let tooltip = '';
@@ -37,11 +37,15 @@ const statusesStyle = new Map<string, string>([
 
 $effect(() => {
   if (entry.containerConnections.length > 0) {
-    statusStyle = statusesStyle.get(entry.containerConnections[0].status) ?? 'bg-gray-900 text-gray-900';
+    statusStyle =
+      statusesStyle.get(entry.containerConnections[0].status) ??
+      'bg-[var(--pd-status-not-running)] text-[var(--pd-status-not-running)]';
   } else if (entry.kubernetesConnections.length > 0) {
-    statusStyle = statusesStyle.get(entry.kubernetesConnections[0].status) ?? 'bg-gray-900 text-gray-900';
+    statusStyle =
+      statusesStyle.get(entry.kubernetesConnections[0].status) ??
+      'bg-[var(--pd-status-not-running)] text-[var(--pd-status-not-running)]';
   } else {
-    statusStyle = statusesStyle.get(entry.status) ?? 'bg-gray-900 text-gray-900';
+    statusStyle = statusesStyle.get(entry.status) ?? 'bg-gray-900 text-[var(--pd-content-text)]';
   }
 });
 </script>
@@ -55,7 +59,9 @@ $effect(() => {
   {#if entry.containerConnections.length > 0 || entry.kubernetesConnections.length > 0 || entry.status }
     <div aria-label="Connection Status Icon" title={entry.status} class="w-3 h-3 rounded-full {statusStyle}"></div>
   {/if}
-  <ProviderIcons entry={entry} />
+  {#if entry.images.icon}
+    <IconImage image={entry.images.icon} class="max-h-3" alt={entry.name}></IconImage>
+  {/if}
   {#if entry.name}
     <span class="whitespace-nowrap h-fit">{entry.name}</span>
   {/if}
