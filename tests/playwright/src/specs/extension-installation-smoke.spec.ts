@@ -76,7 +76,7 @@ const extentionTypes = [
 ];
 
 for (const { extensionName, extensionType } of extentionTypes) {
-  test.describe.serial(`Extension installation for ${extensionType}`, { tag: '@smoke' }, () => {
+  test.describe.serial(`Extension installation for ${extensionType}`, { tag: ['@smoke', '@all'] }, () => {
     test.beforeAll(async () => {
       await _startup(extensionName);
     });

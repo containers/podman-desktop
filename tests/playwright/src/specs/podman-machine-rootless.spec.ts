@@ -71,111 +71,110 @@ test.afterAll(async ({ runner, page }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Rootless Podman machine Verification', () => {
-    test('Check data for available Podman Machine and stop machine', async ({ page, navigationBar }) => {
-      test.setTimeout(120_000);
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.resourcesTab.click();
+test.describe.serial('Rootless Podman machine Verification', { tag: ['@all'] }, () => {
+  test('Check data for available Podman Machine and stop machine', async ({ page, navigationBar }) => {
+    test.setTimeout(120_000);
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
 
-      const resourcesPage = new ResourcesPage(page);
-      await playExpect(resourcesPage.heading).toBeVisible();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-      const resourcesPodmanConnections = new ResourceConnectionCardPage(
-        page,
-        RESOURCE_NAME,
-        DEFAULT_PODMAN_MACHINE_VISIBLE,
-      );
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(
+      page,
+      RESOURCE_NAME,
+      DEFAULT_PODMAN_MACHINE_VISIBLE,
+    );
 
-      await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible({ timeout: 10_000 });
-      await resourcesPodmanConnections.resourceElementDetailsButton.click();
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible({ timeout: 10_000 });
+    await resourcesPodmanConnections.resourceElementDetailsButton.click();
 
-      const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
+    const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
 
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
-      await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStopButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
-    });
-
-    test('Create a rootless machine', async ({ page, navigationBar }) => {
-      test.setTimeout(200_000);
-
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.resourcesTab.click();
-
-      const podmanResources = new ResourceConnectionCardPage(page, 'podman');
-      await podmanResources.createButton.click();
-
-      const createMachinePage = new CreateMachinePage(page);
-      const resourcePage = await createMachinePage.createMachine(PODMAN_MACHINE_NAME, {
-        isRootful: false,
-        setAsDefault: false,
-        startNow: false,
-      });
-
-      await playExpect(resourcePage.heading).toBeVisible();
-      const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
-
-      await playExpect(machineBox.resourceElementDetailsButton).toBeVisible({ timeout: 30_000 });
-      await machineBox.resourceElementDetailsButton.click();
-
-      const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
-      await playExpect(podmanMachineDetails.podmanMachineName).toBeVisible({ timeout: 30_000 });
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF');
-
-      await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStartButton.click();
-
-      await playExpect(dialog).toBeVisible({ timeout: 60_000 });
-      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
-      await handleConfirmationDialog(page, 'Podman', true, 'OK');
-
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
-
-      await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStopButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
-    });
-
-    test('Restart default podman machine', async ({ page, navigationBar }) => {
-      const dashboard = await navigationBar.openDashboard();
-      await playExpect(dashboard.heading).toBeVisible();
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.resourcesTab.click();
-
-      const resourcesPage = new ResourcesPage(page);
-      await playExpect(resourcesPage.heading).toBeVisible();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-      const resourcesPodmanConnections = new ResourceConnectionCardPage(
-        page,
-        RESOURCE_NAME,
-        DEFAULT_PODMAN_MACHINE_VISIBLE,
-      );
-      await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
-      await resourcesPodmanConnections.resourceElementDetailsButton.click();
-
-      const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
-
-      await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStartButton.click();
-
-      await playExpect(dialog).toBeVisible({ timeout: 60_000 });
-      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
-      await handleConfirmationDialog(page, 'Podman', true, 'OK');
-
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
-    });
-
-    test('Clean up rootless machine', async ({ page }) => {
-      test.setTimeout(150_000);
-      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-
-      try {
-        await handleConfirmationDialog(page, 'Podman', true, 'Yes');
-        await handleConfirmationDialog(page, 'Podman', true, 'OK');
-      } catch (error) {
-        console.log('No handing dialog displayed', error);
-      }
-    });
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 60_000 });
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
   });
+
+  test('Create a rootless machine', async ({ page, navigationBar }) => {
+    test.setTimeout(200_000);
+
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
+    const podmanResources = new ResourceConnectionCardPage(page, 'podman');
+    await podmanResources.createButton.click();
+
+    const createMachinePage = new CreateMachinePage(page);
+    const resourcePage = await createMachinePage.createMachine(PODMAN_MACHINE_NAME, {
+      isRootful: false,
+      setAsDefault: false,
+      startNow: false,
+    });
+
+    await playExpect(resourcePage.heading).toBeVisible();
+    const machineBox = new ResourceConnectionCardPage(page, 'podman', PODMAN_MACHINE_NAME); //does not work with visible name
+
+    await playExpect(machineBox.resourceElementDetailsButton).toBeVisible({ timeout: 30_000 });
+    await machineBox.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, ROOTLESS_PODMAN_MACHINE);
+    await playExpect(podmanMachineDetails.podmanMachineName).toBeVisible({ timeout: 30_000 });
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF');
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+
+    await playExpect(dialog).toBeVisible({ timeout: 60_000 });
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
+
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
+  });
+
+  test('Restart default podman machine', async ({ page, navigationBar }) => {
+    const dashboard = await navigationBar.openDashboard();
+    await playExpect(dashboard.heading).toBeVisible();
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.resourcesTab.click();
+
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(
+      page,
+      RESOURCE_NAME,
+      DEFAULT_PODMAN_MACHINE_VISIBLE,
+    );
+    await playExpect(resourcesPodmanConnections.resourceElementDetailsButton).toBeVisible();
+    await resourcesPodmanConnections.resourceElementDetailsButton.click();
+
+    const podmanMachineDetails = new PodmanMachineDetails(page, DEFAULT_PODMAN_MACHINE);
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+
+    await playExpect(dialog).toBeVisible({ timeout: 60_000 });
+    await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+    await handleConfirmationDialog(page, 'Podman', true, 'OK');
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
+  });
+
+  test('Clean up rootless machine', async ({ page }) => {
+    test.setTimeout(150_000);
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+
+    try {
+      await handleConfirmationDialog(page, 'Podman', true, 'Yes');
+      await handleConfirmationDialog(page, 'Podman', true, 'OK');
+    } catch (error) {
+      console.log('No handing dialog displayed', error);
+    }
+  });
+});

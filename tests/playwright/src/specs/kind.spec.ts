@@ -57,7 +57,7 @@ test.afterAll(async ({ runner, page }) => {
   }
 });
 
-test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
+test.describe.serial('Kind End-to-End Tests', { tag: ['@smoke', '@all'] }, () => {
   test.describe
     .serial('Kind installation', () => {
       test('Install Kind CLI', async ({ page, navigationBar }) => {

@@ -47,7 +47,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Compose onboarding workflow verification', { tag: '@smoke' }, () => {
+test.describe.serial('Compose onboarding workflow verification', { tag: ['@smoke', '@all'] }, () => {
   test.afterEach(async ({ navigationBar }) => {
     await navigationBar.openDashboard();
   });

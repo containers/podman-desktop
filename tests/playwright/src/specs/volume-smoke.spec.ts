@@ -39,7 +39,7 @@ test.afterAll(async ({ runner }) => {
 
 const volumeName = 'e2eVolume';
 
-test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
+test.describe.serial('Volume workflow verification', { tag: ['@smoke', '@all'] }, () => {
   test('Create new Volume', async ({ navigationBar }) => {
     let volumesPage = await navigationBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();

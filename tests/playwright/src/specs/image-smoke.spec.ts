@@ -42,7 +42,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial('Image workflow verification', { tag: '@smoke' }, () => {
+test.describe.serial('Image workflow verification', { tag: ['@smoke', '@all'] }, () => {
   test('Pull image', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();

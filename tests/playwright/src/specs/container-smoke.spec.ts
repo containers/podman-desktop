@@ -71,7 +71,7 @@ test.afterAll(async ({ runner, page }) => {
   }
 });
 
-test.describe.serial('Verification of container creation workflow', { tag: '@smoke' }, () => {
+test.describe.serial('Verification of container creation workflow', { tag: ['@smoke', '@all'] }, () => {
   test.describe.configure({ retries: 2 });
 
   test(`Pulling of '${imageToPull}:${imageTag}' image`, async ({ navigationBar }) => {
