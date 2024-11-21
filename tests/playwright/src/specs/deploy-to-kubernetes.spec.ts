@@ -76,7 +76,7 @@ test.skip(
   'Tests suite should not run on Linux platform',
 );
 
-test.describe.serial('Deploy a container to the Kind cluster', { tag: ['@smoke', '@all'] }, () => {
+test.describe.serial('Deploy a container to the Kind cluster', { tag: ['@k8s_e2e', '@all'] }, () => {
   test('Pull an image and start a container', async ({ navigationBar }) => {
     const imagesPage = await navigationBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
