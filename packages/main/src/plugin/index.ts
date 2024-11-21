@@ -166,6 +166,7 @@ import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 import { ReleaseNotesBannerInit } from './release-notes-banner-init.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
+import { StatusbarProvidersInit } from './statusbar/statusbar-providers-init.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import { NotificationRegistry } from './tasks/notification-registry.js';
@@ -502,6 +503,9 @@ export class PluginSystem {
 
     const dockerCompatibility = new DockerCompatibility(configurationRegistry, providerRegistry);
     dockerCompatibility.init();
+
+    const statusbarProviders = new StatusbarProvidersInit(configurationRegistry);
+    statusbarProviders.init();
 
     const messageBox = new MessageBox(apiSender);
 
