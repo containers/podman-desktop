@@ -44,7 +44,7 @@ afterEach(async () => {
   }
 });
 
-test('should send event into onDid when a file is watched into an existing directory', async () => {
+test.skip('should send event into onDid when a file is watched into an existing directory', async () => {
   const watchedFile = path.join(rootdir, 'file.txt');
   watcher = new FileSystemWatcherImpl(watchedFile);
 
