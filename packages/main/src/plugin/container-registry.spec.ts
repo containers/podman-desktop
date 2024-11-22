@@ -3385,6 +3385,7 @@ test('setupConnectionAPI with errors after machine being removed', async () => {
 });
 
 test('check handleEvents with loadArchive', async () => {
+  const consoleLogSpy = vi.spyOn(console, 'log');
   const getEventsMock = vi.fn();
   let eventsMockCallback: any;
   // keep the function passed in parameter of getEventsMock
@@ -3406,7 +3407,8 @@ test('check handleEvents with loadArchive', async () => {
   }
 
   // send loadArchive event
-  passThrough.emit('data', JSON.stringify({ status: 'loadfromarchive', Type: 'image', id: '123456' }));
+  const content = { status: 'loadfromarchive', Type: 'image', id: '123456' };
+  passThrough.emit('data', JSON.stringify(content));
 
   // wait 1s
   await new Promise(resolve => setTimeout(resolve, 3000));
@@ -3416,6 +3418,41 @@ test('check handleEvents with loadArchive', async () => {
 
   // check we send the event to notify renderer part
   expect(apiSender.send).toBeCalledWith('image-loadfromarchive-event', '123456');
+
+  // expect we have a call to log the event
+  expect(consoleLogSpy).toBeCalledWith('event is', content);
+});
+
+test('check handleEvents is not calling the console.log for health_status event', async () => {
+  const consoleLogSpy = vi.spyOn(console, 'log');
+  const getEventsMock = vi.fn();
+  let eventsMockCallback: any;
+  // keep the function passed in parameter of getEventsMock
+  getEventsMock.mockImplementation((options: any) => {
+    eventsMockCallback = options;
+  });
+
+  const passThrough = new PassThrough();
+  const fakeDockerode = {
+    getEvents: getEventsMock,
+  } as unknown as Dockerode;
+
+  const errorCallback = vi.fn();
+
+  containerRegistry.handleEvents(fakeDockerode, errorCallback);
+
+  if (eventsMockCallback) {
+    eventsMockCallback?.(undefined, passThrough);
+  }
+
+  // send loadArchive event
+  passThrough.emit('data', JSON.stringify({ status: 'health_status', HealthStatus: 'healthy' }));
+
+  // check callback is defined
+  await vi.waitFor(() => expect(eventsMockCallback).toBeDefined());
+
+  // check we didn't call the console.log method
+  expect(consoleLogSpy).not.toBeCalled();
 });
 
 test('check volume mounted is replicated when executing replicatePodmanContainer with named volume', async () => {
