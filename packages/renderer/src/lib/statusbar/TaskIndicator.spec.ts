@@ -46,6 +46,7 @@ test('clicking on task should send task manager toggle event', async () => {
       status: 'in-progress',
       started: 0,
       id: 'dummy-task',
+      cancellable: false,
     },
   ]);
 
@@ -68,6 +69,7 @@ test('one task running should display it', async () => {
       status: 'in-progress',
       started: 0,
       id: 'dummy-task',
+      cancellable: false,
     },
   ]);
 
@@ -85,6 +87,7 @@ test('multiple tasks running should display them', async () => {
       status: 'in-progress',
       started: 0,
       id: 'foo-task',
+      cancellable: false,
     },
     {
       name: 'Bar Task',
@@ -92,6 +95,7 @@ test('multiple tasks running should display them', async () => {
       status: 'in-progress',
       started: 0,
       id: 'foo-task',
+      cancellable: false,
     },
   ]);
 
@@ -110,6 +114,7 @@ test('task with defined progress value should display it', async () => {
       started: 0,
       id: 'dummy-task',
       progress: 50,
+      cancellable: false,
     },
   ]);
 
@@ -127,6 +132,7 @@ test('task with undefined progress value should show indeterminate progress', as
       started: 0,
       id: 'dummy-task',
       progress: undefined, // indeterminate
+      cancellable: false,
     },
   ]);
 

@@ -113,11 +113,23 @@ export class TaskManager {
     this.setStatusBarEntry(true);
   }
 
-  public createTask(options?: { title?: string; action?: TaskAction }): Task {
+  public createTask(options?: {
+    title?: string;
+    action?: TaskAction;
+    cancellable?: boolean;
+    cancellationTokenSourceId?: number;
+  }): Task {
     this.taskId++;
 
     const task = new TaskImpl(`task-${this.taskId}`, options?.title ? options.title : `Task ${this.taskId}`);
     task.action = options?.action;
+    task.cancellable = options?.cancellable ?? false;
+    if (task.cancellable && !options?.cancellationTokenSourceId) {
+      throw new Error('cancellable task requires a cancellationTokenSourceId');
+    }
+    if (options?.cancellationTokenSourceId) {
+      task.cancellationTokenSourceId = options?.cancellationTokenSourceId;
+    }
     this.registerTask(task);
     return task;
   }
@@ -162,6 +174,8 @@ export class TaskManager {
         body: task.body ?? '',
         state: 'completed',
         error: undefined,
+        cancellable: task.cancellable,
+        cancellationTokenSourceId: task.cancellationTokenSourceId,
       };
     }
 
@@ -174,6 +188,8 @@ export class TaskManager {
       progress: task.progress,
       error: task.error,
       action: task.action?.name,
+      cancellable: task.cancellable,
+      cancellationTokenSourceId: task.cancellationTokenSourceId,
     };
   }
 

@@ -298,6 +298,34 @@ test('clear tasks should clear task not in running state', async () => {
   );
 });
 
+test('create task being cancellable', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
+  const task = taskManager.createTask({ cancellable: true, cancellationTokenSourceId: 1 });
+  expect(task.id).equal('task-1');
+  expect(task.name).equal('Task 1');
+  expect(task.state).equal('running');
+  expect(task.cancellable).toBeTruthy();
+  expect(task.cancellationTokenSourceId).toEqual(1);
+  expect(apiSenderSendMock).toBeCalledWith(
+    'task-created',
+    expect.objectContaining({
+      id: task.id,
+      name: task.name,
+      state: task.state,
+      cancellable: true,
+      cancellationTokenSourceId: 1,
+    }),
+  );
+});
+
+test('create task being cancellable throw error if missing cancellationTokenSourceId', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
+
+  expect(() => taskManager.createTask({ cancellable: true })).toThrow(
+    'cancellable task requires a cancellationTokenSourceId',
+  );
+});
+
 describe('execute', () => {
   test('execute should throw an error if the task does not exist', async () => {
     const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);

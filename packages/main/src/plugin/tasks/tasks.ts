@@ -39,5 +39,7 @@ export interface Task extends Disposable {
   error?: string;
   progress?: number;
   action?: TaskAction;
+  cancellable: boolean;
+  cancellationTokenSourceId?: number;
   readonly onUpdate: Event<TaskUpdateEvent>;
 }
