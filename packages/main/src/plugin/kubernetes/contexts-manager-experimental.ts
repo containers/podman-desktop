@@ -16,12 +16,57 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubeConfig, KubernetesObject } from '@kubernetes/client-node';
+import type { Context, KubernetesObject } from '@kubernetes/client-node';
+import { KubeConfig } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
+import { ContextsConnectivityRegistry } from './contexts-connectivity-registry.js';
+import { HealthChecker } from './health-checker.js';
+
+const HEALTH_CHECK_TIMEOUT_MS = 5_000;
+
 export class ContextsManagerExperimental {
-  async update(_kubeconfig: KubeConfig): Promise<void> {}
+  // kubeConfigCheck is used by `update` to check if the received kubeconfig has changed
+  // its value must not be used except for detecting this change
+  // Methods of this class should receive a kubeconfig from `update`
+  #kubeConfigCheck = JSON.stringify(new KubeConfig());
+
+  // Registry to store connectivity state of contexts
+  #contextsConnectivityRegistry = new ContextsConnectivityRegistry();
+
+  // Registry to store health checkers, to be able to abort them when a new update is called
+  #healthCheckers = new Map<string, HealthChecker>();
+
+  async update(kubeconfig: KubeConfig): Promise<void> {
+    if (JSON.stringify(kubeconfig) === this.#kubeConfigCheck) {
+      // the config did not change since last update, do nothing
+      return;
+    }
+
+    // Abort previous health checkers and remove them from registry
+    for (const [contextName, healthChecker] of this.#healthCheckers.entries()) {
+      healthChecker.abort();
+      this.#healthCheckers.delete(contextName);
+    }
+
+    this.#kubeConfigCheck = JSON.stringify(kubeconfig);
+
+    for (const kubeContext of kubeconfig.getContexts()) {
+      const contextName = kubeContext.name;
+      const isolatedConfig = this.getIsolatedKubeConfig(kubeconfig, kubeContext);
+      const healthChecker = new HealthChecker(isolatedConfig);
+      this.#healthCheckers.set(contextName, healthChecker);
+      healthChecker.onReadiness((ready: boolean) => {
+        this.#contextsConnectivityRegistry.setChecking(contextName, false);
+        this.#contextsConnectivityRegistry.setReachable(contextName, ready);
+      });
+      this.#contextsConnectivityRegistry.setChecking(contextName, true);
+      healthChecker
+        .checkReadiness({ timeout: HEALTH_CHECK_TIMEOUT_MS })
+        .catch((err: unknown) => console.error(`error checking readiness for context ${contextName}: ${err}`));
+    }
+  }
 
   getContextsGeneralState(): Map<string, ContextGeneralState> {
     return new Map<string, ContextGeneralState>();
@@ -48,4 +93,16 @@ export class ContextsManagerExperimental {
   dispose(): void {}
 
   async refreshContextState(_contextName: string): Promise<void> {}
+
+  // getIsolatedKubeConfig returns a KubeConfig with only kubeContext, set as current one
+  private getIsolatedKubeConfig(kubeconfig: KubeConfig, kubeContext: Context): KubeConfig {
+    const result = new KubeConfig();
+    result.loadFromOptions({
+      contexts: [kubeContext],
+      clusters: kubeconfig.clusters.filter(c => c.name === kubeContext.cluster),
+      users: kubeconfig.users.filter(u => u.name === kubeContext.user),
+      currentContext: kubeContext.name,
+    });
+    return result;
+  }
 }
