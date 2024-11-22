@@ -146,7 +146,11 @@ export class ContainerProviderRegistry {
 
     eventEmitter.on('event', (jsonEvent: JSONEvent) => {
       nbEvents++;
-      console.log('event is', jsonEvent);
+      // do not log healthcheck(health_status) events
+      // as it's too verbose/repeating a lot
+      if (jsonEvent.status !== 'health_status') {
+        console.log('event is', jsonEvent);
+      }
       this._onEvent.fire(jsonEvent);
       if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been stopped
