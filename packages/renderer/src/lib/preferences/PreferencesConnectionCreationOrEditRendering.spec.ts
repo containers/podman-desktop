@@ -394,7 +394,7 @@ describe.each([
 
 test(`Check itemsAudit receive updated values`, async () => {
   const callback = mockCallback(async () => {});
-  const auditSpy = vi.spyOn(window as any, 'auditConnectionParameters').mockImplementation(() => ({ records: [] }));
+  const auditSpy = vi.spyOn(window as any, 'auditConnectionParameters').mockResolvedValue({ records: [] });
   vi.spyOn(window as any, 'openDialog').mockResolvedValue(['somefile']);
   // eslint-disable-next-line @typescript-eslint/await-thenable
   render(PreferencesConnectionCreationOrEditRendering, {
