@@ -305,11 +305,11 @@ export class PluginSystem {
         .then(extName => {
           if (extName) args.unshift(extName);
 
-          // still display as before by invoking original method
-          originalConsoleMethod(...args);
-
           // but also send the content remotely
           if (!this.isQuitting) {
+            // still display as before by invoking original method
+            originalConsoleMethod(...args);
+
             try {
               this.getWebContentsSender().send('console:output', logType, ...args);
             } catch (err) {
