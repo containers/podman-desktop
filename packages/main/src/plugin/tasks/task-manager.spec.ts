@@ -326,6 +326,14 @@ test('create task being cancellable throw error if missing cancellationTokenSour
   );
 });
 
+test('create task having cancellationTokenSourceId without being cancellable throw error', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);
+
+  expect(() => taskManager.createTask({ cancellationTokenSourceId: 4 })).toThrow(
+    'cancellationTokenSourceId is only allowed for cancellable tasks',
+  );
+});
+
 describe('execute', () => {
   test('execute should throw an error if the task does not exist', async () => {
     const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry, configurationRegistry);

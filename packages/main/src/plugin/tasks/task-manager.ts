@@ -127,6 +127,9 @@ export class TaskManager {
     if (task.cancellable && !options?.cancellationTokenSourceId) {
       throw new Error('cancellable task requires a cancellationTokenSourceId');
     }
+    if (options?.cancellationTokenSourceId && !task.cancellable) {
+      throw new Error('cancellationTokenSourceId is only allowed for cancellable tasks');
+    }
     if (options?.cancellationTokenSourceId) {
       task.cancellationTokenSourceId = options?.cancellationTokenSourceId;
     }
