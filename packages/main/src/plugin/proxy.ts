@@ -148,26 +148,27 @@ export class Proxy {
   }
 
   async setProxy(proxy: ProxySettings | undefined): Promise<void> {
-    if (proxy && this.proxyState === ProxyState.PROXY_MANUAL) {
-      proxy.httpProxy = ensureURL(proxy.httpProxy);
-      proxy.httpsProxy = ensureURL(proxy.httpsProxy);
+    let newProxy = proxy;
+    if (newProxy && this.proxyState === ProxyState.PROXY_MANUAL) {
+      newProxy.httpProxy = ensureURL(newProxy.httpProxy);
+      newProxy.httpsProxy = ensureURL(newProxy.httpsProxy);
     } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
-      proxy = await getProxySettingsFromSystem(this);
+      newProxy = await getProxySettingsFromSystem(this);
     }
 
     // update
-    this.proxySettings = proxy;
+    this.proxySettings = newProxy;
 
-    if (proxy) {
+    if (newProxy) {
       // notify
-      this._onDidUpdateProxy.fire(proxy);
+      this._onDidUpdateProxy.fire(newProxy);
     }
 
     // update configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    await proxyConfiguration.update('http', proxy?.httpProxy);
-    await proxyConfiguration.update('https', proxy?.httpsProxy);
-    await proxyConfiguration.update('no', proxy?.noProxy);
+    await proxyConfiguration.update('http', newProxy?.httpProxy);
+    await proxyConfiguration.update('https', newProxy?.httpsProxy);
+    await proxyConfiguration.update('no', newProxy?.noProxy);
   }
 
   get proxy(): ProxySettings | undefined {
