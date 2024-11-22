@@ -57,4 +57,5 @@ export enum NavigationPage {
   KUBERNETES_CONFIGMAPS_SECRETS = 'kubernetes-configmaps-secrets',
   KUBERNETES_CONFIGMAP = 'kubernetes-configmap',
   KUBERNETES_SECRET = 'kubernetes-secret',
+  KUBERNETES_RESOURCE_CREATE = 'kubernetes-resource-create',
 }

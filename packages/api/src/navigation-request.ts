@@ -60,6 +60,7 @@ export interface NavigationParameters {
   [NavigationPage.KUBERNETES_PVC]: { name: string; namespace: string };
   [NavigationPage.KUBERNETES_INGRESSES_ROUTES]: never;
   [NavigationPage.KUBERNETES_INGRESSES_ROUTE]: { name: string; namespace: string };
+  [NavigationPage.KUBERNETES_RESOURCE_CREATE]: never;
 }
 
 // the parameters property is optional when the NavigationParameters say it is
