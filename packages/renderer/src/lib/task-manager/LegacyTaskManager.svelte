@@ -58,11 +58,6 @@ window.events?.receive('toggle-legacy-task-manager', () => {
           <TaskIcon size="15" />
           <div class="text-xs uppercase ml-2">tasks</div>
           <div class="flex-1"></div>
-          <!--
-          <div title="Toggle Do Not Disturb Mode" class="cursor-pointer p-1">
-            <BellSlashIcon size="15" />
-          </div>
-          -->
           <button
             on:click={() => hide()}
             title="Hide (Escape)"
