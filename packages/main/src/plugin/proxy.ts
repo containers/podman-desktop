@@ -143,32 +143,31 @@ export class Proxy {
     } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
       this.proxySettings = await getProxySettingsFromSystem(this);
     } else {
-      this.proxySettings = {} as ProxySettings;
+      this.proxySettings = undefined;
     }
   }
 
-  async setProxy(proxy: ProxySettings): Promise<void> {
-    let newProxy: ProxySettings | undefined = proxy;
-    if (this.proxyState === ProxyState.PROXY_MANUAL) {
-      newProxy.httpProxy = ensureURL(newProxy.httpProxy);
-      newProxy.httpsProxy = ensureURL(newProxy.httpsProxy);
+  async setProxy(proxy: ProxySettings | undefined): Promise<void> {
+    if (proxy && this.proxyState === ProxyState.PROXY_MANUAL) {
+      proxy.httpProxy = ensureURL(proxy.httpProxy);
+      proxy.httpsProxy = ensureURL(proxy.httpsProxy);
     } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
-      newProxy = await getProxySettingsFromSystem(this);
+      proxy = await getProxySettingsFromSystem(this);
     }
 
     // update
-    this.proxySettings = newProxy;
+    this.proxySettings = proxy;
 
-    if (newProxy) {
+    if (proxy) {
       // notify
-      this._onDidUpdateProxy.fire(newProxy);
+      this._onDidUpdateProxy.fire(proxy);
     }
 
     // update configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    await proxyConfiguration.update('http', newProxy?.httpProxy);
-    await proxyConfiguration.update('https', newProxy?.httpsProxy);
-    await proxyConfiguration.update('no', newProxy?.noProxy);
+    await proxyConfiguration.update('http', proxy?.httpProxy);
+    await proxyConfiguration.update('https', proxy?.httpsProxy);
+    await proxyConfiguration.update('no', proxy?.noProxy);
   }
 
   get proxy(): ProxySettings | undefined {
@@ -187,7 +186,7 @@ export class Proxy {
     await proxyConfiguration.update('enabled', state);
 
     if (state === ProxyState.PROXY_SYSTEM) {
-      await this.setProxy({} as ProxySettings);
+      await this.setProxy(undefined);
     }
     // notify
     this._onDidStateChange.fire(this.isEnabled());
