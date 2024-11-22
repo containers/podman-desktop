@@ -65,6 +65,7 @@ test('Expect GitHubIssue feedback form to be rendered if category is not develop
   expect(vi.mocked(GitHubIssueFeedback)).toHaveBeenNthCalledWith(1, expect.anything(), {
     onCloseForm: expect.any(Function),
     category: 'bug',
+    contentChange: expect.any(Function),
   });
 
   categorySelect.focus();
@@ -76,5 +77,6 @@ test('Expect GitHubIssue feedback form to be rendered if category is not develop
   expect(vi.mocked(GitHubIssueFeedback)).toHaveBeenNthCalledWith(2, expect.anything(), {
     onCloseForm: expect.any(Function),
     category: 'feature',
+    contentChange: expect.any(Function),
   });
 });
