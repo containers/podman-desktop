@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-// Each provider has a colour associated to it within tailwind, this is a map of those colours.
-// bg-purple-600 = podman
-// bg-sky-300    = docker
-// bg-sky-600    = kubernetes
-// bg-gray-900   = unknown
 
 export const providerColors: Record<string, string> = {
   podman: 'bg-purple-600',
