@@ -118,7 +118,7 @@ beforeEach(() => {
 test('Expect switch of terminal clicking on the item', async () => {
   render(KubernetesTerminalBrowser, { pod: podInfoUi });
 
-  // get the dropdown with id input-standard-My Pod"
+  // get the dropdown button
   const dropdown = screen.getByRole('button', { name: 'Connected to:' });
   expect(dropdown).toBeInTheDocument();
 
@@ -147,7 +147,7 @@ test('Expect switch of terminal using keyboard switch with arrow keys', async ()
 
   render(KubernetesTerminalBrowser, { pod: podInfoUi });
 
-  // get the dropdown with id input-standard-My Pod"
+  // get the dropdown button
   const dropdown = screen.getByRole('button', { name: 'Connected to:' });
   expect(dropdown).toBeInTheDocument();
 
