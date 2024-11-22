@@ -50,7 +50,7 @@ beforeEach(() => {
 });
 
 test('Expect feedback form to to be GitHub issue feedback form', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
 
   expect(screen.getByText('Title')).toBeInTheDocument();
   expect(screen.getByText('Description')).toBeInTheDocument();
@@ -58,7 +58,7 @@ test('Expect feedback form to to be GitHub issue feedback form', async () => {
 });
 
 test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
 
   expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeDisabled();
 
@@ -76,7 +76,7 @@ test('Expect Preview on GitHub button to be disabled if there is no title or des
 });
 
 test('Expect to have different placeholders for bug vs feaure', async () => {
-  let renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
 
   let issueTitle = screen.getByTestId('issueTitle');
   expect(issueTitle).toBeInTheDocument();
@@ -88,7 +88,7 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
 
   renderObject.unmount();
 
-  renderObject = render(GitHubIssueFeedback, { category: 'feature' });
+  renderObject = render(GitHubIssueFeedback, { category: 'feature', onCloseForm: vi.fn(), contentChange: vi.fn() });
 
   issueTitle = screen.getByTestId('issueTitle');
   expect(issueTitle).toBeInTheDocument();
@@ -101,7 +101,7 @@ test('Expect to have different placeholders for bug vs feaure', async () => {
 });
 
 test('Expect to have different existing GitHub issues links for bug and feature categories', async () => {
-  let renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  let renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
   let existingIssues = screen.getByLabelText('GitHub issues');
   expect(existingIssues).toBeInTheDocument();
 
@@ -111,7 +111,7 @@ test('Expect to have different existing GitHub issues links for bug and feature 
   );
   renderObject.unmount();
 
-  renderObject = render(GitHubIssueFeedback, { category: 'feature' });
+  renderObject = render(GitHubIssueFeedback, { category: 'feature', onCloseForm: vi.fn(), contentChange: vi.fn() });
   existingIssues = screen.getByLabelText('GitHub issues');
   expect(existingIssues).toBeInTheDocument();
 
@@ -128,7 +128,7 @@ test('Expect the right category to be included in previewOnGitHub call', async (
     title: 'Bug title',
     description: 'Bug description',
   };
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug' });
+  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
   const previewButton = screen.getByRole('button', { name: 'Preview on GitHub' });
 
   const issueTitle = screen.getByTestId('issueTitle');
