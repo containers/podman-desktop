@@ -87,6 +87,7 @@ async function onCreate(): Promise<void> {
       smartRedirect(objects);
     }
   } catch (error: unknown) {
+    console.error(error);
     // display error and do not close the page
     await window.showMessageBox({
       title: 'Kubernetes',
@@ -104,7 +105,7 @@ function onClose(): void {
 }
 </script>
 
-<DetailsPage title="Create Resources">
+<DetailsPage title="Create Resource">
   <svelte:fragment slot="actions">
     <!-- actions button -->
     <Button disabled={loading} title="Create Resource" on:click={onCreate}>Create Resource</Button>
