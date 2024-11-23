@@ -143,6 +143,31 @@ test('should list items started with search term on top', async () => {
   });
 });
 
+test('should list items started with docker.io + search term on top', async () => {
+  const searchFunction = async () => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return ['docker.io/aimage', 'docker.io/bimage', 'docker.io/cimage'];
+  };
+  render(Typeahead, {
+    initialFocus: true,
+    searchFunction,
+    delay: 10,
+  });
+
+  const input = screen.getByRole('textbox');
+
+  await userEvent.type(input, 'cimage');
+
+  await waitFor(() => {
+    const list = screen.getByRole('row');
+    const items = within(list).getAllByRole('button');
+    expect(items.length).toBe(3);
+    expect(items[0].textContent).toBe('docker.io/cimage');
+    expect(items[1].textContent).toBe('docker.io/aimage');
+    expect(items[2].textContent).toBe('docker.io/bimage');
+  });
+});
+
 test('should navigate in list with keys', async () => {
   const searchFunction = async (s: string) => {
     const result: string[] = [];

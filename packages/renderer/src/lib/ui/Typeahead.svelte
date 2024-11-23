@@ -149,8 +149,9 @@ function processInput(): void {
         return;
       }
       items = result.toSorted((a: string, b: string) => {
-        const aStartsWithValue = a.startsWith(value);
-        const bStartsWithValue = b.startsWith(value);
+        const dockerIoValue = `docker.io/${value}`;
+        const aStartsWithValue = a.startsWith(value) || a.startsWith(dockerIoValue);
+        const bStartsWithValue = b.startsWith(value) || b.startsWith(dockerIoValue);
         if ((aStartsWithValue && bStartsWithValue) || (!aStartsWithValue && !bStartsWithValue)) {
           return a.localeCompare(b);
         } else if (aStartsWithValue && !bStartsWithValue) {
