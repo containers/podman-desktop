@@ -20,6 +20,11 @@
           "default": "",
           "description": "Custom path to limactl binary (Default is blank)"
         },
+        "lima.home": {
+          "type": "string",
+          "default": "",
+          "description": "Lima home directory. See [documentation](https://lima-vm.io/docs/dev/internals/#lima-home-directory-lima_home)"
+        },
         "lima.type": {
           "type": "string",
           "default": "podman",
