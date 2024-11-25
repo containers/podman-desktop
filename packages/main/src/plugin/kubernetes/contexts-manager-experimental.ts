@@ -44,11 +44,7 @@ export class ContextsManagerExperimental {
       return;
     }
 
-    // Abort previous health checkers and remove them from registry
-    for (const [contextName, healthChecker] of this.#healthCheckers.entries()) {
-      healthChecker.abort();
-      this.#healthCheckers.delete(contextName);
-    }
+    this.abortAllHealthChecks();
 
     this.#kubeConfigCheck = JSON.stringify(kubeconfig);
 
@@ -90,9 +86,19 @@ export class ContextsManagerExperimental {
     return [];
   }
 
-  dispose(): void {}
+  dispose(): void {
+    this.abortAllHealthChecks();
+  }
 
   async refreshContextState(_contextName: string): Promise<void> {}
+
+  // abortAllHealthChecks aborts all health checks and removes them from registry
+  private abortAllHealthChecks(): void {
+    for (const [contextName, healthChecker] of this.#healthCheckers.entries()) {
+      healthChecker.abort();
+      this.#healthCheckers.delete(contextName);
+    }
+  }
 
   // getIsolatedKubeConfig returns a KubeConfig with only kubeContext, set as current one
   private getIsolatedKubeConfig(kubeconfig: KubeConfig, kubeContext: Context): KubeConfig {
