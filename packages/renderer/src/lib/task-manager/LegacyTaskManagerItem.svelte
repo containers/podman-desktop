@@ -4,10 +4,11 @@ import {
   faClose,
   faInfoCircle,
   faSquareCheck,
+  faTimesCircle,
   faTriangleExclamation,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { TableDurationColumn } from '@podman-desktop/ui-svelte';
+import { TableDurationColumn, Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
@@ -43,6 +44,12 @@ onMount(() => {
   }
 });
 
+async function cancelTask(): Promise<void> {
+  if (task.cancellationTokenSourceId) {
+    await window.cancelToken(task.cancellationTokenSourceId);
+  }
+}
+
 async function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
   // needs to delete the task from the svelte store
   return removeTask(task.id);
@@ -56,10 +63,19 @@ async function doExecuteAction(task: TaskInfo) {
 <!-- Display a task item-->
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
-  <div class="flex w-3 {iconColor} justify-center">
+  <div class="flex w-3 flex-col {iconColor}">
     <div class="align-top" role="img" aria-label="{task.status} icon of task {task.name}">
     <Fa size="0.875x" icon={icon} />
     </div>
+    {#if task.state !== 'completed' && task.cancellable}
+      <div class="items-end flex flex-grow">
+        <Tooltip tip="Cancel the task" topRight>
+          <button class="cursor-pointer" on:click={cancelTask} aria-label="Cancel task {task.name}">
+            <Fa size="0.875x" icon={faTimesCircle} />
+          </button>
+        </Tooltip>
+      </div>
+    {/if}
   </div>
   <!-- second column is about the task-->
   <div class="flex flex-col w-full pl-2">
