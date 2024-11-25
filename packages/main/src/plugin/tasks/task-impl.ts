@@ -77,6 +77,7 @@ export class TaskImpl implements Task {
       case 'in-progress':
         this.mState = 'running';
         break;
+      case 'canceled':
       case 'failure':
       case 'success':
         this.mState = 'completed';

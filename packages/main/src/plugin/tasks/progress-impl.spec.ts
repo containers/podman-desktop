@@ -213,3 +213,30 @@ test('Should not provide cancellable and source id if cancellable option is omit
   expect(cancellationTokenRegistry.createCancellationTokenSource).not.toHaveBeenCalled();
   expect(cancellationTokenRegistry.getCancellationTokenSource).not.toHaveBeenCalled();
 });
+
+test('Should flag the request being canceled at the end if interrupted', async () => {
+  const dummyTask = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
+  vi.mocked(taskManager.createTask).mockReturnValue(dummyTask);
+
+  const tokenSourceId = 1234;
+  // get id for the token source
+  vi.mocked(cancellationTokenRegistry.createCancellationTokenSource).mockReturnValue(tokenSourceId);
+
+  //get the token source
+  const cancellationTokenSource = new CancellationTokenSource();
+  vi.mocked(cancellationTokenRegistry.getCancellationTokenSource).mockReturnValue(cancellationTokenSource);
+
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
+    async progress => {
+      // ask to cancel the task
+      cancellationTokenSource.cancel();
+      progress.report({ increment: 50 });
+      // wait 1s
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    },
+  );
+
+  // check that the task was canceled
+  await vi.waitFor(() => expect(dummyTask.status).toBe('canceled'));
+});
