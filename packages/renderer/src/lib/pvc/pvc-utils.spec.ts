@@ -61,4 +61,30 @@ describe('PVC UI conversion', () => {
     expect(pvcUI.selected).toEqual(false);
     expect(pvcUI.size).toEqual('1Gi');
   });
+
+  test('if phase is Pending then status is STOPPED', async () => {
+    const fakePVC = {
+      metadata: {
+        name: 'pvc-1',
+        namespace: 'default',
+        creationTimestamp: '2021-06-07T18:00:00Z',
+      },
+      spec: {
+        storageClassName: 'standard',
+        accessModes: ['ReadWriteOnce'],
+        resources: {
+          requests: {
+            storage: '1Gi',
+          },
+        },
+      },
+      status: {
+        phase: 'Pending',
+      },
+    } as unknown as V1PersistentVolumeClaim;
+
+    const pvcUI = pvcUtils.getPVCUI(fakePVC);
+
+    expect(pvcUI.status).toEqual('STOPPED');
+  });
 });

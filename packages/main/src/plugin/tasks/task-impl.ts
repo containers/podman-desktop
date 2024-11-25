@@ -32,6 +32,8 @@ export class TaskImpl implements Task {
   protected mState: TaskState;
   protected mStatus: TaskStatus;
   protected mName: string;
+  protected mCancellable = false;
+  protected mCancellationTokenSourceId: number | undefined;
 
   constructor(
     public readonly id: string,
@@ -75,6 +77,7 @@ export class TaskImpl implements Task {
       case 'in-progress':
         this.mState = 'running';
         break;
+      case 'canceled':
       case 'failure':
       case 'success':
         this.mState = 'completed';
@@ -112,6 +115,24 @@ export class TaskImpl implements Task {
 
   protected notify(action: 'update' | 'delete' = 'update'): void {
     this.emitter?.fire({ action: action, task: this });
+  }
+
+  set cancellable(value: boolean) {
+    this.mCancellable = value;
+    this.notify();
+  }
+
+  get cancellable(): boolean {
+    return this.mCancellable;
+  }
+
+  set cancellationTokenSourceId(value: number) {
+    this.mCancellationTokenSourceId = value;
+    this.notify();
+  }
+
+  get cancellationTokenSourceId(): number | undefined {
+    return this.mCancellationTokenSourceId;
   }
 
   dispose(): void {

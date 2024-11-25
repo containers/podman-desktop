@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 export type TaskState = 'running' | 'completed';
-export type TaskStatus = 'in-progress' | 'success' | 'failure';
+export type TaskStatus = 'in-progress' | 'success' | 'failure' | 'canceled';
 
 export type NotificationTaskInfo = Omit<TaskInfo, 'progress' | 'error'> & {
   state: 'completed';
@@ -35,4 +35,6 @@ export interface TaskInfo {
   error?: string;
   progress?: number;
   action?: string;
+  cancellable: boolean;
+  cancellationTokenSourceId?: number;
 }

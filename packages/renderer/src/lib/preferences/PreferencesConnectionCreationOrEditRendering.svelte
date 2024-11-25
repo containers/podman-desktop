@@ -213,9 +213,19 @@ async function handleValidComponent() {
     return;
   }
   const formData = new FormData(formEl);
+
   const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
-    const [key, value] = field;
+    let [key, value] = field;
+    // formData does not always contain the latest data selected/entered by the user (see https://github.com/podman-desktop/podman-desktop/issues/9767)
+    // However, as this function "handleValidComponent" is called from inside the PreferencesRenderingItemFormat component just after the configurationValues is updated
+    // we can be sure to audit the correct data by retrieving the value from there by using the key from the formData
+    if (configurationValues.has(key)) {
+      const configValueByKey = configurationValues.get(key);
+      if (configValueByKey) {
+        value = configValueByKey.value.toString();
+      }
+    }
     data[key] = value;
   }
 

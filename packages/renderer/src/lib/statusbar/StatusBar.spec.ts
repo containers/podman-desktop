@@ -36,6 +36,7 @@ beforeEach(() => {
       status: 'in-progress',
       started: 0,
       id: 'dummy-task',
+      cancellable: false,
     },
   ]);
 });

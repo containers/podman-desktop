@@ -24,6 +24,8 @@ import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.
 import type { TaskAction } from '/@/plugin/tasks/tasks.js';
 import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
+import { CancellationTokenSource } from '../cancellation-token.js';
+import type { CancellationTokenRegistry } from '../cancellation-token-registry.js';
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import { TaskImpl } from './task-impl.js';
 import type { TaskManager } from './task-manager.js';
@@ -37,6 +39,11 @@ const navigationManager = {
   navigateToRoute: vi.fn(),
 } as unknown as NavigationManager;
 
+const cancellationTokenRegistry = {
+  createCancellationTokenSource: vi.fn(),
+  getCancellationTokenSource: vi.fn(),
+} as unknown as CancellationTokenRegistry;
+
 class TestTaskImpl extends TaskImpl {
   constructor(id: string, name: string, state: TaskState, status: TaskStatus) {
     super(id, name);
@@ -48,7 +55,7 @@ class TestTaskImpl extends TaskImpl {
 let progress: ProgressImpl;
 beforeEach(() => {
   vi.clearAllMocks();
-  progress = new ProgressImpl(taskManager, navigationManager);
+  progress = new ProgressImpl(taskManager, navigationManager, cancellationTokenRegistry);
 });
 
 test('Should create a task and report update', async () => {
@@ -150,4 +157,86 @@ test('Should create a task with a navigation action', async () => {
 
   // ensure the arguments and routeId is properly used
   expect(navigationManager.navigateToRoute).toHaveBeenCalledWith('dummy-route-id', 'hello', 'world');
+});
+
+test('Should create a cancellable task with a source id if cancellable option provided ', async () => {
+  const dummyTask = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
+  vi.mocked(taskManager.createTask).mockReturnValue(dummyTask);
+
+  const tokenSourceId = 1234;
+  // get id for the token source
+  vi.mocked(cancellationTokenRegistry.createCancellationTokenSource).mockReturnValue(tokenSourceId);
+
+  //get the token source
+  vi.mocked(cancellationTokenRegistry.getCancellationTokenSource).mockReturnValue(new CancellationTokenSource());
+
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
+    async progress => {
+      progress.report({ increment: 50 });
+    },
+  );
+
+  // grab the options passed to createTask
+  const options = vi.mocked(taskManager.createTask).mock.calls[0]?.[0];
+  expect(options).toBeDefined();
+  // expect callable has been set
+  expect(options?.cancellable).toBeTruthy();
+  // expect the token source id to be set
+  expect(options?.cancellationTokenSourceId).toBe(tokenSourceId);
+
+  // check that the token source was created
+  expect(cancellationTokenRegistry.createCancellationTokenSource).toHaveBeenCalled();
+  expect(cancellationTokenRegistry.getCancellationTokenSource).toHaveBeenCalled();
+});
+
+test('Should not provide cancellable and source id if cancellable option is omitted ', async () => {
+  const dummyTask = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
+  vi.mocked(taskManager.createTask).mockReturnValue(dummyTask);
+
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: false },
+    async progress => {
+      progress.report({ increment: 50 });
+    },
+  );
+
+  // grab the options passed to createTask
+  const options = vi.mocked(taskManager.createTask).mock.calls[0]?.[0];
+  expect(options).toBeDefined();
+  // expect callable not provided
+  expect(options?.cancellable).toBeFalsy();
+  // expect the token source id not being set
+  expect(options?.cancellationTokenSourceId).toBeUndefined();
+
+  // check that the cancellationTokenRegistry was never called
+  expect(cancellationTokenRegistry.createCancellationTokenSource).not.toHaveBeenCalled();
+  expect(cancellationTokenRegistry.getCancellationTokenSource).not.toHaveBeenCalled();
+});
+
+test('Should flag the request being canceled at the end if interrupted', async () => {
+  const dummyTask = new TestTaskImpl('test-task-id', 'test-title', 'running', 'in-progress');
+  vi.mocked(taskManager.createTask).mockReturnValue(dummyTask);
+
+  const tokenSourceId = 1234;
+  // get id for the token source
+  vi.mocked(cancellationTokenRegistry.createCancellationTokenSource).mockReturnValue(tokenSourceId);
+
+  //get the token source
+  const cancellationTokenSource = new CancellationTokenSource();
+  vi.mocked(cancellationTokenRegistry.getCancellationTokenSource).mockReturnValue(cancellationTokenSource);
+
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
+    async progress => {
+      // ask to cancel the task
+      cancellationTokenSource.cancel();
+      progress.report({ increment: 50 });
+      // wait 1s
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    },
+  );
+
+  // check that the task was canceled
+  await vi.waitFor(() => expect(dummyTask.status).toBe('canceled'));
 });
