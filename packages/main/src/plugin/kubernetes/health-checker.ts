@@ -30,7 +30,7 @@ export interface CheckOptions {
 // HealthChecker checks the readiness of a Kubernetes context
 // by requesting the readiness endpoint of its server
 export class HealthChecker implements Disposable {
-  #kubeConfig: KubeConfig;
+  #health: Health;
   #abortController: AbortController;
   #onReadinessEmit = new Emitter<boolean>();
 
@@ -38,15 +38,14 @@ export class HealthChecker implements Disposable {
 
   // builds an HealthChecker which will check the cluster of the current context of the given kubeConfig
   constructor(kubeConfig: KubeConfig) {
-    this.#kubeConfig = kubeConfig;
     this.#abortController = new AbortController();
+    this.#health = new Health(kubeConfig);
   }
 
   // start checking the readiness
   public async checkReadiness(opts?: CheckOptions): Promise<void> {
-    const health = new Health(this.#kubeConfig);
     try {
-      const result = await health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
+      const result = await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
       this.#onReadinessEmit.fire(result);
     } catch (err: unknown) {
       if (err instanceof AbortError) {
