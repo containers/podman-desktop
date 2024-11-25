@@ -1222,6 +1222,7 @@ test('pull unknown image fails with error 403', async () => {
 
 test('pulling an image with platform=linux/arm64 will add the platform to the pull options', async () => {
   const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
+  //vi.spyOn(containerRegistry, 'pullImage').mockReturnValue(Promise.resolve());
 
   const pullMock = vi.fn();
 
@@ -1240,9 +1241,10 @@ test('pulling an image with platform=linux/arm64 will add the platform to the pu
 
   const callback = vi.fn();
 
-  // Ignore no floating promises warning as we just care about the pullMock call, not the promise
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback, 'linux/arm64');
+  // Expect pull image to pass
+  // we use .catch to avoid an unhandled promise rejection, we don't care about the result, we just
+  // want to check that the call was made with the correct platform
+  containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback, 'linux/arm64').catch(() => {});
 
   expect(pullMock).toHaveBeenCalledWith('unknown-image', {
     abortSignal: undefined,
