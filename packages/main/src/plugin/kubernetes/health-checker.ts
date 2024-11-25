@@ -48,9 +48,7 @@ export class HealthChecker implements Disposable {
       const result = await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
       this.#onReadinessEmit.fire(result);
     } catch (err: unknown) {
-      if (err instanceof AbortError) {
-        // do nothing
-      } else {
+      if (!(err instanceof AbortError)) {
         this.#onReadinessEmit.fire(false);
       }
     }
