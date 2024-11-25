@@ -120,12 +120,16 @@ export class CreateKindClusterPage extends BasePage {
 
   private async createCluster(timeout: number = 300_000): Promise<void> {
     return test.step('Create cluster', async () => {
-      await playExpect(this.clusterCreationButton).toBeVisible();
-      await this.clusterCreationButton.click();
-      await this.logsButton.scrollIntoViewIfNeeded();
-      await this.logsButton.click();
-      await playExpect(this.goBackButton).toBeVisible({ timeout: timeout });
-      await this.goBackButton.click();
+      try {
+        await playExpect(this.clusterCreationButton).toBeVisible();
+        await this.clusterCreationButton.click();
+        await this.logsButton.scrollIntoViewIfNeeded();
+        await this.logsButton.click();
+        await playExpect(this.goBackButton).toBeVisible({ timeout: timeout });
+        await this.goBackButton.click();
+      } catch (error) {
+        throw Error(`${await this.errorMessage.textContent()}`);
+      }
     });
   }
 
