@@ -39,8 +39,6 @@ const ROOTLESS_PODMAN_MACHINE = 'Podman Machine rootless';
 const RESOURCE_NAME = 'podman';
 let dialog: Locator;
 
-test.describe.configure({ timeout: 0 });
-
 test.skip(
   isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
   'Tests suite should not run on Linux platform or if TEST_PODMAN_MACHINE is not true',
