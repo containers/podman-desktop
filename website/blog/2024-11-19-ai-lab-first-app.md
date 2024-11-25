@@ -42,7 +42,7 @@ Once a model is downloaded, we can test and interact with this model to try to f
 Let's start a new playground (from the `Models > Playgrounds` menu), and send our first prompt:
 
 ```
-Give me a list of pages in the website www.podman-desktop.io related to "build an image"
+Give me a list of pages in the website podman-desktop.io related to "build an image"
 ```
 
 The model should reply with some list of pages, in a human-readable form (see the screenshot below, for the response we received).
@@ -54,7 +54,7 @@ The problem is that the response is in human-readable form, but we don't want th
 For this, we can try to ask the model to reply with a structured response, with the following prompt:
 
 ```
-Give me a list of pages in the website www.podman-desktop.io related to "build an image" as JSON output as an array of objects with 2 fields name and url
+Give me a list of pages in the website podman-desktop.io related to "build an image" as JSON output as an array of objects with 2 fields name and url
 ```
 
 This time, we received a response in JSON format, which is more suitable for our needs.
@@ -66,7 +66,7 @@ We don't expect the user to ask such a precise question, and we would prefer to 
 Podman AI Lab supports this feature, let's restart a Playground session with the following system prompt:
 
 ```
-Give me a list of pages in the website www.podman-desktop.io related to the request as JSON output as an array of objects with 2 fields name and url
+Give me a list of pages in the website podman-desktop.io related to the request as JSON output as an array of objects with 2 fields name and url
 ```
 
 Then, send the prompt `build an image`, to simulate a realistic search input of a user.
