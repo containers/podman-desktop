@@ -39,14 +39,15 @@ export class ContextsManagerExperimental {
   #healthCheckers = new Map<string, HealthChecker>();
 
   async update(kubeconfig: KubeConfig): Promise<void> {
-    if (JSON.stringify(kubeconfig) === this.#kubeConfigCheck) {
+    const kubeConfigToCheck = JSON.stringify(kubeconfig);
+    if (kubeConfigToCheck === this.#kubeConfigCheck) {
       // the config did not change since last update, do nothing
       return;
     }
 
     this.disposeAllHealthChecks();
 
-    this.#kubeConfigCheck = JSON.stringify(kubeconfig);
+    this.#kubeConfigCheck = kubeConfigToCheck;
 
     for (const kubeContext of kubeconfig.getContexts()) {
       const contextName = kubeContext.name;
