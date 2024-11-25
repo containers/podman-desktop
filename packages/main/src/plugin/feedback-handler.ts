@@ -18,29 +18,50 @@
 
 import { shell } from 'electron';
 
+import type { SystemInfo } from '/@/plugin/util/sys-info.js';
+import { getSystemInfo } from '/@/plugin/util/sys-info.js';
 import type { GitHubIssue } from '/@api/feedback.js';
 
 export class FeedbackHandler {
+  #systemInfo: SystemInfo;
+
+  constructor() {
+    this.#systemInfo = getSystemInfo();
+  }
+
   async openGitHubIssue(issueProperties: GitHubIssue): Promise<void> {
     const urlSearchParams = new URLSearchParams(this.toQueryParameters(issueProperties)).toString();
     const link = `https://github.com/containers/podman-desktop/issues/new?${urlSearchParams}`;
     await shell.openExternal(link);
   }
 
+  /**
+   * Generic method to get the system info (system platform, architecture, version)
+   * @protected
+   */
+  protected getOsInfo(): string {
+    return this.#systemInfo.getSystemName();
+  }
+
   protected toQueryParameters(issue: GitHubIssue): Record<string, string> {
+    const result: Record<string, string> = {};
+    result['title'] = issue.title;
+
     switch (issue.category) {
       case 'feature':
-        return {
-          template: 'feature_request.yml',
-          title: issue.title,
-          solution: issue.description,
-        };
+        result['template'] = 'feature_request.yml';
+        result['solution'] = issue.description;
+        return result;
       case 'bug':
-        return {
-          template: 'bug_report.yml',
-          title: issue.title,
-          'bug-description': issue.description,
-        };
+        result['template'] = 'bug_report.yml';
+        result['bug-description'] = issue.description;
+
+        // include system info if authorised
+        if (issue.includeSystemInfo) {
+          result['os'] = this.getOsInfo();
+        }
+
+        return result;
       default:
         throw new Error(`unknown category ${issue.category}`);
     }

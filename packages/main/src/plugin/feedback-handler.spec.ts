@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { shell } from 'electron';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { release } from 'node:os';
 
+import { shell } from 'electron';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { isLinux, isMac, isWindows } from '/@/util.js';
 import type { GitHubIssue } from '/@api/feedback.js';
 
 import { FeedbackHandler } from './feedback-handler.js';
@@ -29,31 +32,103 @@ vi.mock('electron', () => ({
   },
 }));
 
+vi.mock('/@/util.js', () => ({
+  isLinux: vi.fn(),
+  isMac: vi.fn(),
+  isWindows: vi.fn(),
+}));
+
+vi.mock('node:os', () => ({
+  release: vi.fn(),
+}));
+
 beforeEach(() => {
   vi.resetAllMocks();
+
+  // default to linux for testing
+  vi.mocked(isLinux).mockReturnValue(true);
+  vi.mocked(isMac).mockReturnValue(false);
+  vi.mocked(isWindows).mockReturnValue(false);
 });
 
-test('Expect openExternal to be called with queryParams and bug report template', async () => {
-  const issueProperties: GitHubIssue = {
-    category: 'bug',
-    title: 'PD is not working',
-    description: 'bug description',
-  };
-  const queryParams = 'template=bug_report.yml&title=PD+is+not+working&bug-description=bug+description';
-  const feedbackHandler = new FeedbackHandler();
-  await feedbackHandler.openGitHubIssue(issueProperties);
-  expect(shell.openExternal).toBeCalledWith(`https://github.com/containers/podman-desktop/issues/new?${queryParams}`);
-});
+/**
+ * Utility method to ensure an url provided contains the param provided
+ * as search values
+ * @param url
+ * @param params
+ */
+function containSearchParams(url: string | undefined, params: Record<string, string>): void {
+  if (url === undefined) throw new Error('undefined url');
 
-test('Expect openExternal to be called with queryParams and feature request template', async () => {
-  const issueProperties: GitHubIssue = {
-    category: 'feature',
-    title: 'new feature',
-    description: 'feature description',
-  };
-  issueProperties.category = 'feature';
-  const queryParams = 'template=feature_request.yml&title=new+feature&solution=feature+description';
-  const feedbackHandler = new FeedbackHandler();
-  await feedbackHandler.openGitHubIssue(issueProperties);
-  expect(shell.openExternal).toBeCalledWith(`https://github.com/containers/podman-desktop/issues/new?${queryParams}`);
+  const search = new URLSearchParams(new URL(url).search);
+  Object.entries(params).forEach(([key, value]) => {
+    expect(search.has(key)).toBeTruthy();
+    expect(search.get(key)).toBe(value);
+  });
+}
+
+describe('openGitHubIssue', () => {
+  test('Expect openExternal to be called with queryParams and bug report template', async () => {
+    const issueProperties: GitHubIssue = {
+      category: 'bug',
+      title: 'PD is not working',
+      description: 'bug description',
+    };
+
+    const feedbackHandler = new FeedbackHandler();
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    expect(shell.openExternal).toHaveBeenCalledOnce();
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      template: 'bug_report.yml',
+      title: 'PD is not working',
+      'bug-description': 'bug description',
+    });
+  });
+
+  test('Expect openExternal to be called with queryParams and feature request template', async () => {
+    const issueProperties: GitHubIssue = {
+      category: 'feature',
+      title: 'new feature',
+      description: 'feature description',
+    };
+
+    const feedbackHandler = new FeedbackHandler();
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    expect(shell.openExternal).toHaveBeenCalledOnce();
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      template: 'feature_request.yml',
+      title: 'new feature',
+      solution: 'feature description',
+    });
+  });
+
+  test('expect os info to be included if includeSystemInfo is true', async () => {
+    vi.mocked(release).mockReturnValue('dummy-release');
+
+    const issueProperties: GitHubIssue = {
+      category: 'bug',
+      title: 'PD is not working',
+      description: 'bug description',
+      includeSystemInfo: true,
+    };
+
+    const feedbackHandler = new FeedbackHandler();
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    expect(shell.openExternal).toHaveBeenCalledOnce();
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      os: 'Linux - dummy-release',
+    });
+  });
 });
