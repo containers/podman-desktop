@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { arch, release, version } from 'node:os';
+import { release } from 'node:os';
 
 import { shell } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -39,34 +39,17 @@ vi.mock('/@/util.js', () => ({
 }));
 
 vi.mock('node:os', () => ({
-  arch: vi.fn(),
   release: vi.fn(),
-  version: vi.fn(),
 }));
 
 beforeEach(() => {
   vi.resetAllMocks();
 
-  // all false by default
-  vi.mocked(isLinux).mockReturnValue(false);
+  // default to linux for testing
+  vi.mocked(isLinux).mockReturnValue(true);
   vi.mocked(isMac).mockReturnValue(false);
   vi.mocked(isWindows).mockReturnValue(false);
 });
-
-class FeedbackHandlerTest extends FeedbackHandler {
-  public override getWindowsInfo(): string {
-    return super.getWindowsInfo();
-  }
-  public override getLinuxInfo(): string {
-    return super.getLinuxInfo();
-  }
-  public override getDarwinInfo(): string {
-    return super.getDarwinInfo();
-  }
-  public override getOsInfo(): string {
-    return super.getOsInfo();
-  }
-}
 
 /**
  * Utility method to ensure an url provided contains the param provided
@@ -128,7 +111,6 @@ describe('openGitHubIssue', () => {
   });
 
   test('expect os info to be included if includeSystemInfo is true', async () => {
-    vi.mocked(isLinux).mockReturnValue(true);
     vi.mocked(release).mockReturnValue('dummy-release');
 
     const issueProperties: GitHubIssue = {
@@ -148,68 +130,5 @@ describe('openGitHubIssue', () => {
     containSearchParams(url, {
       os: 'Linux - dummy-release',
     });
-  });
-});
-
-describe('getOsInfo', () => {
-  let feedbackHandlerTest: FeedbackHandlerTest;
-  beforeEach(() => {
-    feedbackHandlerTest = new FeedbackHandlerTest();
-  });
-
-  test('windows should use os#version and os#arch', () => {
-    vi.mocked(isWindows).mockReturnValue(true);
-    vi.mocked(arch).mockReturnValue('x64');
-    vi.mocked(version).mockReturnValue('Windows 11 Home');
-
-    const result = feedbackHandlerTest.getWindowsInfo();
-
-    expect(release).not.toHaveBeenCalled();
-    expect(version).toHaveBeenCalled();
-    expect(arch).toHaveBeenCalled();
-
-    expect(result).toBe('Windows 11 Home - x64');
-  });
-
-  test('linux should use os#release', () => {
-    vi.mocked(isLinux).mockReturnValue(true);
-    vi.mocked(release).mockReturnValue('6.11.7-300.fc41.x86_64');
-
-    const result = feedbackHandlerTest.getLinuxInfo();
-
-    expect(release).toHaveBeenCalled();
-    expect(version).not.toHaveBeenCalled();
-    expect(arch).not.toHaveBeenCalled();
-
-    expect(result).toBe('Linux - 6.11.7-300.fc41.x86_64');
-  });
-
-  test('flatpak linux should include flatpak info', () => {
-    vi.mocked(isLinux).mockReturnValue(true);
-    vi.mocked(release).mockReturnValue('6.11.7-300.fc41.x86_64');
-
-    process.env['FLATPAK_ID'] = 'dummy-id';
-
-    const result = feedbackHandlerTest.getLinuxInfo();
-
-    expect(release).toHaveBeenCalled();
-    expect(version).not.toHaveBeenCalled();
-    expect(arch).not.toHaveBeenCalled();
-
-    expect(result).toBe('Linux - 6.11.7-300.fc41.x86_64 (flatpak)');
-  });
-
-  test('darwin should use os#release and os#arch', () => {
-    vi.mocked(isMac).mockReturnValue(true);
-    vi.mocked(release).mockReturnValue('23.9.4');
-    vi.mocked(arch).mockReturnValue('arm64');
-
-    const result = feedbackHandlerTest.getDarwinInfo();
-
-    expect(release).toHaveBeenCalled();
-    expect(version).not.toHaveBeenCalled();
-    expect(arch).toHaveBeenCalled();
-
-    expect(result).toBe('Darwin 23.9.4 - arm64');
   });
 });
