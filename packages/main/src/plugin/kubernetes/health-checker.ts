@@ -18,9 +18,7 @@
 
 import type { KubeConfig } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
-import type { Disposable, Event } from '@podman-desktop/api';
-
-import { Emitter } from '../events/emitter.js';
+import type { Disposable } from '@podman-desktop/api';
 
 export interface CheckOptions {
   // timeout in ms
@@ -32,9 +30,6 @@ export interface CheckOptions {
 export class HealthChecker implements Disposable {
   #health: Health;
   #abortController: AbortController;
-  #onReadinessEmit = new Emitter<boolean>();
-
-  onReadiness: Event<boolean> = this.#onReadinessEmit.event;
 
   // builds an HealthChecker which will check the cluster of the current context of the given kubeConfig
   constructor(kubeConfig: KubeConfig) {
@@ -43,19 +38,18 @@ export class HealthChecker implements Disposable {
   }
 
   // start checking the readiness
-  public async checkReadiness(opts?: CheckOptions): Promise<void> {
+  public async start(opts?: CheckOptions): Promise<boolean> {
     try {
-      const result = await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
-      this.#onReadinessEmit.fire(result);
+      return await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
     } catch (err: unknown) {
-      if (!(err instanceof AbortError)) {
-        this.#onReadinessEmit.fire(false);
+      if (err instanceof AbortError) {
+        throw err;
       }
+      return false;
     }
   }
 
   public dispose(): void {
-    this.#onReadinessEmit.dispose();
     this.#abortController.abort();
   }
 }

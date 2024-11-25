@@ -32,20 +32,7 @@ export class ContextsConnectivityRegistry {
   }
 
   // setChecking saves in the registry if the context `contextName` is being checked
-  setChecking(contextName: string, checking: boolean): void {
-    const connectivity = this.getConnectivity(contextName);
-    connectivity.checking = checking;
-    this.#connectivities.set(contextName, connectivity);
-  }
-
-  // setReachable saves in the registry if the context `contextName` is reachable
-  setReachable(contextName: string, reachable: boolean): void {
-    const connectivity = this.getConnectivity(contextName);
-    connectivity.reachable = reachable;
-    this.#connectivities.set(contextName, connectivity);
-  }
-
-  protected getConnectivity(contextName: string): ContextConnectivity {
-    return this.#connectivities.get(contextName) ?? { checking: false, reachable: false };
+  setState(contextName: string, checking: boolean, reachable: boolean): void {
+    this.#connectivities.set(contextName, { checking, reachable });
   }
 }

@@ -54,14 +54,14 @@ export class ContextsManagerExperimental {
       const isolatedConfig = this.getIsolatedKubeConfig(kubeconfig, kubeContext);
       const healthChecker = new HealthChecker(isolatedConfig);
       this.#healthCheckers.set(contextName, healthChecker);
-      healthChecker.onReadiness((ready: boolean) => {
-        this.#contextsConnectivityRegistry.setChecking(contextName, false);
-        this.#contextsConnectivityRegistry.setReachable(contextName, ready);
-      });
-      this.#contextsConnectivityRegistry.setChecking(contextName, true);
-      healthChecker
-        .checkReadiness({ timeout: HEALTH_CHECK_TIMEOUT_MS })
-        .catch((err: unknown) => console.error(`error checking readiness for context ${contextName}: ${err}`));
+
+      this.#contextsConnectivityRegistry.setState(contextName, true, false);
+      try {
+        const result = await healthChecker.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
+        this.#contextsConnectivityRegistry.setState(contextName, false, result);
+      } catch {
+        // abort, nothing to do
+      }
     }
   }
 

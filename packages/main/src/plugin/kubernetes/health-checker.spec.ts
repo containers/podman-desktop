@@ -42,11 +42,11 @@ test('onReadiness is called with result of readyz if no error', async () => {
   hc.onReadiness(readinessCB);
 
   readyzMock.mockResolvedValue(true);
-  await hc.checkReadiness();
+  await hc.start();
   expect(readinessCB).toHaveBeenCalledWith(true);
 
   readyzMock.mockResolvedValue(false);
-  await hc.checkReadiness();
+  await hc.start();
   expect(readinessCB).toHaveBeenCalledWith(false);
 });
 
@@ -65,7 +65,7 @@ test('onReadiness is not called when readyz is rejected with an abort error', as
   hc.onReadiness(readinessCB);
 
   readyzMock.mockRejectedValue(new AbortError('a message'));
-  await hc.checkReadiness();
+  await hc.start();
   expect(readinessCB).not.toHaveBeenCalled();
 });
 
@@ -84,6 +84,6 @@ test('onReadiness is called with false when readyz is rejected with a generic er
   hc.onReadiness(readinessCB);
 
   readyzMock.mockRejectedValue(new Error('a generic error'));
-  await hc.checkReadiness();
+  await hc.start();
   expect(readinessCB).toHaveBeenCalledWith(false);
 });
