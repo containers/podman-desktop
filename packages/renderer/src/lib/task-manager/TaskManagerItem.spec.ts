@@ -45,6 +45,16 @@ const IN_PROGRESS_TASK_2: TaskInfo = {
   cancellable: false,
 };
 
+const CANCELED_TASK: TaskInfo = {
+  id: '1',
+  name: 'Canceled Task 1',
+  state: 'completed',
+  status: 'canceled',
+  started,
+  cancellable: true,
+  cancellationTokenSourceId: 1,
+};
+
 test('Expect that the action button is visible', async () => {
   render(TaskManagerItem, {
     task: IN_PROGRESS_TASK,
@@ -75,4 +85,14 @@ test('Expect that the action button is hidden', async () => {
   // expect the tasks manager is not visible by default
   const actionBtn = screen.queryByRole('button', { name: 'action button' });
   expect(actionBtn).not.toBeInTheDocument();
+});
+
+test('Expect that the canceled state is displayed', async () => {
+  render(TaskManagerItem, {
+    task: CANCELED_TASK,
+  });
+  // expect the canceled task icon is displayed and color is the one specified
+  const canceledTaskIcon = screen.getByRole('img', { name: 'Icon status of task 1' });
+  expect(canceledTaskIcon).toBeInTheDocument();
+  expect(canceledTaskIcon.parentElement?.classList.contains('text-[var(--pd-status-exited)]')).toBeTruthy();
 });
