@@ -24,7 +24,7 @@ Access the **Containers** page in the UI to do the container-related tasks:
 
 - Create a container with a Containerfile or Dockerfile or from an existing image.
 - Create a pod from a list of containers.
-- [Deploy a container to a Kubernetes cluster](/docs/kubernetes/deploying-a-container-to-kubernetes).
+- [Deploy a container to a Kubernetes cluster](/docs/kubernetes/deploying-a-pod-to-kubernetes).
 - Search, start, restart, stop, or delete a container.
 - Bulk deletion of selected containers.
 - Export a container to your local machine.
