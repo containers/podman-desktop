@@ -74,7 +74,7 @@ class FeedbackHandlerTest extends FeedbackHandler {
  * @param url
  * @param params
  */
-function toContainSearchParams(url: string | undefined, params: Record<string, string>): void {
+function containSearchParams(url: string | undefined, params: Record<string, string>): void {
   if (url === undefined) throw new Error('undefined url');
 
   const search = new URLSearchParams(new URL(url).search);
@@ -99,7 +99,7 @@ describe('openGitHubIssue', () => {
 
     // extract the first argument of the shell.openExternal call
     const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
-    toContainSearchParams(url, {
+    containSearchParams(url, {
       template: 'bug_report.yml',
       title: 'PD is not working',
       'bug-description': 'bug description',
@@ -120,7 +120,7 @@ describe('openGitHubIssue', () => {
 
     // extract the first argument of the shell.openExternal call
     const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
-    toContainSearchParams(url, {
+    containSearchParams(url, {
       template: 'feature_request.yml',
       title: 'new feature',
       solution: 'feature description',
@@ -145,7 +145,7 @@ describe('openGitHubIssue', () => {
 
     // extract the first argument of the shell.openExternal call
     const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
-    toContainSearchParams(url, {
+    containSearchParams(url, {
       os: 'Linux - dummy-release',
     });
   });
