@@ -33,6 +33,7 @@ const IN_PROGRESS_TASK: TaskInfo = {
   status: 'in-progress',
   started,
   action: 'Task action',
+  cancellable: false,
 };
 
 const IN_PROGRESS_TASK_2: TaskInfo = {
@@ -41,6 +42,7 @@ const IN_PROGRESS_TASK_2: TaskInfo = {
   state: 'running',
   status: 'in-progress',
   started,
+  cancellable: false,
 };
 
 test('Expect that the action button is visible', async () => {

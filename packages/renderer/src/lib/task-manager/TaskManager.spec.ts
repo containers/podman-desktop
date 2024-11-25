@@ -43,8 +43,16 @@ const IN_PROGRESS_TASK: TaskInfo = {
   state: 'running',
   status: 'in-progress',
   started,
+  cancellable: false,
 };
-const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', state: 'completed', status: 'success', started };
+const SUCCEED_TASK: TaskInfo = {
+  id: '1',
+  name: 'Running Task 1',
+  state: 'completed',
+  status: 'success',
+  started,
+  cancellable: false,
+};
 const NOTIFICATION_TASK: NotificationTaskInfo = {
   id: '1',
   name: 'Notification Task 1',
@@ -52,6 +60,7 @@ const NOTIFICATION_TASK: NotificationTaskInfo = {
   status: 'success',
   state: 'completed',
   started,
+  cancellable: false,
 };
 
 test('Expect that the tasks manager is hidden by default', async () => {

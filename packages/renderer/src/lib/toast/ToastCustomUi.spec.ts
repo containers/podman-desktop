@@ -35,6 +35,7 @@ const IN_PROGRESS_TASK: TaskInfo = {
   status: 'in-progress',
   started,
   action: 'Task action',
+  cancellable: false,
 };
 
 const SUCCESS_TASK: TaskInfo = {
@@ -44,6 +45,7 @@ const SUCCESS_TASK: TaskInfo = {
   status: 'success',
   started,
   action: 'Success action',
+  cancellable: false,
 };
 
 const failureTaskError = 'this is the error';
@@ -55,6 +57,7 @@ const FAILURE_TASK: TaskInfo = {
   started,
   error: failureTaskError,
   action: 'failure action',
+  cancellable: false,
 };
 
 beforeAll(() => {

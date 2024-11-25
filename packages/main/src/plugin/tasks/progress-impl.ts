@@ -22,6 +22,7 @@ import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.
 import type { TaskAction } from '/@/plugin/tasks/tasks.js';
 
 import { CancellationTokenImpl } from '../cancellation-token.js';
+import type { CancellationTokenRegistry } from '../cancellation-token-registry.js';
 import type { TaskManager } from './task-manager.js';
 
 export enum ProgressLocation {
@@ -40,6 +41,7 @@ export class ProgressImpl {
   constructor(
     private taskManager: TaskManager,
     private navigationManager: NavigationManager,
+    private cancellationTokenRegistry: CancellationTokenRegistry,
   ) {}
 
   /**
@@ -107,8 +109,29 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
+    const isCancellable = options.cancellable ?? false;
+    let cancellationToken: extensionApi.CancellationToken;
+    let cancellationTokenSourceId: number | undefined;
+
+    // if cancellable, register the token source and provides the source id to the task so frontend can cancel the task
+    if (isCancellable) {
+      cancellationTokenSourceId = this.cancellationTokenRegistry.createCancellationTokenSource();
+      const cancellationTokenSource =
+        this.cancellationTokenRegistry.getCancellationTokenSource(cancellationTokenSourceId);
+      // no token, error
+      if (!cancellationTokenSource) {
+        throw new Error('Failed to create CancellationTokenSource');
+      }
+      cancellationToken = cancellationTokenSource.token;
+    } else {
+      cancellationToken = new CancellationTokenImpl();
+    }
+
     const t = this.taskManager.createTask({
       title: options.title,
+      // if the task is cancellable, we set the token source id
+      cancellable: isCancellable,
+      cancellationTokenSourceId,
       action: this.getTaskAction(options),
     });
 
@@ -123,7 +146,7 @@ export class ProgressImpl {
           }
         },
       },
-      new CancellationTokenImpl(),
+      cancellationToken,
     )
       .then(value => {
         // Middleware to capture the success of the task

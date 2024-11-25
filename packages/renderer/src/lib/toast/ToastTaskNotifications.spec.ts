@@ -52,6 +52,7 @@ const IN_PROGRESS_TASK: TaskInfo = {
   status: 'in-progress',
   started,
   action: 'Task action',
+  cancellable: false,
 };
 
 beforeEach(() => {

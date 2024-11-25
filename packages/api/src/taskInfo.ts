@@ -35,4 +35,6 @@ export interface TaskInfo {
   error?: string;
   progress?: number;
   action?: string;
+  cancellable: boolean;
+  cancellationTokenSourceId?: number;
 }

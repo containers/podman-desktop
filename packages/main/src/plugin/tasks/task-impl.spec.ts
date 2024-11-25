@@ -104,6 +104,34 @@ describe('update field should send an update event', () => {
       }),
     });
   });
+
+  test('cancellable', () => {
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
+    const task = new TaskImpl('test-id', 'Test name');
+    task.onUpdate(onUpdateListenerMock);
+
+    task.cancellable = true;
+    expect(onUpdateListenerMock).toHaveBeenCalledWith({
+      action: 'update',
+      task: expect.objectContaining({
+        cancellable: true,
+      }),
+    });
+  });
+
+  test('cancellationTokenSourceId', () => {
+    const onUpdateListenerMock = vi.fn<(e: TaskUpdateEvent) => void>();
+    const task = new TaskImpl('test-id', 'Test name');
+    task.onUpdate(onUpdateListenerMock);
+
+    task.cancellationTokenSourceId = 123;
+    expect(onUpdateListenerMock).toHaveBeenCalledWith({
+      action: 'update',
+      task: expect.objectContaining({
+        cancellationTokenSourceId: 123,
+      }),
+    });
+  });
 });
 
 test('dispose should send a delete TaskUpdateEvent', () => {

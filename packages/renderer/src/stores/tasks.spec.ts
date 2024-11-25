@@ -24,7 +24,14 @@ import { clearNotifications, isNotificationTask } from './tasks';
 
 const started = new Date().getTime();
 
-const SUCCEED_TASK: TaskInfo = { id: '1', name: 'Running Task 1', status: 'success', state: 'completed', started };
+const SUCCEED_TASK: TaskInfo = {
+  id: '1',
+  name: 'Running Task 1',
+  status: 'success',
+  state: 'completed',
+  started,
+  cancellable: false,
+};
 
 const NOTIFICATION_TASK: NotificationTaskInfo = {
   id: '1',
@@ -33,6 +40,7 @@ const NOTIFICATION_TASK: NotificationTaskInfo = {
   state: 'completed',
   status: 'success',
   started,
+  cancellable: false,
 };
 
 beforeEach(() => {
