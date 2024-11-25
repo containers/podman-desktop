@@ -295,6 +295,9 @@ jobs:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     name: smoke e2e tests
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     strategy:
       matrix:
         mode: [production, development]
@@ -361,6 +364,16 @@ jobs:
           fi
           pnpm test:e2e:smoke
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -395,6 +408,9 @@ jobs:
   run-update-e2e-test:
     name: win update e2e tests
     needs: detect_pnpm_changes
+    permissions:
+      contents: read
+      checks: write
     if: contains(github.event.pull_request.labels.*.name, 'area/update') || needs.detect_pnpm_changes.outputs.pnpm_lock_changed == 'true'
     runs-on: windows-2022
     timeout-minutes: 60
@@ -436,6 +452,16 @@ jobs:
         run: |
           echo "${{ env.PODMAN_DESKTOP_BINARY }}"
           pnpm test:e2e:update:run
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
 
       - uses: actions/upload-artifact@v4
         if: always()

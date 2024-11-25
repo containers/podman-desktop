@@ -43,6 +43,9 @@ jobs:
   e2e-tests:
     name: Run All E2E tests
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -115,6 +118,16 @@ jobs:
           export PODMAN_DESKTOP_BINARY_PATH=$path
           pnpm test:e2e
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -126,6 +139,9 @@ jobs:
   win-update-e2e-test:
     name: win update e2e tests
     runs-on: windows-2022
+    permissions:
+      contents: read
+      checks: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     timeout-minutes: 60
@@ -174,6 +190,16 @@ jobs:
         run: |
           echo "${{ env.PODMAN_DESKTOP_BINARY }}"
           pnpm test:e2e:update:run
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
 
       - uses: actions/upload-artifact@v4
         if: always()
