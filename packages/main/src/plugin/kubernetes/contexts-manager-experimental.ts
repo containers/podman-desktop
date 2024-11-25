@@ -44,7 +44,7 @@ export class ContextsManagerExperimental {
       return;
     }
 
-    this.abortAllHealthChecks();
+    this.disposeAllHealthChecks();
 
     this.#kubeConfigCheck = JSON.stringify(kubeconfig);
 
@@ -87,15 +87,15 @@ export class ContextsManagerExperimental {
   }
 
   dispose(): void {
-    this.abortAllHealthChecks();
+    this.disposeAllHealthChecks();
   }
 
   async refreshContextState(_contextName: string): Promise<void> {}
 
   // abortAllHealthChecks aborts all health checks and removes them from registry
-  private abortAllHealthChecks(): void {
+  private disposeAllHealthChecks(): void {
     for (const [contextName, healthChecker] of this.#healthCheckers.entries()) {
-      healthChecker.abort();
+      healthChecker.dispose();
       this.#healthCheckers.delete(contextName);
     }
   }

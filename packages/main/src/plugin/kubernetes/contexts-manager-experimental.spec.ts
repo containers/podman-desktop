@@ -114,14 +114,14 @@ test('HealthChecker is built and checkReadiness is called for each context the f
 
   const checkReadinessMock = vi.fn();
   const onReadinessMock = vi.fn();
-  const abortMock = vi.fn();
+  const disposeMock = vi.fn();
 
   vi.mocked(HealthChecker).mockImplementation(
     () =>
       ({
         checkReadiness: checkReadinessMock,
         onReadiness: onReadinessMock,
-        abort: abortMock,
+        dispose: disposeMock,
       }) as unknown as HealthChecker,
   );
 
@@ -137,7 +137,7 @@ test('HealthChecker is built and checkReadiness is called for each context the f
   expect(HealthChecker).toHaveBeenCalledWith(kc2);
 
   expect(checkReadinessMock).toHaveBeenCalledTimes(2);
-  expect(abortMock).not.toHaveBeenCalled();
+  expect(disposeMock).not.toHaveBeenCalled();
 });
 
 test('nothing is done with called again and kubeconfig does not change', async () => {
@@ -147,14 +147,14 @@ test('nothing is done with called again and kubeconfig does not change', async (
 
   const checkReadinessMock = vi.fn();
   const onReadinessMock = vi.fn();
-  const abortMock = vi.fn();
+  const disposeMock = vi.fn();
 
   vi.mocked(HealthChecker).mockImplementation(
     () =>
       ({
         checkReadiness: checkReadinessMock,
         onReadiness: onReadinessMock,
-        abort: abortMock,
+        dispose: disposeMock,
       }) as unknown as HealthChecker,
   );
 
@@ -169,7 +169,7 @@ test('nothing is done with called again and kubeconfig does not change', async (
   await manager.update(kc);
   expect(HealthChecker).not.toHaveBeenCalled();
   expect(checkReadinessMock).not.toHaveBeenCalled();
-  expect(abortMock).not.toHaveBeenCalled();
+  expect(disposeMock).not.toHaveBeenCalled();
 });
 
 test('HealthChecker is built and checkReadiness is called for each context if context changed', async () => {
@@ -179,14 +179,14 @@ test('HealthChecker is built and checkReadiness is called for each context if co
 
   const checkReadinessMock = vi.fn();
   const onReadinessMock = vi.fn();
-  const abortMock = vi.fn();
+  const disposeMock = vi.fn();
 
   vi.mocked(HealthChecker).mockImplementation(
     () =>
       ({
         checkReadiness: checkReadinessMock,
         onReadiness: onReadinessMock,
-        abort: abortMock,
+        dispose: disposeMock,
       }) as unknown as HealthChecker,
   );
 
@@ -202,7 +202,7 @@ test('HealthChecker is built and checkReadiness is called for each context if co
   expect(HealthChecker).toHaveBeenCalledWith(kc2);
 
   expect(checkReadinessMock).toHaveBeenCalledTimes(2);
-  expect(abortMock).not.toHaveBeenCalled();
+  expect(disposeMock).not.toHaveBeenCalled();
 
   // check it is called again if kubeconfig changes
   vi.mocked(HealthChecker).mockClear();
@@ -211,7 +211,7 @@ test('HealthChecker is built and checkReadiness is called for each context if co
   kcWith2contexts.currentContext = 'context2';
   kc.loadFromOptions(kcWith2contexts);
   await manager.update(kc);
-  expect(abortMock).toHaveBeenCalledTimes(2);
+  expect(disposeMock).toHaveBeenCalledTimes(2);
   expect(HealthChecker).toHaveBeenCalledTimes(2);
   expect(checkReadinessMock).toHaveBeenCalledTimes(2);
 });
@@ -222,7 +222,7 @@ test('setReachable should be called with the result of the health check', async 
 
   const checkReadinessMock = vi.fn();
   const onReadinessMock = vi.fn();
-  const abortMock = vi.fn();
+  const disposeMock = vi.fn();
 
   onReadinessMock.mockImplementation(f => f(true));
 
@@ -231,7 +231,7 @@ test('setReachable should be called with the result of the health check', async 
       ({
         checkReadiness: checkReadinessMock,
         onReadiness: onReadinessMock,
-        abort: abortMock,
+        dispose: disposeMock,
       }) as unknown as HealthChecker,
   );
 
@@ -256,7 +256,7 @@ test('setChecking should be called first with false then with true when check is
 
   const checkReadinessMock = vi.fn();
   const onReadinessMock = vi.fn();
-  const abortMock = vi.fn();
+  const disposeMock = vi.fn();
 
   onReadinessMock.mockImplementation(f =>
     setTimeout(() => {
@@ -269,7 +269,7 @@ test('setChecking should be called first with false then with true when check is
       ({
         checkReadiness: checkReadinessMock,
         onReadiness: onReadinessMock,
-        abort: abortMock,
+        dispose: disposeMock,
       }) as unknown as HealthChecker,
   );
 

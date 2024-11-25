@@ -18,20 +18,23 @@
 
 import type { KubeConfig } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
+import type { Disposable, Event } from '@podman-desktop/api';
+
+import { Emitter } from '../events/emitter.js';
 
 export interface CheckOptions {
   // timeout in ms
   timeout?: number;
 }
 
-type ReadinessCallback = (ready: boolean) => void;
-
 // HealthChecker checks the readiness of a Kubernetes context
 // by requesting the readiness endpoint of its server
-export class HealthChecker {
+export class HealthChecker implements Disposable {
   #kubeConfig: KubeConfig;
   #abortController: AbortController;
-  #onReadinessCallback: ReadinessCallback = (_ready: boolean) => {};
+  #onReadinessEmit = new Emitter<boolean>();
+
+  onReadiness: Event<boolean> = this.#onReadinessEmit.event;
 
   // builds an HealthChecker which will check the cluster of the current context of the given kubeConfig
   constructor(kubeConfig: KubeConfig) {
@@ -44,23 +47,18 @@ export class HealthChecker {
     const health = new Health(this.#kubeConfig);
     try {
       const result = await health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
-      this.#onReadinessCallback(result);
+      this.#onReadinessEmit.fire(result);
     } catch (err: unknown) {
       if (err instanceof AbortError) {
         // do nothing
       } else {
-        this.#onReadinessCallback(false);
+        this.#onReadinessEmit.fire(false);
       }
     }
   }
 
-  public abort(): void {
+  public dispose(): void {
+    this.#onReadinessEmit.dispose();
     this.#abortController.abort();
-  }
-
-  // onReadiness sets the function to call when the checkReadiness has received a response
-  // If called several times, the previous callback is overwritten
-  public onReadiness(callback: ReadinessCallback): void {
-    this.#onReadinessCallback = callback;
   }
 }
