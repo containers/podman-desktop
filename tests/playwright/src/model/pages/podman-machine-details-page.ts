@@ -29,6 +29,12 @@ export class PodmanMachineDetails extends ResourcesPage {
   readonly podmanMachineStopButton: Locator;
   readonly podmanMachineDeleteButton: Locator;
 
+  readonly tabs: Locator;
+  readonly summaryTab: Locator;
+  readonly logsTab: Locator;
+  readonly terminalTab: Locator;
+  readonly tabContent: Locator;
+
   constructor(page: Page, podmanMachineName: string) {
     super(page);
     this.podmanMachineName = page.getByRole('heading', { name: podmanMachineName });
@@ -41,5 +47,11 @@ export class PodmanMachineDetails extends ResourcesPage {
     this.podmanMachineRestartButton = this.podmanMachineConnectionActions.getByRole('button', { name: 'Restart' });
     this.podmanMachineStopButton = this.podmanMachineConnectionActions.getByRole('button', { name: 'Stop' });
     this.podmanMachineDeleteButton = this.podmanMachineConnectionActions.getByRole('button', { name: 'Delete' });
+
+    this.tabs = page.getByRole('region', { name: 'Tabs' });
+    this.summaryTab = this.tabs.getByText('Summary');
+    this.logsTab = this.tabs.getByText('Logs');
+    this.terminalTab = this.tabs.getByText('Terminal');
+    this.tabContent = page.getByRole('region', { name: 'Tab Content' });
   }
 }
