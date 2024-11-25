@@ -92,7 +92,7 @@ test('Expect that the canceled state is displayed', async () => {
     task: CANCELED_TASK,
   });
   // expect the canceled task icon is displayed and color is the one specified
-  const canceledTaskIcon = screen.getByRole('img', { name: 'Icon status of task 1' });
+  const canceledTaskIcon = screen.getByRole('img', { name: 'canceled icon of task Canceled Task 1' });
   expect(canceledTaskIcon).toBeInTheDocument();
   expect(canceledTaskIcon.parentElement?.classList.contains('text-[var(--pd-status-exited)]')).toBeTruthy();
 });
