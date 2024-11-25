@@ -15,7 +15,7 @@ overrides:
 
 patchedDependencies:
   '@kubernetes/client-node@1.0.0-rc7':
-    hash: itrsbkb3fr7spxemffsb4x737y
+    hash: qiizxg7xna3mgq7rborknvsqki
     path: patches/@kubernetes__client-node@1.0.0-rc7.patch
 
 importers:
@@ -27,7 +27,7 @@ importers:
         version: 0.3.4
       '@kubernetes/client-node':
         specifier: ^1.0.0-rc7
-        version: 1.0.0-rc7(patch_hash=itrsbkb3fr7spxemffsb4x737y)(encoding@0.1.13)
+        version: 1.0.0-rc7(patch_hash=qiizxg7xna3mgq7rborknvsqki)(encoding@0.1.13)
       '@segment/analytics-node':
         specifier: ^2.2.0
         version: 2.2.0(encoding@0.1.13)
@@ -15220,11 +15220,11 @@ snapshots:
 
   '@isaacs/cliui@8.0.2':
     dependencies:
-      string-width: 4.2.3
+      string-width: 5.1.2
       string-width-cjs: string-width@4.2.3
       strip-ansi: 7.1.0
       strip-ansi-cjs: strip-ansi@6.0.1
-      wrap-ansi: 7.0.0
+      wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@isaacs/fs-minipass@4.0.1':
@@ -15276,7 +15276,7 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubernetes/client-node@1.0.0-rc7(patch_hash=itrsbkb3fr7spxemffsb4x737y)(encoding@0.1.13)':
+  '@kubernetes/client-node@1.0.0-rc7(patch_hash=qiizxg7xna3mgq7rborknvsqki)(encoding@0.1.13)':
     dependencies:
       '@types/js-yaml': 4.0.9
       '@types/node': 22.9.1
