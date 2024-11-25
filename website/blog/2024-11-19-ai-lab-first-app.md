@@ -217,4 +217,4 @@ Podman AI Lab provides a way for a user to extend the provided catalog with its 
 }
 ```
 
-By adding thie above content to `$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.ai-lab/user-catalog.json`, you should now be able to see a new recipe `Search Podman-desktop.io` in the recipe catalog of Podman AI Lab, and run it as any other recipe. And, of course, you can share this file with your colleagues to share with them your latest experiment.
+By creating the file `$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.ai-lab/user-catalog.json` with the content above, you should now be able to see a new recipe `Search Podman-desktop.io` in the recipe catalog of Podman AI Lab, and run it as any other recipe. And, of course, you can share this file with your colleagues to share with them your latest experiment.
