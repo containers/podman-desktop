@@ -49,9 +49,9 @@ Steps:
 
 [¹] Remember that environment variables defined this way only work on the terminal they were defined and only for as long as the terminal is active.
 
-[²] Using the value "next" works for local executions of the tests, but if you want to execute the tests remotely you should specify the latest version of the framework, you can find that value [here](https://www.npmjs.com/package/@podman-desktop/tests-playwright).
+[²] Using the value "next" works for local executions of the tests, but if you want to execute the tests remotely you should specify the latest version of the framework, you can find that value [here](https://www.npmjs.com/package/@podman-desktop/tests-playwright). Remember that this value will be written into the lock file, so if you really want to make sure you are using the actual latest version in the future you should force the update with `pnpm add -D @podman-desktop/tests-playwright@next` (the `-w` flag may be necessary). 
 
-[³] If your project does not already have the `xvfb-maybe` dependency, you'll need to add it as well
+[³] If your project does not already have the `xvfb-maybe` dependency, you'll need to add it as well.
 
 ## How to develop using locally built @podman-desktop/tests-playwright
 
