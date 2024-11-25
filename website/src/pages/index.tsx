@@ -107,7 +107,7 @@ function Hero(): JSX.Element {
             <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white leading-[1.2]">
               Best Free &amp; Open Source Tool for Containers &amp; Kubernetes
             </h1>
-            <p className="text-base md:text-lg">
+            <p className="text-base font-medium md:text-lg">
               The best free and open source tool for developers to work with containers and Kubernetes. Simplify
               container management, streamline Kubernetes workflows, and transition from local development to production
               with ease.
