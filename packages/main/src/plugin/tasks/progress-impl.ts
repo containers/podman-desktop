@@ -135,6 +135,11 @@ export class ProgressImpl {
       action: this.getTaskAction(options),
     });
 
+    let cancelRequest = false;
+    cancellationToken.onCancellationRequested(() => {
+      cancelRequest = true;
+    });
+
     return task(
       {
         report: value => {
@@ -150,7 +155,11 @@ export class ProgressImpl {
     )
       .then(value => {
         // Middleware to capture the success of the task
-        t.status = 'success';
+        if (cancelRequest) {
+          t.status = 'canceled';
+        } else {
+          t.status = 'success';
+        }
         // We propagate the result to the caller, so he can use the result
         return value;
       })
