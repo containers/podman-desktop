@@ -57,7 +57,7 @@ async function doExecuteAction(task: TaskInfo) {
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
   <div class="flex w-3 {iconColor} justify-center">
-    <div class="align-top" role="img" aria-label="Icon status of task {task.id}">
+    <div class="align-top" role="img" aria-label="{task.status} icon of task {task.name}">
     <Fa size="0.875x" icon={icon} />
     </div>
   </div>
