@@ -44,7 +44,6 @@ export class FeedbackHandler {
    * @protected
    */
   protected getWindowsInfo(): string {
-    if (!isWindows()) throw new Error('only work on windows systems');
     return `${version()} - ${arch()}`;
   }
 
@@ -60,8 +59,6 @@ export class FeedbackHandler {
    * @protected
    */
   protected getLinuxInfo(): string {
-    if (!isLinux()) throw new Error('only work on linux systems');
-
     let result = `Linux - ${release()}`;
 
     // the flatpak information is a very valuable information
@@ -77,7 +74,6 @@ export class FeedbackHandler {
    * @protected
    */
   protected getDarwinInfo(): string {
-    if (!isMac()) throw new Error('only work on darwin systems');
     return `Darwin ${release()} - ${arch()}`;
   }
 
