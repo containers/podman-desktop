@@ -371,6 +371,7 @@ jobs:
           fail_on_failure: true
           include_passed: true
           detailed_summary: true
+          annotate_only: true
           require_tests:  true
           report_paths: '**/*results.xml'
 
@@ -460,6 +461,7 @@ jobs:
           fail_on_failure: true
           include_passed: true
           detailed_summary: true
+          annotate_only: true
           require_tests:  true
           report_paths: '**/*results.xml'
 
