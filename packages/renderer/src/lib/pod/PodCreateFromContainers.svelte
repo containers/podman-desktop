@@ -210,6 +210,10 @@ function getWarningText(): string {
   });
   return text;
 }
+
+function navigateToContainers(): void {
+  return handleNavigation({ page: NavigationPage.CONTAINERS });
+}
 </script>
 
 <EngineFormPage title="Copy containers to a pod" inProgress={createInProgress}>
@@ -293,7 +297,7 @@ function getWarningText(): string {
 
       <div class="w-full grid justify-items-end mt-5">
         <div>
-          <Button type="link" on:click={handleNavigation.bind(undefined, { page: NavigationPage.CONTAINERS })}>Close</Button>
+          <Button type="link" on:click={navigateToContainers}>Close</Button>
           <Button
             icon={SolidPodIcon}
             bind:disabled={createInProgress}
