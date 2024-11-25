@@ -1,5 +1,6 @@
 <script lang="ts">
 import {
+  faCancel,
   faClose,
   faInfoCircle,
   faSquareCheck,
@@ -23,6 +24,10 @@ let icon: IconDefinition;
 let iconColor: string;
 onMount(() => {
   switch (task.status) {
+    case 'canceled':
+      icon = faCancel;
+      iconColor = 'text-[var(--pd-status-exited)]';
+      break;
     case 'in-progress':
       icon = faInfoCircle;
       iconColor = 'text-[var(--pd-invert-content-info-icon)]';
@@ -52,7 +57,9 @@ async function doExecuteAction(task: TaskInfo) {
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
   <div class="flex w-3 {iconColor} justify-center">
+    <div class="align-top" role="img" aria-label="Icon status of task {task.id}">
     <Fa size="0.875x" icon={icon} />
+    </div>
   </div>
   <!-- second column is about the task-->
   <div class="flex flex-col w-full pl-2">
