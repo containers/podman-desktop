@@ -83,6 +83,7 @@ import type { Telemetry } from '../telemetry/telemetry.js';
 import { Uri } from '../types/uri.js';
 import { ContextsManager } from './contexts-manager.js';
 import { ContextsManagerExperimental } from './contexts-manager-experimental.js';
+import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
 import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
 
 interface ContextsManagerInterface {
@@ -192,6 +193,7 @@ export class KubernetesClient {
   private apiResources = new Map<string, Array<V1APIResource>>();
 
   private contextsState: ContextsManagerInterface;
+  private contextsStatesDispatcher: ContextsStatesDispatcher | undefined;
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -255,7 +257,10 @@ export class KubernetesClient {
 
     const statesExperimental = kubernetesConfiguration.get<boolean>('statesExperimental');
     if (statesExperimental) {
-      this.contextsState = new ContextsManagerExperimental();
+      const manager = new ContextsManagerExperimental();
+      this.contextsState = manager;
+      this.contextsStatesDispatcher = new ContextsStatesDispatcher(manager);
+      this.contextsStatesDispatcher.init();
     }
 
     // Update the property on change

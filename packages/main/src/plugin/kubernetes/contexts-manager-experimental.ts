@@ -20,8 +20,78 @@ import type { KubeConfig, KubernetesObject } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
+import type { Event } from '../events/emitter.js';
+import { Emitter } from '../events/emitter.js';
+import type { ContextHealthState } from './context-health-checker.js';
+import { ContextHealthChecker } from './context-health-checker.js';
+import type { DispatcherEvent } from './contexts-dispatcher.js';
+import { ContextsDispatcher } from './contexts-dispatcher.js';
+
+const HEALTH_CHECK_TIMEOUT_MS = 5_000;
+
+/**
+ * ContextsManagerExperimental receives new KubeConfig updates
+ * and manages health checkers for each context of the KubeConfig.
+ *
+ * ContextsManagerExperimental fire events when a context is deleted, and to forward the states of the health checkers.
+ *
+ * ContextsManagerExperimental exposes the current state of the health checkers.
+ */
 export class ContextsManagerExperimental {
-  async update(_kubeconfig: KubeConfig): Promise<void> {}
+  #dispatcher: ContextsDispatcher;
+  #healthCheckers: Map<string, ContextHealthChecker>;
+
+  #onContextHealthStateChange = new Emitter<ContextHealthState>();
+  onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
+
+  #onContextDelete = new Emitter<DispatcherEvent>();
+  onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
+
+  constructor() {
+    this.#healthCheckers = new Map<string, ContextHealthChecker>();
+    this.#dispatcher = new ContextsDispatcher();
+    this.#dispatcher.onAdd(this.onAdd.bind(this));
+    this.#dispatcher.onUpdate(this.onUpdate.bind(this));
+    this.#dispatcher.onDelete(this.onDelete.bind(this));
+    this.#dispatcher.onDelete((state: DispatcherEvent) => this.#onContextDelete.fire(state));
+  }
+
+  async update(kubeconfig: KubeConfig): Promise<void> {
+    this.#dispatcher.update(kubeconfig);
+  }
+
+  private async onAdd(event: DispatcherEvent): Promise<void> {
+    const previous = this.#healthCheckers.get(event.contextName);
+    previous?.dispose();
+    const newHC = new ContextHealthChecker(event.config);
+    newHC.onStateChange(this.onStateChange.bind(this));
+    this.#healthCheckers.set(event.contextName, newHC);
+    await newHC.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
+  }
+
+  private async onUpdate(event: DispatcherEvent): Promise<void> {
+    // we don't try to update the health checker, we recreate it
+    return this.onAdd(event);
+  }
+
+  private onDelete(state: DispatcherEvent): void {
+    const previous = this.#healthCheckers.get(state.contextName);
+    previous?.dispose();
+    this.#healthCheckers.delete(state.contextName);
+  }
+
+  private onStateChange(state: ContextHealthState): void {
+    this.#onContextHealthStateChange.fire(state);
+  }
+
+  /* getHealthCheckersStates returns the current state of the health checkers */
+  getHealthCheckersStates(): Map<string, ContextHealthState> {
+    const result = new Map<string, ContextHealthState>();
+    for (const [contextName, hc] of this.#healthCheckers.entries()) {
+      result.set(contextName, hc.getState());
+    }
+    return result;
+  }
 
   getContextsGeneralState(): Map<string, ContextGeneralState> {
     return new Map<string, ContextGeneralState>();
@@ -45,7 +115,20 @@ export class ContextsManagerExperimental {
     return [];
   }
 
-  dispose(): void {}
+  /* dispose all disposable resources created by the instance */
+  dispose(): void {
+    this.disposeAllHealthChecks();
+    this.#onContextHealthStateChange.dispose();
+    this.#onContextDelete.dispose();
+  }
 
   async refreshContextState(_contextName: string): Promise<void> {}
+
+  // abortAllHealthChecks aborts all health checks and removes them from registry
+  private disposeAllHealthChecks(): void {
+    for (const [contextName, healthChecker] of this.#healthCheckers.entries()) {
+      healthChecker.dispose();
+      this.#healthCheckers.delete(contextName);
+    }
+  }
 }
