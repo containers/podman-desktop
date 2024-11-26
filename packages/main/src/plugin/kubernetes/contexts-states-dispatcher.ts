@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContextHealthState } from './context-health-checker.js';
+import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import type { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 
@@ -24,11 +25,19 @@ export class ContextsStatesDispatcher {
   constructor(private manager: ContextsManagerExperimental) {}
 
   init(): void {
-    this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.update());
-    this.manager.onContextDelete((_state: DispatcherEvent) => this.update());
+    this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.updateHealthStates());
+    this.manager.onContextPermissionResult((_permissions: ContextPermissionResult) => this.updatePermissions());
+    this.manager.onContextDelete((_state: DispatcherEvent) => {
+      this.updateHealthStates();
+      this.updatePermissions();
+    });
   }
 
-  update(): void {
+  updateHealthStates(): void {
     console.log('current health check states', this.manager.getHealthCheckersStates());
+  }
+
+  updatePermissions(): void {
+    console.log('current permissions', this.manager.getPermissions());
   }
 }

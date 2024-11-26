@@ -120,6 +120,7 @@ test('HealthChecker is built and start is called for each context the first time
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
+        getState: vi.fn().mockReturnValue({ reachable: false }),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -151,6 +152,7 @@ test('nothing is done when called again and kubeconfig does not change', async (
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
+        getState: vi.fn().mockReturnValue({ reachable: false }),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -181,6 +183,7 @@ test('HealthChecker is built and start is called for each context being changed'
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
+        getState: vi.fn().mockReturnValue({ reachable: false }),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -213,6 +216,7 @@ test('HealthChecker is disposed for each context being removed', async () => {
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
+        getState: vi.fn().mockReturnValue({ reachable: false }),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -253,7 +257,7 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
           return {
             contextName: kubeConfig.currentContext,
             checking: kubeConfig.currentContext === 'context1' ? true : false,
-            reachable: kubeConfig.currentContext === 'context1' ? false : true,
+            reachable: false,
           };
         }),
       }) as unknown as ContextHealthChecker,
@@ -264,7 +268,7 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
   const result = manager.getHealthCheckersStates();
   const expectedMap = new Map<string, ContextHealthState>();
   expectedMap.set('context1', { contextName: 'context1', checking: true, reachable: false });
-  expectedMap.set('context2', { contextName: 'context2', checking: false, reachable: true });
+  expectedMap.set('context2', { contextName: 'context2', checking: false, reachable: false });
   expect(result).toEqual(expectedMap);
 });
 
@@ -283,7 +287,7 @@ test('dispose calls dispose for each health checker', async () => {
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn(),
+        getState: vi.fn().mockReturnValue({ reachable: false }),
       }) as unknown as ContextHealthChecker,
   );
 
