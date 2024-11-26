@@ -69,51 +69,35 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 
 ## Using `libkrun` as machine provider
 
-By default, Podman uses the `Apple HyperVisor` provider type. To switch to the `GPU enabled (LibKrun)` provider type, you must configure the machine provider manually.
+By default, Podman uses the `Apple HyperVisor` provider type. If you are already running an `Apple HyperVisor` Podman machine and want to create a `GPU enabled (LibKrun)` machine, reset the Podman machine to avoid any port conflicts:
+- Using CLI: Run the `podman machine reset` command.
+- Using UI: Click the **Troubleshooting** icon in the status bar and then **Cleanup / Purge data**.
 
-Before creating a Podman machine, use one of the following ways to enable it to use `libkrun`:
+To use `podman machine` CLI commands with the `libkrun` provider type, configure the machine provider manually using one of the following ways:
 
 **_Configuring an environment variable_**
 
-1. Perform one of the following steps:
-   - As a normal user, set the following variable at session level:
+1. Set the following variable:
 
-      ```shell-session
-      > $env:CONTAINERS_MACHINE_PROVIDER = 'libkrun'
-      ```
-   - As an admin user, set the following variable at system level:
-
-      ```shell-session
-      # [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','libkrun')
-      ```
+   ```shell-session
+   export CONTAINERS_MACHINE_PROVIDER=libkrun
+   ```
 
 1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.
 
 **_Configuring the `containers.conf` file_**
 
-1. Open the `containers.conf` file, which is usually placed in the `$HOME/.config/containers` directory. 
+1. Open the `containers.conf` file, which is placed in the `$HOME/.config/containers` directory. 
 1. Add the `provider` attribute and set its value to `libkrun` in the file.
 
    ```vim
    ...
    [machine]
-
-   provider = "libkrun"
+     provider = "libkrun"
    ...
    ```
 
-1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.  
-
-#### Verification
-After configuration, you can confirm whether you are using a Podman machine with the `libkrun` provider.
-
-1. Go to **Settings > Resources**.
-1. Click the **Podman details** icon in the Podman tile.
-1. Select the **Logs** tab to view the following notification message:
-
-   ```
-   time="2023-05-09T21:16:08+03:00" level=debug msg="Using Podman machine with `libkrun` virtualization provider"
-   ```
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.
 
 ## Getting Started
 
