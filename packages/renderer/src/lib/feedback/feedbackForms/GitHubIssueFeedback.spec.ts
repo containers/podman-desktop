@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, type RenderResult } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { type Component, type ComponentProps } from 'svelte';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { FeedbackCategory } from '/@api/feedback';
 
@@ -57,6 +57,7 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   title: HTMLInputElement;
   description: HTMLTextAreaElement;
   preview: HTMLButtonElement;
+  includeSystemInfo?: HTMLElement;
 } & RenderResult<Component<ComponentProps<typeof GitHubIssueFeedback>>> {
   const { getByRole, queryByTitle, ...restResult } = render(GitHubIssueFeedback, props);
 
@@ -71,10 +72,14 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   const preview = getByRole('button', { name: 'Preview on GitHub' });
   expect(preview).toBeInstanceOf(HTMLButtonElement);
 
+  // checkbox
+  const includeSystemInfo = queryByTitle('Include system information') ?? undefined;
+
   return {
     title: title as HTMLInputElement,
     description: description as HTMLTextAreaElement,
     preview: preview as HTMLButtonElement,
+    includeSystemInfo,
     getByRole,
     queryByTitle,
     ...restResult,
@@ -82,7 +87,7 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
 }
 
 test('Expect feedback form to to be GitHub issue feedback form', async () => {
-  const { title, description } = renderGitHubIssueFeedback({
+  const { title, description, includeSystemInfo } = renderGitHubIssueFeedback({
     category: 'bug',
     onCloseForm: vi.fn(),
     contentChange: vi.fn(),
@@ -90,6 +95,7 @@ test('Expect feedback form to to be GitHub issue feedback form', async () => {
 
   expect(title).toBeInTheDocument();
   expect(description).toBeInTheDocument();
+  expect(includeSystemInfo).toBeInTheDocument();
 });
 
 test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
@@ -183,4 +189,53 @@ test.each(['bug', 'feature'])('Expect %s to be included in previewOnGitHub call'
       category: category,
     }),
   );
+});
+
+describe('includeSystemInfo', () => {
+  test('should not be visible on category feature', async () => {
+    const { includeSystemInfo } = renderGitHubIssueFeedback({
+      category: 'feature',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+    expect(includeSystemInfo).toBeUndefined();
+  });
+
+  test('should be visible on category bug and enabled by default', async () => {
+    const { includeSystemInfo } = renderGitHubIssueFeedback({
+      category: 'bug',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+    expect(includeSystemInfo).toBeInTheDocument();
+
+    // enabled by default
+    expect(includeSystemInfo?.children?.[0]).toHaveClass('text-[var(--pd-input-checkbox-checked)]');
+  });
+
+  test('uncheck the Include system information should set includeSystemInfo to false', async () => {
+    const { preview, title, description, includeSystemInfo } = renderGitHubIssueFeedback({
+      category: 'bug',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+
+    if (!includeSystemInfo) throw new Error('includeSystemInfo should be defined');
+
+    // type dummy data
+    await userEvent.type(title, 'Bug title');
+    await userEvent.type(description, 'Bug description');
+
+    // uncheck
+    await userEvent.click(includeSystemInfo);
+
+    // open in GitHub
+    await userEvent.click(preview);
+
+    expect(previewOnGitHubMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeSystemInfo: false,
+      }),
+    );
+  });
 });
