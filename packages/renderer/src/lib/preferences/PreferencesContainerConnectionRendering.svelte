@@ -5,6 +5,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -31,8 +33,6 @@ export let providerInternalId: string | undefined = undefined;
 export let connection: string | undefined = undefined;
 export let name: string | undefined = undefined;
 
-let detailsPage: DetailsPage;
-
 const connectionName = Buffer.from(name ?? '', 'base64').toString();
 const socketPath: string = Buffer.from(connection ?? '', 'base64').toString();
 let connectionStatus: IConnectionStatus;
@@ -55,8 +55,9 @@ onMount(async () => {
       connection => connection.endpoint.socketPath === socketPath && connection.name === connectionName,
     );
     if (!connectionInfo) {
-      // closing the page of a connection that has been removed
-      detailsPage.close();
+      handleNavigation({
+        page: NavigationPage.RESOURCES,
+      });
       return;
     }
     if (!providerInfo) {
@@ -136,7 +137,7 @@ function setNoLogs() {
 </script>
 
 {#if connectionInfo}
-  <DetailsPage title={connectionInfo.displayName} bind:this={detailsPage}>
+  <DetailsPage title={connectionInfo.displayName}>
     <svelte:fragment slot="subtitle">
       <div class="flex flex-row">
         <ConnectionStatus status={connectionInfo.status} />
