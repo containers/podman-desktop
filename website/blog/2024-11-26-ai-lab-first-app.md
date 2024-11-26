@@ -174,7 +174,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 ## Testing my own app locally
 
-To iterate during the development of aour app, we can test our app locally in our host system, while using the model served by Podman AI Lab. For this, we need to start a new model service from the page `Models > Services`, by clicking the `New Model Service`, then choosing the appropriate model (`Mistral-7B-instruct` in our case), and specifying a port number (let's say 56625).
+To iterate during the development of our app, we can test our app locally in our host system, while using the model served by Podman AI Lab. For this, we need to start a new model service from the page `Models > Services`, by clicking the `New Model Service`, then choosing the appropriate model (`Mistral-7B-instruct` in our case), and specifying a port number (let's say 56625).
 
 ![a running inference server with Mistral model](./img/ai-lab-first-app/08-ai-lab-demo-inference-server.png)
 
