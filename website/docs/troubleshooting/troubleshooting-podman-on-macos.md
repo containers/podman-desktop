@@ -246,7 +246,7 @@ For M3 processors:
 
 ## `podman machine` CLI commands do not work with `libkrun` provider type without manual configuration
 
-During machine creation, when you change the **Provider Type** to `GPU enabled (LibKrun)`, `podman machine` CLI commands stop working. 
+When you create a Podman machine with the `GPU enabled (LibKrun)` provider type, all the `podman machine` CLI commands stop working. 
 
 **_Podman machine is not listed_**
 ```shell-session
@@ -262,7 +262,9 @@ Error: vm podman-machine-default not found: podman-machine-default: VM does not 
 
 #### Workaround
 
-To resolve this issue, you must manually configure the `containers.conf` file or the `CONTAINERS_MACHINE_PROVIDER` environment varaible. See [Using `libkrun` as machine provider](/docs/installation/macos-install#using-libkrun-as-machine-provider).
+- Prefix each `podman machine` command with
+`CONTAINERS_MACHINE_PROVIDER=libkrun`. For example, `CONTAINERS_MACHINE_PROVIDER=libkrun podman machine ls`. 
+- Manually configure the `containers.conf` file or the `CONTAINERS_MACHINE_PROVIDER` environment varaible. See [Using `libkrun` as machine provider](/docs/installation/macos-install#using-libkrun-as-machine-provider).
 
 #### Additional resources
 
