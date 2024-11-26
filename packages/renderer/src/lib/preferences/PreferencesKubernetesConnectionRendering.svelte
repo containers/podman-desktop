@@ -5,6 +5,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -41,7 +43,6 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'KubernetesConnection')
   .sort((a, b) => (a?.id ?? '').localeCompare(b?.id ?? ''));
-let detailsPage: DetailsPage;
 
 let providersUnsubscribe: Unsubscriber;
 onMount(async () => {
@@ -54,8 +55,9 @@ onMount(async () => {
       connection => connection.endpoint.apiURL === apiURL || connection.name === connectionName,
     );
     if (!connectionInfo) {
-      // closing the page of a connection that has been removed
-      detailsPage.close();
+      handleNavigation({
+        page: NavigationPage.RESOURCES,
+      });
       return;
     }
     if (!providerInfo) {
@@ -134,7 +136,7 @@ function setNoLogs() {
 </script>
 
 {#if connectionInfo}
-  <DetailsPage title={connectionInfo.name} bind:this={detailsPage}>
+  <DetailsPage title={connectionInfo.name}>
     <svelte:fragment slot="subtitle">
       <div class="flex flex-row">
         <ConnectionStatus status={connectionInfo.status} />
