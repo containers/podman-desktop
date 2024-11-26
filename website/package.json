@@ -27,7 +27,7 @@
     "@docusaurus/plugin-client-redirects": "^3.6.1",
     "@docusaurus/preset-classic": "^3.6.1",
     "@docusaurus/theme-mermaid": "^3.6.1",
-    "@docusaurus/theme-common": "^3.6.1",
+    "@docusaurus/theme-common": "^3.6.3",
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "@fortawesome/free-brands-svg-icons": "^6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
@@ -42,9 +42,9 @@
     "react-player": "^2.16.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.6.1",
-    "@docusaurus/tsconfig": "^3.6.1",
-    "@docusaurus/types": "^3.6.1",
+    "@docusaurus/module-type-aliases": "^3.6.3",
+    "@docusaurus/tsconfig": "^3.6.3",
+    "@docusaurus/types": "^3.6.3",
     "autoprefixer": "^10.4.20",
     "markdownlint": "^0.36.1",
     "markdownlint-cli2": "^0.15.0",
