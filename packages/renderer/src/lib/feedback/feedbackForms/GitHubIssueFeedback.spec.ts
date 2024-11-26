@@ -115,6 +115,7 @@ test('Expect Preview on GitHub button to be disabled if there is no title or des
     expect(preview).toBeEnabled();
   });
 });
+
 test.each([
   {
     category: 'bug',
