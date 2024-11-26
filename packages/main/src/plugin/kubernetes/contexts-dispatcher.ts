@@ -20,7 +20,7 @@ import type { KubeConfig } from '@kubernetes/client-node';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
-import { KubeConfigSingle } from './kubeconfig-single.js';
+import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 export interface DispatcherEvent {
   contextName: string;
@@ -37,39 +37,44 @@ export interface DispatcherEvent {
  * and is set as the current context for the KubeConfig
  */
 export class ContextsDispatcher {
-  #contexts = new Map<string, KubeConfigSingle>();
+  #contexts = new Map<string, KubeConfigSingleContext>();
 
   #onAdd = new Emitter<DispatcherEvent>();
   #onUpdate = new Emitter<DispatcherEvent>();
-  #onDelete = new Emitter<string>();
+  #onDelete = new Emitter<DispatcherEvent>();
 
   onAdd: Event<DispatcherEvent> = this.#onAdd.event;
   onUpdate: Event<DispatcherEvent> = this.#onUpdate.event;
-  onDelete: Event<string> = this.#onDelete.event;
+  onDelete: Event<DispatcherEvent> = this.#onDelete.event;
 
   update(kubeconfig: KubeConfig): void {
     const contextsDiff = new Set<string>(this.#contexts.keys());
     for (const kubeContext of kubeconfig.getContexts()) {
       contextsDiff.delete(kubeContext.name);
-      const kubeconfigSingle = new KubeConfigSingle(kubeconfig, kubeContext);
+      const kubeconfigSingleContext = new KubeConfigSingleContext(kubeconfig, kubeContext);
 
       if (!this.#contexts.has(kubeContext.name)) {
-        this.#onAdd.fire({ contextName: kubeContext.name, config: kubeconfigSingle.get() });
-        this.#contexts.set(kubeContext.name, kubeconfigSingle);
+        this.#onAdd.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext.get() });
+        this.#contexts.set(kubeContext.name, kubeconfigSingleContext);
         continue;
       }
-      if (kubeconfigSingle.equals(this.#contexts.get(kubeContext.name))) {
+      if (kubeconfigSingleContext.equals(this.#contexts.get(kubeContext.name))) {
         // already exists and is the same, nothing to declare
         continue;
       }
 
       // context has changed
-      this.#onUpdate.fire({ contextName: kubeContext.name, config: kubeconfigSingle.get() });
-      this.#contexts.set(kubeContext.name, kubeconfigSingle);
+      this.#onUpdate.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext.get() });
+      this.#contexts.set(kubeContext.name, kubeconfigSingleContext);
     }
 
     for (const nameOfRemainingContext of contextsDiff.keys()) {
-      this.#onDelete.fire(nameOfRemainingContext);
+      const ctxToRemove = this.#contexts.get(nameOfRemainingContext);
+      if (!ctxToRemove) {
+        throw new Error(`config for ${nameOfRemainingContext} not found, should not happen`);
+      }
+      this.#onDelete.fire({ contextName: nameOfRemainingContext, config: ctxToRemove.get() });
+      this.#contexts.delete(nameOfRemainingContext);
     }
   }
 }

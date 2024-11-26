@@ -44,8 +44,8 @@ export class ContextsManagerExperimental {
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
 
-  #onContextDelete = new Emitter<string>();
-  onContextDelete: Event<string> = this.#onContextDelete.event;
+  #onContextDelete = new Emitter<DispatcherEvent>();
+  onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
 
   constructor() {
     this.#healthCheckers = new Map<string, ContextHealthChecker>();
@@ -53,7 +53,7 @@ export class ContextsManagerExperimental {
     this.#dispatcher.onAdd(this.onAdd.bind(this));
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
     this.#dispatcher.onDelete(this.onDelete.bind(this));
-    this.#dispatcher.onDelete((contextName: string) => this.#onContextDelete.fire(contextName));
+    this.#dispatcher.onDelete((state: DispatcherEvent) => this.#onContextDelete.fire(state));
   }
 
   async update(kubeconfig: KubeConfig): Promise<void> {
@@ -74,10 +74,10 @@ export class ContextsManagerExperimental {
     return this.onAdd(event);
   }
 
-  private onDelete(contextName: string): void {
-    const previous = this.#healthCheckers.get(contextName);
+  private onDelete(state: DispatcherEvent): void {
+    const previous = this.#healthCheckers.get(state.contextName);
     previous?.dispose();
-    this.#healthCheckers.delete(contextName);
+    this.#healthCheckers.delete(state.contextName);
   }
 
   private onStateChange(state: ContextHealthState): void {

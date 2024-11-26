@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContextHealthState } from './context-health-checker.js';
+import type { DispatcherEvent } from './contexts-dispatcher.js';
 import type { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 
 export class ContextsStatesDispatcher {
@@ -24,10 +25,10 @@ export class ContextsStatesDispatcher {
 
   init(): void {
     this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.update());
-    this.manager.onContextDelete((_contextName: string) => this.update());
+    this.manager.onContextDelete((_state: DispatcherEvent) => this.update());
   }
 
   update(): void {
-    console.log('==> all states', this.manager.getHealthCheckersStates());
+    console.log('current health check states', this.manager.getHealthCheckersStates());
   }
 }

@@ -133,7 +133,14 @@ test('call update with a missing context calls onDelete', () => {
   expect(onUpdateMock).not.toHaveBeenCalled();
   expect(onAddMock).not.toHaveBeenCalled();
   expect(onDeleteMock).toHaveBeenCalledOnce();
-  expect(onDeleteMock).toHaveBeenCalledWith('context2');
+  const kcDeleted = new KubeConfig();
+  kcDeleted.loadFromOptions({
+    contexts: [contexts[1]],
+    users: [users[1]],
+    clusters: [clusters[1]],
+    currentContext: 'context2',
+  });
+  expect(onDeleteMock).toHaveBeenCalledWith({ contextName: 'context2', config: kcDeleted });
 });
 
 test('call update with a new context calls onAdd', () => {

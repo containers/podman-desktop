@@ -20,7 +20,7 @@ import type { Cluster, Context, User } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import { KubeConfigSingle } from './kubeconfig-single.js';
+import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 const contexts = [
   {
@@ -59,10 +59,10 @@ const kcWith2contexts = {
   users,
 } as unknown as KubeConfig;
 
-test('KubeConfigSingle', () => {
+test('KubeConfigSingleContext', () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
-  const single = new KubeConfigSingle(kc, contexts[0]!);
+  const single = new KubeConfigSingleContext(kc, contexts[0]!);
   const expected = {
     contexts: [contexts[0]],
     users: [users[0]],
@@ -73,10 +73,10 @@ test('KubeConfigSingle', () => {
 
   const kcExpected = new KubeConfig();
   kcExpected.loadFromOptions(expected);
-  const expectedSingle = new KubeConfigSingle(expected, contexts[0]!);
+  const expectedSingle = new KubeConfigSingleContext(expected, contexts[0]!);
   expect(single.equals(expectedSingle)).toBeTruthy();
 
-  const otherSingle = new KubeConfigSingle(kc, contexts[1]!);
+  const otherSingle = new KubeConfigSingleContext(kc, contexts[1]!);
   expect(single.equals(otherSingle)).toBeFalsy();
 
   expect(single.equals(undefined)).toBeFalsy();

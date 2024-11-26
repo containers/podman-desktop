@@ -20,11 +20,11 @@ import type { Context } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 
 /**
- * KubeConfigSingle represents a KubeConfig with a single Context
+ * KubeConfigSingleContext represents a KubeConfig with a single Context
  * and its related information (user, cluster)
  * which is set as the current context for the KubeConfig
  */
-export class KubeConfigSingle {
+export class KubeConfigSingleContext {
   #value: KubeConfig;
   #representation: string;
 
@@ -43,7 +43,7 @@ export class KubeConfigSingle {
     return this.#value;
   }
 
-  equals(other: KubeConfigSingle | undefined): boolean {
+  equals(other: KubeConfigSingleContext | undefined): boolean {
     if (!other) {
       return false;
     }
