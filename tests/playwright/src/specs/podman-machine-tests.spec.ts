@@ -187,7 +187,7 @@ test.describe
         await test.step('Restart rootless podman machine', async () => {
           await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineRestartButton.click();
-          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('STARTING', { timeout: 90_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 90_000 });
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
           await playExpect(podmanMachineDetails.logsTab).toBeEnabled();
           await podmanMachineDetails.logsTab.click();
