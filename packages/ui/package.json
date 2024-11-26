@@ -147,7 +147,7 @@
     "@testing-library/svelte": "^5.2.6",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
     "autoprefixer": "^10.4.20",
     "eslint-plugin-svelte": "^2.46.0",
     "jsdom": "^25.0.1",
