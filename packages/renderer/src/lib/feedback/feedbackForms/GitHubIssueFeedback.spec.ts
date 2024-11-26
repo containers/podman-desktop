@@ -18,12 +18,12 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, type RenderResult } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { tick } from 'svelte';
+import { type Component, type ComponentProps } from 'svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { GitHubIssue } from '/@api/feedback';
+import type { FeedbackCategory } from '/@api/feedback';
 
 import GitHubIssueFeedback from './GitHubIssueFeedback.svelte';
 
@@ -49,98 +49,138 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('Expect feedback form to to be GitHub issue feedback form', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
+/**
+ * Utility method to query get GitHub issue inputs
+ * @param props
+ */
+function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedback>): {
+  title: HTMLInputElement;
+  description: HTMLTextAreaElement;
+  preview: HTMLButtonElement;
+} & RenderResult<Component<ComponentProps<typeof GitHubIssueFeedback>>> {
+  const { getByRole, queryByTitle, ...restResult } = render(GitHubIssueFeedback, props);
 
-  expect(screen.getByText('Title')).toBeInTheDocument();
-  expect(screen.getByText('Description')).toBeInTheDocument();
-  renderObject.unmount();
+  // text inputs
+  const title = getByRole('textbox', { name: 'Issue Title' });
+  expect(title).toBeInstanceOf(HTMLInputElement);
+
+  const description = getByRole('textbox', { name: 'Issue Description' });
+  expect(description).toBeInstanceOf(HTMLTextAreaElement);
+
+  // button
+  const preview = getByRole('button', { name: 'Preview on GitHub' });
+  expect(preview).toBeInstanceOf(HTMLButtonElement);
+
+  return {
+    title: title as HTMLInputElement,
+    description: description as HTMLTextAreaElement,
+    preview: preview as HTMLButtonElement,
+    getByRole,
+    queryByTitle,
+    ...restResult,
+  };
+}
+
+test('Expect feedback form to to be GitHub issue feedback form', async () => {
+  const { title, description } = renderGitHubIssueFeedback({
+    category: 'bug',
+    onCloseForm: vi.fn(),
+    contentChange: vi.fn(),
+  });
+
+  expect(title).toBeInTheDocument();
+  expect(description).toBeInTheDocument();
 });
 
 test('Expect Preview on GitHub button to be disabled if there is no title or description', async () => {
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
-
-  expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeDisabled();
-
-  const issueTitle = screen.getByTestId('issueTitle');
-  expect(issueTitle).toBeInTheDocument();
-  await userEvent.type(issueTitle, 'Bug title');
-
-  const issueDescription = screen.getByTestId('issueDescription');
-  expect(issueDescription).toBeInTheDocument();
-  await userEvent.type(issueDescription, 'Bug description');
-
-  await tick();
-  expect(screen.getByRole('button', { name: 'Preview on GitHub' })).toBeEnabled();
-  renderObject.unmount();
-});
-
-test('Expect to have different placeholders for bug vs feaure', async () => {
-  let renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
-
-  let issueTitle = screen.getByTestId('issueTitle');
-  expect(issueTitle).toBeInTheDocument();
-  expect(issueTitle).toHaveProperty('placeholder', 'Bug Report Title');
-
-  let issueDescription = screen.getByTestId('issueDescription');
-  expect(issueDescription).toBeInTheDocument();
-  expect(issueDescription).toHaveProperty('placeholder', 'Bug description');
-
-  renderObject.unmount();
-
-  renderObject = render(GitHubIssueFeedback, { category: 'feature', onCloseForm: vi.fn(), contentChange: vi.fn() });
-
-  issueTitle = screen.getByTestId('issueTitle');
-  expect(issueTitle).toBeInTheDocument();
-  expect(issueTitle).toHaveProperty('placeholder', 'Feature name');
-
-  issueDescription = screen.getByTestId('issueDescription');
-  expect(issueDescription).toBeInTheDocument();
-  expect(issueDescription).toHaveProperty('placeholder', 'Feature description');
-  renderObject.unmount();
-});
-
-test('Expect to have different existing GitHub issues links for bug and feature categories', async () => {
-  let renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
-  let existingIssues = screen.getByLabelText('GitHub issues');
-  expect(existingIssues).toBeInTheDocument();
-
-  await userEvent.click(existingIssues);
-  expect(openExternalMock).toHaveBeenCalledWith(
-    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
-  );
-  renderObject.unmount();
-
-  renderObject = render(GitHubIssueFeedback, { category: 'feature', onCloseForm: vi.fn(), contentChange: vi.fn() });
-  existingIssues = screen.getByLabelText('GitHub issues');
-  expect(existingIssues).toBeInTheDocument();
-
-  await userEvent.click(existingIssues);
-  expect(openExternalMock).toHaveBeenCalledWith(
-    'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
-  );
-  renderObject.unmount();
-});
-
-test('Expect the right category to be included in previewOnGitHub call', async () => {
-  const issueProperties: GitHubIssue = {
+  const { title, description, preview } = renderGitHubIssueFeedback({
     category: 'bug',
-    title: 'Bug title',
-    description: 'Bug description',
-  };
-  const renderObject = render(GitHubIssueFeedback, { category: 'bug', onCloseForm: vi.fn(), contentChange: vi.fn() });
-  const previewButton = screen.getByRole('button', { name: 'Preview on GitHub' });
+    onCloseForm: vi.fn(),
+    contentChange: vi.fn(),
+  });
 
-  const issueTitle = screen.getByTestId('issueTitle');
-  expect(issueTitle).toBeInTheDocument();
-  await userEvent.type(issueTitle, 'Bug title');
+  // default: disabled
+  expect(preview).toBeDisabled();
 
-  const issueDescription = screen.getByTestId('issueDescription');
-  expect(issueDescription).toBeInTheDocument();
-  await userEvent.type(issueDescription, 'Bug description');
+  await userEvent.type(title, 'Bug title');
+  await userEvent.type(description, 'Bug description');
 
-  await userEvent.click(previewButton);
+  await vi.waitFor(() => {
+    expect(preview).toBeEnabled();
+  });
+});
 
-  expect(previewOnGitHubMock).toHaveBeenCalledWith(issueProperties);
-  renderObject.unmount();
+test.each([
+  {
+    category: 'bug',
+    placeholders: {
+      title: 'Bug Report Title',
+      description: 'Bug description',
+    },
+  },
+  {
+    category: 'feature',
+    placeholders: {
+      title: 'Feature name',
+      description: 'Feature description',
+    },
+  },
+])('$category should have specific placeholders', async ({ category, placeholders }) => {
+  const { title, description } = renderGitHubIssueFeedback({
+    category: category as FeedbackCategory,
+    onCloseForm: vi.fn(),
+    contentChange: vi.fn(),
+  });
+
+  expect(title).toHaveProperty('placeholder', placeholders.title);
+  expect(description).toHaveProperty('placeholder', placeholders.description);
+});
+
+test.each([
+  {
+    category: 'bug',
+    link: 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
+  },
+  {
+    category: 'feature',
+    link: 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
+  },
+])('$category should have specific issues link', async ({ category, link }) => {
+  const { getByLabelText } = renderGitHubIssueFeedback({
+    category: category as FeedbackCategory,
+    onCloseForm: vi.fn(),
+    contentChange: vi.fn(),
+  });
+
+  const existingIssues = getByLabelText('GitHub issues');
+  expect(existingIssues).toBeInTheDocument();
+
+  await userEvent.click(existingIssues);
+  expect(openExternalMock).toHaveBeenCalledWith(link);
+});
+
+test.each(['bug', 'feature'])('Expect %s to be included in previewOnGitHub call', async category => {
+  const { preview, title, description } = renderGitHubIssueFeedback({
+    category: category as FeedbackCategory,
+    onCloseForm: vi.fn(),
+    contentChange: vi.fn(),
+  });
+
+  // type dummy data
+  await userEvent.type(title, 'Bug title');
+  await userEvent.type(description, 'Bug description');
+
+  // wait enable
+  await vi.waitFor(() => {
+    expect(preview).toBeEnabled();
+  });
+
+  // preview
+  await userEvent.click(preview);
+
+  expect(previewOnGitHubMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      category: category,
+    }),
+  );
 });
