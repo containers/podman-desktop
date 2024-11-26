@@ -154,7 +154,7 @@ This is exactly what we want to do in our application, we will be able to indica
 
 ## Creating our own app
 
-Adapting the source code for the purpose of our application is out of the scope of this article, let's see the result in [our app repository](https://github.com/feloy/podman-ai-lab-demo/blob/main/app/service.py).
+Adapting the source code for the purpose of our application is out of the scope of this article, let's see the result in [our app repository](https://github.com/redhat-developer/podman-desktop-demo/blob/main/ai-lab-demo/recipe/app/service.py).
 
 As discussed in the previous section, we have replaced the `streamlit` part with the `flask` framework to create a REST API with two endpoints: one for the health check on `/` necessary for Podman AI Lab, and another one on `/query`, which will be the endpoint on which the micro-service's user will send requests.
 
@@ -200,13 +200,13 @@ Podman AI Lab provides a way for a user to extend the provided catalog with its 
       "id": "search-podman-desktop-io",
       "description" : "Search on Podman-desktop.io website",
       "name" : "Search Podman-desktop.io",
-      "repository": "https://github.com/feloy/podman-ai-lab-demo",
+      "repository": "https://github.com/redhat-developer/podman-desktop-demo",
       "ref": "main",
       "icon": "natural-language-processing",
       "categories": [
         "natural-language-processing"
       ],
-      "basedir": "",
+      "basedir": "ai-lab-demo/recipe",
       "readme": "",
       "recommended": [
         "hf.TheBloke.mistral-7b-instruct-v0.2.Q4_K_M"
