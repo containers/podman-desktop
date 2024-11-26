@@ -91,10 +91,9 @@ async function previewOnGitHub(): Promise<void> {
 
     <!-- additional form content for bug category -->
     {#if category === 'bug'}
-      <div class="p-2 flex flex-row align-items">
+      <div class="flex flex-row align-items items-center mt-2">
         <Checkbox
           title="Include system information"
-          class="pt-0.5 mr-5"
           bind:checked={includeSystemInfo} />
         <div>Include system information (os, architecture etc.)</div>
       </div>
