@@ -6,8 +6,10 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { array2String } from '/@/lib/string/string.js';
+import { handleNavigation } from '/@/navigation';
 import type { ContainerCreateOptions, DeviceMapping, HostConfig } from '/@api/container-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
+import { NavigationPage } from '/@api/navigation-page';
 import type { NetworkInspectInfo } from '/@api/network-info';
 
 import Route from '../../Route.svelte';
@@ -404,9 +406,14 @@ async function startContainer() {
 
     // redirect to containers if no tty, else redirect to the container details
     if (Tty && OpenStdin) {
-      router.goto(`/containers/${data.id}/tty`);
+      handleNavigation({
+        page: NavigationPage.CONTAINER_TTY,
+        parameters: {
+          id: data.id,
+        },
+      });
     } else {
-      router.goto('/containers');
+      handleNavigation({ page: NavigationPage.CONTAINERS });
     }
   } catch (e) {
     createError = String(e);

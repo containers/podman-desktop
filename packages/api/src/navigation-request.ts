@@ -25,6 +25,7 @@ export interface NavigationParameters {
   [NavigationPage.CONTAINER]: { id: string };
   [NavigationPage.CONTAINER_EXPORT]: { id: string };
   [NavigationPage.CONTAINER_LOGS]: { id: string };
+  [NavigationPage.CONTAINER_TTY]: { id: string };
   [NavigationPage.CONTAINER_INSPECT]: { id: string };
   [NavigationPage.CONTAINER_TERMINAL]: { id: string };
   [NavigationPage.CONTAINER_KUBE]: { id: string };

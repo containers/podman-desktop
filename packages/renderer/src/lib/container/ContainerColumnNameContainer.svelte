@@ -1,12 +1,18 @@
 <script lang="ts">
-import { router } from 'tinro';
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let object: ContainerInfoUI;
 
 function openContainerDetails(container: ContainerInfoUI): void {
-  router.goto(`/containers/${container.id}/`);
+  handleNavigation({
+    page: NavigationPage.CONTAINER,
+    parameters: {
+      id: container.id,
+    },
+  });
 }
 </script>
 

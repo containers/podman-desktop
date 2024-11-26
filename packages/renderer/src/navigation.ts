@@ -58,6 +58,9 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
     case NavigationPage.CONTAINER_TERMINAL:
       router.goto(`/containers/${request.parameters.id}/terminal`);
       break;
+    case NavigationPage.CONTAINER_TTY:
+      router.goto(`/containers/${request.parameters.id}/tty`);
+      break;
     case NavigationPage.CONTAINER_KUBE:
       router.goto(`/containers/${request.parameters.id}/kube`);
       break;

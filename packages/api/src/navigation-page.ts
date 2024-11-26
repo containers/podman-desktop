@@ -24,6 +24,7 @@ export enum NavigationPage {
   CONTAINER_LOGS = 'container-logs',
   CONTAINER_INSPECT = 'container-inspect',
   CONTAINER_TERMINAL = 'container-terminal',
+  CONTAINER_TTY = 'container-tty',
   CONTAINER_KUBE = 'container-kube',
   IMAGES = 'images',
   IMAGE_BUILD = 'image-build',
