@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
@@ -14,6 +14,8 @@ let { onCloseForm = () => {}, category = 'bug', contentChange }: Props = $props(
 
 let issueTitle = $state('');
 let issueDescription = $state('');
+let includeSystemInfo: boolean = $state(true); // default to true
+
 let issueValidationError = $derived.by(() => {
   if (!issueTitle) {
     if (!issueDescription) {
@@ -46,9 +48,10 @@ async function openGitHubIssues(): Promise<void> {
 
 async function previewOnGitHub(): Promise<void> {
   const issueProperties: GitHubIssue = {
-    category: category,
-    title: issueTitle,
-    description: issueDescription,
+    category: $state.snapshot(category),
+    title: $state.snapshot(issueTitle),
+    description: $state.snapshot(issueDescription),
+    includeSystemInfo: $state.snapshot(includeSystemInfo),
   };
   try {
     await window.previewOnGitHub(issueProperties);
@@ -86,6 +89,16 @@ async function previewOnGitHub(): Promise<void> {
       class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
       placeholder={descriptionPlaceholder}></textarea>
 
+    <!-- additional form content for bug category -->
+    {#if category === 'bug'}
+      <div class="p-2 flex flex-row align-items">
+        <Checkbox
+          title="Include system information"
+          class="pt-0.5 mr-5"
+          bind:checked={includeSystemInfo} />
+        <div>Include system information (os, architecture etc.)</div>
+      </div>
+    {/if}
   </svelte:fragment>
   <svelte:fragment slot="validation">
     {#if !issueTitle || !issueDescription}
