@@ -73,12 +73,24 @@ test('onStateChange is fired with result of readyz if no error', async () => {
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: true });
 
+  expect(hc.getState()).toEqual({
+    contextName: 'context1',
+    checking: false,
+    reachable: true,
+  });
+
   onStateChangeCB.mockReset();
 
   readyzMock.mockResolvedValue(false);
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: false });
+
+  expect(hc.getState()).toEqual({
+    contextName: 'context1',
+    checking: false,
+    reachable: false,
+  });
 });
 
 test('onStateChange is not fired when readyz is rejected with an abort error', async () => {
@@ -98,6 +110,11 @@ test('onStateChange is not fired when readyz is rejected with an abort error', a
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledOnce();
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
+  expect(hc.getState()).toEqual({
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
 });
 
 test('onReadiness is called with false when readyz is rejected with a generic error', async () => {
@@ -117,4 +134,9 @@ test('onReadiness is called with false when readyz is rejected with a generic er
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
   expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: false });
+  expect(hc.getState()).toEqual({
+    contextName: 'context1',
+    checking: false,
+    reachable: false,
+  });
 });

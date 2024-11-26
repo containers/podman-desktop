@@ -65,7 +65,8 @@ export class ContextHealthChecker implements Disposable {
       this.#onStateChange.fire(this.#currentState);
     } catch (err: unknown) {
       if (!(err instanceof AbortError)) {
-        this.#onStateChange.fire({ contextName: this.#contextName, checking: false, reachable: false });
+        this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
+        this.#onStateChange.fire(this.#currentState);
       }
     }
   }
