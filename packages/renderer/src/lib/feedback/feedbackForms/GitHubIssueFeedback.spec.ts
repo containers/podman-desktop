@@ -117,7 +117,6 @@ test.each([
       title: 'Bug Report Title',
       description: 'Bug description',
     },
-    link: 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Fbug%20%F0%9F%90%9E%22',
   },
   {
     category: 'feature',
@@ -125,7 +124,6 @@ test.each([
       title: 'Feature name',
       description: 'Feature description',
     },
-    link: 'https://github.com/podman-desktop/podman-desktop/issues?q=label%3A%22kind%2Ffeature%20%F0%9F%92%A1%22',
   },
 ])('$category should have specific placeholders', async ({ category, placeholders }) => {
   const { title, description } = renderGitHubIssueFeedback({
