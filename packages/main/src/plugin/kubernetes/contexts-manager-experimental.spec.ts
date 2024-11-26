@@ -20,9 +20,8 @@ import type { Cluster } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { ContextsConnectivityRegistry } from './contexts-connectivity-registry.js';
+import { ContextHealthChecker } from './context-health-checker.js';
 import { ContextsManagerExperimental } from './contexts-manager-experimental.js';
-import { HealthChecker } from './health-checker.js';
 
 const kcWithContext1asDefault = {
   contexts: [
@@ -66,8 +65,7 @@ const kcWithContext2asDefault = {
   currentContext: 'context2',
 };
 
-vi.mock('./health-checker.js');
-vi.mock('./contexts-connectivity-registry.js');
+vi.mock('./context-health-checker.js');
 
 let kcWith2contexts: KubeConfig;
 
@@ -103,194 +101,98 @@ beforeEach(() => {
     ],
   } as unknown as KubeConfig;
 
-  vi.mocked(HealthChecker).mockClear();
-  vi.mocked(ContextsConnectivityRegistry).mockClear();
+  vi.mocked(ContextHealthChecker).mockClear();
 });
 
-test('HealthChecker is built and checkReadiness is called for each context the first time', async () => {
+test('HealthChecker is built and start is called for each context the first time', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
   const manager = new ContextsManagerExperimental();
 
-  const checkReadinessMock = vi.fn();
-  const onReadinessMock = vi.fn();
+  const startMock = vi.fn();
   const disposeMock = vi.fn();
+  const onStateChangeMock = vi.fn();
 
-  vi.mocked(HealthChecker).mockImplementation(
+  vi.mocked(ContextHealthChecker).mockImplementation(
     () =>
       ({
-        checkReadiness: checkReadinessMock,
-        onReadiness: onReadinessMock,
+        start: startMock,
         dispose: disposeMock,
-      }) as unknown as HealthChecker,
+        onStateChange: onStateChangeMock,
+      }) as unknown as ContextHealthChecker,
   );
 
-  checkReadinessMock.mockResolvedValue(undefined);
-
   await manager.update(kc);
-  expect(HealthChecker).toHaveBeenCalledTimes(2);
+  expect(ContextHealthChecker).toHaveBeenCalledTimes(2);
   const kc1 = new KubeConfig();
   kc1.loadFromOptions(kcWithContext1asDefault);
-  expect(HealthChecker).toHaveBeenCalledWith(kc1);
+  expect(ContextHealthChecker).toHaveBeenCalledWith(kc1);
   const kc2 = new KubeConfig();
   kc2.loadFromOptions(kcWithContext2asDefault);
-  expect(HealthChecker).toHaveBeenCalledWith(kc2);
+  expect(ContextHealthChecker).toHaveBeenCalledWith(kc2);
+  expect(startMock).toHaveBeenCalledTimes(2);
 
-  expect(checkReadinessMock).toHaveBeenCalledTimes(2);
   expect(disposeMock).not.toHaveBeenCalled();
 });
 
-test('nothing is done with called again and kubeconfig does not change', async () => {
+test('nothing is done when called again and kubeconfig does not change', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
   const manager = new ContextsManagerExperimental();
 
-  const checkReadinessMock = vi.fn();
-  const onReadinessMock = vi.fn();
+  const startMock = vi.fn();
   const disposeMock = vi.fn();
+  const onStateChangeMock = vi.fn();
 
-  vi.mocked(HealthChecker).mockImplementation(
+  vi.mocked(ContextHealthChecker).mockImplementation(
     () =>
       ({
-        checkReadiness: checkReadinessMock,
-        onReadiness: onReadinessMock,
+        start: startMock,
         dispose: disposeMock,
-      }) as unknown as HealthChecker,
+        onStateChange: onStateChangeMock,
+      }) as unknown as ContextHealthChecker,
   );
 
-  checkReadinessMock.mockResolvedValue(undefined);
-
   await manager.update(kc);
+
+  vi.mocked(ContextHealthChecker).mockClear();
+  vi.mocked(startMock).mockClear();
 
   // check it is not called again if kubeconfig does not change
-  vi.mocked(HealthChecker).mockClear();
-  vi.mocked(checkReadinessMock).mockClear();
-
   await manager.update(kc);
-  expect(HealthChecker).not.toHaveBeenCalled();
-  expect(checkReadinessMock).not.toHaveBeenCalled();
+  expect(ContextHealthChecker).not.toHaveBeenCalled();
+  expect(startMock).not.toHaveBeenCalled();
   expect(disposeMock).not.toHaveBeenCalled();
 });
 
-test('HealthChecker is built and checkReadiness is called for each context if context changed', async () => {
+test('HealthChecker is built and start is called for each context being changed', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
   const manager = new ContextsManagerExperimental();
 
-  const checkReadinessMock = vi.fn();
-  const onReadinessMock = vi.fn();
+  const startMock = vi.fn();
   const disposeMock = vi.fn();
+  const onStateChangeMock = vi.fn();
 
-  vi.mocked(HealthChecker).mockImplementation(
+  vi.mocked(ContextHealthChecker).mockImplementation(
     () =>
       ({
-        checkReadiness: checkReadinessMock,
-        onReadiness: onReadinessMock,
+        start: startMock,
         dispose: disposeMock,
-      }) as unknown as HealthChecker,
+        onStateChange: onStateChangeMock,
+      }) as unknown as ContextHealthChecker,
   );
 
-  checkReadinessMock.mockResolvedValue(undefined);
-
   await manager.update(kc);
-  expect(HealthChecker).toHaveBeenCalledTimes(2);
-  const kc1 = new KubeConfig();
-  kc1.loadFromOptions(kcWithContext1asDefault);
-  expect(HealthChecker).toHaveBeenCalledWith(kc1);
-  const kc2 = new KubeConfig();
-  kc2.loadFromOptions(kcWithContext2asDefault);
-  expect(HealthChecker).toHaveBeenCalledWith(kc2);
-
-  expect(checkReadinessMock).toHaveBeenCalledTimes(2);
-  expect(disposeMock).not.toHaveBeenCalled();
 
   // check it is called again if kubeconfig changes
-  vi.mocked(HealthChecker).mockClear();
-  vi.mocked(checkReadinessMock).mockClear();
+  vi.mocked(ContextHealthChecker).mockClear();
+  vi.mocked(startMock).mockClear();
 
-  kcWith2contexts.currentContext = 'context2';
+  kcWith2contexts.users[0]!.certFile = 'file';
   kc.loadFromOptions(kcWith2contexts);
   await manager.update(kc);
-  expect(disposeMock).toHaveBeenCalledTimes(2);
-  expect(HealthChecker).toHaveBeenCalledTimes(2);
-  expect(checkReadinessMock).toHaveBeenCalledTimes(2);
-});
-
-test('setReachable should be called with the result of the health check', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-
-  const checkReadinessMock = vi.fn();
-  const onReadinessMock = vi.fn();
-  const disposeMock = vi.fn();
-
-  onReadinessMock.mockImplementation(f => f(true));
-
-  vi.mocked(HealthChecker).mockImplementation(
-    () =>
-      ({
-        checkReadiness: checkReadinessMock,
-        onReadiness: onReadinessMock,
-        dispose: disposeMock,
-      }) as unknown as HealthChecker,
-  );
-
-  const setCheckingMock = vi.fn();
-  const setReachableMock = vi.fn();
-  vi.mocked(ContextsConnectivityRegistry).mockReturnValue({
-    setChecking: setCheckingMock,
-    setReachable: setReachableMock,
-  } as unknown as ContextsConnectivityRegistry);
-
-  checkReadinessMock.mockResolvedValue(undefined);
-  const manager = new ContextsManagerExperimental();
-  await manager.update(kc);
-  expect(setReachableMock).toHaveBeenCalledTimes(2);
-  expect(setReachableMock).toHaveBeenCalledWith('context1', true);
-  expect(setReachableMock).toHaveBeenCalledWith('context2', true);
-});
-
-test('setChecking should be called first with false then with true when check is finished', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-
-  const checkReadinessMock = vi.fn();
-  const onReadinessMock = vi.fn();
-  const disposeMock = vi.fn();
-
-  onReadinessMock.mockImplementation(f =>
-    setTimeout(() => {
-      f(true);
-    }, 0),
-  );
-
-  vi.mocked(HealthChecker).mockImplementation(
-    () =>
-      ({
-        checkReadiness: checkReadinessMock,
-        onReadiness: onReadinessMock,
-        dispose: disposeMock,
-      }) as unknown as HealthChecker,
-  );
-
-  const setCheckingMock = vi.fn();
-  const setReachableMock = vi.fn();
-  vi.mocked(ContextsConnectivityRegistry).mockReturnValue({
-    setChecking: setCheckingMock,
-    setReachable: setReachableMock,
-  } as unknown as ContextsConnectivityRegistry);
-
-  checkReadinessMock.mockResolvedValue(undefined);
-  const manager = new ContextsManagerExperimental();
-  await manager.update(kc);
-  expect(setCheckingMock).toHaveBeenCalledTimes(2);
-  expect(setCheckingMock).toHaveBeenNthCalledWith(1, 'context1', true);
-  expect(setCheckingMock).toHaveBeenNthCalledWith(2, 'context2', true);
-
-  setCheckingMock.mockClear();
-  await vi.waitFor(() => {
-    expect(setCheckingMock).toHaveBeenCalledTimes(2);
-    expect(setCheckingMock).toHaveBeenNthCalledWith(1, 'context1', false);
-    expect(setCheckingMock).toHaveBeenNthCalledWith(2, 'context2', false);
-  });
+  expect(disposeMock).toHaveBeenCalledTimes(1);
+  expect(ContextHealthChecker).toHaveBeenCalledTimes(1);
+  expect(startMock).toHaveBeenCalledTimes(1);
 });

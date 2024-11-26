@@ -16,23 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ContextConnectivity {
-  // Is the connectivity being checked?
-  checking: boolean;
-  // Is cluster of the context reachable?
-  reachable: boolean;
-}
+import type { ContextHealthState } from './context-health-checker.js';
+import type { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 
-export class ContextsConnectivityRegistry {
-  // ContextConnectivity indexed by contextName
-  #connectivities: Map<string, ContextConnectivity>;
+export class ContextsStatesDispatcher {
+  constructor(private manager: ContextsManagerExperimental) {}
 
-  constructor() {
-    this.#connectivities = new Map();
+  init(): void {
+    this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.update());
+    this.manager.onContextDelete((_contextName: string) => this.update());
   }
 
-  // setChecking saves in the registry if the context `contextName` is being checked
-  setState(contextName: string, checking: boolean, reachable: boolean): void {
-    this.#connectivities.set(contextName, { checking, reachable });
+  update(): void {
+    console.log('==> all states', this.manager.getHealthCheckersStates());
   }
 }

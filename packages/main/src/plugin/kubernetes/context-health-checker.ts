@@ -20,36 +20,62 @@ import type { KubeConfig } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
-export interface CheckOptions {
+import type { Event } from '../events/emitter.js';
+import { Emitter } from '../events/emitter.js';
+
+export interface ContextHealthState {
+  contextName: string;
+  checking: boolean;
+  reachable: boolean;
+}
+
+export interface ContextHealthCheckOptions {
   // timeout in ms
   timeout?: number;
 }
 
 // HealthChecker checks the readiness of a Kubernetes context
 // by requesting the readiness endpoint of its server
-export class HealthChecker implements Disposable {
+export class ContextHealthChecker implements Disposable {
   #health: Health;
   #abortController: AbortController;
+
+  #onStateChange = new Emitter<ContextHealthState>();
+  onStateChange: Event<ContextHealthState> = this.#onStateChange.event;
+
+  #contextName: string;
+
+  #currentState: ContextHealthState;
 
   // builds an HealthChecker which will check the cluster of the current context of the given kubeConfig
   constructor(kubeConfig: KubeConfig) {
     this.#abortController = new AbortController();
     this.#health = new Health(kubeConfig);
+    this.#contextName = kubeConfig.currentContext;
+    this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
   }
 
   // start checking the readiness
-  public async start(opts?: CheckOptions): Promise<boolean> {
+  public async start(opts?: ContextHealthCheckOptions): Promise<void> {
+    this.#currentState = { contextName: this.#contextName, checking: true, reachable: false };
+    this.#onStateChange.fire(this.#currentState);
     try {
-      return await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
+      const result = await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
+      this.#currentState = { contextName: this.#contextName, checking: false, reachable: result };
+      this.#onStateChange.fire(this.#currentState);
     } catch (err: unknown) {
-      if (err instanceof AbortError) {
-        throw err;
+      if (!(err instanceof AbortError)) {
+        this.#onStateChange.fire({ contextName: this.#contextName, checking: false, reachable: false });
       }
-      return false;
     }
   }
 
   public dispose(): void {
+    this.#onStateChange.dispose();
     this.#abortController.abort();
+  }
+
+  public getState(): ContextHealthState {
+    return this.#currentState;
   }
 }
