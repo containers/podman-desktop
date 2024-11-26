@@ -67,6 +67,54 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 
    After the command is executed, you can find the Podman Desktop Application within the `Applications` directory of the MacOS.
 
+## Using `libkrun` as machine provider
+
+By default, Podman uses the `Apple HyperVisor` provider type. To switch to the `GPU enabled (LibKrun)` provider type, you must configure the machine provider manually.
+
+Before creating a Podman machine, use one of the following ways to enable it to use `libkrun`:
+
+**_Configuring an environment variable_**
+
+1. Perform one of the following steps:
+   - As a normal user, set the following variable at session level:
+
+      ```shell-session
+      > $env:CONTAINERS_MACHINE_PROVIDER = 'libkrun'
+      ```
+   - As an admin user, set the following variable at system level:
+
+      ```shell-session
+      # [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','libkrun')
+      ```
+
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.
+
+**_Configuring the `containers.conf` file_**
+
+1. Open the `containers.conf` file, which is usually placed in the `$HOME/.config/containers` directory. 
+1. Add the `provider` attribute and set its value to `libkrun` in the file.
+
+   ```vim
+   ...
+   [machine]
+
+   provider = "libkrun"
+   ...
+   ```
+
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.  
+
+#### Verification
+After configuration, you can confirm whether you are using a Podman machine with the `libkrun` provider.
+
+1. Go to **Settings > Resources**.
+1. Click the **Podman details** icon in the Podman tile.
+1. Select the **Logs** tab to view the following notification message:
+
+   ```
+   time="2023-05-09T21:16:08+03:00" level=debug msg="Using Podman machine with `libkrun` virtualization provider"
+   ```
+
 ## Getting Started
 
 Learn more on how to get started with Podman Desktop by clicking [here](/docs/containers).
