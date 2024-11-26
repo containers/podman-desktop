@@ -108,6 +108,11 @@ test.describe
           await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
           await podmanMachineDetails.podmanMachineStopButton.click();
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 60_000 });
+          await playExpect(podmanMachineDetails.logsTab).toBeEnabled();
+          await podmanMachineDetails.logsTab.click();
+          await playExpect(
+            podmanMachineDetails.tabContent.getByText('Machine "podman-machine-default" stopped successfully'),
+          ).toBeVisible({ timeout: 10_000 });
         });
       });
     });
@@ -172,6 +177,23 @@ test.describe
           await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
           await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
+          await playExpect(podmanMachineDetails.logsTab).toBeEnabled();
+          await podmanMachineDetails.logsTab.click();
+          await playExpect(
+            podmanMachineDetails.tabContent.getByText('Machine "podman-machine-rootless" started successfully'),
+          ).toBeVisible({ timeout: 10_000 });
+        });
+
+        await test.step('Restart rootless podman machine', async () => {
+          await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
+          await podmanMachineDetails.podmanMachineRestartButton.click();
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 90_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
+          await playExpect(podmanMachineDetails.logsTab).toBeEnabled();
+          await podmanMachineDetails.logsTab.click();
+          await playExpect(
+            podmanMachineDetails.tabContent.getByText('Machine "podman-machine-rootless" stopped successfully'),
+          ).toBeVisible({ timeout: 10_000 });
         });
       });
     });
@@ -221,6 +243,17 @@ test.describe
         await handleConfirmationDialog(page, 'Podman', true, 'Yes');
         await handleConfirmationDialog(page, 'Podman', true, 'OK');
 
+        await playExpect(podmanMachineDetails.logsTab).toBeEnabled();
+        await podmanMachineDetails.logsTab.click();
+        await playExpect(
+          podmanMachineDetails.tabContent.getByText('Machine "podman-machine-default" started successfully'),
+        ).toBeVisible({ timeout: 10_000 });
+
+        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
+
+        await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
+        await podmanMachineDetails.podmanMachineRestartButton.click();
+        await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 90_000 });
         await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 90_000 });
       });
     });
