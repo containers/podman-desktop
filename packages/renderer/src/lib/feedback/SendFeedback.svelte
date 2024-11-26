@@ -35,7 +35,7 @@ async function hideModal(): Promise<void> {
   }
 
   const result = await window.showMessageBox({
-    title: 'Close Feedback Form',
+    title: 'Close Feedback form',
     message: 'Do you want to close the Feedback form?\nClosing will erase your input.',
     type: 'warning',
     buttons: ['Yes', 'No'],
