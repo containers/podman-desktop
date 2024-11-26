@@ -2594,7 +2594,7 @@ async function testAudit(path: string, uri: string, condition: typeof expect | t
     },
   );
   await extension.activate(contextMock);
-  expect(vi.mocked(provider.setContainerProviderConnectionFactory)).toBeCalled();
+  await vi.waitFor(() => expect(vi.mocked(provider.setContainerProviderConnectionFactory)).toBeCalled());
   expect(auditorInstance).toBeDefined();
   const auditRecords: extensionApi.AuditResult = await auditorInstance!.auditItems({
     'podman.factory.machine.cpus': '2',
@@ -2705,7 +2705,7 @@ describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %
         return orExistsSync(path);
       });
       await extension.activate(mockExtensionForAuditTests());
-      expect(vi.mocked(provider.setContainerProviderConnectionFactory)).not.toBeCalled();
+      await vi.waitFor(() => expect(vi.mocked(provider.setContainerProviderConnectionFactory)).not.toBeCalled());
     });
     return;
   }
