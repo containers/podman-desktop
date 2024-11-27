@@ -43,8 +43,8 @@ export class ContextHealthChecker implements Disposable {
   #onStateChange = new Emitter<ContextHealthState>();
   onStateChange: Event<ContextHealthState> = this.#onStateChange.event;
 
-  #onReachable = new Emitter<void>();
-  onReachable: Event<void> = this.#onReachable.event;
+  #onReachable = new Emitter<ContextHealthState>();
+  onReachable: Event<ContextHealthState> = this.#onReachable.event;
 
   #contextName: string;
 
@@ -58,7 +58,7 @@ export class ContextHealthChecker implements Disposable {
     this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
     this.onStateChange((e: ContextHealthState) => {
       if (e.reachable) {
-        this.#onReachable.fire();
+        this.#onReachable.fire(e);
       }
     });
   }

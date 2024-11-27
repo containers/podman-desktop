@@ -21,6 +21,7 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ContextsDispatcher } from './contexts-dispatcher.js';
+import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 const contexts = [
   {
@@ -87,7 +88,10 @@ test('first call to update calls onAdd for each context', () => {
     clusters: [clusters[0]],
     currentContext: 'context1',
   });
-  expect(onAddMock).toHaveBeenCalledWith({ contextName: 'context1', config: kc1 });
+  expect(onAddMock).toHaveBeenCalledWith({
+    contextName: 'context1',
+    config: new KubeConfigSingleContext(kc1, contexts[0]!),
+  });
   const kc2 = new KubeConfig();
   kc2.loadFromOptions({
     contexts: [contexts[1]],
@@ -95,7 +99,10 @@ test('first call to update calls onAdd for each context', () => {
     clusters: [clusters[1]],
     currentContext: 'context2',
   });
-  expect(onAddMock).toHaveBeenCalledWith({ contextName: 'context2', config: kc2 });
+  expect(onAddMock).toHaveBeenCalledWith({
+    contextName: 'context2',
+    config: new KubeConfigSingleContext(kc2, contexts[1]!),
+  });
 });
 
 test('call update again with same kubeconfig calls nothing', () => {
@@ -140,7 +147,10 @@ test('call update with a missing context calls onDelete', () => {
     clusters: [clusters[1]],
     currentContext: 'context2',
   });
-  expect(onDeleteMock).toHaveBeenCalledWith({ contextName: 'context2', config: kcDeleted });
+  expect(onDeleteMock).toHaveBeenCalledWith({
+    contextName: 'context2',
+    config: new KubeConfigSingleContext(kcDeleted, contexts[1]!),
+  });
 });
 
 test('call update with a new context calls onAdd', () => {
@@ -180,7 +190,10 @@ test('call update with a new context calls onAdd', () => {
     clusters: [newCluster],
     currentContext: 'context3',
   });
-  expect(onAddMock).toHaveBeenCalledWith({ contextName: 'context3', config: kc3 });
+  expect(onAddMock).toHaveBeenCalledWith({
+    contextName: 'context3',
+    config: new KubeConfigSingleContext(kc3, newContext),
+  });
 });
 
 test('call update with a modifed context calls onUpdate', () => {
@@ -213,5 +226,8 @@ test('call update with a modifed context calls onUpdate', () => {
     clusters: [clusters[0]],
     currentContext: 'context1',
   });
-  expect(onUpdateMock).toHaveBeenCalledWith({ contextName: 'context1', config: kc1 });
+  expect(onUpdateMock).toHaveBeenCalledWith({
+    contextName: 'context1',
+    config: new KubeConfigSingleContext(kc1, contexts[0]!),
+  });
 });

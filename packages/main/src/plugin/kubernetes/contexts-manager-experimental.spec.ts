@@ -30,6 +30,7 @@ const kcWithContext1asDefault = {
       name: 'context1',
       cluster: 'cluster1',
       user: 'user1',
+      namespace: 'ns1',
     },
   ],
   clusters: [
@@ -51,6 +52,7 @@ const kcWithContext2asDefault = {
       name: 'context2',
       cluster: 'cluster2',
       user: 'user2',
+      namespace: 'ns2',
     },
   ],
   clusters: [
@@ -77,11 +79,13 @@ beforeEach(() => {
         name: 'context1',
         cluster: 'cluster1',
         user: 'user1',
+        namespace: 'ns1',
       },
       {
         name: 'context2',
         cluster: 'cluster2',
         user: 'user2',
+        namespace: 'ns2',
       },
     ],
     clusters: [

@@ -71,17 +71,17 @@ export class ContextsManagerExperimental {
     // register and start health checker
     const previousHC = this.#healthCheckers.get(event.contextName);
     previousHC?.dispose();
-    const newHC = new ContextHealthChecker(event.config);
+    const newHC = new ContextHealthChecker(event.config.getKubeConfig());
     this.#healthCheckers.set(event.contextName, newHC);
     newHC.onStateChange(this.onStateChange.bind(this));
 
-    newHC.onReachable(async () => {
+    newHC.onReachable(async (state: ContextHealthState) => {
       // register and start permissions checker
-      const previousPC = this.#permissionsCheckers.get(event.contextName);
+      const previousPC = this.#permissionsCheckers.get(state.contextName);
       previousPC?.dispose();
 
-      const namespace = event.config.getContextObject(event.config.getCurrentContext())?.namespace ?? 'default';
-      const newPC = new ContextPermissionsChecker(event.config, {
+      const namespace = event.config.getNamespace();
+      const newPC = new ContextPermissionsChecker(event.config.getKubeConfig(), {
         attrs: {
           namespace,
           group: '*',
@@ -109,7 +109,7 @@ export class ContextsManagerExperimental {
           },
         ],
       });
-      this.#permissionsCheckers.set(event.contextName, newPC);
+      this.#permissionsCheckers.set(state.contextName, newPC);
       newPC.onPermissionResult(this.onPermissionResult.bind(this));
       await newPC.start();
     });

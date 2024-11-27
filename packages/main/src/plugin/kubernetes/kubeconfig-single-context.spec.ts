@@ -27,11 +27,13 @@ const contexts = [
     name: 'context1',
     cluster: 'cluster1',
     user: 'user1',
+    namespace: 'ns1',
   },
   {
     name: 'context2',
     cluster: 'cluster2',
     user: 'user2',
+    namespace: 'ns2',
   },
 ] as Context[];
 
@@ -69,7 +71,7 @@ test('KubeConfigSingleContext', () => {
     clusters: [clusters[0]],
     currentContext: 'context1',
   } as KubeConfig;
-  expect(single.get()).toEqual(expected);
+  expect(single.getKubeConfig()).toEqual(expected);
 
   const kcExpected = new KubeConfig();
   kcExpected.loadFromOptions(expected);

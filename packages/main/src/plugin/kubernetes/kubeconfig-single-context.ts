@@ -22,25 +22,32 @@ import { KubeConfig } from '@kubernetes/client-node';
 /**
  * KubeConfigSingleContext represents a KubeConfig with a single Context
  * and its related information (user, cluster)
- * which is set as the current context for the KubeConfig
+ * which is set as the current context for the KubeConfig.
+ * The namespace of the current context is set as `default` if it is not defined
  */
 export class KubeConfigSingleContext {
   #value: KubeConfig;
   #representation: string;
+  #context: Context;
 
   constructor(kubeconfig: KubeConfig, kubeContext: Context) {
+    this.#context = { ...kubeContext, namespace: kubeContext.namespace ?? 'default' };
     this.#value = new KubeConfig();
     this.#value.loadFromOptions({
-      contexts: [kubeContext],
-      clusters: kubeconfig.clusters.filter(c => c.name === kubeContext.cluster),
-      users: kubeconfig.users.filter(u => u.name === kubeContext.user),
-      currentContext: kubeContext.name,
+      contexts: [this.#context],
+      clusters: kubeconfig.clusters.filter(c => c.name === this.#context.cluster),
+      users: kubeconfig.users.filter(u => u.name === this.#context.user),
+      currentContext: this.#context.name,
     });
     this.#representation = JSON.stringify(this.#value);
   }
 
-  get(): KubeConfig {
+  getKubeConfig(): KubeConfig {
     return this.#value;
+  }
+
+  getNamespace(): string {
+    return this.#context.namespace ?? 'default';
   }
 
   equals(other: KubeConfigSingleContext | undefined): boolean {
