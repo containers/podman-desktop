@@ -19,15 +19,24 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render } from '@testing-library/svelte';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';
 import { tasksInfo } from '/@/stores/tasks';
 
 beforeAll(() => {
-  (window.events as unknown) = {
-    send: vi.fn(),
-  };
+  Object.defineProperty(global, 'window', {
+    value: {
+      events: {
+        send: vi.fn(),
+      },
+    },
+    writable: true,
+  });
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
   // reset store
   tasksInfo.set([]);
 });
