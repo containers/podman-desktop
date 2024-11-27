@@ -23,16 +23,17 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
 import { ContextsManagerExperimental } from './contexts-manager-experimental.js';
+import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+
+const context1 = {
+  name: 'context1',
+  cluster: 'cluster1',
+  user: 'user1',
+  namespace: 'ns1',
+};
 
 const kcWithContext1asDefault = {
-  contexts: [
-    {
-      name: 'context1',
-      cluster: 'cluster1',
-      user: 'user1',
-      namespace: 'ns1',
-    },
-  ],
+  contexts: [context1],
   clusters: [
     {
       name: 'cluster1',
@@ -46,15 +47,14 @@ const kcWithContext1asDefault = {
   currentContext: 'context1',
 };
 
+const context2 = {
+  name: 'context2',
+  cluster: 'cluster2',
+  user: 'user2',
+  namespace: 'ns2',
+};
 const kcWithContext2asDefault = {
-  contexts: [
-    {
-      name: 'context2',
-      cluster: 'cluster2',
-      user: 'user2',
-      namespace: 'ns2',
-    },
-  ],
+  contexts: [context2],
   clusters: [
     {
       name: 'cluster2',
@@ -132,10 +132,10 @@ test('HealthChecker is built and start is called for each context the first time
   expect(ContextHealthChecker).toHaveBeenCalledTimes(2);
   const kc1 = new KubeConfig();
   kc1.loadFromOptions(kcWithContext1asDefault);
-  expect(ContextHealthChecker).toHaveBeenCalledWith(kc1);
+  expect(ContextHealthChecker).toHaveBeenCalledWith(new KubeConfigSingleContext(kc1, context1));
   const kc2 = new KubeConfig();
   kc2.loadFromOptions(kcWithContext2asDefault);
-  expect(ContextHealthChecker).toHaveBeenCalledWith(kc2);
+  expect(ContextHealthChecker).toHaveBeenCalledWith(new KubeConfigSingleContext(kc2, context2));
   expect(startMock).toHaveBeenCalledTimes(2);
 
   expect(disposeMock).not.toHaveBeenCalled();
@@ -252,7 +252,7 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
   const onStateChangeMock = vi.fn();
 
   vi.mocked(ContextHealthChecker).mockImplementation(
-    (kubeConfig: KubeConfig) =>
+    (kubeConfig: KubeConfigSingleContext) =>
       ({
         start: startMock,
         dispose: disposeMock,
@@ -260,8 +260,12 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
         onReachable: vi.fn(),
         getState: vi.fn().mockImplementation(() => {
           return {
-            contextName: kubeConfig.currentContext,
-            checking: kubeConfig.currentContext === 'context1' ? true : false,
+            kubeConfig: new KubeConfigSingleContext(
+              kcWith2contexts,
+              kubeConfig.getKubeConfig().currentContext === 'context1' ? context1 : context2,
+            ),
+            contextName: kubeConfig.getKubeConfig().currentContext,
+            checking: kubeConfig.getKubeConfig().currentContext === 'context1' ? true : false,
             reachable: false,
           };
         }),
@@ -272,8 +276,18 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
 
   const result = manager.getHealthCheckersStates();
   const expectedMap = new Map<string, ContextHealthState>();
-  expectedMap.set('context1', { contextName: 'context1', checking: true, reachable: false });
-  expectedMap.set('context2', { contextName: 'context2', checking: false, reachable: false });
+  expectedMap.set('context1', {
+    kubeConfig: new KubeConfigSingleContext(kcWith2contexts, context1),
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
+  expectedMap.set('context2', {
+    kubeConfig: new KubeConfigSingleContext(kcWith2contexts, context2),
+    contextName: 'context2',
+    checking: false,
+    reachable: false,
+  });
   expect(result).toEqual(expectedMap);
 });
 

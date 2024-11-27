@@ -16,21 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, Context, KubeConfig, User } from '@kubernetes/client-node';
+import type { Cluster, Context, User } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ContextHealthChecker } from './context-health-checker.js';
+import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 vi.mock('@kubernetes/client-node');
 
-const contexts = [
-  {
-    name: 'context1',
-    cluster: 'cluster1',
-    user: 'user1',
-  },
-] as Context[];
+const context1 = {
+  name: 'context1',
+  cluster: 'cluster1',
+  user: 'user1',
+};
+const contexts = [context1] as Context[];
 
 const clusters = [
   {
@@ -45,11 +45,13 @@ const users = [
 ] as User[];
 
 const config = {
-  contexts,
-  clusters,
-  users,
-  currentContext: 'context1',
-} as unknown as KubeConfig;
+  getKubeConfig: () => ({
+    contexts,
+    clusters,
+    users,
+    currentContext: 'context1',
+  }),
+} as KubeConfigSingleContext;
 
 beforeEach(() => {
   vi.mocked(Health).mockClear();
@@ -70,10 +72,21 @@ test('onStateChange is fired with result of readyz if no error', async () => {
 
   readyzMock.mockResolvedValue(true);
   await hc.start();
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: true });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: false,
+    reachable: true,
+  });
 
   expect(hc.getState()).toEqual({
+    kubeConfig: config,
     contextName: 'context1',
     checking: false,
     reachable: true,
@@ -83,10 +96,21 @@ test('onStateChange is fired with result of readyz if no error', async () => {
 
   readyzMock.mockResolvedValue(false);
   await hc.start();
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: false });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: false,
+    reachable: false,
+  });
 
   expect(hc.getState()).toEqual({
+    kubeConfig: config,
     contextName: 'context1',
     checking: false,
     reachable: false,
@@ -109,8 +133,14 @@ test('onStateChange is not fired when readyz is rejected with an abort error', a
   readyzMock.mockRejectedValue(new AbortError('a message'));
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledOnce();
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
   expect(hc.getState()).toEqual({
+    kubeConfig: config,
     contextName: 'context1',
     checking: true,
     reachable: false,
@@ -132,9 +162,20 @@ test('onReadiness is called with false when readyz is rejected with a generic er
 
   readyzMock.mockRejectedValue(new Error('a generic error'));
   await hc.start();
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: true, reachable: false });
-  expect(onStateChangeCB).toHaveBeenCalledWith({ contextName: 'context1', checking: false, reachable: false });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: true,
+    reachable: false,
+  });
+  expect(onStateChangeCB).toHaveBeenCalledWith({
+    kubeConfig: config,
+    contextName: 'context1',
+    checking: false,
+    reachable: false,
+  });
   expect(hc.getState()).toEqual({
+    kubeConfig: config,
     contextName: 'context1',
     checking: false,
     reachable: false,

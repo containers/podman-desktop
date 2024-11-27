@@ -71,7 +71,7 @@ export class ContextsManagerExperimental {
     // register and start health checker
     const previousHealthChecker = this.#healthCheckers.get(event.contextName);
     previousHealthChecker?.dispose();
-    const newHealthChecker = new ContextHealthChecker(event.config.getKubeConfig());
+    const newHealthChecker = new ContextHealthChecker(event.config);
     this.#healthCheckers.set(event.contextName, newHealthChecker);
     newHealthChecker.onStateChange(this.onStateChange.bind(this));
 
@@ -80,8 +80,8 @@ export class ContextsManagerExperimental {
       const previousPermissionsChecker = this.#permissionsCheckers.get(state.contextName);
       previousPermissionsChecker?.dispose();
 
-      const namespace = event.config.getNamespace();
-      const newPermissionChecker = new ContextPermissionsChecker(event.config.getKubeConfig(), {
+      const namespace = state.kubeConfig.getNamespace();
+      const newPermissionChecker = new ContextPermissionsChecker(state.kubeConfig, {
         attrs: {
           namespace,
           group: '*',

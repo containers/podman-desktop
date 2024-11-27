@@ -18,7 +18,6 @@
 
 import type {
   AuthorizationV1ApiCreateSelfSubjectAccessReviewRequest,
-  KubeConfig,
   V1ResourceAttributes,
   V1SubjectAccessReviewStatus,
 } from '@kubernetes/client-node';
@@ -27,6 +26,7 @@ import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
+import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 export interface ContextPermissionsRequest {
   // the request to send
@@ -51,7 +51,7 @@ export interface ContextPermissionResult extends ContextResourcePermission {
 }
 
 export class ContextPermissionsChecker implements Disposable {
-  #kubeconfig: KubeConfig;
+  #kubeconfig: KubeConfigSingleContext;
   #client: AuthorizationV1Api;
   #request: ContextPermissionsRequest;
   #subCheckers: ContextPermissionsChecker[] = [];
@@ -63,11 +63,11 @@ export class ContextPermissionsChecker implements Disposable {
   // builds a ContextPermissionsChecker which will check permissions on the current context of the given kubeConfig
   // The request will be made with `attrs` and if allowed, permissions will be given for `resources`
   // If the result is denied, `onDenyRequests` will be started
-  constructor(kubeconfig: KubeConfig, request: ContextPermissionsRequest) {
+  constructor(kubeconfig: KubeConfigSingleContext, request: ContextPermissionsRequest) {
     this.#kubeconfig = kubeconfig;
     this.#request = request;
     this.#results = new Map<string, ContextResourcePermission>();
-    this.#client = this.#kubeconfig.makeApiClient(AuthorizationV1Api);
+    this.#client = this.#kubeconfig.getKubeConfig().makeApiClient(AuthorizationV1Api);
   }
 
   public async start(): Promise<void> {
