@@ -169,6 +169,7 @@ export interface ContainerCreateOptions {
   hostadd?: Array<string>;
   userns?: string;
   volumes?: Array<ContainerCreateNamedVolume>;
+  selinux_opts?: string[];
 }
 
 export interface PodRemoveOptions {

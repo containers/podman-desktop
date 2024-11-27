@@ -4019,7 +4019,7 @@ describe('createContainerLibPod', () => {
           },
         ],
         NetworkMode: 'mode',
-        SecurityOpt: ['default'],
+        SecurityOpt: ['default', 'label=disable'],
         PortBindings: {
           '8080': [
             {
@@ -4075,6 +4075,7 @@ describe('createContainerLibPod', () => {
         nsmode: 'mode',
       },
       seccomp_policy: 'default',
+      selinux_opts: ['disable'],
       portmappings: [
         {
           container_port: 8080,
