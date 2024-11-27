@@ -2032,11 +2032,14 @@ export class ContainerProviderRegistry {
 
     let seccomp_policy: string | undefined;
     let seccomp_profile_path: string | undefined;
+    const selinux_opts: Array<string> = [];
     for (const secOpt of options.HostConfig?.SecurityOpt ?? []) {
       if (secOpt === 'empty' || secOpt === 'default' || secOpt === 'image') {
         seccomp_policy = secOpt;
       } else if (secOpt.startsWith('seccomp=')) {
         seccomp_profile_path = secOpt.substring(8).trim();
+      } else if (secOpt.startsWith('label=')) {
+        selinux_opts.push(secOpt.substring(6).trim());
       }
     }
 
@@ -2089,6 +2092,7 @@ export class ContainerProviderRegistry {
       remove: options.HostConfig?.AutoRemove,
       seccomp_policy: seccomp_policy,
       seccomp_profile_path: seccomp_profile_path,
+      selinux_opts: selinux_opts,
       cap_add: options.HostConfig?.CapAdd,
       cap_drop: options.HostConfig?.CapDrop,
       privileged: options.HostConfig?.Privileged,
