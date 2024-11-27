@@ -37,6 +37,11 @@ $: cliToolUninstallStatus = {
   action: 'uninstall',
 };
 
+async function showTaskManager(): Promise<void> {
+  // call the command show-task-manager'
+  await window.executeCommand('show-task-manager');
+}
+
 async function update(cliTool: CliToolInfo) {
   newVersion = cliTool.newVersion;
   if (!newVersion) {
@@ -297,7 +302,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         padding="p-0"
         class="ml-1 text-sm"
         aria-label="{cliTool.displayName} failed"
-        on:click={() => window.events?.send('toggle-task-manager', '')}>Check why it failed</Button>
+        on:click={showTaskManager}>Check why it failed</Button>
     </div>
   {/if}
 </div>

@@ -27,6 +27,7 @@ import { tasksInfo } from '/@/stores/tasks';
 beforeAll(() => {
   Object.defineProperty(global, 'window', {
     value: {
+      executeCommand: vi.fn(),
       events: {
         send: vi.fn(),
       },
@@ -47,7 +48,7 @@ test('should not be visible when no running tasks', async () => {
   expect(status).toBeNull();
 });
 
-test('clicking on task should send task manager toggle event', async () => {
+test('clicking on task should execute command to display the task manager', async () => {
   tasksInfo.set([
     {
       name: 'Dummy Task',
@@ -66,7 +67,7 @@ test('clicking on task should send task manager toggle event', async () => {
   await fireEvent.click(button);
 
   await vi.waitFor(() => {
-    expect(window.events.send).toHaveBeenCalledWith('toggle-task-manager', '');
+    expect(window.executeCommand).toHaveBeenCalledWith('show-task-manager');
   });
 });
 

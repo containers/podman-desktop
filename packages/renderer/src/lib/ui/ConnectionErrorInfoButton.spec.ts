@@ -20,10 +20,23 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import ConnectionErrorInfoButton from './ConnectionErrorInfoButton.svelte';
+
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      executeCommand: vi.fn(),
+    },
+    writable: true,
+  });
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('Expect nothing if status is undefined', async () => {
   render(ConnectionErrorInfoButton, {
@@ -48,6 +61,12 @@ test('Expect error button if status action and error are defined', async () => {
   // check element does exist
   const button = screen.getByRole('button', { name: 'action failed' });
   expect(button).toBeInTheDocument();
+
+  // click on button
+  await fireEvent.click(button);
+
+  // check method is called
+  expect(window.executeCommand).toHaveBeenCalledWith('show-task-manager');
 });
 
 test('Expect nothing if status action is not defined', async () => {

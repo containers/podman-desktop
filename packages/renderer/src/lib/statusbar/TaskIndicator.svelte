@@ -17,8 +17,8 @@ let progress: number | undefined = $derived.by(() => {
   return runningTasks[0].progress; // return task's progress value
 });
 
-function toggleTaskManager(): void {
-  return window.events?.send('toggle-task-manager', '');
+async function toggleTaskManager(): Promise<void> {
+  await window.executeCommand('show-task-manager');
 }
 </script>
 
