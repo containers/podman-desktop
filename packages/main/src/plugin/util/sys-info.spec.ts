@@ -92,5 +92,5 @@ test('darwin should use os#release and os#arch', () => {
   expect(version).not.toHaveBeenCalled();
   expect(arch).toHaveBeenCalled();
 
-  expect(result).toBe('Darwin 23.9.4 - arm64');
+  expect(result).toBe('MacOS 23.9.4 - arm64');
 });
