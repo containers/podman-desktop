@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import KubeActions from '/@/lib/kube/KubeActions.svelte';
@@ -70,5 +71,18 @@ test('KubeApplyYAMLButton should redirect to', async () => {
         title: 'Select a .yaml file to apply',
       }),
     );
+  });
+});
+
+test('Create Resource button should redirect to kubernetes create resource page', async () => {
+  const { getByTitle } = render(KubeActions);
+
+  const createResourceBtn = getByTitle('Create Kubernetes Resource');
+  expect(createResourceBtn).toBeInTheDocument();
+
+  await userEvent.click(createResourceBtn);
+
+  await vi.waitFor(() => {
+    expect(router.goto).toHaveBeenCalledWith('/kubernetes/resources/create');
   });
 });
