@@ -59,7 +59,7 @@ import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
-import TaskManager from './lib/task-manager/TaskManager.svelte';
+import LegacyTaskManager from './lib/task-manager/LegacyTaskManager.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
 import ToastTaskNotifications from './lib/toast/ToastTaskNotifications.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
@@ -132,7 +132,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         class="flex flex-col w-full h-full overflow-hidden"
         class:bg-[var(--pd-content-bg)]={!meta.url.startsWith('/preferences')}
         class:bg-[var(--pd-invert-content-bg)]={meta.url.startsWith('/preferences')}>
-        <TaskManager />
+        <LegacyTaskManager />
         <SendFeedback />
         <ToastHandler />
         <ToastTaskNotifications />
