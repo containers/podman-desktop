@@ -264,7 +264,7 @@ Error: vm podman-machine-default not found: podman-machine-default: VM does not 
 
 - Prefix each `podman machine` command with
 `CONTAINERS_MACHINE_PROVIDER=libkrun`. For example, `CONTAINERS_MACHINE_PROVIDER=libkrun podman machine ls`. 
-- Manually configure the `containers.conf` file or the `CONTAINERS_MACHINE_PROVIDER` environment varaible. See [Using `libkrun` as machine provider](/docs/installation/macos-install#using-libkrun-as-machine-provider).
+- Manually configure the `containers.conf` file or the `CONTAINERS_MACHINE_PROVIDER` environment variable. See [Using `libkrun` as machine provider](/docs/installation/macos-install#using-libkrun-as-machine-provider).
 
 #### Additional resources
 
