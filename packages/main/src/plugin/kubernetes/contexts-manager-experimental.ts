@@ -72,8 +72,8 @@ export class ContextsManagerExperimental {
     const previousHC = this.#healthCheckers.get(event.contextName);
     previousHC?.dispose();
     const newHC = new ContextHealthChecker(event.config);
-    newHC.onStateChange(this.onStateChange.bind(this));
     this.#healthCheckers.set(event.contextName, newHC);
+    newHC.onStateChange(this.onStateChange.bind(this));
 
     newHC.onReachable(async () => {
       // register and start permissions checker
@@ -109,9 +109,9 @@ export class ContextsManagerExperimental {
           },
         ],
       });
+      this.#permissionsCheckers.set(event.contextName, newPC);
       newPC.onPermissionResult(this.onPermissionResult.bind(this));
       await newPC.start();
-      this.#permissionsCheckers.set(event.contextName, newPC);
     });
 
     await newHC.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
