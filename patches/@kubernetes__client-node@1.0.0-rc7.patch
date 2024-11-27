@@ -14,6 +14,89 @@ index 3f7f6d2942d046a375f01a6c5a49d8b5cad8e2a7..f36613e12c280266768f5e7575c0970c
              case 'ADDED':
              case 'MODIFIED':
                  addOrUpdateObject(this.objects, obj, this.callbackCache[informer_1.ADD].slice(), this.callbackCache[informer_1.UPDATE].slice());
+diff --git a/dist/exec_auth.js b/dist/exec_auth.js
+index 3dad5f788ba10617405c6eea3f6e2e941d3bf03b..e0f778bb570f375e18326634d6e7d22f2da66aac 100644
+--- a/dist/exec_auth.js
++++ b/dist/exec_auth.js
+@@ -6,7 +6,7 @@ const node_child_process_1 = tslib_1.__importDefault(require("node:child_process
+ class ExecAuth {
+     constructor() {
+         this.tokenCache = {};
+-        this.execFn = node_child_process_1.default.spawnSync;
++        this.execFn = node_child_process_1.default.spawn;
+     }
+     isAuthProvider(user) {
+         if (!user) {
+@@ -21,7 +21,7 @@ class ExecAuth {
+         return (user.authProvider.name === 'exec' || !!(user.authProvider.config && user.authProvider.config.exec));
+     }
+     async applyAuthentication(user, opts) {
+-        const credential = this.getCredential(user);
++        const credential = await this.getCredential(user);
+         if (!credential) {
+             return;
+         }
+@@ -48,7 +48,7 @@ class ExecAuth {
+         }
+         return null;
+     }
+-    getCredential(user) {
++    async getCredential(user) {
+         // TODO: Add a unit test for token caching.
+         const cachedToken = this.tokenCache[user.name];
+         if (cachedToken) {
+@@ -77,16 +77,41 @@ class ExecAuth {
+             exec.env.forEach((elt) => (env[elt.name] = elt.value));
+             opts = { ...opts, env };
+         }
+-        const result = this.execFn(exec.command, exec.args, opts);
+-        if (result.error) {
+-            throw result.error;
+-        }
+-        if (result.status === 0) {
+-            const obj = JSON.parse(result.stdout.toString('utf8'));
+-            this.tokenCache[user.name] = obj;
+-            return obj;
+-        }
+-        throw new Error(result.stderr.toString('utf8'));
++        return new Promise((resolve, reject) => {
++            let stdoutData = '';
++            let stderrData = '';
++            let savedError = undefined;
++            const subprocess = this.execFn(exec.command, exec.args, opts);
++            subprocess.stdout.setEncoding('utf8');
++            subprocess.stderr.setEncoding('utf8');
++            subprocess.stdout.on('data', (data) => {
++                stdoutData += data;
++            });
++            subprocess.stderr.on('data', (data) => {
++                stderrData += data;
++            });
++            subprocess.on('error', (error) => {
++                savedError = error;
++            });
++            subprocess.on('close', (code) => {
++                if (savedError) {
++                    reject(savedError);
++                    return;
++                }
++                if (code !== 0) {
++                    reject(new Error(stderrData));
++                    return;
++                }
++                try {
++                    const obj = JSON.parse(stdoutData);
++                    this.tokenCache[user.name] = obj;
++                    resolve(obj);
++                }
++                catch (error) {
++                    reject(error);
++                }
++            });
++        });
+     }
+ }
+ exports.ExecAuth = ExecAuth;
 diff --git a/dist/health.d.ts b/dist/health.d.ts
 new file mode 100644
 index 0000000000000000000000000000000000000000..aeedff6524c952b712330d02738898a99071632d
