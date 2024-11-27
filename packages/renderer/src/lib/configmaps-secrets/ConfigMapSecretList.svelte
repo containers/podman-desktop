@@ -14,6 +14,7 @@ import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import {
   configmapSearchPattern,
@@ -23,7 +24,6 @@ import {
 } from '/@/stores/kubernetes-contexts-state';
 
 import ConfigMapSecretIcon from '../images/ConfigMapSecretIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { ConfigMapSecretUtils } from './configmap-secret-utils';
 import ConfigMapSecretColumnActions from './ConfigMapSecretColumnActions.svelte';
 import ConfigMapSecretColumnName from './ConfigMapSecretColumnName.svelte';
@@ -150,7 +150,7 @@ const row = new TableRow<ConfigMapSecretUI>({ selectable: _configmapSecret => tr
 
 <NavPage bind:searchTerm={searchTerm} title="configmaps & secrets">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

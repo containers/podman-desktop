@@ -11,11 +11,11 @@ import {
 import moment from 'moment';
 import { onMount } from 'svelte';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import { kubernetesCurrentContextNodesFiltered, nodeSearchPattern } from '/@/stores/kubernetes-contexts-state';
 
 import NodeIcon from '../images/NodeIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { NodeUtils } from './node-utils';
 import NodeColumnName from './NodeColumnName.svelte';
 import NodeColumnRoles from './NodeColumnRoles.svelte';
@@ -88,7 +88,7 @@ const row = new TableRow<NodeUI>({});
 
 <NavPage bind:searchTerm={searchTerm} title="nodes">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

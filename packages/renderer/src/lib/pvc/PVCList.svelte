@@ -13,6 +13,7 @@ import {
 import moment from 'moment';
 import { onMount } from 'svelte';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import {
   kubernetesCurrentContextPersistentVolumeClaimsFiltered,
@@ -21,7 +22,6 @@ import {
 
 import { withBulkConfirmation } from '../actions/BulkActions';
 import PVCIcon from '../images/PVCIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { PVCUtils } from './pvc-utils';
 import PVCColumnActions from './PVCColumnActions.svelte';
 import PvcColumnMode from './PVCColumnMode.svelte';
@@ -122,7 +122,7 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
 
 <NavPage bind:searchTerm={searchTerm} title="persistent volume claims">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">
