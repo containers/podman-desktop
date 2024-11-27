@@ -28,6 +28,7 @@ import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as compatibilityModeLib from './compatibility-mode';
+import * as extension from './extension';
 import {
   checkDisguisedPodmanSocket,
   initCheckAndRegisterUpdate,
@@ -35,14 +36,14 @@ import {
   registerOnboardingUnsupportedPodmanMachineCommand,
   setWSLEnabled,
 } from './extension';
-import * as extension from './extension';
+import * as machine from './machine';
 import type { InstalledPodman } from './podman-cli';
 import * as podmanCli from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import type { UpdateCheck } from './podman-install';
 import { PodmanInstall } from './podman-install';
-import { getAssetsFolder, isLinux, isMac, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
 import * as util from './util';
+import { getAssetsFolder, isLinux, isMac, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -184,7 +185,7 @@ beforeEach(() => {
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
 
-vi.mock('@podman-desktop/api', async () => {
+vi.mock('@podman-desktop/api', () => {
   return {
     commands: {
       registerCommand: vi.fn(),
@@ -647,7 +648,7 @@ describe.each(['macos', 'windows'])('verify create on %s', os => {
 });
 
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
-  await extension.checkDefaultMachine(fakeMachineJSON);
+  await machine.checkDefaultMachine(fakeMachineJSON);
 
   expect(extensionApi.window.showInformationMessage).toBeCalledWith(
     `Podman Machine '${machineDefaultName}' is running but not the default machine (default is '${machine1Name}'). This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to set it as default?`,
@@ -723,7 +724,7 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
     Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
-  await extension.checkDefaultMachine(fakeJSON);
+  await machine.checkDefaultMachine(fakeJSON);
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
 });
 
@@ -865,7 +866,7 @@ test('test checkDefaultMachine - if there is no machine marked as default, take 
     Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
-  await extension.checkDefaultMachine(fakeJSON);
+  await machine.checkDefaultMachine(fakeJSON);
 
   expect(extensionApi.window.showInformationMessage).toBeCalledWith(
     `Podman Machine '${machineDefaultName}' is running but not the default machine (default is '${machine1Name}'). This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to set it as default?`,
@@ -915,7 +916,7 @@ test('test checkDefaultMachine - if there is no machine marked as default, take 
     Promise.resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult),
   );
 
-  await extension.checkDefaultMachine(fakeJSON);
+  await machine.checkDefaultMachine(fakeJSON);
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
 });
 
@@ -951,7 +952,7 @@ test('test checkDefaultMachine - if user wants to change default machine, check 
   const spyReadFile = vi.spyOn(fs.promises, 'readFile');
   spyReadFile.mockResolvedValue(JSON.stringify(infoContentJSON));
 
-  await extension.checkDefaultMachine(fakeMachineJSON);
+  await machine.checkDefaultMachine(fakeMachineJSON);
 
   expect(spyExecPromise).toHaveBeenCalledWith(
     podmanCli.getPodmanCli(),
@@ -1001,7 +1002,7 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
   const spyReadFile = vi.spyOn(fs.promises, 'readFile');
   spyReadFile.mockResolvedValue(JSON.stringify(infoContentJSON));
 
-  await extension.checkDefaultMachine(fakeMachineJSON);
+  await machine.checkDefaultMachine(fakeMachineJSON);
 
   expect(spyExecPromise).toHaveBeenCalledWith(
     podmanCli.getPodmanCli(),
@@ -1044,7 +1045,7 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
     return false;
   });
 
-  await extension.checkDefaultMachine(fakeMachineJSON);
+  await machine.checkDefaultMachine(fakeMachineJSON);
 
   expect(spyExecPromise).toHaveBeenCalledWith(
     podmanCli.getPodmanCli(),
@@ -1113,7 +1114,7 @@ test('test checkDefaultMachine, if the default connection is not in sync with th
       }),
   );
 
-  await extension.checkDefaultMachine(fakeMachineJSON);
+  await machine.checkDefaultMachine(fakeMachineJSON);
 
   expect(extensionApi.window.showInformationMessage).toBeCalledWith(
     `Rootful Podman Machine '${machineDefaultName}' does not match default connection. This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to update the default connection?`,
@@ -1555,14 +1556,14 @@ test('If machine list is empty, do not show setup notification on Linux', async 
 });
 
 test('if there are no machines, make sure checkDefaultMachine is not being ran inside updateMachines', async () => {
-  const spyCheckDefaultMachine = vi.spyOn(extension, 'checkDefaultMachine');
   vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({ stdout: '[]' } as extensionApi.RunResult);
+  const spyCheckDefaultMachine = vi.spyOn(machine, 'checkDefaultMachine');
   await extension.updateMachines(provider, podmanConfiguration);
   expect(spyCheckDefaultMachine).not.toBeCalled();
 });
 
 test('if there is a machine not default, check dialog is displayed', async () => {
-  const spyCheckDefaultMachine = vi.spyOn(extension, 'checkDefaultMachine').mockRejectedValue(new Error());
+  const spyCheckDefaultMachine = vi.mocked(machine.checkDefaultMachine);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
