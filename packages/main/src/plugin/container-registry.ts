@@ -70,6 +70,7 @@ import type {
   LibPod,
   PlayKubeInfo,
   PodInfo as LibpodPodInfo,
+  PodmanDevice,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import { EnvfileParser } from './env-file-parser.js';
@@ -2074,6 +2075,14 @@ export class ContainerProviderRegistry {
       }
     }
 
+    let updatedDevices: Array<PodmanDevice> | undefined;
+    if (options.HostConfig?.Devices) {
+      updatedDevices = [];
+      for (const device of options.HostConfig?.Devices ?? []) {
+        updatedDevices.push({ path: device.PathOnHost });
+      }
+    }
+
     const podmanOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
@@ -2103,6 +2112,7 @@ export class ContainerProviderRegistry {
       dns_server: dns_server,
       hostadd: options.HostConfig?.ExtraHosts,
       userns: options.HostConfig?.UsernsMode,
+      devices: updatedDevices,
     };
 
     const container = await engine.libpodApi.createPodmanContainer(podmanOptions);
