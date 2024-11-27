@@ -4062,7 +4062,7 @@ describe('createContainerLibPod', () => {
       name: options.name,
       command: options.Cmd,
       devices: [{ path: 'nvidia.com/gpu=all' }],
-      entrypoint: options.Entrypoint,
+      entrypoint: [options.Entrypoint as string],
       env: {
         key: 'value',
       },
@@ -4115,6 +4115,27 @@ describe('createContainerLibPod', () => {
         return Promise.resolve();
       },
     );
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when an array is passed in for Entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = ['array_entrypoint'];
+    expectedOptions.entrypoint = options.Entrypoint;
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when an undefined is passed in for Entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = undefined;
+    expectedOptions.entrypoint = options.Entrypoint;
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when array with mulpile entries is passed as entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = ['entrypoint', 'arg1'];
+    expectedOptions.entrypoint = options.Entrypoint;
     await containerRegistry.createContainer('podman1', options);
     expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
   });
