@@ -3947,6 +3947,13 @@ describe('createContainerLibPod', () => {
       pod: 'pod',
       name: 'name',
       HostConfig: {
+        Devices: [
+          {
+            PathOnHost: 'nvidia.com/gpu=all',
+            PathInContainer: '',
+            CgroupPermissions: '',
+          },
+        ],
         Mounts: [
           {
             Target: 'destination',
@@ -3959,7 +3966,7 @@ describe('createContainerLibPod', () => {
           },
         ],
         NetworkMode: 'mode',
-        SecurityOpt: ['default'],
+        SecurityOpt: ['default', 'label=disable'],
         PortBindings: {
           '8080': [
             {
@@ -3994,7 +4001,8 @@ describe('createContainerLibPod', () => {
     const expectedOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
-      entrypoint: options.Entrypoint,
+      devices: [{ path: 'nvidia.com/gpu=all' }],
+      entrypoint: [options.Entrypoint as string],
       env: {
         key: 'value',
       },
@@ -4015,6 +4023,7 @@ describe('createContainerLibPod', () => {
         nsmode: 'mode',
       },
       seccomp_policy: 'default',
+      selinux_opts: ['disable'],
       portmappings: [
         {
           container_port: 8080,

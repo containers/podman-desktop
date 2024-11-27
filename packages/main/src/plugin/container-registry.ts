@@ -70,6 +70,7 @@ import type {
   LibPod,
   PlayKubeInfo,
   PodInfo as LibpodPodInfo,
+  PodmanDevice,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import { EnvfileParser } from './env-file-parser.js';
@@ -1938,7 +1939,20 @@ export class ContainerProviderRegistry {
     let telemetryOptions = {};
     try {
       let container: Dockerode.Container;
-      if (options.pod) {
+      let forceLibPod = false;
+
+      // the device option requesting an nvidia gpu on linux only works
+      // if the LibPod API is used. Check if such a device is requested
+      // and if so force the use of LibPod
+      if (options.HostConfig?.Devices) {
+        for (const device of options.HostConfig?.Devices ?? []) {
+          if (device.PathOnHost === 'nvidia.com/gpu=all') {
+            forceLibPod = true;
+            break;
+          }
+        }
+      }
+      if (options.pod ?? forceLibPod) {
         container = await this.createContainerLibPod(engineId, options);
       } else {
         container = await this.createContainerDockerode(engineId, options);
@@ -2032,11 +2046,14 @@ export class ContainerProviderRegistry {
 
     let seccomp_policy: string | undefined;
     let seccomp_profile_path: string | undefined;
+    const selinux_opts: Array<string> = [];
     for (const secOpt of options.HostConfig?.SecurityOpt ?? []) {
       if (secOpt === 'empty' || secOpt === 'default' || secOpt === 'image') {
         seccomp_policy = secOpt;
       } else if (secOpt.startsWith('seccomp=')) {
         seccomp_profile_path = secOpt.substring(8).trim();
+      } else if (secOpt.startsWith('label=')) {
+        selinux_opts.push(secOpt.substring(6).trim());
       }
     }
 
@@ -2069,10 +2086,18 @@ export class ContainerProviderRegistry {
       }
     }
 
+    let updatedDevices: Array<PodmanDevice> | undefined;
+    if (options.HostConfig?.Devices) {
+      updatedDevices = [];
+      for (const device of options.HostConfig?.Devices ?? []) {
+        updatedDevices.push({ path: device.PathOnHost });
+      }
+    }
+
     const podmanOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
-      entrypoint: options.Entrypoint,
+      entrypoint: !options.Entrypoint || Array.isArray(options.Entrypoint) ? options.Entrypoint : [options.Entrypoint],
       env: updatedEnv,
       pod: options.pod,
       hostname: options.Hostname,
@@ -2089,6 +2114,7 @@ export class ContainerProviderRegistry {
       remove: options.HostConfig?.AutoRemove,
       seccomp_policy: seccomp_policy,
       seccomp_profile_path: seccomp_profile_path,
+      selinux_opts: selinux_opts,
       cap_add: options.HostConfig?.CapAdd,
       cap_drop: options.HostConfig?.CapDrop,
       privileged: options.HostConfig?.Privileged,
@@ -2097,6 +2123,7 @@ export class ContainerProviderRegistry {
       dns_server: dns_server,
       hostadd: options.HostConfig?.ExtraHosts,
       userns: options.HostConfig?.UsernsMode,
+      devices: updatedDevices,
     };
 
     const container = await engine.libpodApi.createPodmanContainer(podmanOptions);

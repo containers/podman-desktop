@@ -140,6 +140,12 @@ export interface ContainerCreateNamedVolume {
   SubPath?: string;
 }
 
+// represents a device request through the libPod API
+// only path is currently translated
+export interface PodmanDevice {
+  path: string;
+}
+
 export interface ContainerCreateOptions {
   command?: string[];
   entrypoint?: string | string[];
@@ -169,6 +175,8 @@ export interface ContainerCreateOptions {
   hostadd?: Array<string>;
   userns?: string;
   volumes?: Array<ContainerCreateNamedVolume>;
+  selinux_opts?: string[];
+  devices?: PodmanDevice[];
 }
 
 export interface PodRemoveOptions {
