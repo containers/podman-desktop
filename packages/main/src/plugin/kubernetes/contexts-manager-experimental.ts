@@ -75,42 +75,44 @@ export class ContextsManagerExperimental {
     newHC.onStateChange(this.onStateChange.bind(this));
     this.#healthCheckers.set(event.contextName, newHC);
 
-    // register and start permissions checker
-    const previousPC = this.#permissionsCheckers.get(event.contextName);
-    previousPC?.dispose();
+    newHC.onReachable(async () => {
+      // register and start permissions checker
+      const previousPC = this.#permissionsCheckers.get(event.contextName);
+      previousPC?.dispose();
 
-    const namespace = event.config.getContextObject(event.config.getCurrentContext())?.namespace ?? 'default';
-    const newPC = new ContextPermissionsChecker(event.config, newHC, {
-      attrs: {
-        namespace,
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-      resources: ['pods', 'deployments'],
-      onDenyRequests: [
-        {
-          attrs: {
-            namespace,
-            verb: 'watch',
-            resource: 'pods',
-          },
-          resources: ['pods'],
+      const namespace = event.config.getContextObject(event.config.getCurrentContext())?.namespace ?? 'default';
+      const newPC = new ContextPermissionsChecker(event.config, {
+        attrs: {
+          namespace,
+          group: '*',
+          resource: '*',
+          verb: 'watch',
         },
-        {
-          attrs: {
-            namespace,
-            verb: 'watch',
-            group: 'apps',
-            resource: 'deployments',
+        resources: ['pods', 'deployments'],
+        onDenyRequests: [
+          {
+            attrs: {
+              namespace,
+              verb: 'watch',
+              resource: 'pods',
+            },
+            resources: ['pods'],
           },
-          resources: ['deployments'],
-        },
-      ],
+          {
+            attrs: {
+              namespace,
+              verb: 'watch',
+              group: 'apps',
+              resource: 'deployments',
+            },
+            resources: ['deployments'],
+          },
+        ],
+      });
+      newPC.onPermissionResult(this.onPermissionResult.bind(this));
+      await newPC.start();
+      this.#permissionsCheckers.set(event.contextName, newPC);
     });
-    newPC.onPermissionResult(this.onPermissionResult.bind(this));
-    await newPC.startWhenHealthy();
-    this.#permissionsCheckers.set(event.contextName, newPC);
 
     await newHC.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
   }

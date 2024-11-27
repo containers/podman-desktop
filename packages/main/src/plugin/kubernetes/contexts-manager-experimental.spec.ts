@@ -120,7 +120,7 @@ test('HealthChecker is built and start is called for each context the first time
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn().mockReturnValue({ reachable: false }),
+        onReachable: vi.fn(),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -152,7 +152,7 @@ test('nothing is done when called again and kubeconfig does not change', async (
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn().mockReturnValue({ reachable: false }),
+        onReachable: vi.fn(),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -183,7 +183,7 @@ test('HealthChecker is built and start is called for each context being changed'
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn().mockReturnValue({ reachable: false }),
+        onReachable: vi.fn(),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -216,7 +216,7 @@ test('HealthChecker is disposed for each context being removed', async () => {
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn().mockReturnValue({ reachable: false }),
+        onReachable: vi.fn(),
       }) as unknown as ContextHealthChecker,
   );
 
@@ -253,6 +253,7 @@ test('getHealthCheckersStates calls getState for each health checker', async () 
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
+        onReachable: vi.fn(),
         getState: vi.fn().mockImplementation(() => {
           return {
             contextName: kubeConfig.currentContext,
@@ -287,7 +288,7 @@ test('dispose calls dispose for each health checker', async () => {
         start: startMock,
         dispose: disposeMock,
         onStateChange: onStateChangeMock,
-        getState: vi.fn().mockReturnValue({ reachable: false }),
+        onReachable: vi.fn(),
       }) as unknown as ContextHealthChecker,
   );
 

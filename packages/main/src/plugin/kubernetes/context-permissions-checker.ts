@@ -27,7 +27,6 @@ import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
-import type { ContextHealthChecker, ContextHealthState } from './context-health-checker.js';
 
 export interface ContextPermissionsRequest {
   // the request to send
@@ -53,7 +52,6 @@ export interface ContextPermissionResult extends ContextResourcePermission {
 
 export class ContextPermissionsChecker implements Disposable {
   #kubeconfig: KubeConfig;
-  #healthChecker: ContextHealthChecker;
   #client: AuthorizationV1Api;
   #request: ContextPermissionsRequest;
   #subCheckers: ContextPermissionsChecker[] = [];
@@ -65,37 +63,24 @@ export class ContextPermissionsChecker implements Disposable {
   // builds a ContextPermissionsChecker which will check permissions on the current context of the given kubeConfig
   // The request will be made with `attrs` and if allowed, permissions will be given for `resources`
   // If the result is denied, `onDenyRequests` will be started
-  constructor(kubeconfig: KubeConfig, healthChecker: ContextHealthChecker, request: ContextPermissionsRequest) {
+  constructor(kubeconfig: KubeConfig, request: ContextPermissionsRequest) {
     this.#kubeconfig = kubeconfig;
-    this.#healthChecker = healthChecker;
     this.#request = request;
     this.#results = new Map<string, ContextResourcePermission>();
     this.#client = this.#kubeconfig.makeApiClient(AuthorizationV1Api);
   }
 
-  // start the permission check as soon as the health check gives a reachable state
-  public async startWhenHealthy(): Promise<void> {
-    if (this.#healthChecker.getState().reachable) {
-      return this.start();
-    }
-    this.#healthChecker.onStateChange(async (state: ContextHealthState) => {
-      if (state.reachable) {
-        await this.start();
-      }
-    });
-  }
-
-  private async start(): Promise<void> {
+  public async start(): Promise<void> {
     const result = await this.makeRequest(this.#request.attrs);
     if ((!result.allowed || result.denied) && this.#request.onDenyRequests?.length) {
       // if not permitted and sub-requests are defined, let start them and don't send any result
       for (const subreq of this.#request.onDenyRequests) {
-        const subchecker = new ContextPermissionsChecker(this.#kubeconfig, this.#healthChecker, subreq);
+        const subchecker = new ContextPermissionsChecker(this.#kubeconfig, subreq);
         this.#subCheckers.push(subchecker);
         subchecker.onPermissionResult((permissionResult: ContextPermissionResult) => {
           this.saveAndFireResult(permissionResult);
         });
-        await subchecker.startWhenHealthy();
+        await subchecker.start();
       }
     } else {
       // send the result for resources concerned by the request

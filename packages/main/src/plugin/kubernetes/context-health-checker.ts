@@ -43,6 +43,9 @@ export class ContextHealthChecker implements Disposable {
   #onStateChange = new Emitter<ContextHealthState>();
   onStateChange: Event<ContextHealthState> = this.#onStateChange.event;
 
+  #onReachable = new Emitter<void>();
+  onReachable: Event<void> = this.#onReachable.event;
+
   #contextName: string;
 
   #currentState: ContextHealthState;
@@ -53,6 +56,11 @@ export class ContextHealthChecker implements Disposable {
     this.#health = new Health(kubeConfig);
     this.#contextName = kubeConfig.currentContext;
     this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
+    this.onStateChange((e: ContextHealthState) => {
+      if (e.reachable) {
+        this.#onReachable.fire();
+      }
+    });
   }
 
   // start checking the readiness
@@ -73,6 +81,7 @@ export class ContextHealthChecker implements Disposable {
 
   public dispose(): void {
     this.#onStateChange.dispose();
+    this.#onReachable.dispose();
     this.#abortController.abort();
   }
 
