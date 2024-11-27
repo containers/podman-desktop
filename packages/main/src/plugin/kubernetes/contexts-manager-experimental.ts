@@ -69,19 +69,19 @@ export class ContextsManagerExperimental {
 
   private async onAdd(event: DispatcherEvent): Promise<void> {
     // register and start health checker
-    const previousHC = this.#healthCheckers.get(event.contextName);
-    previousHC?.dispose();
-    const newHC = new ContextHealthChecker(event.config.getKubeConfig());
-    this.#healthCheckers.set(event.contextName, newHC);
-    newHC.onStateChange(this.onStateChange.bind(this));
+    const previousHealthChecker = this.#healthCheckers.get(event.contextName);
+    previousHealthChecker?.dispose();
+    const newHealthChecker = new ContextHealthChecker(event.config.getKubeConfig());
+    this.#healthCheckers.set(event.contextName, newHealthChecker);
+    newHealthChecker.onStateChange(this.onStateChange.bind(this));
 
-    newHC.onReachable(async (state: ContextHealthState) => {
+    newHealthChecker.onReachable(async (state: ContextHealthState) => {
       // register and start permissions checker
-      const previousPC = this.#permissionsCheckers.get(state.contextName);
-      previousPC?.dispose();
+      const previousPermissionsChecker = this.#permissionsCheckers.get(state.contextName);
+      previousPermissionsChecker?.dispose();
 
       const namespace = event.config.getNamespace();
-      const newPC = new ContextPermissionsChecker(event.config.getKubeConfig(), {
+      const newPermissionChecker = new ContextPermissionsChecker(event.config.getKubeConfig(), {
         attrs: {
           namespace,
           group: '*',
@@ -109,12 +109,12 @@ export class ContextsManagerExperimental {
           },
         ],
       });
-      this.#permissionsCheckers.set(state.contextName, newPC);
-      newPC.onPermissionResult(this.onPermissionResult.bind(this));
-      await newPC.start();
+      this.#permissionsCheckers.set(state.contextName, newPermissionChecker);
+      newPermissionChecker.onPermissionResult(this.onPermissionResult.bind(this));
+      await newPermissionChecker.start();
     });
 
-    await newHC.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
+    await newHealthChecker.start({ timeout: HEALTH_CHECK_TIMEOUT_MS });
   }
 
   private async onUpdate(event: DispatcherEvent): Promise<void> {
@@ -123,11 +123,11 @@ export class ContextsManagerExperimental {
   }
 
   private onDelete(state: DispatcherEvent): void {
-    const previousHC = this.#healthCheckers.get(state.contextName);
-    previousHC?.dispose();
+    const previousHealthChecker = this.#healthCheckers.get(state.contextName);
+    previousHealthChecker?.dispose();
     this.#healthCheckers.delete(state.contextName);
-    const previousPC = this.#permissionsCheckers.get(state.contextName);
-    previousPC?.dispose();
+    const previousPermissionsChecker = this.#permissionsCheckers.get(state.contextName);
+    previousPermissionsChecker?.dispose();
     this.#permissionsCheckers.delete(state.contextName);
   }
 
