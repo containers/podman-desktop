@@ -650,7 +650,7 @@ const envDialogOptions: OpenDialogOptions = {
         <i class="fas fa-play fa-2x" aria-hidden="true"></i>
       </svelte:fragment>
       <div slot="content" class="space-y-2">
-        <div class="flex flex-row px-2 border-b border-charcoal-400">
+        <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
           <Tab title="Basic" selected={isTabSelected($router.path, 'basic')} url={getTabUrl($router.path, 'basic')} />
           <Tab
             title="Advanced"
@@ -1125,7 +1125,7 @@ const envDialogOptions: OpenDialogOptions = {
           </Route>
         </div>
 
-        <div class="pt-2 border-zinc-600 border-t-2"></div>
+        <div class="pt-2 border-[var(--pd-content-divider)] border-t-2"></div>
         <Button
           on:click={() => startContainer()}
           class="w-full"
