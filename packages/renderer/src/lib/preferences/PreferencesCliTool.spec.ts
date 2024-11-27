@@ -140,6 +140,7 @@ beforeAll(() => {
   Object.defineProperty(global, 'window', {
     value: {
       updateCliTool: vi.fn(),
+      executeCommand: vi.fn(),
       navigator: {
         clipboard: {
           writeText: vi.fn(),
@@ -236,6 +237,10 @@ describe('CLI Tool item', () => {
 
     const failedErrorButton2 = screen.getByRole('button', { name: `${cliToolInfoItem3.displayName} failed` });
     expect(failedErrorButton2).toBeInTheDocument();
+
+    // click on it
+    await userEvent.click(failedErrorButton2);
+    expect(window.executeCommand).toBeCalledWith('show-task-manager');
   });
 
   test('check version is sent to updateCliTool', async () => {
