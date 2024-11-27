@@ -4007,6 +4007,13 @@ describe('createContainerLibPod', () => {
       pod: 'pod',
       name: 'name',
       HostConfig: {
+        Devices: [
+          {
+            PathOnHost: 'nvidia.com/gpu=all',
+            PathInContainer: '',
+            CgroupPermissions: '',
+          },
+        ],
         Mounts: [
           {
             Target: 'destination',
@@ -4054,6 +4061,7 @@ describe('createContainerLibPod', () => {
     const expectedOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
+      devices: [{ path: 'nvidia.com/gpu=all' }],
       entrypoint: options.Entrypoint,
       env: {
         key: 'value',
