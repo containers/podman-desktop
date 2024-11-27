@@ -2086,7 +2086,7 @@ export class ContainerProviderRegistry {
     const podmanOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
-      entrypoint: options.Entrypoint,
+      entrypoint: !options.Entrypoint || Array.isArray(options.Entrypoint) ? options.Entrypoint : [options.Entrypoint],
       env: updatedEnv,
       pod: options.pod,
       hostname: options.Hostname,
