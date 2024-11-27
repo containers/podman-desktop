@@ -6,8 +6,8 @@ import Fa from 'svelte-fa';
 import { clearNotifications, tasksInfo } from '/@/stores/tasks';
 
 import TaskIcon from '../images/TaskIcon.svelte';
-import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
-import TaskManagerGroup from './TaskManagerGroup.svelte';
+import LegacyTaskManagerEmptyScreen from './LegacyTaskManagerEmptyScreen.svelte';
+import LegacyTaskManagerGroup from './LegacyTaskManagerGroup.svelte';
 
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;
@@ -77,7 +77,7 @@ window.events?.receive('toggle-task-manager', () => {
           <!-- running tasks-->
           {#if runningTasks.length > 0}
             <div class="flex bg-[var(--pd-content-bg)] px-4">
-              <TaskManagerGroup
+              <LegacyTaskManagerGroup
                 lineColor="bg-[var(--pd-invert-content-card-bg)]"
                 icon={faCircle}
                 tasks={runningTasks}
@@ -88,7 +88,7 @@ window.events?.receive('toggle-task-manager', () => {
           <!-- completed tasks-->
           {#if completedTasks.length > 0}
             <div class="flex bg-[var(--pd-invert-content-card-bg)] pt-1 px-4">
-              <TaskManagerGroup
+              <LegacyTaskManagerGroup
                 lineColor="bg-[var(--pd-invert-content-bg)]"
                 icon={faCheck}
                 tasks={completedTasks}
@@ -110,7 +110,7 @@ window.events?.receive('toggle-task-manager', () => {
       {/if}
       <!-- display the empty screen -->
       {#if $tasksInfo.length === 0}
-        <TaskManagerEmptyScreen />
+        <LegacyTaskManagerEmptyScreen />
       {/if}
     </div>
   </div>

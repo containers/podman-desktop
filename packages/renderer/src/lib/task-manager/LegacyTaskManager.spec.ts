@@ -25,7 +25,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import { tasksInfo } from '/@/stores/tasks';
 import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
 
-import TaskManager from './TaskManager.svelte';
+import LegacyTaskManager from './LegacyTaskManager.svelte';
 
 // fake the window.events object
 beforeAll(() => {
@@ -64,14 +64,14 @@ const NOTIFICATION_TASK: NotificationTaskInfo = {
 };
 
 test('Expect that the tasks manager is hidden by default', async () => {
-  render(TaskManager, {});
+  render(LegacyTaskManager, {});
   // expect the tasks manager is not visible by default
   const tasksManager = screen.queryByTitle('Tasks manager');
   expect(tasksManager).not.toBeInTheDocument();
 });
 
 test('Expect that the tasks manager is visible by property', async () => {
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the tasks manager is visible
   const tasksManager = screen.queryByTitle('Tasks manager');
@@ -79,7 +79,7 @@ test('Expect that the tasks manager is visible by property', async () => {
 });
 
 test('Expect that the tasks manager is hidden if user press the ESC key', async () => {
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the tasks manager is visible
   let tasksManager = screen.queryByTitle('Tasks manager');
@@ -94,7 +94,7 @@ test('Expect that the tasks manager is hidden if user press the ESC key', async 
 });
 
 test('Expect that the tasks manager is hidden if user click on the hide button', async () => {
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the tasks manager is visible
   let tasksManager = screen.queryByTitle('Tasks manager');
@@ -110,7 +110,7 @@ test('Expect that the tasks manager is hidden if user click on the hide button',
 });
 
 test('Expect no tasks', async () => {
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the "You have no tasks" is visible
   const noTaskField = screen.queryByText('You have no tasks.');
@@ -119,7 +119,7 @@ test('Expect no tasks', async () => {
 
 test('Expect tasks', async () => {
   tasksInfo.set([IN_PROGRESS_TASK]);
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the "You Have no Tasks" is not visible
   const noTaskField = screen.queryByText('You have no tasks.');
@@ -136,7 +136,7 @@ test('Expect delete completed tasks remove tasks', async () => {
   (window as { clearTasks: () => void }).clearTasks = clearTasksMock;
 
   tasksInfo.set([SUCCEED_TASK]);
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the task name is visible
   const task = screen.queryByText(SUCCEED_TASK.name);
@@ -153,7 +153,7 @@ test('Expect delete completed tasks remove tasks', async () => {
 
 test('Expect to have tasks when only having notification task', async () => {
   tasksInfo.set([NOTIFICATION_TASK]);
-  render(TaskManager, { showTaskManager: true });
+  render(LegacyTaskManager, { showTaskManager: true });
 
   // expect the "You Have no Tasks" is not visible
   const noTaskField = screen.queryByText('You have no tasks.');

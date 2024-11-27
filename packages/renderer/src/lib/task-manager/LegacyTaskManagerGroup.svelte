@@ -4,7 +4,7 @@ import Fa from 'svelte-fa';
 
 import type { TaskInfo } from '/@api/taskInfo';
 
-import TaskManagerItem from './TaskManagerItem.svelte';
+import TaskManagerItem from './LegacyTaskManagerItem.svelte';
 
 export let icon: IconDefinition;
 export let tasks: TaskInfo[];
