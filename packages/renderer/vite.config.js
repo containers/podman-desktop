@@ -47,7 +47,13 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     globals: true,
     environment: 'jsdom',
-    alias: [{ find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' }],
+    alias: [
+      { find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' },
+      {
+        find: /^monaco-editor$/,
+        replacement: `${PACKAGE_ROOT}/../../node_modules/monaco-editor/esm/vs/editor/editor.api`,
+      },
+    ],
     deps: {
       inline: ['moment'],
     },

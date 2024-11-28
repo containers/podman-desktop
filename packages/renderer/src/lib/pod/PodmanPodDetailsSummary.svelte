@@ -1,17 +1,23 @@
 <script lang="ts">
 import { Link } from '@podman-desktop/ui-svelte';
-import { router } from 'tinro';
+
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import DetailsCell from '../details/DetailsCell.svelte';
 import DetailsSubtitle from '../details/DetailsSubtitle.svelte';
 import DetailsTable from '../details/DetailsTable.svelte';
 import DetailsTitle from '../details/DetailsTitle.svelte';
-import type { PodInfoUI } from './PodInfoUI';
+import type { PodInfoContainerUI, PodInfoUI } from './PodInfoUI';
 
 export let pod: PodInfoUI | undefined;
 let creationTime: Date;
 if (pod) {
   creationTime = new Date(pod.created);
+}
+
+function navigateToLogs(container: PodInfoContainerUI): void {
+  return handleNavigation({ page: NavigationPage.CONTAINER_LOGS, parameters: { id: container.Id } });
 }
 </script>
 
@@ -50,7 +56,7 @@ if (pod) {
       {#each pod.containers as container}
         <tr>
           <DetailsSubtitle>
-            <Link on:click={() => router.goto(`/containers/${container.Id}/logs`)}>
+            <Link on:click={() => navigateToLogs(container)}>
               {container.Names}
             </Link>
           </DetailsSubtitle>

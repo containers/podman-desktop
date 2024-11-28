@@ -2,7 +2,6 @@
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
-import { router } from 'tinro';
 
 import { ContainerUtils } from '/@/lib/container/container-utils';
 import { handleNavigation } from '/@/navigation';
@@ -76,7 +75,7 @@ async function exportContainer() {
       outputTarget: outputUri.fsPath,
     });
     // go back to containers list
-    router.goto('/containers/');
+    handleNavigation({ page: NavigationPage.CONTAINERS });
   } catch (error) {
     exportedError = String(error);
   } finally {

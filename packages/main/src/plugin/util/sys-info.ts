@@ -69,7 +69,7 @@ class DarwinInfo extends SystemInfo {
    * so we use release to get the os version (E.g. 24.1.0), and arch (E.g. arm64)
    */
   override getSystemName(): string {
-    return `Darwin ${release()} - ${arch()}`;
+    return `macOS ${release()} - ${arch()}`;
   }
 }
 

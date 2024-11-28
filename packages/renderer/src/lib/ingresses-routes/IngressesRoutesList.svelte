@@ -13,6 +13,7 @@ import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import {
   ingressSearchPattern,
@@ -24,7 +25,6 @@ import type { V1Route } from '/@api/openshift-types';
 
 import { withBulkConfirmation } from '../actions/BulkActions';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteColumnActions from './IngressRouteColumnActions.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
@@ -157,7 +157,7 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
 
 <NavPage bind:searchTerm={searchTerm} title="ingresses & routes">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

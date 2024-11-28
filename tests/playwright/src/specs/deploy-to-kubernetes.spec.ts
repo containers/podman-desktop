@@ -81,13 +81,17 @@ test.describe.serial('Deploy a container to the Kind cluster', { tag: '@k8s_e2e'
     const imagesPage = await navigationBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
     await pullImagePage.pullImage(IMAGE_TO_PULL, IMAGE_TAG);
-    await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10000)).toBeTruthy();
+    await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE_TO_PULL, 10_000)).toBeTruthy();
     const containersPage = await imagesPage.startContainerWithImage(
       IMAGE_TO_PULL,
       CONTAINER_NAME,
       CONTAINER_START_PARAMS,
     );
-    await playExpect.poll(async () => containersPage.containerExists(CONTAINER_NAME)).toBeTruthy();
+    await playExpect
+      .poll(async () => containersPage.containerExists(CONTAINER_NAME), {
+        timeout: 15_000,
+      })
+      .toBeTruthy();
     const containerDetails = await containersPage.openContainersDetails(CONTAINER_NAME);
     await playExpect(containerDetails.heading).toBeVisible();
     await playExpect.poll(async () => containerDetails.getState()).toBe(ContainerState.Running);

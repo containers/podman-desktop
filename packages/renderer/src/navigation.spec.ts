@@ -66,6 +66,12 @@ test(`Test navigationHandle for ${NavigationPage.CONTAINER_LOGS}`, () => {
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers/123/logs');
 });
 
+test(`Test navigationHandle for ${NavigationPage.CONTAINER_TTY}`, () => {
+  handleNavigation({ page: NavigationPage.CONTAINER_TTY, parameters: { id: '123' } });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers/123/tty');
+});
+
 test(`Test navigationHandle for ${NavigationPage.CONTAINER_INSPECT}`, () => {
   handleNavigation({ page: NavigationPage.CONTAINER_INSPECT, parameters: { id: '123' } });
 

@@ -69,6 +69,7 @@ gastoner:
   title: Associate Software Engineer
   url: https://github.com/gastoner
   image_url: https://github.com/gastoner.png
+
 shipsing:
   name: Shipra Singh
   title: Tech writer
@@ -80,3 +81,9 @@ meisele:
   title: Product Marketing
   url: https://github.com/myfear
   image_url: https://github.com/myfear.png
+
+phmartin:
+  name: Philippe Martin
+  title: Principal Software Engineer
+  url: https://github.com/feloy
+  image_url: https://github.com/feloy.png

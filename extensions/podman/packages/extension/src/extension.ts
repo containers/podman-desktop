@@ -1292,9 +1292,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionApi.context.setValue(START_NOW_MACHINE_INIT_SUPPORTED_KEY, isStartNowAtMachineInitSupported(version));
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
     extensionApi.context.setValue(PODMAN_PROVIDER_LIBKRUN_SUPPORTED_KEY, isLibkrunSupported(version));
-    wslEnabled = await isWSLEnabled();
-    const isWslAndHyperEnabled = wslEnabled && (await isHyperVEnabled());
-    updateWSLHyperVEnabledContextValue(isWslAndHyperEnabled);
     isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
 
@@ -1456,35 +1453,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(command);
   }
 
-  // provide an installation path ?
-  if (podmanInstall.isAbleToInstall()) {
-    // init all install checks
-    const installChecks = podmanInstall.getInstallChecks() ?? [];
-    for (const check of installChecks) {
-      await check.init?.();
-    }
-    provider.registerInstallation({
-      install: () => podmanInstall.doInstallPodman(provider),
-      preflightChecks: () => installChecks,
-    });
-  }
-
-  if (isMac()) {
-    provider.registerCleanup(new PodmanCleanupMacOS());
-  } else if (extensionApi.env.isWindows) {
-    provider.registerCleanup(new PodmanCleanupWindows());
-  }
-
-  await initCheckAndRegisterUpdate(provider, podmanInstall);
-
-  // If autostart has been enabled for the machine, try to start it.
-  try {
-    await updateMachines(provider, podmanConfiguration);
-  } catch (error) {
-    // ignore the update of machines
-  }
   provider.registerAutostart({
     start: async (logger: extensionApi.Logger) => {
+      // If autostart has been enabled for the machine, try to start it.
+      try {
+        await updateMachines(provider, podmanConfiguration);
+      } catch (error) {
+        // ignore the update of machines
+      }
+
       // do we have a running machine ?
       const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
         connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
@@ -1519,6 +1496,49 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 
   extensionContext.subscriptions.push(provider);
+
+  start(extensionContext, provider, podmanInstall, podmanConfiguration, version).catch((error: unknown) => {
+    console.error('Error starting the Podman extension', error);
+  });
+
+  return {
+    exec,
+  };
+}
+
+export async function start(
+  extensionContext: extensionApi.ExtensionContext,
+  provider: extensionApi.Provider,
+  podmanInstall: PodmanInstall,
+  podmanConfiguration: PodmanConfiguration,
+  version?: string,
+): Promise<void> {
+  await initCheckAndRegisterUpdate(provider, podmanInstall);
+
+  if (version) {
+    wslEnabled = await isWSLEnabled();
+    const isWslAndHyperEnabled = wslEnabled && (await isHyperVEnabled());
+    updateWSLHyperVEnabledContextValue(isWslAndHyperEnabled);
+  }
+
+  if (isMac()) {
+    provider.registerCleanup(new PodmanCleanupMacOS());
+  } else if (extensionApi.env.isWindows) {
+    provider.registerCleanup(new PodmanCleanupWindows());
+  }
+
+  // provide an installation path ?
+  if (podmanInstall.isAbleToInstall()) {
+    // init all install checks
+    const installChecks = podmanInstall.getInstallChecks() ?? [];
+    for (const check of installChecks) {
+      await check.init?.();
+    }
+    provider.registerInstallation({
+      install: () => podmanInstall.doInstallPodman(provider),
+      preflightChecks: () => installChecks,
+    });
+  }
 
   // We allow creating machines for both macOS and Windows
   // but not Linux. The reasoning being is that podman for Linux is
@@ -1714,10 +1734,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const podmanRemoteConnections = new PodmanRemoteConnections(extensionContext, provider);
   podmanRemoteConnections.start();
-
-  return {
-    exec,
-  };
 }
 
 export async function connectionAuditor(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
