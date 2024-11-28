@@ -123,11 +123,11 @@ export class ContextsManagerExperimental {
   }
 
   private onDelete(state: DispatcherEvent): void {
-    const previousHealthChecker = this.#healthCheckers.get(state.contextName);
-    previousHealthChecker?.dispose();
+    const healthChecker = this.#healthCheckers.get(state.contextName);
+    healthChecker?.dispose();
     this.#healthCheckers.delete(state.contextName);
-    const previousPermissionsChecker = this.#permissionsCheckers.get(state.contextName);
-    previousPermissionsChecker?.dispose();
+    const permissionsChecker = this.#permissionsCheckers.get(state.contextName);
+    permissionsChecker?.dispose();
     this.#permissionsCheckers.delete(state.contextName);
   }
 

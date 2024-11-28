@@ -238,7 +238,6 @@ describe('ContextPermissionsChecker is built with a recursive request', async ()
             },
           };
         }
-        console.log('==> ', param.body.spec.resourceAttributes);
         return {
           status: {
             allowed: false,
