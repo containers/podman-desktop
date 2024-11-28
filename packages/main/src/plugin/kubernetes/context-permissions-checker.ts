@@ -95,9 +95,9 @@ export class ContextPermissionsChecker implements Disposable {
 
   private saveAndFireResult(result: ContextPermissionResult): void {
     this.#onPermissionResult.fire(result);
-    for (const resource of this.#request.resources) {
+    for (const resource of result.resources) {
       this.#results.set(resource, {
-        attrs: this.#request.attrs,
+        attrs: result.attrs,
         permitted: result.permitted,
         reason: result.reason,
       });

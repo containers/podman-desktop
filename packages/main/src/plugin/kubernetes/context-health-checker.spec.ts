@@ -18,7 +18,7 @@
 
 import type { Cluster, Context, User } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ContextHealthChecker } from './context-health-checker.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -57,63 +57,91 @@ beforeEach(() => {
   vi.mocked(Health).mockClear();
 });
 
-test('onStateChange is fired with result of readyz if no error', async () => {
-  const readyzMock = vi.fn();
-  vi.mocked(Health).mockImplementation(
-    () =>
-      ({
-        readyz: readyzMock,
-      }) as unknown as Health,
-  );
-
-  const hc = new ContextHealthChecker(config);
+describe('readyz returns a value', async () => {
   const onStateChangeCB = vi.fn();
-  hc.onStateChange(onStateChangeCB);
+  const onReachableCB = vi.fn();
+  const readyzMock = vi.fn();
+  let hc: ContextHealthChecker;
 
-  readyzMock.mockResolvedValue(true);
-  await hc.start();
-  expect(onStateChangeCB).toHaveBeenCalledWith({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: true,
-    reachable: false,
-  });
-  expect(onStateChangeCB).toHaveBeenCalledWith({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: false,
-    reachable: true,
-  });
+  beforeEach(async () => {
+    vi.mocked(Health).mockImplementation(
+      () =>
+        ({
+          readyz: readyzMock,
+        }) as unknown as Health,
+    );
 
-  expect(hc.getState()).toEqual({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: false,
-    reachable: true,
+    hc = new ContextHealthChecker(config);
+
+    hc.onStateChange(onStateChangeCB);
+    hc.onReachable(onReachableCB);
   });
 
-  onStateChangeCB.mockReset();
+  test('onStateChange is fired with result of readyz', async () => {
+    readyzMock.mockResolvedValue(true);
+    await hc.start();
 
-  readyzMock.mockResolvedValue(false);
-  await hc.start();
-  expect(onStateChangeCB).toHaveBeenCalledWith({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: true,
-    reachable: false,
-  });
-  expect(onStateChangeCB).toHaveBeenCalledWith({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: false,
-    reachable: false,
+    expect(onStateChangeCB).toHaveBeenCalledWith({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: true,
+      reachable: false,
+    });
+    expect(onStateChangeCB).toHaveBeenCalledWith({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+
+    expect(hc.getState()).toEqual({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+
+    onStateChangeCB.mockReset();
+
+    readyzMock.mockResolvedValue(false);
+    await hc.start();
+    expect(onStateChangeCB).toHaveBeenCalledWith({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: true,
+      reachable: false,
+    });
+    expect(onStateChangeCB).toHaveBeenCalledWith({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: false,
+      reachable: false,
+    });
+
+    expect(hc.getState()).toEqual({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: false,
+      reachable: false,
+    });
   });
 
-  expect(hc.getState()).toEqual({
-    kubeConfig: config,
-    contextName: 'context1',
-    checking: false,
-    reachable: false,
+  test('onReachable is fired when readyz returns true', async () => {
+    readyzMock.mockResolvedValue(true);
+    await hc.start();
+
+    expect(onReachableCB).toHaveBeenCalledWith({
+      kubeConfig: config,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+
+    onReachableCB.mockReset();
+
+    readyzMock.mockResolvedValue(false);
+    await hc.start();
+    expect(onReachableCB).not.toHaveBeenCalled();
   });
 });
 
