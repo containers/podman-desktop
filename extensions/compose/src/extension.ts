@@ -48,8 +48,15 @@ const composeDisplayName = 'Compose';
 const composeDescription = `The Compose extension provides optional command line support for [Compose files](https://compose-spec.io/) with Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/tags/compose)`;
 const imageLocation = './icon.png';
 
+let binaryVersion: string | undefined;
+let binaryPath: string | undefined;
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   initTelemetryLogger();
+  // required in tests, because activate function called multiple times
+  // does not affect runtime
+  binaryVersion = undefined;
+  binaryPath = undefined;
 
   // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
@@ -181,14 +188,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       try {
         await handler.installComposeBinary(detect, extensionContext);
         // update the cli version
-        const versionInstalled = composeVersionMetadata?.tag.replace('v', '');
-        if (!versionInstalled) {
+        binaryVersion = composeVersionMetadata?.tag.replace('v', '');
+        if (!binaryVersion) {
           return;
         }
+        binaryPath = getSystemBinaryPath(composeCliName);
         // update the version and the path
         composeCliTool?.updateVersion({
-          version: versionInstalled,
-          path: getSystemBinaryPath(composeCliName),
+          version: binaryVersion,
+          path: binaryPath,
           installationSource: 'extension',
         });
         // if installed version is the newest, dispose the updater
@@ -259,8 +267,6 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
     }
   }
 
-  let binaryVersion: string | undefined;
-  let binaryPath: string | undefined;
   // if binary has been detected we extract its version and path
   if (binaryInfo) {
     binaryVersion = removeVersionPrefix(binaryInfo.version);
@@ -305,7 +311,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   const latestVersion = latestVersionAsset ? removeVersionPrefix(latestVersionAsset.tag) : undefined;
 
   const update = {
-    version: latestVersion,
+    version: latestVersion !== composeCliTool.version ? latestVersion : undefined,
     selectVersion: async (): Promise<string> => {
       const selected = await composeDownload.promptUserForVersion(binaryVersion);
       releaseToUpdateTo = selected;
@@ -326,7 +332,8 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
         throw new Error(`Cannot update ${binaryInfo?.path} version ${binaryVersion}. No release selected.`);
       }
-      if (!binaryInfo?.updatable) {
+      // binaryInfo is undefined when compose cli is not installed
+      if (binaryInfo && !binaryInfo?.updatable) {
         throw new Error(
           `Cannot update ${binaryInfo?.path} version ${binaryVersion} to ${releaseVersionToUpdateTo} as it was not installed by podman-desktop`,
         );
@@ -356,6 +363,14 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   // register installer
   let releaseToInstall: ComposeGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
+
+  composeCliTool.onDidUpdateVersion((version: string) => {
+    if (version === latestVersion) {
+      delete update.version;
+    } else {
+      update.version = latestVersion;
+    }
+  });
 
   composeCliToolInstallerDisposable = composeCliTool.registerInstaller({
     selectVersion: async () => {
