@@ -27,11 +27,13 @@ const contexts = [
     name: 'context1',
     cluster: 'cluster1',
     user: 'user1',
+    namespace: 'ns1',
   },
   {
     name: 'context2',
     cluster: 'cluster2',
     user: 'user2',
+    namespace: 'ns2',
   },
 ] as Context[];
 
@@ -69,7 +71,7 @@ test('KubeConfigSingleContext', () => {
     clusters: [clusters[0]],
     currentContext: 'context1',
   } as KubeConfig;
-  expect(single.get()).toEqual(expected);
+  expect(single.getKubeConfig()).toEqual(expected);
 
   const kcExpected = new KubeConfig();
   kcExpected.loadFromOptions(expected);
@@ -80,4 +82,50 @@ test('KubeConfigSingleContext', () => {
   expect(single.equals(otherSingle)).toBeFalsy();
 
   expect(single.equals(undefined)).toBeFalsy();
+});
+
+test('getNamespace', () => {
+  const contexts = [
+    {
+      name: 'context1',
+      cluster: 'cluster1',
+      user: 'user1',
+    },
+    {
+      name: 'context2',
+      cluster: 'cluster2',
+      user: 'user2',
+      namespace: 'ns2',
+    },
+  ] as Context[];
+
+  const clusters = [
+    {
+      name: 'cluster1',
+    },
+    {
+      name: 'cluster2',
+    },
+  ] as Cluster[];
+
+  const users = [
+    {
+      name: 'user1',
+    },
+    {
+      name: 'user2',
+    },
+  ] as User[];
+
+  const kcWith2contexts = {
+    contexts,
+    clusters,
+    users,
+  } as unknown as KubeConfig;
+
+  const single1 = new KubeConfigSingleContext(kcWith2contexts, contexts[0]!);
+  expect(single1.getNamespace()).toEqual('default');
+
+  const single2 = new KubeConfigSingleContext(kcWith2contexts, contexts[1]!);
+  expect(single2.getNamespace()).toEqual('ns2');
 });

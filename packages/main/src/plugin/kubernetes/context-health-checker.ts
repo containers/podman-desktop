@@ -16,14 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubeConfig } from '@kubernetes/client-node';
 import { AbortError, Health } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
+import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 export interface ContextHealthState {
+  kubeConfig: KubeConfigSingleContext;
   contextName: string;
   checking: boolean;
   reachable: boolean;
@@ -43,29 +44,59 @@ export class ContextHealthChecker implements Disposable {
   #onStateChange = new Emitter<ContextHealthState>();
   onStateChange: Event<ContextHealthState> = this.#onStateChange.event;
 
+  #onReachable = new Emitter<ContextHealthState>();
+  onReachable: Event<ContextHealthState> = this.#onReachable.event;
+
   #contextName: string;
+  #kubeConfig: KubeConfigSingleContext;
 
   #currentState: ContextHealthState;
 
   // builds an HealthChecker which will check the cluster of the current context of the given kubeConfig
-  constructor(kubeConfig: KubeConfig) {
+  constructor(kubeConfig: KubeConfigSingleContext) {
+    this.#kubeConfig = kubeConfig;
     this.#abortController = new AbortController();
-    this.#health = new Health(kubeConfig);
-    this.#contextName = kubeConfig.currentContext;
-    this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
+    this.#health = new Health(kubeConfig.getKubeConfig());
+    this.#contextName = kubeConfig.getKubeConfig().currentContext;
+    this.#currentState = {
+      kubeConfig: this.#kubeConfig,
+      contextName: this.#contextName,
+      checking: false,
+      reachable: false,
+    };
+    this.onStateChange((e: ContextHealthState) => {
+      if (e.reachable) {
+        this.#onReachable.fire(e);
+      }
+    });
   }
 
   // start checking the readiness
   public async start(opts?: ContextHealthCheckOptions): Promise<void> {
-    this.#currentState = { contextName: this.#contextName, checking: true, reachable: false };
+    this.#currentState = {
+      kubeConfig: this.#kubeConfig,
+      contextName: this.#contextName,
+      checking: true,
+      reachable: false,
+    };
     this.#onStateChange.fire(this.#currentState);
     try {
       const result = await this.#health.readyz({ signal: this.#abortController.signal, timeout: opts?.timeout });
-      this.#currentState = { contextName: this.#contextName, checking: false, reachable: result };
+      this.#currentState = {
+        kubeConfig: this.#kubeConfig,
+        contextName: this.#contextName,
+        checking: false,
+        reachable: result,
+      };
       this.#onStateChange.fire(this.#currentState);
     } catch (err: unknown) {
       if (!(err instanceof AbortError)) {
-        this.#currentState = { contextName: this.#contextName, checking: false, reachable: false };
+        this.#currentState = {
+          kubeConfig: this.#kubeConfig,
+          contextName: this.#contextName,
+          checking: false,
+          reachable: false,
+        };
         this.#onStateChange.fire(this.#currentState);
       }
     }
@@ -73,6 +104,7 @@ export class ContextHealthChecker implements Disposable {
 
   public dispose(): void {
     this.#onStateChange.dispose();
+    this.#onReachable.dispose();
     this.#abortController.abort();
   }
 

@@ -24,7 +24,7 @@ import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
 export interface DispatcherEvent {
   contextName: string;
-  config: KubeConfig;
+  config: KubeConfigSingleContext;
 }
 
 /**
@@ -54,7 +54,7 @@ export class ContextsDispatcher {
       const kubeconfigSingleContext = new KubeConfigSingleContext(kubeconfig, kubeContext);
 
       if (!this.#contexts.has(kubeContext.name)) {
-        this.#onAdd.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext.get() });
+        this.#onAdd.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext });
         this.#contexts.set(kubeContext.name, kubeconfigSingleContext);
         continue;
       }
@@ -64,7 +64,7 @@ export class ContextsDispatcher {
       }
 
       // context has changed
-      this.#onUpdate.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext.get() });
+      this.#onUpdate.fire({ contextName: kubeContext.name, config: kubeconfigSingleContext });
       this.#contexts.set(kubeContext.name, kubeconfigSingleContext);
     }
 
@@ -73,7 +73,7 @@ export class ContextsDispatcher {
       if (!ctxToRemove) {
         throw new Error(`config for ${nameOfRemainingContext} not found, should not happen`);
       }
-      this.#onDelete.fire({ contextName: nameOfRemainingContext, config: ctxToRemove.get() });
+      this.#onDelete.fire({ contextName: nameOfRemainingContext, config: ctxToRemove });
       this.#contexts.delete(nameOfRemainingContext);
     }
   }
