@@ -1473,6 +1473,40 @@ test('Test should exec into container ', async () => {
   execResp.onResize(1, 1);
 });
 
+test('Test should exec into container only once', async () => {
+  const client = createTestClient('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+  });
+
+  const onStdOutFn = vi.fn();
+
+  const onStdErrFn = vi.fn();
+
+  const onCloseFn = vi.fn();
+
+  execMock.mockImplementation(
+    (
+      _namespace: string,
+      _podName: string,
+      _containerName: string,
+      _command: string | string[],
+      _stdout: Writable | null,
+      _stderr: Writable | null,
+      _stdin: Readable | null,
+      _tty: boolean,
+      _?: (status: V1Status) => void,
+    ) => {
+      return { on: vi.fn() };
+    },
+  );
+
+  await client.execIntoContainer('test-pod', 'test-container', onStdOutFn, onStdErrFn, onCloseFn);
+  await client.execIntoContainer('test-pod', 'test-container', onStdOutFn, onStdErrFn, onCloseFn);
+  expect(execMock).toHaveBeenCalledOnce();
+  expect(telemetry.track).toHaveBeenCalledOnce();
+});
+
 test('Test should throw an exception during exec command if resize parameters are wrong', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({

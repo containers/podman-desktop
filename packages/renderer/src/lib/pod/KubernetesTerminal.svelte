@@ -48,7 +48,6 @@ onMount(async () => {
   // and then add a \r\n to the end of the terminal to ensure the cursor is on a new line.
   if (savedState?.terminal) {
     shellTerminal.write(savedState.terminal);
-    shellTerminal.write('\r\n');
     shellTerminal.focus();
   }
 });
