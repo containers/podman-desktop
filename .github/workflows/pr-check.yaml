@@ -272,7 +272,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-24.04]
+        os: [windows-2022, ubuntu-24.04, macos-15]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
