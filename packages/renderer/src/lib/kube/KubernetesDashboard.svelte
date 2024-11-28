@@ -95,7 +95,7 @@ async function openKubernetesDocumentation(): Promise<void> {
           </div>
         </div>
       </div>
-      <div class="flex flex-col pl-5 pr-5">
+      <div class="flex flex-col pl-5 pr-5 border-[var(--pd-global-nav-bg-border)] border-b-[1px]">
         {#if expandedDetails}
           <div role="region" class="flex flex-col py-2">
             <div transition:fadeSlide={{ duration: 500 }} class="flex flex-col gap-4">
