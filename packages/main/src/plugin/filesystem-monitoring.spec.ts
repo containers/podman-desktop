@@ -20,6 +20,7 @@ import { promises } from 'node:fs';
 import os from 'node:os';
 import path, { join } from 'node:path';
 
+import { watch } from 'chokidar';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { isWindows } from '/@/util.js';
@@ -188,4 +189,20 @@ test('watch a file in a directory being a symlink to another directory', async (
   await vi.waitFor(async () => {
     expect(createListener).toHaveBeenCalledWith(Uri.file(realfile));
   });
+});
+
+// related to https://github.com/paulmillr/chokidar/issues/1391
+// and https://github.com/paulmillr/chokidar/issues/1391
+test.runIf(os.platform() === 'darwin')('Watch a directory with a lot of files', async () => {
+  const watcher = watch('/var/run', {
+    persistent: true,
+    ignorePermissionErrors: true,
+  });
+
+  let counter = 0;
+  watcher.on('all', () => {
+    counter++;
+  });
+
+  await vi.waitFor(() => expect(counter).toBeGreaterThan(3));
 });
