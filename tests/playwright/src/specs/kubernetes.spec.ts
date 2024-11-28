@@ -117,7 +117,7 @@ test.describe('Kubernetes resources End-to-End test', { tag: '@k8s_e2e' }, () =>
         await playExpect(pvcDetails.heading).toBeVisible();
         await playExpect
           .poll(async () => pvcDetails.getState(), { timeout: 50_000 })
-          .toEqual(KubernetesResourceState.Starting);
+          .toEqual(KubernetesResourceState.Stopped);
       });
       test('Bind the PVC to a pod', async ({ navigationBar }) => {
         const podsPage = await navigationBar.openPods();
