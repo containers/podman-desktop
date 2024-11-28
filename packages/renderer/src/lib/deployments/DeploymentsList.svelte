@@ -12,6 +12,7 @@ import {
 import moment from 'moment';
 import { onMount } from 'svelte';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import {
   deploymentSearchPattern,
@@ -20,7 +21,6 @@ import {
 
 import { withBulkConfirmation } from '../actions/BulkActions';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
 import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
@@ -113,7 +113,7 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
 
 <NavPage bind:searchTerm={searchTerm} title="deployments">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

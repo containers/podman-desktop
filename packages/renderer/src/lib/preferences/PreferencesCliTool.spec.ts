@@ -22,7 +22,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { CliToolInfo } from '/@api/cli-tool-info';
 
@@ -136,13 +136,22 @@ const cliToolInfoItem7: CliToolInfo = {
   canInstall: true,
 };
 
-const updateCliToolMock = vi.fn();
-beforeEach(() => {
-  (window as any).updateCliTool = updateCliToolMock;
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      updateCliTool: vi.fn(),
+      navigator: {
+        clipboard: {
+          writeText: vi.fn(),
+        },
+      },
+    },
+    writable: true,
+  });
 });
 
-afterEach(() => {
-  vi.clearAllMocks();
+beforeEach(() => {
+  vi.resetAllMocks();
 });
 
 describe('CLI Tool item', () => {
@@ -212,7 +221,7 @@ describe('CLI Tool item', () => {
   });
 
   test('if update fails the error message is shown', async () => {
-    updateCliToolMock.mockRejectedValue('');
+    vi.mocked(window.updateCliTool).mockRejectedValue('');
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem3,
     });
@@ -232,7 +241,6 @@ describe('CLI Tool item', () => {
   test('check version is sent to updateCliTool', async () => {
     const selectCliToolVersionToUpdateMock = vi.fn().mockImplementation(() => Promise.resolve('1.1.1'));
     (window as any).selectCliToolVersionToUpdate = selectCliToolVersionToUpdateMock;
-    (window as any).updateCliTool = updateCliToolMock;
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem4,
     });
@@ -243,11 +251,16 @@ describe('CLI Tool item', () => {
     await userEvent.click(updateAvailableElement);
 
     expect(selectCliToolVersionToUpdateMock).toBeCalledWith(cliToolInfoItem4.id);
-    expect(updateCliToolMock).toBeCalledWith(cliToolInfoItem4.id, expect.any(Symbol), '1.1.1', expect.any(Function));
+    expect(vi.mocked(window.updateCliTool)).toBeCalledWith(
+      cliToolInfoItem4.id,
+      expect.any(Symbol),
+      '1.1.1',
+      expect.any(Function),
+    );
   });
 
   test('check tool infos are displayed as expected and without a new version', async () => {
-    updateCliToolMock.mockRejectedValue('');
+    vi.mocked(window.updateCliTool).mockRejectedValue('');
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem4,
     });

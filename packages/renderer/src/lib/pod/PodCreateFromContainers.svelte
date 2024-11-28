@@ -5,6 +5,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
@@ -208,6 +210,10 @@ function getWarningText(): string {
   });
   return text;
 }
+
+function navigateToContainers(): void {
+  return handleNavigation({ page: NavigationPage.CONTAINERS });
+}
 </script>
 
 <EngineFormPage title="Copy containers to a pod" inProgress={createInProgress}>
@@ -291,7 +297,7 @@ function getWarningText(): string {
 
       <div class="w-full grid justify-items-end mt-5">
         <div>
-          <Button type="link" on:click={() => router.goto('/containers')}>Close</Button>
+          <Button type="link" on:click={navigateToContainers}>Close</Button>
           <Button
             icon={SolidPodIcon}
             bind:disabled={createInProgress}

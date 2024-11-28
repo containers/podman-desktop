@@ -100,7 +100,7 @@ test('Expect export function called when export button is clicked', async () => 
     id: container.Id,
     outputTarget: '/tmp/my/path',
   });
-  expect(goToMock).toBeCalledWith('/containers/');
+  expect(goToMock).toBeCalledWith('/containers');
 });
 
 test('Expect error shown if export function fails', async () => {

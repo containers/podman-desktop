@@ -23,7 +23,7 @@ import { expect, test, vi } from 'vitest';
 
 import type { TaskInfo } from '/@api/taskInfo';
 
-import TaskManagerItem from './TaskManagerItem.svelte';
+import LegacyTaskManagerItem from './LegacyTaskManagerItem.svelte';
 
 const started = new Date().getTime();
 const IN_PROGRESS_TASK: TaskInfo = {
@@ -56,7 +56,7 @@ const CANCELED_TASK: TaskInfo = {
 };
 
 test('Expect that the action button is visible', async () => {
-  render(TaskManagerItem, {
+  render(LegacyTaskManagerItem, {
     task: IN_PROGRESS_TASK,
   });
   // expect the tasks manager is not visible by default
@@ -69,7 +69,7 @@ test('Expect that the action button call window.executeTask', async () => {
   const executeTaskMock = vi.fn();
   (window as { executeTask: (taskId: string) => void }).executeTask = executeTaskMock;
 
-  render(TaskManagerItem, {
+  render(LegacyTaskManagerItem, {
     task: IN_PROGRESS_TASK,
   });
   const actionBtn = screen.getByRole('button', { name: 'action button' });
@@ -79,7 +79,7 @@ test('Expect that the action button call window.executeTask', async () => {
 });
 
 test('Expect that the action button is hidden', async () => {
-  render(TaskManagerItem, {
+  render(LegacyTaskManagerItem, {
     task: IN_PROGRESS_TASK_2,
   });
   // expect the tasks manager is not visible by default
@@ -88,7 +88,7 @@ test('Expect that the action button is hidden', async () => {
 });
 
 test('Expect that the canceled state is displayed', async () => {
-  render(TaskManagerItem, {
+  render(LegacyTaskManagerItem, {
     task: CANCELED_TASK,
   });
   // expect the canceled task icon is displayed and color is the one specified

@@ -13,12 +13,12 @@ import {
 import moment from 'moment';
 import { onMount } from 'svelte';
 
+import KubeActions from '/@/lib/kube/KubeActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '/@/stores/kubernetes-contexts-state';
 
 import { withBulkConfirmation } from '../actions/BulkActions';
 import ServiceIcon from '../images/ServiceIcon.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { ServiceUtils } from './service-utils';
 import ServiceColumnActions from './ServiceColumnActions.svelte';
 import ServiceColumnName from './ServiceColumnName.svelte';
@@ -121,7 +121,7 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
 
 <NavPage bind:searchTerm={searchTerm} title="services">
   <svelte:fragment slot="additional-actions">
-    <KubeApplyYamlButton />
+    <KubeActions />
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">
