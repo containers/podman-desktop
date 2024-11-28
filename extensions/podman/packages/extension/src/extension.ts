@@ -2090,7 +2090,7 @@ export async function createMachine(
       parameters.push(`docker://${imageUri}`);
       telemetryRecords.imagePath = 'custom-registry';
     }
-  } else if (isMac() || extensionApi.env.isWindows) {
+  } else if (isMac() || (extensionApi.env.isWindows && provider === 'wsl')) {
     // check if we have an embedded asset for the image path for macOS or Windows
     const assetImagePath = path.resolve(getAssetsFolder(), `podman-image-${process.arch}.zst`);
 
