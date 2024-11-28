@@ -44,7 +44,7 @@ beforeAll(() => {
       getComputedStyle: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-      matchMedia: vi.fn().mockReturnValue({
+      matchMedia: () => ({
         matches: false,
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
@@ -55,9 +55,6 @@ beforeAll(() => {
       kubernetesApplyResourcesFromYAML: vi.fn(),
     },
   });
-  vi.mocked(window.getComputedStyle).mockReturnValue({
-    getPropertyValue: vi.fn().mockReturnValue(''),
-  } as unknown as CSSStyleDeclaration);
 });
 
 const CURRENT_CONTEXT = 'dummy-context';
@@ -65,6 +62,9 @@ const CURRENT_CONTEXT = 'dummy-context';
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(window.kubernetesGetCurrentContextName).mockResolvedValue(CURRENT_CONTEXT);
+  vi.mocked(window.getComputedStyle).mockReturnValue({
+    getPropertyValue: vi.fn().mockReturnValue(''),
+  } as unknown as CSSStyleDeclaration);
 });
 
 test('expect close button to redirect to last page', async () => {
