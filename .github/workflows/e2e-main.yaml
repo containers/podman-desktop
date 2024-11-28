@@ -115,6 +115,17 @@ jobs:
           export PODMAN_DESKTOP_BINARY_PATH=$path
           pnpm test:e2e
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          annotate_only: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -174,6 +185,17 @@ jobs:
         run: |
           echo "${{ env.PODMAN_DESKTOP_BINARY }}"
           pnpm test:e2e:update:run
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          annotate_only: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
 
       - uses: actions/upload-artifact@v4
         if: always()
