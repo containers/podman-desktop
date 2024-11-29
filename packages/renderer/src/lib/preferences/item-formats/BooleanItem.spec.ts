@@ -25,7 +25,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import BooleanItem from './BooleanItem.svelte';
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
 });
 
 test('Checkbox checked', async () => {

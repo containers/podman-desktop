@@ -17,7 +17,7 @@ export let showCursor: boolean = false;
 let logsXtermDiv: HTMLDivElement;
 let resizeHandler: () => void;
 
-const dispatch = createEventDispatcher<{ init: any }>();
+const dispatch = createEventDispatcher();
 
 async function refreshTerminal(): Promise<void> {
   // missing element, return
