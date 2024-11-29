@@ -71,7 +71,7 @@ test('expect being able to reconnect ', async () => {
     ) => {
       onDataCallback = onData;
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -145,7 +145,7 @@ test('terminal active/ restarts connection after stopping and starting a contain
         onEnd();
       }, 500);
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -213,7 +213,7 @@ test('terminal active/ restarts connection after restarting a container', async 
         onEnd();
       }, 500);
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
