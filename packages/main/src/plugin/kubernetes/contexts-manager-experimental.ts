@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubeConfig, KubernetesObject } from '@kubernetes/client-node';
+import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 
@@ -28,6 +28,8 @@ import type { ContextPermissionResult, ContextResourcePermission } from './conte
 import { ContextPermissionsChecker } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsDispatcher } from './contexts-dispatcher.js';
+import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from './resource-informer.js';
+import { newDeploymentInformer, newPodInformer } from './resource-informer.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -43,6 +45,8 @@ export class ContextsManagerExperimental {
   #dispatcher: ContextsDispatcher;
   #healthCheckers: Map<string, ContextHealthChecker>;
   #permissionsCheckers: Map<string, ContextPermissionsChecker>;
+  #informers: Map<string, ResourceInformer<KubernetesObject>>;
+  #objectCaches: Map<string, ObjectCache<KubernetesObject>>;
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -56,6 +60,8 @@ export class ContextsManagerExperimental {
   constructor() {
     this.#healthCheckers = new Map<string, ContextHealthChecker>();
     this.#permissionsCheckers = new Map<string, ContextPermissionsChecker>();
+    this.#informers = new Map<string, ResourceInformer<KubernetesObject>>();
+    this.#objectCaches = new Map<string, ObjectCache<KubernetesObject>>();
     this.#dispatcher = new ContextsDispatcher();
     this.#dispatcher.onAdd(this.onAdd.bind(this));
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
@@ -111,6 +117,32 @@ export class ContextsManagerExperimental {
       });
       this.#permissionsCheckers.set(state.contextName, newPermissionChecker);
       newPermissionChecker.onPermissionResult(this.onPermissionResult.bind(this));
+
+      newPermissionChecker.onPermissionResult((event: ContextPermissionResult) => {
+        for (const resource of event.resources) {
+          let informer: ResourceInformer<KubernetesObject>;
+          switch (resource) {
+            case 'pods':
+              informer = newPodInformer(event.kubeConfig);
+              break;
+            case 'deployments':
+              informer = newDeploymentInformer(event.kubeConfig);
+              break;
+            default:
+              continue;
+          }
+          this.#informers.set(resource, informer);
+          informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
+            /* send event to dispatcher */
+          });
+          informer.onOffline((_e: OfflineEvent) => {
+            /* send event to dispatcher */
+          });
+          const cache = informer.start();
+          this.#objectCaches.set(resource, cache);
+        }
+      });
+
       await newPermissionChecker.start();
     });
 
@@ -183,6 +215,7 @@ export class ContextsManagerExperimental {
   dispose(): void {
     this.disposeAllHealthChecks();
     this.disposeAllPermissionsCheckers();
+    this.disposeAllInformers();
     this.#onContextHealthStateChange.dispose();
     this.#onContextDelete.dispose();
   }
@@ -202,6 +235,14 @@ export class ContextsManagerExperimental {
     for (const [contextName, permissionChecker] of this.#permissionsCheckers.entries()) {
       permissionChecker.dispose();
       this.#permissionsCheckers.delete(contextName);
+    }
+  }
+
+  // disposeAllInformers disposes all informers and removes them from registry
+  private disposeAllInformers(): void {
+    for (const [contextName, informer] of this.#informers.entries()) {
+      informer.dispose();
+      this.#informers.delete(contextName);
     }
   }
 }
