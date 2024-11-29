@@ -30,7 +30,7 @@ import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsDispatcher } from './contexts-dispatcher.js';
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
-import { ResourceFactory } from './resource-factory.js';
+import { ResourceFactoryHandler } from './resource-factory-handler.js';
 import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from './resource-informer.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -44,7 +44,7 @@ const HEALTH_CHECK_TIMEOUT_MS = 5_000;
  * ContextsManagerExperimental exposes the current state of the health checkers.
  */
 export class ContextsManagerExperimental {
-  #resourceFactory: ResourceFactory;
+  #resourceFactoryHandler: ResourceFactoryHandler;
   #dispatcher: ContextsDispatcher;
   #healthCheckers: Map<string, ContextHealthChecker>;
   #permissionsCheckers: Map<string, ContextPermissionsChecker>;
@@ -61,9 +61,9 @@ export class ContextsManagerExperimental {
   onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
 
   constructor() {
-    this.#resourceFactory = new ResourceFactory();
-    this.#resourceFactory.add(new PodsResourceFactory());
-    this.#resourceFactory.add(new DeploymentsResourceFactory());
+    this.#resourceFactoryHandler = new ResourceFactoryHandler();
+    this.#resourceFactoryHandler.add(new PodsResourceFactory());
+    this.#resourceFactoryHandler.add(new DeploymentsResourceFactory());
     // Add more resources here
     this.#healthCheckers = new Map<string, ContextHealthChecker>();
     this.#permissionsCheckers = new Map<string, ContextPermissionsChecker>();
@@ -94,7 +94,7 @@ export class ContextsManagerExperimental {
       previousPermissionsChecker?.dispose();
 
       const namespace = state.kubeConfig.getNamespace();
-      const permissionRequests = this.#resourceFactory.getPermissionsRequests(namespace);
+      const permissionRequests = this.#resourceFactoryHandler.getPermissionsRequests(namespace);
       for (const permissionRequest of permissionRequests) {
         const newPermissionChecker = new ContextPermissionsChecker(state.kubeConfig, permissionRequest);
         this.#permissionsCheckers.set(state.contextName, newPermissionChecker);
@@ -102,7 +102,7 @@ export class ContextsManagerExperimental {
 
         newPermissionChecker.onPermissionResult((event: ContextPermissionResult) => {
           for (const resource of event.resources) {
-            const factory = this.#resourceFactory.getResourceFactoryByResourceName(resource);
+            const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
             if (!factory) {
               throw new Error(
                 `a permission for resource ${resource} has been received but no factory is handling it, this should not happen`,

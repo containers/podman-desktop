@@ -20,12 +20,12 @@ import { expect, test } from 'vitest';
 
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
-import { ResourceFactory } from './resource-factory.js';
+import { ResourceFactoryHandler } from './resource-factory-handler.js';
 
 test('with 1 level and same request', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: true,
     permissionsRequests: [
@@ -37,7 +37,7 @@ test('with 1 level and same request', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: true,
     permissionsRequests: [
@@ -49,7 +49,7 @@ test('with 1 level and same request', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -64,9 +64,9 @@ test('with 1 level and same request', () => {
 });
 
 test('with 1 level and different requests', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: true,
     permissionsRequests: [
@@ -78,7 +78,7 @@ test('with 1 level and different requests', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: true,
     permissionsRequests: [
@@ -90,7 +90,7 @@ test('with 1 level and different requests', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -114,9 +114,9 @@ test('with 1 level and different requests', () => {
 });
 
 test('with 2 levels and same request at first level', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: true,
     permissionsRequests: [
@@ -132,7 +132,7 @@ test('with 2 levels and same request at first level', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: true,
     permissionsRequests: [
@@ -149,7 +149,7 @@ test('with 2 levels and same request at first level', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -183,9 +183,9 @@ test('with 2 levels and same request at first level', () => {
 });
 
 test('with 1 level and same request, non namespaced', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: false,
     permissionsRequests: [
@@ -197,7 +197,7 @@ test('with 1 level and same request, non namespaced', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: false,
     permissionsRequests: [
@@ -209,7 +209,7 @@ test('with 1 level and same request, non namespaced', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -223,9 +223,9 @@ test('with 1 level and same request, non namespaced', () => {
 });
 
 test('with 1 level and different requests, non namespaced', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: false,
     permissionsRequests: [
@@ -237,7 +237,7 @@ test('with 1 level and different requests, non namespaced', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: false,
     permissionsRequests: [
@@ -249,7 +249,7 @@ test('with 1 level and different requests, non namespaced', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -271,9 +271,9 @@ test('with 1 level and different requests, non namespaced', () => {
 });
 
 test('with 2 levels and same request at first level, non namespaced', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: false,
     permissionsRequests: [
@@ -289,7 +289,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: false,
     permissionsRequests: [
@@ -306,7 +306,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -337,9 +337,9 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 });
 
 test('with 1 level and same request, both namespaced ant not namespaced', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource1',
     isNamespaced: true,
     permissionsRequests: [
@@ -351,7 +351,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
     ],
   });
 
-  factory.add({
+  factoryHandler.add({
     resource: 'resource2',
     isNamespaced: false,
     permissionsRequests: [
@@ -363,7 +363,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
     ],
   });
 
-  const requests = factory.getPermissionsRequests('ns');
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {
@@ -386,11 +386,11 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 });
 
 test('real pods and deployments', () => {
-  const factory = new ResourceFactory();
+  const factoryHandler = new ResourceFactoryHandler();
 
-  factory.add(new PodsResourceFactory());
-  factory.add(new DeploymentsResourceFactory());
-  const requests = factory.getPermissionsRequests('ns');
+  factoryHandler.add(new PodsResourceFactory());
+  factoryHandler.add(new DeploymentsResourceFactory());
+  const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
     {
       attrs: {

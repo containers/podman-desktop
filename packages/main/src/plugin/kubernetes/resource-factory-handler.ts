@@ -24,17 +24,17 @@ import type { ContextPermissionsRequest } from './context-permissions-checker.js
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import type { ResourceInformer } from './resource-informer.js';
 
-export interface ResourceFactoryObject {
+export interface ResourceFactory {
   get resource(): string;
   get permissionsRequests(): V1ResourceAttributes[];
   get isNamespaced(): boolean;
   getInformer?(kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject>;
 }
 
-export class ResourceFactory {
-  #resourceFactories: ResourceFactoryObject[] = [];
+export class ResourceFactoryHandler {
+  #resourceFactories: ResourceFactory[] = [];
 
-  add(factory: ResourceFactoryObject): void {
+  add(factory: ResourceFactory): void {
     if (this.getResourceFactoryByResourceName(factory.resource)) {
       throw new Error(`a factory for resource ${factory.resource} has already been added`);
     }
@@ -48,12 +48,12 @@ export class ResourceFactory {
     ];
   }
 
-  getResourceFactoryByResourceName(resource: string): ResourceFactoryObject | undefined {
+  getResourceFactoryByResourceName(resource: string): ResourceFactory | undefined {
     return this.#resourceFactories.find(f => f.resource === resource);
   }
 
   private getNamespacedOrNotPermissionsRequests(
-    factories: ResourceFactoryObject[],
+    factories: ResourceFactory[],
     isNamespaced: boolean,
     namespace?: string,
   ): ContextPermissionsRequest[] {
@@ -71,7 +71,7 @@ export class ResourceFactory {
     if (!firstFilteredResourceFactory.permissionsRequests[0]) {
       return [];
     }
-    const children: ResourceFactoryObject[] = [];
+    const children: ResourceFactory[] = [];
     const newRequest: ContextPermissionsRequest = {
       attrs: {
         namespace: isNamespaced ? namespace : undefined,
@@ -84,7 +84,7 @@ export class ResourceFactory {
       permissionsRequests: firstFilteredResourceFactory.permissionsRequests.slice(1),
     };
     children.push(clone);
-    const remainings: ResourceFactoryObject[] = [];
+    const remainings: ResourceFactory[] = [];
     for (const filteredResourceFactory of filteredResourceFactories.slice(1)) {
       if (
         util.isDeepStrictEqual(
