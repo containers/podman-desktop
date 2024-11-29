@@ -26,13 +26,15 @@ import { terminalStates } from '/@/stores/kubernetes-terminal-state-store';
 const kubernetesExecMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).kubernetesExec = kubernetesExecMock;
-  (window as any).kubernetesExecResize = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'kubernetesExec', { value: kubernetesExecMock });
+  Object.defineProperty(window, 'kubernetesExecResize', { value: vi.fn() });
 
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+    }),
   });
 });
 
