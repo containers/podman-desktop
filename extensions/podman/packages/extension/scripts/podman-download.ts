@@ -18,6 +18,8 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { Octokit } from 'octokit';
+import type { OctokitOptions } from '@octokit/core/dist-types/types';
 import { hashFile } from 'hasha';
 import { fileURLToPath } from 'node:url';
 import { Writable } from 'node:stream';
@@ -31,9 +33,12 @@ export enum DiskType {
 export class PodmanDownload {
   #podmanVersion: string;
 
+  #downloadAndCheck: DownloadAndCheck;
   #podman5DownloadMachineOS: Podman5DownloadMachineOS;
 
   #shaCheck: ShaCheck;
+
+  #octokit: Octokit;
   #platform: string;
   #assetsFolder: string;
 
@@ -56,6 +61,11 @@ export class PodmanDownload {
     },
     private airgapSupport: boolean,
   ) {
+    const octokitOptions: OctokitOptions = {};
+    if (process.env.GITHUB_TOKEN) {
+      octokitOptions.auth = process.env.GITHUB_TOKEN;
+    }
+    this.#octokit = new Octokit(octokitOptions);
     this.#platform = process.platform;
 
     this.#podmanVersion = podmanJSON.version;
@@ -97,6 +107,7 @@ export class PodmanDownload {
       }
     }
     this.#shaCheck = new ShaCheck();
+    this.#downloadAndCheck = new DownloadAndCheck(this.#octokit, this.#shaCheck, this.#assetsFolder);
 
     if (!fs.existsSync(this.#assetsFolder)) {
       fs.mkdirSync(this.#assetsFolder);
@@ -127,7 +138,16 @@ export class PodmanDownload {
     return this.#artifactsToDownload;
   }
 
+  protected getDownloadAndCheck(): DownloadAndCheck {
+    return this.#downloadAndCheck;
+  }
+
   async downloadBinaries(): Promise<void> {
+    // fetch from GitHub releases
+    for (const artifact of this.#artifactsToDownload) {
+      await this.#downloadAndCheck.downloadAndCheckSha(artifact.version, artifact.downloadName, artifact.artifactName);
+    }
+
     // fetch binaries in case of AirGap
     await this.downloadAirGapBinaries();
   }
@@ -138,6 +158,112 @@ export class PodmanDownload {
     }
 
     await this.#podman5DownloadMachineOS?.setAndDownload(this.#platform);
+  }
+}
+
+export class DownloadAndCheck {
+  readonly MAX_DOWNLOAD_ATTEMPT = 3;
+  #downloadAttempt = 0;
+  #octokit: Octokit;
+  #shaCheck: ShaCheck;
+  #assetsFolder: string;
+
+  constructor(
+    readonly octokit: Octokit,
+    readonly shaCheck: ShaCheck,
+    readonly assetsFolder: string,
+  ) {
+    this.#octokit = octokit;
+    this.#shaCheck = shaCheck;
+    this.#assetsFolder = assetsFolder;
+  }
+
+  public async downloadAndCheckSha(
+    tagVersion: string,
+    fileName: string,
+    artifactName: string,
+    owner: string = 'containers',
+    repo: string = 'podman',
+  ): Promise<void> {
+    if (this.#downloadAttempt >= this.MAX_DOWNLOAD_ATTEMPT) {
+      console.error('Max download attempt reached, exiting...');
+      process.exit(1);
+    }
+
+    const release = await this.#octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
+      owner,
+      repo,
+      tag: tagVersion,
+    });
+
+    let artifactRelease;
+    let shasums;
+    for (const asset of release.data.assets) {
+      if (asset.name === artifactName) {
+        artifactRelease = asset;
+      }
+      if (asset.name === 'shasums') {
+        shasums = asset;
+      }
+    }
+
+    if (!artifactRelease && !shasums) {
+      throw new Error(`Can't find assets to download and verify for ${tagVersion}`);
+    }
+
+    const shasumAsset = await this.#octokit.rest.repos.getReleaseAsset({
+      asset_id: shasums.id,
+      owner,
+      repo,
+      headers: {
+        accept: 'application/octet-stream',
+      },
+    });
+
+    const shaFileContent = new TextDecoder().decode(shasumAsset.data as unknown as ArrayBuffer);
+    const shaArr = shaFileContent.split('\n');
+    let msiSha = '';
+
+    for (const shaLine of shaArr) {
+      if (shaLine.trim().endsWith(artifactName)) {
+        msiSha = shaLine.split(' ')[0];
+        break;
+      }
+    }
+    if (!msiSha) {
+      console.error(`Can't find SHA256 sum for ${artifactName} in:\n${shaFileContent}`);
+      process.exit(1);
+    }
+
+    const destFile = path.resolve(this.#assetsFolder, fileName);
+    if (!fs.existsSync(destFile)) {
+      console.log(`⚡️ Downloading artifact from ${artifactRelease.browser_download_url}`);
+      // await downloadFile(url, destFile);
+      const artifactAsset = await this.#octokit.rest.repos.getReleaseAsset({
+        asset_id: artifactRelease.id,
+        owner,
+        repo,
+        headers: {
+          accept: 'application/octet-stream',
+        },
+      });
+
+      fs.appendFileSync(destFile, Buffer.from(artifactAsset.data as unknown as ArrayBuffer));
+      console.log(`📔 Downloaded to ${destFile}`);
+    } else {
+      console.log(`⏭️  Skipping ${artifactName} (already downloaded)`);
+    }
+
+    if (!(await this.#shaCheck.checkFile(destFile, msiSha))) {
+      console.warn(`❌ Invalid checksum for ${fileName} downloading again...`);
+      fs.rmSync(destFile);
+      this.#downloadAttempt++;
+      await this.downloadAndCheckSha(tagVersion, fileName, artifactName);
+    } else {
+      console.log(`✅ Valid checksum for ${fileName}`);
+    }
+
+    this.#downloadAttempt = 0;
   }
 }
 

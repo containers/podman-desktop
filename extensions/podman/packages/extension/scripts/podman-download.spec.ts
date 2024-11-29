@@ -18,11 +18,13 @@
 
 import { setupServer, SetupServerApi } from 'msw/node';
 import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
-import { DiskType, Podman5DownloadMachineOS, PodmanDownload, ShaCheck } from './podman-download';
+import { DiskType, DownloadAndCheck, Podman5DownloadMachineOS, PodmanDownload, ShaCheck } from './podman-download';
 import * as podman5JSON from '../src/podman5.json';
 import { Readable, Writable } from 'node:stream';
 import { WritableStream } from 'stream/web';
 import { http, HttpResponse } from 'msw';
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { Octokit } from 'octokit';
 
 const mockedPodman5 = {
   version: '5.0.0',
@@ -61,6 +63,10 @@ class TestPodmanDownload extends PodmanDownload {
     return super.getArtifactsToDownload();
   }
 
+  public getDownloadAndCheck(): DownloadAndCheck {
+    return super.getDownloadAndCheck();
+  }
+
   public getShaCheck(): ShaCheck {
     return super.getShaCheck();
   }
@@ -96,6 +102,11 @@ describe('macOS platform', () => {
   test('PodmanDownload with real json', async () => {
     const podmanDownload = new TestPodmanDownload(podman5JSON, true);
 
+    // mock downloadAndCheckSha
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
+    downloadAndCheckShaSpy.mockResolvedValue();
+
     // mock podman5DownloadMachineOS
     const podman5DownloadMachineOS = podmanDownload.getPodman5DownloadMachineOS();
     const podman5DownloadMachineOSSpy = vi.spyOn(podman5DownloadMachineOS, 'download');
@@ -106,65 +117,57 @@ describe('macOS platform', () => {
 
     await podmanDownload.downloadBinaries();
 
-    const value: {
-      version: string;
-      downloadName: string[];
-      artifactName: string[];
-    } = {
-      version: 'v5.',
-      downloadName: [
-        'podman-installer-macos-amd64',
-        'podman-installer-macos-aarch64',
-        'podman-installer-macos-universal',
-      ],
-      artifactName: [
-        'podman-installer-macos-amd64.pkg',
-        'podman-installer-macos-arm64.pkg',
-        'podman-installer-macos-universal.pkg',
-      ],
-    };
+    // check called 2 times
+    expect(downloadAndCheckShaSpy).toHaveBeenCalledTimes(3);
 
     // check called with the correct parameters
-    const artifactsToDownload = podmanDownload.getArtifactsToDownload();
-    artifactsToDownload.forEach(artifact => {
-      expect(artifact.version).toContain('v5.');
-      expect(value.artifactName).toContain(artifact.artifactName);
-      expect(artifact.downloadName).toSatisfy((fileName: string) =>
-        value.downloadName.some(base => fileName.includes(base)),
-      );
-    });
+    expect(downloadAndCheckShaSpy).toHaveBeenCalledWith(
+      expect.stringContaining('v5.'),
+      expect.stringContaining('podman-installer-macos-amd64'),
+      'podman-installer-macos-amd64.pkg',
+    );
+    expect(downloadAndCheckShaSpy).toHaveBeenCalledWith(
+      expect.stringContaining('v5.'),
+      expect.stringContaining('podman-installer-macos-aarch64'),
+      'podman-installer-macos-arm64.pkg',
+    );
+
+    // check airgap download
+    expect(podman5DownloadMachineOSSpy).toHaveBeenCalled();
   });
 
   test('PodmanDownload with mocked json', async () => {
     const podmanDownload = new TestPodmanDownload(mockedPodman5, false);
 
+    // mock downloadAndCheckSha
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
+    downloadAndCheckShaSpy.mockResolvedValue();
+
     await podmanDownload.downloadBinaries();
 
-    const value: {
-      downloadName: string[];
-      artifactName: string[];
-    } = {
-      downloadName: [
-        'podman-installer-macos-amd64-v5.0.0.pkg',
-        'podman-installer-macos-aarch64-v5.0.0.pkg',
-        'podman-installer-macos-universal-v5.0.0.pkg',
-      ],
-      artifactName: [
-        'podman-installer-macos-amd64.pkg',
-        'podman-installer-macos-arm64.pkg',
-        'podman-installer-macos-universal.pkg',
-      ],
-    };
+    // check called 3 (one for each arch + universal) times
+    expect(downloadAndCheckShaSpy).toHaveBeenCalledTimes(3);
 
     // check called with the correct parameters
-    const artifactsToDownload = podmanDownload.getArtifactsToDownload();
-    artifactsToDownload.forEach(artifact => {
-      expect(artifact.version).toContain('v5.0.0');
-      expect(value.artifactName).toContain(artifact.artifactName);
-      expect(artifact.downloadName).toSatisfy((fileName: string) =>
-        value.downloadName.some(base => fileName.includes(base)),
-      );
-    });
+    expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
+      1,
+      'v5.0.0',
+      'podman-installer-macos-amd64-v5.0.0.pkg',
+      'podman-installer-macos-amd64.pkg',
+    );
+    expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
+      2,
+      'v5.0.0',
+      'podman-installer-macos-aarch64-v5.0.0.pkg',
+      'podman-installer-macos-arm64.pkg',
+    );
+    expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
+      3,
+      'v5.0.0',
+      'podman-installer-macos-universal-v5.0.0.pkg',
+      'podman-installer-macos-universal.pkg',
+    );
   });
 });
 
@@ -189,6 +192,11 @@ describe('windows platform', () => {
   test('PodmanDownload with real data', async () => {
     const podmanDownload = new TestPodmanDownload(podman5JSON, true);
 
+    // mock downloadAndCheckSha
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
+    downloadAndCheckShaSpy.mockResolvedValue();
+
     // mock podman5DownloadMachineOS
     const podman5DownloadMachineOS = podmanDownload.getPodman5DownloadMachineOS();
     const podman5DownloadMachineOSSpy = vi.spyOn(podman5DownloadMachineOS, 'download');
@@ -211,11 +219,30 @@ describe('windows platform', () => {
   test('PodmanDownload with mocked json', async () => {
     const podmanDownload = new TestPodmanDownload(mockedPodman5, true);
 
+    // mock downloadAndCheckSha
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
+    downloadAndCheckShaSpy.mockResolvedValue();
+
     const podman5DownloadMachineOS = podmanDownload.getPodman5DownloadMachineOS();
     const podman5DownloadMachineOSSpy = vi.spyOn(podman5DownloadMachineOS, 'download');
     podman5DownloadMachineOSSpy.mockResolvedValue();
 
     await podmanDownload.downloadBinaries();
+
+    // check called
+    expect(downloadAndCheckShaSpy).toHaveBeenCalled();
+
+    // check called with the correct parameters
+    expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
+      1,
+      'v5.0.0',
+      'podman-5.0.0-setup.exe',
+      'podman-5.0.0-setup.exe',
+    );
+
+    // check no airgap download
+    expect(podman5DownloadMachineOSSpy).not.toHaveBeenCalled();
 
     // check called with the correct parameters
     const artifactsToDownload = podmanDownload.getArtifactsToDownload();
@@ -224,6 +251,92 @@ describe('windows platform', () => {
       expect(artifact.artifactName).toBe('podman-5.0.0-setup.exe');
       expect(artifact.downloadName).toBe('podman-5.0.0-setup.exe');
     });
+  });
+});
+
+describe('DownloadAndCheckSha', () => {
+  test('downloadAndCheckSha', async () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+    vi.mocked(mkdirSync).mockReturnValue('');
+
+    const shaCheck = {
+      checkFile: vi.fn(),
+    } as unknown as ShaCheck;
+    // mock GitHub requests
+
+    vi.mocked(shaCheck.checkFile).mockResolvedValue(true);
+
+    const response = {
+      name: 'vFakeVersion',
+      assets: [
+        {
+          url: 'https://api.github.com/repos/containers/podman/releases/assets/456',
+          id: 456,
+          name: 'podman-fake-binary',
+          browser_download_url: 'https://github.com/containers/podman/releases/download/vFakeVersion/podman-binary',
+        },
+
+        {
+          url: 'https://api.github.com/repos/containers/podman/releases/assets/789',
+          id: 789,
+          name: 'shasums',
+          browser_download_url: 'https://github.com/containers/podman/releases/download/vFakeVersion/shasums',
+        },
+      ],
+    };
+    const shasumContent = 'fake-sha podman-fake-binary\n';
+    const podmanBinaryContent = 'fake-binary-content';
+
+    const handlers = [
+      http.get('https://api.github.com/repos/containers/podman/releases/tags/vFakeVersion', () =>
+        HttpResponse.json(response),
+      ),
+
+      http.get(
+        'https://api.github.com/repos/containers/podman/releases/assets/789',
+        () =>
+          new HttpResponse(shasumContent, {
+            status: 200,
+            headers: {
+              'content-type': 'application/octet-stream',
+              'content-length': `${shasumContent.length}`,
+              'content-disposition': 'attachment; filename=binary.zip',
+            },
+          }),
+      ),
+
+      // podman-binary content
+      http.get(
+        'https://api.github.com/repos/containers/podman/releases/assets/456',
+        () =>
+          new HttpResponse(podmanBinaryContent, {
+            status: 200,
+            headers: {
+              'content-type': 'application/octet-stream',
+              'content-length': `${podmanBinaryContent.length}`,
+              'content-disposition': 'attachment; filename=binary.zip',
+            },
+          }),
+      ),
+    ];
+
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
+
+    const octokit = new Octokit();
+
+    const podmanDownload = new DownloadAndCheck(octokit, shaCheck, 'fake-directory');
+
+    await podmanDownload.downloadAndCheckSha('vFakeVersion', 'podman-fake-binary', 'podman-fake-binary');
+
+    // check we wrote the file
+    expect(appendFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('podman-fake-binary'),
+      Buffer.from(podmanBinaryContent),
+    );
+
+    // check the sha
+    expect(shaCheck.checkFile).toHaveBeenCalledWith(expect.stringContaining('podman-fake-binary'), 'fake-sha');
   });
 });
 
