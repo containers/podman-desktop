@@ -20,9 +20,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import { installBinaryToSystem } from './cli-run';
+import { installBinaryToSystem, localBinDir } from './cli-run';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -31,6 +31,7 @@ vi.mock('@podman-desktop/api', async () => {
       showErrorMessage: vi.fn(),
       withProgress: vi.fn(),
       showNotification: vi.fn(),
+      showWarningMessage: vi.fn(),
     },
     process: {
       exec: vi.fn(),
@@ -48,9 +49,17 @@ vi.mock('node:fs', async () => {
   };
 });
 
+let previousPath: string | undefined;
+
 beforeEach(() => {
   vi.resetAllMocks();
   vi.restoreAllMocks();
+  previousPath = process.env.PATH;
+  process.env.PATH = localBinDir;
+});
+
+afterEach(() => {
+  process.env.PATH = previousPath;
 });
 
 test('error: expect installBinaryToSystem to fail with a non existing binary', async () => {
@@ -126,4 +135,32 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
     ]),
     expect.objectContaining({ isAdmin: true }),
   );
+});
+
+test('success: installBinaryToSystem to show warning if binary path not in PATH', async () => {
+  // Mock the platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
+
+  process.env.PATH = '';
+
+  // Mock existsSync to be false since within the function it's doing: !fs.existsSync(localBinDir)
+  vi.spyOn(fs, 'existsSync').mockImplementation(() => {
+    return false;
+  });
+
+  // Run installBinaryToSystem which will trigger the spyOn mock
+  await installBinaryToSystem('test', 'tmpBinary');
+
+  // check called with admin being true
+  expect(extensionApi.process.exec).toBeCalledWith(
+    '/bin/sh',
+    expect.arrayContaining([
+      '-c',
+      `mkdir -p /usr/local/bin && cp test ${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`,
+    ]),
+    expect.objectContaining({ isAdmin: true }),
+  );
+  expect(extensionApi.window.showWarningMessage).toBeCalled();
 });
