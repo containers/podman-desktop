@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ConfigurationScope } from '@podman-desktop/api';
+import type { Terminal } from '@xterm/xterm';
 
 import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 import type {
@@ -52,8 +53,7 @@ export interface IConnectionRestart {
   loggerHandlerKey: symbol;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function writeToTerminal(xterm: any, data: any[], colorPrefix: string): void {
+export function writeToTerminal(xterm: Terminal, data: unknown, colorPrefix: string): void {
   if (Array.isArray(data)) {
     writeArrayToTerminal(xterm, data, colorPrefix);
   } else if (typeof data === 'string') {
@@ -61,7 +61,7 @@ export function writeToTerminal(xterm: any, data: any[], colorPrefix: string): v
   }
 }
 
-function writeArrayToTerminal(xterm: any, data: any[], colorPrefix: string) {
+function writeArrayToTerminal(xterm: Terminal, data: unknown[], colorPrefix: string) {
   for (const content of data) {
     if (Array.isArray(content)) {
       writeArrayToTerminal(xterm, content, colorPrefix);
@@ -71,8 +71,7 @@ function writeArrayToTerminal(xterm: any, data: any[], colorPrefix: string) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
+function writeMultilineString(xterm: Terminal, data: string, colorPrefix: string): void {
   if (data?.includes?.('\n')) {
     const toWrite = data.split('\n');
     for (const s of toWrite) {

@@ -37,7 +37,7 @@ vi.mock('/@/lib/appearance/appearance-util', () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
 });
 
 test('Should display badge', async () => {

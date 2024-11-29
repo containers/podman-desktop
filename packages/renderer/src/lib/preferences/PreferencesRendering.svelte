@@ -60,6 +60,7 @@ function matchValue(text: string, searchValue: string): boolean {
   }
   return text.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function updateSearchValue(event: any) {
   clearTimeout(updateSearchValueTimeout);
   updateSearchValueTimeout = setTimeout(() => (searchValue = event.target.value), 500);

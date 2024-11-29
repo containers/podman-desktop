@@ -48,13 +48,13 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesDeleteService = kubernetesDeleteServiceMock;
-  (window as any).kubernetesReadNamespacedService = vi.fn();
+  Object.defineProperty(window, 'kubernetesDeleteService', { value: kubernetesDeleteServiceMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedService', { value: vi.fn() });
 });
 
 test('Expect redirect to previous page if service is deleted', async () => {
   const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
   const routerGotoSpy = vi.spyOn(router, 'goto');
