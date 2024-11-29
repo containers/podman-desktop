@@ -16,17 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type {
-  Informer,
-  KubernetesObject,
-  ListPromise,
-  ObjectCache,
-  V1Deployment,
-  V1DeploymentList,
-  V1Pod,
-  V1PodList,
-} from '@kubernetes/client-node';
-import { AppsV1Api, CHANGE, CoreV1Api, ERROR, ListWatch, Watch } from '@kubernetes/client-node';
+import type { Informer, KubernetesObject, ListPromise, ObjectCache } from '@kubernetes/client-node';
+import { CHANGE, ERROR, ListWatch, Watch } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
@@ -133,20 +124,4 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
       );
     });
   }
-}
-
-export function newPodInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
-  const namespace = kubeconfig.getNamespace();
-  const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
-  const listFn = (): Promise<V1PodList> => apiClient.listNamespacedPod({ namespace });
-  const path = `/api/v1/namespaces/${namespace}/pods`;
-  return new ResourceInformer<V1Pod>(kubeconfig, path, listFn, 'pods');
-}
-
-export function newDeploymentInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
-  const namespace = kubeconfig.getNamespace();
-  const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
-  const listFn = (): Promise<V1DeploymentList> => apiClient.listNamespacedDeployment({ namespace });
-  const path = `/apis/apps/v1/namespaces/${namespace}/deployments`;
-  return new ResourceInformer<V1Deployment>(kubeconfig, path, listFn, 'deployments');
 }
