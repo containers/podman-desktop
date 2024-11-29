@@ -38,7 +38,7 @@ import { fetchNavigationRegistries } from './stores/navigation/navigation-regist
 
 const eventsMock = vi.fn();
 
-const callbacks = new Map<string, any>();
+const callbacks = new Map<string, (arg: unknown) => void>();
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {};
@@ -46,15 +46,15 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 
 // fake the window object
 beforeAll(() => {
-  (window as any).events = eventsMock;
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).sendNavigationItems = vi.fn();
-  onDidChangeConfiguration.addEventListener = vi.fn().mockImplementation((message: string, callback: any) => {
+  Object.defineProperty(window, 'events', { value: eventsMock });
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'sendNavigationItems', { value: vi.fn() });
+  onDidChangeConfiguration.addEventListener = vi.fn().mockImplementation((message: string, callback: () => void) => {
     callbacks.set(message, callback);
   });
 });
 
-test('Test rendering of the navigation bar with empty items', async () => {
+test('Test rendering of the navigation bar with empty items', async (_arg: unknown) => {
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;

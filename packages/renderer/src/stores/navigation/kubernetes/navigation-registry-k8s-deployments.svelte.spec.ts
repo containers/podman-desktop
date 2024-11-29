@@ -23,7 +23,9 @@ import { createNavigationKubernetesDeploymentsEntry } from './navigation-registr
 
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  Object.defineProperty(window, 'kubernetesRegisterGetCurrentContextResources', {
+    value: kubernetesRegisterGetCurrentContextResourcesMock,
+  });
 });
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();

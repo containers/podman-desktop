@@ -7,6 +7,7 @@ import WindowsMinIcon from '/@/lib/images/WindowsMinIcon.svelte';
 import WindowsUnmaxIcon from '/@/lib/images/WindowsUnmaxIcon.svelte';
 
 const iconSize = '16';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let icon: any;
 let state = 'initial';
 
