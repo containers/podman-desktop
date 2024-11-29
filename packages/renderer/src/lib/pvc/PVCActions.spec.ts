@@ -51,10 +51,10 @@ fakePVC.selected = false;
 fakePVC.size = '1Gi';
 
 beforeEach(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).kubernetesDeletePersistentVolumeClaim = deleteMock;
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'kubernetesDeletePersistentVolumeClaim', { value: deleteMock });
   (window.events as unknown) = {
-    receive: (_channel: string, func: any) => {
+    receive: (_channel: string, func: () => void) => {
       func();
     },
   };

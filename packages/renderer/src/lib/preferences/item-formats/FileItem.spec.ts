@@ -28,8 +28,8 @@ import FileItem from './FileItem.svelte';
 const openDialogMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).openDialog = openDialogMock;
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'openDialog', { value: openDialogMock });
 });
 
 test('Ensure HTMLInputElement', async () => {

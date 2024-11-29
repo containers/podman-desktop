@@ -27,7 +27,7 @@ import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRende
 const getOsPlatformMock = vi.fn();
 
 beforeEach(() => {
-  (window as any).getOsPlatform = getOsPlatformMock;
+  Object.defineProperty(window, 'getOsPlatform', { value: getOsPlatformMock });
 });
 
 describe('Windows', () => {

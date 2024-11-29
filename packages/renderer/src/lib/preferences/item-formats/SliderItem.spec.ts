@@ -25,7 +25,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import SliderItem from './SliderItem.svelte';
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
 });
 
 test('Ensure HTMLInputElement', async () => {
