@@ -116,7 +116,7 @@ jobs:
           pnpm test:e2e
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v5
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true
@@ -187,7 +187,7 @@ jobs:
           pnpm test:e2e:update:run
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v5
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true
