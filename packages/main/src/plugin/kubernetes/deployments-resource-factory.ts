@@ -16,27 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Deployment, V1DeploymentList, V1ResourceAttributes } from '@kubernetes/client-node';
+import type { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+import type { ResourceFactory } from './resource-factory-handler.js';
+import { ResourceFactoryBase } from './resource-factory-handler.js';
 import { ResourceInformer } from './resource-informer.js';
 
-export class DeploymentsResourceFactory {
-  resource = 'deployments';
-  isNamespaced = true;
-  permissionsRequests: V1ResourceAttributes[] = [
-    {
-      group: '*',
-      resource: '*',
-      verb: 'watch',
-    },
-    {
-      verb: 'watch',
-      group: 'apps',
+export class DeploymentsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
+  constructor() {
+    super({
       resource: 'deployments',
-    },
-  ];
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          group: 'apps',
+          resource: 'deployments',
+        },
+      ],
+    });
+  }
 
   getInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
     const namespace = kubeconfig.getNamespace();

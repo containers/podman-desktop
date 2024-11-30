@@ -16,26 +16,32 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Pod, V1PodList, V1ResourceAttributes } from '@kubernetes/client-node';
+import type { V1Pod, V1PodList } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+import type { ResourceFactory } from './resource-factory-handler.js';
+import { ResourceFactoryBase } from './resource-factory-handler.js';
 import { ResourceInformer } from './resource-informer.js';
 
-export class PodsResourceFactory {
-  resource = 'pods';
-  isNamespaced = true;
-  permissionsRequests: V1ResourceAttributes[] = [
-    {
-      group: '*',
-      resource: '*',
-      verb: 'watch',
-    },
-    {
-      verb: 'watch',
+export class PodsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
+  constructor() {
+    super({
       resource: 'pods',
-    },
-  ];
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          resource: 'pods',
+        },
+      ],
+    });
+  }
 
   getInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
     const namespace = kubeconfig.getNamespace();

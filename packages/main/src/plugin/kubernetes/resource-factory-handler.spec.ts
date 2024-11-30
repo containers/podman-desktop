@@ -20,34 +20,38 @@ import { expect, test } from 'vitest';
 
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
-import { ResourceFactoryHandler } from './resource-factory-handler.js';
+import { ResourceFactoryBase, ResourceFactoryHandler } from './resource-factory-handler.js';
 
 test('with 1 level and same request', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -66,29 +70,33 @@ test('with 1 level and same request', () => {
 test('with 1 level and different requests', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: 'group1',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: 'group1',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: 'group2',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: 'group2',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -116,38 +124,42 @@ test('with 1 level and different requests', () => {
 test('with 2 levels and same request at first level', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-      {
-        verb: 'watch',
-        resource: 'resource1',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          resource: 'resource1',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-      {
-        verb: 'watch',
-        group: 'group2',
-        resource: 'resource2',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          group: 'group2',
+          resource: 'resource2',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -185,29 +197,33 @@ test('with 2 levels and same request at first level', () => {
 test('with 1 level and same request, non namespaced', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -225,29 +241,33 @@ test('with 1 level and same request, non namespaced', () => {
 test('with 1 level and different requests, non namespaced', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: 'group1',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: 'group1',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: 'group2',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: 'group2',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -273,38 +293,42 @@ test('with 1 level and different requests, non namespaced', () => {
 test('with 2 levels and same request at first level, non namespaced', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-      {
-        verb: 'watch',
-        resource: 'resource1',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          resource: 'resource1',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-      {
-        verb: 'watch',
-        group: 'group2',
-        resource: 'resource2',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+        {
+          verb: 'watch',
+          group: 'group2',
+          resource: 'resource2',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
@@ -339,29 +363,33 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 test('with 1 level and same request, both namespaced ant not namespaced', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add({
-    resource: 'resource1',
-    isNamespaced: true,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource1',
+      isNamespaced: true,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
-  factoryHandler.add({
-    resource: 'resource2',
-    isNamespaced: false,
-    permissionsRequests: [
-      {
-        group: '*',
-        resource: '*',
-        verb: 'watch',
-      },
-    ],
-  });
+  factoryHandler.add(
+    new ResourceFactoryBase({
+      resource: 'resource2',
+      isNamespaced: false,
+      permissionsRequests: [
+        {
+          group: '*',
+          resource: '*',
+          verb: 'watch',
+        },
+      ],
+    }),
+  );
 
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([

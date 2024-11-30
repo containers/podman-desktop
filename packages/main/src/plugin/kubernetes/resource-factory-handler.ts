@@ -24,11 +24,48 @@ import type { ContextPermissionsRequest } from './context-permissions-checker.js
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import type { ResourceInformer } from './resource-informer.js';
 
+export class ResourceFactoryBase {
+  #resource: string;
+  #permissionsRequests: V1ResourceAttributes[];
+  #isNamespaced: boolean;
+
+  constructor(options: {
+    resource: string;
+    permissionsRequests: V1ResourceAttributes[];
+    isNamespaced: boolean;
+  }) {
+    this.#resource = options.resource;
+    this.#permissionsRequests = options.permissionsRequests;
+    this.#isNamespaced = options.isNamespaced;
+  }
+
+  get resource(): string {
+    return this.#resource;
+  }
+
+  get permissionsRequests(): V1ResourceAttributes[] {
+    return this.#permissionsRequests;
+  }
+
+  get isNamespaced(): boolean {
+    return this.#isNamespaced;
+  }
+
+  copyWithSlicedPermissions(): ResourceFactory {
+    return new ResourceFactoryBase({
+      resource: this.#resource,
+      permissionsRequests: this.#permissionsRequests.slice(1),
+      isNamespaced: this.#isNamespaced,
+    });
+  }
+}
+
 export interface ResourceFactory {
   get resource(): string;
   get permissionsRequests(): V1ResourceAttributes[];
   get isNamespaced(): boolean;
   getInformer?(kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject>;
+  copyWithSlicedPermissions(): ResourceFactory;
 }
 
 export class ResourceFactoryHandler {
@@ -79,11 +116,8 @@ export class ResourceFactoryHandler {
       },
       resources: [firstFilteredResourceFactory.resource],
     };
-    const clone = {
-      ...structuredClone(firstFilteredResourceFactory),
-      permissionsRequests: firstFilteredResourceFactory.permissionsRequests.slice(1),
-    };
-    children.push(clone);
+    const child = firstFilteredResourceFactory.copyWithSlicedPermissions();
+    children.push(child);
     const remainings: ResourceFactory[] = [];
     for (const filteredResourceFactory of filteredResourceFactories.slice(1)) {
       if (
@@ -93,11 +127,8 @@ export class ResourceFactoryHandler {
         )
       ) {
         newRequest.resources.push(filteredResourceFactory.resource);
-        const clone = {
-          ...structuredClone(filteredResourceFactory),
-          permissionsRequests: filteredResourceFactory.permissionsRequests.slice(1),
-        };
-        children.push(clone);
+        const child = filteredResourceFactory.copyWithSlicedPermissions();
+        children.push(child);
       } else {
         remainings.push(filteredResourceFactory);
       }
