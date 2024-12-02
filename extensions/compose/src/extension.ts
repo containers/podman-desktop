@@ -133,7 +133,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
         // register the cli tool if necessary
         if (!composeCliTool) {
-          await registerCLITool(composeDownload, detect);
+          await registerCLITool(composeDownload, detect, extensionContext);
         }
       } finally {
         // Make sure we log the telemetry even if we encounter an error
@@ -230,14 +230,18 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    registerCLITool(composeDownload, detect).catch((error: unknown) => {
+    registerCLITool(composeDownload, detect, extensionContext).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function registerCLITool(composeDownload: ComposeDownload, detect: Detect): Promise<void> {
+async function registerCLITool(
+  composeDownload: ComposeDownload,
+  detect: Detect,
+  context: extensionApi.ExtensionContext,
+): Promise<void> {
   // build executable name for current platform
   const executable = os.isWindows() ? composeCliName + '.exe' : composeCliName;
 
@@ -344,11 +348,6 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToUpdateTo;
-      if (releaseVersionToUpdateTo === latestVersion) {
-        delete update.version;
-      } else {
-        update.version = latestVersion;
-      }
       releaseVersionToUpdateTo = undefined;
       releaseToUpdateTo = undefined;
     },
@@ -358,13 +357,15 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   let releaseToInstall: ComposeGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
 
-  composeCliTool.onDidUpdateVersion((version: string) => {
-    if (version === latestVersion) {
-      delete update.version;
-    } else {
-      update.version = latestVersion;
-    }
-  });
+  context.subscriptions.push(
+    composeCliTool.onDidUpdateVersion((version: string) => {
+      if (version === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
+    }),
+  );
 
   composeCliToolInstallerDisposable = composeCliTool.registerInstaller({
     selectVersion: async () => {
@@ -394,13 +395,9 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
-      if (releaseVersionToInstall === latestVersion) {
-        delete update.version;
-      } else {
-        update.version = latestVersion;
-      }
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
+      extensionApi.context.setValue('compose.isComposeInstalledSystemWide', true);
     },
     doUninstall: async _logger => {
       if (!binaryVersion) {
@@ -418,6 +415,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       // update the version to undefined
       binaryVersion = undefined;
       binaryPath = undefined;
+      extensionApi.context.setValue('compose.isComposeInstalledSystemWide', false);
     },
   });
 
