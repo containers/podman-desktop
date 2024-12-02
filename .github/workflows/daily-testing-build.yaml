@@ -28,7 +28,6 @@ env:
   DEBUG: electron-builder
 
 jobs:
-
   tag:
     name: Tagging
     runs-on: ubuntu-24.04
