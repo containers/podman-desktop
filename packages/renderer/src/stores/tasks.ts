@@ -17,16 +17,66 @@
  ***********************************************************************/
 
 import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 
-import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
+import { type NotificationTaskInfo, TASK_STATUSES, type TaskInfo, type TaskStatus } from '/@api/taskInfo';
 
 import type { TaskImpl } from '../../../main/src/plugin/tasks/task-impl';
+import { findMatchInLeaves } from './search-util';
+
+/**
+ * When tasks are displayed into a table, the selected property is used
+ * to flag the task as being selectable.
+ */
+export interface TaskInfoUI extends TaskInfo {
+  selected?: boolean;
+}
 
 /**
  * Defines the store used to define the tasks.
  */
-export const tasksInfo: Writable<TaskInfo[]> = writable([]);
+export const tasksInfo: Writable<TaskInfoUI[]> = writable([]);
+
+// is: prefixes for all the task status
+export const IS_TASK_STATUSES: string[] = TASK_STATUSES.map(status => `is:${status}`);
+
+export const searchPattern = writable('');
+
+// get the TaskStatus value from the search pattern
+export function getMatchingStatusFromSearchPattern(patternQuery: string): TaskStatus | undefined {
+  const matchingFilters = patternQuery.split(' ').filter(pattern => IS_TASK_STATUSES.includes(pattern));
+
+  if (matchingFilters.length < 1) {
+    return undefined;
+  }
+  // take the first match
+  const matchingFilter = matchingFilters[0];
+
+  // remove the is: prefix
+  const searchPattern = matchingFilter.substring(3);
+
+  if (TASK_STATUSES.includes(searchPattern as TaskStatus)) {
+    return searchPattern as TaskStatus;
+  }
+
+  return undefined;
+}
+
+export const filtered = derived([searchPattern, tasksInfo], ([$searchPattern, $tasksInfo]) => {
+  const matchingStatus = getMatchingStatusFromSearchPattern($searchPattern);
+  return $tasksInfo
+    .filter(taskInfo =>
+      findMatchInLeaves(
+        taskInfo,
+        $searchPattern
+          .split(' ')
+          .filter(pattern => !pattern.startsWith('is:'))
+          .join(' ')
+          .toLowerCase(),
+      ),
+    )
+    .filter(task => (matchingStatus ? task.status === matchingStatus : true));
+});
 
 // remove element from the store
 export async function removeTask(taskId: string): Promise<void> {
