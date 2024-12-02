@@ -26,6 +26,7 @@ import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
 import type { ContextPermissionResult, ContextResourcePermission } from './context-permissions-checker.js';
 import { ContextPermissionsChecker } from './context-permissions-checker.js';
+import { ContextResourceRegistry } from './context-resource-registry.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsDispatcher } from './contexts-dispatcher.js';
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
@@ -48,8 +49,8 @@ export class ContextsManagerExperimental {
   #dispatcher: ContextsDispatcher;
   #healthCheckers: Map<string, ContextHealthChecker>;
   #permissionsCheckers: Map<string, ContextPermissionsChecker>;
-  #informers: Map<string, ResourceInformer<KubernetesObject>>;
-  #objectCaches: Map<string, ObjectCache<KubernetesObject>>;
+  #informers: ContextResourceRegistry<ResourceInformer<KubernetesObject>>;
+  #objectCaches: ContextResourceRegistry<ObjectCache<KubernetesObject>>;
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -67,8 +68,8 @@ export class ContextsManagerExperimental {
     // Add more resources here
     this.#healthCheckers = new Map<string, ContextHealthChecker>();
     this.#permissionsCheckers = new Map<string, ContextPermissionsChecker>();
-    this.#informers = new Map<string, ResourceInformer<KubernetesObject>>();
-    this.#objectCaches = new Map<string, ObjectCache<KubernetesObject>>();
+    this.#informers = new ContextResourceRegistry<ResourceInformer<KubernetesObject>>();
+    this.#objectCaches = new ContextResourceRegistry<ObjectCache<KubernetesObject>>();
     this.#dispatcher = new ContextsDispatcher();
     this.#dispatcher.onAdd(this.onAdd.bind(this));
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
@@ -102,6 +103,7 @@ export class ContextsManagerExperimental {
 
         newPermissionChecker.onPermissionResult((event: ContextPermissionResult) => {
           for (const resource of event.resources) {
+            const contextName = event.kubeConfig.getKubeConfig().currentContext;
             const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
             if (!factory) {
               throw new Error(
@@ -114,15 +116,21 @@ export class ContextsManagerExperimental {
               continue;
             }
             const informer = factory.getInformer(event.kubeConfig);
-            this.#informers.set(resource, informer);
+            this.#informers.set(contextName, resource, informer);
             informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
+              /* just log for now */
+              const list = this.#objectCaches.get(contextName, resource)?.list();
+              console.log(
+                `==> ${resource} in ${contextName}`,
+                list?.map(o => o.metadata?.name),
+              );
               /* send event to dispatcher */
             });
             informer.onOffline((_e: OfflineEvent) => {
               /* send event to dispatcher */
             });
             const cache = informer.start();
-            this.#objectCaches.set(resource, cache);
+            this.#objectCaches.set(contextName, resource, cache);
           }
         });
         await newPermissionChecker.start();
@@ -223,9 +231,8 @@ export class ContextsManagerExperimental {
 
   // disposeAllInformers disposes all informers and removes them from registry
   private disposeAllInformers(): void {
-    for (const [contextName, informer] of this.#informers.entries()) {
+    for (const informer of this.#informers.getAll()) {
       informer.dispose();
-      this.#informers.delete(contextName);
     }
   }
 }
