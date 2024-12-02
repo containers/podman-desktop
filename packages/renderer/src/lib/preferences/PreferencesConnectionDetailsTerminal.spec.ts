@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { get } from 'svelte/store';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { providerTerminals } from '/@/stores/provider-terminal-store';
 import type {
@@ -70,6 +70,11 @@ beforeEach(() => {
       }),
     },
   });
+});
+
+afterAll(() => {
+  //because of the delayed event make sure the mock is returning a Promise
+  shellInProviderConnectionMock.mockRejectedValue(new Error());
 });
 
 test('expect being able to reconnect ', async () => {
