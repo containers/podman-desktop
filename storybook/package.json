@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "autoprefixer": "^10.4.20",
     "cross-env": "7.0.3",
-    "eslint-plugin-svelte": "^2.46.0",
+    "eslint-plugin-svelte": "^2.46.1",
     "postcss": "^8.4.49",
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
