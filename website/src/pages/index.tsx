@@ -108,9 +108,9 @@ function Hero(): JSX.Element {
               Best Free &amp; Open Source Tool for Containers &amp; Kubernetes
             </h1>
             <p className="text-base md:text-lg">
-              Podman Desktop is the best free and open source tool to work with Containers and Kubernetes for
-              developers. Get an intuitive and user-friendly interface to effortlessly bridge the gap between local
-              development and Kubernetes clusters. Build, manage, and deploy everywhere with ease from a single tool.
+              The best free and open source tool for developers to work with containers and Kubernetes. Simplify
+              container management, streamline Kubernetes workflows, and transition from local development to production
+              with ease.
             </p>
             <div className="flex-none">
               {/* With client mode, provides the link to the client browser */}
