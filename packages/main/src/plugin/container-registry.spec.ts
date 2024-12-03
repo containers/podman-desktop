@@ -1220,12 +1220,9 @@ test('pull unknown image fails with error 403', async () => {
   );
 });
 
-test('pulling an image with platform=linux/arm64 will add the platform to the pull options', async () => {
-  const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
-  //vi.spyOn(containerRegistry, 'pullImage').mockReturnValue(Promise.resolve());
-
+test('pulling an image with platform linux/arm64 will add platform to pull options', async () => {
+  // Mock the pulling and dockerode
   const pullMock = vi.fn();
-
   const fakeDockerode = {
     pull: pullMock,
     modem: {
@@ -1233,19 +1230,49 @@ test('pulling an image with platform=linux/arm64 will add the platform to the pu
     },
   } as unknown as Dockerode;
 
+  // This is important, if we do the standard mock of vi.fn(), it WILL get caught in a 5 second timeout
+  // so instead we "fake" the progress to be completed.
+  vi.spyOn(fakeDockerode.modem, 'followProgress').mockImplementation((_s, f, _p) => {
+    return f(null, []);
+  });
+
+  // Add the internal provider
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+      endpoint: {
+        socketPath: '/podman1.socket',
+      },
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider);
+
+  // Connection information & testing it
+  const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
   getMatchingEngineFromConnectionSpy.mockReturnValue(fakeDockerode);
+  const connection = containerRegistry.getFirstRunningPodmanContainerProvider();
+  expect(connection).toBeDefined();
+  const providerConnectionInfo: ProviderContainerConnectionInfo = {
+    name: 'podman1',
+    type: 'podman1',
+    endpoint: {
+      socketPath: '/podman1.socket',
+    },
+    status: 'started',
+  } as unknown as ProviderContainerConnectionInfo;
 
-  const containerConnectionInfo = {} as ProviderContainerConnectionInfo;
+  // Pull the image and check that we were able to
+  const engine = {
+    getImage: vi.fn().mockReturnValue({ push: vi.fn().mockResolvedValue({ on: vi.fn() }) }),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  const result = await containerRegistry.pullImage(providerConnectionInfo, 'unknown-image', () => {}, 'linux/arm64');
+  expect(result).toBeUndefined();
 
-  pullMock.mockResolvedValue({ statusCode: 201 });
-
-  const callback = vi.fn();
-
-  // Expect pull image to pass
-  // we use .catch to avoid an unhandled promise rejection, we don't care about the result, we just
-  // want to check that the call was made with the correct platform
-  containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback, 'linux/arm64').catch(() => {});
-
+  // Check that linux/arm64 was passed in
   expect(pullMock).toHaveBeenCalledWith('unknown-image', {
     abortSignal: undefined,
     authconfig: undefined,
