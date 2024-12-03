@@ -24,6 +24,8 @@ export let data: { selected?: boolean; name?: string }[];
 export let defaultSortColumn: string | undefined = undefined;
 export let collapsed: string[] = [];
 
+let tableHtmlDivElement: HTMLDivElement | undefined = undefined;
+
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
 $: selectedItemsNumber = row.info.selectable
@@ -145,9 +147,11 @@ function setGridColumns(): void {
   columnWidths.push('5px');
 
   let wid = columnWidths.join(' ');
-  let grids: HTMLCollection = document.getElementsByClassName('grid-table');
-  for (const element of grids) {
-    (element as HTMLElement).style.setProperty('grid-template-columns', wid);
+  if (tableHtmlDivElement) {
+    let grids: HTMLCollection = tableHtmlDivElement.getElementsByClassName('grid-table');
+    for (const element of grids) {
+      (element as HTMLElement).style.setProperty('grid-template-columns', wid);
+    }
   }
 }
 
@@ -180,7 +184,7 @@ function toggleChildren(name: string | undefined): void {
 }
 </script>
 
-<div class="w-full mx-5" class:hidden={data.length === 0} role="table" aria-label={kind}>
+<div class="w-full mx-5" class:hidden={data.length === 0} role="table" aria-label={kind} bind:this={tableHtmlDivElement}>
   <!-- Table header -->
   <div role="rowgroup">
     <div
