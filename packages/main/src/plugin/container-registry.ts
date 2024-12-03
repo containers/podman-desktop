@@ -1127,6 +1127,7 @@ export class ContainerProviderRegistry {
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     imageName: string,
     callback: (event: PullEvent) => void,
+    platform?: string,
     abortController?: AbortController,
   ): Promise<void> {
     let telemetryOptions = {};
@@ -1135,6 +1136,7 @@ export class ContainerProviderRegistry {
       const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
       const pullStream = await matchingEngine.pull(imageName, {
         authconfig,
+        platform,
         abortSignal: abortController?.signal,
       });
       let resolve: () => void;
