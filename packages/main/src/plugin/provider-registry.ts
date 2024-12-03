@@ -1325,4 +1325,8 @@ export class ProviderRegistry {
       throw error;
     }
   }
+
+  getProviderName(internalProviderId: string): string | undefined {
+    return this.providers.get(internalProviderId)?.extensionDisplayName;
+  }
 }

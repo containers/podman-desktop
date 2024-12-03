@@ -1241,3 +1241,20 @@ describe('shellInProviderConnection', () => {
     expect(closeMock).toBeCalled();
   });
 });
+
+test('should retrieve provider name from provider internal id', async () => {
+  providerRegistry.createProvider('id1', 'name1', {
+    id: 'internal1',
+    name: 'internal1',
+    status: 'installed',
+  });
+
+  providerRegistry.createProvider('id2', 'name2', {
+    id: 'internal2',
+    name: 'internal2',
+    status: 'installed',
+  });
+
+  expect(providerRegistry.getProviderName('0')).toBe('name1');
+  expect(providerRegistry.getProviderName('1')).toBe('name2');
+});
