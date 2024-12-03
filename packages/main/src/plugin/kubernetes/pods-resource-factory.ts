@@ -20,14 +20,17 @@ import type { V1Pod, V1PodList } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
-import type { ResourceFactory } from './resource-factory-handler.js';
-import { ResourceFactoryBase } from './resource-factory-handler.js';
+import type { ResourceFactory } from './resource-factory.js';
+import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from './resource-informer.js';
 
 export class PodsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {
     super({
       resource: 'pods',
+    });
+
+    this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -41,9 +44,12 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
         },
       ],
     });
+    this.setInformer({
+      createInformer: this.createInformer,
+    });
   }
 
-  getInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
+  createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
     const namespace = kubeconfig.getNamespace();
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PodList> => apiClient.listNamespacedPod({ namespace });

@@ -18,55 +18,9 @@
 
 import util from 'node:util';
 
-import type { KubernetesObject, V1ResourceAttributes } from '@kubernetes/client-node';
-
 import type { ContextPermissionsRequest } from './context-permissions-checker.js';
-import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
-import type { ResourceInformer } from './resource-informer.js';
-
-export class ResourceFactoryBase {
-  #resource: string;
-  #permissionsRequests: V1ResourceAttributes[];
-  #isNamespaced: boolean;
-
-  constructor(options: {
-    resource: string;
-    permissionsRequests: V1ResourceAttributes[];
-    isNamespaced: boolean;
-  }) {
-    this.#resource = options.resource;
-    this.#permissionsRequests = options.permissionsRequests;
-    this.#isNamespaced = options.isNamespaced;
-  }
-
-  get resource(): string {
-    return this.#resource;
-  }
-
-  get permissionsRequests(): V1ResourceAttributes[] {
-    return this.#permissionsRequests;
-  }
-
-  get isNamespaced(): boolean {
-    return this.#isNamespaced;
-  }
-
-  copyWithSlicedPermissions(): ResourceFactory {
-    return new ResourceFactoryBase({
-      resource: this.#resource,
-      permissionsRequests: this.#permissionsRequests.slice(1),
-      isNamespaced: this.#isNamespaced,
-    });
-  }
-}
-
-export interface ResourceFactory {
-  get resource(): string;
-  get permissionsRequests(): V1ResourceAttributes[];
-  get isNamespaced(): boolean;
-  getInformer?(kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject>;
-  copyWithSlicedPermissions(): ResourceFactory;
-}
+import type { ResourceFactory } from './resource-factory.js';
+import { isResourceFactoryWithPermissions } from './resource-factory.js';
 
 export class ResourceFactoryHandler {
   #resourceFactories: ResourceFactory[] = [];
@@ -100,19 +54,21 @@ export class ResourceFactoryHandler {
     if (isNamespaced && !namespace) {
       throw new Error('request for namespaced must define a namespace');
     }
-    const filteredResourceFactories = factories.filter(f => f.isNamespaced === isNamespaced);
+    const filteredResourceFactories = factories
+      .filter(isResourceFactoryWithPermissions)
+      .filter(f => f.permissions.isNamespaced === isNamespaced);
     if (!filteredResourceFactories[0]) {
       return [];
     }
     const firstFilteredResourceFactory = filteredResourceFactories[0];
-    if (!firstFilteredResourceFactory.permissionsRequests[0]) {
+    if (!firstFilteredResourceFactory.permissions.permissionsRequests[0]) {
       return [];
     }
     const children: ResourceFactory[] = [];
     const newRequest: ContextPermissionsRequest = {
       attrs: {
         namespace: isNamespaced ? namespace : undefined,
-        ...firstFilteredResourceFactory.permissionsRequests[0],
+        ...firstFilteredResourceFactory.permissions.permissionsRequests[0],
       },
       resources: [firstFilteredResourceFactory.resource],
     };
@@ -122,8 +78,8 @@ export class ResourceFactoryHandler {
     for (const filteredResourceFactory of filteredResourceFactories.slice(1)) {
       if (
         util.isDeepStrictEqual(
-          filteredResourceFactory.permissionsRequests[0],
-          firstFilteredResourceFactory.permissionsRequests[0],
+          filteredResourceFactory.permissions.permissionsRequests[0],
+          firstFilteredResourceFactory.permissions.permissionsRequests[0],
         )
       ) {
         newRequest.resources.push(filteredResourceFactory.resource);

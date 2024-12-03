@@ -20,7 +20,8 @@ import { expect, test } from 'vitest';
 
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
-import { ResourceFactoryBase, ResourceFactoryHandler } from './resource-factory-handler.js';
+import { ResourceFactoryBase } from './resource-factory.js';
+import { ResourceFactoryHandler } from './resource-factory-handler.js';
 
 test('with 1 level and same request', () => {
   const factoryHandler = new ResourceFactoryHandler();
@@ -28,6 +29,7 @@ test('with 1 level and same request', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -42,6 +44,7 @@ test('with 1 level and same request', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -73,6 +76,7 @@ test('with 1 level and different requests', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -87,6 +91,7 @@ test('with 1 level and different requests', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -127,6 +132,7 @@ test('with 2 levels and same request at first level', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -145,6 +151,7 @@ test('with 2 levels and same request at first level', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -200,6 +207,7 @@ test('with 1 level and same request, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -214,6 +222,7 @@ test('with 1 level and same request, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -244,6 +253,7 @@ test('with 1 level and different requests, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -258,6 +268,7 @@ test('with 1 level and different requests, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -296,6 +307,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -314,6 +326,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {
@@ -366,6 +379,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource1',
+    }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -380,6 +394,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
   factoryHandler.add(
     new ResourceFactoryBase({
       resource: 'resource2',
+    }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
         {

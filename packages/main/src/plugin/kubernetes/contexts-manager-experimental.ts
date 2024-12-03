@@ -110,18 +110,18 @@ export class ContextsManagerExperimental {
                 `a permission for resource ${resource} has been received but no factory is handling it, this should not happen`,
               );
             }
-            if (!factory.getInformer) {
+            if (!factory.informer) {
               // no informer for this factory, skipping
               // (we may want to check permissions on some resource, without having to start an informer)
               continue;
             }
-            const informer = factory.getInformer(event.kubeConfig);
+            const informer = factory.informer.createInformer(event.kubeConfig);
             this.#informers.set(contextName, resource, informer);
             informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
               /* just log for now */
               const list = this.#objectCaches.get(contextName, resource)?.list();
               console.log(
-                `==> ${resource} in ${contextName}`,
+                `${resource} in ${contextName}`,
                 list?.map(o => o.metadata?.name),
               );
               /* send event to dispatcher */

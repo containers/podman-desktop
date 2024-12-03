@@ -20,14 +20,17 @@ import type { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
-import type { ResourceFactory } from './resource-factory-handler.js';
-import { ResourceFactoryBase } from './resource-factory-handler.js';
+import type { ResourceFactory } from './resource-factory.js';
+import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from './resource-informer.js';
 
 export class DeploymentsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {
     super({
       resource: 'deployments',
+    });
+
+    this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [
         {
@@ -42,9 +45,12 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
         },
       ],
     });
+    this.setInformer({
+      createInformer: this.createInformer,
+    });
   }
 
-  getInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
+  createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
     const namespace = kubeconfig.getNamespace();
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
     const listFn = (): Promise<V1DeploymentList> => apiClient.listNamespacedDeployment({ namespace });
