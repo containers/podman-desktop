@@ -1290,7 +1290,7 @@ export class PluginSystem {
       ): Promise<unknown> => {
         // create task
         const task = taskManager.createTask({
-          title: `Build ${imageName}`,
+          title: `Building ${imageName}`,
           action: {
             name: 'Go to task >',
             execute: () => {
@@ -1341,7 +1341,7 @@ export class PluginSystem {
       async (_listener, engine: string, options: ContainerExportOptions): Promise<void> => {
         // create task
         const task = taskManager.createTask({
-          title: 'Export container',
+          title: `Exporting ${options.id ?? 'container'}`,
           action: {
             name: 'Open folder',
             execute: (): void => {
@@ -1370,7 +1370,7 @@ export class PluginSystem {
       async (_listener, options: ContainerImportOptions): Promise<void> => {
         // create task
         const task = taskManager.createTask({
-          title: 'Import container',
+          title: `Importing ${options.imageTag ?? 'container'}`,
         });
         // wrap the logic to handle potential error
         return containerProviderRegistry
@@ -1391,7 +1391,7 @@ export class PluginSystem {
       async (_listener, options: ImagesSaveOptions): Promise<void> => {
         // create task
         const task = taskManager.createTask({
-          title: 'Save images',
+          title: `Saving image${options.images.length > 1 ? 's' : ''}`,
         });
         // wrap the logic to handle potential error
         return containerProviderRegistry
@@ -1412,7 +1412,7 @@ export class PluginSystem {
       async (_listener, options: ImageLoadOptions): Promise<void> => {
         // create task
         const task = taskManager.createTask({
-          title: 'Load images',
+          title: `Loading image${options.archives.length > 1 ? 's' : ''}`,
         });
         // wrap the logic to handle potential error
         return containerProviderRegistry
@@ -1507,7 +1507,7 @@ export class PluginSystem {
 
         // create task
         const task = taskManager.createTask({
-          title: `Update ${tool.name} to v${version}`,
+          title: `Updating ${tool.name} to v${version}`,
           action: {
             name: 'goto task >',
             execute: (): void => {
@@ -1549,7 +1549,7 @@ export class PluginSystem {
 
         // create task
         const task = taskManager.createTask({
-          title: `Install ${tool.name} to v${versionToInstall}`,
+          title: `Installing ${tool.name} to v${versionToInstall}`,
           action: {
             name: 'goto task >',
             execute: (): void => {
@@ -1584,7 +1584,7 @@ export class PluginSystem {
 
         // create task
         const task = taskManager.createTask({
-          title: `Uninstall ${tool.name} v${tool.version}`,
+          title: `Uninstalling ${tool.name} v${tool.version}`,
           action: {
             name: 'goto task >',
             execute: (): void => {
@@ -2083,7 +2083,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const task = taskManager.createTask({
-          title: `Start ${providerConnectionInfo.name}`,
+          title: `Starting ${providerConnectionInfo.name}`,
           action: {
             name: 'Go to task >',
             execute: () => {
@@ -2119,7 +2119,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const task = taskManager.createTask({
-          title: `Stop ${providerConnectionInfo.name}`,
+          title: `Stopping ${providerConnectionInfo.name}`,
           action: {
             name: 'Go to task >',
             execute: () => {
@@ -2166,7 +2166,7 @@ export class PluginSystem {
         }
 
         const task = taskManager.createTask({
-          title: `Create Container provider`,
+          title: `Creating ${providerConnectionInfo.name} provider`,
           action: {
             name: 'Open task',
             execute: () => {
@@ -2201,7 +2201,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const task = taskManager.createTask({
-          title: `Delete ${providerConnectionInfo.name}`,
+          title: `Deleting ${providerConnectionInfo.name}`,
           action: {
             name: 'Go to resources',
             execute: () => {
@@ -2246,7 +2246,7 @@ export class PluginSystem {
         }
 
         const task = taskManager.createTask({
-          title: `Create Container provider`,
+          title: `Creating Container provider`,
           action: {
             name: 'Open task',
             execute: () => {
@@ -2303,7 +2303,7 @@ export class PluginSystem {
         }
 
         const task = taskManager.createTask({
-          title: `Create Kubernetes provider`,
+          title: `Creating Kubernetes provider`,
           action: {
             name: 'Open task',
             execute: () => {
