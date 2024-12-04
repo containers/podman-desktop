@@ -1327,11 +1327,10 @@ export class ProviderRegistry {
   }
 
   getProviderInfo(internalProviderId: string): ProviderInfo | undefined {
-    try {
-      const provider = this.getMatchingProvider(internalProviderId);
+    const provider = this.providers.get(internalProviderId);
+    if (provider) {
       return this.toProviderInfo(provider);
-    } catch (e) {
-      return undefined;
     }
+    return undefined;
   }
 }
