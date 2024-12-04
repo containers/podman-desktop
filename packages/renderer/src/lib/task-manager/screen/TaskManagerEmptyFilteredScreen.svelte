@@ -3,8 +3,12 @@ import { FilteredEmptyScreen } from '@podman-desktop/ui-svelte';
 
 import TaskIcon from '/@/lib/images/TaskIcon.svelte';
 
-let { searchTerm = $bindable(), onReset = () => {} }: { searchTerm: string; onReset?: (term: string) => void } =
-  $props();
+interface Props {
+  searchTerm: string;
+  onReset?: (term: string) => void;
+}
+
+let { searchTerm = $bindable(), onReset = () => {} }: Props = $props();
 
 function resetFilter(e: Event): void {
   searchTerm = '';

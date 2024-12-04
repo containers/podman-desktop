@@ -5,7 +5,10 @@ import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import ListItemButtonIcon from '/@/lib/ui/ListItemButtonIcon.svelte';
 import type { TaskInfoUI } from '/@/stores/tasks';
 
-const { task }: { task: TaskInfoUI } = $props();
+interface Props {
+  task: TaskInfoUI;
+}
+const { task }: Props = $props();
 
 function cancelTask(): void {
   const tokenId = task.cancellationTokenSourceId;

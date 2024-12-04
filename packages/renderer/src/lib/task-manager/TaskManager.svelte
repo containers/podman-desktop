@@ -11,7 +11,11 @@ import TaskManagerBottomArrow from './TaskManagerBottomArrow.svelte';
 import TaskManagerTabs from './TaskManagerTabs.svelte';
 import TaskManagerWindowEvents from './TaskManagerWindowEvents.svelte';
 
-let { searchTerm = $bindable('') }: { searchTerm?: string } = $props();
+interface Props {
+  searchTerm?: string;
+}
+
+let { searchTerm = $bindable('') }: Props = $props();
 
 // display or not the tasks manager (defaut is false)
 let showTaskManager = $state(false);

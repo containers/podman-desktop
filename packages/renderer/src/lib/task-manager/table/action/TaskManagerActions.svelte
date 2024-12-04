@@ -5,7 +5,10 @@ import TaskManagerActionsCancel from './TaskManagerActionsCancel.svelte';
 import TaskManagerActionsDelete from './TaskManagerActionsDelete.svelte';
 import TaskManagerActionsView from './TaskManagerActionsView.svelte';
 
-const { task }: { task: TaskInfoUI } = $props();
+interface Props {
+  task: TaskInfoUI;
+}
+const { task }: Props = $props();
 </script>
 
 <TaskManagerActionsView task={task} />

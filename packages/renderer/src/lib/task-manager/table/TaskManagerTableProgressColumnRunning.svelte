@@ -1,8 +1,12 @@
 <script lang="ts">
 import ProgressBar from '/@/lib/task-manager/ProgressBar.svelte';
-import type { TaskInfo } from '/@api/taskInfo';
+import type { TaskInfoUI } from '/@/stores/tasks';
 
-const { task }: { task: TaskInfo } = $props();
+interface Props {
+  task: TaskInfoUI;
+}
+
+const { task }: Props = $props();
 </script>
 
 <div class="flex items-center gap-x-2">

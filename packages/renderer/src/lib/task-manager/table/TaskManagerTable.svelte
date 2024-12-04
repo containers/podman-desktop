@@ -7,8 +7,12 @@ import type { TaskInfoUI } from '/@/stores/tasks';
 import TaskManagerTableActionsColumn from './TaskManagerTableActionsColumn.svelte';
 import TaskManagerTableProgressColumn from './TaskManagerTableProgressColumn.svelte';
 
-let { tasks, selectedItemsNumber = $bindable() }: { tasks: TaskInfoUI[]; selectedItemsNumber: number | undefined } =
-  $props();
+interface Props {
+  tasks: TaskInfoUI[];
+  selectedItemsNumber?: number;
+}
+
+let { tasks, selectedItemsNumber = $bindable() }: Props = $props();
 
 const nameColumn = new TableColumn<TaskInfoUI, string>('Name', {
   width: '3fr',

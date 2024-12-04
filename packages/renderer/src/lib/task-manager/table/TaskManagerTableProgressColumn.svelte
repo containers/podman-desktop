@@ -1,10 +1,14 @@
 <script lang="ts">
-import type { TaskInfo } from '/@api/taskInfo';
+import type { TaskInfoUI } from '/@/stores/tasks';
 
 import TaskManagerTableProgressColumnCompleted from './TaskManagerTableProgressColumnCompleted.svelte';
 import TaskManagerTableProgressColumnRunning from './TaskManagerTableProgressColumnRunning.svelte';
 
-const { object }: { object: TaskInfo } = $props();
+interface Props {
+  object: TaskInfoUI;
+}
+
+const { object }: Props = $props();
 </script>
 
 {#if object.state === 'completed'}

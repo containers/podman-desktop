@@ -4,10 +4,12 @@ import { Button } from '@podman-desktop/ui-svelte';
 import { IS_TASK_STATUSES } from '/@/stores/tasks';
 import { TASK_STATUSES } from '/@api/taskInfo';
 
-let {
-  searchTerm = $bindable(),
-  onUpdate = (): void => {},
-}: { searchTerm: string; onUpdate?: (searchTerm: string) => void } = $props();
+interface Props {
+  searchTerm: string;
+  onUpdate?: (searchTerm: string) => void;
+}
+
+let { searchTerm = $bindable(), onUpdate = (): void => {} }: Props = $props();
 
 function toggleSearchTerm(status?: string): void {
   const searchStatus = status ? String(status) : undefined;

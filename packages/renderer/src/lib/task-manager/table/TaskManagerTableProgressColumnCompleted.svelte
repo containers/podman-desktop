@@ -3,9 +3,13 @@ import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icon
 import { faCancel, faSquareCheck, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { TaskInfo } from '/@api/taskInfo';
+import type { TaskInfoUI } from '/@/stores/tasks';
 
-const { task }: { task: TaskInfo } = $props();
+interface Props {
+  task: TaskInfoUI;
+}
+
+const { task }: Props = $props();
 
 const { icon, iconColor } = $derived.by(() => {
   let icon: IconDefinition;

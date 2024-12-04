@@ -1,13 +1,10 @@
 <script lang="ts">
-let {
-  showTaskManager = $bindable(false),
-  outsideWindow = $bindable(),
-  onUpdate = (): void => {},
-}: {
+interface Props {
   showTaskManager: boolean;
-  outsideWindow: HTMLDivElement | undefined;
+  outsideWindow?: HTMLDivElement;
   onUpdate?: (val: boolean) => void;
-} = $props();
+}
+let { showTaskManager = $bindable(false), outsideWindow = $bindable(), onUpdate = (): void => {} }: Props = $props();
 
 function toggle(val: boolean): void {
   showTaskManager = val;

@@ -5,7 +5,11 @@ import { Button } from '@podman-desktop/ui-svelte';
 import { withBulkConfirmation } from '/@/lib/actions/BulkActions';
 import { filtered } from '/@/stores/tasks';
 
-const { title, bulkOperationTitle }: { title: string; bulkOperationTitle: string } = $props();
+interface Props {
+  title: string;
+  bulkOperationTitle: string;
+}
+const { title, bulkOperationTitle }: Props = $props();
 
 let bulkDeleteInProgress: boolean = $state(false);
 

@@ -2,7 +2,10 @@
 import TaskManagerEmptyFilteredScreen from './TaskManagerEmptyFilteredScreen.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
 
-let { searchTerm = $bindable('') }: { searchTerm: string } = $props();
+interface Props {
+  searchTerm: string;
+}
+let { searchTerm = $bindable('') }: Props = $props();
 </script>
 
 {#if searchTerm}
