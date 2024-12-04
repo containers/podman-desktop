@@ -1241,3 +1241,33 @@ describe('shellInProviderConnection', () => {
     expect(closeMock).toBeCalled();
   });
 });
+
+test('should retrieve provider info from provider internal id', async () => {
+  providerRegistry.createProvider('id1', 'name1', {
+    id: 'internal1',
+    name: 'internal1name',
+    status: 'installed',
+  });
+
+  providerRegistry.createProvider('id2', 'name2', {
+    id: 'internal2',
+    name: 'internal2name',
+    status: 'installed',
+  });
+
+  const provider1 = providerRegistry.getProviderInfo('0');
+  const provider2 = providerRegistry.getProviderInfo('1');
+  const provider3 = providerRegistry.getProviderInfo('2');
+
+  expect(provider1).toBeDefined();
+  expect(provider2).toBeDefined();
+  expect(provider3).toBeUndefined();
+
+  expect(provider1?.id).toBe('internal1');
+  expect(provider1?.name).toBe('internal1name');
+  expect(provider1?.extensionId).toBe('id1');
+
+  expect(provider2?.id).toBe('internal2');
+  expect(provider2?.name).toBe('internal2name');
+  expect(provider2?.extensionId).toBe('id2');
+});

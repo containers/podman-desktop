@@ -169,7 +169,7 @@ export class ProviderRegistry {
           // If the status does not match the current one, we will send a listener event and update the status
           if (status !== this.providerStatuses.get(providerKey)) {
             provider.updateStatus(status);
-            this.listeners.forEach(listener => listener('provider:update-status', this.getProviderInfo(provider)));
+            this.listeners.forEach(listener => listener('provider:update-status', this.toProviderInfo(provider)));
             this.providerStatuses.set(providerKey, status);
           }
         }
@@ -197,7 +197,7 @@ export class ProviderRegistry {
     );
     this.count++;
     this.providers.set(id, providerImpl);
-    this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
+    this.listeners.forEach(listener => listener('provider:create', this.toProviderInfo(providerImpl)));
     const trackOpts: { name: string; status: string; version?: string } = {
       name: providerOptions.name,
       status: providerOptions.status.toString(),
@@ -213,7 +213,7 @@ export class ProviderRegistry {
 
   disposeProvider(providerImpl: ProviderImpl): void {
     this.providers.delete(providerImpl.internalId);
-    this.listeners.forEach(listener => listener('provider:delete', this.getProviderInfo(providerImpl)));
+    this.listeners.forEach(listener => listener('provider:delete', this.toProviderInfo(providerImpl)));
     this.apiSender.send('provider-delete', providerImpl.id);
   }
 
@@ -223,14 +223,14 @@ export class ProviderRegistry {
     this.providerLifecycleContexts.set(providerImpl.internalId, new LifecycleContextImpl());
 
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:register-lifecycle', this.getProviderInfo(providerImpl), lifecycle),
+      listener('provider:register-lifecycle', this.toProviderInfo(providerImpl), lifecycle),
     );
 
     return Disposable.create(() => {
       this.providerLifecycles.delete(providerImpl.internalId);
       this.providerLifecycleContexts.delete(providerImpl.internalId);
       this.lifecycleListeners.forEach(listener =>
-        listener('provider:removal-lifecycle', this.getProviderInfo(providerImpl), lifecycle),
+        listener('provider:removal-lifecycle', this.toProviderInfo(providerImpl), lifecycle),
       );
     });
   }
@@ -335,12 +335,12 @@ export class ProviderRegistry {
     }
 
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:before-initialize-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:before-initialize-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
 
     await providerLifecycle.initialize(context);
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:after-initialize-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:after-initialize-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
   }
 
@@ -350,12 +350,12 @@ export class ProviderRegistry {
     const context = this.getMatchingLifecycleContext(providerId);
 
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:before-start-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:before-start-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
 
     await providerLifecycle.start(context);
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:after-start-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:after-start-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
     this._onDidUpdateProvider.fire({
       id: providerId,
@@ -370,11 +370,11 @@ export class ProviderRegistry {
     const context = this.getMatchingLifecycleContext(providerId);
 
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:before-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:before-stop-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
     await providerLifecycle.stop(context);
     this.lifecycleListeners.forEach(listener =>
-      listener('provider:after-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+      listener('provider:after-stop-lifecycle', this.toProviderInfo(provider), providerLifecycle),
     );
     this._onDidUpdateProvider.fire({
       id: providerId,
@@ -684,7 +684,7 @@ export class ProviderRegistry {
     return providerConnection;
   }
 
-  protected getProviderInfo(provider: ProviderImpl): ProviderInfo {
+  protected toProviderInfo(provider: ProviderImpl): ProviderInfo {
     const containerConnections: ProviderContainerConnectionInfo[] = provider.containerConnections.map(connection => {
       return this.getProviderContainerConnectionInfo(connection);
     });
@@ -780,7 +780,7 @@ export class ProviderRegistry {
   getProviderInfos(): ProviderInfo[] {
     return Array.from(this.providers.values())
       .map(provider => {
-        return this.getProviderInfo(provider);
+        return this.toProviderInfo(provider);
       })
       .sort((provider1, provider2) => provider2.name.localeCompare(provider1.name));
   }
@@ -1157,7 +1157,7 @@ export class ProviderRegistry {
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
         'provider-container-connection:register',
-        this.getProviderInfo(provider),
+        this.toProviderInfo(provider),
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
@@ -1181,7 +1181,7 @@ export class ProviderRegistry {
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
         'provider-container-connection:update-status',
-        this.getProviderInfo(provider),
+        this.toProviderInfo(provider),
         this.getProviderContainerConnectionInfo(containerConnection),
       );
     });
@@ -1195,7 +1195,7 @@ export class ProviderRegistry {
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
         'provider-container-connection:unregister',
-        this.getProviderInfo(provider),
+        this.toProviderInfo(provider),
         this.getProviderContainerConnectionInfo(containerConnection),
       );
     });
@@ -1215,7 +1215,7 @@ export class ProviderRegistry {
     const provider = this.getMatchingProvider(providerId);
 
     provider.onDidUpdateStatus(() => {
-      callback(this.getProviderInfo(provider));
+      callback(this.toProviderInfo(provider));
     });
 
     this._onDidUpdateProvider.fire({
@@ -1324,5 +1324,13 @@ export class ProviderRegistry {
       this.telemetryService.track('shellInProviderConnection.error', error);
       throw error;
     }
+  }
+
+  getProviderInfo(internalProviderId: string): ProviderInfo | undefined {
+    const provider = this.providers.get(internalProviderId);
+    if (provider) {
+      return this.toProviderInfo(provider);
+    }
+    return undefined;
   }
 }
