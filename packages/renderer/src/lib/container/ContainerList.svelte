@@ -375,7 +375,6 @@ const row = new TableRow<ContainerGroupInfoUI | ContainerInfoUI>({
 });
 
 let containersAndGroups: (ContainerGroupInfoUI | ContainerInfoUI)[];
-// svelte-ignore reactive_declaration_non_reactive_property
 $: containersAndGroups = containerGroups.map(group =>
   group?.type === ContainerGroupInfoTypeUI.STANDALONE ? group.containers[0] : group,
 );
