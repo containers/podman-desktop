@@ -958,8 +958,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       docusaurus-plugin-typedoc:
-        specifier: ^1.1.0
-        version: 1.1.0(typedoc-plugin-markdown@4.3.1(typedoc@0.27.2(typescript@5.6.3)))
+        specifier: ^1.1.1
+        version: 1.1.1(typedoc-plugin-markdown@4.3.1(typedoc@0.27.2(typescript@5.6.3)))
       prism-react-renderer:
         specifier: ^2.3.1
         version: 2.4.0(react@18.2.0)
@@ -5968,8 +5968,8 @@ packages:
     resolution: {integrity: sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==}
     engines: {node: '>=16'}
 
-  docusaurus-plugin-typedoc@1.1.0:
-    resolution: {integrity: sha512-rbY0RRpHfzuJL08U0HIV8TiqdtvTSc3HwISuMq1+ZzIVo/g2SauzfmDeofoLmFHUQFgc3fc+PpLXdy+98WppNA==}
+  docusaurus-plugin-typedoc@1.1.1:
+    resolution: {integrity: sha512-jaSHPA2iQVE60Mugr/pbHzIWVR/7tp77A+e9+oYvZylupdNCwZ/5BadqcqZHdLQCsUZSvu4SlE3ob/ynN6aUAw==}
     peerDependencies:
       typedoc-plugin-markdown: '>=4.3.0'
 
@@ -18627,7 +18627,7 @@ snapshots:
 
   docusaurus-plugin-goatcounter@3.0.0: {}
 
-  docusaurus-plugin-typedoc@1.1.0(typedoc-plugin-markdown@4.3.1(typedoc@0.27.2(typescript@5.6.3))):
+  docusaurus-plugin-typedoc@1.1.1(typedoc-plugin-markdown@4.3.1(typedoc@0.27.2(typescript@5.6.3))):
     dependencies:
       typedoc-plugin-markdown: 4.3.1(typedoc@0.27.2(typescript@5.6.3))
 
