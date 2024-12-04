@@ -1257,9 +1257,11 @@ test('should retrieve provider info from provider internal id', async () => {
 
   const provider1 = providerRegistry.getProviderInfo('0');
   const provider2 = providerRegistry.getProviderInfo('1');
+  const provider3 = providerRegistry.getProviderInfo('2');
 
   expect(provider1).toBeDefined();
   expect(provider2).toBeDefined();
+  expect(provider3).toBeUndefined();
 
   expect(provider1?.id).toBe('internal1');
   expect(provider1?.name).toBe('internal1name');
