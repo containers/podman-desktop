@@ -3,11 +3,11 @@ import { CloseButton, NavPage } from '@podman-desktop/ui-svelte';
 
 import { filtered, searchPattern } from '/@/stores/tasks';
 
+import TaskManagerBulkDeleteButton from './button/TaskManagerBulkDeleteButton.svelte';
+import TaskManagerClearAllButton from './button/TaskManagerClearAllButton.svelte';
+import TaskManagerNoFilteredTasks from './screen/TaskManagerNoFilteredTasks.svelte';
+import TaskManagerTable from './table/TaskManagerTable.svelte';
 import TaskManagerBottomArrow from './TaskManagerBottomArrow.svelte';
-import TaskManagerBulkDeleteButton from './TaskManagerBulkDeleteButton.svelte';
-import TaskManagerClearAllButton from './TaskManagerClearAllButton.svelte';
-import TaskManagerNoFilteredTasks from './TaskManagerNoFilteredTasks.svelte';
-import TaskManagerTable from './TaskManagerTable.svelte';
 import TaskManagerTabs from './TaskManagerTabs.svelte';
 import TaskManagerWindowEvents from './TaskManagerWindowEvents.svelte';
 

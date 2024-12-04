@@ -1,7 +1,6 @@
 <script lang="ts">
+import ProgressBar from '/@/lib/task-manager/ProgressBar.svelte';
 import type { TaskInfo } from '/@api/taskInfo';
-
-import ProgressBar from './ProgressBar.svelte';
 
 const { task }: { task: TaskInfo } = $props();
 </script>

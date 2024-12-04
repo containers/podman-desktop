@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { TaskInfoUI } from '/@/stores/tasks';
 
-import TaskManagerActions from './TaskManagerActions.svelte';
+import TaskManagerActions from './action/TaskManagerActions.svelte';
 
 export let object: TaskInfoUI;
 </script>
