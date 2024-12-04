@@ -196,7 +196,42 @@ test('non cancellable task should not display cancel', async () => {
 
   render(TaskIndicator);
 
-  // expect the cancel button to be there
+  // expect the cancel button not to be there
   const cancelButton = screen.queryByRole('button', { name: 'Cancel task Dummy Task' });
   expect(cancelButton).toBeNull();
+});
+
+test('if multiple tasks in progress, no cancel button is displayed', async () => {
+  const cancellableTask1: TaskInfoUI = {
+    name: 'Dummy Task 1',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task1',
+    progress: undefined,
+    cancellable: true,
+    cancellationTokenSourceId: 1234,
+  };
+
+  const cancellableTask2: TaskInfoUI = {
+    name: 'Dummy Task 2',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task2',
+    progress: undefined,
+    cancellable: true,
+    cancellationTokenSourceId: 2345,
+  };
+
+  tasksInfo.set([cancellableTask1, cancellableTask2]);
+
+  render(TaskIndicator);
+
+  // expect no cancel button not to be there
+  const allButtons = screen.queryAllByRole('button');
+  // filter all buttons starting with "Cancel task"
+  const cancelButtons = allButtons.filter(button => button.ariaLabel?.startsWith('Cancel task'));
+  // no button at all
+  expect(cancelButtons).toHaveLength(0);
 });
