@@ -42,7 +42,6 @@ const taskWordPlural = $derived(selectedItemsNumber > 1 ? 'tasks' : 'task');
 <!-- track keys like "ESC" or clicking outside the window, etc. -->
 <TaskManagerWindowEvents bind:showTaskManager={showTaskManager} bind:outsideWindow={outsideWindow} />
 {#if showTaskManager}
-  <TaskManagerBottomArrow />
   <div
     bind:this={outsideWindow}
     class="fixed bottom-8 right-4 bg-[var(--pd-modal-bg)] min-h-96 h-3/4 w-[calc(100%-52px-theme(width.leftnavbar))] z-40 border border-[var(--pd-modal-border)] rounded-md  shadow-xl shadow-black">
@@ -73,4 +72,6 @@ const taskWordPlural = $derived(selectedItemsNumber > 1 ? 'tasks' : 'task');
       </div>
     </NavPage>
   </div>
+  <TaskManagerBottomArrow />
+
 {/if}
