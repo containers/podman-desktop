@@ -148,3 +148,29 @@ test('Expect close if receiving an event', async () => {
   // check it's being called to display the task manager
   await vi.waitFor(() => expect(onUpdate).toBeCalledWith(true));
 });
+
+test('Expect do not close if clicking on the status bar entry', async () => {
+  const outsideWindow = {
+    getBoundingClientRect: vi.fn(),
+  } as unknown as HTMLInputElement;
+
+  // create a status bar entry
+  const statusBarEntry = document.createElement('div');
+  statusBarEntry.ariaLabel = 'Status Bar';
+  document.body.appendChild(statusBarEntry);
+
+  // create the button
+  const taskButton = document.createElement('button');
+  taskButton.title = 'Tasks';
+  statusBarEntry.appendChild(taskButton);
+
+  const showTaskManager = true;
+  const onUpdate = vi.fn();
+  render(TaskManagerWindowEvents, { outsideWindow, showTaskManager, onUpdate });
+
+  // now, click on the task button
+  await userEvent.click(taskButton);
+
+  // check we have not received any notification to close the task manager
+  await vi.waitFor(() => expect(onUpdate).not.toBeCalled());
+});

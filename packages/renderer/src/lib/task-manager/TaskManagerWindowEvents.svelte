@@ -14,12 +14,21 @@ function toggle(val: boolean): void {
   onUpdate(val);
 }
 
-function onWindowClick({ clientX, clientY }: MouseEvent): void {
+function onWindowClick({ clientX, clientY, target }: MouseEvent): void {
+  // grab the task manager button from the status bar
+  const statusBarElement = document.querySelector('div[aria-label="Status Bar"]');
+  const taskManagerButton = statusBarElement?.querySelector('button[title="Tasks"]');
+
   // if the task manager is not open, do not check anything
   if (!showTaskManager) {
     return;
   }
 
+  // if clicking on the status bar registry that is toggling the task manager, ignore the click
+  // check if target is a child of the task manager button
+  if (taskManagerButton?.contains(target as Node)) {
+    return;
+  }
   if (outsideWindow) {
     // get the bounds of the task manager
     const bounds = outsideWindow.getBoundingClientRect();
