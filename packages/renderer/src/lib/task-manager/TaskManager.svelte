@@ -42,7 +42,7 @@ const taskWordPlural = $derived(selectedItemsNumber > 1 ? 'tasks' : 'task');
   <div
     bind:this={outsideWindow}
     class="fixed bottom-8 right-4 bg-[var(--pd-modal-bg)] min-h-96 h-3/4 w-[calc(100%-52px-theme(width.leftnavbar))] z-40 border border-[var(--pd-modal-border)] rounded-md  shadow-xl shadow-black">
-    <NavPage title="Task manager" bind:searchTerm={searchTerm}>
+    <NavPage title="Tasks" bind:searchTerm={searchTerm}>
       <svelte:fragment slot="additional-actions">
         <TaskManagerClearAllButton />
         <CloseButton title="Hide (Escape)" on:click={hide} />

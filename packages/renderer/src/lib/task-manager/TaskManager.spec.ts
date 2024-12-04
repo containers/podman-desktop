@@ -68,7 +68,7 @@ beforeEach(() => {
 
 test('Expect nothing is displayed by default', async () => {
   render(TaskManager);
-  await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Task manager' })).not.toBeInTheDocument());
+  await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Tasks' })).not.toBeInTheDocument());
 });
 
 test('Expect task manager is displayed when sending event', async () => {
@@ -80,14 +80,14 @@ test('Expect task manager is displayed when sending event', async () => {
   // call it
   callback?.();
 
-  await vi.waitFor(() => expect(screen.getByRole('region', { name: 'Task manager' })).toBeInTheDocument());
+  await vi.waitFor(() => expect(screen.getByRole('region', { name: 'Tasks' })).toBeInTheDocument());
 
   // ask to hide closing the close button
   const closeButton = screen.getByRole('button', { name: 'Close' });
   expect(closeButton).toBeInTheDocument();
   await fireEvent.click(closeButton);
   // should be closed
-  await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Task manager' })).not.toBeInTheDocument());
+  await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Tasks' })).not.toBeInTheDocument());
 });
 
 test('expect to see tasks being displayed', async () => {
@@ -101,7 +101,7 @@ test('expect to see tasks being displayed', async () => {
   callback?.();
 
   // wait for the task manager to be displayed
-  await vi.waitFor(() => expect(screen.getByRole('region', { name: 'Task manager' })).toBeInTheDocument());
+  await vi.waitFor(() => expect(screen.getByRole('region', { name: 'Tasks' })).toBeInTheDocument());
 
   // get a row
   const row = screen.getByRole('row', { name: 'Completed Task 1' });
