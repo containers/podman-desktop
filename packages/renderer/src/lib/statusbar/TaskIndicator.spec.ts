@@ -18,16 +18,17 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';
-import { tasksInfo } from '/@/stores/tasks';
+import { type TaskInfoUI, tasksInfo } from '/@/stores/tasks';
 
 beforeAll(() => {
   Object.defineProperty(global, 'window', {
     value: {
       executeCommand: vi.fn(),
+      cancelToken: vi.fn(),
       events: {
         send: vi.fn(),
       },
@@ -151,4 +152,86 @@ test('task with undefined progress value should show indeterminate progress', as
   // expect the progress bar to have the indeterminate class
   const progressBar = getByRole('progressbar');
   expect(progressBar).toHaveClass('progress-bar-indeterminate');
+});
+
+test('cancellable task should display cancel button', async () => {
+  const cancellableTask: TaskInfoUI = {
+    name: 'Dummy Task',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task',
+    progress: undefined, // indeterminate
+    cancellable: true,
+    cancellationTokenSourceId: 1234,
+  };
+
+  tasksInfo.set([cancellableTask]);
+
+  const { getByRole } = render(TaskIndicator);
+
+  // expect the cancel button to be there
+  const cancelButton = getByRole('button', { name: 'Cancel task Dummy Task' });
+  expect(cancelButton).toBeDefined();
+
+  // click on the cancel button
+  await fireEvent.click(cancelButton);
+
+  // expect the cancel token to be called
+  expect(window.cancelToken).toHaveBeenCalledWith(cancellableTask.cancellationTokenSourceId);
+});
+
+test('non cancellable task should not display cancel', async () => {
+  const nonCancellableTask: TaskInfoUI = {
+    name: 'Dummy Task',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task',
+    progress: undefined, // indeterminate
+    cancellable: false,
+  };
+
+  tasksInfo.set([nonCancellableTask]);
+
+  render(TaskIndicator);
+
+  // expect the cancel button not to be there
+  const cancelButton = screen.queryByRole('button', { name: 'Cancel task Dummy Task' });
+  expect(cancelButton).toBeNull();
+});
+
+test('if multiple tasks in progress, no cancel button is displayed', async () => {
+  const cancellableTask1: TaskInfoUI = {
+    name: 'Dummy Task 1',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task1',
+    progress: undefined,
+    cancellable: true,
+    cancellationTokenSourceId: 1234,
+  };
+
+  const cancellableTask2: TaskInfoUI = {
+    name: 'Dummy Task 2',
+    state: 'running',
+    status: 'in-progress',
+    started: 0,
+    id: 'dummy-task2',
+    progress: undefined,
+    cancellable: true,
+    cancellationTokenSourceId: 2345,
+  };
+
+  tasksInfo.set([cancellableTask1, cancellableTask2]);
+
+  render(TaskIndicator);
+
+  // expect no cancel button not to be there
+  const allButtons = screen.queryAllByRole('button');
+  // filter all buttons starting with "Cancel task"
+  const cancelButtons = allButtons.filter(button => button.ariaLabel?.startsWith('Cancel task'));
+  // no button at all
+  expect(cancelButtons).toHaveLength(0);
 });
