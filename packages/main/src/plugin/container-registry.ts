@@ -203,8 +203,10 @@ export class ContainerProviderRegistry {
 
     api.getEvents((err, stream) => {
       if (err) {
-        console.log('error is', err);
-        errorCallback(new Error('Error in handling events', err));
+        if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+          console.error('Unexpected error:', err);
+          errorCallback(new Error('Error in handling events', err));
+        }
       }
 
       stream?.on('error', error => {
@@ -390,7 +392,9 @@ export class ContainerProviderRegistry {
             }),
           );
         } catch (error) {
-          console.log('error in engine', provider.name, error);
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+            console.log('error in engine', provider.name, error);
+          }
           telemetryOptions = { error: error };
           return [];
         }
@@ -549,7 +553,9 @@ export class ContainerProviderRegistry {
             }),
           );
         } catch (error) {
-          console.log('error in engine', provider.name, error);
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+            console.log('error in engine', provider.name, error);
+          }
           telemetryOptions = { error: error };
           return [];
         }
