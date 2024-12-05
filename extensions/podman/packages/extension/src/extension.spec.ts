@@ -646,6 +646,45 @@ describe.each(['macos', 'windows'])('verify create on %s', os => {
   });
 });
 
+test('verify create command called in airgap mode will try to download hyperv image', async () => {
+  vi.mocked(extensionApi.env).isWindows = true;
+  setWSLEnabled(false);
+  vi.mocked(isMac).mockReturnValue(false);
+
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementationOnce(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  const parameters = ['machine', 'init', '--cpus', '2', '--memory', '1000', '--disk-size', '232', '--rootful', '--now'];
+
+  await extension.createMachine({
+    'podman.factory.machine.cpus': '2',
+    'podman.factory.machine.memory': '1048000000',
+    'podman.factory.machine.diskSize': '250000000000',
+    'podman.factory.machine.now': true,
+    'podman.factory.machine.win.provider': 'hyperv',
+  });
+
+  await vi.waitFor(() => {
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ imagePath: 'default' }),
+    );
+  });
+
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
+    logger: undefined,
+    env: {
+      CONTAINERS_MACHINE_PROVIDER: VMTYPE.HYPERV,
+    },
+    token: undefined,
+  });
+});
+
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
   await extension.checkDefaultMachine(fakeMachineJSON);
 
