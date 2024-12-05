@@ -153,7 +153,7 @@ declare module '@podman-desktop/api' {
      * @param disposables An array to which the resulting {@link Disposable} will be added.
      * @return A disposable which unsubscribes the event listener.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any,  sonarjs/prefer-function-type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
   }
 
