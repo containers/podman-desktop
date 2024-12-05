@@ -27,7 +27,15 @@ import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js'
 import { ensureURL, Proxy } from '/@/plugin/proxy.js';
 import { ProxyState } from '/@api/proxy.js';
 
+import { getProxySettingsFromSystem } from './proxy-system.js';
+
 const URL = 'https://podman-desktop.io';
+
+vi.mock('./proxy-system.js', () => {
+  return {
+    getProxySettingsFromSystem: vi.fn(),
+  };
+});
 
 const certificates: Certificates = {
   getAllCertificates: vi.fn(),
@@ -57,6 +65,7 @@ function getConfigurationRegistry(
     onDidChangeConfiguration: vi.fn(),
     getConfiguration: vi.fn().mockReturnValue({
       get: get,
+      update: vi.fn(),
     }),
   } as unknown as ConfigurationRegistry;
 }
@@ -90,6 +99,47 @@ test('fetch with http proxy', async () => {
   proxyServer.on('connect', () => (connectDone = true));
   await fetch(URL);
   expect(connectDone).toBeTruthy();
+});
+
+test('check change from manual to system without proxy send event', async () => {
+  const configurationRegistry = getConfigurationRegistry(
+    ProxyState.PROXY_MANUAL,
+    `127.0.0.1:8080`,
+    undefined,
+    undefined,
+  );
+  const proxy = new Proxy(configurationRegistry, certificates);
+  await proxy.init();
+  const stateListener = vi.fn();
+  const settingsListener = vi.fn();
+  proxy.onDidStateChange(stateListener);
+  proxy.onDidUpdateProxy(settingsListener);
+  await proxy.setState(ProxyState.PROXY_SYSTEM);
+  expect(stateListener).toHaveBeenCalledWith(false);
+  expect(settingsListener).not.toHaveBeenCalled();
+});
+
+test('check change from manual to system with proxy send event', async () => {
+  const configurationRegistry = getConfigurationRegistry(
+    ProxyState.PROXY_MANUAL,
+    `127.0.0.1:8080`,
+    undefined,
+    undefined,
+  );
+  const proxy = new Proxy(configurationRegistry, certificates);
+  await proxy.init();
+  const stateListener = vi.fn();
+  const settingsListener = vi.fn();
+  proxy.onDidStateChange(stateListener);
+  proxy.onDidUpdateProxy(settingsListener);
+  vi.mocked(getProxySettingsFromSystem).mockResolvedValue({
+    httpProxy: 'https://127.0.0.1:8081',
+    httpsProxy: undefined,
+    noProxy: undefined,
+  });
+  await proxy.setState(ProxyState.PROXY_SYSTEM);
+  expect(stateListener).toHaveBeenCalledWith(true);
+  expect(settingsListener).toHaveBeenCalledWith({ httpProxy: 'https://127.0.0.1:8081' });
 });
 
 describe.each([
