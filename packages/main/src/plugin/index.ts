@@ -2245,8 +2245,9 @@ export class PluginSystem {
           token = tokenSource?.token;
         }
 
+        const providerName = providerRegistry.getProviderInfo(internalProviderId)?.name;
         const task = taskManager.createTask({
-          title: `Creating Container provider`,
+          title: `Creating ${providerName ? providerName : 'Container'} provider`,
           action: {
             name: 'Open task',
             execute: () => {
@@ -2302,8 +2303,9 @@ export class PluginSystem {
           token = tokenSource?.token;
         }
 
+        const providerName = providerRegistry.getProviderInfo(internalProviderId)?.name;
         const task = taskManager.createTask({
-          title: `Creating Kubernetes provider`,
+          title: `Creating ${providerName ? providerName : 'Kubernetes'} provider`,
           action: {
             name: 'Open task',
             execute: () => {
