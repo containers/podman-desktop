@@ -20,10 +20,11 @@
 import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
 
-import type { BrowserWindow, WebContents } from 'electron';
-import { clipboard, shell } from 'electron';
+import type { WebContents } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
+import { Updater } from '/@/plugin/updater.js';
 import type { NotificationCardOptions } from '/@api/notification.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
@@ -31,11 +32,14 @@ import type { TrayMenu } from '../tray-menu.js';
 import type { ApiSenderType } from './api.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
+import { ContainerProviderRegistry } from './container-registry.js';
 import type { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
+import { ExtensionLoader } from './extension-loader.js';
 import { PluginSystem } from './index.js';
 import type { MessageBox } from './message-box.js';
 import { Deferred } from './util/deferred.js';
+import { HttpServer } from './webview/webview-registry.js';
 
 let pluginSystem: TestPluginSystem;
 
@@ -67,9 +71,18 @@ beforeAll(() => {
       },
       app: {
         on: vi.fn(),
+        getVersion: vi.fn(),
       },
       clipboard: {
         writeText: vi.fn(),
+      },
+      ipcMain: {
+        handle: vi.fn(),
+        emit: vi.fn().mockReturnValue(true),
+        on: vi.fn(),
+      },
+      BrowserWindow: {
+        getAllWindows: vi.fn(),
       },
     };
   });
@@ -77,8 +90,25 @@ beforeAll(() => {
   pluginSystem = new TestPluginSystem(trayMenuMock, mainWindowDeferred);
 });
 
+const handlers = new Map<string, any>();
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(ipcMain.handle).mockImplementation((channel: string, listener: any) => {
+    handlers.set(channel, listener);
+  });
+  vi.mocked(BrowserWindow.getAllWindows).mockImplementation(() => {
+    return [
+      {
+        isDestroyed: () => false,
+        webContents,
+      } as unknown as BrowserWindow,
+    ];
+  });
+  vi.mocked(app.getVersion).mockReturnValue('100.0.0');
+  vi.spyOn(Updater.prototype, 'init').mockReturnValue({ dispose: vi.fn() } as any);
+  vi.spyOn(ExtensionLoader.prototype, 'readDevelopmentFolders').mockResolvedValue([]);
+  // to avoid port conflict when tests are running on windows host
+  vi.spyOn(HttpServer.prototype, 'start').mockImplementation(vi.fn());
 });
 
 test('Should queue events until we are ready', async () => {
@@ -283,4 +313,40 @@ test('configurationRegistry propagated', async () => {
   expect(receivedConfig).toBeDefined();
   expect(receivedConfig).toBe(configurationRegistry);
   expect(notifications.length).toBe(0);
+});
+
+const pushImageHandlerId = 'container-provider-registry:pushImage';
+const pushImageHandlerOnDataEvent = `${pushImageHandlerId}-onData`;
+
+test('push image command sends onData message with callbackId, event name and event data ', async () => {
+  await pluginSystem.initExtensions(new Emitter<ConfigurationRegistry>());
+  const handle = handlers.get(pushImageHandlerId);
+  expect(handle).not.equal(undefined);
+  let registeredCallback: (name: string, data: string) => void | undefined;
+  vi.spyOn(ContainerProviderRegistry.prototype, 'pushImage').mockImplementation(
+    (_engine, _imageId, callback: (name: string, data: string) => void) => {
+      registeredCallback = callback;
+      return Promise.resolve();
+    },
+  );
+  await handle(undefined, 'podman', 'registry.com/repo/image:latest', 1);
+  expect(registeredCallback!).not.equal(undefined);
+  registeredCallback!('data', 'push image output');
+  expect(webContents.send).toBeCalledWith(pushImageHandlerOnDataEvent, 1, 'data', 'push image output');
+});
+
+test('push image sends data event with error and end event when fails', async () => {
+  const pushError = new Error('push error');
+  await pluginSystem.initExtensions(new Emitter<ConfigurationRegistry>());
+  const handle = handlers.get('container-provider-registry:pushImage');
+  expect(handle).not.equal(undefined);
+  vi.spyOn(ContainerProviderRegistry.prototype, 'pushImage').mockImplementation(
+    (_engine, _imageId, _callback: (name: string, data: string) => void) => {
+      return Promise.reject(pushError);
+    },
+  );
+  vi.mocked(webContents.send).mockReset();
+  await handle(undefined, 'podman', 'registry.com/repo/image:latest', 1);
+  expect(webContents.send).toBeCalledWith(pushImageHandlerOnDataEvent, 1, 'error', String(pushError));
+  expect(webContents.send).toBeCalledWith(pushImageHandlerOnDataEvent, 1, 'end');
 });
