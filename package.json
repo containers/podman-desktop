@@ -189,7 +189,7 @@
     "electron-context-menu": "4.0.4",
     "electron-updater": "6.3.9",
     "electron-util": "^0.18.1",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "getos": "^3.2.1",
     "got": "^14.4.2",
     "hpagent": "^1.2.0",
