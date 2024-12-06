@@ -108,7 +108,7 @@ $: window
         </p>{/if}
     </div>
 
-    <div class="h-[185px]" hidden={initTerminal === false}>
+    <div class="h-[185px]" hidden={initTerminal === false} role="term">
       <TerminalWindow class="h-full" bind:terminal={logsPush} disableStdIn />
     </div>
   </div>
