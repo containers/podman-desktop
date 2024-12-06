@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { Terminal } from '@xterm/xterm';
 import { tick } from 'svelte';
-import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 
@@ -148,43 +148,11 @@ async function waitRender(customProperties: object): Promise<void> {
   await tick();
 }
 
-test.skip('Expect "Push Image" button to be disabled if window.hasAuthconfigForImage returns false', async () => {
-  hasAuthMock.mockResolvedValue(false);
-  vi.mocked(window.getImageInspect).mockResolvedValue(fakedImageInspect);
-
-  await waitRender({
-    imageInfoToPush: fakedImage,
-    closeCallback: vi.fn(),
-  });
-
-  // Get the push button
-  const pushButton = screen.getByRole('button', { name: 'Push image' });
-  expect(pushButton).toBeInTheDocument();
-  expect(pushButton).toBeDisabled();
-});
-
-test.skip('Expect "Push Image" button to actually be clickable if window.hasAuthconfigForImage is true', async () => {
-  hasAuthMock.mockResolvedValue(true);
-  vi.mocked(window.getImageInspect).mockResolvedValue(fakedImageInspect);
-
-  await waitRender({
-    imageInfoToPush: fakedImage,
-    closeCallback: vi.fn(),
-  });
-
-  // Get the push button
-  const pushButton = screen.getByRole('button', { name: 'Push image' });
-  expect(pushButton).toBeInTheDocument();
-  expect(pushButton).toBeEnabled();
-  // Actually able to click it
-  await fireEvent.click(pushButton);
-});
-
 type CallbackType = (name: string, data?: string) => void;
 
 describe('Expect Push Image dialog', () => {
   let callback: CallbackType | undefined;
-
+  const closeCallback = vi.fn();
   function button(name: 'Cancel' | 'Push image' | 'Done') {
     return screen.queryByRole('button', { name: name });
   }
@@ -212,7 +180,7 @@ describe('Expect Push Image dialog', () => {
 
     await waitRender({
       imageInfoToPush: fakedImage,
-      closeCallback: vi.fn(),
+      closeCallback,
     });
 
     if (step === 'DialogOpened') return;
@@ -240,36 +208,39 @@ describe('Expect Push Image dialog', () => {
     callback!('end');
   }
 
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   test('have "Cancel" and "Push Image" buttons disabled after open when auth configuration is missing', async () => {
     await runTo('DialogOpened', false);
-    // after window is opened
     expect(button('Push image')).toBeDisabled();
     expect(button('Cancel')).toBeEnabled();
-    // terminal is not visible
     expect(terminal()).toBeNull();
   });
 
   test('have "Cancel" and "Push Image" buttons enable after open when auth configuration is present', async () => {
     await runTo('DialogOpened');
-    // after window is opened
     expect(button('Push image')).toBeEnabled();
     expect(button('Cancel')).toBeEnabled();
-    // terminal is not visible
     expect(terminal()).toBeNull();
   });
 
-  test.skip('to close when "Cancel" button pressed', async () => {});
+  test('to close when "Cancel" button pressed', async () => {
+    await runTo('DialogOpened');
+    const cancelButton = button('Cancel');
+    expect(cancelButton).toBeEnabled();
+    await fireEvent.click(cancelButton!);
+    expect(closeCallback).toHaveBeenCalledOnce();
+  });
 
   test('to have no "Cancel" button and "Push Image" button disabled after "Push Image" button pressed', async () => {
     await runTo('PushPressed');
     // the click on 'Push Image' button should set callback
     // all following callback calls will use ! operator tu suppress lint errors
     expect(callback!).not.toBe(undefined);
-    // window.pushImage() called, `Cancel` and `Push Image` buttons are
-    // disabled and waiting for callback being called with first-message/data/end events
     expect(button('Push image')).toBeDisabled();
     expect(button('Cancel')).toBe(null);
-    // terminal should be visible
     expect(screen.queryByRole('term')).toBeVisible();
   });
 
@@ -281,10 +252,8 @@ describe('Expect Push Image dialog', () => {
 
   test('to write "status" property to terminal received in "data" even', async () => {
     const terminalWriteSpy = vi.spyOn(Terminal.prototype, 'write');
-    // Terminal should print 'status' attribute from 'data' messages
     await runTo('DataMessage');
     expect(terminalWriteSpy).toBeCalledWith('DataMessage\n\r');
-    // Buttons should stay in the same state until 'end' message received
     expect(button('Push image')).toBeDisabled();
     expect(button('Cancel')).toBe(null);
   });
@@ -293,7 +262,6 @@ describe('Expect Push Image dialog', () => {
     const terminalWriteSpy = vi.spyOn(Terminal.prototype, 'write');
     await runTo('DataErrorMessage');
     expect(terminalWriteSpy).toBeCalledWith('DataErrorMessage\n\r');
-    // Buttons should stay in the same state until 'end' message received
     expect(button('Push image')).toBeDisabled();
     expect(button('Cancel')).toBe(null);
   });
@@ -302,7 +270,6 @@ describe('Expect Push Image dialog', () => {
     await runTo('EndAfterError');
     expect(button('Push image')).toBeEnabled();
     expect(button('Cancel')).toBeEnabled();
-    // terminal is still visible
     expect(terminal()).toBeVisible();
   });
 
@@ -311,7 +278,13 @@ describe('Expect Push Image dialog', () => {
     expect(button('Push image')).toBe(null);
     expect(button('Cancel')).toBe(null);
     expect(button('Done')).toBeEnabled();
-    // terminal is still visible
     expect(terminal()).toBeVisible();
+  });
+
+  test('to close when "Done" button pressed', async () => {
+    await runTo('End');
+    expect(button('Done')).toBeEnabled();
+    await fireEvent.click(button('Done')!);
+    expect(closeCallback).toHaveBeenCalledOnce();
   });
 });
