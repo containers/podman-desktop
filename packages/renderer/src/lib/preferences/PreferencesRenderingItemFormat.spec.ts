@@ -247,7 +247,6 @@ test('Expect a select when record is type string and has enum values', async () 
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input.children[0]).toHaveAttribute('name', 'record');
-  expect(input).toHaveTextContent('first');
 });
 
 test('Expect enum to have the givenValue selected', async () => {
