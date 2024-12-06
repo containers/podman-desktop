@@ -1340,8 +1340,9 @@ export class PluginSystem {
       'container-provider-registry:exportContainer',
       async (_listener, engine: string, options: ContainerExportOptions): Promise<void> => {
         // create task
+        const containerId = options.id.startsWith('sha256:') ? options.id.substring('sha256:'.length) : options.id;
         const task = taskManager.createTask({
-          title: `Exporting ${options.id ?? 'container'}`,
+          title: `Exporting ${containerId.substring(0, 12) ?? 'container'}`,
           action: {
             name: 'Open folder',
             execute: (): void => {
