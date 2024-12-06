@@ -55,9 +55,7 @@ onMount(async () => {
 
 onDestroy(() => {
   // unsubscribe from the store
-  if (contextsUnsubscribe) {
-    contextsUnsubscribe();
-  }
+  contextsUnsubscribe?.();
 });
 
 function inProgress(inProgress: boolean, state?: string): void {
