@@ -16,8 +16,9 @@ $: configProperties = new Map();
 let sectionExpanded: { [key: string]: boolean } = {};
 $: sectionExpanded = {};
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function sortItems(items: any): any[] {
-  return items.sort((a: { title: string }, b: { title: any }) => a.title.localeCompare(b.title));
+  return items.sort((a: { title: string }, b: { title: string }) => a.title.localeCompare(b.title));
 }
 
 let dockerCompatibilityEnabled = false;
@@ -27,6 +28,7 @@ onMount(async () => {
     configProperties = value
       .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
       .filter(property => !property.hidden)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .reduce((map: any, property) => {
         let [parentLeftId] = property.parentId.split('.');
 
@@ -34,6 +36,7 @@ onMount(async () => {
           map[parentLeftId] = [];
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let children = map[parentLeftId].find((item: any) => item.id === property.parentId);
         if (children === undefined) {
           map[parentLeftId].push({ id: property.parentId, title: property.title });

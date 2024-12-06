@@ -19,7 +19,7 @@
 import { cubicOut } from 'svelte/easing';
 
 export function fadeSlide(
-  node: any,
+  node: Element,
   { delay = 0, duration = 400, easing = cubicOut },
 ): { delay: number; duration: number; easing: (t: number) => number; css: (t: number) => string } {
   const style = getComputedStyle(node);
