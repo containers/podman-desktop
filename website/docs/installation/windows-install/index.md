@@ -144,7 +144,7 @@ Before creating a Podman machine, you can use one of the following ways to enabl
       # [System.Environment]::SetEnvironmentVariable('CONTAINERS_MACHINE_PROVIDER','hyperv')
       ```
 
-1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using UI.
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.
 
 **_Configuring the `containers.conf` file_**
 
@@ -159,7 +159,7 @@ Before creating a Podman machine, you can use one of the following ways to enabl
    ...
    ```
 
-1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using UI.  
+1. [Create and start a Podman machine](/docs/podman/creating-a-podman-machine) using the UI.  
 
 #### Verification
 After configuration, you can confirm whether you are using a Podman machine with Hyper-V virtualization provider.
