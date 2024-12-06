@@ -39,7 +39,7 @@
     "postcss": "^8.4.49",
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
-    "react-dom": "18.3.1",
+    "react-dom": "19.0.0",
     "storybook": "^8.2.9",
     "storybook-dark-mode": "^4.0.2",
     "svelte": "5.6.2",
