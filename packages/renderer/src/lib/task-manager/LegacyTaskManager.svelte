@@ -31,8 +31,8 @@ function handleEscape({ key }: any) {
   }
 }
 
-// listen to the event "toggle-task-manager" to toggle the task manager
-window.events?.receive('toggle-task-manager', () => {
+// listen to the event "toggle-legacy-task-manager" to toggle the task manager
+window.events?.receive('toggle-legacy-task-manager', () => {
   showTaskManager = !showTaskManager;
 });
 </script>

@@ -87,6 +87,7 @@ const cliToolMock = {
   registerInstaller: vi.fn(),
   updateVersion: vi.fn(),
   dispose: vi.fn(),
+  onDidUpdateVersion: vi.fn(),
 } as unknown as CliTool;
 
 vi.mock('./cli-run', () => ({

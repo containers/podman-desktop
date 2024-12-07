@@ -47,6 +47,7 @@ async function installExtension() {
   const ociImage = imageName?.trim();
 
   try {
+    const percentageMatchRegexp = RegExp(/(\d+)%/);
     // download image
     await window.extensionInstallFromImage(
       ociImage,
@@ -56,7 +57,7 @@ async function installExtension() {
 
         // try to extract percentage from string like
         // data Downloading sha256:e8d2c9e5c69499c41ba39b7828c00e55087572884cac466b4d1b47243b085c7d.tar - 11% - (55132/521578)
-        const percentageMatch = data.match(/(\d+)%/);
+        const percentageMatch = percentageMatchRegexp.exec(data);
         if (percentageMatch) {
           progressPercent = parseInt(percentageMatch[1]);
         }

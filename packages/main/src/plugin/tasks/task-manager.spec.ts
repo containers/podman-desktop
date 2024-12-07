@@ -72,6 +72,20 @@ test('task manager init should register a configuration option', async () => {
       }),
     ]),
   );
+
+  expect(configurationRegistry.registerConfigurations).toHaveBeenCalledWith(
+    expect.arrayContaining([
+      expect.objectContaining({
+        properties: expect.objectContaining({
+          'tasks.Manager': {
+            type: 'boolean',
+            description: 'Replace the current task manager widget by the new one',
+            default: false,
+          },
+        }),
+      }),
+    ]),
+  );
 });
 
 test('create task with title', async () => {

@@ -87,6 +87,7 @@ function deleteBuildArg(index: number) {
 }
 
 function getTerminalCallback(): BuildImageCallback {
+  const imageRegexp = RegExp(/docker:\/\/(?<imageName>.*?):\s/);
   return {
     onStream: function (data: string): void {
       logsTerminal.write(`${data}\r`);
@@ -96,9 +97,9 @@ function getTerminalCallback(): BuildImageCallback {
 
       // need to extract image from there
       // it should match the pattern 'initializing source docker://registry.redhat.io/rhel9/postgresql-13:latest' and keep the value 'registry.redhat.io/rhel9/postgresql-13:latest'
-      const imageRegexp = buildError.match(/docker:\/\/(?<imageName>.*?):\s/);
+      const imageRegexpRes = imageRegexp.exec(buildError);
       // if we found the image name, we should store it
-      const findingImageName = imageRegexp?.groups?.imageName;
+      const findingImageName = imageRegexpRes?.groups?.imageName;
       if (findingImageName) {
         buildParentImageName = findingImageName;
       }

@@ -10,7 +10,7 @@ let moreDisplayed: boolean = false;
 
 onMount(() => {
   // add a newline before a tab or several spaces
-  formatted = command.replaceAll(/(  +|\t+)/g, '\n$1') || '';
+  formatted = command.replaceAll(/( {2,}|\t+)/g, '\n$1') || '';
   const lines = formatted.split('\n');
   const headerLines = lines.slice(0, 2);
   header = headerLines.join('\n');

@@ -2459,7 +2459,7 @@ test('when loading registry registerRegistry, do not push to disposables', async
     source: 'fake',
     serverUrl: 'http://fake',
     username: 'foo',
-    // eslint-disable-next-line sonarjs/no-hardcoded-credentials
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: 'bar',
     secret: 'baz',
   };

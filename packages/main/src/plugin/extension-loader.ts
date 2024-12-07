@@ -1144,8 +1144,9 @@ export class ExtensionLoader {
         providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
         imageName: string,
         callback: (event: containerDesktopAPI.PullEvent) => void,
+        platform?: string,
       ): Promise<void> {
-        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback);
+        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback, platform);
       },
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);

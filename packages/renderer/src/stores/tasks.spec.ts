@@ -16,11 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { get } from 'svelte/store';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
+import { type NotificationTaskInfo, TASK_STATUSES, type TaskInfo } from '/@api/taskInfo';
 
-import { clearNotifications, isNotificationTask } from './tasks';
+import {
+  clearNotifications,
+  filtered,
+  getMatchingStatusFromSearchPattern,
+  isNotificationTask,
+  searchPattern,
+  type TaskInfoUI,
+  tasksInfo,
+} from './tasks';
 
 const started = new Date().getTime();
 
@@ -44,6 +53,7 @@ const NOTIFICATION_TASK: NotificationTaskInfo = {
 };
 
 beforeEach(() => {
+  tasksInfo.set([]);
   vi.resetAllMocks();
 });
 
@@ -65,5 +75,62 @@ describe('isNotificationTask', () => {
   test('return false if it is not a notificationTask', async () => {
     const result = isNotificationTask(SUCCEED_TASK);
     expect(result).toBeFalsy();
+  });
+});
+
+describe('getMatchingStatusFromSearchPattern', async () => {
+  test('works with success', () => {
+    const result = getMatchingStatusFromSearchPattern('this is an example is:success');
+
+    expect(result).toEqual('success');
+    expect(TASK_STATUSES).toContain(result);
+  });
+
+  test('return undefined without any status', () => {
+    const result = getMatchingStatusFromSearchPattern('this is an example');
+
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('filtered', () => {
+  // set 3 tasks
+  const task1: TaskInfoUI = {
+    id: '1',
+    name: 'Completed Task 1',
+    state: 'completed',
+    status: 'failure',
+  } as unknown as TaskInfoUI;
+  const task2: TaskInfoUI = {
+    id: '2',
+    name: 'Completed Task 2',
+    state: 'completed',
+    status: 'canceled',
+  } as unknown as TaskInfoUI;
+  const task3: TaskInfoUI = {
+    id: '3',
+    name: 'Completed Task 3',
+    state: 'completed',
+    status: 'success',
+  } as unknown as TaskInfoUI;
+
+  test('find matching task name', () => {
+    searchPattern.set('Task 1');
+    tasksInfo.set([task1, task2, task3]);
+
+    const response = get(filtered);
+
+    // only task1 should be returned
+    expect(response).toEqual([task1]);
+  });
+
+  test('find a given status', () => {
+    searchPattern.set('is:canceled');
+    tasksInfo.set([task1, task2, task3]);
+
+    const response = get(filtered);
+
+    // only task2 should be returned
+    expect(response).toEqual([task2]);
   });
 });

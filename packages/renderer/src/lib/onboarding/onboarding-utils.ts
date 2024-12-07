@@ -74,7 +74,7 @@ export function isStepCompleted(
       }
 
       // check if cmp string is an onContext event, check the value from context
-      const matchesOnboardingPrefix = cmp.match(ONBOARDING_CONTEXT_PREFIX_REGEX);
+      const matchesOnboardingPrefix = RegExp(ONBOARDING_CONTEXT_PREFIX_REGEX).exec(cmp);
       if (matchesOnboardingPrefix) {
         if (!globalContext) {
           return false;

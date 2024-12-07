@@ -40,8 +40,10 @@ let urls: Array<string> = [];
 $: openingUrls = urls;
 $: openingKubernetesUrls = new Map();
 
+const portRegexp = RegExp(/:(\d+)/);
+
 function extractPort(urlString: string) {
-  const match = urlString.match(/:(\d+)/);
+  const match = portRegexp.exec(urlString);
   return match ? parseInt(match[1], 10) : undefined;
 }
 

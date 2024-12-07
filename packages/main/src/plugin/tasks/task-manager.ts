@@ -47,7 +47,14 @@ export class TaskManager {
     this.setStatusBarEntry(false);
 
     this.commandRegistry.registerCommand('show-task-manager', () => {
-      this.apiSender.send('toggle-task-manager', '');
+      // get the current value of the configuration flag for the task manager
+      const useExperimentalTaskManager = this.configurationRegistry
+        .getConfiguration(ExperimentalTasksSettings.SectionName)
+        .get<boolean>(ExperimentalTasksSettings.Manager, false);
+
+      const showEventName = useExperimentalTaskManager ? 'toggle-task-manager' : 'toggle-legacy-task-manager';
+
+      this.apiSender.send(showEventName, '');
       this.setStatusBarEntry(false);
     });
 
@@ -64,6 +71,11 @@ export class TaskManager {
           },
           [`${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.Toast}`]: {
             description: 'Display a notification toast when task is created',
+            type: 'boolean',
+            default: false,
+          },
+          [`${ExperimentalTasksSettings.SectionName}.${ExperimentalTasksSettings.Manager}`]: {
+            description: 'Replace the current task manager widget by the new one',
             type: 'boolean',
             default: false,
           },

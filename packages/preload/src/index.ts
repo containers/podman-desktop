@@ -398,6 +398,7 @@ export function initExposure(): void {
       providerContainerConnectionInfo: ProviderContainerConnectionInfo,
       imageName: string,
       callback: (event: PullEvent) => void,
+      platform?: string,
     ): Promise<void> => {
       onDataCallbacksPullImageId++;
       onDataCallbacksPullImage.set(onDataCallbacksPullImageId, callback);
@@ -406,6 +407,7 @@ export function initExposure(): void {
         providerContainerConnectionInfo,
         imageName,
         onDataCallbacksPullImageId,
+        platform,
       );
     },
   );

@@ -48,8 +48,15 @@ const composeDisplayName = 'Compose';
 const composeDescription = `The Compose extension provides optional command line support for [Compose files](https://compose-spec.io/) with Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/tags/compose)`;
 const imageLocation = './icon.png';
 
+let binaryVersion: string | undefined;
+let binaryPath: string | undefined;
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   initTelemetryLogger();
+  // required in tests, because activate function called multiple times
+  // does not affect runtime
+  binaryVersion = undefined;
+  binaryPath = undefined;
 
   // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
@@ -131,7 +138,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
         // register the cli tool if necessary
         if (!composeCliTool) {
-          await registerCLITool(composeDownload, detect);
+          await registerCLITool(composeDownload, detect, extensionContext);
         }
       } finally {
         // Make sure we log the telemetry even if we encounter an error
@@ -181,14 +188,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       try {
         await handler.installComposeBinary(detect, extensionContext);
         // update the cli version
-        const versionInstalled = composeVersionMetadata?.tag.replace('v', '');
-        if (!versionInstalled) {
+        binaryVersion = composeVersionMetadata?.tag.replace('v', '');
+        if (!binaryVersion) {
           return;
         }
+        binaryPath = getSystemBinaryPath(composeCliName);
         // update the version and the path
         composeCliTool?.updateVersion({
-          version: versionInstalled,
-          path: getSystemBinaryPath(composeCliName),
+          version: binaryVersion,
+          path: binaryPath,
           installationSource: 'extension',
         });
         // if installed version is the newest, dispose the updater
@@ -228,14 +236,18 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    registerCLITool(composeDownload, detect).catch((error: unknown) => {
+    registerCLITool(composeDownload, detect, extensionContext).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function registerCLITool(composeDownload: ComposeDownload, detect: Detect): Promise<void> {
+async function registerCLITool(
+  composeDownload: ComposeDownload,
+  detect: Detect,
+  context: extensionApi.ExtensionContext,
+): Promise<void> {
   // build executable name for current platform
   const executable = os.isWindows() ? composeCliName + '.exe' : composeCliName;
 
@@ -259,8 +271,6 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
     }
   }
 
-  let binaryVersion: string | undefined;
-  let binaryPath: string | undefined;
   // if binary has been detected we extract its version and path
   if (binaryInfo) {
     binaryVersion = removeVersionPrefix(binaryInfo.version);
@@ -305,7 +315,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   const latestVersion = latestVersionAsset ? removeVersionPrefix(latestVersionAsset.tag) : undefined;
 
   const update = {
-    version: latestVersion,
+    version: latestVersion !== composeCliTool.version ? latestVersion : undefined,
     selectVersion: async (): Promise<string> => {
       const selected = await composeDownload.promptUserForVersion(binaryVersion);
       releaseToUpdateTo = selected;
@@ -326,7 +336,8 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       if (!releaseToUpdateTo || !releaseVersionToUpdateTo) {
         throw new Error(`Cannot update ${binaryInfo?.path} version ${binaryVersion}. No release selected.`);
       }
-      if (!binaryInfo?.updatable) {
+      // binaryInfo is undefined when compose cli is not installed
+      if (binaryInfo && !binaryInfo?.updatable) {
         throw new Error(
           `Cannot update ${binaryInfo?.path} version ${binaryVersion} to ${releaseVersionToUpdateTo} as it was not installed by podman-desktop`,
         );
@@ -343,11 +354,6 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToUpdateTo;
-      if (releaseVersionToUpdateTo === latestVersion) {
-        delete update.version;
-      } else {
-        update.version = latestVersion;
-      }
       releaseVersionToUpdateTo = undefined;
       releaseToUpdateTo = undefined;
     },
@@ -356,6 +362,16 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
   // register installer
   let releaseToInstall: ComposeGithubReleaseArtifactMetadata | undefined;
   let releaseVersionToInstall: string | undefined;
+
+  context.subscriptions.push(
+    composeCliTool.onDidUpdateVersion((version: string) => {
+      if (version === latestVersion) {
+        delete update.version;
+      } else {
+        update.version = latestVersion;
+      }
+    }),
+  );
 
   composeCliToolInstallerDisposable = composeCliTool.registerInstaller({
     selectVersion: async () => {
@@ -385,13 +401,9 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
         installationSource: 'extension',
       });
       binaryVersion = releaseVersionToInstall;
-      if (releaseVersionToInstall === latestVersion) {
-        delete update.version;
-      } else {
-        update.version = latestVersion;
-      }
       releaseVersionToInstall = undefined;
       releaseToInstall = undefined;
+      extensionApi.context.setValue('compose.isComposeInstalledSystemWide', true);
     },
     doUninstall: async _logger => {
       if (!binaryVersion) {
@@ -409,6 +421,7 @@ async function registerCLITool(composeDownload: ComposeDownload, detect: Detect)
       // update the version to undefined
       binaryVersion = undefined;
       binaryPath = undefined;
+      extensionApi.context.setValue('compose.isComposeInstalledSystemWide', false);
     },
   });
 

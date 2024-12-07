@@ -1220,6 +1220,66 @@ test('pull unknown image fails with error 403', async () => {
   );
 });
 
+test('pulling an image with platform linux/arm64 will add platform to pull options', async () => {
+  // Mock the pulling and dockerode
+  const pullMock = vi.fn();
+  const fakeDockerode = {
+    pull: pullMock,
+    modem: {
+      followProgress: vi.fn(),
+    },
+  } as unknown as Dockerode;
+
+  // This is important, if we do the standard mock of vi.fn(), it WILL get caught in a 5 second timeout
+  // so instead we "fake" the progress to be completed.
+  vi.spyOn(fakeDockerode.modem, 'followProgress').mockImplementation((_s, f, _p) => {
+    return f(null, []);
+  });
+
+  // Add the internal provider
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+      endpoint: {
+        socketPath: '/podman1.socket',
+      },
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider);
+
+  // Connection information & testing it
+  const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
+  getMatchingEngineFromConnectionSpy.mockReturnValue(fakeDockerode);
+  const connection = containerRegistry.getFirstRunningPodmanContainerProvider();
+  expect(connection).toBeDefined();
+  const providerConnectionInfo: ProviderContainerConnectionInfo = {
+    name: 'podman1',
+    type: 'podman1',
+    endpoint: {
+      socketPath: '/podman1.socket',
+    },
+    status: 'started',
+  } as unknown as ProviderContainerConnectionInfo;
+
+  // Pull the image and check that we were able to
+  const engine = {
+    getImage: vi.fn().mockReturnValue({ push: vi.fn().mockResolvedValue({ on: vi.fn() }) }),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  const result = await containerRegistry.pullImage(providerConnectionInfo, 'unknown-image', () => {}, 'linux/arm64');
+  expect(result).toBeUndefined();
+
+  // Check that linux/arm64 was passed in
+  expect(pullMock).toHaveBeenCalledWith('unknown-image', {
+    abortSignal: undefined,
+    authconfig: undefined,
+    platform: 'linux/arm64',
+  });
+});
+
 test('pull unknown image fails with error 401', async () => {
   const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
 
@@ -3947,6 +4007,13 @@ describe('createContainerLibPod', () => {
       pod: 'pod',
       name: 'name',
       HostConfig: {
+        Devices: [
+          {
+            PathOnHost: 'nvidia.com/gpu=all',
+            PathInContainer: '',
+            CgroupPermissions: '',
+          },
+        ],
         Mounts: [
           {
             Target: 'destination',
@@ -3959,7 +4026,7 @@ describe('createContainerLibPod', () => {
           },
         ],
         NetworkMode: 'mode',
-        SecurityOpt: ['default'],
+        SecurityOpt: ['default', 'label=disable'],
         PortBindings: {
           '8080': [
             {
@@ -3994,7 +4061,8 @@ describe('createContainerLibPod', () => {
     const expectedOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
-      entrypoint: options.Entrypoint,
+      devices: [{ path: 'nvidia.com/gpu=all' }],
+      entrypoint: [options.Entrypoint as string],
       env: {
         key: 'value',
       },
@@ -4015,6 +4083,7 @@ describe('createContainerLibPod', () => {
         nsmode: 'mode',
       },
       seccomp_policy: 'default',
+      selinux_opts: ['disable'],
       portmappings: [
         {
           container_port: 8080,
@@ -4046,6 +4115,27 @@ describe('createContainerLibPod', () => {
         return Promise.resolve();
       },
     );
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when an array is passed in for Entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = ['array_entrypoint'];
+    expectedOptions.entrypoint = options.Entrypoint;
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when an undefined is passed in for Entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = undefined;
+    expectedOptions.entrypoint = options.Entrypoint;
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+
+    // check the case when array with mulpile entries is passed as entrypoint
+    createPodmanContainerMock.mockClear();
+    options.Entrypoint = ['entrypoint', 'arg1'];
+    expectedOptions.entrypoint = options.Entrypoint;
     await containerRegistry.createContainer('podman1', options);
     expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
   });

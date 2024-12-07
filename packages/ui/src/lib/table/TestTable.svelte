@@ -83,3 +83,8 @@ const row = new Row<Person>({
   defaultSortColumn="Id"
   on:update>
 </Table>
+
+<!-- Dummy component to check if the table component is not updating this object as it contains grid-table css property -->
+<div class="grid-table" role="group" aria-label="dummy component">
+
+</div>

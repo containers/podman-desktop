@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { TaskInfo } from '/@api/taskInfo';
 
@@ -45,6 +45,16 @@ const IN_PROGRESS_TASK_2: TaskInfo = {
   cancellable: false,
 };
 
+const CANCELLABLE_TASK: TaskInfo = {
+  id: '1',
+  name: 'Cancellable Task 1',
+  state: 'running',
+  status: 'in-progress',
+  started,
+  cancellable: true,
+  cancellationTokenSourceId: 1,
+};
+
 const CANCELED_TASK: TaskInfo = {
   id: '1',
   name: 'Canceled Task 1',
@@ -54,6 +64,21 @@ const CANCELED_TASK: TaskInfo = {
   cancellable: true,
   cancellationTokenSourceId: 1,
 };
+
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      cancelToken: vi.fn(),
+      setTimeout: vi.fn(),
+      clearTimeout: vi.fn(),
+    },
+    writable: true,
+  });
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('Expect that the action button is visible', async () => {
   render(LegacyTaskManagerItem, {
@@ -95,4 +120,34 @@ test('Expect that the canceled state is displayed', async () => {
   const canceledTaskIcon = screen.getByRole('img', { name: 'canceled icon of task Canceled Task 1' });
   expect(canceledTaskIcon).toBeInTheDocument();
   expect(canceledTaskIcon.parentElement?.classList.contains('text-[var(--pd-status-exited)]')).toBeTruthy();
+});
+
+describe('Cancel button', () => {
+  const cancelPrefixButton = 'Cancel task';
+
+  test('Expect that cancel button is visible for cancellable task', async () => {
+    const task = CANCELLABLE_TASK;
+    render(LegacyTaskManagerItem, {
+      task,
+    });
+    // expect the button to cancel a task is there
+    const canceledTaskButton = screen.getByRole('button', { name: `${cancelPrefixButton} ${task.name}` });
+    expect(canceledTaskButton).toBeInTheDocument();
+
+    // click on it
+    await fireEvent.click(canceledTaskButton);
+
+    // expect the cancelToken method has been called
+    expect(vi.mocked(window.cancelToken)).toHaveBeenCalledWith(CANCELLABLE_TASK.cancellationTokenSourceId);
+  });
+
+  test('Expect that cancel button is not visible if not a cancellable task', async () => {
+    const task = IN_PROGRESS_TASK;
+    render(LegacyTaskManagerItem, {
+      task: IN_PROGRESS_TASK,
+    });
+    // expect the button to cancel a task is not there
+    const canceledTaskButton = screen.queryByRole('button', { name: `${cancelPrefixButton} ${task.name}` });
+    expect(canceledTaskButton).not.toBeInTheDocument();
+  });
 });
