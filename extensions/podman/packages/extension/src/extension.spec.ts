@@ -351,13 +351,17 @@ afterEach(() => {
   console.error = originalConsoleError;
 });
 
-describe.each(['macos', 'windows'])('verify create on %s', os => {
-  const provider = os === 'macos' ? VMTYPE.APPLEHV : VMTYPE.WSL;
+describe.each([
+  { os: 'macos', expectedProvider: VMTYPE.APPLEHV },
+  { os: 'windows-wsl', expectedProvider: VMTYPE.WSL },
+  { os: 'windows-hyperv', expectedProvider: VMTYPE.HYPERV },
+])('verify create on %s', ({ os, expectedProvider }) => {
+  const provider = expectedProvider;
   beforeEach((): void => {
-    vi.mocked(extensionApi.env).isWindows = os === 'windows';
+    vi.mocked(extensionApi.env).isWindows = os !== 'macos';
 
     vi.mocked(util.isMac).mockReturnValue(os === 'macos');
-    setWSLEnabled(true);
+    setWSLEnabled(provider === VMTYPE.WSL);
   });
 
   test('verify create command called with correct values', async () => {
@@ -643,6 +647,36 @@ describe.each(['macos', 'windows'])('verify create on %s', os => {
       expect.arrayContaining([expect.stringContaining('.zst')]),
       expect.anything(),
     );
+  });
+
+  test('verify create command called in airgap mode will try to create image', async () => {
+    vi.mocked(extensionApi.env).isWindows = os !== 'macos';
+    vi.mocked(isMac).mockReturnValue(os === 'macos');
+    vi.mocked(getAssetsFolder).mockReturnValue('fake');
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+
+    const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+    spyExecPromise.mockImplementationOnce(() => {
+      return Promise.resolve({} as extensionApi.RunResult);
+    });
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
+    await extension.createMachine({
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+      'podman.factory.machine.win.provider': provider,
+    });
+
+    await vi.waitFor(() => {
+      expect(telemetryLogger.logUsage).toBeCalledWith(
+        'podman.machine.init',
+        expect.objectContaining({ imagePath: provider === VMTYPE.HYPERV ? 'default' : 'embedded' }),
+      );
+    });
   });
 });
 
