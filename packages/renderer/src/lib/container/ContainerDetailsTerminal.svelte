@@ -54,7 +54,7 @@ function receiveDataCallback(data: Buffer) {
 
 function receiveEndCallback() {
   // need to reopen a new terminal if container is running
-  if (containerState === 'RUNNING') {
+  if (sendCallbackId && containerState === 'RUNNING') {
     window
       .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
       .then(id => {
@@ -159,6 +159,7 @@ onDestroy(() => {
   });
   serializeAddon?.dispose();
   shellTerminal?.dispose();
+  sendCallbackId = undefined;
 });
 </script>
 
