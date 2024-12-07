@@ -2092,14 +2092,7 @@ export async function createMachine(
     }
   } else if (isMac() || extensionApi.env.isWindows) {
     // check if we have an embedded asset for the image path for macOS or Windows
-    let suffix = '';
-    if (extensionApi.env.isWindows) {
-      suffix = `-${process.arch}.tar.zst`;
-    } else if (isMac()) {
-      suffix = `-${process.arch}.zst`;
-    }
-
-    const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
+    const assetImagePath = path.resolve(getAssetsFolder(), `podman-image-${process.arch}.zst`);
 
     const podmanInstallation = await getPodmanInstallation();
 

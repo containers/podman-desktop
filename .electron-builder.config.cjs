@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,14 +119,10 @@ const config = {
       context.packager.config.extraResources.push('extensions/podman/packages/extension/assets/podman-*.exe');
     }
     if (context.arch === Arch.x64 && context.electronPlatformName === 'win32') {
-      context.packager.config.extraResources.push(
-        'extensions/podman/packages/extension/assets/podman-image-x64.tar.zst',
-      );
+      context.packager.config.extraResources.push('extensions/podman/packages/extension/assets/podman-image-x64.zst');
     }
     if (context.arch === Arch.arm64 && context.electronPlatformName === 'win32') {
-      context.packager.config.extraResources.push(
-        'extensions/podman/packages/extension/assets/podman-image-arm64.tar.zst',
-      );
+      context.packager.config.extraResources.push('extensions/podman/packages/extension/assets/podman-image-arm64.zst');
     }
   },
   afterPack: async context => {
