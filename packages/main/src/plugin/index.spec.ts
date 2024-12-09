@@ -92,8 +92,10 @@ beforeAll(() => {
 });
 
 const handlers = new Map<string, any>();
+
 beforeEach(() => {
   vi.clearAllMocks();
+  handlers.clear();
   vi.mocked(ipcMain.handle).mockImplementation((channel: string, listener: any) => {
     handlers.set(channel, listener);
   });
