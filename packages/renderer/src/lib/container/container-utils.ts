@@ -308,6 +308,7 @@ export class ContainerUtils {
 
   adaptContextOnContainer(context: ContextUI, container: ContainerInfo): void {
     context.setValue('containerLabelKeys', container.Labels ? Object.keys(container.Labels) : []);
+    context.setValue('containerImageName', container.Image);
   }
 
   filterResetRunning(f: string) {
