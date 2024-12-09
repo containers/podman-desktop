@@ -90,7 +90,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     console.log(`Successfully installed '${binaryName}' binary.`);
     if (!process.env.PATH?.includes(destinationFolder)) {
       await extensionApi.window.showWarningMessage(
-        `The compose binary has been installed into ${destinationFolder} but it is not in the system path. You should add it manuaaly if you want to use compose from cli.`,
+        `The compose binary has been installed into ${destinationFolder} but it is not in the system path. You should add it manually if you want to use compose from cli.`,
         'OK',
       );
     }
