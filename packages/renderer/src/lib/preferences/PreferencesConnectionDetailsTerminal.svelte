@@ -58,17 +58,19 @@ function receiveDataCallback(data: string): void {
 
 function receiveEndCallback(): void {
   // need to reopen a new terminal
-  window
-    .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
-    .then(id => {
-      sendCallbackId = id;
-      shellTerminal?.onData((data: string) => {
-        window
-          .shellInProviderConnectionSend(id, data)
-          .catch((err: unknown) => console.error(`Error sending data to provider ${connectionInfo.name}`, err));
-      });
-    })
-    .catch((err: unknown) => console.log(`Error opening terminal for provider ${connectionInfo.name}`, err));
+  if (sendCallbackId) {
+    window
+      .shellInProviderConnection(provider.internalId, connectionInfo, receiveDataCallback, () => {}, receiveEndCallback)
+      .then(id => {
+        sendCallbackId = id;
+        shellTerminal?.onData((data: string) => {
+          window
+            .shellInProviderConnectionSend(id, data)
+            .catch((err: unknown) => console.error(`Error sending data to provider ${connectionInfo.name}`, err));
+        });
+      })
+      .catch((err: unknown) => console.log(`Error opening terminal for provider ${connectionInfo.name}`, err));
+  }
 }
 
 // call exec command
@@ -177,6 +179,7 @@ onDestroy(async () => {
   // Closes session
   if (sendCallbackId) {
     await window.shellInProviderConnectionClose(sendCallbackId);
+    sendCallbackId = undefined;
   }
 });
 </script>
