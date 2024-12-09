@@ -34,8 +34,8 @@ export class ResourceFactoryHandler {
 
   getPermissionsRequests(namespace: string): ContextPermissionsRequest[] {
     return [
-      ...this.getNamespacedOrNotPermissionsRequests(this.#resourceFactories, true, namespace),
-      ...this.getNamespacedOrNotPermissionsRequests(this.#resourceFactories, false),
+      ...this.getNamespacedOrNotPermissionsRequests(this.#resourceFactories, namespace),
+      ...this.getNamespacedOrNotPermissionsRequests(this.#resourceFactories),
     ];
   }
 
@@ -45,15 +45,9 @@ export class ResourceFactoryHandler {
 
   private getNamespacedOrNotPermissionsRequests(
     factories: ResourceFactory[],
-    isNamespaced: boolean,
     namespace?: string,
   ): ContextPermissionsRequest[] {
-    if (!isNamespaced && !!namespace) {
-      throw new Error('request for non-namespaced must not define a namespace');
-    }
-    if (isNamespaced && !namespace) {
-      throw new Error('request for namespaced must define a namespace');
-    }
+    const isNamespaced = !!namespace;
     const filteredResourceFactories = factories
       .filter(isResourceFactoryWithPermissions)
       .filter(f => f.permissions.isNamespaced === isNamespaced);
@@ -89,11 +83,11 @@ export class ResourceFactoryHandler {
         remainings.push(filteredResourceFactory);
       }
     }
-    const childrenRequests = this.getNamespacedOrNotPermissionsRequests(children, isNamespaced, namespace);
+    const childrenRequests = this.getNamespacedOrNotPermissionsRequests(children, namespace);
     if (childrenRequests.length) {
       newRequest.onDenyRequests = childrenRequests;
     }
 
-    return [newRequest, ...this.getNamespacedOrNotPermissionsRequests(remainings, isNamespaced, namespace)];
+    return [newRequest, ...this.getNamespacedOrNotPermissionsRequests(remainings, namespace)];
   }
 }
