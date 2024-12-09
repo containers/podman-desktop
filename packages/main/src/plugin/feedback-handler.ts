@@ -18,6 +18,7 @@
 
 import { shell } from 'electron';
 
+import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import type { SystemInfo } from '/@/plugin/util/sys-info.js';
 import { getSystemInfo } from '/@/plugin/util/sys-info.js';
 import type { GitHubIssue } from '/@api/feedback.js';
@@ -25,14 +26,28 @@ import type { GitHubIssue } from '/@api/feedback.js';
 export class FeedbackHandler {
   #systemInfo: SystemInfo;
 
-  constructor() {
+  constructor(protected extensionLoader: ExtensionLoader) {
     this.#systemInfo = getSystemInfo();
   }
 
   async openGitHubIssue(issueProperties: GitHubIssue): Promise<void> {
-    const urlSearchParams = new URLSearchParams(this.toQueryParameters(issueProperties)).toString();
+    let additionalContent: string | undefined;
+    if (issueProperties.includeExtensionInfo) {
+      const extensions = await this.getStartedExtensions();
+      additionalContent = `**Enabled Extensions**\n${extensions}`;
+    }
+
+    const urlSearchParams = new URLSearchParams(this.toQueryParameters(issueProperties, additionalContent)).toString();
     const link = `https://github.com/containers/podman-desktop/issues/new?${urlSearchParams}`;
     await shell.openExternal(link);
+  }
+
+  protected async getStartedExtensions(): Promise<string> {
+    const extensions = await this.extensionLoader.listExtensions();
+    return extensions
+      .filter(extension => extension.state === 'started')
+      .map(extension => `- ${extension.id}`)
+      .join('\n');
   }
 
   /**
@@ -43,7 +58,7 @@ export class FeedbackHandler {
     return this.#systemInfo.getSystemName();
   }
 
-  protected toQueryParameters(issue: GitHubIssue): Record<string, string> {
+  protected toQueryParameters(issue: GitHubIssue, additional: string | undefined): Record<string, string> {
     const result: Record<string, string> = {};
     result['title'] = issue.title;
 
@@ -60,6 +75,9 @@ export class FeedbackHandler {
         if (issue.includeSystemInfo) {
           result['os'] = this.getOsInfo();
         }
+
+        // happen additional context if provided
+        if (additional) result['additional-context'] = additional;
 
         return result;
       default:
