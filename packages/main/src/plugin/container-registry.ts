@@ -1941,7 +1941,18 @@ export class ContainerProviderRegistry {
     let telemetryOptions = {};
     try {
       let container: Dockerode.Container;
-      if (options.pod) {
+      let forceLibPod = false;
+
+      // the device option requesting an nvidia gpu on linux only works
+      // if the LibPod API is used. Check if such a device is requested
+      // and if so force the use of LibPod
+      for (const device of options.HostConfig?.Devices ?? []) {
+        if (device.PathOnHost === 'nvidia.com/gpu=all') {
+          forceLibPod = true;
+          break;
+        }
+      }
+      if (options.pod ?? forceLibPod) {
         container = await this.createContainerLibPod(engineId, options);
       } else {
         container = await this.createContainerDockerode(engineId, options);
