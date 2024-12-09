@@ -76,7 +76,7 @@ export class FeedbackHandler {
           result['os'] = this.getOsInfo();
         }
 
-        // happen additional context if provided
+        // append additional context if provided
         if (additional) result['additional-context'] = additional;
 
         return result;
