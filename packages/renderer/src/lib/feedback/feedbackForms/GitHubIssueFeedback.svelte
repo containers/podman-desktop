@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Button, Checkbox, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
 
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 import type { FeedbackCategory, GitHubIssue } from '/@api/feedback';
@@ -41,6 +42,10 @@ let existingIssuesLink = $state(
 
 $effect(() => contentChange(Boolean(issueTitle || issueDescription)));
 
+onMount(async () => {
+  await window.telemetryTrack(`feedback.${category}FormOpened`);
+});
+
 async function openGitHubIssues(): Promise<void> {
   onCloseForm();
   await window.openExternal(existingIssuesLink);
@@ -55,6 +60,7 @@ async function previewOnGitHub(): Promise<void> {
   };
   try {
     await window.previewOnGitHub(issueProperties);
+    await window.telemetryTrack(`feedback.${category}FormSubmitted`);
     onCloseForm();
   } catch (error: unknown) {
     console.error('There was a problem with preview on GitHub', error);
