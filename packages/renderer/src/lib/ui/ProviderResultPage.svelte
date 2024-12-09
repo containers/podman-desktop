@@ -135,13 +135,13 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected={true}
           disabled={countBySeverity.medium === 0}
           icon={faExclamationTriangle}
-          iconClass="text-gray-800"
+          iconClass="text-[var(--pd-severity-medium)]"
           on:click={event => onSeverityClicked('medium', event.detail)}>Medium ({countBySeverity.medium})</ToggleButton>
         <ToggleButton
           selected={true}
           disabled={countBySeverity.low === 0}
           icon={faCircleMinus}
-          iconClass="text-gray-500"
+          iconClass="text-[var(--pd-severity-low)]"
           on:click={event => onSeverityClicked('low', event.detail)}>Low ({countBySeverity.low})</ToggleButton>
         <ToggleButton
           selected={true}
@@ -195,15 +195,15 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           class="rounded-r-lg bg-[var(--pd-content-bg)] mb-4 mr-4 p-4 border-l-2"
           class:border-l-[var(--pd-state-error)]={result.check.severity === 'critical'}
           class:border-l-[var(--pd-state-warning)]={result.check.severity === 'high'}
-          class:border-l-gray-800={result.check.severity === 'medium'}
-          class:border-l-gray-500={result.check.severity === 'low'}
+          class:border-l-[var(--pd-severity-medium)]={result.check.severity === 'medium'}
+          class:border-l-[var(--pd-severity-low)]={result.check.severity === 'low'}
           class:border-l-[var(--pd-state-success)]={result.check.status === 'success'}>
           <div class="flex flex-row space-x-2">
             <span
               class:text-[var(--pd-state-error)]={result.check.severity === 'critical'}
               class:text-[var(--pd-state-warning)]={result.check.severity === 'high'}
-              class:text-gray-800={result.check.severity === 'medium'}
-              class:text-gray-500={result.check.severity === 'low'}
+              class:text-[var(--pd-severity-medium)]={result.check.severity === 'medium'}
+              class:text-[var(--pd-severity-low)]={result.check.severity === 'low'}
               class:text-[var(--pd-state-success)]={result.check.status === 'success'}
               ><Fa size="1.1x" class="mt-1" icon={getIcon(result.check)} />
             </span>
