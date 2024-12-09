@@ -105,6 +105,10 @@ const config = {
             from: '/docs/onboarding-for-kubernetes',
           },
           {
+            to: '/docs/kubernetes/deploying-a-pod-to-kubernetes',
+            from: '/docs/kubernetes/deploying-a-container-to-kubernetes',
+          },
+          {
             to: '/docs/containers/onboarding',
             from: ['/docs/onboarding-for-containers', '/docs/onboarding', '/docs/onboarding/containers'],
           },
