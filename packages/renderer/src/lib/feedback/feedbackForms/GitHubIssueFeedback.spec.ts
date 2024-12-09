@@ -254,7 +254,5 @@ test.each(['bug', 'feature'])('Expect %s to have specific telemetry track events
   await userEvent.type(description, 'Bug description');
   await userEvent.click(preview);
 
-  await vi.waitFor(() =>
-    expect(window.telemetryTrack).toHaveBeenNthCalledWith(2, `feedback.${category}FormSubmitteds`),
-  );
+  await vi.waitFor(() => expect(window.telemetryTrack).toHaveBeenNthCalledWith(2, `feedback.${category}FormSubmitted`));
 });
