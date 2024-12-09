@@ -110,7 +110,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     }
   }
 
-  private getListWatch(path: string, listFn: ListPromise<T>): ListWatch<T> {
+  protected getListWatch(path: string, listFn: ListPromise<T>): ListWatch<T> {
     const watch = new Watch(this.#kubeConfig.getKubeConfig());
     return new ListWatch<T>(path, watch, listFn, false);
   }

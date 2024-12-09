@@ -31,6 +31,7 @@ import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsDispatcher } from './contexts-dispatcher.js';
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
+import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryHandler } from './resource-factory-handler.js';
 import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from './resource-informer.js';
 
@@ -63,8 +64,9 @@ export class ContextsManagerExperimental {
 
   constructor() {
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
-    this.#resourceFactoryHandler.add(new PodsResourceFactory());
-    this.#resourceFactoryHandler.add(new DeploymentsResourceFactory());
+    for (const resourceFactory of this.getResourceFactories()) {
+      this.#resourceFactoryHandler.add(resourceFactory);
+    }
     // Add more resources here
     this.#healthCheckers = new Map<string, ContextHealthChecker>();
     this.#permissionsCheckers = new Map<string, ContextPermissionsChecker>();
@@ -75,6 +77,10 @@ export class ContextsManagerExperimental {
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
     this.#dispatcher.onDelete(this.onDelete.bind(this));
     this.#dispatcher.onDelete((state: DispatcherEvent) => this.#onContextDelete.fire(state));
+  }
+
+  protected getResourceFactories(): ResourceFactory[] {
+    return [new PodsResourceFactory(), new DeploymentsResourceFactory()];
   }
 
   async update(kubeconfig: KubeConfig): Promise<void> {
@@ -118,12 +124,6 @@ export class ContextsManagerExperimental {
             const informer = factory.informer.createInformer(event.kubeConfig);
             this.#informers.set(contextName, resource, informer);
             informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
-              /* just log for now */
-              const list = this.#objectCaches.get(contextName, resource)?.list();
-              console.log(
-                `${resource} in ${contextName}`,
-                list?.map(o => o.metadata?.name),
-              );
               /* send event to dispatcher */
             });
             informer.onOffline((_e: OfflineEvent) => {
