@@ -30,7 +30,7 @@ import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
 import moment from 'moment';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
-import type { Pack, PackOptions } from 'tar-fs';
+import type { Headers, Pack, PackOptions } from 'tar-fs';
 
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import type {
@@ -2452,6 +2452,12 @@ export class ContainerProviderRegistry {
       }
 
       let tarStream: NodeJS.ReadableStream;
+      const overrideIds = (fileHeader: Headers): Headers => {
+        // change ownership to root/root for https://github.com/podman-desktop/podman-desktop/issues/3444
+        fileHeader.uid = 0;
+        fileHeader.gid = 0;
+        return fileHeader;
+      };
       if (options?.containerFile?.startsWith('../')) {
         // If containerfile is outside the context, we add it to the tar archive, without overriding an existing one
         const containerFileContent = await readFile(path.join(containerBuildContextDirectory, options.containerFile));
@@ -2462,13 +2468,16 @@ export class ContainerProviderRegistry {
         options.containerFile = `./Containerfile.${i}`;
         tarStream = tar.pack(containerBuildContextDirectory, {
           finalize: false,
+          map: overrideIds,
           finish(myStream: Pack) {
             myStream.entry({ name: `Containerfile.${i}` }, containerFileContent);
             myStream.finalize();
           },
         });
       } else {
-        tarStream = tar.pack(containerBuildContextDirectory);
+        tarStream = tar.pack(containerBuildContextDirectory, {
+          map: overrideIds,
+        });
       }
 
       let streamingPromise: NodeJS.ReadableStream;

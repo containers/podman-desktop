@@ -28,7 +28,7 @@ import Dockerode from 'dockerode';
 import moment from 'moment';
 import { http, HttpResponse } from 'msw';
 import { setupServer, type SetupServerApi } from 'msw/node';
-import type { PackOptions } from 'tar-fs';
+import type { Headers, PackOptions } from 'tar-fs';
 import * as tarstream from 'tar-stream';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -1648,6 +1648,8 @@ describe('buildImage', () => {
 
     // Mock tar.pack to call the original one with the additional parameter `fs`,
     // virtualizing an fs with empty directories
+    let mapOpts: (header: Headers) => Headers = header => header;
+
     vi.spyOn(tar, 'pack').mockImplementation(
       (dir: string, opts?: PackOptions & { fs?: any }): NodeJS.ReadableStream => {
         const virtfs = {
@@ -1664,6 +1666,7 @@ describe('buildImage', () => {
           }),
         };
         opts = opts ?? {};
+        mapOpts = opts.map ?? mapOpts;
         opts.fs = virtfs;
         return originalTarPack(dir, opts);
       },
@@ -1694,11 +1697,97 @@ describe('buildImage', () => {
 
     archive.pipe(extract);
 
+    // check if function map has been set and then resetting the uid/gid
+    const testEntry = { uid: 500, gid: 500 } as Headers;
+    const afterUpdate = mapOpts?.(testEntry);
+    expect(afterUpdate?.uid).toBe(0);
+    expect(afterUpdate?.gid).toBe(0);
+
     await vi.waitFor(() => {
       expect(entries).toContain('Containerfile.2');
     });
     const options = args?.[1];
     expect(options?.dockerfile).toEqual('./Containerfile.2');
+  });
+
+  test('verify uid/gid set to 0', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        name: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      displayName: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(dockerAPI, 'buildImage').mockResolvedValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI.modem, 'followProgress').mockImplementation((_s, f, _p) => {
+      return f(null, []);
+    });
+
+    vi.mocked(fs.existsSync).mockImplementation(path => {
+      return String(path).endsWith('Containerfile.0') || String(path).endsWith('Containerfile.1');
+    });
+    vi.mocked(dockerAPI.buildImage).mockReset();
+
+    // Mock tar.pack to call the original one with the additional parameter `fs`,
+    // virtualizing an fs with empty directories
+    let mapOpts: (header: Headers) => Headers = header => header;
+
+    vi.spyOn(tar, 'pack').mockImplementation(
+      (dir: string, opts?: PackOptions & { fs?: any }): NodeJS.ReadableStream => {
+        const virtfs = {
+          // all paths exist and are directories
+          lstat: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, {
+              isDirectory: () => true,
+              isSocket: () => false,
+            });
+          }),
+          // all directories are empty
+          readdir: vi.fn().mockImplementation((_path, callback) => {
+            callback(undefined, []);
+          }),
+        };
+        const newOpts = opts ?? {};
+        mapOpts = newOpts.map ?? mapOpts;
+        newOpts.fs = virtfs;
+        return originalTarPack(dir, newOpts);
+      },
+    );
+
+    await containerRegistry.buildImage('unknown-directory', () => {}, {
+      containerFile: 'containerfile',
+      tag: 'name',
+      platform: '',
+      provider: connection,
+    });
+
+    // check if function map has been set and then resetting the uid/gid
+    const testEntry = { uid: 500, gid: 500 } as Headers;
+    const afterUpdate = mapOpts?.(testEntry);
+    expect(afterUpdate?.uid).toBe(0);
+    expect(afterUpdate?.gid).toBe(0);
   });
 
   async function verifyBuildImage(extraArgs: object): Promise<void> {
