@@ -124,32 +124,15 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 
 ### Flathub
 
-1. Fork the repository https://github.com/flathub/io.podman_desktop.PodmanDesktop and clone your repository (example https://github.com/benoitf/io.podman_desktop.PodmanDesktop)
-1. Edit the file: `io.podman_desktop.PodmanDesktop.yml`
-1. Replace url: https://github.com/containers/podman-desktop/archive/refs/tags/vXXX.tar.gz by the correct version (`0.12.0`)
-1. Download the package: `wget https://github.com/containers/podman-desktop/archive/refs/tags/v0.12.0.tar.gz` or `curl -O -L https://github.com/containers/podman-desktop/archive/refs/tags/v0.12.0.tar.gz`
-1. Get the SHA256: `shasum -a 256 v0.12.0.tar.gz`
-1. Update `io.podman_desktop.PodmanDesktop.yml` with the new SHA256.
-1. Unpack the tar: `tar zxf v0.12.0.tar.gz`
-1. Run the command (updating the `0.12.0` volume mount path)
-   ```sh
-   podman run --rm -it -v $(pwd)/podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
-   ```
-   or (for Windows users)
-   ```sh
-   podman run --rm -it -v %CD%\podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
-   ```
-   or (for :penguin: Linux users)
-   ```sh
-   podman run --rm -it -v %CD%\podman-desktop-0.12.0:/podman:z quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
-   ```
-1. Copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
-1. Only commit the files:
+Publish to Flathub. The workflow will create an automated PR to the flathub repository https://github.com/flathub/io.podman_desktop.PodmanDesktop
 
-- `generated-sources.json`
-- `io.podman_desktop.PodmanDesktop.yml`
+1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-flathub.yaml
+1. Click on the top right drop-down `Run workflow`
+1. Enter the release version `0.12.0` for example. DO NOT add the `v`
+1. Click `Run workflow`
 
-1. Create a PR to the repository with a title like `feat: bump to v0.11.0`
+You can view the PR at: https://github.com/flathub/io.podman_desktop.PodmanDesktop/pulls/podman-desktop-bot
+
 1. If the PR passes all tests, merge the PR
 
 ## Documentation
