@@ -35,6 +35,14 @@ export class ExecStreamWriter extends Writable {
     this.transmitter = transmitter;
   }
 
+  get delegate(): Writable {
+    return this.transmitter;
+  }
+
+  set delegate(delegate: Writable) {
+    this.transmitter = delegate;
+  }
+
   override _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.transmitter._write(chunk, encoding, callback);
   }
