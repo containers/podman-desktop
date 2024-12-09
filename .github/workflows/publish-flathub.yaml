@@ -1,0 +1,132 @@
+#
+# Copyright (C) 2024 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Publish update to flathub.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'release version like 1.14.2'
+        required: true
+  repository_dispatch:
+    types: [ publish-to-flathub ]
+
+jobs:
+
+  update-flathub:
+    name: Publish Podman Desktop to flathub
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'flathub/io.podman_desktop.PodmanDesktop'
+          ref: 'master'
+          # Change the token to the one that has write access to the fork repository
+          token:  ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+
+      - name: Set version
+        id: VERSION
+        run: |
+          version=""
+          if [ "${{ github.event_name }}" == "repository_dispatch" ]
+          then
+            version="${{ github.event.client_payload.version }}"
+          else
+            version="${{ github.event.inputs.version }}"
+          fi
+          # strip out the prefix v if it's there
+          if [[ $version == v* ]]; then
+            version="${version:1}"
+          fi
+          echo "desktopVersion=$version" >> ${GITHUB_OUTPUT}
+      - name: Update the yaml file
+        run: |
+          # Grab the source code of Podman Desktop
+          export PODMAN_DESKTOP_SOURCE_URL="https://github.com/containers/podman-desktop/archive/refs/tags/v${{ steps.VERSION.outputs.desktopVersion }}.tar.gz"
+          wget ${PODMAN_DESKTOP_SOURCE_URL} -qO podman-desktop-source.tgz
+          # compute shasum256 and take the first column of the text
+          export PODMAN_DESKTOP_SOURCE_SHASUM=$(shasum -a 256 podman-desktop-source.tgz | awk '{print $1}')
+
+          echo "podman Desktop source .tgz file sha256 is ${PODMAN_DESKTOP_SOURCE_SHASUM}"
+
+          # Grab the pnpm cache for arm64
+          export PNPM_STORE_CACHE_ARM64_URL="https://github.com/containers/podman-desktop/releases/download/v${{ steps.VERSION.outputs.desktopVersion }}/store-cache-pnpm-arm64.tgz"
+          wget ${PNPM_STORE_CACHE_ARM64_URL} -qO podman-desktop-pnpm-arm64.tgz
+          # compute shasum256
+          export PODMAN_DESKTOP_PNPM_ARM64_SHASUM=$(shasum -a 256 podman-desktop-pnpm-arm64.tgz | awk '{print $1}')
+          echo "podman Desktop pnpm arm64 .tgz file sha256 is ${PODMAN_DESKTOP_PNPM_ARM64_SHASUM}"
+
+          # Grab the pnpm cache for amd64
+          export PNPM_STORE_CACHE_AMD64_URL="https://github.com/containers/podman-desktop/releases/download/v${{ steps.VERSION.outputs.desktopVersion }}/store-cache-pnpm-amd64.tgz"
+          wget ${PNPM_STORE_CACHE_AMD64_URL} -qO podman-desktop-pnpm-amd64.tgz
+          # compute shasum256
+          export PODMAN_DESKTOP_PNPM_AMD64_SHASUM=$(shasum -a 256 podman-desktop-pnpm-amd64.tgz | awk '{print $1}')
+          echo "podman Desktop pnpm amd64 .tgz file sha256 is ${PODMAN_DESKTOP_PNPM_AMD64_SHASUM}"
+
+          # find the version of electron being used by podman desktop
+          wget "https://raw.githubusercontent.com/podman-desktop/podman-desktop/refs/tags/v${{ steps.VERSION.outputs.desktopVersion }}/package.json" -qO podman-desktop-package.json
+          # set the version of electron
+          ELECTRON_VERSION=$(jq -r '.devDependencies.electron' podman-desktop-package.json)
+          echo "Found electron ${ELECTRON_VERSION}"
+
+          # download electron binary (amd64)
+          export ELECTRON_AMD64_URL="https://github.com/electron/electron/releases/download/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-x64.zip"
+          wget ${ELECTRON_AMD64_URL} -qO electron-x64.zip
+          # compute shasum
+          export ELECTRON_AMD64_SHASUM=$(shasum -a 256 electron-x64.zip | awk '{print $1}')
+          echo "electron x64 zip sha256 is ${ELECTRON_AMD64_SHASUM}"
+
+          # download electron binary (arm64)
+          export ELECTRON_ARM64_URL="https://github.com/electron/electron/releases/download/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-arm64.zip"
+          wget ${ELECTRON_ARM64_URL} -qO electron-arm64.zip
+          # compute shasum
+          export ELECTRON_ARM64_SHASUM=$(shasum -a 256 electron-arm64.zip | awk '{print $1}')
+          echo "electron arm64 zip sha256 is ${ELECTRON_ARM64_SHASUM}"
+
+          # copy original yaml file
+          cp io.podman_desktop.PodmanDesktop.yml io.podman_desktop.PodmanDesktop.ori
+
+          # update the url and sha256 for the electron binaries for arm64
+          yq -i '(.modules[].sources[] | select(.url == "*electron*amd64*")) += {"url":strenv(ELECTRON_AMD64_URL), "sha256":strenv(ELECTRON_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+          yq -i '(.modules[].sources[] | select(.url == "*electron*arm64*")) += {"url":strenv(ELECTRON_ARM64_URL), "sha256":strenv(ELECTRON_ARM64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+
+          # update the pnpm store url/sha256
+          yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*amd64*")) += {"url":strenv(PNPM_STORE_CACHE_AMD64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+          yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*arm64*")) += {"url":strenv(PNPM_STORE_CACHE_ARM64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_ARM64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+
+          # update the source url/sha256 of podman desktop
+          yq -i '(.modules[].sources[] | select(.url == "*podman-desktop*refs*tags*")) += {"url":strenv(PODMAN_DESKTOP_SOURCE_URL), "sha256":strenv(PODMAN_DESKTOP_SOURCE_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+          PODMAN_DESKTOP_VERSION: ${{ steps.VERSION.outputs.desktopVersion }}
+      - name: Create Pull Request to update flathub
+        run: |
+          git config --local user.name ${{ github.actor }}
+          git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          export LOCAL_BRANCH_NAME="update-to-${{ steps.VERSION.outputs.desktopVersion }}"
+          git checkout -b "${LOCAL_BRANCH_NAME}"
+          git add io.podman_desktop.PodmanDesktop.yml
+          export TITLE="feat: update Podman Desktop to version ${{ steps.VERSION.outputs.desktopVersion }}"
+          git commit -m "${TITLE}"
+          git remote add podman-desktop-bot https://github.com/podman-desktop-bot/io.podman_desktop.PodmanDesktop
+          git push podman-desktop-bot "+${LOCAL_BRANCH_NAME}"
+          gh pr create --title "${TITLE}" --body "${TITLE}" -H "podman-desktop-bot:${LOCAL_BRANCH_NAME}"
+
+        env:
+          GH_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
