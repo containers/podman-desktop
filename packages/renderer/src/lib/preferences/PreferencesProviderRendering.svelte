@@ -74,7 +74,7 @@ async function stopProvider(): Promise<void> {
 }
 
 async function startReceivingLogs(providerInternalId: string): Promise<void> {
-  const logHandler = (newContent: any[]) => {
+  const logHandler = (newContent: unknown[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
   await window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler);

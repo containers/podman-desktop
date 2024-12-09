@@ -75,15 +75,15 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
-  const logHandler = (newContent: any[], colorPrefix: string) => {
+  const logHandler = (newContent: unknown[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
   if (providerInternalId) {
     await window.startReceiveLogs(
       providerInternalId,
-      (data: any) => logHandler(data, '\x1b[37m'),
-      (data: any) => logHandler(data, '\x1b[37m'),
-      (data: any) => logHandler(data, '\x1b[37m'),
+      (data: unknown[]) => logHandler(data, '\x1b[37m'),
+      (data: unknown[]) => logHandler(data, '\x1b[37m'),
+      (data: unknown[]) => logHandler(data, '\x1b[37m'),
       connectionInfo,
     );
   }

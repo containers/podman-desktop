@@ -40,7 +40,7 @@ export let providerInfo: ProviderInfo;
 export let propertyScope: string;
 export let callback: (
   param: string,
-  data: any,
+  data: unknown,
   handlerKey: symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
   tokenId: number | undefined,
@@ -126,7 +126,7 @@ onMount(async () => {
     taskId = operationConnectionInfoMap.size + 1;
   }
 
-  const data: any = {};
+  const data: { [p: string]: unknown } = {};
   for (let field of configurationKeys) {
     const id = field.id;
     if (id) {
@@ -136,8 +136,8 @@ onMount(async () => {
   if (!connectionInfo) {
     try {
       connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
-    } catch (e: any) {
-      console.warn(e.message);
+    } catch (e: unknown) {
+      console.warn(e && typeof e === 'object' && 'message' in e ? e.message : e);
     }
   }
   pageIsLoading = false;
@@ -262,6 +262,7 @@ function setConfigurationValue(id: string, value: string | boolean | number) {
   internalSetConfigurationValue(id, true, value);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema): Promise<any> {
   if (configurationKey?.id) {
     if (connectionInfo) {
@@ -347,9 +348,9 @@ function updateStore() {
   });
 }
 
-async function handleOnSubmit(e: any) {
+async function handleOnSubmit(e: SubmitEvent) {
   errorMessage = undefined;
-  const formData = new FormData(e.target);
+  const formData = new FormData(e.target as HTMLFormElement);
 
   const data: { [key: string]: unknown } = {};
 
@@ -389,15 +390,22 @@ async function handleOnSubmit(e: any) {
     loggerHandlerKey = registerConnectionCallback(getLoggerHandler());
     updateStore();
     await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId, taskId);
-  } catch (error: any) {
+  } catch (error: unknown) {
     //display error
     tokenId = undefined;
     // filter cancellation message to avoid displaying error and allow user to restart the creation
-    if (error.message && error.message.indexOf('Execution cancelled') >= 0) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      error.message &&
+      typeof error.message === 'string' &&
+      error.message.indexOf('Execution cancelled') >= 0
+    ) {
       errorMessage = 'Action cancelled. See logs for more details';
       return;
     }
-    errorMessage = error;
+    errorMessage = String(error);
     operationStarted = false;
     inProgress = false;
   }
