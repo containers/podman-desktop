@@ -28,7 +28,7 @@ test('Expect text to be copied to clipboard', async () => {
   const title = 'Podman';
 
   const clipboardWriteTextMock = vi.fn().mockImplementation(() => {});
-  (window as any).clipboardWriteText = clipboardWriteTextMock;
+  Object.defineProperty(window, 'clipboardWriteText', { value: clipboardWriteTextMock });
 
   render(CopyToClipboard, { clipboardData: textToCopy, title });
 

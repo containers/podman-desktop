@@ -211,6 +211,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
     } else {
       await window.updateImageRegistry({ ...registry });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     setErrorResponse(registry.serverUrl, error.message);
   }

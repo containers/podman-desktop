@@ -22,9 +22,9 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { EventStore, type EventStoreInfo } from './event-store';
 
 // first, path window object
-const callbacks = new Map<string, any>();
+const callbacks = new Map<string, (arg?: unknown) => Promise<void>>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: (arg?: unknown) => Promise<void>) => {
     callbacks.set(message, callback);
   },
 };
@@ -89,7 +89,7 @@ test('should call fetch method using window event', async () => {
   };
   updater.mockResolvedValue([myCustomTypeInfo]);
 
-  await callback();
+  await callback?.();
 
   // check the updater is called
   await vi.waitFor(() => {
@@ -148,7 +148,7 @@ test('should call fetch method using listener event', async () => {
   };
   updater.mockResolvedValue([myCustomTypeInfo]);
 
-  await callback();
+  await callback?.();
 
   // check the updater is called
   await vi.waitFor(() => {
@@ -227,7 +227,7 @@ test('should call fetch method using window event and object argument', async ()
   };
   updater.mockResolvedValue([myCustomTypeInfo]);
 
-  await callback({});
+  await callback?.({});
 
   // wait updater method being called
   while (updater.mock.calls.length === 0) {
@@ -273,7 +273,7 @@ test('Check debounce', async () => {
 
   // now, perform 20 calls every 50ms
   for (let i = 0; i < 20; i++) {
-    await callback();
+    await callback?.();
     await new Promise(resolve => setTimeout(resolve, 50));
   }
 
@@ -330,7 +330,7 @@ test('Check debounce+delay', async () => {
 
   // now, perform 40 calls every 50ms
   for (let i = 0; i < 20; i++) {
-    await callback();
+    await callback?.();
     await new Promise(resolve => setTimeout(resolve, 50));
   }
 

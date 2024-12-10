@@ -27,7 +27,7 @@ import FileInput from './FileInput.svelte';
 const openDialogMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).openDialog = openDialogMock;
+  Object.defineProperty(window, 'openDialog', { value: openDialogMock });
 });
 
 test('Expect clicking the button opens file dialog', async () => {
