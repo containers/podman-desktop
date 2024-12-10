@@ -108,7 +108,7 @@ test('Test rendering of the compatibility docker page does change if config chan
   // mock window.getConfigurationValue
   vi.mocked(window.getConfigurationValue<boolean>).mockClear();
   vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(true);
-  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(false);
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(false);
 
   render(PreferencesNavigation, {
     meta: {
@@ -138,7 +138,7 @@ test('Test rendering of the compatibility docker page does change if config chan
   // mock window.getConfigurationValue
   vi.mocked(window.getConfigurationValue<boolean>).mockClear();
   vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(false);
-  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(true);
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
 
   render(PreferencesNavigation, {
     meta: {
