@@ -16,13 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
+
+import type { ApiSenderType } from '../api.js';
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import type { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 
 export class ContextsStatesDispatcher {
-  constructor(private manager: ContextsManagerExperimental) {}
+  constructor(
+    private manager: ContextsManagerExperimental,
+    private apiSender: ApiSenderType,
+  ) {}
 
   init(): void {
     this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.updateHealthStates());
@@ -34,7 +40,19 @@ export class ContextsStatesDispatcher {
   }
 
   updateHealthStates(): void {
-    console.log('current health check states', this.manager.getHealthCheckersStates());
+    this.apiSender.send('kubernetes-contexts-healths', this.getContextsHealths());
+  }
+
+  getContextsHealths(): ContextHealth[] {
+    const value: ContextHealth[] = [];
+    for (const [contextName, health] of this.manager.getHealthCheckersStates()) {
+      value.push({
+        contextName,
+        checking: health.checking,
+        reachable: health.reachable,
+      });
+    }
+    return value;
   }
 
   updatePermissions(): void {

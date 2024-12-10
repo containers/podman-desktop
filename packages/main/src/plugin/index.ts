@@ -87,6 +87,7 @@ import type { ImageInfo } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
+import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
@@ -2583,6 +2584,10 @@ export class PluginSystem {
         return kubernetesClient.unregisterGetCurrentContextResources(resourceName);
       },
     );
+
+    this.ipcHandle('kubernetes:getContextsHealths', async (_listener): Promise<ContextHealth[]> => {
+      return kubernetesClient.getContextsHealths();
+    });
 
     const kubernetesExecCallbackMap = new Map<
       number,

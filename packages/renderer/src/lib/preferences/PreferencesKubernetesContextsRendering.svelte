@@ -4,6 +4,7 @@ import { Button, EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-s
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
+import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
@@ -125,7 +126,7 @@ async function handleDeleteContext(contextName: string) {
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row">
             <div class="flex-none w-36">
-              {#if $kubernetesContextsState.get(context.name)?.reachable}
+              {#if $kubernetesContextsState.get(context.name)?.reachable ?? $kubernetesContextsHealths.some(contextHealth => contextHealth.contextName === context.name && contextHealth.reachable)}
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-connected)]"></div>
                   <div
@@ -154,13 +155,13 @@ async function handleDeleteContext(contextName: string) {
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
                   <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
-                    {#if $kubernetesContextsState.get(context.name)}
+                    {#if $kubernetesContextsState.get(context.name) ?? $kubernetesContextsHealths.some(contextHealth => contextHealth.contextName === context.name && !contextHealth.reachable)}
                       UNREACHABLE
                     {:else}
                       UNKNOWN
                     {/if}
                   </div>
-                  {#if $kubernetesContextsCheckingStateDelayed?.get(context.name)}
+                  {#if $kubernetesContextsCheckingStateDelayed?.get(context.name) ?? $kubernetesContextsHealths.some(contextHealth => contextHealth.contextName === context.name && contextHealth.checking)}
                     <div class="ml-1"><Spinner size="12px"></Spinner></div>
                   {/if}
                 </div>
