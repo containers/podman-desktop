@@ -19,6 +19,7 @@
 import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { handleConfirmationDialog } from '/@/utility/operations';
+import { isMac } from '/@/utility/platform';
 
 import { KubernetesResourceState } from '../core/states';
 import { DetailsPage } from './details-page';
@@ -77,7 +78,11 @@ export class KubernetesResourceDetailsPage extends DetailsPage {
     return test.step('Edit Kubernetes YAML file', async () => {
       await this.activateTab(KubernetesResourceDetailsPage.KUBE_TAB);
       await this.tabContent.click();
-      await this.page.keyboard.press('Control+F');
+      if (isMac) {
+        await this.page.keyboard.press('Meta+F');
+      } else {
+        await this.page.keyboard.press('Control+F');
+      }
       await playExpect(this.editorWidget).toBeVisible();
       await playExpect(this.findTextArea).toBeVisible();
       await this.findTextArea.fill(textToBeChanged);
