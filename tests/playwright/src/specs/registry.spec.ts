@@ -19,19 +19,21 @@
 import { RegistriesPage } from '../model/pages/registries-page';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
 import { expect as playExpect, test } from '../utility/fixtures';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;
 let registryName: string;
 
-test.beforeAll(async ({ runner, welcomePage }) => {
+test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('registry-e2e');
 
   [registryUrl, registryUsername, registryPswdSecret] = setupRegistry();
   registryName = 'GitHub';
 
   await welcomePage.handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner }) => {
@@ -45,7 +47,9 @@ test.describe.serial('Registries handling verification', { tag: '@smoke' }, () =
 
     await playExpect(registryPage.heading).toBeVisible({ timeout: 10_000 });
     await playExpect(registryPage.addRegistryButton).toBeEnabled();
-    await playExpect(registryPage.registriesTable).toBeVisible({ timeout: 10_000 });
+    await playExpect(registryPage.registriesTable).toBeVisible({
+      timeout: 10_000,
+    });
 
     const defaultRegistries = ['Docker Hub', 'Red Hat Quay', 'GitHub', 'Google Container Registry'];
     for (const registryName of defaultRegistries) {
