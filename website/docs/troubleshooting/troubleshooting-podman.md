@@ -256,3 +256,14 @@ Podman stores its configuration files in the `$HOME/.config/containers` director
 - Using UI
    1. Click the **Troubleshooting** icon in the status bar.
    1. Click the **Cleanup/Purge data** button to delete all resources from the engine.
+
+## AWS Kubernetes clusters are not reachable from Podman Desktop
+
+#### Issue
+
+When you connect to an Amazon Web Services (AWS) Kubernetes cluster, you might get this error: `spawnSync aws ENOENT`.
+Kubernetes clusters from cloud providers require an executable installed on the user's machine for authentication tokens. When you add the path of this executable to the `PATH` for the shell session, this change does not apply to Podman Desktop. This prevents Podman Desktop from obtaining new tokens, making clusters inaccessible.
+
+#### Solution
+
+- Move the `aws` binary located in your `.kube/config` file to a system bin directory, such as `/usr/local/bin/aws`.
