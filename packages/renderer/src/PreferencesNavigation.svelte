@@ -44,7 +44,7 @@ onMount(async () => {
     window
       .getConfigurationValue<boolean>(`${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`)
       .then(result => {
-        if (result) {
+        if (result !== undefined) {
           dockerCompatibilityEnabled = result;
         }
       })

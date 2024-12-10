@@ -24,6 +24,7 @@ import type { TinroRouteMeta } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import PreferencesNavigation from './PreferencesNavigation.svelte';
+import { configurationProperties } from './stores/configurationProperties';
 
 // fake the window.events object
 beforeEach(() => {
@@ -101,4 +102,93 @@ test('Test rendering of the compatibility docker page is hidden if disabled', as
   // should not be displayed
   const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
   expect(dockerCompatLink).toBeNull();
+});
+
+test('Test rendering of the compatibility docker page does change if config changes from enabled to disabled', async () => {
+  // mock window.getConfigurationValue
+  vi.mocked(window.getConfigurationValue<boolean>).mockClear();
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(true);
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(false);
+
+  render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  // wait docker compatibility is being set
+  await tick();
+
+  // expect getConfigurationValue to be called
+  expect(window.getConfigurationValue).toBeCalledWith('dockerCompatibility.enabled');
+
+  const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+
+  expect(dockerCompatLink).not.toBeNull();
+
+  // wait docker compatibility is being set
+  configurationProperties.set([]);
+  await vi.waitFor(() => {
+    const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+    expect(dockerCompatLink).toBeNull();
+  });
+});
+
+test('Test rendering of the compatibility docker page does change if config changes from disabled to enabled', async () => {
+  // mock window.getConfigurationValue
+  vi.mocked(window.getConfigurationValue<boolean>).mockClear();
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(false);
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
+
+  render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  // wait docker compatibility is being set
+  await tick();
+
+  // expect getConfigurationValue to be called
+  expect(window.getConfigurationValue).toBeCalledWith('dockerCompatibility.enabled');
+
+  const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+
+  expect(dockerCompatLink).toBeNull();
+
+  // wait docker compatibility is being set
+  configurationProperties.set([]);
+  await vi.waitFor(() => {
+    const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+    expect(dockerCompatLink).not.toBeNull();
+  });
+});
+
+test('Test rendering of the compatibility docker page does change if config changes when other config settings is updated', async () => {
+  // mock window.getConfigurationValue
+  vi.mocked(window.getConfigurationValue<boolean>).mockClear();
+  vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValueOnce(true);
+
+  render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  // wait docker compatibility is being set
+  await tick();
+
+  // expect getConfigurationValue to be called
+  expect(window.getConfigurationValue).toBeCalledWith('dockerCompatibility.enabled');
+
+  const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+
+  expect(dockerCompatLink).not.toBeNull();
+
+  // Simultaing other preferences being set - undefined value (should not change the visibility)
+  configurationProperties.set([]);
+  await vi.waitFor(() => {
+    const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
+    expect(dockerCompatLink).not.toBeNull();
+  });
 });
