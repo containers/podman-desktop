@@ -120,7 +120,7 @@
     "@eslint/compat": "^1.2.4",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.16.0",
-    "@playwright/test": "1.49.0",
+    "@playwright/test": "1.49.1",
     "@podman-desktop/api": "workspace:",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
