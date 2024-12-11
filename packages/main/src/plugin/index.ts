@@ -173,6 +173,7 @@ import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import { NotificationRegistry } from './tasks/notification-registry.js';
 import { ProgressImpl } from './tasks/progress-impl.js';
+import type { TaskAction } from './tasks/tasks.js';
 import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
 import { TerminalInit } from './terminal-init.js';
 import { TrayIconColor } from './tray-icon-color.js';
@@ -1075,6 +1076,40 @@ export class PluginSystem {
         return containerProviderRegistry.resolveShortnameImage(providerContainerConnectionInfo, shortName);
       },
     );
+
+    commandRegistry.registerCommand(
+      'pullImage',
+      async (
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        imageName: string,
+        callbackId: number,
+        platform?: string,
+        taskAction?: TaskAction,
+      ) => {
+        const task = taskManager.createTask({
+          title: `Pulling ${imageName}`,
+          action: taskAction,
+        });
+
+        return containerProviderRegistry
+          .pullImage(
+            providerContainerConnectionInfo,
+            imageName,
+            (event: PullEvent) => {
+              this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
+            },
+            platform,
+          )
+          .then(result => {
+            task.status = 'success';
+            return result;
+          })
+          .catch((error: unknown) => {
+            task.error = `Something went wrong while trying to pull ${imageName}: ${error};`;
+            throw error;
+          });
+      },
+    );
     this.ipcHandle(
       'container-provider-registry:pullImage',
       async (
@@ -1084,12 +1119,11 @@ export class PluginSystem {
         callbackId: number,
         platform?: string,
       ): Promise<void> => {
-        return containerProviderRegistry.pullImage(
+        return commandRegistry.executeCommand(
+          'pullImage',
           providerContainerConnectionInfo,
           imageName,
-          (event: PullEvent) => {
-            this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
-          },
+          callbackId,
           platform,
         );
       },

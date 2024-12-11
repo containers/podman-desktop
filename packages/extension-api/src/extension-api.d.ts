@@ -146,16 +146,14 @@ declare module '@podman-desktop/api' {
    * }
    * ```
    */
-  export interface Event<T> {
-    /**
-     * @param listener The listener function will be called when the event happens.
-     * @param thisArgs The `this`-argument which will be used when calling the event listener.
-     * @param disposables An array to which the resulting {@link Disposable} will be added.
-     * @return A disposable which unsubscribes the event listener.
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
-  }
+  /**
+   * @param listener The listener function will be called when the event happens.
+   * @param thisArgs The `this`-argument which will be used when calling the event listener.
+   * @param disposables An array to which the resulting {@link Disposable} will be added.
+   * @return A disposable which unsubscribes the event listener.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export type Event<T> = (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]) => Disposable;
 
   /**
    * A class to create and manage an {@link Event} for clients to subscribe to.
@@ -701,6 +699,8 @@ declare module '@podman-desktop/api' {
 
   /**
    * The commands module provides functions to register and execute commands
+   * Existing command available for extensions to use:
+   * - `pullImage`: uses Podman Desktop's UI pull image behavior. This command will create a visible task to show the progress of the pulImage action.
    *
    * @example
    * ```typescript
