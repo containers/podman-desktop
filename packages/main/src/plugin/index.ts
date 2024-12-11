@@ -157,6 +157,7 @@ import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-regist
 import { ExtensionInstaller } from './install/extension-installer.js';
 import { KubernetesClient } from './kubernetes/kubernetes-client.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
+import { LearningCenterInit } from './learning-center-init.js';
 import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
@@ -609,6 +610,9 @@ export class PluginSystem {
 
     const releaseNotesBannerConfiguration = new ReleaseNotesBannerInit(configurationRegistry);
     releaseNotesBannerConfiguration.init();
+
+    const learningCenterConfiguration = new LearningCenterInit(configurationRegistry);
+    learningCenterConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
