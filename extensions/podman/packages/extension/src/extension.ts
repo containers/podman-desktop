@@ -87,6 +87,8 @@ const containerProviderConnections = new Map<string, extensionApi.ContainerProvi
 let isDisguisedPodmanSocket = true;
 let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher | undefined;
 
+let autostartInProgress = false;
+
 // Configuration buttons
 const configurationCompatibilityMode = 'setting.dockerCompatibility';
 let telemetryLogger: extensionApi.TelemetryLogger | undefined;
@@ -669,16 +671,19 @@ async function timeout(time: number): Promise<void> {
   });
 }
 
-async function monitorMachines(
+export async function monitorMachines(
   provider: extensionApi.Provider,
   podmanConfiguration: PodmanConfiguration,
 ): Promise<void> {
   // call us again
   if (!stopLoop) {
-    try {
-      await updateMachines(provider, podmanConfiguration);
-    } catch (error) {
-      // ignore the update of machines
+    // skip the update during the auto start process
+    if (!autostartInProgress) {
+      try {
+        await updateMachines(provider, podmanConfiguration);
+      } catch (error) {
+        // ignore the update of machines
+      }
     }
     await timeout(5000);
     monitorMachines(provider, podmanConfiguration).catch((error: unknown) => {
@@ -1453,44 +1458,54 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(command);
   }
 
+  const doAutoStart = async (logger: extensionApi.Logger): Promise<void> => {
+    autostartInProgress = true;
+    // If autostart has been enabled for the machine, try to start it.
+    try {
+      await updateMachines(provider, podmanConfiguration);
+    } catch (error) {
+      // ignore the update of machines
+    }
+
+    // do we have a running machine ?
+    const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
+      connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
+    );
+    if (isRunningMachine) {
+      console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
+      return;
+    }
+
+    // start the first machine if any
+    const machines = Array.from(podmanMachinesStatuses.entries());
+    if (machines.length > 0) {
+      const [machineName] = machines[0];
+      if (!podmanMachinesInfo.has(machineName)) {
+        console.error('Unable to retrieve machine infos to be autostarted', machineName);
+      } else {
+        console.log('Podman extension:', 'Autostarting machine', machineName);
+        const machineInfo = podmanMachinesInfo.get(machineName);
+        const containerProviderConnection = containerProviderConnections.get(machineName);
+        if (containerProviderConnection && machineInfo) {
+          const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
+            provider.id,
+            containerProviderConnection,
+          );
+          await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, true);
+          autoMachineStarted = true;
+          autoMachineName = machineName;
+        }
+      }
+    }
+  };
+
   provider.registerAutostart({
     start: async (logger: extensionApi.Logger) => {
-      // If autostart has been enabled for the machine, try to start it.
       try {
-        await updateMachines(provider, podmanConfiguration);
-      } catch (error) {
-        // ignore the update of machines
-      }
-
-      // do we have a running machine ?
-      const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
-        connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
-      );
-      if (isRunningMachine) {
-        console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
-        return;
-      }
-
-      // start the first machine if any
-      const machines = Array.from(podmanMachinesStatuses.entries());
-      if (machines.length > 0) {
-        const [machineName] = machines[0];
-        if (!podmanMachinesInfo.has(machineName)) {
-          console.error('Unable to retrieve machine infos to be autostarted', machineName);
-        } else {
-          console.log('Podman extension:', 'Autostarting machine', machineName);
-          const machineInfo = podmanMachinesInfo.get(machineName);
-          const containerProviderConnection = containerProviderConnections.get(machineName);
-          if (containerProviderConnection && machineInfo) {
-            const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
-              provider.id,
-              containerProviderConnection,
-            );
-            await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, true);
-            autoMachineStarted = true;
-            autoMachineName = machineName;
-          }
-        }
+        autostartInProgress = true;
+        await doAutoStart(logger);
+      } finally {
+        autostartInProgress = false;
       }
     },
   });
