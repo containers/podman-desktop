@@ -2,14 +2,27 @@
 import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
 import Fa from 'svelte-fa';
 
-export let title: string;
-export let href: string;
-export let section = false;
-export let expanded = false;
-export let child = false;
-export let selected: boolean = false;
-export let icon: IconDefinition | undefined = undefined;
-export let onClick: () => void = () => {};
+interface Props {
+  title: string;
+  href: string;
+  section: boolean;
+  expanded: boolean;
+  child: boolean;
+  selected: boolean;
+  icon: IconDefinition | undefined;
+  onClick: () => void;
+}
+
+let {
+  title,
+  href,
+  section = false,
+  expanded = false,
+  child = false,
+  selected = false,
+  icon = undefined,
+  onClick = (): void => {},
+}: Props = $props();
 
 function rotate(
   node: unknown,
@@ -35,7 +48,7 @@ function click(): void {
 }
 </script>
 
-<a class="no-underline" href={href} aria-label={title} on:click={click}>
+<a class="no-underline" href={href} aria-label={title} onclick={click}>
   <div
     class="flex w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px]"
     class:pl-3={!child}
