@@ -27,12 +27,12 @@ import type { DockerContextParsingInfo } from './docker-context-handler.js';
 import { DockerContextHandler } from './docker-context-handler.js';
 
 export class TestDockerContextHandler extends DockerContextHandler {
-  override getDockerConfigPath(): string {
-    return super.getDockerConfigPath();
+  override getDockerConfigFile(): string {
+    return super.getDockerConfigFile();
   }
 
-  override getCurrentContext(): Promise<string> {
-    return super.getCurrentContext();
+  override getCurrentContextFromConfiguration(): Promise<string> {
+    return super.getCurrentContextFromConfiguration();
   }
 
   override getContexts(): Promise<DockerContextParsingInfo[]> {
@@ -48,6 +48,9 @@ let dockerContextHandler: TestDockerContextHandler;
 
 beforeEach(() => {
   vi.resetAllMocks();
+  process.env['DOCKER_CONFIG'] = '';
+  process.env['DOCKER_CONTEXT'] = '';
+  process.env['DOCKER_HOST'] = '';
   console.error = vi.fn();
   dockerContextHandler = new TestDockerContextHandler();
 });
@@ -56,16 +59,25 @@ afterEach(() => {
   console.error = originalConsoleError;
 });
 
-test('getDockerConfigPath', async () => {
-  const configPath = dockerContextHandler.getDockerConfigPath();
-  expect(configPath).toEqual(join(homedir(), '.docker', 'config.json'));
+describe('getDockerConfig', () => {
+  test('should return default config.json location', async () => {
+    const configPath = dockerContextHandler.getDockerConfigFile();
+    expect(configPath).toEqual(join(homedir(), '.docker', 'config.json'));
+  });
+
+  test('should return overwritten by DOCKER_CONFIG location', async () => {
+    const dockerConfig = join('etc', 'docker');
+    process.env['DOCKER_CONFIG'] = dockerConfig;
+    const configPath = dockerContextHandler.getDockerConfigFile();
+    expect(configPath).toEqual(join(dockerConfig, 'config.json'));
+  });
 });
 
 describe('getCurrentContext', () => {
   test('should return default if docker config does not exist', async () => {
     vi.spyOn(fs, 'existsSync').mockReturnValue(false);
 
-    const currentContext = await dockerContextHandler.getCurrentContext();
+    const currentContext = await dockerContextHandler.getCurrentContextFromConfiguration();
     expect(currentContext).toBe('default');
   });
 
@@ -73,7 +85,7 @@ describe('getCurrentContext', () => {
     vi.spyOn(fs, 'existsSync').mockReturnValue(true);
     vi.spyOn(fs.promises, 'readFile').mockResolvedValue(JSON.stringify({ currentContext: 'test-context' }));
 
-    const currentContext = await dockerContextHandler.getCurrentContext();
+    const currentContext = await dockerContextHandler.getCurrentContextFromConfiguration();
     expect(currentContext).toBe('test-context');
   });
 
@@ -81,9 +93,18 @@ describe('getCurrentContext', () => {
     vi.spyOn(fs, 'existsSync').mockReturnValue(true);
     vi.spyOn(fs.promises, 'readFile').mockResolvedValue('not a JSON');
 
-    const currentContext = await dockerContextHandler.getCurrentContext();
+    const currentContext = await dockerContextHandler.getCurrentContextFromConfiguration();
     expect(currentContext).toBe('default');
     expect(console.error).toBeCalledWith('Error parsing docker config file', expect.any(Error));
+  });
+
+  test('should return DOCKER_CONTEXT value', async () => {
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    const dockerContext = 'custom-context';
+    process.env['DOCKER_CONTEXT'] = dockerContext;
+
+    const currentContext = await dockerContextHandler.getCurrentContextFromConfiguration();
+    expect(currentContext).toBe(dockerContext);
   });
 });
 
@@ -145,16 +166,22 @@ describe('switchContext', () => {
 
 describe('listContexts', () => {
   test('should add the extra isCurrentContext', async () => {
-    vi.spyOn(dockerContextHandler, 'getCurrentContext').mockResolvedValue('bar');
+    vi.spyOn(dockerContextHandler, 'getCurrentContextFromConfiguration').mockResolvedValue('bar');
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([
-      { name: 'foo' } as unknown as DockerContextParsingInfo,
-      { name: 'bar' } as unknown as DockerContextParsingInfo,
+      {
+        name: 'foo',
+        endpoints: { docker: { host: '/var/run/not-current.sock' } },
+      } as unknown as DockerContextParsingInfo,
+      {
+        name: 'bar',
+        endpoints: { docker: { host: '/var/run/current.sock' } },
+      } as unknown as DockerContextParsingInfo,
     ]);
 
     const contexts = await dockerContextHandler.listContexts();
     expect(contexts).toEqual([
-      { name: 'foo', isCurrentContext: false },
-      { name: 'bar', isCurrentContext: true },
+      { name: 'foo', endpoints: { docker: { host: '/var/run/not-current.sock' } }, isCurrentContext: false },
+      { name: 'bar', endpoints: { docker: { host: '/var/run/current.sock' } }, isCurrentContext: true },
     ]);
   });
 });
