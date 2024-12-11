@@ -4098,7 +4098,7 @@ describe('createContainerLibPod', () => {
       HostConfig: {
         Devices: [
           {
-            PathOnHost: 'nvidia.com/gpu=all',
+            PathOnHost: 'device1',
             PathInContainer: '',
             CgroupPermissions: '',
           },
@@ -4150,7 +4150,7 @@ describe('createContainerLibPod', () => {
     const expectedOptions: PodmanContainerCreateOptions = {
       name: options.name,
       command: options.Cmd,
-      devices: [{ path: 'nvidia.com/gpu=all' }],
+      devices: [{ path: 'device1' }],
       entrypoint: [options.Entrypoint as string],
       env: {
         key: 'value',
@@ -4225,6 +4225,100 @@ describe('createContainerLibPod', () => {
     createPodmanContainerMock.mockClear();
     options.Entrypoint = ['entrypoint', 'arg1'];
     expectedOptions.entrypoint = options.Entrypoint;
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+  });
+
+  test('check that use of libPod is forced by request for nvidia device', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const libpod = new LibpodDockerode();
+    libpod.enhancePrototypeWithLibPod();
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const createPodmanContainerMock = vi
+      .spyOn(dockerAPI as unknown as LibPod, 'createPodmanContainer')
+      .mockImplementation(_options =>
+        Promise.resolve({
+          Id: 'id',
+          Warnings: [],
+        }),
+      );
+    vi.spyOn(dockerAPI as unknown as Dockerode, 'getContainer').mockImplementation((_id: string) => {
+      return {
+        start: () => {},
+      } as unknown as Dockerode.Container;
+    });
+    // use minimum set as the full of options is validated in the previous test
+    const options: ContainerCreateOptions = {
+      Image: 'image',
+      name: 'name',
+      HostConfig: {
+        Devices: [
+          {
+            PathOnHost: 'nvidia.com/gpu=all',
+            PathInContainer: '',
+            CgroupPermissions: '',
+          },
+        ],
+        NetworkMode: 'mode',
+        AutoRemove: true,
+      },
+      Cmd: ['cmd'],
+      Entrypoint: 'entrypoint',
+      User: 'user',
+    };
+    const expectedOptions: PodmanContainerCreateOptions = {
+      image: options.Image,
+      name: options.name,
+      devices: [{ path: 'nvidia.com/gpu=all' }],
+      netns: {
+        nsmode: 'mode',
+      },
+      command: options.Cmd,
+      entrypoint: [options.Entrypoint as string],
+      user: options.User,
+      cap_add: undefined,
+      cap_drop: undefined,
+      dns_server: undefined,
+      env: undefined,
+      healthconfig: undefined,
+      hostadd: undefined,
+      hostname: undefined,
+      labels: undefined,
+      mounts: undefined,
+      pod: undefined,
+      portmappings: undefined,
+      privileged: undefined,
+      read_only_filesystem: undefined,
+      remove: true,
+      restart_policy: undefined,
+      restart_tries: undefined,
+      seccomp_policy: undefined,
+      seccomp_profile_path: undefined,
+      selinux_opts: [],
+      stop_timeout: undefined,
+      userns: undefined,
+      work_dir: undefined,
+    };
+    vi.spyOn(containerRegistry, 'attachToContainer').mockImplementation(
+      (
+        _engine: InternalContainerProvider,
+        _container: Dockerode.Container,
+        _hasTty?: boolean,
+        _openStdin?: boolean,
+      ) => {
+        return Promise.resolve();
+      },
+    );
     await containerRegistry.createContainer('podman1', options);
     expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
   });
