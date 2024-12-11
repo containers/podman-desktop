@@ -5,19 +5,19 @@ import Fa from 'svelte-fa';
 interface Props {
   title: string;
   href: string;
-  section: boolean;
-  expanded: boolean;
-  child: boolean;
-  selected: boolean;
-  icon: IconDefinition | undefined;
-  onClick: () => void;
+  section?: boolean;
+  expanded?: boolean;
+  child?: boolean;
+  selected?: boolean;
+  icon?: IconDefinition;
+  onClick?: () => void;
 }
 
 let {
   title,
   href,
   section = false,
-  expanded = false,
+  expanded = $bindable(),
   child = false,
   selected = false,
   icon = undefined,
