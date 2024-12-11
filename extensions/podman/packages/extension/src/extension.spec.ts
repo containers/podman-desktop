@@ -3107,3 +3107,85 @@ describe('connectionAuditor', () => {
     );
   });
 });
+
+// https://github.com/podman-desktop/podman-desktop/issues/10173
+test('activate and autostart should not duplicate machines ', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isWindows = false;
+  vi.mocked(isLinux).mockReturnValue(false);
+  vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
+    hasUpdate: false,
+  } as unknown as UpdateCheck);
+  const contextMock = {
+    subscriptions: [],
+    secrets: {
+      delete: vi.fn(),
+      get: vi.fn(),
+      onDidChange: vi.fn(),
+      store: vi.fn(),
+    },
+  } as unknown as extensionApi.ExtensionContext;
+
+  // mock getSocketCompatibility
+  const disableMock = vi.fn();
+  const enableMock = vi.fn();
+  const isEnabledMock = vi.fn().mockReturnValue(false);
+  const mock = vi.spyOn(compatibilityModeLib, 'getSocketCompatibility');
+  mock.mockReturnValue({
+    isEnabled: isEnabledMock,
+    enable: enableMock,
+    disable: disableMock,
+    details: '',
+    tooltipText: (): string => {
+      return '';
+    },
+  });
+
+  let podmanMachineListCalls = 0;
+
+  vi.mocked(extensionApi.process.exec).mockImplementation(
+    (_command: string, args?: string[], _options?: extensionApi.RunOptions) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args?.[0] === '--version') {
+          resolve({
+            stderr: '',
+            stdout: '5.0.0',
+            command: '',
+          });
+          return;
+        }
+
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
+          podmanMachineListCalls++;
+          resolve({
+            stderr: '',
+            stdout: '[]',
+            command: '',
+          });
+        }
+      }),
+  );
+
+  const api = await extension.activate(contextMock);
+  expect(api).toBeDefined();
+
+  // check that we've registered a autostart provider
+  expect(provider.registerAutostart).toBeCalled();
+  const autoStartMethod = vi.mocked(provider.registerAutostart).mock.calls[0][0] as unknown as {
+    start: () => Promise<void>;
+  };
+
+  // call the autostart method
+  const promiseAutoStart = autoStartMethod?.start();
+
+  // call 100 times monitorMachines
+  for (let i = 0; i < 100; i++) {
+    extension.monitorMachines(provider, podmanConfiguration).catch(() => {});
+  }
+
+  await promiseAutoStart;
+
+  // should be only 1 but we allow some more calls (if there is not a check to check during the autostart it would be 100+ calls)
+  expect(podmanMachineListCalls).toBeLessThan(5);
+  expect(promiseAutoStart).toBeDefined();
+});
