@@ -24,6 +24,7 @@ import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
+import MyIcon from './IconTest.svelte';
 import SettingsNavItem from './SettingsNavItem.svelte';
 
 function renderIt(title: string, href: string, selected?: boolean, section?: boolean, child?: boolean): void {
@@ -113,12 +114,23 @@ test('Expect sections expand', async () => {
   expect(element.firstChild?.childNodes[2]).toContainHTML('fa-angle-down');
 });
 
-test('icon should be visible', () => {
+test('fa icon should be visible', () => {
   render(SettingsNavItem, {
     title: 'DummyTitle',
     href: '/dummy/path',
     selected: false,
     icon: faBookOpen,
+  });
+  const svg = screen.getByRole('img', { hidden: true });
+  expect(svg).toBeInTheDocument();
+});
+
+test('svg icon should be visible', () => {
+  render(SettingsNavItem, {
+    title: 'DummyTitle',
+    href: '/dummy/path',
+    selected: false,
+    icon: MyIcon,
   });
   const svg = screen.getByRole('img', { hidden: true });
   expect(svg).toBeInTheDocument();

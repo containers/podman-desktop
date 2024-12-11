@@ -1,6 +1,9 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
+import type { Component } from 'svelte';
 import Fa from 'svelte-fa';
+
+import { isFontAwesomeIcon } from '../utils/icon-utils';
 
 interface Props {
   title: string;
@@ -9,7 +12,7 @@ interface Props {
   expanded?: boolean;
   child?: boolean;
   selected?: boolean;
-  icon?: IconDefinition;
+  icon?: IconDefinition | Component;
   onClick?: () => void;
 }
 
@@ -66,7 +69,12 @@ function click(): void {
     class:hover:border-[var(--pd-secondary-nav-text-hover-bg)]={!selected}>
     <span class="group-hover:block flex flex-row items-center" class:capitalize={!child}>
       {#if icon}
-        <Fa class="mr-4" icon={icon} />
+        {#if isFontAwesomeIcon(icon)}
+          <Fa class="mr-4" {icon} />
+        {:else}
+          {@const Icon = icon}
+          <Icon size="14" class="mr-4"/>
+        {/if}
       {/if}
       {title}
     </span>
