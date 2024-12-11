@@ -700,7 +700,7 @@ declare module '@podman-desktop/api' {
   /**
    * The commands module provides functions to register and execute commands
    * Existing command available for extensions to use:
-   * - `pullImage`: uses Podman Desktop's UI pull image behavior. This command will create a visible task to show the progress of the pulImage action.
+   * - `pullImage`: uses Podman Desktop's UI pull image behavior. This command will create a visible task to show the progress of the pulImage action with the option to include a task action.
    *
    * @example
    * ```typescript
