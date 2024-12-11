@@ -46,6 +46,7 @@ export class FeedbackHandler {
     const extensions = await this.extensionLoader.listExtensions();
     return extensions
       .filter(extension => extension.state === 'started')
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map(extension => `- ${extension.id}`)
       .join('\n');
   }
@@ -58,7 +59,7 @@ export class FeedbackHandler {
     return this.#systemInfo.getSystemName();
   }
 
-  protected toQueryParameters(issue: GitHubIssue, additional: string | undefined): Record<string, string> {
+  protected toQueryParameters(issue: GitHubIssue, additional?: string): Record<string, string> {
     const result: Record<string, string> = {};
     result['title'] = issue.title;
 

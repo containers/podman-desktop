@@ -170,4 +170,43 @@ describe('openGitHubIssue', () => {
       'additional-context': '**Enabled Extensions**\n- dummy-started-extension',
     });
   });
+
+  test('expect extensions to be sorted', async () => {
+    const extensions: ExtensionInfo[] = [
+      {
+        id: 'b',
+        name: 'b',
+        state: 'started',
+      },
+      {
+        id: 'a',
+        name: 'a',
+        state: 'started',
+      },
+      {
+        id: 'c',
+        name: 'c',
+        state: 'started',
+      },
+    ] as ExtensionInfo[];
+
+    vi.mocked(extensionLoaderMock.listExtensions).mockResolvedValue(extensions);
+
+    const issueProperties: GitHubIssue = {
+      category: 'bug',
+      title: 'PD is not working',
+      description: 'bug description',
+      includeSystemInfo: false,
+      includeExtensionInfo: true,
+    };
+
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      'additional-context': '**Enabled Extensions**\n- a\n- b\n- c',
+    });
+  });
 });
