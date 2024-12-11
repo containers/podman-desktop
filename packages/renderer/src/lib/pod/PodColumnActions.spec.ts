@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import type { ContainerInfo, Port } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import PodColumnActions from './PodColumnActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
@@ -28,13 +28,16 @@ import type { PodInfoUI } from './PodInfoUI';
 const listContainersMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
+beforeAll(() => {
+  Object.defineProperty(window, 'listContainers', { value: listContainersMock });
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+});
+
 beforeEach(() => {
-  (window as any).listContainers = listContainersMock;
   listContainersMock.mockResolvedValue([
     { Id: 'pod', Ports: [{ PublicPort: 8080 } as Port] as Port[] } as ContainerInfo,
   ]);
 
-  (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 

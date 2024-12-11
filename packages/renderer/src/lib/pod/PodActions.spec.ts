@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import type { ContainerInfo, Port } from '@podman-desktop/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { V1Route } from '/@api/openshift-types';
 
@@ -70,6 +70,7 @@ const updateMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
 const kubernetesReadNamespacedPodMock = vi.fn();
+const openExternalSpy = vi.fn();
 
 class ResizeObserver {
   observe = vi.fn();
@@ -77,19 +78,23 @@ class ResizeObserver {
   unobserve = vi.fn();
 }
 
-beforeEach(() => {
-  (window as any).ResizeObserver = ResizeObserver;
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).kubernetesDeletePod = vi.fn();
-  (window as any).listContainers = listContainersMock;
-  (window as any).startPod = vi.fn();
-  (window as any).stopPod = vi.fn();
-  (window as any).restartPod = vi.fn();
-  (window as any).removePod = vi.fn();
-  (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
-  (window as any).kubernetesReadNamespacedPod = kubernetesReadNamespacedPodMock;
-  (window as any).kubernetesListRoutes = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'ResizeObserver', { value: ResizeObserver });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'kubernetesDeletePod', { value: vi.fn() });
+  Object.defineProperty(window, 'listContainers', { value: listContainersMock });
+  Object.defineProperty(window, 'startPod', { value: vi.fn() });
+  Object.defineProperty(window, 'stopPod', { value: vi.fn() });
+  Object.defineProperty(window, 'restartPod', { value: vi.fn() });
+  Object.defineProperty(window, 'removePod', { value: vi.fn() });
+  Object.defineProperty(window, 'kubernetesGetCurrentNamespace', { value: kubernetesGetCurrentNamespaceMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedPod', { value: kubernetesReadNamespacedPodMock });
+  Object.defineProperty(window, 'kubernetesListRoutes', { value: vi.fn() });
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+  Object.defineProperty(window, 'openExternal', { value: openExternalSpy });
+});
 
+beforeEach(() => {
   vi.resetAllMocks();
 
   vi.mocked(window.kubernetesListRoutes).mockResolvedValue([]);
@@ -101,7 +106,6 @@ beforeEach(() => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('ns');
   kubernetesReadNamespacedPodMock.mockResolvedValue({ metadata: { labels: { app: 'foo' } } });
 
-  (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockResolvedValue([]);
 });
 
@@ -171,12 +175,10 @@ test('Expect no error and status deleting pod', async () => {
 test('Expect kubernetes route to be displayed', async () => {
   const routeName = 'route.name';
   const routeHost = 'host.local';
-  const openExternalSpy = vi.fn();
 
   vi.mocked(window.kubernetesListRoutes).mockResolvedValue([
     { metadata: { labels: { app: 'foo' }, name: routeName }, spec: { host: routeHost } } as unknown as V1Route,
   ]);
-  (window as any).openExternal = openExternalSpy;
 
   render(PodActions, { pod: kubernetesPod });
 
