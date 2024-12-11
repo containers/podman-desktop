@@ -21,7 +21,9 @@ import { release } from 'node:os';
 import { shell } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import { isLinux, isMac, isWindows } from '/@/util.js';
+import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { GitHubIssue } from '/@api/feedback.js';
 
 import { FeedbackHandler } from './feedback-handler.js';
@@ -42,6 +44,20 @@ vi.mock('node:os', () => ({
   release: vi.fn(),
 }));
 
+const extensionLoaderMock: ExtensionLoader = {
+  listExtensions: vi.fn(),
+} as unknown as ExtensionLoader;
+
+const STARTED_EXTENSION: ExtensionInfo = {
+  state: 'started',
+  id: 'dummy-started-extension',
+} as ExtensionInfo;
+
+const STOPPED_EXTENSION: ExtensionInfo = {
+  state: 'stopped',
+  id: 'dummy-stopped-extension',
+} as ExtensionInfo;
+
 beforeEach(() => {
   vi.resetAllMocks();
 
@@ -49,6 +65,8 @@ beforeEach(() => {
   vi.mocked(isLinux).mockReturnValue(true);
   vi.mocked(isMac).mockReturnValue(false);
   vi.mocked(isWindows).mockReturnValue(false);
+
+  vi.mocked(extensionLoaderMock.listExtensions).mockResolvedValue([STARTED_EXTENSION, STOPPED_EXTENSION]);
 });
 
 /**
@@ -62,8 +80,8 @@ function containSearchParams(url: string | undefined, params: Record<string, str
 
   const search = new URLSearchParams(new URL(url).search);
   Object.entries(params).forEach(([key, value]) => {
-    expect(search.has(key)).toBeTruthy();
-    expect(search.get(key)).toBe(value);
+    expect(search.has(key), `expected url to have ${key} as query parameter`).toBeTruthy();
+    expect(search.get(key), `expected ${search.get(key)} to be ${value}`).toBe(value);
   });
 }
 
@@ -75,7 +93,7 @@ describe('openGitHubIssue', () => {
       description: 'bug description',
     };
 
-    const feedbackHandler = new FeedbackHandler();
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
     await feedbackHandler.openGitHubIssue(issueProperties);
 
     expect(shell.openExternal).toHaveBeenCalledOnce();
@@ -96,7 +114,7 @@ describe('openGitHubIssue', () => {
       description: 'feature description',
     };
 
-    const feedbackHandler = new FeedbackHandler();
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
     await feedbackHandler.openGitHubIssue(issueProperties);
 
     expect(shell.openExternal).toHaveBeenCalledOnce();
@@ -120,7 +138,7 @@ describe('openGitHubIssue', () => {
       includeSystemInfo: true,
     };
 
-    const feedbackHandler = new FeedbackHandler();
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
     await feedbackHandler.openGitHubIssue(issueProperties);
 
     expect(shell.openExternal).toHaveBeenCalledOnce();
@@ -129,6 +147,66 @@ describe('openGitHubIssue', () => {
     const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
     containSearchParams(url, {
       os: 'Linux - dummy-release',
+    });
+  });
+
+  test('expect enabled extensions to be included if includeExtensionInfo is true', async () => {
+    const issueProperties: GitHubIssue = {
+      category: 'bug',
+      title: 'PD is not working',
+      description: 'bug description',
+      includeSystemInfo: false,
+      includeExtensionInfo: true,
+    };
+
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    expect(shell.openExternal).toHaveBeenCalledOnce();
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      'additional-context': '**Enabled Extensions**\n- dummy-started-extension',
+    });
+  });
+
+  test('expect extensions to be sorted', async () => {
+    const extensions: ExtensionInfo[] = [
+      {
+        id: 'b',
+        name: 'b',
+        state: 'started',
+      },
+      {
+        id: 'a',
+        name: 'a',
+        state: 'started',
+      },
+      {
+        id: 'c',
+        name: 'c',
+        state: 'started',
+      },
+    ] as ExtensionInfo[];
+
+    vi.mocked(extensionLoaderMock.listExtensions).mockResolvedValue(extensions);
+
+    const issueProperties: GitHubIssue = {
+      category: 'bug',
+      title: 'PD is not working',
+      description: 'bug description',
+      includeSystemInfo: false,
+      includeExtensionInfo: true,
+    };
+
+    const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
+    await feedbackHandler.openGitHubIssue(issueProperties);
+
+    // extract the first argument of the shell.openExternal call
+    const url: string | undefined = vi.mocked(shell.openExternal).mock.calls[0]?.[0];
+    containSearchParams(url, {
+      'additional-context': '**Enabled Extensions**\n- a\n- b\n- c',
     });
   });
 });

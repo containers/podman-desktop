@@ -24,7 +24,14 @@ export let contextUI: ContextUI | undefined = undefined;
 
 let filteredContributions: Menu[] = [];
 $: {
+  console.log('[ContributionActions] contextUI', contextUI?.collectAllValues());
+
   filteredContributions = contributions.reduce((previousValue, currentValue) => {
+    // Transform the unknown[] args objects as contexts
+    const argsContexts = args.map(arg => transformObjectToContext(arg, contextPrefix));
+
+    console.log('[ContributionActions] argsContexts', argsContexts);
+
     // If no when property is set, we keep all additional menus
     if (currentValue.when === undefined) return [...previousValue, currentValue];
 
@@ -35,9 +42,6 @@ $: {
     if (globalContext && whenDeserialized?.evaluate(globalContext)) {
       return [...previousValue, currentValue];
     }
-
-    // Transform the unknown[] args objects as contexts
-    const argsContexts = args.map(arg => transformObjectToContext(arg, contextPrefix));
 
     // Evaluate the arguments as context
     for (let argsContext of argsContexts) {

@@ -15,6 +15,7 @@ let { onCloseForm = () => {}, category = 'bug', contentChange }: Props = $props(
 let issueTitle = $state('');
 let issueDescription = $state('');
 let includeSystemInfo: boolean = $state(true); // default to true
+let includeExtensionInfo: boolean = $state(true); // default to true
 
 let issueValidationError = $derived.by(() => {
   if (!issueTitle) {
@@ -52,6 +53,7 @@ async function previewOnGitHub(): Promise<void> {
     title: $state.snapshot(issueTitle),
     description: $state.snapshot(issueDescription),
     includeSystemInfo: $state.snapshot(includeSystemInfo),
+    includeExtensionInfo: $state.snapshot(includeExtensionInfo),
   };
   try {
     await window.previewOnGitHub(issueProperties);
@@ -96,6 +98,12 @@ async function previewOnGitHub(): Promise<void> {
           title="Include system information"
           bind:checked={includeSystemInfo} />
         <div>Include system information (os, architecture etc.)</div>
+      </div>
+      <div class="flex flex-row align-items items-center mt-2">
+        <Checkbox
+          title="Include enabled extensions"
+          bind:checked={includeExtensionInfo} />
+        <div>Include enabled extensions</div>
       </div>
     {/if}
   </svelte:fragment>

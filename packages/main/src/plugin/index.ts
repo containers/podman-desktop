@@ -472,9 +472,6 @@ export class PluginSystem {
 
     const telemetry = new Telemetry(configurationRegistry);
     await telemetry.init();
-
-    const feedback = new FeedbackHandler();
-
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
@@ -703,6 +700,8 @@ export class PluginSystem {
       certificates,
     );
     await this.extensionLoader.init();
+
+    const feedback = new FeedbackHandler(this.extensionLoader);
 
     const extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry, apiSender);
     extensionsCatalog.init();

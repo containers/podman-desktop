@@ -58,6 +58,7 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   description: HTMLTextAreaElement;
   preview: HTMLButtonElement;
   includeSystemInfo?: HTMLElement;
+  includeExtensionInfo?: HTMLElement;
 } & RenderResult<Component<ComponentProps<typeof GitHubIssueFeedback>>> {
   const { getByRole, queryByTitle, ...restResult } = render(GitHubIssueFeedback, props);
 
@@ -75,11 +76,14 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   // checkbox
   const includeSystemInfo = queryByTitle('Include system information') ?? undefined;
 
+  const includeExtensionInfo = queryByTitle('Include enabled extensions') ?? undefined;
+
   return {
     title: title as HTMLInputElement,
     description: description as HTMLTextAreaElement,
     preview: preview as HTMLButtonElement,
     includeSystemInfo,
+    includeExtensionInfo,
     getByRole,
     queryByTitle,
     ...restResult,
@@ -235,6 +239,55 @@ describe('includeSystemInfo', () => {
     expect(previewOnGitHubMock).toHaveBeenCalledWith(
       expect.objectContaining({
         includeSystemInfo: false,
+      }),
+    );
+  });
+});
+
+describe('includeExtensionInfo', () => {
+  test('should not be visible on category feature', async () => {
+    const { includeExtensionInfo } = renderGitHubIssueFeedback({
+      category: 'feature',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+    expect(includeExtensionInfo).toBeUndefined();
+  });
+
+  test('should be visible on category bug and enabled by default', async () => {
+    const { includeExtensionInfo } = renderGitHubIssueFeedback({
+      category: 'bug',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+    expect(includeExtensionInfo).toBeInTheDocument();
+
+    // enabled by default
+    expect(includeExtensionInfo?.children?.[0]).toHaveClass('text-[var(--pd-input-checkbox-checked)]');
+  });
+
+  test('uncheck the Include system information should set includeSystemInfo to false', async () => {
+    const { preview, title, description, includeExtensionInfo } = renderGitHubIssueFeedback({
+      category: 'bug',
+      onCloseForm: vi.fn(),
+      contentChange: vi.fn(),
+    });
+
+    if (!includeExtensionInfo) throw new Error('includeExtensionInfo should be defined');
+
+    // type dummy data
+    await userEvent.type(title, 'Bug title');
+    await userEvent.type(description, 'Bug description');
+
+    // uncheck
+    await userEvent.click(includeExtensionInfo);
+
+    // open in GitHub
+    await userEvent.click(preview);
+
+    expect(previewOnGitHubMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeExtensionInfo: false,
       }),
     );
   });
