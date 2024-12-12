@@ -222,6 +222,14 @@ export class KubernetesClient {
   ) {
     this.kubeConfig = new KubeConfig();
     this.contextsState = new ContextsManager(this.apiSender);
+    // Check if KUBECONFIG environment variable is set
+    const kubeconfigEnv = process.env.KUBECONFIG;
+    if (kubeconfigEnv && kubeconfigEnv !== KubernetesClient.DEFAULT_KUBECONFIG_PATH) {
+      console.warn(
+        `Warning: The KUBECONFIG environment variable is set to '${kubeconfigEnv}', which differs from the
+	 default path '${KubernetesClient.DEFAULT_KUBECONFIG_PATH}'. This may lead to unexpected behavior.`
+      );
+    }
   }
 
   async init(): Promise<void> {
