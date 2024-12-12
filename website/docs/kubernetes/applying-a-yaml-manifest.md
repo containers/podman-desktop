@@ -60,7 +60,7 @@ This YAML manifest creates three pods that run the NGINX web server.
 
     :::note
 
-    When you apply any other object manifest, you can view the newly created object on the corresponding component page.
+    When you apply any other YAML manifest, you can view the newly created object on the corresponding component page.
 
     :::
 
