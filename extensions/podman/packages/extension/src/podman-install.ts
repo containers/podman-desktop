@@ -43,6 +43,7 @@ import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import * as podman5JSON from './podman5.json';
+import type { PowerShellClient } from './powershell';
 import { getPowerShellClient } from './powershell';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { WslHelper } from './wsl-helper';
@@ -666,9 +667,17 @@ export class VirtualMachinePlatformCheck extends BaseCheck {
 }
 
 abstract class WindowsCheck extends BaseCheck {
+  #powerShellClient?: Promise<PowerShellClient> = undefined;
+  protected async getPowerShellClient(): Promise<PowerShellClient> {
+    if (!this.#powerShellClient) {
+      this.#powerShellClient = getPowerShellClient();
+    }
+    return this.#powerShellClient;
+  }
+
   async isUserAdmin(): Promise<boolean> {
     try {
-      return await (await getPowerShellClient()).isUserAdmin();
+      return (await this.getPowerShellClient()).isUserAdmin();
     } catch (err: unknown) {
       return false;
     }
@@ -893,7 +902,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isPodmanDesktopElevated(): Promise<boolean> {
     try {
-      return await (await getPowerShellClient()).isRunningElevated();
+      return (await this.getPowerShellClient()).isRunningElevated();
     } catch (err: unknown) {
       return false;
     }
@@ -901,7 +910,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isHyperVinstalled(): Promise<boolean> {
     try {
-      return await (await getPowerShellClient()).isHyperVInstalled();
+      return (await this.getPowerShellClient()).isHyperVInstalled();
     } catch (err: unknown) {
       return false;
     }
@@ -909,7 +918,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isHyperVRunning(): Promise<boolean> {
     try {
-      return await (await getPowerShellClient()).isHyperVRunning();
+      return (await this.getPowerShellClient()).isHyperVRunning();
     } catch (err: unknown) {
       return false;
     }
