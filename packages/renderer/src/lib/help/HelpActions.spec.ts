@@ -47,6 +47,21 @@ suite('HelpActions component', () => {
     expect(items).toHaveLength(0);
   });
 
+  test('is visible after toggling', async () => {
+    const ha = render(HelpActions);
+    toggleMenuCallback();
+    await vi.waitFor(() => {
+      const items = ha.queryAllByTitle(Items[0].title);
+      expect(items).toHaveLength(1);
+    });
+    // Toggle again and expect it to be hidden
+    toggleMenuCallback();
+    await vi.waitFor(() => {
+      const items = ha.queryAllByTitle(Items[0].title);
+      expect(items).toHaveLength(0);
+    });
+  });
+
   test.each(Items)('contains item with $title', async ({ title, tooltip }) => {
     const ha = render(HelpActions);
     toggleMenuCallback();

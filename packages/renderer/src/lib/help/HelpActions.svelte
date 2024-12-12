@@ -19,7 +19,11 @@ function handleEscape({ key }: KeyboardEvent): void {
 }
 
 function onWindowClick(e: any): void {
-  showMenu = outsideWindow.contains(e.target);
+  // We listen to the click event on anything BUT the question circle icon which is
+  // where the help menu is. This is to ensure the menu is closed if the user clicks the circle again.
+  if (!e.srcElement.classList.contains('fa-question-circle')) {
+    showMenu = outsideWindow.contains(e.target);
+  }
 }
 
 async function onClick(action?: ItemAction): Promise<void> {
