@@ -19,26 +19,32 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render } from '@testing-library/svelte';
-import { beforeEach, expect, suite, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, suite, test, vi } from 'vitest';
 
 import HelpActions from './HelpActions.svelte';
 import { Items } from './HelpItems';
 
 let toggleMenuCallback: () => void;
 
+const resizeObserverMock = vi.fn();
+
 suite('HelpActions component', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    (window as any).events = {
+  beforeAll(() => {
+    (window.events as unknown) = {
       receive: vi.fn(),
     };
-    (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
+    Object.defineProperty(window, 'ResizeObserver', { value: resizeObserverMock });
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks();
     vi.mocked(window.events.receive).mockImplementation((channel: string, callback: () => void) => {
       toggleMenuCallback = callback;
       return {
         dispose: () => {},
       };
     });
+    resizeObserverMock.mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
   });
 
   test('by default is not visible', () => {
