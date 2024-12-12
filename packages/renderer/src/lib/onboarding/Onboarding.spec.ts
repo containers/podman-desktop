@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import { context } from '/@/stores/context';
 import { onboardingList } from '/@/stores/onboarding';
@@ -39,10 +39,13 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   unobserve: vi.fn(),
 }));
 
+beforeAll(() => {
+  Object.defineProperty(window, 'resetOnboarding', { value: vi.fn() });
+  Object.defineProperty(window, 'updateStepState', { value: vi.fn() });
+  Object.defineProperty(window, 'telemetryTrack', { value: vi.fn() });
+});
+
 test('Expect to have the "Try again" and Cancel buttons if the step represent a failed state', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-  (window as any).telemetryTrack = vi.fn();
   onboardingList.set([
     {
       extension: 'id',
@@ -74,9 +77,6 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
 });
 
 test('Expect not to have the "Try again" and "Cancel" buttons if the step represent a completed state', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',
@@ -108,9 +108,6 @@ test('Expect not to have the "Try again" and "Cancel" buttons if the step repres
 });
 
 test('Expect to have the "Step Body" div if the step does not include a component', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',
@@ -140,9 +137,6 @@ test('Expect to have the "Step Body" div if the step does not include a componen
 });
 
 test('Expect to have the embedded component if the step includes a component', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',
@@ -174,9 +168,6 @@ test('Expect to have the embedded component if the step includes a component', a
 });
 
 test('Expect content to show / render when when clause is true', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',
@@ -213,9 +204,6 @@ test('Expect content to show / render when when clause is true', async () => {
 });
 
 test('Expect content to NOT show / render when when clause is false', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',
@@ -251,9 +239,6 @@ test('Expect content to NOT show / render when when clause is false', async () =
 });
 
 test('Expect content with "when" to change dynamically when setting has been updated via context.', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   const contextConfig = new ContextUI();
   context.set(contextConfig);
   contextConfig.setValue('config.test', false);
@@ -304,9 +289,6 @@ test('Expect content with "when" to change dynamically when setting has been upd
 });
 
 test('Expect Step Body to clean up if new step has no content to display.', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   const contextConfig = new ContextUI();
   context.set(contextConfig);
   contextConfig.setValue('config.test', false);
@@ -364,9 +346,6 @@ test('Expect Step Body to clean up if new step has no content to display.', asyn
 
 // Expect that hitting "Escape" key will trigger the sendShowMessageBoxOnSelect
 test('Expect that Esc closes', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   const contextConfig = new ContextUI();
   context.set(contextConfig);
   contextConfig.setValue('config.test', false);
@@ -419,9 +398,6 @@ test('Expect that Esc closes', async () => {
 });
 
 test('Expect onboarding to handle two extension ids and global onboarding set to true', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   const contextConfig = new ContextUI();
   context.set(contextConfig);
   contextConfig.setValue('config.test', false);
@@ -559,9 +535,6 @@ test('Expect onboarding to handle two extension ids and global onboarding set to
 });
 
 test('Expect onboarding to handle two extension ids and global onboarding set to false', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   const contextConfig = new ContextUI();
   context.set(contextConfig);
   contextConfig.setValue('config.test', false);
@@ -699,9 +672,6 @@ test('Expect onboarding to handle two extension ids and global onboarding set to
 });
 
 test('Expect onboarding to be reset when starting completed onboarding', async () => {
-  (window as any).resetOnboarding = vi.fn();
-  (window as any).updateStepState = vi.fn();
-
   onboardingList.set([
     {
       extension: 'id',

@@ -45,7 +45,7 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesReadNode = vi.fn();
+  Object.defineProperty(window, 'kubernetesReadNode', { value: vi.fn() });
 });
 
 test('Confirm renders node details', async () => {

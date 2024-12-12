@@ -62,16 +62,16 @@ const removePodMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).listPods = listPodsMock;
-  (window as any).listContainers = listContainersMock.mockResolvedValue([]);
-  (window as any).kubernetesListPods = kubernetesListPodsMock;
-  (window as any).removePod = removePodMock;
-  (window as any).getContributedMenus = getContributedMenusMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).addEventListener = vi.fn();
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'listPods', { value: listPodsMock });
+  Object.defineProperty(window, 'listContainers', { value: listContainersMock.mockResolvedValue([]) });
+  Object.defineProperty(window, 'kubernetesListPods', { value: kubernetesListPodsMock });
+  Object.defineProperty(window, 'removePod', { value: removePodMock });
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock, writable: true });
+  Object.defineProperty(window, 'addEventListener', { value: vi.fn() });
+  Object.defineProperty(window, 'getConfigurationProperties', { value: vi.fn().mockResolvedValue({}) });
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn().mockResolvedValue(undefined) });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   mocks.TerminalMock.mockReturnValue({
     loadAddon: vi.fn(),
