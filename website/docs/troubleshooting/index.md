@@ -6,7 +6,7 @@ description: How to investigate when Podman Desktop does not work as expected.
 
 # Troubleshooting
 
-If you cannot find your issue here or in the documentation, please fill an issue on our [repository](https://github.com/containers/podman-desktop/issues). You can also explore the [discussions](https://github.com/containers/podman-desktop/discussions) and do a search on similar issues on the [repository](https://github.com/containers/podman-desktop/issues).
+If you cannot find your issue here or in the documentation, please fill an issue on our [repository](https://github.com/podman-desktop/podman-desktop/issues). You can also explore the [discussions](https://github.com/podman-desktop/podman-desktop/discussions) and do a search on similar issues on the [repository](https://github.com/podman-desktop/podman-desktop/issues).
 
 Access the following pages to troubleshoot your issues:
 

@@ -12,13 +12,13 @@ Podman Desktop is organized so that you can modularly add new functionality in t
 
 It is recommended that an extension is written in **TypeScript** for typechecking, but extensions CAN be written in **JavaScript**.
 
-Most extensions are externally loaded, however, we also dog-food our own API by loading them as [internal extensions](https://github.com/containers/podman-desktop/tree/main/extensions) that use the same API. These internal maintained extensions can be used as an example and basis of how to build an externally-loaded extension.
+Most extensions are externally loaded, however, we also dog-food our own API by loading them as [internal extensions](https://github.com/podman-desktop/podman-desktop/tree/main/extensions) that use the same API. These internal maintained extensions can be used as an example and basis of how to build an externally-loaded extension.
 
 ## Overview of creating a new extension
 
 We try to simplify extension creation as much as possible by utilizing `package.json` as well as keeping activations simplistic within the extension by only providing two entrypoints: `activate()` and `deactivate()` from within the extension.
 
-All functionality with Podman Desktop is also communicated entirely through the `extension-api` which is loaded as `import * as extensionApi from '@podman-desktop/api';`. The API code is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts) while the website representation of the code is located [here](https://podman-desktop.io/api).
+All functionality with Podman Desktop is also communicated entirely through the `extension-api` which is loaded as `import * as extensionApi from '@podman-desktop/api';`. The API code is located [here](https://github.com/podman-desktop/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts) while the website representation of the code is located [here](https://podman-desktop.io/api).
 
 ### Activating
 
@@ -32,7 +32,7 @@ When activating an extension, Podman Desktop will:
 When deactivating an extension, Podman Desktop will:
 
 1. Run the (optional) exported `deactivate` function.
-2. Dispose of any resources that have been added to `extensionContext.subscriptions`, see `deactivateExtension` in [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts).
+2. Dispose of any resources that have been added to `extensionContext.subscriptions`, see `deactivateExtension` in [extension-loader.ts](https://github.com/podman-desktop/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts).
 
 ### Example boilerplate code
 
@@ -376,7 +376,7 @@ export default config;
 #### Prerequisites
 
 - JavaScript or TypeScript
-- A clone of the [Podman Desktop](https://github.com/containers/podman-desktop) repository
+- A clone of the [Podman Desktop](https://github.com/podman-desktop/podman-desktop) repository
 
 #### Procedure
 
@@ -397,7 +397,7 @@ Below is documentation and/or "boiler-plate" code that can help expand your exte
 
 ### Using `ProviderStatus`
 
-Podman Desktop runs each provider via series of statuses from [extension-api](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
+Podman Desktop runs each provider via series of statuses from [extension-api](https://github.com/podman-desktop/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
 
 ```ts
 export type ProviderStatus =
@@ -431,7 +431,7 @@ export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'sto
 
 Upon a successful start up via the `activate` function within your extension, `ProviderConnectionStatus` will be reflected as 'started'.
 
-`ProviderConnectionStatus` statuses are used in two areas, [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts) and [tray-menu.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/tray-menu.ts):
+`ProviderConnectionStatus` statuses are used in two areas, [extension-loader.ts](https://github.com/podman-desktop/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts) and [tray-menu.ts](https://github.com/podman-desktop/podman-desktop/blob/main/packages/main/src/tray-menu.ts):
 
 - `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occurred, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
 - `tray-menu.ts`: If `extensionApi.tray.registerMenuItem(item);` API call has been used, a tray menu of the extension will be created. When created, Podman Desktop will use the `ProviderConnectionStatus` to indicate the status within the tray menu.

@@ -24,7 +24,7 @@ Consider installing a Flatpak bundle rather than [from Flathub](/docs/installati
 
    - [Downloads page](/downloads/linux)
 
-   - [Git repository release assets](https://github.com/containers/podman-desktop/releases)
+   - [Git repository release assets](https://github.com/podman-desktop/podman-desktop/releases)
 
 2. Install Podman Desktop from the downloaded Flatpak bundle:
 
