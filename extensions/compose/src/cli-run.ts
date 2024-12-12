@@ -61,7 +61,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     args = [`"${binaryPath}"`, `"${destinationPath}"`];
   } else if (system === 'darwin') {
     command = 'exec';
-    args = ['cp', binaryPath, destinationPath];
+    args = ['cp', '-f', binaryPath, destinationPath];
   } else if (system === 'linux') {
     command = '/bin/sh';
     args = ['-c', `cp ${binaryPath} ${destinationPath}`];

@@ -107,7 +107,7 @@ test('success: installBinaryToSystem on mac with /usr/local/bin already created'
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
     'exec',
-    expect.arrayContaining(['cp', 'test', `${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`]),
+    expect.arrayContaining(['cp', '-f', 'test', `${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`]),
     expect.objectContaining({ isAdmin: true }),
   );
 });
