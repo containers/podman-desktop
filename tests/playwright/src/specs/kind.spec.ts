@@ -18,6 +18,7 @@
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
+import { KubeContextPage } from '../model/pages/kubernetes-context-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
@@ -39,19 +40,28 @@ let resourcesPage: ResourcesPage;
 
 let kindResourceCard: ResourceConnectionCardPage;
 
-const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
+const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
-test.beforeAll(async ({ runner, page, welcomePage }) => {
+test.beforeAll(async ({ runner, page, welcomePage, navigationBar }) => {
   runner.setVideoAndTraceName('kind-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
+  if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
+    const settingsBar = await navigationBar.openSettings();
+    const kubePage = await settingsBar.openTabPage(KubeContextPage);
+    await playExpect(kubePage.heading).toBeVisible();
+
+    playExpect(await kubePage.isContextDefault('kind-kind-cluster')).toBeTruthy();
+  }
 });
 
 test.afterAll(async ({ runner, page }) => {
   try {
-    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    if (!(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')) {
+      await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    }
   } finally {
     await runner.close();
   }
@@ -61,7 +71,7 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
   test.describe
     .serial('Kind installation', () => {
       test('Install Kind CLI', async ({ page, navigationBar }) => {
-        test.skip(!!skipKindInstallation, 'Skipping Kind installation');
+        test.skip(!!skipKindInstallation, 'Skipping Kind cluster installation');
         const settingsBar = await navigationBar.openSettings();
         await settingsBar.cliToolsTab.click();
 
@@ -87,7 +97,7 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
   test.describe('Kind cluster operations', () => {
     test.skip(
       !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-      'Tests suite should not run on Linux platform',
+      'Tests should not run on the Linux platform in GitHub Actions',
     );
     test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
