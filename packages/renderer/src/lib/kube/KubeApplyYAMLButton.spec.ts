@@ -32,11 +32,15 @@ const showMessageBoxMock = vi.fn();
 
 // fake the window object
 beforeAll(() => {
-  (window as any).openDialog = openDialogMock;
-  (window as any).kubernetesGetCurrentNamespace = vi.fn().mockResolvedValue(currentNamespace);
-  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue(currentContext);
-  (window as any).kubernetesApplyResourcesFromFile = kubernetesApplyResourcesFromFileMock;
-  (window as any).showMessageBox = showMessageBoxMock;
+  Object.defineProperty(window, 'openDialog', { value: openDialogMock });
+  Object.defineProperty(window, 'kubernetesGetCurrentNamespace', {
+    value: vi.fn().mockResolvedValue(currentNamespace),
+  });
+  Object.defineProperty(window, 'kubernetesGetCurrentContextName', {
+    value: vi.fn().mockResolvedValue(currentContext),
+  });
+  Object.defineProperty(window, 'kubernetesApplyResourcesFromFile', { value: kubernetesApplyResourcesFromFileMock });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
 });
 
 test('Verify clicking button will open file dialog and canceling will exit', async () => {

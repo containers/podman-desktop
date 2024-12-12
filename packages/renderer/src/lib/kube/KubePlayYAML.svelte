@@ -37,6 +37,7 @@ let currentNamespace: string | undefined;
 let allNamespaces: V1NamespaceList;
 
 let playKubeResultRaw: string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let playKubeResultJSON: any;
 
 let userChoice: 'podman' | 'kubernetes' = 'podman';
@@ -62,6 +63,7 @@ const kubeFileDialogOptions: OpenDialogOptions = {
   ],
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function removeEmptyOrNull(obj: any) {
   Object.keys(obj).forEach(
     k =>
@@ -91,12 +93,14 @@ async function playKubeFile(): Promise<void> {
         if (playKubeResultJSON.Pods.length > 0) {
           // Filter out the pods that have container errors, but check to see that container errors exists first
           const containerErrors = playKubeResultJSON.Pods.filter(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (pod: any) => pod.ContainerErrors && pod.ContainerErrors.length > 0,
           );
 
           // For each Pod that has container errors, we will add the container errors to the warning message
           if (containerErrors.length > 0) {
             runWarning = `The following pods were created but failed to start: ${containerErrors
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               .map((pod: any) => pod.ContainerErrors.join(', '))
               .join(', ')}`;
           }
