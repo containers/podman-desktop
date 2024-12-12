@@ -218,7 +218,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
   expect(window.buildImage).toHaveBeenCalledWith(
     '/somepath',
     'containerfile',
-    '',
+    undefined,
     'linux/amd64',
     expect.anything(),
     expect.anything(),
@@ -230,7 +230,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
   expect(window.buildImage).toHaveBeenCalledWith(
     '/somepath',
     'containerfile',
-    '',
+    undefined,
     'linux/arm64',
     expect.anything(),
     expect.anything(),
@@ -238,6 +238,37 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
     expect.anything(),
     expect.anything(),
   );
+});
+
+test('Select multiple platforms without image name should disable Build button', async () => {
+  // Auto select amd64
+  vi.mocked(window.getOsArch).mockResolvedValue('amd64');
+  setup();
+  await waitRender();
+
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
+  expect(containerFilePath).toBeInTheDocument();
+  await userEvent.type(containerFilePath, '/somepath/containerfile');
+
+  // Wait until 'linux/arm64' checkboxes exist and are enabled
+  await waitFor(() => {
+    const platform1 = screen.getByRole('checkbox', { name: 'Intel and AMD x86_64 systems' });
+    expect(platform1).toBeInTheDocument();
+    expect(platform1).toBeChecked();
+  });
+
+  // Click on the 'linux/arm64' button
+  const platform2button = screen.getByRole('button', { name: 'linux/arm64' });
+  expect(platform2button).toBeInTheDocument();
+  await userEvent.click(platform2button);
+
+  const platform2 = screen.getByRole('checkbox', { name: 'ARM® aarch64 systems' });
+  expect(platform2).toBeInTheDocument();
+  expect(platform2).toBeChecked();
+
+  const buildButton = screen.getByRole('button', { name: 'Build' });
+  expect(buildButton).toBeInTheDocument();
+  expect(buildButton).toBeDisabled();
 });
 
 test('Selecting one platform only calls buildImage once with the selected platform, make sure that it has a name', async () => {

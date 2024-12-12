@@ -1204,7 +1204,7 @@ export function initExposure(): void {
     async (
       containerBuildContextDirectory: string,
       relativeContainerfilePath: string,
-      imageName: string,
+      imageName: string | undefined,
       platform: string,
       selectedProvider: ProviderContainerConnectionInfo,
       key: symbol,
