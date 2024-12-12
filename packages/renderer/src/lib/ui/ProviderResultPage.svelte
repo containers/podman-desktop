@@ -93,7 +93,10 @@ function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: Map<
   return results.filter(r => checkedProviders.get(r.provider.id) === undefined || checkedProviders.get(r.provider.id));
 }
 
-function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any): CheckUI[] {
+function getFilteredResultsBySeverity(
+  results: CheckUI[],
+  selectedSeverities: Record<'success' | 'low' | 'medium' | 'high' | 'critical', boolean>,
+): CheckUI[] {
   return results.filter(r => {
     if (r.check.status === 'success') {
       return selectedSeverities['success'];

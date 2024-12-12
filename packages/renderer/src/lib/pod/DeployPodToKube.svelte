@@ -35,6 +35,7 @@ let deployUsingServices = true;
 let deployUsingRoutes = true;
 let deployUsingRestrictedSecurityContext = false;
 let createdPod: V1Pod | undefined = undefined;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let bodyPod: any;
 
 let createIngress = false;
@@ -56,6 +57,7 @@ onMount(async () => {
   }
 
   // parse yaml
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bodyPod = jsYaml.load(kubeDetails) as any;
 
   // grab default context
@@ -96,7 +98,9 @@ onMount(async () => {
   }
 
   // Go through bodyPod.spec.containers and create a string array of port that we'll be exposing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bodyPod.spec.containers.forEach((container: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     container.ports?.forEach((port: any) => {
       containerPortArray.push(port.hostPort);
     });
@@ -161,14 +165,19 @@ async function deployToKube() {
   clearInterval(updatePodInterval);
 
   createdRoutes = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let servicesToCreate: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let routesToCreate: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let ingressesToCreate: any[] = [];
 
   // if we deploy using services, we need to get rid of .hostPort and generate kubernetes services object
   if (deployUsingServices) {
     // collect all ports
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     bodyPod.spec?.containers?.forEach((container: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       container?.ports?.forEach((port: any) => {
         let portName = `${bodyPod.metadata.name}-${port.hostPort}`;
         if (port.hostPort) {
@@ -286,6 +295,7 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const eventProperties: any = {
     useServices: deployUsingServices,
     useRoutes: deployUsingRoutes,
@@ -305,6 +315,7 @@ async function deployToKube() {
     }
 
     if (deployUsingServices) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       bodyPod.spec?.containers?.forEach((container: any) => {
         // UNUSED
         // Delete all volume mounts
@@ -315,6 +326,7 @@ async function deployToKube() {
         // UNUSED
         // Delete all hostPorts
         if (container.ports) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           container.ports.forEach((port: any) => {
             delete port.hostPort;
           });
@@ -352,6 +364,7 @@ async function deployToKube() {
     updatePodInterval = setInterval(() => {
       updatePod().catch((err: unknown) => console.error(`Error updating pod ${createdPod?.metadata?.name}`, err));
     }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.

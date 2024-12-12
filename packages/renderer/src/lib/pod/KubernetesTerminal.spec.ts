@@ -33,14 +33,16 @@ const kubernetesExecMock = vi.fn();
 const kubernetesExecResizeMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).kubernetesExec = kubernetesExecMock;
-  (window as any).kubernetesExecResize = kubernetesExecResizeMock;
-  (window as any).kubernetesExecSend = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'kubernetesExec', { value: kubernetesExecMock });
+  Object.defineProperty(window, 'kubernetesExecResize', { value: kubernetesExecResizeMock });
+  Object.defineProperty(window, 'kubernetesExecSend', { value: vi.fn().mockResolvedValue(undefined) });
 
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+    }),
   });
 });
 

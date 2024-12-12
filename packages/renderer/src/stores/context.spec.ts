@@ -27,9 +27,9 @@ const receiveMock = vi.fn();
 const addEventListenerMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).contextCollectAllValues = contextCollectAllValues;
-  (window as any).events = { receive: receiveMock };
-  (window as any).window.addEventListener = addEventListenerMock;
+  Object.defineProperty(window, 'contextCollectAllValues', { value: contextCollectAllValues });
+  Object.defineProperty(window, 'events', { value: { receive: receiveMock } });
+  Object.defineProperty(window, 'addEventListener', { value: addEventListenerMock });
 });
 
 beforeEach(() => {

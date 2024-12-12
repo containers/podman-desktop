@@ -22,7 +22,9 @@ let callback: (object: { type: string; message: string }) => void;
 
 onMount(() => {
   callback = (object: { type: string; message: string }) => {
-    let theme: any = {};
+    let theme: {
+      [x: string]: string;
+    } = {};
     if (object.type === 'success') {
       theme = {
         '--toastBackground': '#16a34a',

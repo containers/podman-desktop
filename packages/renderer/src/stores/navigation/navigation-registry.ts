@@ -34,6 +34,7 @@ export interface NavigationRegistryEntry {
   name: string;
   icon: {
     iconImage?: string | { readonly light: string; readonly dark: string };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     iconComponent?: any;
     faIcon?: { definition: IconDefinition; size: IconSize };
   };

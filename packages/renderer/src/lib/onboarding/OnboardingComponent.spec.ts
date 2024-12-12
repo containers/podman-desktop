@@ -61,20 +61,20 @@ const providerInfo: ProviderInfo = {
   cleanupSupport: false,
 };
 
-async function waitRender(customProperties: any): Promise<void> {
+async function waitRender(customProperties: object): Promise<void> {
   render(OnboardingComponent, { ...customProperties });
   await tick();
 }
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).updateConfigurationValue = vi.fn();
-  (window as any).getOsMemory = vi.fn();
-  (window as any).getOsCpu = vi.fn();
-  (window as any).getOsFreeDiskSize = vi.fn();
-  (window as any).getCancellableTokenSource = vi.fn();
-  (window as any).auditConnectionParameters = vi.fn();
-  (window as any).telemetryTrack = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'updateConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'getOsMemory', { value: vi.fn() });
+  Object.defineProperty(window, 'getOsCpu', { value: vi.fn() });
+  Object.defineProperty(window, 'getOsFreeDiskSize', { value: vi.fn() });
+  Object.defineProperty(window, 'getCancellableTokenSource', { value: vi.fn() });
+  Object.defineProperty(window, 'auditConnectionParameters', { value: vi.fn() });
+  Object.defineProperty(window, 'telemetryTrack', { value: vi.fn() });
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {

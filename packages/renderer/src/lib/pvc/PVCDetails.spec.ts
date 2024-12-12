@@ -43,7 +43,7 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesReadNamespacedPersistentVolumeClaim = vi.fn();
+  Object.defineProperty(window, 'kubernetesReadNamespacedPersistentVolumeClaim', { value: vi.fn() });
 });
 
 test('Expect renders PVC details', async () => {

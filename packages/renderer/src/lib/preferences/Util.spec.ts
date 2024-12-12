@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Terminal } from '@xterm/xterm';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
@@ -32,7 +33,7 @@ import {
 
 const xtermMock = {
   write: vi.fn(),
-};
+} as unknown as Terminal;
 
 afterEach(() => {
   vi.resetAllMocks();
@@ -84,13 +85,13 @@ test('write multiline string', () => {
 });
 
 test('write invalid object', () => {
-  writeToTerminal(xtermMock, {} as unknown as any[], 'test');
+  writeToTerminal(xtermMock, {} as unknown, 'test');
   // it should not write as xterm.write is called with a valid string
   expect(xtermMock.write).not.toBeCalled();
 });
 
 test('write undefined object', () => {
-  writeToTerminal(xtermMock, undefined as unknown as any[], 'test');
+  writeToTerminal(xtermMock, undefined, 'test');
   // it should not write as xterm.write is called with a valid string
   expect(xtermMock.write).not.toBeCalled();
 });

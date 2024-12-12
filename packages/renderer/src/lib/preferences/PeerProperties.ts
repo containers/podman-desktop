@@ -28,6 +28,7 @@ export class PeerProperties {
     return this.peerProperties.some(value => value === id);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getPeerProperty(id: string | undefined, properties: IProviderConnectionConfigurationPropertyRecorded[]): any {
     if (id) {
       const peerId = id + this.suffix;

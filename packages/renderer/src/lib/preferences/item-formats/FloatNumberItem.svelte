@@ -49,7 +49,7 @@ function onInput(event: Event) {
   }
 }
 
-function onNumberInputKeyPress(event: any) {
+function onNumberInputKeyPress(event: KeyboardEvent) {
   if (event.key === '.' && (recordValue.length === 0 || recordValue.includes('.'))) {
     event.preventDefault();
   }

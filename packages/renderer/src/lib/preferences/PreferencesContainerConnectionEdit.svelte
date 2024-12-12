@@ -44,6 +44,7 @@ onDestroy(() => {
 
 async function editConnection(
   internalProviderId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
   key: symbol,
   keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,

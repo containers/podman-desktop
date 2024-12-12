@@ -40,10 +40,10 @@ const deserialize = vi.fn();
 // fake the window.events object
 beforeAll(() => {
   const resetOnboarding = vi.fn();
-  (window as any).resetOnboarding = resetOnboarding;
+  Object.defineProperty(window, 'resetOnboarding', { value: resetOnboarding });
   const updateStepState = vi.fn();
-  (window as any).updateStepState = updateStepState;
-  (ContextKeyExpr as any).deserialize = deserialize;
+  Object.defineProperty(window, 'updateStepState', { value: updateStepState });
+  Object.defineProperty(ContextKeyExpr, 'deserialize', { value: deserialize });
 });
 
 test('Expect to have the when clause normalized if contains an onboardingContext value', async () => {
