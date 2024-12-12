@@ -50,8 +50,9 @@ body:
       description: What version of the software are you running?
       options:
         - "1.14.1"
-        - "1.14.0"
+        - "1.15.0"
         - "next (development version)"
+        - "1.14.0"
         - "1.13.3"
         - "1.13.2"
         - "1.12.x"
