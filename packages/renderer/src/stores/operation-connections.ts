@@ -38,6 +38,7 @@ interface OperationConnectionInfo {
   operationStarted: boolean;
   errorMessage: string;
   tokenId?: number;
+  formData?: { [key: string]: unknown };
 }
 
 // current create key
