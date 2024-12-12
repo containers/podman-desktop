@@ -37,7 +37,7 @@ import { StartupInstall } from './system/startup-install.js';
 import { WindowHandler } from './system/window/window-handler.js';
 import { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
-import { isMac, isWindows, stoppedExtensions } from './util.js';
+import { isLinux, isMac, isWindows, stoppedExtensions } from './util.js';
 
 let extensionLoader: ExtensionLoader | undefined;
 
@@ -75,7 +75,7 @@ export function sanitizeProtocolForExtension(url: string): string {
 export const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>): void => {
   // On Windows protocol handler will call the app with '<url>' args
   // on macOS it's done with 'open-url' event
-  if (isWindows()) {
+  if (isWindows() || isLinux()) {
     // now search if we have 'open-url' in the list of args and give it to the handler
     for (const arg of args) {
       const analyzedArg = sanitizeProtocolForExtension(arg);
@@ -111,10 +111,19 @@ export const handleOpenUrl = (url: string): void => {
 };
 
 // do not use _args as it may contain additional arguments
-app.on('second-instance', (_event, _args, _workingDirectory, additionalData: unknown) => {
-  // if we are on Windows, we need to handle the protocol
+app.on('second-instance', (_event, commandLine, _workingDirectory, additionalData: unknown) => {
+  /**
+   * Windows directly provide the extra argument in the additionalData.argv
+   */
   if (isWindows() && additionalData && (additionalData as AdditionalData).argv) {
     handleAdditionalProtocolLauncherArgs((additionalData as AdditionalData).argv);
+  }
+
+  /**
+   * Linux provide an empty additionalData, so we use the commandLine
+   */
+  if (isLinux()) {
+    handleAdditionalProtocolLauncherArgs(commandLine);
   }
 
   restoreWindow().catch((error: unknown) => {
