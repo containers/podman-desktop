@@ -19,4 +19,5 @@
 export enum RecommendationsSettings {
   SectionName = 'extensions',
   IgnoreRecommendations = 'ignoreRecommendations',
+  IgnoreBannerRecommendations = 'ignoreBannerRecommendations',
 }

@@ -93,7 +93,28 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('should register a configuration', async () => {
+test('should register a banner configuration', async () => {
+  // register configuration
+  recommendationsRegistry.init();
+
+  // should be the directory provided as env var
+  expect(configurationRegistryMock.registerConfigurations).toBeCalled();
+
+  // take first argument of first call
+  const configurationNode = vi.mocked(configurationRegistryMock).registerConfigurations.mock.calls[0]?.[0]?.[0];
+  expect(configurationNode?.id).toBe('preferences.extensions');
+  expect(configurationNode?.title).toBe('Extensions');
+  expect(configurationNode?.type).toBe('object');
+  expect(configurationNode?.properties).toBeDefined();
+  expect(configurationNode?.properties?.['extensions.ignoreBannerRecommendations']).toBeDefined();
+  expect(configurationNode?.properties?.['extensions.ignoreBannerRecommendations']?.description).toBe(
+    'When enabled, the notifications for extension recommendations banners will not be shown.',
+  );
+  expect(configurationNode?.properties?.['extensions.ignoreBannerRecommendations']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['extensions.ignoreBannerRecommendations']?.default).toBeFalsy();
+});
+
+test('should register a global configuration', async () => {
   // register configuration
   recommendationsRegistry.init();
 
@@ -118,13 +139,13 @@ describe('isRecommendationEnabled', () => {
   test('recommendation ignore true', async () => {
     getRecommendationIgnored.mockReturnValue(true);
 
-    expect(recommendationsRegistry.isRecommendationEnabled()).toBe(false);
+    expect(recommendationsRegistry.isBannerRecommendationEnabled()).toBe(false);
   });
 
   test('recommendation ignore false', async () => {
     getRecommendationIgnored.mockReturnValue(false);
 
-    expect(recommendationsRegistry.isRecommendationEnabled()).toBe(true);
+    expect(recommendationsRegistry.isBannerRecommendationEnabled()).toBe(true);
   });
 });
 
