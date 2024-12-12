@@ -40,7 +40,8 @@ export let providerInfo: ProviderInfo;
 export let propertyScope: string;
 export let callback: (
   param: string,
-  data: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
   handlerKey: symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
   tokenId: number | undefined,
