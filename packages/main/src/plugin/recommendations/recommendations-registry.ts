@@ -21,10 +21,10 @@ import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import type { ExtensionsCatalog } from '/@/plugin/extensions-catalog/extensions-catalog.js';
 import type { Featured } from '/@/plugin/featured/featured.js';
 import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
-import type {
-  ExtensionBanner,
-  RecommendedRegistry,
-  RecommendedRegistryExtensionDetails,
+import {
+  type ExtensionBanner,
+  type RecommendedRegistry,
+  type RecommendedRegistryExtensionDetails,
 } from '/@/plugin/recommendations/recommendations-api.js';
 
 import { default as recommendations } from '../../../../../recommendations.json';
@@ -38,6 +38,14 @@ export class RecommendationsRegistry {
     private extensionsCatalog: ExtensionsCatalog,
   ) {}
 
+  isBannerRecommendationEnabled(): boolean {
+    const bannersIgnored = !this.configurationRegistry
+      .getConfiguration(RecommendationsSettings.SectionName)
+      .get<boolean>(RecommendationsSettings.IgnoreBannerRecommendations, false);
+    const recommendationsIgnored = this.isRecommendationEnabled();
+    return bannersIgnored && recommendationsIgnored;
+  }
+
   isRecommendationEnabled(): boolean {
     return !this.configurationRegistry
       .getConfiguration(RecommendationsSettings.SectionName)
@@ -49,6 +57,7 @@ export class RecommendationsRegistry {
     if (!this.isRecommendationEnabled()) {
       return [];
     }
+
     const installedExtensions = await this.extensionLoader.listExtensions();
 
     const fetchableExtensions = await this.extensionsCatalog.getFetchableExtensions();
@@ -86,7 +95,7 @@ export class RecommendationsRegistry {
    */
   async getExtensionBanners(limit = 1): Promise<ExtensionBanner[]> {
     // Do not recommend any extension when user selected the ignore preference
-    if (!this.isRecommendationEnabled()) return [];
+    if (!this.isBannerRecommendationEnabled()) return [];
 
     const featuredExtensions: Record<string, FeaturedExtension> = Object.fromEntries(
       (await this.featured.getFeaturedExtensions()).map(featured => [featured.id, featured]),
@@ -139,8 +148,14 @@ export class RecommendationsRegistry {
       title: 'Extensions',
       type: 'object',
       properties: {
-        [RecommendationsSettings.SectionName + '.' + RecommendationsSettings.IgnoreRecommendations]: {
+        [`${RecommendationsSettings.SectionName}.${RecommendationsSettings.IgnoreRecommendations}`]: {
           description: 'When enabled, the notifications for extension recommendations will not be shown.',
+          type: 'boolean',
+          default: false,
+          hidden: false,
+        },
+        [`${RecommendationsSettings.SectionName}.${RecommendationsSettings.IgnoreBannerRecommendations}`]: {
+          description: 'When enabled, the notifications for extension recommendations banners will not be shown.',
           type: 'boolean',
           default: false,
           hidden: false,
