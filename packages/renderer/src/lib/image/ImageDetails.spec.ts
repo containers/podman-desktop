@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
@@ -68,19 +68,22 @@ delete myNoneNameImage.RepoTags;
 const deleteImageMock = vi.fn();
 const hasAuthMock = vi.fn();
 
+beforeAll(() => {
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'listImages', { value: listImagesMock });
+  Object.defineProperty(window, 'listContainers', { value: vi.fn() });
+  Object.defineProperty(window, 'deleteImage', { value: deleteImageMock });
+  Object.defineProperty(window, 'hasAuthconfigForImage', { value: hasAuthMock });
+  Object.defineProperty(window, 'getImageCheckerProviders', { value: vi.fn().mockResolvedValue([]) });
+  Object.defineProperty(window, 'listViewsContributions', { value: vi.fn().mockResolvedValue([]) });
+  Object.defineProperty(window, 'getImageFilesProviders', { value: vi.fn().mockResolvedValue([]) });
+  Object.defineProperty(window, 'getConfigurationProperties', { value: vi.fn().mockResolvedValue({}) });
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+});
+
 beforeEach(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
   imagesInfos.set([]);
   viewsContributions.set([]);
-  (window as any).listImages = listImagesMock;
-  (window as any).listContainers = vi.fn();
-  (window as any).deleteImage = deleteImageMock;
-  (window as any).hasAuthconfigForImage = hasAuthMock;
-  (window as any).getImageCheckerProviders = vi.fn().mockResolvedValue([]);
-  (window as any).listViewsContributions = vi.fn().mockResolvedValue([]);
-  (window as any).getImageFilesProviders = vi.fn().mockResolvedValue([]);
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
-  (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 

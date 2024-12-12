@@ -48,12 +48,13 @@ class ResizeObserver {
   unobserve = vi.fn();
 }
 beforeAll(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).ResizeObserver = ResizeObserver;
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'ResizeObserver', { value: ResizeObserver });
 
-  (window as any).getContributedMenus = getContributedMenusMock;
-  (window as any).hasAuthconfigForImage = vi.fn();
-  (window as any).hasAuthconfigForImage.mockImplementation(() => Promise.resolve(false));
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+  Object.defineProperty(window, 'hasAuthconfigForImage', {
+    value: vi.fn().mockImplementation(() => Promise.resolve(false)),
+  });
 });
 
 const fakedImage: ImageInfoUI = {
