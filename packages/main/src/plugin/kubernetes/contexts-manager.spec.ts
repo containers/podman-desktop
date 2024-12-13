@@ -194,7 +194,7 @@ describe('update', async () => {
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client.getStates(), 'dispatchCurrentContextResource');
     const dispatchCheckingStateSpy = vi.spyOn(client.getStates(), 'dispatchCheckingState');
-    const kubeConfig = new kubeclient.KubeConfig();
+    let kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
         {
@@ -243,28 +243,6 @@ describe('update', async () => {
     kubeConfig.loadFromOptions(config);
     await client.update(kubeConfig);
     let expectedMap = new Map<string, ContextGeneralState>();
-    expectedMap.set('context1', {
-      checking: {
-        state: 'waiting',
-      },
-      reachable: false,
-      error: 'Error: connection error',
-      resources: {
-        pods: 0,
-        deployments: 0,
-      },
-    } as ContextGeneralState);
-    expectedMap.set('context2', {
-      checking: {
-        state: 'waiting',
-      },
-      reachable: true,
-      error: undefined,
-      resources: {
-        pods: PODS_DEFAULT,
-        deployments: DEPLOYMENTS_DEFAULT,
-      },
-    } as ContextGeneralState);
     expectedMap.set('context2-1', {
       checking: {
         state: 'waiting',
@@ -274,17 +252,6 @@ describe('update', async () => {
       resources: {
         pods: PODS_NS1,
         deployments: DEPLOYMENTS_NS1,
-      },
-    } as ContextGeneralState);
-    expectedMap.set('context2-2', {
-      checking: {
-        state: 'waiting',
-      },
-      reachable: true,
-      error: undefined,
-      resources: {
-        pods: PODS_NS2,
-        deployments: DEPLOYMENTS_NS2,
       },
     } as ContextGeneralState);
     vi.advanceTimersToNextTimer();
@@ -310,13 +277,11 @@ describe('update', async () => {
     ]);
 
     const expectedCheckMap = new Map<string, CheckingState>();
-    expectedCheckMap.set('context1', { state: 'waiting' });
-    expectedCheckMap.set('context2', { state: 'waiting' });
     expectedCheckMap.set('context2-1', { state: 'waiting' });
-    expectedCheckMap.set('context2-2', { state: 'waiting' });
     expect(dispatchCheckingStateSpy).toHaveBeenCalledWith(expectedCheckMap);
 
     // switching to unreachable context
+    kubeConfig = new kubeclient.KubeConfig();
     kubeConfig.loadFromOptions({
       clusters: config.clusters,
       users: config.users,
@@ -328,6 +293,19 @@ describe('update', async () => {
     dispatchCurrentContextGeneralStateSpy.mockReset();
     dispatchCurrentContextResourceSpy.mockReset();
     await client.update(kubeConfig);
+
+    expectedMap = new Map<string, ContextGeneralState>();
+    expectedMap.set('context1', {
+      checking: {
+        state: 'waiting',
+      },
+      reachable: false,
+      error: 'Error: connection error',
+      resources: {
+        pods: 0,
+        deployments: 0,
+      },
+    } as ContextGeneralState);
 
     vi.advanceTimersToNextTimer();
     vi.advanceTimersToNextTimer();
@@ -361,24 +339,6 @@ describe('update', async () => {
     dispatchCurrentContextResourceSpy.mockReset();
     await client.update(kubeConfig2);
     expectedMap = new Map<string, ContextGeneralState>();
-    expectedMap.set('context1', {
-      checking: { state: 'waiting' },
-      reachable: false,
-      error: 'Error: connection error',
-      resources: {
-        pods: 0,
-        deployments: 0,
-      },
-    } as ContextGeneralState);
-    expectedMap.set('context2', {
-      checking: { state: 'waiting' },
-      reachable: true,
-      error: undefined,
-      resources: {
-        pods: PODS_DEFAULT,
-        deployments: DEPLOYMENTS_DEFAULT,
-      },
-    } as ContextGeneralState);
     expectedMap.set('context2-1', {
       checking: { state: 'waiting' },
       reachable: true,
@@ -1521,8 +1481,6 @@ describe('update', async () => {
 
       await client.update(kubeConfig2);
 
-      expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
-      expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
       expect(informerStopMock).toHaveBeenCalledWith('context1', informerPath);
       expect(client.getContextResources('context1', resource as ResourceName).length).toBe(0);
     });
@@ -1899,8 +1857,6 @@ describe('update', async () => {
 
     await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
     expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
     expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
@@ -1984,8 +1940,6 @@ describe('update', async () => {
 
     await client.update(kubeConfig2);
 
-    expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
-    expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
     expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
     expect(makeInformerMock).toHaveBeenCalledWith(
       expect.any(KubeConfig),
@@ -2486,8 +2440,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when namespace is changed',
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
       {
         initialConfig: {
@@ -2554,8 +2508,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when user attrs changed',
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
       {
         initialConfig: {
@@ -2623,8 +2577,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: `restart if user name changed`,
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
     ];
 
@@ -2662,11 +2616,11 @@ describe('update', async () => {
       if (stopInformerCalls) {
         expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
-          `/api/v1/namespaces/${initialConfig.contexts[1]?.namespace}/pods`,
+          `/api/v1/namespaces/${initialConfig.contexts[0]?.namespace}/pods`,
         );
         expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
-          `/apis/apps/v1/namespaces/${initialConfig.contexts[1]?.namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${initialConfig.contexts[0]?.namespace}/deployments`,
         );
       }
 
@@ -2674,12 +2628,12 @@ describe('update', async () => {
       if (makeInformerCalls) {
         expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
-          `/api/v1/namespaces/${updateConfig.contexts[1]?.namespace}/pods`,
+          `/api/v1/namespaces/${updateConfig.contexts[0]?.namespace}/pods`,
           expect.anything(),
         );
         expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
-          `/apis/apps/v1/namespaces/${updateConfig.contexts[1]?.namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${updateConfig.contexts[0]?.namespace}/deployments`,
           expect.anything(),
         );
       }
@@ -2868,18 +2822,19 @@ describe('update', async () => {
     await client.update(kubeConfig);
     vi.advanceTimersByTime(50);
     expect(contextHasBeenChecked('context1')).toBeTruthy();
-    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeFalsy();
     apiSenderSendMock.mockClear();
     vi.advanceTimersByTime(10_000);
     expect(contextHasBeenChecked('context1')).toBeTruthy();
-    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeFalsy();
     apiSenderSendMock.mockClear();
     vi.advanceTimersByTime(20_000);
     expect(contextHasBeenChecked('context1')).toBeTruthy();
     expect(contextHasBeenChecked('context2')).toBeFalsy();
     apiSenderSendMock.mockClear();
     vi.advanceTimersByTime(30_000);
-    expect(contextHasBeenChecked('context2')).toBeTruthy();
+    expect(contextHasBeenChecked('context1')).toBeTruthy();
+    expect(contextHasBeenChecked('context2')).toBeFalsy();
   });
 });
 

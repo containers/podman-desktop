@@ -72,10 +72,6 @@ import type { CancellableInformer, ContextInternalState } from './contexts-state
 import { ContextsStatesRegistry, dispatchAllResources, isSecondaryResourceName } from './contexts-states-registry.js';
 import { ResourceWatchersRegistry } from './resource-watchers-registry.js';
 
-// If the number of contexts in the kubeconfig file is greater than this number,
-// only the connectivity to the current context will be checked
-const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
-
 const KINDS_WITH_EVENTS: Array<string | undefined> = ['Deployment', 'Pod', 'Node', 'Service'];
 
 interface CreateInformerOptions<T> {
@@ -99,6 +95,8 @@ interface CreateInformerOptions<T> {
   backoff: Backoff;
   // used to delay setting the context reachable after the 'connect' event
   connectionDelay: NodeJS.Timeout | undefined;
+  // set to true when informer has been canceled
+  canceled?: boolean;
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -168,7 +166,7 @@ export class ContextsManager {
       namespace: kubeconfig.getContexts().find(c => c.name === kubeconfig.currentContext)?.namespace,
     };
 
-    // Delete all informers
+    // Delete all informers and states
     for (const name of this.informers.getContextsNames()) {
       // primaries
       await this.informers.deleteContextInformers(name);
@@ -176,12 +174,13 @@ export class ContextsManager {
       // secondaries
       await this.informers.disposeSecondaryInformers(name);
       await this.states.disposeSecondaryStates(name);
+      // Delete state completely
+      await this.states.deleteContextState(name);
     }
 
     // Add primary informers for contexts (only for the current context if the number of contexts is too high)
-    const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
     for (const context of this.kubeConfig.contexts) {
-      if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
+      if (context.name !== this.currentContext?.name) {
         continue;
       }
       if (!this.informers.hasContext(context.name)) {
@@ -796,21 +795,25 @@ export class ContextsManager {
   ): CancellableInformer {
     const informer = makeInformer(kc, path, listPromiseFn);
 
-    informer.on('add', (obj: T) => {
+    const onAdd = (obj: T): void => {
       options.onAdd?.(obj);
       this.setReachableNow(options, true);
-    });
+    };
+    informer.on('add', onAdd);
 
-    informer.on('update', (obj: T) => {
+    const onUpdate = (obj: T): void => {
       options.onUpdate?.(obj);
       this.setReachableNow(options, true);
-    });
+    };
+    informer.on('update', onUpdate);
 
-    informer.on('delete', (obj: T) => {
+    const onDelete = (obj: T): void => {
       options.onDelete?.(obj);
       this.setReachableNow(options, true);
-    });
-    informer.on('error', (err: unknown) => {
+    };
+    informer.on('delete', onDelete);
+
+    const onError = (err: unknown): void => {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
         console.debug(
@@ -828,26 +831,35 @@ export class ContextsManager {
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
-    });
+    };
+    informer.on('error', onError);
 
+    const onConnect = (err: unknown): void => {
+      if (err !== undefined) {
+        console.error(`informer connect error on path ${path} for context ${context.name}: `, String(err));
+        options.onConnectionError?.(String(err));
+      }
+      if (err) {
+        this.setReachableNow(options, false);
+      } else {
+        this.setReachableDelay(options, true);
+      }
+    };
     if (options.onReachable) {
-      informer.on('connect', (err: unknown) => {
-        if (err !== undefined) {
-          console.error(`informer connect error on path ${path} for context ${context.name}: `, String(err));
-          options.onConnectionError?.(String(err));
-        }
-        if (err) {
-          this.setReachableNow(options, false);
-        } else {
-          this.setReachableDelay(options, true);
-        }
-      });
+      informer.on('connect', onConnect);
     }
     this.restartInformer<T>(informer, context, options);
     return {
       informer,
       cancel: (): void => {
+        options.canceled = true;
         clearTimeout(options.timer);
+        clearTimeout(options.connectionDelay);
+        informer.off('add', onAdd);
+        informer.off('update', onUpdate);
+        informer.off('delete', onDelete);
+        informer.off('error', onError);
+        informer.off('connect', onConnect);
       },
     };
   }
@@ -898,6 +910,9 @@ export class ContextsManager {
       });
     }
     informer.start().catch((err: unknown) => {
+      if (options.canceled) {
+        return;
+      }
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
         console.debug(
