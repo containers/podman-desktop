@@ -22,6 +22,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { context } from '/@/stores/context';
+
+import { ContextUI } from '../context/context';
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
@@ -47,6 +51,8 @@ const container: ContainerInfoUI = new ContainerInfoUIImpl(
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
 const showMessageBoxMock = vi.fn();
+
+vi.mock('/@/lib/actions/ContributionActions.svelte');
 
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
@@ -145,4 +151,30 @@ test('Expect Generate Kube to redirect to expected page', async () => {
   await fireEvent.click(deployButton);
 
   expect(goToMock).toBeCalledWith(`/containers/container-id/kube`);
+});
+
+test('Expect ContributionsAction component is created with a contextUI containing containerImageName', async () => {
+  const contributionActionsMock = vi.mocked(ContributionActions);
+  const containerWithImageName = new ContainerInfoUIImpl(
+    'container-id',
+    'container-engine-id',
+  ) as unknown as ContainerInfoUI;
+  containerWithImageName.image = 'quay.io/user/my-image';
+  const ctx = new ContextUI();
+  ctx.setValue('key1', 'value1');
+  context.set(ctx);
+  render(ContainerActions, { container: containerWithImageName });
+  await vi.waitFor(() => {
+    expect(contributionActionsMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        contextUI: {
+          _value: {
+            containerImageName: 'quay.io/user/my-image',
+            key1: 'value1',
+          },
+        },
+      }),
+    );
+  });
 });

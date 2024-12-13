@@ -12,15 +12,18 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
-import { createEventDispatcher, onMount } from 'svelte';
+import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import { handleNavigation } from '/@/navigation';
+import { context } from '/@/stores/context';
 import { NavigationPage } from '/@api/navigation-page';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import { ContextUI } from '../context/context';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
@@ -29,6 +32,9 @@ export let container: ContainerInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
 
+let globalContext: ContextUI;
+let contextsUnsubscribe: Unsubscriber;
+
 const dispatch = createEventDispatcher<{ update: ContainerInfoUI }>();
 export let onUpdate: (update: ContainerInfoUI) => void = update => {
   dispatch('update', update);
@@ -36,6 +42,20 @@ export let onUpdate: (update: ContainerInfoUI) => void = update => {
 let contributions: Menu[] = [];
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
+  contextsUnsubscribe = context.subscribe(value => {
+    // Copy context, do not use reference
+    globalContext = new ContextUI();
+    const allValues = value.collectAllValues();
+    for (const k in allValues) {
+      globalContext.setValue(k, allValues[k]);
+    }
+    globalContext.setValue('containerImageName', container.image);
+  });
+});
+
+onDestroy(() => {
+  // unsubscribe from the store
+  contextsUnsubscribe?.();
 });
 
 function inProgress(inProgress: boolean, state?: string): void {
@@ -249,5 +269,6 @@ if (dropdownMenu) {
     dropdownMenu={dropdownMenu}
     contributions={contributions}
     detailed={detailed}
-    onError={handleError} />
+    onError={handleError}
+    contextUI={globalContext} />
 </svelte:component>
