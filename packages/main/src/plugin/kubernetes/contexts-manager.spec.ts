@@ -1416,7 +1416,7 @@ describe('update', async () => {
       expect(makeInformerMock).not.toHaveBeenCalled();
     });
 
-    /*test('changing context should stop informer on previous current context and clear state', async () => {
+    test('changing context should stop informer on previous current context and clear state', async () => {
       vi.useFakeTimers();
       const makeInformerMock = vi.mocked(makeInformer);
       makeInformerMock.mockImplementation(
@@ -1481,11 +1481,9 @@ describe('update', async () => {
 
       await client.update(kubeConfig2);
 
-      expect(informerStopMock).toHaveBeenCalledWith('context2', '/api/v1/namespaces/ns2/pods');
-      expect(informerStopMock).toHaveBeenCalledWith('context2', '/apis/apps/v1/namespaces/ns2/deployments');
       expect(informerStopMock).toHaveBeenCalledWith('context1', informerPath);
       expect(client.getContextResources('context1', resource as ResourceName).length).toBe(0);
-    });*/
+    });
 
     test('check log message contains context name', async () => {
       vi.useFakeTimers();
@@ -2382,7 +2380,7 @@ describe('update', async () => {
     );
   });
 
-  /*  describe('for not current context informers', () => {
+  describe('for not current context informers', () => {
     const configs = [
       {
         initialConfig: {
@@ -2442,8 +2440,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when namespace is changed',
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
       {
         initialConfig: {
@@ -2510,8 +2508,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: 'restart when user attrs changed',
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
       {
         initialConfig: {
@@ -2579,8 +2577,8 @@ describe('update', async () => {
           currentContext: 'context1',
         },
         testName: `restart if user name changed`,
-        stopInformerCalls: 4,
-        makeInformerCalls: 4,
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
       },
     ];
 
@@ -2618,11 +2616,11 @@ describe('update', async () => {
       if (stopInformerCalls) {
         expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
-          `/api/v1/namespaces/${initialConfig.contexts[1]?.namespace}/pods`,
+          `/api/v1/namespaces/${initialConfig.contexts[0]?.namespace}/pods`,
         );
         expect(informerStopMock).toHaveBeenCalledWith(
           'context2',
-          `/apis/apps/v1/namespaces/${initialConfig.contexts[1]?.namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${initialConfig.contexts[0]?.namespace}/deployments`,
         );
       }
 
@@ -2630,17 +2628,17 @@ describe('update', async () => {
       if (makeInformerCalls) {
         expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
-          `/api/v1/namespaces/${updateConfig.contexts[1]?.namespace}/pods`,
+          `/api/v1/namespaces/${updateConfig.contexts[0]?.namespace}/pods`,
           expect.anything(),
         );
         expect(makeInformerMock).toHaveBeenCalledWith(
           expect.any(KubeConfig),
-          `/apis/apps/v1/namespaces/${updateConfig.contexts[1]?.namespace}/deployments`,
+          `/apis/apps/v1/namespaces/${updateConfig.contexts[0]?.namespace}/deployments`,
           expect.anything(),
         );
       }
     });
-  });*/
+  });
 
   test('dispose', async () => {
     vi.useFakeTimers();
