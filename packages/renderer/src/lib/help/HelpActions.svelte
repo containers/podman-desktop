@@ -19,9 +19,9 @@ function handleEscape({ key }: KeyboardEvent): void {
 }
 
 function onWindowClick(e: any): void {
-  // We listen to the click event on anything BUT the question circle icon which is
-  // where the help menu is. This is to ensure the menu is closed if the user clicks the circle again.
-  if (!e.srcElement.classList.contains('fa-question-circle')) {
+  const target = e.target as HTMLElement;
+  // Listen to anything **but** the button that has "data-task-button" attribute with a value of "Help"
+  if (target && target.getAttribute('data-task-button') !== 'Help') {
     showMenu = outsideWindow.contains(e.target);
   }
 }
