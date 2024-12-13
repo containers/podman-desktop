@@ -72,7 +72,7 @@ const inspectManifest: ManifestInspectInfo = {
 };
 
 beforeAll(() => {
-  (window as any).inspectManifest = vi.fn().mockResolvedValue(inspectManifest);
+  Object.defineProperty(window, 'inspectManifest', { value: vi.fn().mockResolvedValue(inspectManifest) });
 });
 
 test('Expect render ImageDetailsSummary', async () => {
@@ -91,7 +91,7 @@ test('if ImageInfoUI isManifest is true, expect window.inspectManifest to be cal
   render(ImageDetailsSummary, { image: imageWithManifest });
 
   // Expect window.inspectManifest to be called
-  expect((window as any).inspectManifest).toHaveBeenCalled();
+  expect(window.inspectManifest).toHaveBeenCalled();
 
   // Expect the manifest digest to be displayed
 
