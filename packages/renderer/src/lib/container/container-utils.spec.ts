@@ -250,6 +250,23 @@ test('should expect icon to be valid value with context/view set', async () => {
   expect(icon).toBe('podman-desktop-icon-kind-icon');
 });
 
+test('should expect icon to be valid value with context/view set with containerImageName', async () => {
+  const context = new ContextUI();
+  const view: ViewInfoUI = {
+    extensionId: 'extension',
+    viewId: 'id',
+    value: {
+      icon: '${kind-icon}',
+      when: 'containerImageName == docker.io/kindest/node:foobar',
+    },
+  };
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+  } as unknown as ContainerInfo;
+  const icon = containerUtils.iconClass(containerInfo, context, [view]);
+  expect(icon).toBe('podman-desktop-icon-kind-icon');
+});
+
 test('should expect icon to be ContainerIcon if no context/view is passed', async () => {
   const containerInfo = {
     Id: 'container1',
