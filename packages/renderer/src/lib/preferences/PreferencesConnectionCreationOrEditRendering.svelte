@@ -274,11 +274,6 @@ async function getConfigurationValue(configurationKey: IConfigurationPropertyRec
       );
       internalSetConfigurationValue(configurationKey.id, false, value as string);
       return value;
-      // } else if (existingFormData && existingFormData[configurationKey.id]) {
-      //   const value = existingFormData[configurationKey.id];
-      //   // internalSetConfigurationValue(configurationKey.id, true, value as string);
-      //   console.log(`getconfigvalue ${configurationKey.id}: ${value}`)
-      //   return value;
     }
     const initialValue = await getInitialValue(configurationKey);
     internalSetConfigurationValue(configurationKey.id, false, initialValue as string);
@@ -474,12 +469,7 @@ function getConnectionResourceConfigurationNumberValue(
   configurationKey: IConfigurationPropertyRecordedSchema,
   configurationValues: Map<string, { modified: boolean; value: string | boolean | number }>,
 ): number | undefined {
-  let value;
-  if (existingFormData && configurationKey.id && existingFormData[configurationKey.id]) {
-    value = existingFormData[configurationKey.id];
-  } else {
-    value = getConnectionResourceConfigurationValue(configurationKey, configurationValues);
-  }
+  const value = getConnectionResourceConfigurationValue(configurationKey, configurationValues);
   if (typeof value === 'number') {
     return value;
   }
