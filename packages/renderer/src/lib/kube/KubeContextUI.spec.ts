@@ -19,7 +19,7 @@
 import type { Context } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import { clearKubeUIContextError, clearKubeUIContextErrors, setKubeUIContextError } from './KubeContextUI';
+import { clearKubeUIContextErrors, setKubeUIContextError } from './KubeContextUI';
 
 const contexts: (Context & { error: string })[] = [
   {
@@ -43,7 +43,7 @@ const contexts: (Context & { error: string })[] = [
 ];
 
 test('clearKubeUIContextError', () => {
-  const result = clearKubeUIContextError(contexts, 'context1');
+  const result = clearKubeUIContextErrors(contexts, 'context1');
   expect(result).toEqual([
     {
       name: 'context1',

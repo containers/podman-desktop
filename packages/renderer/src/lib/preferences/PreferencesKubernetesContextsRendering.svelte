@@ -9,7 +9,7 @@ import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from 
 import type { KubeContext } from '/@api/kubernetes-context';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
-import { clearKubeUIContextError, clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
+import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';
@@ -115,7 +115,7 @@ async function startMonitoring(contextName: string, contextNumber: number): Prom
   await window.telemetryTrack('kubernetes.monitoring.start.non-current', {
     contextNumber,
   });
-  $kubernetesContexts = clearKubeUIContextError($kubernetesContexts, contextName);
+  $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts, contextName);
   window.kubernetesRefreshContextState(contextName).catch((e: unknown) => {
     if (e instanceof Error) {
       $kubernetesContexts = setKubeUIContextError($kubernetesContexts, contextName, e);
