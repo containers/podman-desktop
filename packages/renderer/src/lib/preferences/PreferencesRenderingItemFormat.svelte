@@ -167,7 +167,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     {:else}
       <NumberItem
         record={record}
-        value={typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}
+        value={typeof givenValue === 'number' ? givenValue : (typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record))}
         onChange={onChange}
         invalidRecord={invalidRecord} />
     {/if}

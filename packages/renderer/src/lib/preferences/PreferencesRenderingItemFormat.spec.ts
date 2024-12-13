@@ -153,6 +153,7 @@ test('Expect a text input when record is type number and enableSlider is false',
     type: 'number',
     minimum: 1,
     maximum: 34,
+    default: 20,
   };
   await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
@@ -160,6 +161,26 @@ test('Expect a text input when record is type number and enableSlider is false',
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLInputElement).name).toBe('record');
+  expect((input as HTMLInputElement).value).toBe('20');
+});
+
+test('Expect record with type number and enableSlider false to use given value if available', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  await awaitRender(record, { givenValue: 5 });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLInputElement).name).toBe('record');
+  expect((input as HTMLInputElement).value).toBe('5');
 });
 
 test('Expect a fileinput when record is type string and format file', async () => {
