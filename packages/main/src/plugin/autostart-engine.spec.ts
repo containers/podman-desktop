@@ -20,11 +20,11 @@ import type { Configuration } from '@podman-desktop/api';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from '/@api/configuration/constants.js';
 
 import { AutostartEngine } from './autostart-engine.js';
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
-import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 import type { Directories } from './directories.js';
 import type { ProviderRegistry } from './provider-registry.js';
 

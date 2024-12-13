@@ -22,9 +22,9 @@ import { expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { context } from '/@/stores/context';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '/@api/configuration/constants.js';
 import type { OnboardingStepItem } from '/@api/onboarding';
 
-import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { ContextUI } from '../context/context';
 import OnboardingItem from './OnboardingItem.svelte';
 

@@ -18,6 +18,7 @@
 
 import type { ConfigurationScope } from '@podman-desktop/api';
 
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -25,7 +26,6 @@ import type {
 } from '/@api/provider-info';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 
