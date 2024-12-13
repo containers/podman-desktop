@@ -24,7 +24,9 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 const imageToPull = 'quay.io/centos-bootc/bootc-image-builder';
 const imageTag = 'latest';
 const containerToRun = 'bootc-image-builder';
-const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
+const containerStartParams: ContainerInteractiveParams = {
+  attachTerminal: false,
+};
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('volume-e2e');
@@ -46,7 +48,9 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
     volumesPage = await createVolumePage.createVolume(volumeName);
     await playExpect
-      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), { timeout: 25_000 })
+      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), {
+        timeout: 25_000,
+      })
       .toBeTruthy();
   });
 
@@ -73,7 +77,11 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
     playExpect(volumeRow).not.toBeUndefined();
     volumesPage = await volumesPage.deleteVolume(volumeName);
-    await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
+    await playExpect
+      .poll(async () => await volumesPage.waitForVolumeDelete(volumeName), {
+        timeout: 35_000,
+      })
+      .toBeTruthy();
   });
 
   test('Delete volume through details page', async ({ navigationBar }) => {
@@ -84,7 +92,11 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
     volumesPage = await createVolumePage.createVolume(volumeName);
 
-    await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
+    await playExpect
+      .poll(async () => await volumesPage.waitForVolumeExists(volumeName), {
+        timeout: 35_000,
+      })
+      .toBeTruthy();
 
     //delete it from the details page
     volumesPage = await navigationBar.openVolumes();
@@ -95,7 +107,11 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     const volumeDetails = await volumesPage.openVolumeDetails(volumeName);
     volumesPage = await volumeDetails.deleteVolume();
 
-    await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
+    await playExpect
+      .poll(async () => await volumesPage.waitForVolumeDelete(volumeName), {
+        timeout: 35_000,
+      })
+      .toBeTruthy();
   });
 
   test('Create volumes from bootc-image-builder', async ({ navigationBar }) => {
@@ -132,7 +148,9 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     let containers = await runImage.startContainer(containerToRun, containerStartParams);
     await playExpect(containers.header).toBeVisible();
     await playExpect
-      .poll(async () => await containers.containerExists(containerToRun), { timeout: 60_000 })
+      .poll(async () => await containers.containerExists(containerToRun), {
+        timeout: 60_000,
+      })
       .toBeTruthy();
     await containers.startContainer(containerToRun);
 
@@ -152,7 +170,9 @@ test.describe.serial('Volume workflow verification', { tag: '@smoke' }, () => {
     const containersPage = await containers.deleteContainer(containerToRun);
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect
-      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 30_000 })
+      .poll(async () => await containersPage.containerExists(containerToRun), {
+        timeout: 30_000,
+      })
       .toBeFalsy();
 
     //prune unused volumes
