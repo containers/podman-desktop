@@ -47,6 +47,7 @@ export interface ContextResourcePermission {
 
 // ContextPermissionResult is the result of a request, which can cover several resources
 export interface ContextPermissionResult extends ContextResourcePermission {
+  kubeConfig: KubeConfigSingleContext;
   resources: string[];
 }
 
@@ -85,6 +86,7 @@ export class ContextPermissionsChecker implements Disposable {
     } else {
       // send the result for resources concerned by the request
       this.saveAndFireResult({
+        kubeConfig: this.#kubeconfig,
         resources: this.#request.resources,
         attrs: this.#request.attrs,
         permitted: result.allowed && !result.denied,

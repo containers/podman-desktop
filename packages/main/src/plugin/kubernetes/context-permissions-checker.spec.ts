@@ -20,7 +20,7 @@ import util from 'node:util';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ContextResourcePermission } from './context-permissions-checker.js';
+import type { ContextPermissionResult, ContextResourcePermission } from './context-permissions-checker.js';
 import { ContextPermissionsChecker } from './context-permissions-checker.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 
@@ -68,6 +68,7 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
 
     test('onPermissionResult is fired with permitted true', async () => {
       expect(onPermissionResultCB).toHaveBeenCalledWith({
+        kubeConfig: expect.anything(),
         attrs,
         resources,
         permitted: true,
@@ -111,6 +112,7 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
 
     test('onPermissionResult is fired with permitted false', async () => {
       expect(onPermissionResultCB).toHaveBeenCalledWith({
+        kubeConfig: expect.anything(),
         attrs,
         resources,
         permitted: false,
@@ -153,6 +155,7 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
 
     test('onPermissionResult is fired with permitted false', async () => {
       expect(onPermissionResultCB).toHaveBeenCalledWith({
+        kubeConfig: expect.anything(),
         attrs,
         resources,
         permitted: false,
@@ -265,17 +268,19 @@ describe('ContextPermissionsChecker is built with a recursive request', async ()
 
     test('onPermissionResult is fired with permitted true for resource1 and false for resource2', async () => {
       expect(onPermissionResultCB).toHaveBeenCalledWith({
+        kubeConfig: expect.anything(),
         attrs: attrsResource1,
         resources: resources1,
         permitted: true,
         reason: 'a reason 1',
-      });
+      } as ContextPermissionResult);
       expect(onPermissionResultCB).toHaveBeenCalledWith({
+        kubeConfig: expect.anything(),
         attrs: attrsResource2,
         resources: resources2,
         permitted: false,
         reason: 'a reason 2',
-      });
+      } as ContextPermissionResult);
     });
 
     test('getPermissions returns permitted true for resource1 and false for resource2', async () => {
