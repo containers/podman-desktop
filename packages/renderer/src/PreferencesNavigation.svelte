@@ -8,52 +8,63 @@ import { ExperimentalSettings } from '/@api/docker-compatibility-info';
 
 import { configurationProperties } from './stores/configurationProperties';
 
-export let meta: TinroRouteMeta;
-
-let configProperties: Map<string, { id: string; title: string }>;
-
-$: configProperties = new Map();
-let sectionExpanded: { [key: string]: boolean } = {};
-$: sectionExpanded = {};
-
-function sortItems(items: any): any[] {
-  return items.sort((a: { title: string }, b: { title: any }) => a.title.localeCompare(b.title));
+interface Props {
+  meta: TinroRouteMeta;
 }
 
-let dockerCompatibilityEnabled = false;
+interface NavItem {
+  id: string;
+  title: string;
+}
 
-onMount(async () => {
-  configurationProperties.subscribe(value => {
-    configProperties = value
-      .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
-      .filter(property => !property.hidden)
-      .reduce((map: any, property) => {
-        let [parentLeftId] = property.parentId.split('.');
+let { meta }: Props = $props();
 
-        if (map[parentLeftId] === undefined) {
-          map[parentLeftId] = [];
-        }
+let dockerCompatibilityEnabled = $state(false);
+let configProperties: Map<string, NavItem[]> = $state(new Map<string, NavItem[]>());
+let sectionExpanded: { [key: string]: boolean } = $state({});
 
-        let children = map[parentLeftId].find((item: any) => item.id === property.parentId);
-        if (children === undefined) {
-          map[parentLeftId].push({ id: property.parentId, title: property.title });
-        }
-        return map;
-      }, new Map());
+function updateDockerCompatibility(): void {
+  window
+    .getConfigurationValue<boolean>(`${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`)
+    .then(result => {
+      if (result !== undefined) {
+        dockerCompatibilityEnabled = result;
+      }
+    })
+    .catch((err: unknown) =>
+      console.error(
+        `Error getting configuration value ${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`,
+        err,
+      ),
+    );
+}
 
-    window
-      .getConfigurationValue<boolean>(`${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`)
-      .then(result => {
-        if (result !== undefined) {
-          dockerCompatibilityEnabled = result;
-        }
-      })
-      .catch((err: unknown) =>
-        console.error(
-          `Error getting configuration value ${ExperimentalSettings.SectionName}.${ExperimentalSettings.Enabled}`,
-          err,
-        ),
-      );
+function sortItems(items: NavItem[]): NavItem[] {
+  return items.toSorted((a: { title: string }, b: { title: string }) => a.title.localeCompare(b.title));
+}
+
+onMount(() => {
+  return configurationProperties.subscribe(value => {
+    // update compatibility
+    updateDockerCompatibility();
+
+    // update config properties
+    configProperties = value.reduce((map, current) => {
+      // filter on default scope
+      if (current.scope !== CONFIGURATION_DEFAULT_SCOPE) return map;
+
+      // do not include hidden property
+      if (current.hidden) return map;
+
+      let [parentLeftId] = current.parentId.split('.');
+      const array: NavItem[] = map.get(parentLeftId) ?? [];
+
+      let children = array.find((item: NavItem) => item.id === current.parentId);
+      if (children === undefined) {
+        map.set(parentLeftId, [...array, { id: current.parentId, title: current.title }]);
+      }
+      return map;
+    }, new Map<string, NavItem[]>());
   });
 });
 </script>
@@ -77,7 +88,7 @@ onMount(async () => {
     {/each}
 
     <!-- Default configuration properties start -->
-    {#each Object.entries(configProperties) as [configSection, configItems]}
+    {#each configProperties as [configSection, configItems] (configSection)}
       <SettingsNavItem
         title={configSection}
         href="/preferences/default/{configSection}"
