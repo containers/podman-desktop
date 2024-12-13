@@ -92,7 +92,7 @@ test('Expect to have different status icon based on provider status', async () =
   providerMock.status = 'unknown';
   await renderObject.rerender({ entry: providerMock });
   expect(statusIcon).toBeInTheDocument();
-  expect(statusIcon).toHaveClass('fa-regular fa-moon');
+  expect(statusIcon).toHaveClass('fa-regular fa-circle-question');
 
   providerMock.status = 'stopping';
   await renderObject.rerender({ entry: providerMock });
