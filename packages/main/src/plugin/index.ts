@@ -1289,7 +1289,7 @@ export class PluginSystem {
       ): Promise<unknown> => {
         // create task
         const task = taskManager.createTask({
-          title: `Building ${imageName ?? 'unnamed image'}`,
+          title: `Building image ${imageName ?? ''}`,
           action: {
             name: 'Go to task >',
             execute: () => {
