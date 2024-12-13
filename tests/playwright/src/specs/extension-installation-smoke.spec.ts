@@ -108,7 +108,7 @@ for (const { extensionName, extensionType } of extentionTypes) {
 
     test('Install extension from OCI Image', async () => {
       test.skip(extensionType !== OPENSHIFT_CHECKER);
-      test.setTimeout(200000);
+      test.setTimeout(200_000);
 
       const extensionsPage = new ExtensionsPage(page);
 

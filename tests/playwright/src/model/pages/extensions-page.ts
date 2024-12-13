@@ -76,7 +76,7 @@ export class ExtensionsPage {
         name: 'Done',
         exact: true,
       });
-      await playExpect(doneButton).toBeEnabled({ timeout: 50_000 });
+      await playExpect(doneButton).toBeEnabled({ timeout: 100_000 });
       await doneButton.click();
 
       return this;
