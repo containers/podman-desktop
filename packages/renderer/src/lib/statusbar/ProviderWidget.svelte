@@ -51,7 +51,7 @@ const statusesStyle = new Map<string, string>([
   ['error', 'fa-regular fa-circle-xmark'],
   ['not-installed', 'fa fa-exclamation-triangle'],
   ['update available', 'fa-regular fa-circle-up'],
-  ['unknown', 'fa-regular fa-moon'],
+  ['unknown', 'fa-regular fa-circle-question'],
 ]);
 </script>
   
