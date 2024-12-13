@@ -250,3 +250,75 @@ describe.each([
     expect(deploymentsCountContext2).not.toBeInTheDocument();
   });
 });
+
+test('start monitoring button is displayed on contexts for which state is not known', () => {
+  const state: Map<string, ContextGeneralState> = new Map();
+  state.set('context-name', {
+    reachable: true,
+    resources: {
+      pods: 1,
+      deployments: 2,
+    },
+  });
+  state.set('context-name2', {
+    reachable: false,
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
+  });
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(state);
+  vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
+  render(PreferencesKubernetesContextsRendering, {});
+  const context3 = screen.getAllByRole('row')[2];
+
+  expect(within(context3).queryByText('UNKNOWN')).toBeInTheDocument();
+  expect(within(context3).queryByText('PODS')).not.toBeInTheDocument();
+  expect(within(context3).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
+  expect(within(context3).queryByText('Start monitoring')).toBeInTheDocument();
+
+  const context1 = screen.getAllByRole('row')[0];
+  expect(within(context1).queryByText('Start monitoring')).not.toBeInTheDocument();
+  const context2 = screen.getAllByRole('row')[1];
+  expect(within(context2).queryByText('Start monitoring')).not.toBeInTheDocument();
+});
+
+test('starting monitoring for a context calls window.kubernetesRefreshContextState with context name', async () => {
+  const state: Map<string, ContextGeneralState> = new Map();
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(state);
+  vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
+  render(PreferencesKubernetesContextsRendering, {});
+  const context1 = screen.getAllByRole('row')[0];
+
+  const button = within(context1).getByText('Start monitoring');
+
+  const telemetryTrackMock = vi.fn();
+  (window as any).telemetryTrack = telemetryTrackMock;
+
+  const kubernetesRefreshContextStateMock = vi.fn();
+  (window as any).window.kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
+  kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
+  await fireEvent.click(button);
+  expect(kubernetesRefreshContextStateMock).toHaveBeenCalledWith('context-name');
+});
+
+test('starting monitoring for a context sends telemetry', async () => {
+  const state: Map<string, ContextGeneralState> = new Map();
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(state);
+  vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
+  render(PreferencesKubernetesContextsRendering, {});
+  const context2 = screen.getAllByRole('row')[1];
+
+  const button = within(context2).getByText('Start monitoring');
+
+  const telemetryTrackMock = vi.fn();
+  (window as any).telemetryTrack = telemetryTrackMock;
+
+  const kubernetesRefreshContextStateMock = vi.fn();
+  (window as any).window.kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
+  kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
+  await fireEvent.click(button);
+  expect(telemetryTrackMock).toHaveBeenCalledWith('kubernetes.monitoring.start.non-current', {
+    contextNumber: 1,
+  });
+});

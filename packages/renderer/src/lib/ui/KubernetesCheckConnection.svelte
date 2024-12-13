@@ -11,9 +11,10 @@ import {
 let currentContextName = $derived($kubernetesContexts.find(c => c.currentContext)?.name);
 let error = $state('');
 
-function refresh(): void {
+async function refresh(): Promise<void> {
   error = '';
   if (currentContextName) {
+    await window.telemetryTrack('kubernetes.monitoring.start.current');
     window.kubernetesRefreshContextState(currentContextName).catch((err: unknown) => {
       error = String(err);
     });

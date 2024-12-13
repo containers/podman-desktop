@@ -44,3 +44,13 @@ export function setKubeUIContextError(contexts: Context[], contextName: string, 
 export function clearKubeUIContextErrors(contexts: Context[]): Context[] {
   return contexts.map(ctx => ({ ...ctx, error: undefined }));
 }
+
+export function clearKubeUIContextError(contexts: Context[], contextName: string): Context[] {
+  return contexts.map(ctx => {
+    if (ctx.name === contextName) {
+      return { ...ctx, error: undefined };
+    } else {
+      return ctx;
+    }
+  });
+}

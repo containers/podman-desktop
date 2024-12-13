@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { expect, test, vi } from 'vitest';
 
@@ -110,4 +110,32 @@ test('button is displayed and disabled if current context is defined, is not rea
   const button = screen.queryByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveProperty('disabled', true);
+});
+
+test('clicking on button sends telemetry', async () => {
+  vi.mocked(kubernetesContextsStore).kubernetesContexts = writable<KubeContext[]>([
+    {
+      name: 'context1',
+      cluster: 'cluster1',
+      user: 'user1',
+      currentContext: true,
+    },
+  ]);
+  vi.mocked(kubernetesContextsStateStore).kubernetesCurrentContextState = writable<ContextGeneralState>({
+    reachable: false,
+    resources: { pods: 0, deployments: 0 },
+  });
+  vi.mocked(kubernetesContextsStateStore).kubernetesContextsCheckingStateDelayed = writable<Map<string, boolean>>();
+  render(KubernetesCheckConnection);
+  const button = screen.getByRole('button');
+
+  const telemetryTrackMock = vi.fn();
+  (window as any).telemetryTrack = telemetryTrackMock;
+
+  const kubernetesRefreshContextStateMock = vi.fn();
+  (window as any).window.kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
+  kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
+
+  await fireEvent.click(button);
+  expect(telemetryTrackMock).toHaveBeenCalledWith('kubernetes.monitoring.start.current');
 });

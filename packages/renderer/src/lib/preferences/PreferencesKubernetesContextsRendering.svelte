@@ -9,7 +9,7 @@ import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from 
 import type { KubeContext } from '/@api/kubernetes-context';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
-import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
+import { clearKubeUIContextError, clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';
@@ -110,6 +110,18 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
   }
   return !!$kubernetesContextsCheckingStateDelayed?.get(contextName);
 }
+
+async function startMonitoring(contextName: string, contextNumber: number): Promise<void> {
+  await window.telemetryTrack('kubernetes.monitoring.start.non-current', {
+    contextNumber,
+  });
+  $kubernetesContexts = clearKubeUIContextError($kubernetesContexts, contextName);
+  window.kubernetesRefreshContextState(contextName).catch((e: unknown) => {
+    if (e instanceof Error) {
+      $kubernetesContexts = setKubeUIContextError($kubernetesContexts, contextName, e);
+    }
+  });
+}
 </script>
 
 <SettingsPage title="Kubernetes Contexts">
@@ -129,7 +141,7 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
         Go to Resources
       </Button>
     </EmptyScreen>
-    {#each kubernetesContextsWithStates as context}
+    {#each kubernetesContextsWithStates as context, iContext}
       <!-- If current context, use lighter background -->
       <div
         role="row"
@@ -200,17 +212,22 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
                   </div>
                 </div>
               {:else}
-                <div class="flex flex-row pt-2">
-                  <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
-                  <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
-                    {#if context.isKnown}
-                      UNREACHABLE
-                    {:else}
-                      UNKNOWN
-                    {/if}
+                <div class="flex flex-col space-y-2">
+                  <div class="flex flex-row pt-2">
+                    <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
+                    <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
+                      {#if context.isKnown}
+                        UNREACHABLE
+                      {:else}
+                        UNKNOWN
+                      {/if}
+                    </div>
+                    {#if context.isBeingChecked}
+                      <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                    {/if}                    
                   </div>
-                  {#if context.isBeingChecked}
-                    <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                  {#if !$kubernetesContextsState.get(context.name)}
+                    <div><Button on:click={() => startMonitoring(context.name, iContext)}>Start monitoring</Button></div>
                   {/if}
                 </div>
               {/if}
