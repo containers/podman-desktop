@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeActions from './ComposeActions.svelte';
@@ -64,14 +64,17 @@ const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
-beforeEach(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).startContainersByLabel = vi.fn();
-  (window as any).stopContainersByLabel = vi.fn();
-  (window as any).restartContainersByLabel = vi.fn();
-  (window as any).deleteContainersByLabel = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'startContainersByLabel', { value: vi.fn() });
+  Object.defineProperty(window, 'stopContainersByLabel', { value: vi.fn() });
+  Object.defineProperty(window, 'restartContainersByLabel', { value: vi.fn() });
+  Object.defineProperty(window, 'deleteContainersByLabel', { value: vi.fn() });
 
-  (window as any).getContributedMenus = getContributedMenusMock;
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
+});
+
+beforeEach(() => {
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
