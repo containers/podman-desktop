@@ -40,7 +40,7 @@ function updateDockerCompatibility(): void {
 }
 
 function sortItems(items: NavItem[]): NavItem[] {
-  return items.toSorted((a: { title: string }, b: { title: string }) => a.title.localeCompare(b.title));
+  return items.toSorted((a, b) => a.title.localeCompare(b.title));
 }
 
 onMount(() => {
