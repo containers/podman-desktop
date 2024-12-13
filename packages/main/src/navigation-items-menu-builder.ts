@@ -18,8 +18,9 @@
 
 import type { ContextMenuParams, MenuItemConstructorOptions } from 'electron';
 
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
+
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
-import { CONFIGURATION_DEFAULT_SCOPE } from './plugin/configuration-registry-constants.js';
 
 // items that can't be hidden
 const EXCLUDED_ITEMS = ['Accounts', 'Settings'];

@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from '/@api/configuration/constants.js';
+
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
-import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import { Disposable } from './types/disposable.js';
 

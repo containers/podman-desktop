@@ -3,9 +3,9 @@ import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 import { ExperimentalSettings } from '/@api/docker-compatibility-info';
 
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import { configurationProperties } from './stores/configurationProperties';
 
 export let meta: TinroRouteMeta;

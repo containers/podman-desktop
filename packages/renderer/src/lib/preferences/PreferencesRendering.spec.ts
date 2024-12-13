@@ -27,9 +27,9 @@ import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { context } from '/@/stores/context';
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { ContextUI } from '../context/context';
 import PreferencesRendering from './PreferencesRendering.svelte';
 

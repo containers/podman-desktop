@@ -25,10 +25,10 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { onboardingList } from '/@/stores/onboarding';
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 import type { OnboardingInfo } from '/@api/onboarding';
 import type { ProviderInfo } from '/@api/provider-info';
 
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { providerInfos } from '../../stores/providers';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 

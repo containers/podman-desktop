@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
+
 import { TelemetrySettings } from '../../../../main/src/plugin/telemetry/telemetry-settings';
 import { WelcomeSettings } from '../../../../main/src/plugin/welcome/welcome-settings';
 
