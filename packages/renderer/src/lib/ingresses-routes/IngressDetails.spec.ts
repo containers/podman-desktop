@@ -46,8 +46,8 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesDeleteIngress = kubernetesDeleteIngressMock;
-  (window as any).kubernetesReadNamespacedIngress = vi.fn();
+  Object.defineProperty(window, 'kubernetesDeleteIngress', { value: kubernetesDeleteIngressMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedIngress', { value: vi.fn() });
 });
 
 test('Expect redirect to previous page if ingress is deleted', async () => {

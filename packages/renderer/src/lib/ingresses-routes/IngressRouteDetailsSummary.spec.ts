@@ -60,8 +60,8 @@ const kubernetesGetCurrentNamespaceMock = vi.fn();
 const kubernetesReadNamespacedServiceMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
-  (window as any).kubernetesReadNamespacedService = kubernetesReadNamespacedServiceMock;
+  Object.defineProperty(window, 'kubernetesGetCurrentNamespace', { value: kubernetesGetCurrentNamespaceMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedService', { value: kubernetesReadNamespacedServiceMock });
 });
 
 test('Expect basic ingress rendering', async () => {

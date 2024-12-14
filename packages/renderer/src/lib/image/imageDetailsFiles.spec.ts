@@ -219,10 +219,10 @@ describe('ImageDetailsFiles component', () => {
   const getConfigurationValueMock = vi.fn();
 
   beforeAll(() => {
-    (window as any).imageGetFilesystemLayers = imageGetFilesystemLayersMock;
-    (window as any).cancelToken = cancelTokenMock;
-    (window as any).getCancellableTokenSource = getCancellableTokenSourceMock;
-    (window as any).getConfigurationValue = getConfigurationValueMock;
+    Object.defineProperty(window, 'imageGetFilesystemLayers', { value: imageGetFilesystemLayersMock });
+    Object.defineProperty(window, 'cancelToken', { value: cancelTokenMock });
+    Object.defineProperty(window, 'getCancellableTokenSource', { value: getCancellableTokenSourceMock });
+    Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
   });
 
   beforeEach(() => {
