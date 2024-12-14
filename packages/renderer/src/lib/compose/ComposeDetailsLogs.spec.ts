@@ -35,11 +35,13 @@ vi.mock('@xterm/xterm', () => {
 });
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
-  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
-  (window as any).logsContainer = vi.fn().mockResolvedValue(undefined);
-  (window as any).refreshTerminal = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
+  });
+  Object.defineProperty(window, 'telemetryPage', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'logsContainer', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'refreshTerminal', { value: vi.fn() });
   mockBreadcrumb();
 });
 

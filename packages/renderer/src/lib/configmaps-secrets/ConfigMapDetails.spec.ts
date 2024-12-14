@@ -42,7 +42,7 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesReadNamespacedConfigMap = vi.fn();
+  Object.defineProperty(window, 'kubernetesReadNamespacedConfigMap', { value: vi.fn() });
 });
 
 test('Confirm renders configmap details', async () => {
