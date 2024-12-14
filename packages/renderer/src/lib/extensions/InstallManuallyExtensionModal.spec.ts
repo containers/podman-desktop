@@ -20,15 +20,18 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import InstallManuallyExtensionModal from './InstallManuallyExtensionModal.svelte';
 
 const closeCallback = vi.fn();
 
+beforeAll(() => {
+  Object.defineProperty(window, 'extensionInstallFromImage', { value: vi.fn() });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).extensionInstallFromImage = vi.fn();
 });
 
 test('expect invalid field', async () => {

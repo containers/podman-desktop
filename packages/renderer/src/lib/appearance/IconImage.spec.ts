@@ -20,7 +20,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import IconImage from './IconImage.svelte';
@@ -36,14 +36,19 @@ vi.mock('./appearance-util', () => {
   };
 });
 
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+  });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-  });
 });
 
 test('Expect valid source and alt text with dark mode', async () => {

@@ -55,8 +55,10 @@ const kubernetesGetCurrentNamespaceMock = vi.fn();
 const kubernetesReadNamespacedDeploymentMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
-  (window as any).kubernetesReadNamespacedDeployment = kubernetesReadNamespacedDeploymentMock;
+  Object.defineProperty(window, 'kubernetesGetCurrentNamespace', { value: kubernetesGetCurrentNamespaceMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedDeployment', {
+    value: kubernetesReadNamespacedDeploymentMock,
+  });
 });
 
 test('Expect basic rendering', async () => {

@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
@@ -28,9 +28,12 @@ import { extensionInfos } from '/@/stores/extensions';
 import type { CatalogExtension } from '../../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import EmbeddableCatalogExtensionList from './EmbeddableCatalogExtensionList.svelte';
 
+beforeAll(() => {
+  Object.defineProperty(window, 'extensionInstallFromImage', { value: vi.fn() });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).extensionInstallFromImage = vi.fn();
 });
 
 export const aFakeExtension: CatalogExtension = {

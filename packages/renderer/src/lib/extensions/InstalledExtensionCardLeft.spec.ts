@@ -19,16 +19,16 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
 import InstalledExtensionCardLeft from './InstalledExtensionCardLeft.svelte';
 
-beforeEach(() => {
-  (window as any).getConfigurationValue = vi.fn();
-  (window as any).ddExtensionDelete = vi.fn();
-  (window as any).removeExtension = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
+  Object.defineProperty(window, 'ddExtensionDelete', { value: vi.fn() });
+  Object.defineProperty(window, 'removeExtension', { value: vi.fn() });
 });
 
 test('Expect to see icon, link, badge and actions', async () => {

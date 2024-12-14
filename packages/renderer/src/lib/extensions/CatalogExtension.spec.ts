@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import CatalogExtension from './CatalogExtension.svelte';
@@ -34,9 +34,12 @@ vi.mock('tinro', () => {
   };
 });
 
+beforeAll(() => {
+  Object.defineProperty(window, 'extensionInstallFromImage', { value: vi.fn() });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).extensionInstallFromImage = vi.fn();
 });
 
 test('Expect to have more details working', async () => {
