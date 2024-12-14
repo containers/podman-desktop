@@ -134,8 +134,8 @@ beforeAll(() => {
   containerStatsMock.mockImplementation((engineId, id, stats) => {
     return stats;
   });
-  (window as any).getContainerStats = containerStatsMock;
-  (window as any).stopContainerStats = vi.fn();
+  Object.defineProperty(window, 'getContainerStats', { value: containerStatsMock });
+  Object.defineProperty(window, 'stopContainerStats', { value: vi.fn() });
 });
 
 test('Expect memory donut', async () => {

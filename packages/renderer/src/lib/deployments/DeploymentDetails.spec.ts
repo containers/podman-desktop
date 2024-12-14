@@ -54,14 +54,15 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   };
 });
 
+const showMessageBoxMock = vi.fn();
+
 beforeAll(() => {
-  (window as any).kubernetesDeleteDeployment = kubernetesDeleteDeploymentMock;
-  (window as any).kubernetesReadNamespacedDeployment = vi.fn();
+  Object.defineProperty(window, 'kubernetesDeleteDeployment', { value: kubernetesDeleteDeploymentMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedDeployment', { value: vi.fn() });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
 });
 
 test('Expect redirect to previous page if deployment is deleted', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
   const routerGotoSpy = vi.spyOn(router, 'goto');

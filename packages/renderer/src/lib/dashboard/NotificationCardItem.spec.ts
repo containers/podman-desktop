@@ -27,7 +27,7 @@ import NotificationCardItem from './NotificationCardItem.svelte';
 const removeNotificationMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).removeNotification = removeNotificationMock;
+  Object.defineProperty(window, 'removeNotification', { value: removeNotificationMock });
 });
 
 test('Expect notification card to show notification title, description and close button', async () => {
