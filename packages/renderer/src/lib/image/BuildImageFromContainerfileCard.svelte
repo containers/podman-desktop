@@ -9,6 +9,7 @@ export let badge: string = '';
 export let isDefault: boolean = false;
 export let checked: boolean = false;
 export let value: string = '';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any | undefined = '';
 let iconType: 'fontAwesome' | 'unknown' | undefined = undefined;
 

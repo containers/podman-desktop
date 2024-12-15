@@ -18,8 +18,8 @@ function handleEscape({ key }: KeyboardEvent): void {
   }
 }
 
-function onWindowClick(e: any): void {
-  showMenu = outsideWindow.contains(e.target);
+function onWindowClick(e: Event): void {
+  showMenu = outsideWindow.contains(e.target as Node);
 }
 
 async function onClick(action?: ItemAction): Promise<void> {
@@ -31,7 +31,7 @@ async function onClick(action?: ItemAction): Promise<void> {
   }
 }
 </script>
-  
+
 <svelte:window on:keyup={handleEscape} on:click={onWindowClick}/>
 
 <div bind:this={outsideWindow}>

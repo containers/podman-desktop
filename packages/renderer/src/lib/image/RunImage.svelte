@@ -247,9 +247,9 @@ async function getPort(portDescriptor: string): Promise<number | undefined> {
 async function startContainer() {
   createError = undefined;
   // create ExposedPorts objects
-  const ExposedPorts: any = {};
+  const ExposedPorts: { [key: string]: object } = {};
 
-  const PortBindings: any = {};
+  const PortBindings: { [key: string]: object } = {};
   try {
     exposedPorts.forEach((port, index) => {
       if (port.includes('-') || containerPortMapping[index]?.port.includes('-')) {
@@ -572,8 +572,8 @@ function deleteDevice(index: number) {
 }
 
 // called when user change the container's name
-function checkContainerName(event: any) {
-  const containerValue = event.target.value;
+function checkContainerName(event: Event) {
+  const containerValue = (event.target as unknown as Input).value;
 
   // ok, now check if we already have a matching container: same name and same engine ID
   const containerAlreadyExists = $containersInfos.find(
