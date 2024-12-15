@@ -26,8 +26,10 @@ let onSelectCallbackEnabled = false;
 let display = false;
 let mode: 'InputBox' | 'QuickPick';
 
-let quickPickItems: { value: any; description: string; detail: string; checkbox: boolean }[] = [];
-let quickPickFilteredItems: { value: any; description: string; detail: string; checkbox: boolean }[] = quickPickItems;
+type QuickPickItem = { value: string; description: string; detail: string; checkbox: boolean };
+
+let quickPickItems: QuickPickItem[] = [];
+let quickPickFilteredItems: QuickPickItem[] = quickPickItems;
 let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
@@ -140,6 +142,7 @@ const onClose = async () => {
   cleanup();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function onInputChange(event: any) {
   // in case of quick pick, filter the items
   if (mode === 'QuickPick') {
@@ -209,7 +212,7 @@ async function validateQuickPick() {
   cleanup();
 }
 
-async function clickQuickPickItem(item: any, index: number) {
+async function clickQuickPickItem(item: QuickPickItem, index: number) {
   if (quickPickCanPickMany) {
     // reset index as we clicked
     quickPickSelectedFilteredIndex = -1;

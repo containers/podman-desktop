@@ -45,7 +45,7 @@ onMount(async () => {
   });
 
   self.MonacoEnvironment = {
-    getWorker: function (_moduleId: any, label: string) {
+    getWorker: function (_moduleId: unknown, label: string) {
       if (label === 'json') {
         return new jsonWorker();
       }
