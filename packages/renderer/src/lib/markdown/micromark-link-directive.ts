@@ -18,6 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+import type { Directive } from 'micromark-extension-directive';
 
 /**
  * Allow to generate a link markdown directive that executes a command
@@ -30,7 +31,7 @@
  * @this {import('micromark-util-types').CompileContext}
  * @type {import('micromark-extension-directive').Handle}
  */
-export function link(d: any) {
+export function link(d: Directive) {
   // Make sure it's not part of a text directive
   if (d.type !== 'textDirective') {
     return false;

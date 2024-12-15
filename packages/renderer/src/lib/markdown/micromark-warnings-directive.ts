@@ -48,7 +48,7 @@ export function decode(value: string) {
  * Allow to generate a link markdown directive that executes a command
  * syntax is the following:
  * :warnings[[{item}, {item}]]
- * where item is 
+ * where item is
  * {
     state: string;
     description: string;
@@ -67,6 +67,7 @@ export function decode(value: string) {
 /**
  * @type {import('micromark-extension-directive').Handle}
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function warnings(this: CompileContext, d: any) {
   // Make sure it's not part of a text directive
   if (d.type !== 'textDirective') {

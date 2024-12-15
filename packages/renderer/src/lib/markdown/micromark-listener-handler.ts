@@ -26,6 +26,7 @@ export function createListener(
     value?: unknown,
   ) => void,
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (e: any) => {
     // Retrieve the command and expandable within the dataset
     const command = e.target.dataset.command;

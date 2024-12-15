@@ -19,6 +19,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import spinnerSourcecode from '@podman-desktop/ui-svelte/Spinner?raw';
+import type { Directive } from 'micromark-extension-directive';
 
 let spinnerHtmlCode: string | undefined = undefined;
 
@@ -33,7 +34,7 @@ let spinnerHtmlCode: string | undefined = undefined;
  * @this {import('micromark-util-types').CompileContext}
  * @type {import('micromark-extension-directive').Handle}
  */
-export function button(d: any) {
+export function button(d: Directive) {
   // Make sure it's not part of a text directive
   if (d.type !== 'textDirective') {
     return false;
