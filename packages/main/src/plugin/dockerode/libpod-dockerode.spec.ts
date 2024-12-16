@@ -383,3 +383,31 @@ test('check correct header is provided for playKube', async () => {
   // Cleanup the file
   await rm(tmpFile);
 });
+
+test('Check prune all images', async () => {
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/images/prune', async info => {
+      const url = new URL(info.request.url);
+      expect(url.searchParams.get('all')).toEqual('true');
+      return HttpResponse.json({}, { status: 200 });
+    }),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  await (api as unknown as LibPod).pruneAllImages(true);
+});
+
+test('Check prune default images (not all)', async () => {
+  server = setupServer(
+    http.post('http://localhost/v4.2.0/libpod/images/prune', async info => {
+      const url = new URL(info.request.url);
+      expect(url.searchParams.get('all')).toBeNull();
+      return HttpResponse.json({}, { status: 200 });
+    }),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  await (api as unknown as LibPod).pruneAllImages(false);
+});
