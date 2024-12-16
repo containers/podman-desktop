@@ -49,13 +49,15 @@ beforeAll(() => {
       func();
     },
   };
-  (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
-  (window as any).getImageInspect = vi.fn().mockImplementation(() => Promise.resolve({}));
-  (window as any).logsContainer = vi.fn().mockResolvedValue(undefined);
-  (window as any).refreshTerminal = vi.fn();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).showMessageBox = vi.fn();
-  (window as any).pushManifest = pushManifestMock;
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
+  });
+  Object.defineProperty(window, 'getImageInspect', { value: vi.fn().mockImplementation(() => Promise.resolve({})) });
+  Object.defineProperty(window, 'logsContainer', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'refreshTerminal', { value: vi.fn() });
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'showMessageBox', { value: vi.fn() });
+  Object.defineProperty(window, 'pushManifest', { value: pushManifestMock });
 });
 
 const fakedManifest: ImageInfoUI = {

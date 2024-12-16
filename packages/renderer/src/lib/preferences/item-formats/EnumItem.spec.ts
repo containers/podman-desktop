@@ -25,7 +25,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import EnumItem from './EnumItem.svelte';
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn() });
 });
 
 test('Enum without default', async () => {

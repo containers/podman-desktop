@@ -281,7 +281,7 @@ async function restartSetup() {
 }
 
 // If the user hits escape, prompt them to exit the onboarding
-function handleEscape({ key }: any) {
+function handleEscape({ key }: KeyboardEvent) {
   if (key === 'Escape') {
     setDisplayCancelSetup(true);
   }

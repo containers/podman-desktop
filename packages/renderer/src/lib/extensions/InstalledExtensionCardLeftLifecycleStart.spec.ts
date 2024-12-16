@@ -19,14 +19,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
 import InstalledExtensionCardLeftLifecycleStart from './InstalledExtensionCardLeftLifecycleStart.svelte';
 
-beforeEach(() => {
-  (window as any).startExtension = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'startExtension', { value: vi.fn() });
 });
 
 test('Expect to start dd Extension if stopped', async () => {

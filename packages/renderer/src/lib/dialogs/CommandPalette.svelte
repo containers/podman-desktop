@@ -143,7 +143,7 @@ function handleMousedown(e: MouseEvent) {
   }
 }
 
-async function clickOnItem(item: any, index: number) {
+async function clickOnItem(index: number) {
   // hide the command palette
   display = false;
 
@@ -185,7 +185,7 @@ async function onInputChange() {
           {#each filteredCommandInfoItems as item, i}
             <li class="flex w-full flex-row" bind:this={scrollElements[i]} aria-label={item.id}>
               <button
-                on:click={() => clickOnItem(item, i)}
+                on:click={() => clickOnItem(i)}
                 class="text-[var(--pd-dropdown-item-text)] text-left relative my-0.5 mr-2 w-full {i === selectedFilteredIndex
                   ? 'bg-[var(--pd-modal-dropdown-highlight)] selected'
                   : 'hover:bg-[var(--pd-dropdown-bg)]'}  px-1">

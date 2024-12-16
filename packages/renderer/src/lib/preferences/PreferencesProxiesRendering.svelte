@@ -51,6 +51,7 @@ async function updateProxySettings() {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(event: any) {
   if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
     const error = validateProxyAddress(event.target.value);

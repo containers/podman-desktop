@@ -42,7 +42,7 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesReadNamespacedSecret = vi.fn();
+  Object.defineProperty(window, 'kubernetesReadNamespacedSecret', { value: vi.fn() });
 });
 
 test('Confirm renders secret details', async () => {

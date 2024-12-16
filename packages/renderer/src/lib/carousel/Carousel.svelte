@@ -5,6 +5,7 @@ import Fa from 'svelte-fa';
 
 let resizeObserver: ResizeObserver;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let cards: any[];
 export let cardWidth = 340;
 
@@ -19,7 +20,7 @@ function calcCardsToFit(width: number) {
   return cf === 0 ? 1 : cf;
 }
 
-function update(entries: any) {
+function update(entries: ResizeObserverEntry[]) {
   const width = entries[0].contentRect.width;
   cardsFit = calcCardsToFit(width);
 }

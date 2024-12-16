@@ -45,30 +45,33 @@ vi.mock('@xterm/xterm', () => {
 
 beforeAll(() => {
   const onDidUpdateProviderStatusMock = vi.fn();
-  (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
+  Object.defineProperty(window, 'onDidUpdateProviderStatus', { value: onDidUpdateProviderStatusMock });
   onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
 
   (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    receive: (_channel: string, func: any) => {
+    receive: (_channel: string, func: () => void) => {
       func();
     },
   };
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'getConfigurationProperties', { value: vi.fn().mockResolvedValue({}) });
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+    }),
   });
-  (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
-  (window as any).initializeProvider = vi.fn().mockResolvedValue([]);
-  (window as any).getContainerInspect = vi.fn().mockResolvedValue(containerInspectInfo);
-  (window as any).listNetworks = vi.fn().mockResolvedValue([]);
-  (window as any).getProviderInfos = getProviderInfosMock;
-  (window as any).listContainers = listContainersMock;
-  (window as any).logsContainer = vi.fn();
-  (window as any).listViewsContributions = vi.fn();
-  (window as any).generatePodmanKube = vi.fn();
-  (window as any).getContributedMenus = getContributedMenusMock;
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
+  });
+  Object.defineProperty(window, 'initializeProvider', { value: vi.fn().mockResolvedValue([]) });
+  Object.defineProperty(window, 'getContainerInspect', { value: vi.fn().mockResolvedValue(containerInspectInfo) });
+  Object.defineProperty(window, 'listNetworks', { value: vi.fn().mockResolvedValue([]) });
+  Object.defineProperty(window, 'getProviderInfos', { value: getProviderInfosMock });
+  Object.defineProperty(window, 'listContainers', { value: listContainersMock });
+  Object.defineProperty(window, 'logsContainer', { value: vi.fn() });
+  Object.defineProperty(window, 'listViewsContributions', { value: vi.fn() });
+  Object.defineProperty(window, 'generatePodmanKube', { value: vi.fn() });
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   mockBreadcrumb();
 });

@@ -28,13 +28,15 @@ const getConfigurationValueMock = vi.fn();
 const attachContainerMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).attachContainer = attachContainerMock;
-  (window as any).attachContainerSend = vi.fn();
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'attachContainer', { value: attachContainerMock });
+  Object.defineProperty(window, 'attachContainerSend', { value: vi.fn() });
 
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+    }),
   });
 });
 

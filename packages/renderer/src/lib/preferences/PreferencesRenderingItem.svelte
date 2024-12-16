@@ -44,7 +44,7 @@ $: {
   update(record);
 }
 
-function updateResetButtonVisibility(recordValue: any) {
+function updateResetButtonVisibility(recordValue: unknown) {
   showResetButton =
     recordUI.original.default !== undefined && recordValue !== undefined && recordValue !== recordUI.original.default;
   // when the reset button is shown we reset the value of resetToDefault

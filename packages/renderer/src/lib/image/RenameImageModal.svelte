@@ -27,8 +27,8 @@ function disableSave(name: string, tag: string): boolean {
 }
 
 let imageNameErrorMessage = '';
-function validateImageName(event: any): void {
-  let inputName = event.target.value;
+function validateImageName(event: Event): void {
+  let inputName = (event.target as unknown as Input).value;
   if (inputName === undefined || inputName.trim() === '') {
     imageNameErrorMessage = 'Please enter a value';
   } else {
@@ -37,8 +37,8 @@ function validateImageName(event: any): void {
 }
 
 let imageTagErrorMessage = '';
-function validateImageTag(event: any): void {
-  let inputName = event.target.value;
+function validateImageTag(event: Event): void {
+  let inputName = (event.target as unknown as Input).value;
   if (inputName === undefined || inputName.trim() === '') {
     imageTagErrorMessage = 'Please enter a value';
   } else {
@@ -63,8 +63,9 @@ async function renameImage(imageName: string, imageTag: string) {
       await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
     }
     closeCallback();
-  } catch (error: any) {
-    imageNameErrorMessage = error.message;
+  } catch (error: unknown) {
+    imageNameErrorMessage =
+      error && typeof error === 'object' && 'message' in error && error.message ? String(error.message) : String(error);
   }
 
   if (detailed) {

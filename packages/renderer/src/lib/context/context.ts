@@ -24,17 +24,17 @@
 import type { IContext } from '../../../../main/src/plugin/api/context-info';
 
 export class ContextUI implements IContext {
-  private _value: Record<string, any>;
+  private _value: Record<string, unknown>;
 
   constructor() {
     this._value = {};
   }
 
-  get value(): Record<string, any> {
+  get value(): Record<string, unknown> {
     return { ...this._value };
   }
 
-  setValue(key: string, value: any): boolean {
+  setValue(key: string, value: unknown): boolean {
     if (this._value[key] !== value) {
       this._value[key] = value;
       return true;
@@ -53,7 +53,7 @@ export class ContextUI implements IContext {
   getValue<T>(key: string): T | undefined {
     const contextValue = this._value[key];
     if (contextValue !== undefined) {
-      return contextValue;
+      return contextValue as T;
     }
     return this.getDottedKeyValue(key);
   }
@@ -87,7 +87,7 @@ export class ContextUI implements IContext {
     return contextValue;
   }
 
-  collectAllValues(): Record<string, any> {
+  collectAllValues(): Record<string, unknown> {
     return this._value;
   }
 }

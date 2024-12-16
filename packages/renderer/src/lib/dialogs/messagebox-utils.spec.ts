@@ -16,17 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { withConfirmation } from './messagebox-utils';
+
+const showMessageBoxMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
 });
 
 test('expect withConfirmation call callback if result OK', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
   const callback = vi.fn();
@@ -39,8 +43,6 @@ test('expect withConfirmation call callback if result OK', async () => {
 });
 
 test('expect withConfirmation not to call callback if result not OK', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 1 });
 
   const callback = vi.fn();
@@ -53,8 +55,6 @@ test('expect withConfirmation not to call callback if result not OK', async () =
 });
 
 test('expect withConfirmation to propagate error', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   const error = new Error('Dummy error');
   showMessageBoxMock.mockRejectedValue(error);
 

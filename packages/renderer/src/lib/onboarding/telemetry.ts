@@ -23,11 +23,13 @@ export interface OnboardingTelemetryStep {
   error: undefined | string;
 }
 
+type StepTeletetryData = { count: number; durationMs: number[]; errors: string[] };
+
 export interface OnboardingTelemetryData {
   extension: string;
   skipped: boolean;
   steps: OnboardingTelemetryStep[];
-  stepsDetails?: any;
+  stepsDetails?: { [key: string]: StepTeletetryData };
   durationMs: number;
   skipAtStep?: string;
   errors?: string[];

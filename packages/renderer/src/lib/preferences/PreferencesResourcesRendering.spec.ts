@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { onboardingList } from '/@/stores/onboarding';
@@ -99,15 +99,13 @@ vi.mock('tinro', () => {
 // getOsPlatformMock is needed when using PreferencesResourcesRenderingCopyButton
 const getOsPlatformMock = vi.fn().mockResolvedValue('linux');
 
-beforeEach(() => {
+beforeAll(() => {
   (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: vi.fn(),
   };
-  (window as any).telemetryTrack = vi.fn().mockResolvedValue(undefined);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
-  (window as any).getOsPlatform = getOsPlatformMock;
+  Object.defineProperty(window, 'telemetryTrack', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'telemetryPage', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'getOsPlatform', { value: getOsPlatformMock });
 });
 
 test('Expect to see elements regarding default provider name', async () => {

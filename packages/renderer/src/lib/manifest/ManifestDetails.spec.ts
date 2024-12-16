@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { imagesInfos } from '/@/stores/images';
 import type { ImageInfo } from '/@api/image-info';
@@ -27,10 +27,14 @@ import type { ImageInfo } from '/@api/image-info';
 import ManifestDetails from './ManifestDetails.svelte';
 
 const listImagesMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'listImages', { value: listImagesMock });
+  Object.defineProperty(window, 'listContainers', { value: vi.fn() });
+});
+
 beforeEach(() => {
   imagesInfos.set([]);
-  (window as any).listImages = listImagesMock;
-  (window as any).listContainers = vi.fn();
 });
 
 afterEach(() => {

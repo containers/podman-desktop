@@ -26,7 +26,7 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 const executeCommand = vi.fn();
 
 beforeAll(() => {
-  (window as any).executeCommand = executeCommand;
+  Object.defineProperty(window, 'executeCommand', { value: executeCommand });
   executeCommand.mockImplementation(() => {});
 
   (window.events as unknown) = {

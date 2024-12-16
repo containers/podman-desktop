@@ -19,16 +19,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import CatalogExtensionList from './CatalogExtensionList.svelte';
 
+beforeAll(() => {
+  Object.defineProperty(window, 'extensionInstallFromImage', { value: vi.fn() });
+  Object.defineProperty(window, 'showMessageBox', { value: vi.fn() });
+  Object.defineProperty(window, 'refreshCatalogExtensions', { value: vi.fn() });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).extensionInstallFromImage = vi.fn();
-  (window as any).showMessageBox = vi.fn();
-  (window as any).refreshCatalogExtensions = vi.fn();
 });
 
 const extensionA: CatalogExtensionInfoUI = {

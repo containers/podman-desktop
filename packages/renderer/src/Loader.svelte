@@ -56,7 +56,7 @@ onDestroy(() => {
 });
 
 // receive events from main process to install a new extension
-window.events?.receive('install-extension:from-id', (extensionId: any) => {
+window.events?.receive('install-extension:from-id', (extensionId: unknown) => {
   const action = async () => {
     const redirectPage = `/extensions/details/${extensionId}`;
     // need to open the extension page

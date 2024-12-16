@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { get } from 'svelte/store';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { containerTerminals } from '/@/stores/container-terminal-store';
 
@@ -39,13 +39,19 @@ vi.mock('xterm', () => {
   };
 });
 
+const matchMediaMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'shellInContainer', { value: shellInContainerMock });
+  Object.defineProperty(window, 'shellInContainerResize', { value: shellInContainerResizeMock });
+
+  Object.defineProperty(window, 'matchMedia', { value: matchMediaMock });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).shellInContainer = shellInContainerMock;
-  (window as any).shellInContainerResize = shellInContainerResizeMock;
-
-  (window as any).matchMedia = vi.fn().mockReturnValue({
+  matchMediaMock.mockReturnValue({
     addListener: vi.fn(),
     removeListener: vi.fn(),
   });
@@ -71,7 +77,7 @@ test('expect being able to reconnect ', async () => {
     ) => {
       onDataCallback = onData;
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -145,7 +151,7 @@ test('terminal active/ restarts connection after stopping and starting a contain
         onEnd();
       }, 500);
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 
@@ -213,7 +219,7 @@ test('terminal active/ restarts connection after restarting a container', async 
         onEnd();
       }, 500);
       // return a callback id
-      return sendCallbackId;
+      return Promise.resolve(sendCallbackId);
     },
   );
 

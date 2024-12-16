@@ -28,14 +28,16 @@ const getConfigurationValueMock = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
 });
 
 test('Expect light mode using system when OS is set to light', async () => {
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
   });
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
@@ -46,10 +48,12 @@ test('Expect light mode using system when OS is set to light', async () => {
 });
 
 test('Expect dark mode using system when OS is set to dark', async () => {
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    matches: true,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
   });
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);

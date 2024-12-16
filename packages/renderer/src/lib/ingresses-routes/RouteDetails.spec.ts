@@ -61,8 +61,8 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
 });
 
 beforeAll(() => {
-  (window as any).kubernetesDeleteRoute = kubernetesDeleteRouteMock;
-  (window as any).kubernetesReadNamespacedRoute = vi.fn();
+  Object.defineProperty(window, 'kubernetesDeleteRoute', { value: kubernetesDeleteRouteMock });
+  Object.defineProperty(window, 'kubernetesReadNamespacedRoute', { value: vi.fn() });
 });
 
 test('Expect redirect to previous page if route is deleted', async () => {

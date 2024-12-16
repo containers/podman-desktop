@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -31,10 +31,13 @@ import ImageEmptyScreen from './ImageEmptyScreen.svelte';
 const pullImageMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
+beforeAll(() => {
+  Object.defineProperty(window, 'pullImage', { value: pullImageMock });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).pullImage = pullImageMock;
-  (window as any).showMessageBox = showMessageBoxMock;
 });
 
 // set up a valid provider connection for pull image

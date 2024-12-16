@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
@@ -68,15 +68,27 @@ const mockContext3: KubeContext = {
   },
 };
 
+const kubernetesGetCurrentContextNameMock = vi.fn();
+
+const showMessageBoxMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'kubernetesGetContextsGeneralState', {
+    value: vi.fn().mockResolvedValue(new Map<string, ContextGeneralState>()),
+  });
+  Object.defineProperty(window, 'kubernetesGetCurrentContextName', { value: kubernetesGetCurrentContextNameMock });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+});
+
 beforeEach(() => {
   kubernetesContexts.set([mockContext1, mockContext2, mockContext3]);
-  (window as any).kubernetesGetContextsGeneralState = vi.fn().mockResolvedValue(new Map<string, ContextGeneralState>());
+  vi.clearAllMocks();
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
   vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(new Map());
   vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
-  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
+  kubernetesGetCurrentContextNameMock.mockResolvedValue('my-current-context');
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('context-name')).toBeInTheDocument();
   expect(await screen.findByText('cluster-name')).toBeInTheDocument();
@@ -102,7 +114,7 @@ test('If nothing is returned for contexts, expect that the page shows a message'
 test('Test that context-name2 is the current context', async () => {
   vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(new Map());
   vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
-  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('context-name2');
+  kubernetesGetCurrentContextNameMock.mockResolvedValue('context-name2');
   render(PreferencesKubernetesContextsRendering, {});
 
   // Get current-context by aria label
@@ -120,8 +132,6 @@ test('Test that context-name2 is the current context', async () => {
 test('when deleting the current context, a popup should ask confirmation', async () => {
   vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(new Map());
   vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ result: 1 });
 
   render(PreferencesKubernetesContextsRendering, {});
@@ -140,8 +150,6 @@ test('when deleting the current context, a popup should ask confirmation', async
 test('when deleting the non current context, no popup should ask confirmation', async () => {
   vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(new Map());
   vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ result: 1 });
 
   render(PreferencesKubernetesContextsRendering, {});

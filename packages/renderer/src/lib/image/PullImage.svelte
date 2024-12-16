@@ -134,8 +134,9 @@ async function pullImage() {
     }
     pullInProgress = false;
     pullFinished = true;
-  } catch (error: any) {
-    const errorMessage = error.message ? error.message : error;
+  } catch (error: unknown) {
+    const errorMessage =
+      error && typeof error === 'object' && 'message' in error && error.message ? error.message : error;
     pullError = `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`;
     pullInProgress = false;
   }

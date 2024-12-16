@@ -78,23 +78,27 @@ vi.mock('tinro', () => {
   };
 });
 
+const playKubeMock = vi.fn();
+
 // fake the window.events object
 beforeAll(() => {
   (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    receive: (_channel: string, func: any) => {
+    receive: (_channel: string, func: () => void) => {
       func();
     },
   };
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
+  Object.defineProperty(window, 'getConfigurationValue', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+    }),
   });
-  (window as any).openDialog = vi.fn().mockResolvedValue(['Containerfile']);
-  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
-  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue(undefined);
-  (window as any).kubernetesGetCurrentNamespace = vi.fn().mockResolvedValue(undefined);
-  (window as any).kubernetesListNamespaces = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(window, 'openDialog', { value: vi.fn().mockResolvedValue(['Containerfile']) });
+  Object.defineProperty(window, 'telemetryPage', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'kubernetesGetCurrentContextName', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'kubernetesGetCurrentNamespace', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'kubernetesListNamespaces', { value: vi.fn().mockResolvedValue(undefined) });
+  Object.defineProperty(window, 'playKube', { value: playKubeMock });
 });
 
 function setup() {
@@ -129,7 +133,7 @@ function setup() {
 }
 
 test('error: When pressing the Play button, expect us to show the errors to the user', async () => {
-  (window as any).playKube = vi.fn().mockResolvedValue(mockedErroredPlayKubeInfo);
+  playKubeMock.mockResolvedValue(mockedErroredPlayKubeInfo);
 
   // Render the component
   setup();
@@ -159,7 +163,7 @@ test('error: When pressing the Play button, expect us to show the errors to the 
 });
 
 test('expect done button is there at the end and redirects to pods', async () => {
-  (window as any).playKube = vi.fn().mockResolvedValue({
+  playKubeMock.mockResolvedValue({
     Pods: [],
   });
 
@@ -198,7 +202,7 @@ test('expect done button is there at the end and redirects to pods', async () =>
 });
 
 test('expect runtime boxes have the correct selection borders', async () => {
-  (window as any).playKube = vi.fn().mockResolvedValue({
+  playKubeMock.mockResolvedValue({
     Pods: [],
   });
 

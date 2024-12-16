@@ -19,15 +19,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
 import InstalledExtensionCardLeftLifecycleDelete from './InstalledExtensionCardLeftLifecycleDelete.svelte';
 
-beforeEach(() => {
-  (window as any).ddExtensionDelete = vi.fn();
-  (window as any).removeExtension = vi.fn();
+beforeAll(() => {
+  Object.defineProperty(window, 'ddExtensionDelete', { value: vi.fn() });
+  Object.defineProperty(window, 'removeExtension', { value: vi.fn() });
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 test('Expect to delete dd Extension', async () => {

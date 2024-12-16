@@ -17,20 +17,20 @@ import { getInitialValue, getNormalizedDefaultNumberValue } from './Util';
 let invalidText: string | undefined = undefined;
 export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
-export let updateResetButtonVisibility = (_recordValue: any) => {};
+export let updateResetButtonVisibility = (_recordValue: unknown) => {};
 export let resetToDefault = false;
 export let enableAutoSave = false;
 
 export let setRecordValue = (_id: string, _value: string | boolean | number) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
-export let initialValue: Promise<any>;
+export let initialValue: Promise<unknown>;
 export let givenValue: unknown = undefined;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
 
-let recordValue: string | boolean | number | undefined;
+let recordValue: unknown;
 $: recordValue;
 $: updateResetButtonVisibility?.(recordValue);
 
@@ -109,7 +109,7 @@ function autoSave(): Promise<void> {
   return Promise.resolve();
 }
 
-function ensureType(value: any): boolean {
+function ensureType(value: unknown): boolean {
   switch (typeof value) {
     case 'boolean':
       return record.type === 'boolean';

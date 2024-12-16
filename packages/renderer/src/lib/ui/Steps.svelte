@@ -7,6 +7,7 @@
 <script lang="ts">
 import { Steps } from 'svelte-steps';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let steps: any[];
 export let current = 0;
 </script>

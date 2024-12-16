@@ -30,7 +30,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 beforeAll(() => {
-  (window as any).executeCommand = vi.fn();
+  Object.defineProperty(window, 'executeCommand', { value: vi.fn(), writable: true });
 });
 
 test('Expect to have bold', async () => {

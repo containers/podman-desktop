@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
 import ConfigMapSecretActions from './ConfigMapSecretActions.svelte';
 import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
@@ -46,10 +46,10 @@ const fakeSecret: ConfigMapSecretUI = {
   keys: [],
 };
 
-beforeEach(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).kubernetesDeleteConfigMap = deleteMock;
-  (window as any).kubernetesDeleteSecret = deleteMock;
+beforeAll(() => {
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'kubernetesDeleteConfigMap', { value: deleteMock });
+  Object.defineProperty(window, 'kubernetesDeleteSecret', { value: deleteMock });
 });
 
 afterEach(() => {

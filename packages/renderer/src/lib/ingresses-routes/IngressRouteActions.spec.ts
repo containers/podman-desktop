@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
 import IngressRouteActions from './IngressRouteActions.svelte';
 import type { IngressUI } from './IngressUI';
@@ -29,9 +29,9 @@ const updateMock = vi.fn();
 const deleteIngressMock = vi.fn();
 const deleteRoutesMock = vi.fn();
 
-beforeEach(() => {
-  (window as any).kubernetesDeleteIngress = deleteIngressMock;
-  (window as any).kubernetesDeleteRoute = deleteRoutesMock;
+beforeAll(() => {
+  Object.defineProperty(window, 'kubernetesDeleteIngress', { value: deleteIngressMock });
+  Object.defineProperty(window, 'kubernetesDeleteRoute', { value: deleteRoutesMock });
 });
 
 afterEach(() => {

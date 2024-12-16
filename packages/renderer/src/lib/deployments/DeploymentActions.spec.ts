@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
 import DeploymentActions from './DeploymentActions.svelte';
 import type { DeploymentUI } from './DeploymentUI';
@@ -58,8 +58,11 @@ const deployment: DeploymentUI = new DeploymentfUIImpl(
   [],
 ) as unknown as DeploymentUI;
 
-beforeEach(() => {
-  (window as any).kubernetesDeleteDeployment = deleteMock;
+const showMessageBoxMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'kubernetesDeleteDeployment', { value: deleteMock });
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
 });
 
 afterEach(() => {
@@ -68,8 +71,6 @@ afterEach(() => {
 });
 
 test('Expect no error and status deleting deployment', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
   render(DeploymentActions, { deployment, onUpdate: updateMock });

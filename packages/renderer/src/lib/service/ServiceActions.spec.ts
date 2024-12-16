@@ -55,8 +55,8 @@ class ServiceUIImpl {
 const service: ServiceUI = new ServiceUIImpl('123', 'my-service', 'RUNNING', '', false, '', '', '');
 
 beforeEach(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).kubernetesDeleteService = deleteMock;
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'kubernetesDeleteService', { value: deleteMock });
 });
 
 afterEach(() => {

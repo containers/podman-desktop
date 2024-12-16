@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, type RenderResult } from '@testing-library/svelte';
 import type { Component, ComponentProps } from 'svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 
@@ -30,16 +30,21 @@ import Appearance from './Appearance.svelte';
 
 const getConfigurationValueMock = vi.fn();
 const addEventListenerMock = vi.fn();
+const matchMediaMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'matchMedia', { value: matchMediaMock });
+  Object.defineProperty(window, 'setNativeTheme', { value: vi.fn() });
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).getConfigurationValue = getConfigurationValueMock;
-  (window as any).matchMedia = vi.fn().mockReturnValue({
+  matchMediaMock.mockReturnValue({
     matches: false,
     addEventListener: addEventListenerMock,
     removeEventListener: vi.fn(),
   });
-  (window as any).setNativeTheme = vi.fn();
 });
 
 function getRootElement(container: HTMLElement): HTMLElement {
@@ -67,7 +72,7 @@ async function awaitRender(): Promise<RenderResult<Component<ComponentProps<Appe
 }
 
 test('Expect light mode using system when OS is set to light', async () => {
-  (window as any).matchMedia = vi.fn().mockReturnValue({
+  matchMediaMock.mockReturnValue({
     matches: false,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -82,7 +87,7 @@ test('Expect light mode using system when OS is set to light', async () => {
 });
 
 test('Expect dark mode using system when OS is set to dark', async () => {
-  (window as any).matchMedia = vi.fn().mockReturnValue({
+  matchMediaMock.mockReturnValue({
     matches: true,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),

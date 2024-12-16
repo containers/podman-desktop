@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { faMicrochip, faSatelliteDish, faServer } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
@@ -8,7 +9,7 @@ import type { NodeUI } from './NodeUI';
 export let object: NodeUI;
 
 let roleName: string;
-let roleIcon: any;
+let roleIcon: IconDefinition;
 
 function getConditionColour(role: 'control-plane' | 'node'): string {
   switch (role) {

@@ -26,8 +26,8 @@ async function pullFirstImage() {
   pullInProgress = true;
   try {
     await window.pullImage(selectedProviderConnection, firstImageName, () => {});
-  } catch (error: any) {
-    const errorMessage = error.message ? error.message : error;
+  } catch (error: unknown) {
+    const errorMessage = error && typeof error === 'object' && 'message' in error ? error.message : error;
     await window.showMessageBox({
       title: `Error while pulling image`,
       message: `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`,

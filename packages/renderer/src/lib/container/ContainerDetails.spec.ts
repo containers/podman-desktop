@@ -63,21 +63,28 @@ vi.mock('@xterm/xterm', () => {
   };
 });
 
+const getConfigurationValueMock = vi.fn().mockReturnValue(12);
+
 beforeAll(() => {
-  (window as any).showMessageBox = showMessageBoxMock;
-  (window as any).listContainers = listContainersMock;
-  (window as any).deleteContainer = deleteContainerMock;
-  (window as any).getContainerInspect = getContainerInspectMock;
+  Object.defineProperty(window, 'showMessageBox', { value: showMessageBoxMock });
+  Object.defineProperty(window, 'listContainers', { value: listContainersMock });
+  Object.defineProperty(window, 'deleteContainer', { value: deleteContainerMock });
+  Object.defineProperty(window, 'getContainerInspect', { value: getContainerInspectMock });
 
-  (window as any).getConfigurationValue = vi.fn().mockReturnValue(12);
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+  Object.defineProperty(window, 'getConfigurationProperties', { value: vi.fn().mockResolvedValue({}) });
 
-  (window as any).logsContainer = vi.fn();
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
+  Object.defineProperty(window, 'logsContainer', { value: vi.fn() });
+  Object.defineProperty(window, 'matchMedia', {
+    value: vi.fn().mockReturnValue({
+      addListener: vi.fn(),
+    }),
   });
-  (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
+  });
 
-  (window as any).getContributedMenus = getContributedMenusMock;
+  Object.defineProperty(window, 'getContributedMenus', { value: getContributedMenusMock });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
@@ -141,8 +148,7 @@ test('Expect show tty if container has tty enabled', async () => {
 });
 
 test('Expect redirect to previous page if container is deleted', async () => {
-  (window as any).getConfigurationProperties = vi.fn().mockResolvedValue({});
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
+  getConfigurationValueMock.mockResolvedValue(undefined);
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
   router.goto('/');

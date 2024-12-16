@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { updateAvailable } from '../../stores/update-store';
 import ReleaseNotesBox from './ReleaseNotesBox.svelte';
@@ -35,19 +35,26 @@ const getConfigurationValueMock = vi.fn();
 const podmanDesktopGetReleaseNotesMock = vi.fn();
 const responseJSON = { image: 'image1.png', title: 'Release 1.1', summary: 'some info about v1.1.0 release' };
 
+beforeAll(() => {
+  Object.defineProperty(window, 'podmanDesktopUpdateAvailable', { value: podmanDesktopUpdateAvailableMock });
+  Object.defineProperty(window, 'getPodmanDesktopVersion', { value: getPodmanDesktopVersionMock });
+  Object.defineProperty(window, 'openExternal', { value: openExternalMock });
+  Object.defineProperty(window, 'podmanDesktopGetReleaseNotes', { value: podmanDesktopGetReleaseNotesMock });
+  Object.defineProperty(window, 'updatePodmanDesktop', { value: updatePodmanDesktopMock });
+  Object.defineProperty(window, 'updateConfigurationValue', { value: updateConfigurationValueMock });
+  Object.defineProperty(window, 'getConfigurationValue', { value: getConfigurationValueMock });
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
-  (window as any).podmanDesktopUpdateAvailable = podmanDesktopUpdateAvailableMock.mockResolvedValue(false);
-  (window as any).getPodmanDesktopVersion = getPodmanDesktopVersionMock.mockResolvedValue('1.1.0');
-  (window as any).openExternal = openExternalMock;
-  (window as any).podmanDesktopGetReleaseNotes = podmanDesktopGetReleaseNotesMock.mockResolvedValue({
+  podmanDesktopUpdateAvailableMock.mockResolvedValue(false);
+  getPodmanDesktopVersionMock.mockResolvedValue('1.1.0');
+  podmanDesktopGetReleaseNotesMock.mockResolvedValue({
     releaseNotesAvailable: true,
     notesURL: `appHomepage/blog/podman-desktop-release-1.1`,
     notes: responseJSON,
   });
-  (window as any).updatePodmanDesktop = updatePodmanDesktopMock;
-  (window as any).updateConfigurationValue = updateConfigurationValueMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue('show');
+  getConfigurationValueMock.mockResolvedValue('show');
   (window.events as unknown) = {
     receive: vi.fn().mockImplementation(() => {
       return {

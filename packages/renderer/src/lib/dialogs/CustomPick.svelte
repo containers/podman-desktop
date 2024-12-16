@@ -99,7 +99,7 @@ function setSectionVisibility(index: number, show: boolean) {
   itemSectionHiddenStatus = itemSectionHiddenStatus;
 }
 
-function dragMe(node: any) {
+function dragMe(node: HTMLElement) {
   if (usePopperForDetails) {
     let moving = false;
     let left = 0;
