@@ -54,6 +54,7 @@ async function doCreatePodFromContainers() {
 
       // convert port bindings to an port mapping object
       return Object.entries(containerInspect.HostConfig.PortBindings).map(([key, value]) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const valueAny: any = value;
         const container_port = parseInt(key.split('/')[0]);
         // we may not have any value

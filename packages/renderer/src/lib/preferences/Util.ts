@@ -104,7 +104,7 @@ export function isDefaultScope(scope?: ConfigurationScope | ConfigurationScope[]
   return isTargetScope(CONFIGURATION_DEFAULT_SCOPE, scope);
 }
 
-export async function getInitialValue(property: IConfigurationPropertyRecordedSchema): Promise<any> {
+export async function getInitialValue(property: IConfigurationPropertyRecordedSchema): Promise<unknown> {
   if (isDefaultScope(property.scope)) {
     if (property.id) {
       let value = await window.getConfigurationValue(property.id, CONFIGURATION_DEFAULT_SCOPE);
