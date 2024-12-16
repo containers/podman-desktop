@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
+import type { ContextPermission } from '/@api/kubernetes-contexts-permissions.js';
 
 import type { ApiSenderType } from '../api.js';
 import type { ContextHealthState } from './context-health-checker.js';
@@ -56,6 +57,21 @@ export class ContextsStatesDispatcher {
   }
 
   updatePermissions(): void {
-    console.log('current permissions', this.manager.getPermissions());
+    this.apiSender.send('kubernetes-contexts-permissions');
+  }
+
+  getContextsPermissions(): ContextPermission[] {
+    const value: ContextPermission[] = [];
+    for (const [contextName, permissions] of this.manager.getPermissions()) {
+      for (const [resourceName, contextResourcePermission] of permissions) {
+        value.push({
+          contextName,
+          resourceName,
+          permitted: contextResourcePermission.permitted,
+          reason: contextResourcePermission.reason,
+        });
+      }
+    }
+    return value;
   }
 }
