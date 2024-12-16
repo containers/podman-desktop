@@ -27,12 +27,11 @@ import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 test('ContextsStatesDispatcher should call updateHealthStates when onContextHealthStateChange event is fired', () => {
   const onContextHealthStateChangeMock = vi.fn();
   const onContextPermissionResultMock = vi.fn();
-  const getHealthCheckersStatesMock = vi.fn();
   const manager: ContextsManagerExperimental = {
     onContextHealthStateChange: onContextHealthStateChangeMock,
     onContextPermissionResult: onContextPermissionResultMock,
     onContextDelete: vi.fn(),
-    getHealthCheckersStates: getHealthCheckersStatesMock,
+    getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
@@ -46,7 +45,7 @@ test('ContextsStatesDispatcher should call updateHealthStates when onContextHeal
   expect(updatePermissionsSpy).not.toHaveBeenCalled();
 
   onContextHealthStateChangeMock.mockImplementation(f => f());
-  getHealthCheckersStatesMock.mockReturnValue(new Map<string, ContextHealthState>());
+  vi.mocked(manager.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
   expect(updateHealthStatesSpy).toHaveBeenCalled();
   expect(updatePermissionsSpy).not.toHaveBeenCalled();
@@ -78,12 +77,11 @@ test('ContextsStatesDispatcher should call updatePermissions when onContextPermi
 
 test('ContextsStatesDispatcher should call updateHealthStates and updatePermissions when onContextDelete event is fired', () => {
   const onContextDeleteMock = vi.fn();
-  const getHealthCheckersStatesMock = vi.fn();
   const manager: ContextsManagerExperimental = {
     onContextHealthStateChange: vi.fn(),
     onContextPermissionResult: vi.fn(),
     onContextDelete: onContextDeleteMock,
-    getHealthCheckersStates: getHealthCheckersStatesMock,
+    getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
@@ -92,7 +90,7 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
   const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates');
   const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions');
-  getHealthCheckersStatesMock.mockReturnValue(new Map<string, ContextHealthState>());
+  vi.mocked(manager.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
   expect(updateHealthStatesSpy).not.toHaveBeenCalled();
   expect(updatePermissionsSpy).not.toHaveBeenCalled();
@@ -104,13 +102,11 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
 });
 
 test('getContextsHealths should return the values of the map returned by manager.getHealthCheckersStates without kubeConfig', () => {
-  const onContextDeleteMock = vi.fn();
-  const getHealthCheckersStatesMock = vi.fn();
   const manager: ContextsManagerExperimental = {
     onContextHealthStateChange: vi.fn(),
     onContextPermissionResult: vi.fn(),
-    onContextDelete: onContextDeleteMock,
-    getHealthCheckersStates: getHealthCheckersStatesMock,
+    onContextDelete: vi.fn(),
+    getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const sendMock = vi.fn();
@@ -132,19 +128,17 @@ test('getContextsHealths should return the values of the map returned by manager
     ['context1', { ...context1State, kubeConfig: {} as unknown as KubeConfigSingleContext }],
     ['context2', { ...context2State, kubeConfig: {} as unknown as KubeConfigSingleContext }],
   ]);
-  getHealthCheckersStatesMock.mockReturnValue(value);
+  vi.mocked(manager.getHealthCheckersStates).mockReturnValue(value);
   const result = dispatcher.getContextsHealths();
   expect(result).toEqual([context1State, context2State]);
 });
 
 test('updateHealthStates should call apiSender.send with the result of getContextsHealths', () => {
-  const onContextDeleteMock = vi.fn();
-  const getHealthCheckersStatesMock = vi.fn();
   const manager: ContextsManagerExperimental = {
     onContextHealthStateChange: vi.fn(),
     onContextPermissionResult: vi.fn(),
-    onContextDelete: onContextDeleteMock,
-    getHealthCheckersStates: getHealthCheckersStatesMock,
+    onContextDelete: vi.fn(),
+    getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const sendMock = vi.fn();
