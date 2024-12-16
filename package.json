@@ -165,7 +165,7 @@
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.11",
     "minimist": "^1.2.8",
-    "msw": "^2.6.8",
+    "msw": "^2.6.9",
     "postcss-import": "^16.1.0",
     "proxy": "^2.2.0",
     "typescript": "5.6.3",
