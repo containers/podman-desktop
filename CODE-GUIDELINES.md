@@ -15,9 +15,8 @@ const windowMethodMock = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
-    windowMethod:windowMethodMock,
+    windowMethod: windowMethodMock,
   },
-  writable: true,
 });
 
 test('...', () => {
@@ -32,7 +31,6 @@ Object.defineProperty(global, 'window', {
   value: {
     windowMethod: vi.fn(),
   },
-  writable: true,
 });
 
 test('...', () => {
