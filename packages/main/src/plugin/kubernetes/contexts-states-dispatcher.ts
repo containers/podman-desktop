@@ -40,7 +40,7 @@ export class ContextsStatesDispatcher {
   }
 
   updateHealthStates(): void {
-    this.apiSender.send('kubernetes-contexts-healths', this.getContextsHealths());
+    this.apiSender.send('kubernetes-contexts-healths');
   }
 
   getContextsHealths(): ContextHealth[] {

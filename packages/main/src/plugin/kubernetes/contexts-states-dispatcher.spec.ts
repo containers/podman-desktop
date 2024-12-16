@@ -133,7 +133,7 @@ test('getContextsHealths should return the values of the map returned by manager
   expect(result).toEqual([context1State, context2State]);
 });
 
-test('updateHealthStates should call apiSender.send with the result of getContextsHealths', () => {
+test('updateHealthStates should call apiSender.send with kubernetes-contexts-healths', () => {
   const manager: ContextsManagerExperimental = {
     onContextHealthStateChange: vi.fn(),
     onContextPermissionResult: vi.fn(),
@@ -146,17 +146,7 @@ test('updateHealthStates should call apiSender.send with the result of getContex
     send: sendMock,
   } as unknown as ApiSenderType;
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
-  const context1State = {
-    contextName: 'context1',
-    checking: true,
-    reachable: false,
-  };
-  const context2State = {
-    contextName: 'context2',
-    checking: false,
-    reachable: true,
-  };
-  vi.spyOn(dispatcher, 'getContextsHealths').mockReturnValue([context1State, context2State]);
+  vi.spyOn(dispatcher, 'getContextsHealths').mockReturnValue([]);
   dispatcher.updateHealthStates();
-  expect(sendMock).toHaveBeenCalledWith('kubernetes-contexts-healths', [context1State, context2State]);
+  expect(sendMock).toHaveBeenCalledWith('kubernetes-contexts-healths');
 });

@@ -16,16 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { readable } from 'svelte/store';
+import { type Writable, writable } from 'svelte/store';
 
 import type { ContextHealth } from '/@api/kubernetes-contexts-healths';
 
-export const kubernetesContextsHealths = readable<ContextHealth[]>([], set => {
-  window.events?.receive('kubernetes-contexts-healths', (value: unknown) => {
-    set(value as ContextHealth[]);
-  });
-  window
-    .kubernetesGetContextsHealths()
-    .then(value => set(value))
-    .catch((err: unknown) => console.log('Error getting contexts healths', err));
-});
+import { EventStore } from './event-store';
+
+const windowEvents = ['kubernetes-contexts-healths', 'extension-stopped', 'extensions-started'];
+const windowListeners = ['extensions-already-started'];
+
+let readyToUpdate = false;
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
+  }
+  // do not fetch until extensions are all started
+  return readyToUpdate;
+}
+
+export const kubernetesContextsHealths: Writable<ContextHealth[]> = writable([]);
+
+// use helper here as window methods are initialized after the store in tests
+const listContextsHealths = (): Promise<ContextHealth[]> => {
+  return window.kubernetesGetContextsHealths();
+};
+
+export const kubernetesContextsHealthsStore = new EventStore<ContextHealth[]>(
+  'contexts healths',
+  kubernetesContextsHealths,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  listContextsHealths,
+);
+kubernetesContextsHealthsStore.setup();

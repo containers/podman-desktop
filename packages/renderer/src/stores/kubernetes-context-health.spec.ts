@@ -16,12 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Unsubscriber } from 'svelte/store';
-import { afterEach, expect, test, vi } from 'vitest';
+import { get } from 'svelte/store';
+import { expect, test, vi } from 'vitest';
 
-import type { ContextHealth } from '/@api/kubernetes-contexts-healths';
-
-import { kubernetesContextsHealths } from './kubernetes-context-health';
+import { kubernetesContextsHealths, kubernetesContextsHealthsStore } from './kubernetes-context-health';
 
 const callbacks = new Map<string, any>();
 const eventEmitter = {
@@ -41,15 +39,7 @@ Object.defineProperty(global, 'window', {
   writable: true,
 });
 
-let unsubscribe: Unsubscriber;
-
-afterEach(() => {
-  unsubscribe?.();
-});
-
 test('kubernetesContextsHealths', async () => {
-  let states: ContextHealth[] = [];
-
   const initialValues = [
     {
       contextName: 'context1',
@@ -77,23 +67,28 @@ test('kubernetesContextsHealths', async () => {
   ];
 
   vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(initialValues);
-  unsubscribe = kubernetesContextsHealths.subscribe(value => {
-    states = value;
-  });
 
-  // check initial value
-  await vi.waitFor(() => {
-    expect(states).toEqual(initialValues);
-  });
+  const kubernetesContextsHealthsInfo = kubernetesContextsHealthsStore.setup();
+  await kubernetesContextsHealthsInfo.fetch();
+  let currentValue = get(kubernetesContextsHealths);
+  expect(currentValue).toEqual(initialValues);
 
-  // update object via an event
+  // send 'extensions-already-started' event
+  const callbackExtensionsStarted = callbacks.get('extensions-already-started');
+  expect(callbackExtensionsStarted).toBeDefined();
+  await callbackExtensionsStarted();
+
+  // send an event indicating the data is updated
   const event = 'kubernetes-contexts-healths';
   const callback = callbacks.get(event);
   expect(callback).toBeDefined();
-  await callback(nextValues);
+  await callback();
 
-  // check data is updated with event's data
-  await vi.waitFor(() => {
-    expect(states).toEqual(nextValues);
-  });
+  // data has been updated in the backend
+  vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(nextValues);
+
+  // check received data is updated
+  await kubernetesContextsHealthsInfo.fetch();
+  currentValue = get(kubernetesContextsHealths);
+  expect(currentValue).toEqual(nextValues);
 });

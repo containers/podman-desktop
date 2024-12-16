@@ -22,6 +22,7 @@ import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
 import type { KubeContext } from '/@api/kubernetes-context';
@@ -165,20 +166,13 @@ describe.each([
       resourcesCount: false,
     },
     initMocks: () => {
-      vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(
-        new Map<string, ContextGeneralState>(),
-      );
-      vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(
-        new Map(),
-      );
       Object.defineProperty(global, 'window', {
         value: {
           getConfigurationValue: vi.fn(),
-          kubernetesGetContextsHealths: vi.fn(),
         },
       });
       vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
-      vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue([
+      kubernetesContextsHealths.set([
         {
           contextName: 'context-name',
           reachable: true,
