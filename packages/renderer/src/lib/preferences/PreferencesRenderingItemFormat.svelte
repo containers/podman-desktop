@@ -147,6 +147,15 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
   // auto save
   return await autoSave();
 }
+
+function numberItemValue(): number {
+  if (givenValue && typeof givenValue === 'number') {
+    return givenValue;
+  } else if (recordValue && typeof recordValue === 'number') {
+    return recordValue;
+  }
+  return getNormalizedDefaultNumberValue(record);
+}
 </script>
 
 <div class="flex flex-row mb-1 pt-2 text-start items-center justify-start">
@@ -167,7 +176,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     {:else}
       <NumberItem
         record={record}
-        value={typeof givenValue === 'number' ? givenValue : (typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record))}
+        value={numberItemValue()}
         onChange={onChange}
         invalidRecord={invalidRecord} />
     {/if}
