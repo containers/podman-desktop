@@ -72,6 +72,7 @@ import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernet
 import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
 import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
+import type { ContextPermission } from '/@api/kubernetes-contexts-permissions.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
@@ -1851,5 +1852,12 @@ export class KubernetesClient {
       throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
     }
     return this.contextsStatesDispatcher?.getContextsHealths();
+  }
+
+  public getContextsPermissions(): ContextPermission[] {
+    if (!this.contextsStatesDispatcher) {
+      throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
+    }
+    return this.contextsStatesDispatcher?.getContextsPermissions();
   }
 }
