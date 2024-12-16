@@ -6,6 +6,7 @@ import { router } from 'tinro';
 
 import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import type { KubeContext } from '/@api/kubernetes-context';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
@@ -13,10 +14,25 @@ import EngineIcon from '../ui/EngineIcon.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';
 
-$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
+interface KubeContextWithStates extends KubeContext {
+  isReachable: boolean;
+  isKnown: boolean;
+  isBeingChecked: boolean;
+}
 
-let kubeconfigFilePath: string = '';
-let experimentalStates: boolean = false;
+const currentContextName = $derived($kubernetesContexts.find(c => c.currentContext)?.name);
+
+let kubeconfigFilePath: string = $state('');
+let experimentalStates: boolean = $state(false);
+
+const kubernetesContextsWithStates: KubeContextWithStates[] = $derived(
+  $kubernetesContexts.map(kubeContext => ({
+    ...kubeContext,
+    isReachable: isContextReachable(kubeContext.name, experimentalStates),
+    isKnown: isContextKnown(kubeContext.name, experimentalStates),
+    isBeingChecked: isContextBeingChecked(kubeContext.name, experimentalStates),
+  })),
+);
 
 onMount(async () => {
   try {
@@ -113,7 +129,7 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
         Go to Resources
       </Button>
     </EmptyScreen>
-    {#each $kubernetesContexts as context}
+    {#each kubernetesContextsWithStates as context}
       <!-- If current context, use lighter background -->
       <div
         role="row"
@@ -158,7 +174,7 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row">
             <div class="flex-none w-36">
-              {#if isContextReachable(context.name, experimentalStates)}
+              {#if context.isReachable}
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-connected)]"></div>
                   <div
@@ -187,13 +203,13 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
                   <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
-                    {#if isContextKnown(context.name, experimentalStates)}
+                    {#if context.isKnown}
                       UNREACHABLE
                     {:else}
                       UNKNOWN
                     {/if}
                   </div>
-                  {#if isContextBeingChecked(context.name, experimentalStates)}
+                  {#if context.isBeingChecked}
                     <div class="ml-1"><Spinner size="12px"></Spinner></div>
                   {/if}
                 </div>
