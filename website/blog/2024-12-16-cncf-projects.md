@@ -52,7 +52,7 @@ You can also access your deployed Backstage instance by using Podman Desktop's p
 
 [Dapr](https://docs.dapr.io/) (Distributed Application Runtime) is an open-source, event-driven runtime designed to help developers build resilient, stateless, and stateful applications that can run seamlessly on cloud or edge environments. 
 
-Dapr abstracts the complexities of distributed systems, offering building blocks for service invocation, state management, pub/sub messaging, and resource bindings, which simplify the development of microservices and cloud-native applications.
+Dapr abstracts the complexities of distributed systems, offering building blocks for service invocation, state management, publish/subscribe messaging, and resource bindings, which simplify the development of microservices and cloud-native applications.
 
 Dapr can be deployed in a local environment using Podman by following their [self-hosted podman setup](https://docs.dapr.io/operations/hosting/self-hosted/self-hosted-with-podman/).
 
