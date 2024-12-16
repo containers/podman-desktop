@@ -18,7 +18,7 @@
 
 import { execSync } from 'node:child_process';
 
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import test, { expect as playExpect } from '@playwright/test';
 
 import { ResourceElementActions } from '../model/core/operations';
@@ -440,5 +440,13 @@ export async function deletePodmanMachineFromCLI(podmanMachineName: string): Pro
         console.log(`Podman machine [${podmanMachineName}] does not exist, skipping deletion.`);
       }
     }
+  });
+}
+
+export async function fillTextbox(textbox: Locator, text: string): Promise<void> {
+  return test.step(`Fill textbox with ${text}`, async () => {
+    await playExpect(textbox).toBeVisible({ timeout: 15_000 });
+    await textbox.fill(text);
+    await playExpect(textbox).toHaveValue(text);
   });
 }

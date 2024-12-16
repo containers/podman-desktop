@@ -18,10 +18,13 @@
 
 import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
+import { fillTextbox } from '/@/utility/operations';
+
 import type { KindClusterOptions } from '../core/types';
 import { CreateClusterBasePage } from './cluster-creation-base-page';
 
 export class CreateKindClusterPage extends CreateClusterBasePage {
+  readonly clusterNameField: Locator;
   readonly controllerCheckbox: Locator;
   readonly providerTypeCombobox: Locator;
   readonly httpPort: Locator;
@@ -30,6 +33,7 @@ export class CreateKindClusterPage extends CreateClusterBasePage {
 
   constructor(page: Page) {
     super(page);
+    this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
     // Locator for the parent element of the ingress controller checkbox, used to change its value
     this.controllerCheckbox = this.clusterPropertiesInformation
       .getByRole('checkbox', {
@@ -44,7 +48,7 @@ export class CreateKindClusterPage extends CreateClusterBasePage {
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
     return test.step('Create default cluster', async () => {
-      await this.fillTextbox(this.clusterNameField, clusterName);
+      await fillTextbox(this.clusterNameField, clusterName);
       await playExpect(this.providerTypeCombobox).toContainText('podman');
       await playExpect(this.httpPort).toHaveValue('9090');
       await playExpect(this.httpsPort).toHaveValue('9443');
@@ -60,7 +64,7 @@ export class CreateKindClusterPage extends CreateClusterBasePage {
     timeout?: number,
   ): Promise<void> {
     return test.step('Create parametrized cluster', async () => {
-      await this.fillTextbox(this.clusterNameField, clusterName);
+      await fillTextbox(this.clusterNameField, clusterName);
 
       if (providerType) {
         await playExpect(this.providerTypeCombobox).toBeVisible();
@@ -74,10 +78,10 @@ export class CreateKindClusterPage extends CreateClusterBasePage {
       }
 
       if (httpPort) {
-        await this.fillTextbox(this.httpPort, httpPort);
+        await fillTextbox(this.httpPort, httpPort);
       }
       if (httpsPort) {
-        await this.fillTextbox(this.httpsPort, httpsPort);
+        await fillTextbox(this.httpsPort, httpsPort);
       }
 
       await playExpect(this.controllerCheckbox).toBeEnabled();
@@ -90,7 +94,7 @@ export class CreateKindClusterPage extends CreateClusterBasePage {
       }
 
       if (containerImage) {
-        await this.fillTextbox(this.containerImage, containerImage);
+        await fillTextbox(this.containerImage, containerImage);
       }
       await this.createCluster(timeout);
     });

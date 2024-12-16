@@ -35,6 +35,7 @@ export * from './model/core/types';
 export * from './model/pages/authentication-page';
 export * from './model/pages/base-page';
 export * from './model/pages/build-image-page';
+export * from './model/pages/cluster-creation-base-page';
 export * from './model/pages/compose-onboarding/compose-failed-page';
 export * from './model/pages/compose-onboarding/compose-local-install-page';
 export * from './model/pages/compose-onboarding/compose-onboarding-page';

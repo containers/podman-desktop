@@ -24,7 +24,6 @@ export class CreateClusterBasePage extends BasePage {
   readonly header: Locator;
   readonly content: Locator;
   readonly clusterPropertiesInformation: Locator;
-  readonly clusterNameField: Locator;
   readonly clusterCreationButton: Locator;
   readonly goBackButton: Locator;
   readonly logsButton: Locator;
@@ -37,7 +36,6 @@ export class CreateClusterBasePage extends BasePage {
     this.clusterPropertiesInformation = this.content.getByRole('form', {
       name: 'Properties Information',
     });
-    this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
     this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
     this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
     this.goBackButton = this.page.getByRole('button', {
@@ -63,14 +61,6 @@ export class CreateClusterBasePage extends BasePage {
           throw new Error(`${await this.errorMessage.textContent()}`);
         }),
       ]);
-    });
-  }
-
-  async fillTextbox(textbox: Locator, text: string): Promise<void> {
-    return test.step(`Fill textbox with ${text}`, async () => {
-      await playExpect(textbox).toBeVisible({ timeout: 15_000 });
-      await textbox.fill(text);
-      await playExpect(textbox).toHaveValue(text);
     });
   }
 }
