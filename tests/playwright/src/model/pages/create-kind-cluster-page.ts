@@ -19,49 +19,27 @@
 import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import type { KindClusterOptions } from '../core/types';
-import { BasePage } from './base-page';
+import { CreateClusterBasePage } from './cluster-creation-base-page';
 
-export class CreateKindClusterPage extends BasePage {
-  readonly header: Locator;
-  readonly content: Locator;
-  readonly clusterPropertiesInformation: Locator;
-  readonly clusterNameField: Locator;
+export class CreateKindClusterPage extends CreateClusterBasePage {
   readonly controllerCheckbox: Locator;
-  readonly clusterCreationButton: Locator;
-  readonly goBackButton: Locator;
-  readonly logsButton: Locator;
   readonly providerTypeCombobox: Locator;
   readonly httpPort: Locator;
   readonly httpsPort: Locator;
   readonly containerImage: Locator;
-  readonly errorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.header = this.page.getByRole('region', { name: 'Header' });
-    this.content = this.page.getByRole('region', { name: 'Tab Content' });
-    this.clusterPropertiesInformation = this.content.getByRole('form', {
-      name: 'Properties Information',
-    });
-    this.clusterNameField = this.clusterPropertiesInformation.getByRole('textbox', { name: 'Name', exact: true });
     // Locator for the parent element of the ingress controller checkbox, used to change its value
     this.controllerCheckbox = this.clusterPropertiesInformation
       .getByRole('checkbox', {
         name: 'Setup an ingress controller',
       })
       .locator('..');
-    this.clusterCreationButton = this.clusterPropertiesInformation.getByRole('button', { name: 'Create', exact: true });
-    this.logsButton = this.content.getByRole('button', { name: 'Show Logs' });
     this.providerTypeCombobox = this.clusterPropertiesInformation.getByLabel('Provider Type');
     this.httpPort = this.clusterPropertiesInformation.getByLabel('HTTP Port');
     this.httpsPort = this.clusterPropertiesInformation.getByLabel('HTTPS Port');
     this.containerImage = this.clusterPropertiesInformation.getByPlaceholder('Leave empty for using latest.');
-    this.goBackButton = this.page.getByRole('button', {
-      name: 'Go back to resources',
-    });
-    this.errorMessage = this.content.getByRole('alert', {
-      name: 'Error Message Content',
-    });
   }
 
   public async createClusterDefault(clusterName: string = 'kind-cluster', timeout?: number): Promise<void> {
@@ -115,32 +93,6 @@ export class CreateKindClusterPage extends BasePage {
         await this.fillTextbox(this.containerImage, containerImage);
       }
       await this.createCluster(timeout);
-    });
-  }
-
-  private async createCluster(timeout: number = 300_000): Promise<void> {
-    return test.step('Create cluster', async () => {
-      await Promise.race([
-        (async (): Promise<void> => {
-          await playExpect(this.clusterCreationButton).toBeVisible();
-          await this.clusterCreationButton.click();
-          await this.logsButton.scrollIntoViewIfNeeded();
-          await this.logsButton.click();
-          await playExpect(this.goBackButton).toBeVisible({ timeout: timeout });
-          await this.goBackButton.click();
-        })(),
-        this.errorMessage.waitFor({ state: 'visible', timeout: timeout }).then(async () => {
-          throw new Error(`${await this.errorMessage.textContent()}`);
-        }),
-      ]);
-    });
-  }
-
-  private async fillTextbox(textbox: Locator, text: string): Promise<void> {
-    return test.step(`Fill textbox with ${text}`, async () => {
-      await playExpect(textbox).toBeVisible({ timeout: 15_000 });
-      await textbox.fill(text);
-      await playExpect(textbox).toHaveValue(text);
     });
   }
 }
