@@ -18,10 +18,12 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
+
+import { CONFIGURATION_SECTION } from '/@api/configuration/constants';
 
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 import { configurationProperties } from './stores/configurationProperties';
@@ -191,4 +193,60 @@ test('Test rendering of the compatibility docker page does change if config chan
     const dockerCompatLink = screen.queryByRole('link', { name: 'Docker Compatibility' });
     expect(dockerCompatLink).not.toBeNull();
   });
+});
+
+test('expect preference section not to have an icon', async () => {
+  const { getByLabelText } = render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  configurationProperties.set([
+    {
+      id: `bar`,
+      scope: 'DEFAULT',
+      type: 'boolean',
+      title: 'Hello world',
+      parentId: `${CONFIGURATION_SECTION.PREFERENCES}.foo`,
+    },
+  ]);
+
+  // get the experimental section
+  const section: HTMLElement = await vi.waitFor<HTMLElement>(() => {
+    const div = getByLabelText('preferences');
+    expect(div).toBeDefined();
+    return div;
+  });
+
+  const icon = within(section).queryByRole('img', { hidden: true });
+  expect(icon).toBeNull();
+});
+
+test('expect experimental section to have an icon', async () => {
+  const { getByLabelText } = render(PreferencesNavigation, {
+    meta: {
+      url: '/',
+    } as unknown as TinroRouteMeta,
+  });
+
+  configurationProperties.set([
+    {
+      id: `bar`,
+      scope: 'DEFAULT',
+      type: 'boolean',
+      title: 'Hello world',
+      parentId: `${CONFIGURATION_SECTION.EXPERIMENTAL}.foo`,
+    },
+  ]);
+
+  // get the experimental section
+  const section: HTMLElement = await vi.waitFor<HTMLElement>(() => {
+    const div = getByLabelText('experimental');
+    expect(div).toBeDefined();
+    return div;
+  });
+
+  const icon = within(section).getByRole('img', { hidden: true });
+  expect(icon).toBeDefined();
 });

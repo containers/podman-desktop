@@ -1,9 +1,10 @@
 <script lang="ts">
+import { faFlask } from '@fortawesome/free-solid-svg-icons';
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
-import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_SECTION } from '/@api/configuration/constants.js';
 import { ExperimentalSettings } from '/@api/docker-compatibility-info';
 
 import { configurationProperties } from './stores/configurationProperties';
@@ -91,6 +92,7 @@ onMount(() => {
     {#each configProperties as [configSection, configItems] (configSection)}
       <SettingsNavItem
         title={configSection}
+        icon={configSection === CONFIGURATION_SECTION.EXPERIMENTAL?faFlask:undefined}
         href="/preferences/default/{configSection}"
         section={configItems.length > 0}
         selected={meta.url === `/preferences/default/${configSection}`}
