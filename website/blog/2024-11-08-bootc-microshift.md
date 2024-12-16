@@ -28,7 +28,7 @@ Before starting the tutorial, ensure you have:
 - An active [Red Hat account](https://developers.redhat.com/articles/2024/05/07/podman-desktop-red-hat-developer-subscription) in order to access RHEL-based images
 - Access to an [OpenShift Hybrid Cloud pull secret](https://console.redhat.com/openshift/install/pull-secret)
 - [Podman Desktop installed](https://podman-desktop.io/downloads)
-- [Podman Desktop BootC Extension](https://github.com/containers/podman-desktop-extension-bootc)
+- [Podman Desktop BootC Extension](https://github.com/podman-desktop/podman-desktop-extension-bootc)
 - Your preferred VM-running software (e.g., [using libvirt](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/introducing-virtualization-in-rhel_configuring-and-managing-virtualization#what-is-virtualization_introducing-virtualization-in-rhel))
 
 ## Building the BootC container image

@@ -14,7 +14,7 @@ Below are a list of officially maintained templates to be used for Podman Deskto
 
 ![minimal](../img/minimal.png)
 
-**Link:** https://github.com/containers/podman-desktop-extension-minimal-template
+**Link:** https://github.com/podman-desktop/podman-desktop-extension-minimal-template
 
 This template provides a minimal template on how to build a Podman Desktop extension. More information can be found on our official extension documentation on how to further expand your extension.
 
@@ -24,7 +24,7 @@ With this template, on activating a "Hello World!" dialog will appear.
 
 ![webview](../img/webview.png)
 
-**Link:** https://github.com/containers/podman-desktop-extension-webview-template
+**Link:** https://github.com/podman-desktop/podman-desktop-extension-webview-template
 
 This template provides a webview template on how to build a Podman Desktop extension showcasing a frontend.
 
@@ -36,7 +36,7 @@ With this template, you will see a new button on the navbar that says "Hello Wor
 
 ![full](../img/full.png)
 
-**Link:** https://github.com/containers/podman-desktop-extension-full-template
+**Link:** https://github.com/podman-desktop/podman-desktop-extension-full-template
 
 This template provides a "full" example of creating an extension with a webview that utilizes multiple packages. Within this template, we use three separate packages to distinguish between the frontend, backend, and shared code that connects the frontend and backend.
 
