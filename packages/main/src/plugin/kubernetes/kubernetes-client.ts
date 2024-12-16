@@ -71,6 +71,7 @@ import { parseAllDocuments } from 'yaml';
 import type { KubernetesPortForwardService } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import { KubernetesPortForwardServiceProvider } from '/@/plugin/kubernetes/kubernetes-port-forward-service.js';
 import type { KubeContext } from '/@api/kubernetes-context.js';
+import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
 import type { V1Route } from '/@api/openshift-types.js';
@@ -270,7 +271,7 @@ export class KubernetesClient {
     if (statesExperimental) {
       const manager = new ContextsManagerExperimental();
       this.contextsState = manager;
-      this.contextsStatesDispatcher = new ContextsStatesDispatcher(manager);
+      this.contextsStatesDispatcher = new ContextsStatesDispatcher(manager, this.apiSender);
       this.contextsStatesDispatcher.init();
     }
 
@@ -1843,5 +1844,12 @@ export class KubernetesClient {
 
   public async deletePortForward(config: ForwardConfig): Promise<void> {
     return this.ensurePortForwardService().deleteForward(config);
+  }
+
+  public getContextsHealths(): ContextHealth[] {
+    if (!this.contextsStatesDispatcher) {
+      throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
+    }
+    return this.contextsStatesDispatcher?.getContextsHealths();
   }
 }

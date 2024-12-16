@@ -20,8 +20,9 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
 import type { KubeContext } from '/@api/kubernetes-context';
@@ -157,45 +158,95 @@ test('when deleting the non current context, no popup should ask confirmation', 
   expect(showMessageBoxMock).not.toHaveBeenCalled();
 });
 
-test('state and resources counts are displayed in contexts', () => {
-  const state: Map<string, ContextGeneralState> = new Map();
-  state.set('context-name', {
-    reachable: true,
-    resources: {
-      pods: 1,
-      deployments: 2,
+describe.each([
+  {
+    name: 'experimental states',
+    implemented: {
+      health: true,
+      resourcesCount: false,
     },
-  });
-  state.set('context-name2', {
-    reachable: false,
-    resources: {
-      pods: 0,
-      deployments: 0,
+    initMocks: () => {
+      Object.defineProperty(global, 'window', {
+        value: {
+          getConfigurationValue: vi.fn(),
+        },
+      });
+      vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
+      kubernetesContextsHealths.set([
+        {
+          contextName: 'context-name',
+          reachable: true,
+          checking: false,
+        },
+        {
+          contextName: 'context-name2',
+          reachable: false,
+          checking: false,
+        },
+      ]);
     },
+  },
+  {
+    name: 'non-experimental states',
+    implemented: {
+      health: true,
+      resourcesCount: true,
+    },
+    initMocks: () => {
+      const state: Map<string, ContextGeneralState> = new Map();
+      state.set('context-name', {
+        reachable: true,
+        resources: {
+          pods: 1,
+          deployments: 2,
+        },
+      });
+      state.set('context-name2', {
+        reachable: false,
+        resources: {
+          pods: 0,
+          deployments: 0,
+        },
+      });
+      vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(state);
+      vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(
+        new Map(),
+      );
+    },
+  },
+])('$name', ({ implemented, initMocks }) => {
+  test('state and resources counts are displayed in contexts', async () => {
+    initMocks();
+    render(PreferencesKubernetesContextsRendering, {});
+    const context1 = screen.getAllByRole('row')[0];
+    const context2 = screen.getAllByRole('row')[1];
+    if (implemented.health) {
+      await vi.waitFor(() => {
+        expect(within(context1).queryByText('REACHABLE')).toBeInTheDocument();
+      });
+    }
+    expect(within(context1).queryByText('PODS')).toBeInTheDocument();
+    expect(within(context1).queryByText('DEPLOYMENTS')).toBeInTheDocument();
+
+    if (implemented.resourcesCount) {
+      const checkCount = (el: HTMLElement, label: string, count: number) => {
+        const countEl = within(el).getByLabelText(label);
+        expect(countEl).toBeInTheDocument();
+        expect(within(countEl).queryByText(count)).toBeTruthy();
+      };
+      checkCount(context1, 'Context Pods Count', 1);
+      checkCount(context1, 'Context Deployments Count', 2);
+    }
+
+    if (implemented.health) {
+      expect(within(context2).queryByText('UNREACHABLE')).toBeInTheDocument();
+    }
+    expect(within(context2).queryByText('PODS')).not.toBeInTheDocument();
+    expect(within(context2).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
+
+    const podsCountContext2 = within(context2).queryByLabelText('Context Pods Count');
+    expect(podsCountContext2).not.toBeInTheDocument();
+    const deploymentsCountContext2 = within(context2).queryByLabelText('Context Deployments Count');
+    expect(deploymentsCountContext2).not.toBeInTheDocument();
   });
-  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextGeneralState>>(state);
-  vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(new Map());
-  render(PreferencesKubernetesContextsRendering, {});
-  const context1 = screen.getAllByRole('row')[0];
-  const context2 = screen.getAllByRole('row')[1];
-  expect(within(context1).queryByText('REACHABLE')).toBeInTheDocument();
-  expect(within(context1).queryByText('PODS')).toBeInTheDocument();
-  expect(within(context1).queryByText('DEPLOYMENTS')).toBeInTheDocument();
-
-  const checkCount = (el: HTMLElement, label: string, count: number) => {
-    const countEl = within(el).getByLabelText(label);
-    expect(countEl).toBeInTheDocument();
-    expect(within(countEl).queryByText(count)).toBeTruthy();
-  };
-  checkCount(context1, 'Context Pods Count', 1);
-  checkCount(context1, 'Context Deployments Count', 2);
-
-  expect(within(context2).queryByText('UNREACHABLE')).toBeInTheDocument();
-  expect(within(context2).queryByText('PODS')).not.toBeInTheDocument();
-  expect(within(context2).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
-
-  const podsCountContext2 = within(context2).queryByLabelText('Context Pods Count');
-  expect(podsCountContext2).not.toBeInTheDocument();
-  const deploymentsCountContext2 = within(context2).queryByLabelText('Context Deployments Count');
-  expect(deploymentsCountContext2).not.toBeInTheDocument();
 });

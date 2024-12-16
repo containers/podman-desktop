@@ -4,7 +4,9 @@ import { Button, EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-s
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
+import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import type { KubeContext } from '/@api/kubernetes-context';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
@@ -12,9 +14,25 @@ import EngineIcon from '../ui/EngineIcon.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';
 
-$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
+interface KubeContextWithStates extends KubeContext {
+  isReachable: boolean;
+  isKnown: boolean;
+  isBeingChecked: boolean;
+}
 
-let kubeconfigFilePath: string = '';
+const currentContextName = $derived($kubernetesContexts.find(c => c.currentContext)?.name);
+
+let kubeconfigFilePath: string = $state('');
+let experimentalStates: boolean = $state(false);
+
+const kubernetesContextsWithStates: KubeContextWithStates[] = $derived(
+  $kubernetesContexts.map(kubeContext => ({
+    ...kubeContext,
+    isReachable: isContextReachable(kubeContext.name, experimentalStates),
+    isKnown: isContextKnown(kubeContext.name, experimentalStates),
+    isBeingChecked: isContextBeingChecked(kubeContext.name, experimentalStates),
+  })),
+);
 
 onMount(async () => {
   try {
@@ -26,6 +44,12 @@ onMount(async () => {
     }
   } catch (error) {
     kubeconfigFilePath = 'Default is usually ~/.kube/config';
+  }
+
+  try {
+    experimentalStates = (await window.getConfigurationValue<boolean>('kubernetes.statesExperimental')) ?? false;
+  } catch {
+    // keep default value
   }
 });
 
@@ -61,6 +85,31 @@ async function handleDeleteContext(contextName: string) {
     }
   }
 }
+
+function isContextReachable(contextName: string, experimental: boolean): boolean {
+  if (experimental) {
+    return $kubernetesContextsHealths.some(
+      contextHealth => contextHealth.contextName === contextName && contextHealth.reachable,
+    );
+  }
+  return $kubernetesContextsState.get(contextName)?.reachable ?? false;
+}
+
+function isContextKnown(contextName: string, experimental: boolean): boolean {
+  if (experimental) {
+    return $kubernetesContextsHealths.some(contextHealth => contextHealth.contextName === contextName);
+  }
+  return !!$kubernetesContextsState.get(contextName);
+}
+
+function isContextBeingChecked(contextName: string, experimental: boolean): boolean {
+  if (experimental) {
+    return $kubernetesContextsHealths.some(
+      contextHealth => contextHealth.contextName === contextName && contextHealth.checking,
+    );
+  }
+  return !!$kubernetesContextsCheckingStateDelayed?.get(contextName);
+}
 </script>
 
 <SettingsPage title="Kubernetes Contexts">
@@ -80,7 +129,7 @@ async function handleDeleteContext(contextName: string) {
         Go to Resources
       </Button>
     </EmptyScreen>
-    {#each $kubernetesContexts as context}
+    {#each kubernetesContextsWithStates as context}
       <!-- If current context, use lighter background -->
       <div
         role="row"
@@ -125,7 +174,7 @@ async function handleDeleteContext(contextName: string) {
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row">
             <div class="flex-none w-36">
-              {#if $kubernetesContextsState.get(context.name)?.reachable}
+              {#if context.isReachable}
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-connected)]"></div>
                   <div
@@ -154,13 +203,13 @@ async function handleDeleteContext(contextName: string) {
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
                   <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
-                    {#if $kubernetesContextsState.get(context.name)}
+                    {#if context.isKnown}
                       UNREACHABLE
                     {:else}
                       UNKNOWN
                     {/if}
                   </div>
-                  {#if $kubernetesContextsCheckingStateDelayed?.get(context.name)}
+                  {#if context.isBeingChecked}
                     <div class="ml-1"><Spinner size="12px"></Spinner></div>
                   {/if}
                 </div>

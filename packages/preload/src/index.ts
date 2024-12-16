@@ -67,6 +67,7 @@ import type { ImageInfo } from '/@api/image-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry';
 import type { KubeContext } from '/@api/kubernetes-context';
+import type { ContextHealth } from '/@api/kubernetes-contexts-healths';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
@@ -1870,6 +1871,10 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:unregisterGetCurrentContextResources', resourceName);
     },
   );
+
+  contextBridge.exposeInMainWorld('kubernetesGetContextsHealths', async (): Promise<ContextHealth[]> => {
+    return ipcInvoke('kubernetes:getContextsHealths');
+  });
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');
