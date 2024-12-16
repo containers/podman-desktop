@@ -40,23 +40,32 @@ test('...', () => {
 
 ### Do not use `try {} catch` in tests
 
-The following code has a problem, if the code in the try block do not raise an error, we do not check the error message.
+Let's have an async function such as
+
+```ts
+export function foo(): Promise<void> {
+  throw new Error('bar');
+}
+```
+
+Let's say we want to check that under certain condition the function throw an error (here always), we _could_ write the following code
 
 ```ts
 // bad
 test('expect error to be properly catched and verified', async () => {
   try {
-    await Promise.reject(new Error('Dummy Error'));
+    await foo();
   } catch(err: unknown) {
-    expect(err.message).toBe('Dummy Error')
+    expect(err.message).toBe('bar')
   }
 });
 ```
 
+But it has a problem, if the code in the try block do not raise an error, we do not check the error message.
 Here is a version where we are sure the block rejected an error.
 
 ```ts
   await expect(async () => {
-    await Promise.reject(new Error('Dummy Error'));
+    await foo();
   }).rejects.toThrowError('Dummy Error');
 ```
