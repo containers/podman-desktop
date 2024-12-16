@@ -303,7 +303,6 @@ export default [
     },
 
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       'no-undef': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
