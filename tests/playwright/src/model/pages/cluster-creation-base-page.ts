@@ -20,7 +20,7 @@ import test, { expect as playExpect, type Locator, type Page } from '@playwright
 
 import { BasePage } from './base-page';
 
-export class CreateClusterBasePage extends BasePage {
+export abstract class CreateClusterBasePage extends BasePage {
   readonly header: Locator;
   readonly content: Locator;
   readonly clusterPropertiesInformation: Locator;
