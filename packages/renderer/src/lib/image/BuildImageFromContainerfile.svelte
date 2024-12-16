@@ -30,7 +30,7 @@ import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 let buildFinished = false;
-let containerImageName: string;
+let containerImageName: string | undefined;
 let containerFilePath: string;
 let containerBuildContextDirectory: string;
 let containerBuildPlatform: string;
@@ -49,7 +49,8 @@ const containerFileDialogOptions: OpenDialogOptions = {
 const contextDialogOptions: OpenDialogOptions = { title: 'Select Root Context', selectors: ['openDirectory'] };
 
 $: platforms = containerBuildPlatform ? containerBuildPlatform.split(',') : [];
-$: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
+$: hasInvalidFields =
+  !containerFilePath || !containerBuildContextDirectory || (platforms.length > 1 && !containerImageName);
 $: if (containerFilePath && !containerBuildContextDirectory) {
   // select the parent directory of the file as default
   // eslint-disable-next-line no-useless-escape
@@ -141,7 +142,7 @@ async function buildSinglePlatformImage(): Promise<void> {
   if (containerFilePath && selectedProvider) {
     // Extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = await window.pathRelative(containerBuildContextDirectory, containerFilePath);
-    buildImageInfo = startBuild(containerImageName, getTerminalCallback());
+    buildImageInfo = startBuild(getTerminalCallback());
 
     // Store the key
     buildImagesInfo.set(buildImageInfo);
@@ -180,68 +181,70 @@ async function buildMultiplePlatformImagesAndCreateManifest(): Promise<void> {
   // as we need to know either the IDs or the names of the images that were built
   buildIDs = [];
 
-  if (containerFilePath && selectedProvider) {
-    // Extract the relative path from the containerFilePath and containerBuildContextDirectory
-    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+  if (containerFilePath) {
+    if (selectedProvider) {
+      // Extract the relative path from the containerFilePath and containerBuildContextDirectory
+      const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 
-    // We'll iterate over each platform and build the image
-    for (const platform of platforms) {
-      // We'll be using the same terminal for all builds (getTerminalCallback)
-      // similar to how Podman CLI does it.
-      buildImageInfo = startBuild(containerImageName, getTerminalCallback());
+      // We'll iterate over each platform and build the image
+      for (const platform of platforms) {
+        // We'll be using the same terminal for all builds (getTerminalCallback)
+        // similar to how Podman CLI does it.
+        buildImageInfo = startBuild(getTerminalCallback());
 
-      // Store the key
-      buildImagesInfo.set(buildImageInfo);
+        // Store the key
+        buildImagesInfo.set(buildImageInfo);
 
-      try {
-        cancellableTokenId = await window.getCancellableTokenSource();
+        try {
+          cancellableTokenId = await window.getCancellableTokenSource();
 
-        // Build the image for the current platform
-        // NOTE: We purporsely pass in '' as the container name so that the built image is
-        // <none> in the image list similar to the Podman CLI.
-        const buildOutput: BuildOutput = (await window.buildImage(
-          containerBuildContextDirectory,
-          relativeContainerfilePath,
-          '', // Omitting the image name for multi-platform builds, as we'll be creating a singular manifest.
-          platform,
-          selectedProvider,
-          buildImageInfo.buildImageKey,
-          eventCollect,
-          cancellableTokenId,
-          formattedBuildArgs,
-        )) as BuildOutput;
+          // Build the image for the current platform
+          // NOTE: We purporsely pass in '' as the container name so that the built image is
+          // <none> in the image list similar to the Podman CLI.
+          const buildOutput: BuildOutput = (await window.buildImage(
+            containerBuildContextDirectory,
+            relativeContainerfilePath,
+            undefined, // Omitting the image name for multi-platform builds, as we'll be creating a singular manifest.
+            platform,
+            selectedProvider,
+            buildImageInfo.buildImageKey,
+            eventCollect,
+            cancellableTokenId,
+            formattedBuildArgs,
+          )) as BuildOutput;
 
-        // Extract and store the build ID as this is required for creating the manifest, only if it is available.
+          // Extract and store the build ID as this is required for creating the manifest, only if it is available.
 
-        if (buildOutput) {
-          const buildIdItem = buildOutput.find(o => o.aux);
-          const buildId = buildIdItem ? buildIdItem?.aux?.ID : undefined;
-          if (buildId) {
-            buildIDs.push(buildId.replace('sha256:', 'containers-storage:'));
+          if (buildOutput) {
+            const buildIdItem = buildOutput.find(o => o.aux);
+            const buildId = buildIdItem ? buildIdItem?.aux?.ID : undefined;
+            if (buildId) {
+              buildIDs.push(buildId.replace('sha256:', 'containers-storage:'));
+            }
           }
+        } catch (error) {
+          logsTerminal.write(`Error:${error}\r`);
+        } finally {
+          cancellableTokenId = undefined;
+          buildImageInfo.buildRunning = false;
         }
-      } catch (error) {
-        logsTerminal.write(`Error:${error}\r`);
-      } finally {
-        cancellableTokenId = undefined;
-        buildImageInfo.buildRunning = false;
       }
-    }
 
-    // Create the manifest after all builds are complete
-    // we will log to the terminal if there is an error.
-    try {
-      await window.createManifest({
-        images: buildIDs,
-        name: containerImageName,
-      });
-    } catch (error) {
-      console.error('Error creating manifest: ', error);
-      logsTerminal.write(`Error:${error}\r`);
-    }
+      // Create the manifest after all builds are complete
+      // we will log to the terminal if there is an error.
+      try {
+        await window.createManifest({
+          images: buildIDs,
+          name: containerImageName!,
+        });
+      } catch (error) {
+        console.error('Error creating manifest: ', error);
+        logsTerminal.write(`Error:${error}\r`);
+      }
 
-    // Finally mark the build as finished
-    buildFinished = true;
+      // Finally mark the build as finished
+      buildFinished = true;
+    }
   }
 }
 

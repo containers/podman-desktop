@@ -1281,7 +1281,7 @@ export class PluginSystem {
         _listener,
         containerBuildContextDirectory: string,
         relativeContainerfilePath: string,
-        imageName: string,
+        imageName: string | undefined,
         platform: string,
         selectedProvider: ProviderContainerConnectionInfo,
         onDataCallbacksBuildImageId: number,
@@ -1290,7 +1290,7 @@ export class PluginSystem {
       ): Promise<unknown> => {
         // create task
         const task = taskManager.createTask({
-          title: `Building ${imageName}`,
+          title: `Building image ${imageName ?? ''}`,
           action: {
             name: 'Go to task >',
             execute: () => {

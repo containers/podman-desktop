@@ -54,7 +54,7 @@ const buildOnHolds = new Map<symbol, BuildHold>();
 const buildReplays = new Map<symbol, BuildReplay>();
 
 // new build is occuring, needs to compute a new key and prepare replay data
-export function startBuild(imageName: string, buildImageCallback: BuildImageCallback): BuildImageInfo {
+export function startBuild(buildImageCallback: BuildImageCallback): BuildImageInfo {
   const key = getKey();
   buildCallbacks.set(key, buildImageCallback);
 

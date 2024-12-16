@@ -2538,7 +2538,7 @@ export class ContainerProviderRegistry {
         eventCollect('error', errorMessage);
         throw error;
       }
-      eventCollect('stream', `Building ${options?.tag}...\r\n`);
+      eventCollect('stream', `Building image ${options?.tag ?? ''}...\r\n`);
       // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       let resolve: (output: {}) => void;
       let reject: (err: Error) => void;
