@@ -1000,6 +1000,10 @@ export class ColorRegistry {
       dark: colorPalette.white,
       light: colorPalette.black,
     });
+    this.registerColor(`${button}close-hover-bg`, {
+      dark: colorPalette.white + '2',
+      light: colorPalette.black + '2',
+    });
     this.registerColor(`${button}link-text`, {
       dark: colorPalette.purple[400],
       light: colorPalette.purple[700],

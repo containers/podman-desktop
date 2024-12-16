@@ -12,7 +12,7 @@ function click(): void {
 
 <button
   type="button"
-  class="text-gray-800 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-1 no-underline cursor-pointer {$$props.class ||
+  class="hover:bg-[var(--pd-button-close-hover-bg)] hover:bg-opacity-10 transition-all rounded-[4px] p-1 no-underline cursor-pointer {$$props.class ||
     ''}"
   on:click={click}
   title="Close"
