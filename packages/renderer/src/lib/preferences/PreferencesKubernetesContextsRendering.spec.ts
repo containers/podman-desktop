@@ -171,8 +171,14 @@ describe.each([
       vi.mocked(kubernetesContextsState).kubernetesContextsCheckingStateDelayed = readable<Map<string, boolean>>(
         new Map(),
       );
-      (window as any).getConfigurationValue = vi.fn().mockResolvedValue(true);
-      (window as any).kubernetesGetContextsHealths = vi.fn().mockResolvedValue([
+      Object.defineProperty(global, 'window', {
+        value: {
+          getConfigurationValue: vi.fn(),
+          kubernetesGetContextsHealths: vi.fn(),
+        },
+      });
+      vi.mocked(window.getConfigurationValue<boolean>).mockResolvedValue(true);
+      vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue([
         {
           contextName: 'context-name',
           reachable: true,
