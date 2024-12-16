@@ -127,7 +127,7 @@
     "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-typescript": "^12.1.1",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@tsconfig/strictest": "^2.0.5",
     "@types/adm-zip": "^0.5.7",
     "@types/dockerode": "^3.3.32",
