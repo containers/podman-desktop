@@ -35,7 +35,7 @@ on:
         required: true
       npm_target:
         default: 'test:e2e'
-        description: 'npm target to run tests'
+        description: 'The npm target to run tests. Use "test:e2e:all" to run all test suites, including Kubernetes tests.'
         type: string
         required: true
       branch:
