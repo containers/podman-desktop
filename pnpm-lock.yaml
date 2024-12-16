@@ -959,7 +959,7 @@ importers:
         version: 3.0.0
       docusaurus-plugin-typedoc:
         specifier: ^1.1.1
-        version: 1.1.1(typedoc-plugin-markdown@4.3.2(typedoc@0.27.4(typescript@5.6.3)))
+        version: 1.1.1(typedoc-plugin-markdown@4.3.2(typedoc@0.27.5(typescript@5.6.3)))
       prism-react-renderer:
         specifier: ^2.3.1
         version: 2.4.0(react@18.2.0)
@@ -998,11 +998,11 @@ importers:
         specifier: ^3.4.16
         version: 3.4.16
       typedoc:
-        specifier: ^0.27.4
-        version: 0.27.4(typescript@5.6.3)
+        specifier: ^0.27.5
+        version: 0.27.5(typescript@5.6.3)
       typedoc-plugin-markdown:
         specifier: ^4.3.2
-        version: 4.3.2(typedoc@0.27.4(typescript@5.6.3))
+        version: 4.3.2(typedoc@0.27.5(typescript@5.6.3))
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -10703,8 +10703,8 @@ packages:
     peerDependencies:
       typedoc: 0.27.x
 
-  typedoc@0.27.4:
-    resolution: {integrity: sha512-wXPQs1AYC2Crk+1XFpNuutLIkNWleokZf1UNf/X8w9KsMnirkvT+LzxTXDvfF6ug3TSLf3Xu5ZXRKGfoXPX7IA==}
+  typedoc@0.27.5:
+    resolution: {integrity: sha512-x+fhKJtTg4ozXwKayh/ek4wxZQI/+2hmZUdO2i2NGDBRUflDble70z+ewHod3d4gRpXSO6fnlnjbDTnJk7HlkQ==}
     engines: {node: '>= 18'}
     hasBin: true
     peerDependencies:
@@ -17535,9 +17535,9 @@ snapshots:
 
   docusaurus-plugin-goatcounter@3.0.0: {}
 
-  docusaurus-plugin-typedoc@1.1.1(typedoc-plugin-markdown@4.3.2(typedoc@0.27.4(typescript@5.6.3))):
+  docusaurus-plugin-typedoc@1.1.1(typedoc-plugin-markdown@4.3.2(typedoc@0.27.5(typescript@5.6.3))):
     dependencies:
-      typedoc-plugin-markdown: 4.3.2(typedoc@0.27.4(typescript@5.6.3))
+      typedoc-plugin-markdown: 4.3.2(typedoc@0.27.5(typescript@5.6.3))
 
   dom-accessibility-api@0.5.16: {}
 
@@ -23620,11 +23620,11 @@ snapshots:
     dependencies:
       is-typedarray: 1.0.0
 
-  typedoc-plugin-markdown@4.3.2(typedoc@0.27.4(typescript@5.6.3)):
+  typedoc-plugin-markdown@4.3.2(typedoc@0.27.5(typescript@5.6.3)):
     dependencies:
-      typedoc: 0.27.4(typescript@5.6.3)
+      typedoc: 0.27.5(typescript@5.6.3)
 
-  typedoc@0.27.4(typescript@5.6.3):
+  typedoc@0.27.5(typescript@5.6.3):
     dependencies:
       '@gerrit0/mini-shiki': 1.24.1
       lunr: 2.3.9
