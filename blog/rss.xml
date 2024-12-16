@@ -225,7 +225,7 @@ Podman Desktop has a natural affinity to Kubernetes due to its design and featur
 <li>An active <a href="https://developers.redhat.com/articles/2024/05/07/podman-desktop-red-hat-developer-subscription" target="_blank" rel="noopener noreferrer">Red Hat account</a> in order to access RHEL-based images</li>
 <li>Access to an <a href="https://console.redhat.com/openshift/install/pull-secret" target="_blank" rel="noopener noreferrer">OpenShift Hybrid Cloud pull secret</a></li>
 <li><a href="https://podman-desktop.io/downloads" target="_blank" rel="noopener noreferrer">Podman Desktop installed</a></li>
-<li><a href="https://github.com/containers/podman-desktop-extension-bootc" target="_blank" rel="noopener noreferrer">Podman Desktop BootC Extension</a></li>
+<li><a href="https://github.com/podman-desktop/podman-desktop-extension-bootc" target="_blank" rel="noopener noreferrer">Podman Desktop BootC Extension</a></li>
 <li>Your preferred VM-running software (e.g., <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/introducing-virtualization-in-rhel_configuring-and-managing-virtualization#what-is-virtualization_introducing-virtualization-in-rhel" target="_blank" rel="noopener noreferrer">using libvirt</a>)</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_JmGV" id="building-the-bootc-container-image">Building the BootC container image<a href="https://podman-desktop.io/blog/2024/11/08/bootc-microshift#building-the-bootc-container-image" class="hash-link" aria-label="Direct link to Building the BootC container image" title="Direct link to Building the BootC container image">​</a></h2>
