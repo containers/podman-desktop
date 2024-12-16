@@ -19,14 +19,9 @@
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainerDetailsPage } from '../model/pages/container-details-page';
+import { createKindCluster, deleteCluster } from '../utility/cluster-operations';
 import { expect as playExpect, test } from '../utility/fixtures';
-import {
-  createKindCluster,
-  deleteContainer,
-  deleteImage,
-  deleteKindCluster,
-  ensureCliInstalled,
-} from '../utility/operations';
+import { deleteContainer, deleteImage, ensureCliInstalled } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
@@ -64,7 +59,7 @@ test.afterAll(async ({ runner, page }) => {
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
-    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    await deleteCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
   } finally {
     await runner.close();
     console.log('Runner closed');

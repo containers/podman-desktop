@@ -22,14 +22,9 @@ import { fileURLToPath } from 'node:url';
 import { PlayYamlRuntime } from '../model/core/operations';
 import { KubernetesResourceState, PodState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
+import { createKindCluster, deleteCluster } from '../utility/cluster-operations';
 import { expect as playExpect, test } from '../utility/fixtures';
-import {
-  createKindCluster,
-  deleteKindCluster,
-  deletePod,
-  ensureCliInstalled,
-  handleConfirmationDialog,
-} from '../utility/operations';
+import { deletePod, ensureCliInstalled, handleConfirmationDialog } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
@@ -76,7 +71,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
-    await deleteKindCluster(page, KIND_NODE, CLUSTER_NAME);
+    await deleteCluster(page, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
   }
