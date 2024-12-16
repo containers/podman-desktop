@@ -24,6 +24,8 @@ import type {
 import { AuthorizationV1Api } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
+import type { KubernetesResourceName } from '/@api/kubernetes-resources.js';
+
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -32,7 +34,7 @@ export interface ContextPermissionsRequest {
   // the request to send
   attrs: V1ResourceAttributes;
   // the resources covered by the request
-  resources: string[];
+  resources: KubernetesResourceName[];
   // list of more fine-grained requests to send in case of denied request
   onDenyRequests?: ContextPermissionsRequest[];
 }
@@ -48,7 +50,7 @@ export interface ContextResourcePermission {
 // ContextPermissionResult is the result of a request, which can cover several resources
 export interface ContextPermissionResult extends ContextResourcePermission {
   kubeConfig: KubeConfigSingleContext;
-  resources: string[];
+  resources: KubernetesResourceName[];
 }
 
 export class ContextPermissionsChecker implements Disposable {
@@ -56,7 +58,7 @@ export class ContextPermissionsChecker implements Disposable {
   #client: AuthorizationV1Api;
   #request: ContextPermissionsRequest;
   #subCheckers: ContextPermissionsChecker[] = [];
-  #results: Map<string, ContextResourcePermission>;
+  #results: Map<KubernetesResourceName, ContextResourcePermission>;
 
   #onPermissionResult = new Emitter<ContextPermissionResult>();
   onPermissionResult: Event<ContextPermissionResult> = this.#onPermissionResult.event;
@@ -67,7 +69,7 @@ export class ContextPermissionsChecker implements Disposable {
   constructor(kubeconfig: KubeConfigSingleContext, request: ContextPermissionsRequest) {
     this.#kubeconfig = kubeconfig;
     this.#request = request;
-    this.#results = new Map<string, ContextResourcePermission>();
+    this.#results = new Map<KubernetesResourceName, ContextResourcePermission>();
     this.#client = this.#kubeconfig.getKubeConfig().makeApiClient(AuthorizationV1Api);
   }
 
@@ -106,7 +108,7 @@ export class ContextPermissionsChecker implements Disposable {
     }
   }
 
-  public getPermissions(): Map<string, ContextResourcePermission> {
+  public getPermissions(): Map<KubernetesResourceName, ContextResourcePermission> {
     return this.#results;
   }
 

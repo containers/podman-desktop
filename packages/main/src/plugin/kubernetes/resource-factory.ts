@@ -17,6 +17,8 @@
  ***********************************************************************/
 import type { KubernetesObject, V1ResourceAttributes } from '@kubernetes/client-node';
 
+import type { KubernetesResourceName } from '/@api/kubernetes-resources.js';
+
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import type { ResourceInformer } from './resource-informer.js';
 
@@ -30,12 +32,12 @@ export interface ResourceInformerFactory {
 }
 
 export class ResourceFactoryBase {
-  #resource: string;
+  #resource: KubernetesResourceName;
   #permissions: ResourcePermissionsFactory | undefined;
   #informer: ResourceInformerFactory | undefined;
 
   constructor(options: {
-    resource: string;
+    resource: KubernetesResourceName;
   }) {
     this.#resource = options.resource;
   }
@@ -60,7 +62,7 @@ export class ResourceFactoryBase {
     return this;
   }
 
-  get resource(): string {
+  get resource(): KubernetesResourceName {
     return this.#resource;
   }
 
@@ -86,7 +88,7 @@ export class ResourceFactoryBase {
 }
 
 export interface ResourceFactory {
-  get resource(): string;
+  get resource(): KubernetesResourceName;
   permissions?: ResourcePermissionsFactory;
   informer?: ResourceInformerFactory;
   copyWithSlicedPermissions(): ResourceFactory;

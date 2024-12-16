@@ -23,9 +23,9 @@ import { ContextResourceRegistry } from './context-resource-registry.js';
 test('ContextResourceRegistry', () => {
   const registry = new ContextResourceRegistry<string>();
 
-  registry.set('context1', 'resource1', 'value1');
-  expect(registry.get('context1', 'resource1')).toEqual('value1');
+  registry.set('context1', 'pods', 'value1');
+  expect(registry.get('context1', 'pods')).toEqual('value1');
 
-  registry.set('context1', 'resource2', 'value2');
+  registry.set('context1', 'deployments', 'value2');
   expect(registry.getAll()).toEqual(['value1', 'value2']);
 });
