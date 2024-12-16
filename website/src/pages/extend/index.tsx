@@ -1,6 +1,6 @@
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import { faCertificate, faCloudArrowDown, faGears, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faCertificate, faCloudArrowDown, faGears, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import Layout from '@theme/Layout';
@@ -23,6 +23,10 @@ export default function Home(): JSX.Element {
             <p>Explore our comprehensive guides on extending Podman Desktop:</p>
             <div className="text-center">
               <ul className="list-none pl-0 mt-2">
+                <li>
+                  <FontAwesomeIcon icon={faBook} className="mr-2" />
+                  <a href={useBaseUrl('/extensions')}>View our Extensions Catalog</a>
+                </li>
                 <li>
                   <FontAwesomeIcon icon={faRocket} className="mr-2" />
                   <a href={useBaseUrl('/docs/extensions/developing')}>Developing an Extension</a>
