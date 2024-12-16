@@ -101,8 +101,8 @@ jobs:
           # copy original yaml file
           cp io.podman_desktop.PodmanDesktop.yml io.podman_desktop.PodmanDesktop.ori
 
-          # update the url and sha256 for the electron binaries for arm64
-          yq -i '(.modules[].sources[] | select(.url == "*electron*amd64*")) += {"url":strenv(ELECTRON_AMD64_URL), "sha256":strenv(ELECTRON_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
+          # update the url and sha256 for the electron binaries for amd64 and arm64
+          yq -i '(.modules[].sources[] | select(.url == "*electron*x64*")) += {"url":strenv(ELECTRON_AMD64_URL), "sha256":strenv(ELECTRON_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
           yq -i '(.modules[].sources[] | select(.url == "*electron*arm64*")) += {"url":strenv(ELECTRON_ARM64_URL), "sha256":strenv(ELECTRON_ARM64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
 
           # update the pnpm store url/sha256
