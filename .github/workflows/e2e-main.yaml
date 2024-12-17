@@ -163,9 +163,6 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
-      - name: Execute PNPM
-        run: pnpm install --frozen-lockfile
-
       - name: Adjust/Downgrade local podman desktop version Windows
         run: |
           $version="1.0.0"
@@ -201,6 +198,86 @@ jobs:
         if: always()
         with:
           name: update-e2e-test
+          path: |
+            ./tests/**/output/
+            !./tests/**/traces/raw
+
+  mac-update-e2e-test:
+    name: mac update e2e tests
+    runs-on: macos-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
+          ref: ${{ github.event.inputs.branch }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Adjust/Downgrade local podman desktop version
+        run: |
+          version="1.13.0"
+          jq --arg version "$version" '.version = $version' package.json > package.json_tmp
+          mv package.json_tmp package.json
+
+      - name: Build Podman Desktop locally with electron updater included
+        env:
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          pnpm compile:current --mac dmg
+          dmgPath=$(realpath $(find ./dist -name "*.dmg"))
+          echo "DMG Path: $dmgPath"
+          # extract the dmg
+          hdiutil attach $dmgPath
+          pdVolumePath=$(find /Volumes -name *1.13.0*)
+          echo "PD Volume path: $pdVolumePath"
+          sudo cp -R "$pdVolumePath/Podman Desktop.app" /Applications
+          # codesign the extracted app
+          appPath="/Applications/Podman Desktop.app"
+          sudo codesign --force --deep --sign - "$appPath"
+          codesign --verify --deep --verbose=2 "$appPath"
+          binaryPath="$appPath/Contents/MacOS/Podman Desktop"
+          echo "PODMAN_DESKTOP_BINARY=$binaryPath" >> $GITHUB_ENV
+
+      - name: Run E2E Update test
+        env:
+          UPDATE_PODMAN_DESKTOP: true
+        run: |
+          echo "${{ env.PODMAN_DESKTOP_BINARY }}"
+          pnpm test:e2e:update:run
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          annotate_only: true
+          require_tests:  true
+          report_paths: '**/*results.xml'
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mac-update-e2e-test
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
