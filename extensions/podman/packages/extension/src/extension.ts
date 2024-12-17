@@ -50,7 +50,6 @@ import {
   getAssetsFolder,
   getProviderByLabel,
   getProviderLabel,
-  isLinux,
   isMac,
   LoggerDelegator,
   VMTYPE,
@@ -71,8 +70,8 @@ let autoMachineStarted = false;
 let autoMachineName: string | undefined;
 
 // System default notifier
-let defaultMachineNotify = !isLinux();
-let defaultConnectionNotify = !isLinux();
+let defaultMachineNotify = !extensionApi.env.isLinux;
+let defaultConnectionNotify = !extensionApi.env.isLinux;
 let defaultMachineMonitor = true;
 
 // current status of machines
@@ -202,7 +201,7 @@ export async function updateMachines(
 
     // Only on macOS and Windows should we show the setup notification
     // if for some reason doing getJSONMachineList fails..
-    if (shouldNotifySetup && !isLinux()) {
+    if (shouldNotifySetup && !extensionApi.env.isLinux) {
       // push setup notification
       notifySetupPodman();
       shouldNotifySetup = false;
@@ -224,7 +223,7 @@ export async function updateMachines(
   }
 
   // invalid machines is not making the provider working properly so always notify
-  if (shouldCleanMachine && shouldNotifySetup && !isLinux()) {
+  if (shouldCleanMachine && shouldNotifySetup && !extensionApi.env.isLinux) {
     // push setup notification
     notifySetupPodman();
     shouldNotifySetup = false;
@@ -234,7 +233,7 @@ export async function updateMachines(
 
   // Only show the notification on macOS and Windows
   // as Podman is already installed on Linux and machine is OPTIONAL.
-  if (shouldNotifySetup && machines.length === 0 && !isLinux()) {
+  if (shouldNotifySetup && machines.length === 0 && !extensionApi.env.isLinux) {
     // push setup notification
     notifySetupPodman();
     shouldNotifySetup = false;
@@ -243,7 +242,7 @@ export async function updateMachines(
   // if there is at least one machine whihc does not need to be cleaned and the OS is not Linux
   // podman is correctly setup so if there is an old notification asking the user to take action
   // we dispose it as not needed anymore
-  if (!shouldCleanMachine && machines.length > 0 && !isLinux()) {
+  if (!shouldCleanMachine && machines.length > 0 && !extensionApi.env.isLinux) {
     notificationDisposable?.dispose();
     shouldNotifySetup = true;
   }
@@ -350,7 +349,7 @@ export async function updateMachines(
       if (!socketPath) {
         if (isMac()) {
           socketPath = calcMacosSocketPath(machineName);
-        } else if (isLinux()) {
+        } else if (extensionApi.env.isLinux) {
           socketPath = calcLinuxSocketPath(machineName);
         } else if (extensionApi.env.isWindows) {
           socketPath = calcWinPipeName(machineName);
@@ -376,7 +375,7 @@ export async function updateMachines(
   // we will update the provider as being 'installed', or ready / starting / configured if there is a machine
   // if we are on Linux, ignore this as podman machine is OPTIONAL and the provider status in Linux is based upon
   // the native podman installation / not machine.
-  if (!isLinux()) {
+  if (!extensionApi.env.isLinux) {
     if (machines.length === 0) {
       if (provider.status !== 'configuring') {
         provider.updateStatus('installed');
@@ -720,7 +719,7 @@ async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
         // if podman is not installed and the OS is linux we show the podman onboarding notification (if it has not been shown earlier)
         // this should be limited to Linux as in other OSes the onboarding workflow is enabled based on the podman machine existance
         // and the notification is handled by checking the machine
-        if (isLinux() && shouldNotifySetup) {
+        if (extensionApi.env.isLinux && shouldNotifySetup) {
           // push setup notification
           notifySetupPodman();
           shouldNotifySetup = false;
@@ -734,7 +733,7 @@ async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
 
         extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
         // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
-        if (isLinux()) {
+        if (extensionApi.env.isLinux) {
           shouldNotifySetup = true;
           // notification is no more required
           notificationDisposable?.dispose();
@@ -1579,7 +1578,7 @@ export async function start(
   // Below is Linux specific code:
   // * Monitors the system service for an unlimited time
   // * Uses the native system socket
-  if (isLinux()) {
+  if (extensionApi.env.isLinux) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
     let args = ['system', 'service', '--time=0'];
@@ -1903,7 +1902,9 @@ export function isRootfulMachineInitSupported(podmanVersion: string): boolean {
 const PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION = '4.5.0';
 
 export function isPodmanSocketLocationMoved(podmanVersion: string): boolean {
-  return isLinux() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION) >= 0;
+  return (
+    extensionApi.env.isLinux && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION) >= 0
+  );
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
@@ -2218,7 +2219,7 @@ function setupDisguisedPodmanSocketWatcher(
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
-  if (isLinux() || isMac()) {
+  if (extensionApi.env.isLinux || isMac()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
   }
 
@@ -2261,7 +2262,7 @@ export async function checkDisguisedPodmanSocket(provider: extensionApi.Provider
 
   // NOTE: LINUX SUPPORT
   // Linux does not support compatibility mode button, so do not sending the warning
-  if (!isLinux()) {
+  if (!extensionApi.env.isLinux) {
     const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
     provider.updateWarnings(retrievedWarnings);
   }
