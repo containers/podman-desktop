@@ -62,7 +62,8 @@
             <guid>https://podman-desktop.io/blog/podman-desktop-release-1.15</guid>
             <pubDate>Thu, 12 Dec 2024 00:00:00 GMT</pubDate>
             <description><![CDATA[Podman Desktop 1.15 has been released!]]></description>
-            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" alt="podman-desktop-hero-1.15" src="https://podman-desktop.io/assets/images/banner-a2e75baf6c7ba5273a72df40f8257b6b.png" width="1216" height="832" class="img_SS3x"></p>
+            <content:encoded><![CDATA[<p>Podman Desktop 1.15 Release! 🎉</p>
+<p><img decoding="async" loading="lazy" alt="podman-desktop-hero-1.15" src="https://podman-desktop.io/assets/images/banner-a2e75baf6c7ba5273a72df40f8257b6b.png" width="1216" height="832" class="img_SS3x"></p>
 <p>Podman Desktop 1.15 is now available! <a href="https://podman-desktop.io/downloads">Click here to download it</a>!</p>
 <p>This release brings exciting new features and improvements:</p>
 <ul>
