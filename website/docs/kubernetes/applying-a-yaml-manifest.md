@@ -8,7 +8,7 @@ tags: [applying-a-yaml-manifest, creating-an-object]
 
 # Applying a YAML manifest
 
-Based on your needs, you can apply a YAML manifest to create a Kubernetes object, such as `Node`, `Deployment`, `Service`, `PersistentVolumeClaim`, and others. For example, a Kubernetes deployment that requires sensitive data storage, you can apply a YAML manifest to create a `Secret` object.
+You can deploy a YAML manifest to create a Kubernetes object, such as `Node`, `Deployment`, `Service`, `PersistentVolumeClaim`, and others. For example, a Kubernetes deployment that requires sensitive data storage, you can apply a YAML manifest to create a `Secret` object.
 
 #### Prerequisites
 
