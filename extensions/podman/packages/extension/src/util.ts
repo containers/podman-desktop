@@ -27,10 +27,6 @@ const mac = os.platform() === 'darwin';
 export function isMac(): boolean {
   return mac;
 }
-const linux = os.platform() === 'linux';
-export function isLinux(): boolean {
-  return linux;
-}
 const xdgDataDirectory = '.local/share/containers';
 export function appHomeDir(): string {
   return xdgDataDirectory + '/podman';
