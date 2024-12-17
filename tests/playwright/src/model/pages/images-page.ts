@@ -54,7 +54,7 @@ export class ImagesPage extends MainPage {
       exact: true,
     });
     this.pruneConfirmationButton = this.page.getByRole('button', {
-      name: 'Yes',
+      name: 'All unused images',
       exact: true,
     });
     this.loadImagesFromTarButton = this.additionalActions.getByLabel('Load Images', { exact: true });
@@ -128,7 +128,7 @@ export class ImagesPage extends MainPage {
   async pruneImages(): Promise<ImagesPage> {
     return test.step('Prune images', async () => {
       await this.pruneImagesButton.click();
-      await handleConfirmationDialog(this.page, 'Prune');
+      await handleConfirmationDialog(this.page, 'Prune', true, 'All unused images');
       return this;
     });
   }
