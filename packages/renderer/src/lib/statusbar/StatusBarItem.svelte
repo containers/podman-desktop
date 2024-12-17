@@ -42,7 +42,7 @@ async function executeCommand(entry: StatusBarEntry) {
   )} relative inline-block"
   title={tooltipText(entry)}>
   {#if iconClass(entry)}
-    <span class={iconClass(entry)} aria-hidden="true"></span>
+    <span class={iconClass(entry)} aria-hidden="true" data-task-button="{tooltipText(entry)}"></span>
   {/if}
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>

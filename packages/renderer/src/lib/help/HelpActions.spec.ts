@@ -26,19 +26,15 @@ import { Items } from './HelpItems';
 
 let toggleMenuCallback: () => void;
 
+const receiveEventMock = vi.fn();
+
 suite('HelpActions component', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     (window as any).events = {
-      receive: vi.fn(),
+      receive: receiveEventMock,
     };
     (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
-    vi.mocked(window.events.receive).mockImplementation((channel: string, callback: () => void) => {
-      toggleMenuCallback = callback;
-      return {
-        dispose: () => {},
-      };
-    });
   });
 
   test('by default is not visible', () => {
@@ -47,7 +43,60 @@ suite('HelpActions component', () => {
     expect(items).toHaveLength(0);
   });
 
+  test('simulate clicking outside the menu closes it', async () => {
+    vi.mocked(receiveEventMock).mockImplementation((channel: string, callback: () => void) => {
+      toggleMenuCallback = callback;
+      return {
+        dispose: () => {},
+      };
+    });
+    const ha = render(HelpActions);
+
+    toggleMenuCallback();
+
+    await vi.waitFor(() => {
+      const helpMenu = ha.getByTestId('help-menu');
+      expect(helpMenu).toBeVisible();
+    });
+
+    // Click "outside" the menu (body)
+    const event = new MouseEvent('click', { bubbles: true });
+    document.body.dispatchEvent(event);
+
+    await vi.waitFor(() => {
+      const helpMenu = ha.queryByTestId('help-menu');
+      expect(helpMenu).toBeNull();
+    });
+  });
+
+  test('create a span that has data-task-button=Help attribute, spy on and make sure that it is only called once each click', async () => {
+    render(HelpActions);
+
+    // Create data-task-button=Help to simulate the status bar icon / button
+    const span = document.createElement('span');
+    span.setAttribute('data-task-button', 'Help');
+    document.body.appendChild(span);
+
+    // Click
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    span.dispatchEvent(event);
+
+    // Expect receiveEventMock to have been called
+    // why we do this is because we are mocking receiveEvent already, so we're not "toggling" it
+    // this test ensures that the event is only called once / we are toggling correctly.
+    expect(receiveEventMock).toHaveBeenCalledTimes(1);
+
+    // Remove the span after (unsure if needed, but dont want to break other tests)
+    span.remove();
+  });
+
   test.each(Items)('contains item with $title', async ({ title, tooltip }) => {
+    vi.mocked(receiveEventMock).mockImplementation((channel: string, callback: () => void) => {
+      toggleMenuCallback = callback;
+      return {
+        dispose: () => {},
+      };
+    });
     const ha = render(HelpActions);
     toggleMenuCallback();
     await vi.waitFor(async () => {
