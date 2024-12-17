@@ -39,6 +39,7 @@ import { ExtensionLoader } from './extension-loader.js';
 import { PluginSystem } from './index.js';
 import type { MessageBox } from './message-box.js';
 import { TaskManager } from './tasks/task-manager.js';
+import { Disposable } from './types/disposable.js';
 import { Deferred } from './util/deferred.js';
 import { HttpServer } from './webview/webview-registry.js';
 
@@ -108,7 +109,7 @@ beforeEach(() => {
     ];
   });
   vi.mocked(app.getVersion).mockReturnValue('100.0.0');
-  vi.spyOn(Updater.prototype, 'init').mockReturnValue({ dispose: vi.fn() } as any);
+  vi.spyOn(Updater.prototype, 'init').mockReturnValue(new Disposable(vi.fn()));
   vi.spyOn(ExtensionLoader.prototype, 'readDevelopmentFolders').mockResolvedValue([]);
   // to avoid port conflict when tests are running on windows host
   vi.spyOn(HttpServer.prototype, 'start').mockImplementation(vi.fn());
