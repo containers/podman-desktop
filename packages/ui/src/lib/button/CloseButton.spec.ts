@@ -29,8 +29,7 @@ test('Check button styling', async () => {
   // check for one element of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('text-gray-800');
-  expect(button).toHaveClass('hover:bg-white');
+  expect(button).toHaveClass('hover:bg-[var(--pd-button-close-hover-bg)]');
   expect(button).toHaveClass('hover:bg-opacity-10');
   expect(button).toHaveClass('transition-all');
   expect(button).toHaveClass('rounded-[4px]');
