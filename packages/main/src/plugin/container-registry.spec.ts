@@ -5856,3 +5856,88 @@ test('resolve Dokcer image shortname to FQN', async () => {
   expect(imagesNames.length).toBe(1);
   expect(imagesNames[0]).toBe('shortname');
 });
+
+describe('prune images', () => {
+  const dockerProvider: InternalContainerProvider = {
+    name: 'docker',
+    id: 'docker1',
+    api: {
+      pruneImages: vi.fn(),
+    } as unknown as Dockerode,
+    libpodApi: undefined,
+    connection: {
+      type: 'docker',
+      name: 'docker',
+      displayName: 'docker',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: vi.fn(),
+    },
+  };
+
+  const podmanProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    api: undefined,
+    libpodApi: {
+      pruneAllImages: vi.fn(),
+    } as unknown as LibPod,
+    connection: {
+      type: 'podman',
+      name: 'podman',
+      displayName: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: vi.fn(),
+    },
+  };
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('prune all with podman ', async () => {
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', podmanProvider);
+
+    // call
+    await containerRegistry.pruneImages('podman.podman', true);
+
+    // check we called the libpodApi
+    expect(podmanProvider.libpodApi?.pruneAllImages).toBeCalledWith(true);
+  });
+
+  test('prune partial with podman ', async () => {
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', podmanProvider);
+
+    // call
+    await containerRegistry.pruneImages('podman.podman', false);
+
+    // check we called the libpodApi
+    expect(podmanProvider.libpodApi?.pruneAllImages).toBeCalledWith(false);
+  });
+
+  test('prune all with docker ', async () => {
+    // set provider
+    containerRegistry.addInternalProvider('docker.docker', dockerProvider);
+
+    // call
+    await containerRegistry.pruneImages('docker.docker', true);
+
+    // check we called the api
+    expect(dockerProvider.api?.pruneImages).toBeCalledWith({ filters: { dangling: { false: true } } });
+  });
+
+  test('prune partial with docker ', async () => {
+    // set provider
+    containerRegistry.addInternalProvider('docker.docker', dockerProvider);
+
+    // call
+    await containerRegistry.pruneImages('docker.docker', false);
+
+    // check we called the api
+    expect(dockerProvider.api?.pruneImages).toBeCalledWith({ filters: { dangling: { false: false } } });
+  });
+});

@@ -1007,9 +1007,12 @@ export class PluginSystem {
       return containerProviderRegistry.prunePods(engine);
     });
 
-    this.ipcHandle('container-provider-registry:pruneImages', async (_listener, engine: string): Promise<void> => {
-      return containerProviderRegistry.pruneImages(engine);
-    });
+    this.ipcHandle(
+      'container-provider-registry:pruneImages',
+      async (_listener, engine: string, all: boolean): Promise<void> => {
+        return containerProviderRegistry.pruneImages(engine, all);
+      },
+    );
 
     this.ipcHandle(
       'container-provider-registry:restartContainer',

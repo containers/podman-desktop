@@ -2155,8 +2155,8 @@ export function initExposure(): void {
     return ipcInvoke('container-provider-registry:pruneVolumes', engine);
   });
 
-  contextBridge.exposeInMainWorld('pruneImages', async (engine: string): Promise<string> => {
-    return ipcInvoke('container-provider-registry:pruneImages', engine);
+  contextBridge.exposeInMainWorld('pruneImages', async (engine: string, all = true): Promise<string> => {
+    return ipcInvoke('container-provider-registry:pruneImages', engine, all);
   });
 
   contextBridge.exposeInMainWorld('getOsPlatform', async (): Promise<string> => {
