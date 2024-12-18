@@ -19,6 +19,7 @@
 import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { KubernetesContextResources } from '/@api/kubernetes-resources.js';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
@@ -61,6 +62,9 @@ export class ContextsManagerExperimental {
 
   #onContextDelete = new Emitter<DispatcherEvent>();
   onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
+
+  #onResourceUpdated = new Emitter<{ contextName: string; resourceName: string }>();
+  onResourceUpdated: Event<{ contextName: string; resourceName: string }> = this.#onResourceUpdated.event;
 
   constructor() {
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
@@ -123,8 +127,11 @@ export class ContextsManagerExperimental {
             }
             const informer = factory.informer.createInformer(event.kubeConfig);
             this.#informers.set(contextName, resource, informer);
-            informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
-              /* send event to dispatcher */
+            informer.onCacheUpdated((e: CacheUpdatedEvent) => {
+              this.#onResourceUpdated.fire({
+                contextName: e.kubeconfig.getKubeConfig().currentContext,
+                resourceName: e.resourceName,
+              });
             });
             informer.onOffline((_e: OfflineEvent) => {
               /* send event to dispatcher */
@@ -178,6 +185,15 @@ export class ContextsManagerExperimental {
       result.set(contextName, pc.getPermissions());
     }
     return result;
+  }
+
+  getResources(resourceName: string): KubernetesContextResources[] {
+    return this.#objectCaches.getForResource(resourceName).map(({ context, item }) => {
+      return {
+        contextName: context,
+        items: item.list(),
+      };
+    });
   }
 
   getContextsGeneralState(): Map<string, ContextGeneralState> {

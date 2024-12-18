@@ -38,4 +38,15 @@ export class ContextResourceRegistry<T> {
     }
     return result;
   }
+
+  getForResource(resourceName: string): { context: string; item: T }[] {
+    const result: { context: string; item: T }[] = [];
+    for (const [context, contextResources] of this.#registry.entries()) {
+      const item = contextResources.get(resourceName);
+      if (item) {
+        result.push({ context, item });
+      }
+    }
+    return result;
+  }
 }
