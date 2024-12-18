@@ -638,22 +638,11 @@ test('Expect form data saved in store to be repopulated when reopening a task', 
 
   const taskId = 1;
 
-  const formProperties: IConfigurationPropertyRecordedSchema[] = [
-    {
-      title: 'FactoryProperty',
-      parentId: '',
-      scope: 'ContainerProviderConnectionFactory',
-      id: 'test.factoryProperty',
-      type: 'string',
-      description: 'test.factoryProperty',
-    },
-  ];
-
   const operationConnectionsInfoMock = {
     operationKey: Symbol(),
     providerInfo,
     connectionInfo: undefined,
-    properties: formProperties,
+    properties,
     propertyScope: 'DEFAULT',
     operationInProgress: false,
     operationSuccessful: false,
@@ -664,7 +653,7 @@ test('Expect form data saved in store to be repopulated when reopening a task', 
   operationConnectionsInfo.update(map => map.set(taskId, operationConnectionsInfoMock));
 
   render(PreferencesConnectionCreationOrEditRendering, {
-    properties: formProperties,
+    properties,
     providerInfo,
     propertyScope,
     callback,

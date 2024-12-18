@@ -122,6 +122,7 @@ onMount(async () => {
       tokenId = value.tokenId;
       existingFormData = value.formData;
     }
+    dataToConfigurationValues();
   }
 
   if (taskId === undefined) {
@@ -142,7 +143,6 @@ onMount(async () => {
       console.warn(e.message);
     }
   }
-  dataToConfigurationValues();
   pageIsLoading = false;
 });
 
@@ -286,12 +286,22 @@ function dataToConfigurationValues(): void {
     return;
   }
   for (let dataItem in existingFormData) {
+    const configurationKey = configurationKeys.find(configKey => configKey.id === dataItem);
+    if (
+      configurationKey?.type === 'number' &&
+      typeof existingFormData[dataItem] === 'string' &&
+      !isNaN(parseFloat(existingFormData[dataItem]))
+    ) {
+      existingFormData[dataItem] = parseFloat(existingFormData[dataItem]);
+    }
     if (
       typeof existingFormData[dataItem] === 'number' ||
       typeof existingFormData[dataItem] === 'string' ||
       typeof existingFormData[dataItem] === 'boolean'
-    )
+    ) {
+      console.log(`${existingFormData[dataItem]}`);
       configurationValues.set(dataItem, { modified: true, value: existingFormData[dataItem] });
+    }
   }
 }
 
