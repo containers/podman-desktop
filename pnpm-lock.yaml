@@ -198,8 +198,8 @@ importers:
         specifier: ^2.1.6
         version: 2.1.6(vitest@2.1.6(@types/node@20.17.10)(jiti@2.4.1)(jsdom@25.0.1)(msw@2.7.0(@types/node@20.17.10)(typescript@5.6.3))(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
       '@vitest/eslint-plugin':
-        specifier: ^1.1.16
-        version: 1.1.16(@typescript-eslint/utils@8.18.1(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3)(vitest@2.1.6(@types/node@20.17.10)(jiti@2.4.1)(jsdom@25.0.1)(msw@2.7.0(@types/node@20.17.10)(typescript@5.6.3))(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
+        specifier: ^1.1.18
+        version: 1.1.18(@typescript-eslint/utils@8.18.1(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3)(vitest@2.1.6(@types/node@20.17.10)(jiti@2.4.1)(jsdom@25.0.1)(msw@2.7.0(@types/node@20.17.10)(typescript@5.6.3))(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
@@ -4201,8 +4201,8 @@ packages:
       '@vitest/browser':
         optional: true
 
-  '@vitest/eslint-plugin@1.1.16':
-    resolution: {integrity: sha512-xecwJYuAp11AFsd2aoSnTWO3Wckgu7rjBz1VOhvsDtZzI4s7z/WerAR4gxnEFy37scdsE8wSlP95/2ry6sLhSg==}
+  '@vitest/eslint-plugin@1.1.18':
+    resolution: {integrity: sha512-pcnR0hn4KRaWqdEXdZPXLs2wAxzMBD8dKkpVkOuhT+bOOGW1/4BdiUrU3I0LW2loskfVS/XldwcO/lCEoFDyZw==}
     peerDependencies:
       '@typescript-eslint/utils': '>= 8.0'
       eslint: '>= 8.57.0'
@@ -15653,7 +15653,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/eslint-plugin@1.1.16(@typescript-eslint/utils@8.18.1(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3)(vitest@2.1.6(@types/node@20.17.10)(jiti@2.4.1)(jsdom@25.0.1)(msw@2.7.0(@types/node@20.17.10)(typescript@5.6.3))(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))':
+  '@vitest/eslint-plugin@1.1.18(@typescript-eslint/utils@8.18.1(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3)(vitest@2.1.6(@types/node@20.17.10)(jiti@2.4.1)(jsdom@25.0.1)(msw@2.7.0(@types/node@20.17.10)(typescript@5.6.3))(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))':
     dependencies:
       '@typescript-eslint/utils': 8.18.1(eslint@9.17.0(jiti@2.4.1))(typescript@5.6.3)
       eslint: 9.17.0(jiti@2.4.1)
