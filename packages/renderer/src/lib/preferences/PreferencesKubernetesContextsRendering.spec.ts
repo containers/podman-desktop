@@ -296,7 +296,7 @@ test('starting monitoring for a context calls window.kubernetesRefreshContextSta
   (window as any).telemetryTrack = telemetryTrackMock;
 
   const kubernetesRefreshContextStateMock = vi.fn();
-  (window as any).window.kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
+  (window as any).kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
   kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
   await fireEvent.click(button);
   expect(kubernetesRefreshContextStateMock).toHaveBeenCalledWith('context-name');
@@ -315,7 +315,7 @@ test('starting monitoring for a context sends telemetry', async () => {
   (window as any).telemetryTrack = telemetryTrackMock;
 
   const kubernetesRefreshContextStateMock = vi.fn();
-  (window as any).window.kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
+  (window as any).kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
   kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
   await fireEvent.click(button);
   expect(telemetryTrackMock).toHaveBeenCalledWith('kubernetes.monitoring.start.non-current', {
