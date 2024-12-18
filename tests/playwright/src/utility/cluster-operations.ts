@@ -151,6 +151,13 @@ export async function resourceConnectionAction(
     const navigationBar = new NavigationBar(page);
     await navigationBar.openSettings();
     await resourceCard.performConnectionAction(resourceConnectionAction);
+    if (resourceConnectionAction === ResourceElementActions.Restart) {
+      const stopButton = resourceCard.resourceElementConnectionActions.getByRole('button', {
+        name: ResourceElementActions.Stop,
+        exact: true,
+      });
+      await playExpect(stopButton).toBeEnabled({ timeout: 25_000 });
+    }
     await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(expectedResourceState, {
       timeout: 50_000,
     });
