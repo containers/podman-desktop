@@ -23,18 +23,15 @@ import { PlayYamlRuntime } from '../model/core/operations';
 import { KubernetesResourceState } from '../model/core/states';
 import { KubernetesResources } from '../model/core/types';
 import { KubernetesResourceDetailsPage } from '../model/pages/kubernetes-resource-details-page';
+import { createKindCluster, deleteCluster } from '../utility/cluster-operations';
 import { expect as playExpect, test } from '../utility/fixtures';
-import {
-  createKindCluster,
-  deleteKindCluster,
-  ensureCliInstalled,
-  handleConfirmationDialog,
-} from '../utility/operations';
+import { ensureCliInstalled, handleConfirmationDialog } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
 const CLUSTER_CREATION_TIMEOUT: number = 300_000;
 const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
+const RESOURCE_NAME: string = 'kind';
 const KUBERNETES_CONTEXT = `kind-${CLUSTER_NAME}`;
 const KUBERNETES_NAMESPACE = 'default';
 const DEPLOYMENT_NAME = 'test-deployment-resource';
@@ -68,7 +65,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
-    await deleteKindCluster(page, KIND_NODE, CLUSTER_NAME);
+    await deleteCluster(page, RESOURCE_NAME, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
   }

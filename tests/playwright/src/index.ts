@@ -81,3 +81,4 @@ export * from './model/pages/settings-page';
 export * from './model/pages/welcome-page';
 export * from './model/workbench/navigation';
 export * from './model/workbench/status-bar';
+export * from './utility/cluster-operations';
