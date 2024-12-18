@@ -32,9 +32,9 @@ onMount(async () => {
     {:else if platform === 'win32'}
       <div class="flex flex-row pt-[10px] pb-[10px] items-center">
         <div class="absolute left-[7px] top-[7px]">
-          <DesktopIcon size="18" />
+          <DesktopIcon size="20" />
         </div>
-        <div class="ml-[35px] text-left text-xs leading-3 text-[color:var(--pd-titlebar-text)]">{title}</div>
+        <div class="ml-[35px] text-left text-base leading-3 text-[color:var(--pd-titlebar-text)]">{title}</div>
         <WindowControlButtons platform={platform} />
       </div>
     {/if}
