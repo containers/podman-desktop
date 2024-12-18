@@ -29,6 +29,8 @@ import { ContextPermissionsChecker } from './context-permissions-checker.js';
 import { ContextResourceRegistry } from './context-resource-registry.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsDispatcher } from './contexts-dispatcher.js';
+import type { CRDDefinition } from './crd-resource-factory.js';
+import { CRDResourceFactory } from './crd-resource-factory.js';
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
 import type { ResourceFactory } from './resource-factory.js';
@@ -62,7 +64,18 @@ export class ContextsManagerExperimental {
   #onContextDelete = new Emitter<DispatcherEvent>();
   onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
 
+  crds: CRDDefinition[];
+
   constructor() {
+    // Defining the CRDs here for the sake of clarity for the PoC, but may come from user's configuration
+    this.crds = [
+      {
+        group: 'route.openshift.io',
+        version: 'v1',
+        plural: 'routes',
+      },
+    ];
+
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
     for (const resourceFactory of this.getResourceFactories()) {
       this.#resourceFactoryHandler.add(resourceFactory);
@@ -80,7 +93,11 @@ export class ContextsManagerExperimental {
   }
 
   protected getResourceFactories(): ResourceFactory[] {
-    return [new PodsResourceFactory(), new DeploymentsResourceFactory()];
+    return [
+      new PodsResourceFactory(),
+      new DeploymentsResourceFactory(),
+      ...this.crds.map(crd => new CRDResourceFactory(crd)),
+    ];
   }
 
   async update(kubeconfig: KubeConfig): Promise<void> {
@@ -122,9 +139,11 @@ export class ContextsManagerExperimental {
               continue;
             }
             const informer = factory.informer.createInformer(event.kubeConfig);
+            console.log('==> start informer for', resource, 'in', contextName);
             this.#informers.set(contextName, resource, informer);
             informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
               /* send event to dispatcher */
+              console.log('==> list', resource, this.#objectCaches.get(contextName, resource)?.list());
             });
             informer.onOffline((_e: OfflineEvent) => {
               /* send event to dispatcher */
