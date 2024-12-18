@@ -18,7 +18,7 @@
 
 import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import ExtensionBanner from '/@/lib/recommendation/ExtensionBanner.svelte';
 
@@ -59,6 +59,14 @@ const imageBackground: IExtensionBanner = {
     dark: 'data:image/png;base64-image-dark',
   },
 };
+
+const showMessageBoxMock = vi.fn();
+
+beforeAll(() => {
+  Object.defineProperty(window, 'showMessageBox', {
+    value: showMessageBoxMock,
+  });
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -137,5 +145,26 @@ describe('backgrounds', () => {
     expect(card.attributes.getNamedItem('style')?.value).toBe(
       'background-image: url("data:image/png;base64-image-light");',
     );
+  });
+});
+
+test('opening messageBox', async () => {
+  render(ExtensionBanner, {
+    banner: gradientBackground,
+    isDark: true,
+  });
+  await tick();
+
+  const card = screen.getByLabelText('Recommended extension');
+  expect(card).toBeDefined();
+
+  const closeButton = screen.getByLabelText('Close');
+  closeButton.click();
+
+  expect(showMessageBoxMock).toBeCalledWith({
+    title: 'Hide extension recommendation banners',
+    message: `Do you want to hide extension recommendation banners?`,
+    type: 'warning',
+    buttons: [`Don't hide`, 'Hide'],
   });
 });
