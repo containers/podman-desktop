@@ -111,10 +111,8 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
   return !!$kubernetesContextsCheckingStateDelayed?.get(contextName);
 }
 
-async function startMonitoring(contextName: string, contextNumber: number): Promise<void> {
-  await window.telemetryTrack('kubernetes.monitoring.start.non-current', {
-    contextNumber,
-  });
+async function startMonitoring(contextName: string): Promise<void> {
+  await window.telemetryTrack('kubernetes.monitoring.start.non-current');
   $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts, contextName);
   window.kubernetesRefreshContextState(contextName).catch((e: unknown) => {
     if (e instanceof Error) {
@@ -141,7 +139,7 @@ async function startMonitoring(contextName: string, contextNumber: number): Prom
         Go to Resources
       </Button>
     </EmptyScreen>
-    {#each kubernetesContextsWithStates as context, iContext}
+    {#each kubernetesContextsWithStates as context}
       <!-- If current context, use lighter background -->
       <div
         role="row"
@@ -227,7 +225,7 @@ async function startMonitoring(contextName: string, contextNumber: number): Prom
                     {/if}                    
                   </div>
                   {#if !$kubernetesContextsState.get(context.name)}
-                    <div><Button on:click={() => startMonitoring(context.name, iContext)}>Start monitoring</Button></div>
+                    <div><Button on:click={() => startMonitoring(context.name)}>Start monitoring</Button></div>
                   {/if}
                 </div>
               {/if}

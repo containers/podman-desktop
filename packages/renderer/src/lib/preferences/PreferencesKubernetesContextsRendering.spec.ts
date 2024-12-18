@@ -318,7 +318,5 @@ test('starting monitoring for a context sends telemetry', async () => {
   (window as any).kubernetesRefreshContextState = kubernetesRefreshContextStateMock;
   kubernetesRefreshContextStateMock.mockResolvedValue(undefined);
   await fireEvent.click(button);
-  expect(telemetryTrackMock).toHaveBeenCalledWith('kubernetes.monitoring.start.non-current', {
-    contextNumber: 1,
-  });
+  expect(telemetryTrackMock).toHaveBeenCalledWith('kubernetes.monitoring.start.non-current');
 });
