@@ -26,13 +26,13 @@ export const isDark: Writable<boolean> = writable(false);
 configurationProperties.subscribe(() => {
   if (window?.getConfigurationValue) {
     window
-      .getConfigurationValue<string>(AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance)
-      .then(value => {
+      ?.getConfigurationValue<string>(AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance)
+      ?.then(value => {
         if (value) {
           updateIsDark(value);
         }
       })
-      .catch((err: unknown) =>
+      ?.catch((err: unknown) =>
         console.error(
           `Error getting configuration value ${AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance}`,
           err,
