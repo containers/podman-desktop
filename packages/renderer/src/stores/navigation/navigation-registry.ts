@@ -154,7 +154,7 @@ configurationProperties.subscribe(() => {
   if (window.getConfigurationValue) {
     window
       .getConfigurationValue<string[]>('navbar.disabledItems')
-      .then(value => {
+      ?.then(value => {
         if (value) {
           hiddenItems = value;
         }

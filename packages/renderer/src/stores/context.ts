@@ -46,7 +46,7 @@ export function setup(): Writable<ContextUI> {
     // this function can be undefined during tests
     window
       .contextCollectAllValues?.()
-      .then(values => {
+      ?.then(values => {
         const currentContext = Object.entries(values).reduce((result, [key, value]) => {
           result.setValue(key, value);
           return result;
