@@ -425,6 +425,9 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
+      - name: Execute PNPM
+        run: pnpm install --frozen-lockfile
+
       - name: Adjust/Downgrade local podman desktop version Windows
         run: |
           $version="1.0.0"
@@ -488,6 +491,9 @@ jobs:
 
       - name: Execute pnpm
         run: pnpm install
+
+      - name: Execute PNPM
+        run: pnpm install --frozen-lockfile
 
       - name: Adjust/Downgrade local podman desktop version
         run: |
