@@ -28,5 +28,8 @@ export interface ContextPermission {
   // > the request and responds with an HTTP 403 (Forbidden) status.
   // (source: https://kubernetes.io/docs/reference/access-authn-authz/authorization/)
   permitted: boolean;
+  // A free-form and optional text reason for the resource being allowed or denied.
+  // We cannot rely on having a reason for every request.
+  // For exemple on Kind cluster, a reason is given only when the access is allowed, no reason is done for denial.
   reason?: string;
 }
