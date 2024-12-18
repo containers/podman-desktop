@@ -2156,7 +2156,6 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
 
   test('check with previous podman v4 config files on Windows', async () => {
     vi.mocked(extensionApi.env).isWindows = true;
-    vi.mocked(extensionApi.env).isMac = false;
 
     // mock confirmation window message to true
     vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
@@ -2323,7 +2322,6 @@ describe('checkRosettaMacArm', async () => {
   } as unknown as PodmanConfiguration;
 
   test('check do nothing on non-macOS', async () => {
-    vi.mocked(extensionApi.env).isMac = false;
     await extension.checkRosettaMacArm(podmanConfiguration);
     // not called as not on macOS
     expect(vi.mocked(podmanConfiguration.isRosettaEnabled)).not.toBeCalled();
