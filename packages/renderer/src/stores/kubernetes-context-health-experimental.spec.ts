@@ -31,6 +31,7 @@ const eventEmitter = {
 Object.defineProperty(global, 'window', {
   value: {
     kubernetesGetContextsHealths: vi.fn(),
+    getConfigurationValue: vi.fn(),
     addEventListener: eventEmitter.receive,
     events: {
       receive: eventEmitter.receive,
@@ -39,7 +40,8 @@ Object.defineProperty(global, 'window', {
   writable: true,
 });
 
-test('kubernetesContextsHealths', async () => {
+test('kubernetesContextsHealths in experimental states mode', async () => {
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
   const initialValues = [
     {
       contextName: 'context1',
@@ -68,15 +70,20 @@ test('kubernetesContextsHealths', async () => {
 
   vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(initialValues);
 
-  const kubernetesContextsHealthsInfo = kubernetesContextsHealthsStore.setup();
-  await kubernetesContextsHealthsInfo.fetch();
-  let currentValue = get(kubernetesContextsHealths);
-  expect(currentValue).toEqual(initialValues);
+  kubernetesContextsHealthsStore.setup();
 
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
   await callbackExtensionsStarted();
+
+  await vi.waitFor(() => {
+    const currentValue = get(kubernetesContextsHealths);
+    expect(currentValue).toEqual(initialValues);
+  }, 500);
+
+  // data has been updated in the backend
+  vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(nextValues);
 
   // send an event indicating the data is updated
   const event = 'kubernetes-contexts-healths';
@@ -84,11 +91,10 @@ test('kubernetesContextsHealths', async () => {
   expect(callback).toBeDefined();
   await callback();
 
-  // data has been updated in the backend
-  vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(nextValues);
-
   // check received data is updated
-  await kubernetesContextsHealthsInfo.fetch();
-  currentValue = get(kubernetesContextsHealths);
-  expect(currentValue).toEqual(nextValues);
+  await vi.waitFor(() => {
+    const currentValue = get(kubernetesContextsHealths);
+    expect(currentValue).toEqual(nextValues);
+  }, 500);
+  expect(vi.mocked(window.kubernetesGetContextsHealths)).toHaveBeenCalled();
 });
