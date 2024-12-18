@@ -127,6 +127,11 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
 
     test('Kind cluster operatioms - RESTART', async () => {
       await kindResourceCard.performConnectionAction(ResourceElementActions.Restart);
+      const stopButton = kindResourceCard.resourceElementConnectionActions.getByRole('button', {
+        name: ResourceElementActions.Stop,
+        exact: true,
+      });
+      await playExpect(stopButton).toBeEnabled({ timeout: 25_000 });
       await playExpect(kindResourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
         timeout: 50000,
       });
