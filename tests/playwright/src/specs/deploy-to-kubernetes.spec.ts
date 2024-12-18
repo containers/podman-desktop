@@ -26,13 +26,14 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 
 const CLUSTER_NAME: string = 'kind-cluster';
 const CLUSTER_CREATION_TIMEOUT: number = 300_000;
-const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
+const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 const KUBERNETES_CONTEXT: string = `kind-${CLUSTER_NAME}`;
+const RESOURCE_NAME: string = 'kind';
 const IMAGE_TO_PULL: string = 'ghcr.io/linuxcontainers/alpine';
 const IMAGE_TAG: string = 'latest';
 const CONTAINER_NAME: string = 'alpine-container';
 const NAMESPACE: string = 'default';
-const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_CONTAINER_NAME} ${NAMESPACE}`;
+const DEPLOYED_POD_NAME: string = `${CONTAINER_NAME} ${KIND_NODE} ${NAMESPACE}`;
 const CONTAINER_START_PARAMS: ContainerInteractiveParams = {
   attachTerminal: false,
 };
@@ -59,7 +60,7 @@ test.afterAll(async ({ runner, page }) => {
   try {
     await deleteContainer(page, CONTAINER_NAME);
     await deleteImage(page, IMAGE_TO_PULL);
-    await deleteCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    await deleteCluster(page, RESOURCE_NAME, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
     console.log('Runner closed');

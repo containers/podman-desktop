@@ -16,13 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { ResourceElementActions } from '../model/core/operations';
+import { ResourceElementState } from '../model/core/states';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import {
   checkClusterResources,
-  clusterOperations,
   createKindCluster,
   deleteCluster,
+  resourceConnectionAction,
 } from '../utility/cluster-operations';
 import { expect as playExpect, test } from '../utility/fixtures';
 import { ensureCliInstalled } from '../utility/operations';
@@ -31,7 +33,7 @@ import { waitForPodmanMachineStartup } from '../utility/wait';
 const RESOURCE_NAME: string = 'kind';
 const EXTENSION_LABEL: string = 'podman-desktop.kind';
 const CLUSTER_NAME: string = 'kind-cluster';
-const KIND_CONTAINER_NAME: string = `${CLUSTER_NAME}-control-plane`;
+const KIND_NODE: string = `${CLUSTER_NAME}-control-plane`;
 const CLUSTER_CREATION_TIMEOUT: number = 300_000;
 let resourcesPage: ResourcesPage;
 
@@ -49,7 +51,7 @@ test.beforeAll(async ({ runner, page, welcomePage }) => {
 
 test.afterAll(async ({ runner, page }) => {
   try {
-    await deleteCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    await deleteCluster(page, RESOURCE_NAME, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
   }
@@ -93,11 +95,33 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
     });
 
     test('Check resources added with the Kind cluster', async ({ page }) => {
-      await checkClusterResources(page, KIND_CONTAINER_NAME);
+      await checkClusterResources(page, KIND_NODE);
     });
 
-    test('Kind cluster operations', async ({ page }) => {
-      await clusterOperations(page, kindResourceCard, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    test('Kind cluster operations - STOP', async ({ page }) => {
+      await resourceConnectionAction(page, kindResourceCard, ResourceElementActions.Stop, ResourceElementState.Off);
+    });
+
+    test('Kind cluster operations - START', async ({ page }) => {
+      await resourceConnectionAction(
+        page,
+        kindResourceCard,
+        ResourceElementActions.Start,
+        ResourceElementState.Running,
+      );
+    });
+
+    test('Kind cluster operatioms - RESTART', async ({ page }) => {
+      await resourceConnectionAction(
+        page,
+        kindResourceCard,
+        ResourceElementActions.Restart,
+        ResourceElementState.Running,
+      );
+    });
+
+    test('Kind cluster operations - DELETE', async ({ page }) => {
+      await deleteCluster(page, RESOURCE_NAME, KIND_NODE, CLUSTER_NAME);
     });
   });
 });

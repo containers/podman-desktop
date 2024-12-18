@@ -84,7 +84,7 @@ export async function deleteCluster(
   containerName: string = 'kind-cluster-control-plane',
   clusterName: string = 'kind-cluster',
 ): Promise<void> {
-  return test.step('Delete Kind cluster', async () => {
+  return test.step(`Delete ${resourceName} cluster`, async () => {
     const navigationBar = new NavigationBar(page);
     const resourceCard = new ResourceConnectionCardPage(page, resourceName, clusterName);
     const volumeName = await getVolumeNameForContainer(page, containerName);
@@ -124,7 +124,7 @@ export async function deleteCluster(
 }
 
 export async function checkClusterResources(page: Page, containerName: string): Promise<void> {
-  return test.step('Check resources added with cluster', async () => {
+  return test.step(`Check container '${containerName}' and volume cluster resources.`, async () => {
     const navigationBar = new NavigationBar(page);
     const containersPage = await navigationBar.openContainers();
     await playExpect.poll(async () => containersPage.containerExists(containerName)).toBeTruthy();
@@ -141,31 +141,18 @@ export async function checkClusterResources(page: Page, containerName: string): 
   });
 }
 
-export async function clusterOperations(
+export async function resourceConnectionAction(
   page: Page,
   resourceCard: ResourceConnectionCardPage,
-  containerName: string,
-  clusterName: string,
+  resourceConnectionAction: ResourceElementActions,
+  expectedResourceState: ResourceElementState,
 ): Promise<void> {
-  return test.step('Basic cluster operations', async () => {
+  return test.step('Perform resource connection action', async () => {
     const navigationBar = new NavigationBar(page);
     await navigationBar.openSettings();
-    await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running);
-    await resourceCard.performConnectionAction(ResourceElementActions.Stop);
-    await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Off, {
-      timeout: 50000,
+    await resourceCard.performConnectionAction(resourceConnectionAction);
+    await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(expectedResourceState, {
+      timeout: 50_000,
     });
-
-    await resourceCard.performConnectionAction(ResourceElementActions.Start);
-    await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-      timeout: 50000,
-    });
-
-    await resourceCard.performConnectionAction(ResourceElementActions.Restart);
-    await playExpect(resourceCard.resourceElementConnectionStatus).toHaveText(ResourceElementState.Running, {
-      timeout: 50000,
-    });
-
-    await deleteCluster(page, containerName, clusterName);
   });
 }
