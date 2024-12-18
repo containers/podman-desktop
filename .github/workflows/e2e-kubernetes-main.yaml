@@ -100,11 +100,6 @@ jobs:
 
       - name: Execute pnpm
         run: pnpm install
-
-      - name: Create Kind Cluster
-        uses: helm/kind-action@v1.10.0
-        with: 
-          cluster_name: 'kind-cluster'
             
       - name: Run E2E kubernetes tests in Production Mode
         env:
@@ -134,7 +129,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-tests
+          name: k8s-e2e-tests
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw

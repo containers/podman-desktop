@@ -95,13 +95,13 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
       });
     });
   test.describe('Kind cluster operations', () => {
-    test.skip(
-      !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-      'Tests should not run on the Linux platform in GitHub Actions',
-    );
     test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
-      await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+      if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
+        await createKindCluster(page, CLUSTER_NAME, false, CLUSTER_CREATION_TIMEOUT, { useIngressController: false });
+      } else {
+        await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+      }
     });
 
     test('Check resources added with the Kind cluster', async ({ page, navigationBar }) => {
