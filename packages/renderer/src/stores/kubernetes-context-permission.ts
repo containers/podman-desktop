@@ -25,8 +25,18 @@ import { EventStore } from './event-store';
 const windowEvents = ['kubernetes-contexts-permissions', 'extension-stopped', 'extensions-started'];
 const windowListeners = ['extensions-already-started'];
 
+let experimentalStates: boolean | undefined = undefined;
 let readyToUpdate = false;
+
 export async function checkForUpdate(eventName: string): Promise<boolean> {
+  // check for update only in experimental states mode
+  if (experimentalStates === undefined) {
+    experimentalStates = (await window.getConfigurationValue<boolean>('kubernetes.statesExperimental')) ?? false;
+  }
+  if (experimentalStates === false) {
+    return false;
+  }
+
   if ('extensions-already-started' === eventName) {
     readyToUpdate = true;
   }

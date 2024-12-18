@@ -33,6 +33,7 @@ const eventEmitter = {
 Object.defineProperty(global, 'window', {
   value: {
     kubernetesGetContextsPermissions: vi.fn(),
+    getConfigurationValue: vi.fn(),
     addEventListener: eventEmitter.receive,
     events: {
       receive: eventEmitter.receive,
@@ -41,10 +42,10 @@ Object.defineProperty(global, 'window', {
   writable: true,
 });
 
-test('kubernetesContextsPermissions', async () => {
-  const initialValues: ContextPermission[] = [];
+test('kubernetesContextsPermissions in experimental states mode', async () => {
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
-  const nextValues: ContextPermission[] = [
+  const initialValues: ContextPermission[] = [
     {
       contextName: 'context1',
       resourceName: 'pods',
@@ -56,30 +57,18 @@ test('kubernetesContextsPermissions', async () => {
       permitted: false,
     },
   ];
-
   vi.mocked(window.kubernetesGetContextsPermissions).mockResolvedValue(initialValues);
 
-  const kubernetesContextsPermissionsInfo = kubernetesContextsPermissionsStore.setup();
-  await kubernetesContextsPermissionsInfo.fetch();
-  let currentValue = get(kubernetesContextsPermissions);
-  expect(currentValue).toEqual(initialValues);
+  kubernetesContextsPermissionsStore.setup();
 
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
   await callbackExtensionsStarted();
 
-  // send an event indicating the data is updated
-  const event = 'kubernetes-contexts-permissions';
-  const callback = callbacks.get(event);
-  expect(callback).toBeDefined();
-  await callback();
-
-  // data has been updated in the backend
-  vi.mocked(window.kubernetesGetContextsPermissions).mockResolvedValue(nextValues);
-
-  // check received data is updated
-  await kubernetesContextsPermissionsInfo.fetch();
-  currentValue = get(kubernetesContextsPermissions);
-  expect(currentValue).toEqual(nextValues);
+  // values are never fetched
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const currentValue = get(kubernetesContextsPermissions);
+  expect(currentValue).toEqual([]);
+  expect(vi.mocked(window.kubernetesGetContextsPermissions)).not.toHaveBeenCalled();
 });
