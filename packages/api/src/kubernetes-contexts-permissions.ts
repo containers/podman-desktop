@@ -16,12 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesResourceName } from './kubernetes-resources.js';
-
 export interface ContextPermission {
   contextName: string;
-  resourceName: KubernetesResourceName;
+  // the resource name is a generic string type and not a string literal type, as we want to handle CRDs names
+  resourceName: string;
   // permitted if allowed and not denied
+  // > When multiple authorization modules are configured, each is checked in sequence.
+  // > If any authorizer approves or denies a request, that decision is immediately returned
+  // > and no other authorizer is consulted. If all modules have no opinion on the request,
+  // > then the request is denied. An overall deny verdict means that the API server rejects
+  // > the request and responds with an HTTP 403 (Forbidden) status.
+  // (source: https://kubernetes.io/docs/reference/access-authn-authz/authorization/)
   permitted: boolean;
   reason?: string;
 }
