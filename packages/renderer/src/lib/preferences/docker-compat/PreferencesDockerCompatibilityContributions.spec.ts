@@ -34,6 +34,7 @@ beforeEach(() => {
 
   Object.defineProperty(global, 'window', {
     value: {
+      getConfigurationValue: vi.fn(),
       navigator: {
         clipboard: {
           writeText: vi.fn(),
