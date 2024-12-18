@@ -19,7 +19,6 @@
 import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
-import type { KubernetesResourceName } from '/@api/kubernetes-resources.js';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
@@ -173,8 +172,8 @@ export class ContextsManagerExperimental {
   }
 
   /* getPermissions returns the current permissions */
-  getPermissions(): Map</* contextName */ string, Map<KubernetesResourceName, ContextResourcePermission>> {
-    const result = new Map<string, Map<KubernetesResourceName, ContextResourcePermission>>();
+  getPermissions(): Map</* contextName */ string, Map</* resource */ string, ContextResourcePermission>> {
+    const result = new Map<string, Map<string, ContextResourcePermission>>();
     for (const [contextName, pc] of this.#permissionsCheckers.entries()) {
       result.set(contextName, pc.getPermissions());
     }

@@ -37,7 +37,7 @@ class TestContextsManagerExperimental extends ContextsManagerExperimental {
   override getResourceFactories(): ResourceFactory[] {
     return [
       new ResourceFactoryBase({
-        resource: 'pods',
+        resource: 'resource1',
       })
         .setPermissions({
           isNamespaced: true,
@@ -59,7 +59,7 @@ class TestContextsManagerExperimental extends ContextsManagerExperimental {
           },
         }),
       new ResourceFactoryBase({
-        resource: 'deployments',
+        resource: 'resource2',
       }).setPermissions({
         isNamespaced: true,
         permissionsRequests: [
@@ -283,7 +283,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
     onPermissionResultMock.mockImplementation(f =>
       f({
         kubeConfig: kcSingle1,
-        resources: ['pods', 'deployments'],
+        resources: ['resource1', 'resource2'],
         permitted: true,
       }),
     );

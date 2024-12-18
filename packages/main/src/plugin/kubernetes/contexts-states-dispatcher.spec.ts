@@ -18,8 +18,6 @@
 
 import { expect, test, vi } from 'vitest';
 
-import type { KubernetesResourceName } from '/@api/kubernetes-resources.js';
-
 import type { ApiSenderType } from '../api.js';
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextResourcePermission } from './context-permissions-checker.js';
@@ -67,9 +65,7 @@ test('ContextsStatesDispatcher should call updatePermissions when onContextPermi
   const apiSender: ApiSenderType = {
     send: vi.fn(),
   } as unknown as ApiSenderType;
-  vi.mocked(manager.getPermissions).mockReturnValue(
-    new Map<string, Map<KubernetesResourceName, ContextResourcePermission>>(),
-  );
+  vi.mocked(manager.getPermissions).mockReturnValue(new Map<string, Map<string, ContextResourcePermission>>());
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
   const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates');
   const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions');
@@ -95,9 +91,7 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
   const apiSender: ApiSenderType = {
     send: vi.fn(),
   } as unknown as ApiSenderType;
-  vi.mocked(manager.getPermissions).mockReturnValue(
-    new Map<string, Map<KubernetesResourceName, ContextResourcePermission>>(),
-  );
+  vi.mocked(manager.getPermissions).mockReturnValue(new Map<string, Map<string, ContextResourcePermission>>());
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
   const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates');
   const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions');
@@ -170,12 +164,12 @@ test('getContextsPermissions should return the values as an array', () => {
     send: vi.fn(),
   } as unknown as ApiSenderType;
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
-  const value = new Map<string, Map<KubernetesResourceName, ContextResourcePermission>>([
+  const value = new Map<string, Map<string, ContextResourcePermission>>([
     [
       'context1',
-      new Map<KubernetesResourceName, ContextResourcePermission>([
+      new Map<string, ContextResourcePermission>([
         [
-          'pods',
+          'resource1',
           {
             attrs: {},
             permitted: true,
@@ -183,7 +177,7 @@ test('getContextsPermissions should return the values as an array', () => {
           },
         ],
         [
-          'deployments',
+          'resource2',
           {
             attrs: {},
             permitted: false,
@@ -194,9 +188,9 @@ test('getContextsPermissions should return the values as an array', () => {
     ],
     [
       'context2',
-      new Map<KubernetesResourceName, ContextResourcePermission>([
+      new Map<string, ContextResourcePermission>([
         [
-          'pods',
+          'resource1',
           {
             attrs: {},
             permitted: false,
@@ -204,7 +198,7 @@ test('getContextsPermissions should return the values as an array', () => {
           },
         ],
         [
-          'deployments',
+          'resource2',
           {
             attrs: {},
             permitted: true,
@@ -219,25 +213,25 @@ test('getContextsPermissions should return the values as an array', () => {
   expect(result).toEqual([
     {
       contextName: 'context1',
-      resourceName: 'pods',
+      resourceName: 'resource1',
       permitted: true,
       reason: 'ok',
     },
     {
       contextName: 'context1',
-      resourceName: 'deployments',
+      resourceName: 'resource2',
       permitted: false,
       reason: 'nok',
     },
     {
       contextName: 'context2',
-      resourceName: 'pods',
+      resourceName: 'resource1',
       permitted: false,
       reason: 'nok',
     },
     {
       contextName: 'context2',
-      resourceName: 'deployments',
+      resourceName: 'resource2',
       permitted: true,
       reason: 'ok',
     },

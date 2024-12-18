@@ -28,7 +28,7 @@ test('with 1 level and same request', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -43,7 +43,7 @@ test('with 1 level and same request', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -65,7 +65,7 @@ test('with 1 level and same request', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods', 'deployments'],
+      resources: ['resource1', 'resource2'],
     },
   ]);
 });
@@ -75,7 +75,7 @@ test('with 1 level and different requests', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -90,7 +90,7 @@ test('with 1 level and different requests', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -112,7 +112,7 @@ test('with 1 level and different requests', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods'],
+      resources: ['resource1'],
     },
     {
       attrs: {
@@ -121,7 +121,7 @@ test('with 1 level and different requests', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['deployments'],
+      resources: ['resource2'],
     },
   ]);
 });
@@ -131,7 +131,7 @@ test('with 2 levels and same request at first level', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -142,7 +142,7 @@ test('with 2 levels and same request at first level', () => {
         },
         {
           verb: 'watch',
-          resource: 'pods',
+          resource: 'resource1',
         },
       ],
     }),
@@ -150,7 +150,7 @@ test('with 2 levels and same request at first level', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -162,7 +162,7 @@ test('with 2 levels and same request at first level', () => {
         {
           verb: 'watch',
           group: 'group2',
-          resource: 'deployments',
+          resource: 'resource2',
         },
       ],
     }),
@@ -177,24 +177,24 @@ test('with 2 levels and same request at first level', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods', 'deployments'],
+      resources: ['resource1', 'resource2'],
       onDenyRequests: [
         {
           attrs: {
             namespace: 'ns',
             verb: 'watch',
-            resource: 'pods',
+            resource: 'resource1',
           },
-          resources: ['pods'],
+          resources: ['resource1'],
         },
         {
           attrs: {
             namespace: 'ns',
             verb: 'watch',
             group: 'group2',
-            resource: 'deployments',
+            resource: 'resource2',
           },
-          resources: ['deployments'],
+          resources: ['resource2'],
         },
       ],
     },
@@ -206,7 +206,7 @@ test('with 1 level and same request, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -221,7 +221,7 @@ test('with 1 level and same request, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -242,7 +242,7 @@ test('with 1 level and same request, non namespaced', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods', 'deployments'],
+      resources: ['resource1', 'resource2'],
     },
   ]);
 });
@@ -252,7 +252,7 @@ test('with 1 level and different requests, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -267,7 +267,7 @@ test('with 1 level and different requests, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -288,7 +288,7 @@ test('with 1 level and different requests, non namespaced', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods'],
+      resources: ['resource1'],
     },
     {
       attrs: {
@@ -296,7 +296,7 @@ test('with 1 level and different requests, non namespaced', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['deployments'],
+      resources: ['resource2'],
     },
   ]);
 });
@@ -306,7 +306,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -317,7 +317,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
         },
         {
           verb: 'watch',
-          resource: 'pods',
+          resource: 'resource1',
         },
       ],
     }),
@@ -325,7 +325,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -337,7 +337,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
         {
           verb: 'watch',
           group: 'group2',
-          resource: 'deployments',
+          resource: 'resource2',
         },
       ],
     }),
@@ -351,22 +351,22 @@ test('with 2 levels and same request at first level, non namespaced', () => {
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods', 'deployments'],
+      resources: ['resource1', 'resource2'],
       onDenyRequests: [
         {
           attrs: {
             verb: 'watch',
-            resource: 'pods',
+            resource: 'resource1',
           },
-          resources: ['pods'],
+          resources: ['resource1'],
         },
         {
           attrs: {
             verb: 'watch',
             group: 'group2',
-            resource: 'deployments',
+            resource: 'resource2',
           },
-          resources: ['deployments'],
+          resources: ['resource2'],
         },
       ],
     },
@@ -378,7 +378,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'pods',
+      resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
       permissionsRequests: [
@@ -393,7 +393,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 
   factoryHandler.add(
     new ResourceFactoryBase({
-      resource: 'deployments',
+      resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
       permissionsRequests: [
@@ -415,7 +415,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
         resource: '*',
         verb: 'watch',
       },
-      resources: ['pods'],
+      resources: ['resource1'],
     },
     {
       attrs: {
@@ -423,7 +423,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
         resource: '*',
         verb: 'watch',
       },
-      resources: ['deployments'],
+      resources: ['resource2'],
     },
   ]);
 });

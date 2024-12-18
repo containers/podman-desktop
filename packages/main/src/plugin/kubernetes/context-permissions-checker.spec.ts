@@ -20,8 +20,6 @@ import util from 'node:util';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { KubernetesResourceName } from '/@api/kubernetes-resources.js';
-
 import type { ContextPermissionResult, ContextResourcePermission } from './context-permissions-checker.js';
 import { ContextPermissionsChecker } from './context-permissions-checker.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -39,7 +37,7 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
     resource: '*',
     verb: 'watch',
   };
-  const resources: KubernetesResourceName[] = ['pods', 'deployments'];
+  const resources = ['resource1', 'resource2'];
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -81,12 +79,12 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
     test('getPermissions returns permitted true', async () => {
       const permissions = permissionsChecker.getPermissions();
       const expected = new Map<string, ContextResourcePermission>();
-      expected.set('pods', {
+      expected.set('resource1', {
         attrs,
         permitted: true,
         reason: 'a reason',
       });
-      expected.set('deployments', {
+      expected.set('resource2', {
         attrs,
         permitted: true,
         reason: 'a reason',
@@ -125,12 +123,12 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
     test('getPermissions returns permitted false', async () => {
       const permissions = permissionsChecker.getPermissions();
       const expected = new Map<string, ContextResourcePermission>();
-      expected.set('pods', {
+      expected.set('resource1', {
         attrs,
         permitted: false,
         reason: 'a reason',
       });
-      expected.set('deployments', {
+      expected.set('resource2', {
         attrs,
         permitted: false,
         reason: 'a reason',
@@ -168,12 +166,12 @@ describe('ContextPermissionsChecker is built with a non recursive request', asyn
     test('getPermissions returns permitted false', async () => {
       const permissions = permissionsChecker.getPermissions();
       const expected = new Map<string, ContextResourcePermission>();
-      expected.set('pods', {
+      expected.set('resource1', {
         attrs,
         permitted: false,
         reason: 'a reason',
       });
-      expected.set('deployments', {
+      expected.set('resource2', {
         attrs,
         permitted: false,
         reason: 'a reason',
@@ -196,23 +194,23 @@ describe('ContextPermissionsChecker is built with a recursive request', async ()
     resource: '*',
     verb: 'watch',
   };
-  const resources: KubernetesResourceName[] = ['pods', 'deployments'];
+  const resources = ['resource1', 'resource2'];
 
   const attrsResource1 = {
     namespace: 'ns1',
     group: 'group1',
-    resource: 'pods',
+    resource: 'resource1',
     verb: 'watch',
   };
-  const resources1: KubernetesResourceName[] = ['pods'];
+  const resources1 = ['resource1'];
 
   const attrsResource2 = {
     namespace: 'ns1',
     group: 'group2',
-    resource: 'deployments',
+    resource: 'resource2',
     verb: 'watch',
   };
-  const resources2: KubernetesResourceName[] = ['deployments'];
+  const resources2 = ['resource2'];
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -288,12 +286,12 @@ describe('ContextPermissionsChecker is built with a recursive request', async ()
     test('getPermissions returns permitted true for resource1 and false for resource2', async () => {
       const permissions = permissionsChecker.getPermissions();
       const expected = new Map<string, ContextResourcePermission>();
-      expected.set('pods', {
+      expected.set('resource1', {
         attrs: attrsResource1,
         permitted: true,
         reason: 'a reason 1',
       });
-      expected.set('deployments', {
+      expected.set('resource2', {
         attrs: attrsResource2,
         permitted: false,
         reason: 'a reason 2',

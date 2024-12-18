@@ -23,7 +23,7 @@ import { isResourceFactoryWithPermissions, ResourceFactoryBase } from './resourc
 import type { ResourceInformer } from './resource-informer.js';
 
 test('ResourceFactoryBase set permissions', () => {
-  const factory = new ResourceFactoryBase({ resource: 'pods' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1' });
 
   const permissionsRequests = [
     {
@@ -33,7 +33,7 @@ test('ResourceFactoryBase set permissions', () => {
     },
     {
       verb: 'watch',
-      resource: 'pods',
+      resource: 'resource1',
     },
   ];
   factory.setPermissions({
@@ -48,7 +48,7 @@ test('ResourceFactoryBase set permissions', () => {
 });
 
 test('copyWithSlicedPermissions', () => {
-  const factory = new ResourceFactoryBase({ resource: 'pods' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1' });
 
   const permissionsRequests = [
     {
@@ -58,7 +58,7 @@ test('copyWithSlicedPermissions', () => {
     },
     {
       verb: 'watch',
-      resource: 'pods',
+      resource: 'resource1',
     },
   ];
   factory.setPermissions({
@@ -71,13 +71,13 @@ test('copyWithSlicedPermissions', () => {
   expect(copy.permissions?.permissionsRequests).toEqual([
     {
       verb: 'watch',
-      resource: 'pods',
+      resource: 'resource1',
     },
   ]);
 });
 
 test('ResourceFactoryBase set informer', () => {
-  const factory = new ResourceFactoryBase({ resource: 'pods' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1' });
   const createInformer = (_kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> => {
     return {} as ResourceInformer<V1Pod>;
   };
