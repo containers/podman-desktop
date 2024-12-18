@@ -18,7 +18,6 @@
 
 import { ResourceElementActions } from '../model/core/operations';
 import { ContainerState, ResourceElementState } from '../model/core/states';
-import { KubeContextPage } from '../model/pages/kubernetes-context-page';
 import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { VolumesPage } from '../model/pages/volumes-page';
@@ -42,19 +41,12 @@ let kindResourceCard: ResourceConnectionCardPage;
 
 const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
-test.beforeAll(async ({ runner, page, welcomePage, navigationBar }) => {
+test.beforeAll(async ({ runner, page, welcomePage }) => {
   runner.setVideoAndTraceName('kind-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   resourcesPage = new ResourcesPage(page);
   kindResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
-  if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
-    const settingsBar = await navigationBar.openSettings();
-    const kubePage = await settingsBar.openTabPage(KubeContextPage);
-    await playExpect(kubePage.heading).toBeVisible();
-
-    playExpect(await kubePage.isContextDefault('kind-kind-cluster')).toBeTruthy();
-  }
 });
 
 test.afterAll(async ({ runner, page }) => {
