@@ -41,7 +41,7 @@ import * as podmanCli from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import type { UpdateCheck } from './podman-install';
 import { PodmanInstall } from './podman-install';
-import { getAssetsFolder, isMac, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
+import { getAssetsFolder, LIBKRUN_LABEL, LoggerDelegator, VMTYPE } from './util';
 import * as util from './util';
 
 const config: Configuration = {
@@ -330,7 +330,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   console.error = consoleErrorMock;
 
-  (extensionApi.env.isMac as boolean) = true;
+  vi.mocked(extensionApi.env).isMac = false;
   vi.mocked(extensionApi.env).isLinux = false;
   vi.mocked(extensionApi.env).isWindows = false;
 
@@ -358,8 +358,8 @@ describe.each([
   const provider = expectedProvider;
   beforeEach((): void => {
     vi.mocked(extensionApi.env).isWindows = os !== 'macos';
+    vi.mocked(extensionApi.env).isMac = os === 'macos';
 
-    vi.mocked(util.isMac).mockReturnValue(os === 'macos');
     setWSLEnabled(provider === VMTYPE.WSL);
   });
 
@@ -505,6 +505,7 @@ describe.each([
   });
 
   test('verify create command called with correct values with user mode networking', async () => {
+    vi.mocked(extensionApi.env).isMac = true;
     const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
     spyExecPromise.mockImplementationOnce(() => {
       return Promise.resolve({} as extensionApi.RunResult);
@@ -555,6 +556,7 @@ describe.each([
   });
 
   test('verify create command called with now flag if start machine after creation is enabled', async () => {
+    vi.mocked(extensionApi.env).isMac = true;
     const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
     spyExecPromise.mockImplementationOnce(() => {
       return Promise.resolve({} as extensionApi.RunResult);
@@ -615,7 +617,7 @@ describe.each([
   });
 
   test('verify create command called with embedded image if using podman v5', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(getAssetsFolder).mockReturnValue('fake');
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
@@ -650,7 +652,7 @@ describe.each([
 
   test('verify create command called in airgap mode will try to create image', async () => {
     vi.mocked(extensionApi.env).isWindows = os !== 'macos';
-    vi.mocked(isMac).mockReturnValue(os === 'macos');
+    vi.mocked(extensionApi.env).isMac = os === 'macos';
     vi.mocked(getAssetsFolder).mockReturnValue('fake');
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
@@ -1261,7 +1263,7 @@ test('ensure started machine reports default configuration', async () => {
 test('ensure stopped machine reports stopped provider', async () => {
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.mocked(extensionApi.env).isLinux = false;
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
@@ -1291,7 +1293,7 @@ test('ensure stopped machine reports stopped provider', async () => {
 test('ensure running and starting machine reports starting provider', async () => {
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.mocked(extensionApi.env).isLinux = false;
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
@@ -1322,7 +1324,7 @@ test('ensure running and starting machine reports starting provider', async () =
 test('ensure running and not starting machine reports ready provider', async () => {
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.mocked(extensionApi.env).isLinux = false;
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
@@ -1478,7 +1480,7 @@ test('ensure showNotification is not called during update', async () => {
 
 test('provider is registered with edit capabilities on MacOS', async () => {
   // Mock platform to be darwin
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
@@ -1521,7 +1523,7 @@ test('display name is beautified version of the name', async () => {
 });
 
 test('provider is registered without edit capabilities on Windows', async () => {
-  vi.mocked(isMac).mockReturnValue(false);
+  vi.mocked(extensionApi.env).isWindows = true;
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
@@ -1595,7 +1597,7 @@ test('if there are no machines, make sure checkDefaultMachine is not being ran i
 });
 
 test('Should notify clean machine if getJSONMachineList is erroring due to an invalid format on mac', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
     name: 'name',
     message: 'description',
@@ -1806,7 +1808,7 @@ describe('initCheckAndRegisterUpdate', () => {
 
 describe('registerOnboardingMachineExistsCommand', () => {
   test('check with error when calling podman machine ls command', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('error'));
@@ -1832,7 +1834,7 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 2 machines', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
@@ -1866,7 +1868,7 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 0 machine', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
@@ -1896,7 +1898,7 @@ describe('registerOnboardingMachineExistsCommand', () => {
 
 describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   test('check with v5 and previous qemu folders', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
@@ -1932,7 +1934,7 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v5 and no previous qemu folders', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     // no qemu folders
     vi.mocked(fs.existsSync).mockReturnValue(false);
@@ -1970,7 +1972,7 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v4 and qemu folders', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
@@ -2010,7 +2012,7 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v5 and error in JSON of machines', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     // no qemu folders
     vi.mocked(fs.existsSync).mockReturnValue(false);
@@ -2050,7 +2052,7 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
 
 describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
   test('check with previous qemu folders', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
@@ -2095,7 +2097,7 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
   });
 
   test('check with previous podman v4 config files', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
 
     // mock confirmation window message to true
     vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
@@ -2154,7 +2156,7 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
 
   test('check with previous podman v4 config files on Windows', async () => {
     vi.mocked(extensionApi.env).isWindows = true;
-    vi.mocked(isMac).mockReturnValue(false);
+    vi.mocked(extensionApi.env).isMac = false;
 
     // mock confirmation window message to true
     vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
@@ -2202,10 +2204,6 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
       stderr: '',
       command: 'command',
     });
-
-    // two times false (no qemu folders)
-    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
 
     // return an error when trying to list output
     vi.mocked(fs.existsSync).mockReturnValueOnce(true);
@@ -2325,14 +2323,14 @@ describe('checkRosettaMacArm', async () => {
   } as unknown as PodmanConfiguration;
 
   test('check do nothing on non-macOS', async () => {
-    vi.mocked(isMac).mockReturnValue(false);
+    vi.mocked(extensionApi.env).isMac = false;
     await extension.checkRosettaMacArm(podmanConfiguration);
     // not called as not on macOS
     expect(vi.mocked(podmanConfiguration.isRosettaEnabled)).not.toBeCalled();
   });
 
   test('check do nothing on macOS with intel', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(arch).mockReturnValue('x64');
     await extension.checkRosettaMacArm(podmanConfiguration);
     // not called as not on arm64
@@ -2340,7 +2338,7 @@ describe('checkRosettaMacArm', async () => {
   });
 
   test('check no dialog on macOS with arm64 if rosetta is working', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(arch).mockReturnValue('arm64');
     // rosetta is being enabled per configuration
     vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(true);
@@ -2356,7 +2354,7 @@ describe('checkRosettaMacArm', async () => {
   });
 
   test('check no dialog on macOS with arm64 if rosetta is not enabled', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(arch).mockReturnValue('arm64');
     // rosetta is being enabled per configuration
     vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(false);
@@ -2369,7 +2367,7 @@ describe('checkRosettaMacArm', async () => {
   });
 
   test('check dialog on macOS with arm64 if rosetta is not working', async () => {
-    vi.mocked(isMac).mockReturnValue(true);
+    vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(arch).mockReturnValue('arm64');
     // rosetta is being enabled per configuration
     vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(true);
@@ -2386,25 +2384,27 @@ describe('checkRosettaMacArm', async () => {
 });
 
 test('isLibkrunSupported should return true with prelease older than rc1', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   const enabled = extension.isLibkrunSupported('5.2.0-rc2');
   expect(enabled).toBeTruthy();
 });
 
 test('isLibkrunSupported should return true with 5.2.0 version', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   const enabled = extension.isLibkrunSupported('5.2.0');
   expect(enabled).toBeTruthy();
 });
 
 test('isLibkrunSupported should return false with previous 5.1.2 version', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   const enabled = extension.isLibkrunSupported('5.1.2');
   expect(enabled).toBeFalsy();
 });
 
 describe('sendTelemetryRecords', () => {
   test('krunkit found', async () => {
+    vi.mocked(extensionApi.env).isMac = true;
+
     vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
       version: '5.1.2',
     });
@@ -2433,6 +2433,8 @@ describe('sendTelemetryRecords', () => {
   });
 
   test('krunkit not found', async () => {
+    vi.mocked(extensionApi.env).isMac = true;
+
     vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
       version: '5.1.2',
     });
@@ -2517,6 +2519,8 @@ describe('sendTelemetryRecords', () => {
 });
 
 test('if a machine stopped is successfully reporting telemetry', async () => {
+  vi.mocked(extensionApi.env).isMac = true;
+
   const spyExecPromise = vi
     .spyOn(extensionApi.process, 'exec')
     .mockImplementation(() => Promise.resolve({} as extensionApi.RunResult));
@@ -2547,6 +2551,7 @@ test('if a machine stopped is successfully reporting telemetry', async () => {
 });
 
 test('if a machine stopped is successfully reporting an error in telemetry', async () => {
+  vi.mocked(extensionApi.env).isMac = true;
   const customError = new Error('Error while starting podman');
 
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
@@ -2641,7 +2646,7 @@ async function testAudit(path: string, uri: string, condition: typeof expect | t
 }
 
 test('activate on mac register commands for setting compatibility moide ', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.mocked(extensionApi.env).isWindows = false;
   vi.mocked(extensionApi.env).isLinux = false;
   vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
@@ -2724,7 +2729,7 @@ test('activate on mac register commands for setting compatibility moide ', async
 describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %s', os => {
   beforeEach(() => {
     vi.mocked(extensionApi.env).isWindows = os === 'windows';
-    vi.mocked(util.isMac).mockReturnValue(os === 'mac');
+    vi.mocked(extensionApi.env).isMac = os === 'mac';
     vi.mocked(extensionApi.env).isLinux = os === 'windows';
   });
   if (os === 'linux') {
@@ -2829,7 +2834,6 @@ test('isWSLEnabled should return true if wsl is enabled', async () => {
 
 test('getJSONMachineList should only get machines from wsl if hyperv is not enabled', async () => {
   vi.mocked(extensionApi.env).isWindows = true;
-  vi.mocked(isMac).mockReturnValue(false);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
     return new Promise<extensionApi.RunResult>(resolve => {
       if (command !== 'wsl' && args?.[0] === '--version') {
@@ -2893,7 +2897,6 @@ test('getJSONMachineList should only get machines from wsl if hyperv is not enab
 
 test('getJSONMachineList should only get machines from hyperv if wsl is not enabled', async () => {
   vi.mocked(extensionApi.env).isWindows = true;
-  vi.mocked(isMac).mockReturnValue(false);
   vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
     version: '5.2.1',
   });
@@ -2959,7 +2962,6 @@ test('getJSONMachineList should only get machines from hyperv if wsl is not enab
 
 test('getJSONMachineList should get machines from hyperv and wsl if both are enabled', async () => {
   vi.mocked(extensionApi.env).isWindows = true;
-  vi.mocked(isMac).mockReturnValue(false);
   vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue({
     version: '5.2.1',
   });
@@ -3109,7 +3111,7 @@ describe('connectionAuditor', () => {
 
 // https://github.com/podman-desktop/podman-desktop/issues/10173
 test('activate and autostart should not duplicate machines ', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(extensionApi.env).isMac = true;
   vi.mocked(extensionApi.env).isWindows = false;
   vi.mocked(extensionApi.env).isLinux = false;
   vi.spyOn(PodmanInstall.prototype, 'checkForUpdate').mockResolvedValue({
