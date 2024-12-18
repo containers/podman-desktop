@@ -267,4 +267,7 @@ Kubernetes clusters from cloud providers require an executable installed on the 
 
 #### Solution
 
-- Move the binary located in your `.kube/config` file to a system bin directory, such as `/usr/local/bin/`.
+. Move the binary located in your `.kube/config` file to a system bin directory, such as `/usr/local/bin/`.
+
+. Set the value of the `command` parameter to the full path of the executable in your Kubernetes configuration file. For example, `command: /usr/local/bin/<cloud-provider-binary>`, where `cloud-provider-binary` denotes the binary name, such as `aws` or `oci`. 
+
