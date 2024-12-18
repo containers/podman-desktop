@@ -50,7 +50,6 @@ import {
   getAssetsFolder,
   getProviderByLabel,
   getProviderLabel,
-  isMac,
   LoggerDelegator,
   VMTYPE,
 } from './util';
@@ -347,7 +346,7 @@ export async function updateMachines(
         console.debug('Podman extension:', 'Failed to read socketPath from machine inspect');
       }
       if (!socketPath) {
-        if (isMac()) {
+        if (extensionApi.env.isMac) {
           socketPath = calcMacosSocketPath(machineName);
         } else if (extensionApi.env.isLinux) {
           socketPath = calcLinuxSocketPath(machineName);
@@ -782,7 +781,7 @@ export async function registerProviderFor(
     },
   };
   //support edit only on MacOS as Podman WSL is nop and generates errors
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     lifecycle.edit = async (context, params, logger, _token): Promise<void> => {
       let effective = false;
       const args = ['machine', 'set', machineInfo.name];
@@ -857,7 +856,7 @@ export async function registerProviderFor(
 
 export async function checkRosettaMacArm(podmanConfiguration: PodmanConfiguration): Promise<void> {
   // check that rosetta is there for macOS / arm as the machine may fail to start
-  if (isMac() && os.arch() === 'arm64') {
+  if (extensionApi.env.isMac && os.arch() === 'arm64') {
     const isEnabled = await podmanConfiguration.isRosettaEnabled();
     if (isEnabled) {
       // call the command `arch -arch x86_64 uname -m` to check if rosetta is enabled
@@ -1181,7 +1180,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
     let machineFolderToCheck: string | undefined;
     // check invalid config files only with v5
     if (installedPodman?.version.startsWith('5.')) {
-      if (isMac()) {
+      if (extensionApi.env.isMac) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'applehv');
       } else if (extensionApi.env.isWindows) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'wsl');
@@ -1535,7 +1534,7 @@ export async function start(
     updateWSLHyperVEnabledContextValue(isWslAndHyperEnabled);
   }
 
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     provider.registerCleanup(new PodmanCleanupMacOS());
   } else if (extensionApi.env.isWindows) {
     provider.registerCleanup(new PodmanCleanupWindows());
@@ -1559,7 +1558,7 @@ export async function start(
   // NOT packaged with qemu + kvm by default. So, we don't want to
   // create machines on Linux via Podman Desktop, however we will still support
   // the lifecycle management of one.
-  if (isMac() || extensionApi.env.isWindows) {
+  if (extensionApi.env.isMac || extensionApi.env.isWindows) {
     provider.setContainerProviderConnectionFactory(
       {
         initialize: () => createMachine({}),
@@ -1920,7 +1919,7 @@ const PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT = '5.2.0-rc1';
 
 // Checks if libkrun is supported. Only Mac platform allows this parameter to be tuned
 export function isLibkrunSupported(podmanVersion: string): boolean {
-  return isMac() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT) >= 0;
+  return extensionApi.env.isMac && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_LIBKRUN_SUPPORT) >= 0;
 }
 
 // Set wslEnabled. Used for testing purposes
@@ -2055,7 +2054,7 @@ export async function createMachine(
     if (extensionApi.env.isWindows) {
       provider = wslEnabled ? 'wsl' : 'hyperv';
       telemetryRecords.provider = provider;
-    } else if (isMac()) {
+    } else if (extensionApi.env.isMac) {
       provider = 'applehv';
       telemetryRecords.provider = provider;
     }
@@ -2106,7 +2105,7 @@ export async function createMachine(
       parameters.push(`docker://${imageUri}`);
       telemetryRecords.imagePath = 'custom-registry';
     }
-  } else if (isMac() || (extensionApi.env.isWindows && provider === 'wsl')) {
+  } else if (extensionApi.env.isMac || (extensionApi.env.isWindows && provider === 'wsl')) {
     // check if we have an embedded asset for the image path for macOS or Windows
     const assetImagePath = path.resolve(getAssetsFolder(), `podman-image-${process.arch}.zst`);
 
@@ -2219,7 +2218,7 @@ function setupDisguisedPodmanSocketWatcher(
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
-  if (extensionApi.env.isLinux || isMac()) {
+  if (extensionApi.env.isLinux || extensionApi.env.isMac) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
   }
 

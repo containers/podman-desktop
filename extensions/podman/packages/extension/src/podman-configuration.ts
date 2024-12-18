@@ -24,8 +24,6 @@ import type { ProxySettings } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as toml from 'smol-toml';
 
-import { isMac } from './util';
-
 const configurationRosetta = 'setting.rosetta';
 
 /**
@@ -98,7 +96,7 @@ export class PodmanConfiguration {
     }
 
     // If we are on Mac, we need to monitor the configuration file to handle Rosetta changes
-    if (isMac()) {
+    if (extensionApi.env.isMac) {
       extensionApi.configuration.onDidChangeConfiguration(async e => {
         if (e.affectsConfiguration(`podman.${configurationRosetta}`)) {
           await this.handleRosettaSetting();
@@ -317,7 +315,7 @@ export class PodmanConfiguration {
   getContainersFileLocation(): string {
     let podmanConfigContainersPath = '';
 
-    if (isMac()) {
+    if (extensionApi.env.isMac) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config', 'containers');
     } else if (extensionApi.env.isWindows) {
       podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');

@@ -22,8 +22,6 @@ import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
-import { isMac } from './util';
-
 export type ContainerAuthConfigEntry = {
   [key: string]: {
     auth: string;
@@ -41,7 +39,7 @@ export class RegistrySetup {
   protected getAuthFileLocation(): string {
     let podmanConfigContainersPath = '';
 
-    if (isMac() || extensionApi.env.isWindows) {
+    if (extensionApi.env.isMac || extensionApi.env.isWindows) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config/containers');
     } else if (extensionApi.env.isLinux) {
       const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';

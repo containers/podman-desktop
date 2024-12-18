@@ -16,17 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as os from 'node:os';
 import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
 import { getPodmanCli } from './podman-cli';
 
-const mac = os.platform() === 'darwin';
-export function isMac(): boolean {
-  return mac;
-}
 const xdgDataDirectory = '.local/share/containers';
 export function appHomeDir(): string {
   return xdgDataDirectory + '/podman';
