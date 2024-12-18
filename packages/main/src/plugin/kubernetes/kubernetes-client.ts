@@ -1858,6 +1858,6 @@ export class KubernetesClient {
     if (!this.contextsStatesDispatcher) {
       throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
     }
-    return this.contextsStatesDispatcher?.getContextsPermissions();
+    return this.contextsStatesDispatcher.getContextsPermissions();
   }
 }

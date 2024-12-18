@@ -61,17 +61,13 @@ export class ContextsStatesDispatcher {
   }
 
   getContextsPermissions(): ContextPermission[] {
-    const value: ContextPermission[] = [];
-    for (const [contextName, permissions] of this.manager.getPermissions()) {
-      for (const [resourceName, contextResourcePermission] of permissions) {
-        value.push({
-          contextName,
-          resourceName,
-          permitted: contextResourcePermission.permitted,
-          reason: contextResourcePermission.reason,
-        });
-      }
-    }
-    return value;
+    return Array.from(this.manager.getPermissions().entries()).flatMap(([contextName, permissions]) => {
+      return Array.from(permissions.entries()).map(([resourceName, contextResourcePermission]) => ({
+        contextName,
+        resourceName,
+        permitted: contextResourcePermission.permitted,
+        reason: contextResourcePermission.reason,
+      }));
+    });
   }
 }
