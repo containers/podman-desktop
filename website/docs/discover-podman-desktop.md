@@ -42,7 +42,7 @@ For more details, refer to [Working with containers](/docs/containers).
 
 Access the **Pods** page in the UI to do the pod-related tasks:
 
-- Create a pod from a Kubernetes YAML file.
+- [Create a pod](/blog/2024/10/05/kubernetes-blog#creating-a-pod) from a Kubernetes YAML file or selected containers.
 - Search, start, restart, stop, or delete a pod.
 - View the status of containers that are part of the pod, whether they are running, created, exited, or in waiting state.
 - View the summary and logs of the pods
@@ -69,16 +69,18 @@ Access the **Images** page in the UI to do the image-related tasks:
 - Push an image to a cluster internal registry.
 - Import images from your local machine into the container engine.
 
+For more details, refer to [Working with container images](/docs/containers/images).
+
 ### Manage Kubernetes-based environment
 
 ![kubernetes](img/kubernetes-component.png)
 
 Access the **Kubernetes** page in the UI to do the Kubernetes-related tasks:
 
-- Create a Kubernetes resource after applying a Kubernetes YAML configuration.
+- Create a Kubernetes resource after [applying a Kubernetes YAML configuration](/docs/kubernetes/applying-a-yaml-manifest).
 - Search or delete a Kubernetes resource.
 - View the summary and Kubernetes configuration of the Kubernetes resource.
-- Edit the configuration of the Kubernetes resource and apply those changes to your cluster directly from the UI.
+- [Edit the configuration](/docs/kubernetes/configuring-editing-kube-object#procedure-updating-an-existing-object) of the Kubernetes resource and apply those changes to your cluster directly from the UI.
 
 For more details, refer to [From containers to Kubernetes](/docs/kubernetes).
 
@@ -128,5 +130,5 @@ Access the **Settings** page in the UI to do these tasks:
   - [Creating a Minikube cluster](/docs/minikube/creating-a-minikube-cluster)
 - [Configure proxy URLs](/docs/proxy#using-a-proxy)
 - [Configure a registry](/docs/containers/registries)
-- Configure a CLI tool
+- [Configure a CLI tool](/tutorial/managing-your-application-resources#managing-other-resources)
 - [Configure a Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernetes-context#procedure-using-the-podman-desktop-settings)
