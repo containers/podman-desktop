@@ -23,9 +23,9 @@ import type { ContextPermission } from '/@api/kubernetes-contexts-permissions';
 
 import { kubernetesContextsPermissions, kubernetesContextsPermissionsStore } from './kubernetes-context-permission';
 
-const callbacks = new Map<string, any>();
+const callbacks = new Map<string, () => Promise<void>>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: () => Promise<void>) => {
     callbacks.set(message, callback);
   },
 };
@@ -64,7 +64,7 @@ test('kubernetesContextsPermissions in experimental states mode', async () => {
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
-  await callbackExtensionsStarted();
+  await callbackExtensionsStarted!();
 
   // values are never fetched
   await new Promise(resolve => setTimeout(resolve, 500));
