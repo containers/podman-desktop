@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { AbortError, Health } from '@kubernetes/client-node';
+import { Health } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
@@ -90,7 +90,7 @@ export class ContextHealthChecker implements Disposable {
       };
       this.#onStateChange.fire(this.#currentState);
     } catch (err: unknown) {
-      if (!(err instanceof AbortError)) {
+      if (!this.isAbortError(err)) {
         this.#currentState = {
           kubeConfig: this.#kubeConfig,
           contextName: this.#contextName,
@@ -110,5 +110,9 @@ export class ContextHealthChecker implements Disposable {
 
   public getState(): ContextHealthState {
     return this.#currentState;
+  }
+
+  private isAbortError(err: unknown): boolean {
+    return err instanceof Error && err.name === 'AbortError';
   }
 }
