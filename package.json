@@ -177,7 +177,7 @@
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.3.4",
-    "@kubernetes/client-node": "^1.0.0-rc7",
+    "@kubernetes/client-node": "^1.0.0",
     "@segment/analytics-node": "^2.2.0",
     "@types/semver": "^7.5.8",
     "@types/stream-json": "^1.7.8",
@@ -218,9 +218,6 @@
       "@docusaurus/theme-mermaid>mermaid": "^10.9.3",
       "webpack-dev-server>http-proxy-middleware": "^2.0.7",
       "@kubernetes/client-node>jsonpath-plus": "^10.0.7"
-    },
-    "patchedDependencies": {
-      "@kubernetes/client-node@1.0.0-rc7": "patches/@kubernetes__client-node@1.0.0-rc7.patch"
     }
   },
   "packageManager": "pnpm@9.14.1+sha512.7f1de9cffea40ff4594c48a94776112a0db325e81fb18a9400362ff7b7247f4fbd76c3011611c9f8ac58743c3dc526017894e07948de9b72052f874ee2edfdcd"
