@@ -955,8 +955,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       docusaurus-plugin-goatcounter:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       docusaurus-plugin-typedoc:
         specifier: ^1.1.1
         version: 1.1.1(typedoc-plugin-markdown@4.3.3(typedoc@0.27.5(typescript@5.6.3)))
@@ -5789,9 +5789,9 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  docusaurus-plugin-goatcounter@3.0.0:
-    resolution: {integrity: sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==}
-    engines: {node: '>=16'}
+  docusaurus-plugin-goatcounter@4.0.0:
+    resolution: {integrity: sha512-YJgbriYdruis4N0xutIv1qzoBi7/pe3RwExVvTyRAYLwNyd4oYA119pFSQ92pn6fUUxsffTanDvCT4cT1whSAA==}
+    engines: {node: '>=20'}
 
   docusaurus-plugin-typedoc@1.1.1:
     resolution: {integrity: sha512-jaSHPA2iQVE60Mugr/pbHzIWVR/7tp77A+e9+oYvZylupdNCwZ/5BadqcqZHdLQCsUZSvu4SlE3ob/ynN6aUAw==}
@@ -17538,7 +17538,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  docusaurus-plugin-goatcounter@3.0.0: {}
+  docusaurus-plugin-goatcounter@4.0.0: {}
 
   docusaurus-plugin-typedoc@1.1.1(typedoc-plugin-markdown@4.3.3(typedoc@0.27.5(typescript@5.6.3))):
     dependencies:
