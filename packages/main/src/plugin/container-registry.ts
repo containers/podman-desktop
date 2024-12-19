@@ -129,6 +129,7 @@ export class ContainerProviderRegistry {
 
   protected containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   protected internalProviders: Map<string, InternalContainerProvider> = new Map();
+  protected activeTimeouts: Map<string, NodeJS.Timeout | undefined> = new Map();
 
   // map of streams per container id
   protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
@@ -290,12 +291,22 @@ export class ContainerProviderRegistry {
       internalProvider.api = undefined;
       internalProvider.libpodApi = undefined;
 
+      // if is the timeout running dont start other for events
+      // connect ENOENT \.\pipe\machine_name at PipeConnectWrap.afterConnect [as oncomplete]
+      if (this.activeTimeouts.get(containerProviderConnection.endpoint.socketPath)) {
+        return;
+      }
+
       // ok we had some errors so we need to reconnect the provider
       // delay the reconnection to avoid too many reconnections
       // retry in 5 seconds
-      setTimeout(() => {
-        this.setupConnectionAPI(internalProvider, containerProviderConnection);
-      }, this.retryDelayEvents);
+      this.activeTimeouts.set(
+        containerProviderConnection.endpoint.socketPath,
+        setTimeout(() => {
+          this.activeTimeouts.set(containerProviderConnection.endpoint.socketPath, undefined);
+          this.setupConnectionAPI(internalProvider, containerProviderConnection);
+        }, this.retryDelayEvents),
+      );
     };
 
     this.handleEvents(internalProvider.api, errorHandler);
