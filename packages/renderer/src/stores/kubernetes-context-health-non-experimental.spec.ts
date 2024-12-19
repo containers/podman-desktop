@@ -41,7 +41,6 @@ Object.defineProperty(global, 'window', {
       receive: eventEmitter.receive,
     },
   },
-  writable: true,
 });
 
 test('kubernetesContextsHealths not in experimental states mode', async () => {
