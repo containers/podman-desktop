@@ -18,4 +18,4 @@
 
 import { buildKubernetesResourceStore } from './kubernetes-resource';
 
-export const kubernetesPods = buildKubernetesResourceStore('pods');
+export const kubernetesDeployments = buildKubernetesResourceStore('deployments');
