@@ -299,7 +299,6 @@ function dataToConfigurationValues(): void {
       typeof existingFormData[dataItem] === 'string' ||
       typeof existingFormData[dataItem] === 'boolean'
     ) {
-      console.log(`${existingFormData[dataItem]}`);
       configurationValues.set(dataItem, { modified: true, value: existingFormData[dataItem] });
     }
   }
