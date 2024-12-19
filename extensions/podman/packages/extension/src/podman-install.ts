@@ -43,6 +43,8 @@ import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import * as podman5JSON from './podman5.json';
+import type { PowerShellClient } from './powershell';
+import { getPowerShellClient } from './powershell';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { WslHelper } from './wsl-helper';
 
@@ -646,15 +648,8 @@ export class VirtualMachinePlatformCheck extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      // set CurrentUICulture to force output in english
-      const { stdout: res } = await extensionApi.process.exec(
-        'powershell.exe',
-        [
-          '[System.Console]::OutputEncoding = [System.Text.Encoding]::Unicode; (Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
-        ],
-        { encoding: 'utf16le' },
-      );
-      if (res.indexOf('VirtualMachinePlatform') >= 0) {
+      const result = await (await getPowerShellClient()).isVirtualMachineAvailable();
+      if (result) {
         return this.createSuccessfulResult();
       }
     } catch (err) {
@@ -672,12 +667,17 @@ export class VirtualMachinePlatformCheck extends BaseCheck {
 }
 
 abstract class WindowsCheck extends BaseCheck {
+  #powerShellClient?: Promise<PowerShellClient> = undefined;
+  protected async getPowerShellClient(): Promise<PowerShellClient> {
+    if (!this.#powerShellClient) {
+      this.#powerShellClient = getPowerShellClient();
+    }
+    return this.#powerShellClient;
+  }
+
   async isUserAdmin(): Promise<boolean> {
     try {
-      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-        '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
-      ]);
-      return res.trim() === 'True';
+      return (await this.getPowerShellClient()).isUserAdmin();
     } catch (err: unknown) {
       return false;
     }
@@ -902,10 +902,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isPodmanDesktopElevated(): Promise<boolean> {
     try {
-      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
-        '(New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
-      ]);
-      return res.trim() === 'True';
+      return (await this.getPowerShellClient()).isRunningElevated();
     } catch (err: unknown) {
       return false;
     }
@@ -913,8 +910,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isHyperVinstalled(): Promise<boolean> {
     try {
-      await extensionApi.process.exec('powershell.exe', ['Get-Service vmms']);
-      return true;
+      return (await this.getPowerShellClient()).isHyperVInstalled();
     } catch (err: unknown) {
       return false;
     }
@@ -922,8 +918,7 @@ export class HyperVCheck extends WindowsCheck {
 
   private async isHyperVRunning(): Promise<boolean> {
     try {
-      const result = await extensionApi.process.exec('powershell.exe', ['@(Get-Service vmms).Status']);
-      return result.stdout === 'Running';
+      return (await this.getPowerShellClient()).isHyperVRunning();
     } catch (err: unknown) {
       return false;
     }
