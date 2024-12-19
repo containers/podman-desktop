@@ -65,7 +65,7 @@
     "test:extensions:podman": "vitest run -r extensions/podman/packages/extension --passWithNoTests --coverage ",
     "test:extensions:registries": "vitest run -r extensions/registries --passWithNoTests --coverage ",
     "test:extensions:kubectl-cli": "vitest run -r extensions/kubectl-cli --passWithNoTests --coverage ",
-    "test:renderer": "npm run build:ui && vitest -c packages/renderer/vite.config.js run packages/renderer --passWithNoTests --coverage",
+    "test:renderer": "npm run build:preload:types && npm run build:ui && vitest -c packages/renderer/vite.config.js run packages/renderer --passWithNoTests --coverage",
     "test:ui": "vitest --config packages/ui/vite.config.js run --passWithNoTests --coverage",
     "test:tools": "vitest run tools --passWithNoTests --coverage",
     "test:scripts:stylesheet": "vitest run ./scripts/generate-stylesheet.spec.ts --passWithNoTests",
