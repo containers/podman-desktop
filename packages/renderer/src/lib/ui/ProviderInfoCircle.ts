@@ -20,6 +20,6 @@ export const providerColors: Record<string, string> = {
   podman: 'bg-purple-600',
   docker: 'bg-sky-400',
   kubernetes: 'bg-sky-600',
-  lima: 'bg-lime-400',
+  lima: 'bg-malachite-400',
   unknown: 'bg-gray-900',
 };
