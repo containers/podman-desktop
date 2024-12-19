@@ -70,6 +70,7 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
 
 let isValid = true;
 let errorMessage: string | undefined = undefined;
+let existingFormData: { [key: string]: unknown } | undefined;
 
 let formEl: HTMLFormElement;
 
@@ -119,7 +120,9 @@ onMount(async () => {
       errorMessage = value.errorMessage;
       operationSuccessful = value.operationSuccessful;
       tokenId = value.tokenId;
+      existingFormData = value.formData;
     }
+    dataToConfigurationValues();
   }
 
   if (taskId === undefined) {
@@ -278,6 +281,29 @@ async function getConfigurationValue(configurationKey: IConfigurationPropertyRec
   }
 }
 
+function dataToConfigurationValues(): void {
+  if (!existingFormData) {
+    return;
+  }
+  for (let dataItem in existingFormData) {
+    const configurationKey = configurationKeys.find(configKey => configKey.id === dataItem);
+    if (
+      configurationKey?.type === 'number' &&
+      typeof existingFormData[dataItem] === 'string' &&
+      !isNaN(parseFloat(existingFormData[dataItem]))
+    ) {
+      existingFormData[dataItem] = parseFloat(existingFormData[dataItem]);
+    }
+    if (
+      typeof existingFormData[dataItem] === 'number' ||
+      typeof existingFormData[dataItem] === 'string' ||
+      typeof existingFormData[dataItem] === 'boolean'
+    ) {
+      configurationValues.set(dataItem, { modified: true, value: existingFormData[dataItem] });
+    }
+  }
+}
+
 let logsTerminal: Terminal;
 let loggerHandlerKey: symbol | undefined = undefined;
 
@@ -341,6 +367,7 @@ function updateStore() {
         operationStarted: operationStarted,
         errorMessage: errorMessage ?? '',
         tokenId,
+        formData: existingFormData,
       });
     }
     return map;
@@ -381,6 +408,7 @@ async function handleOnSubmit(e: any) {
   operationStarted = true;
   operationFailed = false;
   operationCancelled = false;
+  existingFormData = data;
 
   try {
     tokenId = await window.getCancellableTokenSource();
