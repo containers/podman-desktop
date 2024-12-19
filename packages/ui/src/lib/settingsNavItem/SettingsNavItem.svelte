@@ -73,7 +73,9 @@ function click(): void {
           <Fa class="mr-4" {icon} />
         {:else}
           {@const Icon = icon}
-          <Icon size="14" class="mr-4"/>
+          <div class="mr-4">
+            <Icon size="14" />
+          </div>
         {/if}
       {/if}
       {title}
