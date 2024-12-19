@@ -17,29 +17,36 @@
  ***********************************************************************/
 
 import { get } from 'svelte/store';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import { kubernetesContextsHealths, kubernetesContextsHealthsStore } from './kubernetes-context-health';
 
-const callbacks = new Map<string, any>();
+// We need to have separate tests files to run different tests, as there are global variables in the store file, which cannot be reset between tests
+
+// This file can be removed as soon as the experimental states mode is adopted as non experimental
+
+const callbacks = new Map<string, () => Promise<void>>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: () => Promise<void>) => {
     callbacks.set(message, callback);
   },
 };
 
-Object.defineProperty(global, 'window', {
-  value: {
-    kubernetesGetContextsHealths: vi.fn(),
-    addEventListener: eventEmitter.receive,
-    events: {
-      receive: eventEmitter.receive,
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      kubernetesGetContextsHealths: vi.fn(),
+      getConfigurationValue: vi.fn(),
+      addEventListener: eventEmitter.receive,
+      events: {
+        receive: eventEmitter.receive,
+      },
     },
-  },
-  writable: true,
+  });
 });
 
-test('kubernetesContextsHealths', async () => {
+test('kubernetesContextsHealths not in experimental states mode', async () => {
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
   const initialValues = [
     {
       contextName: 'context1',
@@ -53,42 +60,18 @@ test('kubernetesContextsHealths', async () => {
     },
   ];
 
-  const nextValues = [
-    {
-      contextName: 'context1',
-      checking: false,
-      reachable: true,
-    },
-    {
-      contextName: 'context2',
-      checking: false,
-      reachable: true,
-    },
-  ];
-
   vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(initialValues);
 
-  const kubernetesContextsHealthsInfo = kubernetesContextsHealthsStore.setup();
-  await kubernetesContextsHealthsInfo.fetch();
-  let currentValue = get(kubernetesContextsHealths);
-  expect(currentValue).toEqual(initialValues);
+  kubernetesContextsHealthsStore.setup();
 
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
-  await callbackExtensionsStarted();
+  await callbackExtensionsStarted!();
 
-  // send an event indicating the data is updated
-  const event = 'kubernetes-contexts-healths';
-  const callback = callbacks.get(event);
-  expect(callback).toBeDefined();
-  await callback();
-
-  // data has been updated in the backend
-  vi.mocked(window.kubernetesGetContextsHealths).mockResolvedValue(nextValues);
-
-  // check received data is updated
-  await kubernetesContextsHealthsInfo.fetch();
-  currentValue = get(kubernetesContextsHealths);
-  expect(currentValue).toEqual(nextValues);
+  // values are never fetched
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const currentValue = get(kubernetesContextsHealths);
+  expect(currentValue).toEqual([]);
+  expect(vi.mocked(window.kubernetesGetContextsHealths)).not.toHaveBeenCalled();
 });
