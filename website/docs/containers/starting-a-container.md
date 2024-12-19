@@ -9,7 +9,7 @@ tags: [starting-a-container]
 # Starting a container on your container engine
 
 With Podman Desktop, you can start a container from an image on your container engine.
-You can interact with the running container by using the terminal in Podman Desktop or by opening your browser to the exposed ports.
+You can interact with the running container by using the terminal or by opening your browser to the exposed ports.
 
 #### Prerequisites
 
@@ -33,7 +33,7 @@ You can interact with the running container by using the terminal in Podman Desk
 1. Go to the **Containers** component page.
 1. **<Icon icon="fa-solid fa-search" size="lg" />**: Enter your image name, such as `quay.io/podman/hello`, to find your running container.
 1. Click your running container name to perform any of the following tasks:
-   - [View logs](/docs/containers/viewing-container-logs)
+   - [View the logs](/docs/containers/viewing-container-logs)
    - Inspect the container
       1. Go to **Inspect**.
       1. Click the content area to activate it.
@@ -43,7 +43,7 @@ You can interact with the running container by using the terminal in Podman Desk
       1. Click the content area to activate it.
       1. Press <kbd>Ctrl</kbd> + <kbd>F</kbd> on Windows and Linux, or <kbd>⌘</kbd> + <kbd>F</kbd> on macOS to start searching the content.
       1. Optional: Copy the content to a YAML file.
-      1. Optional: Reuse this file to create a pod that you can can run on a Podman engine or a Kubernetes cluster. See [Pod creation with Kubernetes YAML](https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#creating-a-pod).
+      1. Optional: Reuse this file to create a pod that you can run on a Podman engine or a Kubernetes cluster. See [Pod creation with Kubernetes YAML](https://podman-desktop.io/blog/2024/10/05/kubernetes-blog#creating-a-pod).
    - [Access the terminal](/docs/containers/accessing-the-terminal)
    - Access the application by exposing a port:
       1. Click **<Icon icon="fa-solid fa-external-link" size="lg" />**.

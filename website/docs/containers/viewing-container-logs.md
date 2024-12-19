@@ -1,8 +1,8 @@
 ---
 sidebar_position: 32
 title: View the logs
-description: Access the terminal of a container.
-keywords: [podman desktop, podman, containers, terminal, logs]
+description: View the logs of a container.
+keywords: [podman desktop, podman, containers, logs]
 tags: [viewing-container-logs, container-logs]
 ---
 
