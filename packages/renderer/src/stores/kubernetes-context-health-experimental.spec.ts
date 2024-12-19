@@ -21,9 +21,9 @@ import { expect, test, vi } from 'vitest';
 
 import { kubernetesContextsHealths, kubernetesContextsHealthsStore } from './kubernetes-context-health';
 
-const callbacks = new Map<string, any>();
+const callbacks = new Map<string, () => Promise<void>>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: () => Promise<void>) => {
     callbacks.set(message, callback);
   },
 };
@@ -75,7 +75,7 @@ test('kubernetesContextsHealths in experimental states mode', async () => {
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
-  await callbackExtensionsStarted();
+  await callbackExtensionsStarted!();
 
   await vi.waitFor(() => {
     const currentValue = get(kubernetesContextsHealths);
@@ -89,7 +89,7 @@ test('kubernetesContextsHealths in experimental states mode', async () => {
   const event = 'kubernetes-contexts-healths';
   const callback = callbacks.get(event);
   expect(callback).toBeDefined();
-  await callback();
+  await callback!();
 
   // check received data is updated
   await vi.waitFor(() => {

@@ -25,9 +25,9 @@ import { kubernetesContextsHealths, kubernetesContextsHealthsStore } from './kub
 
 // This file can be removed as soon as the experimental states mode is adopted as non experimental
 
-const callbacks = new Map<string, any>();
+const callbacks = new Map<string, () => Promise<void>>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: () => Promise<void>) => {
     callbacks.set(message, callback);
   },
 };
@@ -66,7 +66,7 @@ test('kubernetesContextsHealths not in experimental states mode', async () => {
   // send 'extensions-already-started' event
   const callbackExtensionsStarted = callbacks.get('extensions-already-started');
   expect(callbackExtensionsStarted).toBeDefined();
-  await callbackExtensionsStarted();
+  await callbackExtensionsStarted!();
 
   // values are never fetched
   await new Promise(resolve => setTimeout(resolve, 500));
