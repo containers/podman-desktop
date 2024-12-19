@@ -51,7 +51,6 @@ const config = {
       external: [
         'electron',
         'chokidar',
-        '@kubernetes/client-node',
         'tar-fs',
         'ssh2',
         '@segment/analytics-node',
