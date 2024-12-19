@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import ExtensionBanner from '/@/lib/recommendation/ExtensionBanner.svelte';
 
@@ -59,14 +59,6 @@ const imageBackground: IExtensionBanner = {
     dark: 'data:image/png;base64-image-dark',
   },
 };
-
-const showMessageBoxMock = vi.fn();
-
-beforeAll(() => {
-  Object.defineProperty(window, 'showMessageBox', {
-    value: showMessageBoxMock,
-  });
-});
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -148,7 +140,9 @@ describe('backgrounds', () => {
   });
 });
 
-test('opening messageBox', async () => {
+test('opening messageBox and hiding banner', async () => {
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
+
   render(ExtensionBanner, {
     banner: gradientBackground,
     isDark: true,
@@ -161,10 +155,45 @@ test('opening messageBox', async () => {
   const closeButton = screen.getByLabelText('Close');
   closeButton.click();
 
-  expect(showMessageBoxMock).toBeCalledWith({
+  expect(window.showMessageBox).toBeCalledWith({
     title: 'Hide extension recommendation banners',
     message: `Do you want to hide extension recommendation banners?`,
     type: 'warning',
-    buttons: [`Don't hide`, 'Hide'],
+    buttons: [`No, keep them`, 'Yes, hide'],
   });
+
+  await waitFor(() =>
+    expect(window.telemetryTrack).toBeCalledWith('hideRecommendationExtensionBanner', {
+      choice: 'hide',
+    }),
+  );
+});
+
+test('opening messageBox and keeping banner', async () => {
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+
+  render(ExtensionBanner, {
+    banner: gradientBackground,
+    isDark: true,
+  });
+  await tick();
+
+  const card = screen.getByLabelText('Recommended extension');
+  expect(card).toBeDefined();
+
+  const closeButton = screen.getByLabelText('Close');
+  closeButton.click();
+
+  expect(window.showMessageBox).toBeCalledWith({
+    title: 'Hide extension recommendation banners',
+    message: `Do you want to hide extension recommendation banners?`,
+    type: 'warning',
+    buttons: [`No, keep them`, 'Yes, hide'],
+  });
+
+  await waitFor(() =>
+    expect(window.telemetryTrack).toBeCalledWith('hideRecommendationExtensionBanner', {
+      choice: 'keep',
+    }),
+  );
 });
