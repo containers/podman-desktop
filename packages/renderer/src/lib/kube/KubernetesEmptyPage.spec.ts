@@ -44,9 +44,9 @@ vi.mock('tinro', () => {
 
 (window as any).telemetryTrack = vi.fn();
 
-test('expect to call EmbeddableCatalogExtensionList for Kubernetes providers local and remote', () => {
+test('expect to call EmbeddableCatalogExtensionList for all Kubernetes provider (local and remote)', () => {
   render(KubernetesEmptyPage);
-  expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenCalledTimes(2);
+  expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenCalledTimes(1);
   expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenNthCalledWith(
     1,
     expect.anything(),
@@ -55,45 +55,33 @@ test('expect to call EmbeddableCatalogExtensionList for Kubernetes providers loc
       keywords: expect.arrayContaining(['provider']),
     }),
   );
-  expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenNthCalledWith(
-    2,
-    expect.anything(),
-    expect.objectContaining({
-      category: 'Kubernetes',
-      keywords: expect.arrayContaining(['provider']),
-    }),
-  );
 
   expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenCalledWith(
     expect.anything(),
     expect.objectContaining({
-      keywords: expect.arrayContaining(['local']),
-      title: 'Extensions to help you deploy Kubernetes clusters on your machine',
-    }),
-  );
-  expect(mocks.EmbeddableCatalogExtensionList).toHaveBeenCalledWith(
-    expect.anything(),
-    expect.objectContaining({
-      keywords: expect.arrayContaining(['remote']),
-      title: 'Extensions to help you connect to remote Kubernetes clusters',
+      keywords: expect.arrayContaining(['provider']),
+      title: 'Extensions to help you deploy Kubernetes clusters on your machine or connect remotely to:',
     }),
   );
 });
 
-test('expect to send telemetry when extension is installed or details viewed', () => {
+test('expect to send telemetry when extension that is installed is viewed', () => {
   mocks.EmbeddableCatalogExtensionList.mockImplementation((_, props) => {
-    if (props.keywords.includes('local')) {
-      props.oninstall('extension-local');
-    } else {
-      props.ondetails('extension-remote');
-    }
+    props.oninstall('extension-local');
   });
   render(KubernetesEmptyPage);
   expect(vi.mocked(window.telemetryTrack)).toHaveBeenCalledWith('kubernetes.nocontext.installExtension', {
     extension: 'extension-local',
   });
+});
+
+test('expect to send telemetry when extension that is ALREADY installed is viewed', () => {
+  mocks.EmbeddableCatalogExtensionList.mockImplementation((_, props) => {
+    props.ondetails('extension-local');
+  });
+  render(KubernetesEmptyPage);
   expect(vi.mocked(window.telemetryTrack)).toHaveBeenCalledWith('kubernetes.nocontext.showExtensionDetails', {
-    extension: 'extension-remote',
+    extension: 'extension-local',
   });
 });
 
@@ -104,7 +92,6 @@ test('expect to have links for each Kubernetes provider', async () => {
       internalId: '101',
       name: 'Name 1',
       kubernetesProviderConnectionCreation: true,
-      kubernetesProviderConnectionCreationDisplayName: 'Provider 1',
       kubernetesProviderConnectionCreationButtonTitle: 'Go create',
     } as unknown as ProviderInfo,
     {
@@ -121,17 +108,17 @@ test('expect to have links for each Kubernetes provider', async () => {
   ]);
   render(KubernetesEmptyPage);
   await waitFor(() => {
-    expect(screen.queryByLabelText('Go create Provider 1...')).not.toBeNull();
+    expect(screen.queryByLabelText('Go create')).not.toBeNull();
   });
 
-  const link1 = screen.getByLabelText('Go create Provider 1...');
+  const link1 = screen.getByLabelText('Go create');
   await fireEvent.click(link1);
   expect(router.goto).toHaveBeenCalledWith('/preferences/provider/101');
   expect(vi.mocked(window.telemetryTrack)).toHaveBeenCalledWith('kubernetes.nocontext.createNew', {
     provider: 'provider1',
   });
 
-  const link2 = screen.getByLabelText('Create new Name 2...');
+  const link2 = screen.getByLabelText('Create new');
   await fireEvent.click(link2);
   expect(router.goto).toHaveBeenCalledWith('/preferences/provider/102');
   expect(vi.mocked(window.telemetryTrack)).toHaveBeenCalledWith('kubernetes.nocontext.createNew', {
@@ -143,7 +130,7 @@ test('expect to have links for each Kubernetes provider', async () => {
   providerInfos.set([]);
   // Links should be updated (removed)
   await waitFor(() => {
-    expect(screen.queryByLabelText(/Provider 1/)).toBeNull();
-    expect(screen.queryByLabelText(/Name 2/)).toBeNull();
+    expect(screen.queryByLabelText(/Go create/)).toBeNull();
+    expect(screen.queryByLabelText(/Create new/)).toBeNull();
   });
 });
