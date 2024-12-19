@@ -110,6 +110,16 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
   }
   return !!$kubernetesContextsCheckingStateDelayed?.get(contextName);
 }
+
+async function startMonitoring(contextName: string): Promise<void> {
+  await window.telemetryTrack('kubernetes.monitoring.start.non-current');
+  $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts, contextName);
+  window.kubernetesRefreshContextState(contextName).catch((e: unknown) => {
+    if (e instanceof Error) {
+      $kubernetesContexts = setKubeUIContextError($kubernetesContexts, contextName, e);
+    }
+  });
+}
 </script>
 
 <SettingsPage title="Kubernetes Contexts">
@@ -200,17 +210,22 @@ function isContextBeingChecked(contextName: string, experimental: boolean): bool
                   </div>
                 </div>
               {:else}
-                <div class="flex flex-row pt-2">
-                  <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
-                  <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
-                    {#if context.isKnown}
-                      UNREACHABLE
-                    {:else}
-                      UNKNOWN
-                    {/if}
+                <div class="flex flex-col space-y-2">
+                  <div class="flex flex-row pt-2">
+                    <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
+                    <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
+                      {#if context.isKnown}
+                        UNREACHABLE
+                      {:else}
+                        UNKNOWN
+                      {/if}
+                    </div>
+                    {#if context.isBeingChecked}
+                      <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                    {/if}                    
                   </div>
-                  {#if context.isBeingChecked}
-                    <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                  {#if !$kubernetesContextsState.get(context.name)}
+                    <div><Button on:click={() => startMonitoring(context.name)}>Start monitoring</Button></div>
                   {/if}
                 </div>
               {/if}
