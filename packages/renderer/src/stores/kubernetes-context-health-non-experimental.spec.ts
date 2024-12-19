@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { get } from 'svelte/store';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import { kubernetesContextsHealths, kubernetesContextsHealthsStore } from './kubernetes-context-health';
 
@@ -32,15 +32,17 @@ const eventEmitter = {
   },
 };
 
-Object.defineProperty(global, 'window', {
-  value: {
-    kubernetesGetContextsHealths: vi.fn(),
-    getConfigurationValue: vi.fn(),
-    addEventListener: eventEmitter.receive,
-    events: {
-      receive: eventEmitter.receive,
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      kubernetesGetContextsHealths: vi.fn(),
+      getConfigurationValue: vi.fn(),
+      addEventListener: eventEmitter.receive,
+      events: {
+        receive: eventEmitter.receive,
+      },
     },
-  },
+  });
 });
 
 test('kubernetesContextsHealths not in experimental states mode', async () => {
