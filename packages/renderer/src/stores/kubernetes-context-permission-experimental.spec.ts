@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { get } from 'svelte/store';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import type { ContextPermission } from '/@api/kubernetes-contexts-permissions';
 
@@ -30,16 +30,18 @@ const eventEmitter = {
   },
 };
 
-Object.defineProperty(global, 'window', {
-  value: {
-    kubernetesGetContextsPermissions: vi.fn(),
-    getConfigurationValue: vi.fn(),
-    addEventListener: eventEmitter.receive,
-    events: {
-      receive: eventEmitter.receive,
+beforeAll(() => {
+  Object.defineProperty(global, 'window', {
+    value: {
+      kubernetesGetContextsPermissions: vi.fn(),
+      getConfigurationValue: vi.fn(),
+      addEventListener: eventEmitter.receive,
+      events: {
+        receive: eventEmitter.receive,
+      },
     },
-  },
-  writable: true,
+    writable: true,
+  });
 });
 
 test('kubernetesContextsPermissions in experimental states mode', async () => {
