@@ -20,6 +20,7 @@ import { expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '../api.js';
 import type { ContextHealthState } from './context-health-checker.js';
+import type { ContextResourcePermission } from './context-permissions-checker.js';
 import type { ContextsManagerExperimental } from './contexts-manager-experimental.js';
 import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -61,7 +62,10 @@ test('ContextsStatesDispatcher should call updatePermissions when onContextPermi
     getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
   } as unknown as ContextsManagerExperimental;
-  const apiSender: ApiSenderType = {} as unknown as ApiSenderType;
+  const apiSender: ApiSenderType = {
+    send: vi.fn(),
+  } as unknown as ApiSenderType;
+  vi.mocked(manager.getPermissions).mockReturnValue(new Map<string, Map<string, ContextResourcePermission>>());
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
   const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates');
   const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions');
@@ -87,6 +91,7 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
   const apiSender: ApiSenderType = {
     send: vi.fn(),
   } as unknown as ApiSenderType;
+  vi.mocked(manager.getPermissions).mockReturnValue(new Map<string, Map<string, ContextResourcePermission>>());
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
   const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates');
   const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions');
@@ -149,4 +154,103 @@ test('updateHealthStates should call apiSender.send with kubernetes-contexts-hea
   vi.spyOn(dispatcher, 'getContextsHealths').mockReturnValue([]);
   dispatcher.updateHealthStates();
   expect(sendMock).toHaveBeenCalledWith('kubernetes-contexts-healths');
+});
+
+test('getContextsPermissions should return the values as an array', () => {
+  const manager: ContextsManagerExperimental = {
+    getPermissions: vi.fn(),
+  } as unknown as ContextsManagerExperimental;
+  const apiSender: ApiSenderType = {
+    send: vi.fn(),
+  } as unknown as ApiSenderType;
+  const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
+  const value = new Map<string, Map<string, ContextResourcePermission>>([
+    [
+      'context1',
+      new Map<string, ContextResourcePermission>([
+        [
+          'resource1',
+          {
+            attrs: {},
+            permitted: true,
+            reason: 'ok',
+          },
+        ],
+        [
+          'resource2',
+          {
+            attrs: {},
+            permitted: false,
+            reason: 'nok',
+          },
+        ],
+      ]),
+    ],
+    [
+      'context2',
+      new Map<string, ContextResourcePermission>([
+        [
+          'resource1',
+          {
+            attrs: {},
+            permitted: false,
+            reason: 'nok',
+          },
+        ],
+        [
+          'resource2',
+          {
+            attrs: {},
+            permitted: true,
+            reason: 'ok',
+          },
+        ],
+      ]),
+    ],
+  ]);
+  vi.mocked(manager.getPermissions).mockReturnValue(value);
+  const result = dispatcher.getContextsPermissions();
+  expect(result).toEqual([
+    {
+      contextName: 'context1',
+      resourceName: 'resource1',
+      permitted: true,
+      reason: 'ok',
+    },
+    {
+      contextName: 'context1',
+      resourceName: 'resource2',
+      permitted: false,
+      reason: 'nok',
+    },
+    {
+      contextName: 'context2',
+      resourceName: 'resource1',
+      permitted: false,
+      reason: 'nok',
+    },
+    {
+      contextName: 'context2',
+      resourceName: 'resource2',
+      permitted: true,
+      reason: 'ok',
+    },
+  ]);
+});
+
+test('updatePermissions should call apiSender.send with kubernetes-contexts-permissions', () => {
+  const manager: ContextsManagerExperimental = {
+    onContextHealthStateChange: vi.fn(),
+    onContextPermissionResult: vi.fn(),
+    onContextDelete: vi.fn(),
+    getHealthCheckersStates: vi.fn(),
+    getPermissions: vi.fn(),
+  } as unknown as ContextsManagerExperimental;
+  const apiSender: ApiSenderType = {
+    send: vi.fn(),
+  } as unknown as ApiSenderType;
+  const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
+  vi.spyOn(dispatcher, 'getContextsPermissions').mockReturnValue([]);
+  dispatcher.updatePermissions();
+  expect(vi.mocked(apiSender.send)).toHaveBeenCalledWith('kubernetes-contexts-permissions');
 });
