@@ -25,5 +25,5 @@ Make sure you have:
 1. Select the **Terminal** tab.
 1. Run any commands to interact with the container. For example, run the `ls -al` command to list hidden files.
   ![interaction with container](img/interacting-with-container.png)
-1. Click the **close** icon on the right-hand side of the page.
+1. Click the **close** icon on the right side of the page.
 

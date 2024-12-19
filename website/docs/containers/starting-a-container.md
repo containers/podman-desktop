@@ -26,7 +26,7 @@ You can interact with the running container by using the terminal in Podman Desk
    ![starting a container](img/starting-a-container.png)
 1. Select the **Logs** tab to view the program running.
    ![program running](img/hello-world-program-running.png)
-1. Click the **close** icon on the right-hand side of the page.
+1. Click the **close** icon on the right side of the page.
 
 #### Verification
 

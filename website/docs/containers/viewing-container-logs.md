@@ -24,6 +24,6 @@ Make sure you have:
     ![python app container](img/python-app-container.png)
 1. Analyze the logs of the container.
     ![analyze the logs](img/analyzing-the-logs.png)
-1. Click the **close** icon on the right-hand side of the page.
+1. Click the **close** icon on the right side of the page.
 
 
