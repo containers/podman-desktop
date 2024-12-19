@@ -1,7 +1,10 @@
 <script lang="ts">
+import { CloseButton } from '@podman-desktop/ui-svelte';
+
 import FeaturedExtension from '/@/lib/featured/FeaturedExtension.svelte';
 
-import type { ExtensionBanner } from '../../../../main/src/plugin/recommendations/recommendations-api';
+import type { MessageBoxReturnValue } from '../../../../main/src/plugin/message-box';
+import { type ExtensionBanner } from '../../../../main/src/plugin/recommendations/recommendations-api';
 
 // Pass in the theme appearance colour of PD to the banner, we do it here so we don't have to do multiple isDark checks when rendering multiple banners.
 let { banner, isDark }: { banner: ExtensionBanner; isDark: boolean } = $props();
@@ -22,6 +25,25 @@ $effect(() => {
     style = undefined;
   }
 });
+
+async function onClose(): Promise<void> {
+  let result: MessageBoxReturnValue = { response: -1 };
+  try {
+    result = await window.showMessageBox({
+      title: 'Hide extension recommendation banners',
+      message: `Do you want to hide extension recommendation banners?`,
+      type: 'warning',
+      buttons: [`No, keep them`, 'Yes, hide'],
+    });
+
+    if (result && result.response === 1) {
+      await window.updateConfigurationValue(`extensions.ignoreBannerRecommendations`, true, 'DEFAULT');
+    }
+  } finally {
+    let choice: 'hide' | 'keep' = result && result.response === 1 ? 'hide' : 'keep';
+    await window.telemetryTrack('hideRecommendationExtensionBanner', { choice });
+  }
+}
 </script>
 
 <div
@@ -46,6 +68,9 @@ $effect(() => {
 
   <!-- feature extension actions -->
   <div class="flex flex-col">
+    <div class="flex flex-row justify-end">
+      <CloseButton on:click={onClose} />
+    </div>
     <FeaturedExtension displayTitle={true} variant="secondary" featuredExtension={banner.featured} />
     <span class="text-base w-full text-end">{banner.featured.description}</span>
   </div>
