@@ -70,7 +70,12 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 
     await ensureCliInstalled(page, 'Kind');
   }
-  await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+
+  if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
+    await createKindCluster(page, CLUSTER_NAME, false, CLUSTER_CREATION_TIMEOUT, { useIngressController: false });
+  } else {
+    await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+  }
 });
 
 test.afterAll(async ({ runner, page }) => {
@@ -81,11 +86,6 @@ test.afterAll(async ({ runner, page }) => {
     await runner.close();
   }
 });
-
-test.skip(
-  !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-  'Tests suite should not run on Linux platform',
-);
 
 test.describe('Kubernetes resources End-to-End test', { tag: '@k8s_e2e' }, () => {
   test('Kubernetes Nodes test', async ({ navigationBar }) => {

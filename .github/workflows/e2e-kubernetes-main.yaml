@@ -1,0 +1,135 @@
+#
+# Copyright (C) 2023-2024 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: e2e-kubernetes-tests-main
+
+on:
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+    inputs:
+      organization:
+        default: 'podman-desktop'
+        description: 'Organization of the Podman Desktop repository'
+        type: string
+        required: true
+      repositoryName:
+        default: 'podman-desktop'
+        description: 'Podman Desktop repository name'
+        type: string
+        required: true
+      branch:
+        default: 'main'
+        description: 'Podman Desktop repo branch'
+        type: string
+        required: true
+
+jobs:
+  e2e-tests:
+    name: Run All E2E tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
+          ref: ${{ github.event.inputs.branch }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
+      - name: Update podman
+        run: |
+          echo "ubuntu version from kubic repository to install podman we need (v5)"
+          ubuntu_version='23.10'
+          echo "Add unstable kubic repo into list of available sources and get the repo key"
+          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
+          curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add -
+          echo "install necessary dependencies for criu package which is not part of ${ubuntu_version}"
+          sudo apt-get install -qq libprotobuf32t64 python3-protobuf libnet1
+          echo "install criu manually from static location"
+          curl -sLO http://cz.archive.ubuntu.com/ubuntu/pool/universe/c/criu/criu_3.16.1-2_amd64.deb && sudo dpkg -i criu_3.16.1-2_amd64.deb
+          echo "Updating all dependencies..."
+          sudo apt-get update -qq
+          echo "installing/update podman package..."
+          sudo apt-get -qq -y install podman || { echo "Start fallback steps for podman nightly installation from a static mirror" && \
+            sudo sh -c "echo 'deb http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
+            curl -L "http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add - && \
+            sudo apt-get update && \
+            sudo apt-get -y install podman; }
+          podman version
+
+      - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
+        run: |
+          # allow unprivileged user namespace
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Set cgroup_manager to 'cgroupfs' instead of systemd
+        run: |
+          mkdir -p ~/.config/containers
+          cat <<EOT >> ~/.config/containers/containers.conf
+          [engine]
+          cgroup_manager="cgroupfs"
+          EOT
+          podman info 
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+            
+      - name: Run E2E kubernetes tests in Production Mode
+        env:
+          PODMANDESKTOP_CI_BOT_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
+          TEST_PODMAN_MACHINE: 'true'
+          SKIP_KIND_INSTALL: 'true'
+          ELECTRON_ENABLE_INSPECT: true
+        run: |
+          echo "Compiling the Podman Desktop in production mode"
+          pnpm compile:current --linux dir
+          path=$(realpath ./dist/linux-unpacked/podman-desktop)
+          echo "Podman Desktop built binary: $path"
+          export PODMAN_DESKTOP_BINARY_PATH=$path
+          pnpm test:e2e:k8s
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always() # always run even if the previous step fails
+        with:
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          annotate_only: true
+          require_tests:  true
+          report_paths: '**/*results.xml'      
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k8s-e2e-tests
+          path: |
+            ./tests/**/output/
+            !./tests/**/traces/raw
