@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { KubernetesObject } from '@kubernetes/client-node';
+
 import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
 import type { ContextPermission } from '/@api/kubernetes-contexts-permissions.js';
 
@@ -38,6 +40,7 @@ export class ContextsStatesDispatcher {
       this.updateHealthStates();
       this.updatePermissions();
     });
+    this.manager.onResourceUpdated(event => this.updateResource(event.resourceName));
   }
 
   updateHealthStates(): void {
@@ -69,5 +72,13 @@ export class ContextsStatesDispatcher {
         reason: contextResourcePermission.reason,
       }));
     });
+  }
+
+  updateResource(resourceName: string): void {
+    this.apiSender.send(`kubernetes-${resourceName}`);
+  }
+
+  getResources(resourceName: string): { contextName: string; items: readonly KubernetesObject[] }[] {
+    return this.manager.getResources(resourceName);
   }
 }

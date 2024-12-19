@@ -91,6 +91,7 @@ import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
 import type { ContextPermission } from '/@api/kubernetes-contexts-permissions.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
+import type { KubernetesContextResources } from '/@api/kubernetes-resources.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -2597,6 +2598,13 @@ export class PluginSystem {
       return kubernetesClient.getContextsPermissions();
     });
 
+    this.ipcHandle(
+      'kubernetes:getResources',
+      async (_listener, resourceName: string): Promise<KubernetesContextResources[]> => {
+        return kubernetesClient.getResources(resourceName);
+      },
+    );
+    
     const kubernetesExecCallbackMap = new Map<
       number,
       { onStdIn: (data: string) => void; onResize: (columns: number, rows: number) => void }
