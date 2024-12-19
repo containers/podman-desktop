@@ -23,6 +23,7 @@ import { NotificationImpl } from '/@/plugin/tasks/notification-impl.js';
 import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
 import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
 import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
+import { CONFIGURATION_SECTION } from '/@api/configuration/constants.js';
 import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo.js';
 import { ExperimentalTasksSettings } from '/@api/tasks-preferences.js';
 
@@ -60,7 +61,7 @@ export class TaskManager {
 
     this.configurationRegistry.registerConfigurations([
       {
-        id: 'preferences.experimental.tasks',
+        id: `${CONFIGURATION_SECTION.EXPERIMENTAL}.tasks`,
         title: 'Tasks',
         type: 'object',
         properties: {

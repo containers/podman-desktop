@@ -25,6 +25,7 @@ import type { ProviderContainerConnection } from '@podman-desktop/api';
 import type { Mock } from 'vitest';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 
+import { CONFIGURATION_SECTION } from '/@api/configuration/constants.js';
 import type { DockerSocketServerInfoType } from '/@api/docker-compatibility-info.js';
 import type { ProviderInfo } from '/@api/provider-info.js';
 
@@ -92,8 +93,8 @@ test('should register a configuration', async () => {
 
   expect(configurationRegistry.registerConfigurations).toBeCalled();
   const configurationNode = vi.mocked(configurationRegistry.registerConfigurations).mock.calls[0]?.[0][0];
-  expect(configurationNode?.id).toBe('preferences.experimental.dockerCompatibility');
-  expect(configurationNode?.title).toBe('Experimental (Docker Compatibility)');
+  expect(configurationNode?.id).toBe(`${CONFIGURATION_SECTION.EXPERIMENTAL}.dockerCompatibility`);
+  expect(configurationNode?.title).toBe('Docker Compatibility');
   expect(configurationNode?.properties).toBeDefined();
   expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(1);
   expect(configurationNode?.properties?.[TestDockerCompatibility.ENABLED_FULL_KEY]).toBeDefined();
