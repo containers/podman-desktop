@@ -6,6 +6,7 @@ import { router } from 'tinro';
 
 import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
 import { kubernetesContextsCheckingStateDelayed, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import { kubernetesPods } from '/@/stores/kubernetes-pods';
 import type { KubeContext } from '/@api/kubernetes-context';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
@@ -33,6 +34,10 @@ const kubernetesContextsWithStates: KubeContextWithStates[] = $derived(
     isBeingChecked: isContextBeingChecked(kubeContext.name, experimentalStates),
   })),
 );
+
+$effect(() => {
+  console.log('==> pods', $kubernetesPods);
+});
 
 onMount(async () => {
   try {
