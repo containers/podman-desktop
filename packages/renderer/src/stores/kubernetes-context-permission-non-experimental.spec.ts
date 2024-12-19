@@ -40,7 +40,6 @@ beforeAll(() => {
         receive: eventEmitter.receive,
       },
     },
-    writable: true,
   });
 });
 
