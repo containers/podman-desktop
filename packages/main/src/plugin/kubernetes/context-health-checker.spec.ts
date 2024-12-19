@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Cluster, Context, User } from '@kubernetes/client-node';
-import { AbortError, Health } from '@kubernetes/client-node';
+import { Health } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ContextHealthChecker } from './context-health-checker.js';
@@ -158,7 +158,9 @@ test('onStateChange is not fired when readyz is rejected with an abort error', a
   const onStateChangeCB = vi.fn();
   hc.onStateChange(onStateChangeCB);
 
-  readyzMock.mockRejectedValue(new AbortError('a message'));
+  const err = new Error('a message');
+  err.name = 'AbortError';
+  readyzMock.mockRejectedValue(err);
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledOnce();
   expect(onStateChangeCB).toHaveBeenCalledWith({
