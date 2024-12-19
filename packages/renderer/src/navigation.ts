@@ -167,5 +167,8 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
         `/kubernetes/configmapsSecrets/secret/${request.parameters.name}/${request.parameters.namespace}/summary`,
       );
       break;
+    case NavigationPage.KUBERNETES_RESOURCE_CREATE:
+      router.goto(`/kubernetes/resources/create`);
+      break;
   }
 };
