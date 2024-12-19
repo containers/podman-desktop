@@ -69,11 +69,14 @@ export class DockerCompatibility {
   }
 
   protected getTypeFromServerInfo(
-    info: { OperatingSystem?: string },
+    info: { Name?: string; OperatingSystem?: string },
     podmanInfo?: unknown,
   ): DockerSocketServerInfoType {
     if (info.OperatingSystem === 'Docker Desktop') {
       return 'docker';
+    } else if (info.Name?.startsWith('lima')) {
+      // lima instance host names all start with "lima"
+      return 'lima';
     } else if (info.OperatingSystem === 'podman' || podmanInfo) {
       // if podman info is available, then it is podman
       return 'podman';

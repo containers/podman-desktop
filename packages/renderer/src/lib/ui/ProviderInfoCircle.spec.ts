@@ -54,6 +54,16 @@ test('Expect docker is blue', async () => {
   expect(circle).toHaveClass('bg-sky-400');
 });
 
+test('Expect lima is lime green', async () => {
+  const type = 'lima';
+  render(ProviderInfoCircle, {
+    type,
+  });
+  const circle = screen.getByLabelText('Provider info circle');
+  expect(circle).toBeInTheDocument();
+  expect(circle).toHaveClass('bg-malachite-400');
+});
+
 test('Expect unknown is gray', async () => {
   const type = undefined;
   render(ProviderInfoCircle, {

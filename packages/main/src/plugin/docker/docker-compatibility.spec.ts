@@ -44,7 +44,7 @@ const providerRegistry: ProviderRegistry = {
 
 export class TestDockerCompatibility extends DockerCompatibility {
   public override getTypeFromServerInfo(
-    info: { OperatingSystem?: string },
+    info: { Name?: string; OperatingSystem?: string },
     podmanInfo?: unknown,
   ): DockerSocketServerInfoType {
     return super.getTypeFromServerInfo(info, podmanInfo);
@@ -135,6 +135,14 @@ describe('getTypeFromServerInfo', async () => {
     expect(dockerCompatibility.getTypeFromServerInfo(serverInfo, podmanInfo)).toBe('podman');
   });
 
+  test('check lima', async () => {
+    const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
+    const serverInfo = {
+      Name: 'lima-default',
+      OperatingSystem: 'Linux',
+    };
+    expect(dockerCompatibility.getTypeFromServerInfo(serverInfo)).toBe('lima');
+  });
   test('check unknown', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
     const serverInfo = {
