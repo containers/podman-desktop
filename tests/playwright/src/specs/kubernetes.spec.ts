@@ -81,9 +81,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(90000);
   try {
-    if (!(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')) {
-      await deleteKindCluster(page, KIND_NODE, CLUSTER_NAME);
-    }
+    await deleteKindCluster(page, KIND_NODE, CLUSTER_NAME);
   } finally {
     await runner.close();
   }
