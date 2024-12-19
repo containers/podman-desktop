@@ -39,7 +39,7 @@ let resourcesPage: ResourcesPage;
 
 let kindResourceCard: ResourceConnectionCardPage;
 
-const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
+const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
 test.beforeAll(async ({ runner, page, welcomePage }) => {
   runner.setVideoAndTraceName('kind-e2e');
@@ -51,7 +51,9 @@ test.beforeAll(async ({ runner, page, welcomePage }) => {
 
 test.afterAll(async ({ runner, page }) => {
   try {
-    await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    if (!(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')) {
+      await deleteKindCluster(page, KIND_CONTAINER_NAME, CLUSTER_NAME);
+    }
   } finally {
     await runner.close();
   }
@@ -61,7 +63,7 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
   test.describe
     .serial('Kind installation', () => {
       test('Install Kind CLI', async ({ page, navigationBar }) => {
-        test.skip(!!skipKindInstallation, 'Skipping Kind installation');
+        test.skip(!!skipKindInstallation, 'Skipping Kind cluster installation');
         const settingsBar = await navigationBar.openSettings();
         await settingsBar.cliToolsTab.click();
 
@@ -85,13 +87,13 @@ test.describe.serial('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
       });
     });
   test.describe('Kind cluster operations', () => {
-    test.skip(
-      !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-      'Tests suite should not run on Linux platform',
-    );
     test('Create a Kind cluster', async ({ page }) => {
       test.setTimeout(CLUSTER_CREATION_TIMEOUT);
-      await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+      if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
+        await createKindCluster(page, CLUSTER_NAME, false, CLUSTER_CREATION_TIMEOUT, { useIngressController: false });
+      } else {
+        await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+      }
     });
 
     test('Check resources added with the Kind cluster', async ({ page, navigationBar }) => {

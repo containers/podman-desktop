@@ -42,7 +42,7 @@ const CONTAINER_START_PARAMS: ContainerInteractiveParams = {
   attachTerminal: false,
 };
 
-const skipKindInstallation = process.env.SKIP_KIND_INSTALL ? process.env.SKIP_KIND_INSTALL : false;
+const skipKindInstallation = process.env.SKIP_KIND_INSTALL === 'true';
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   test.setTimeout(350_000);
@@ -56,7 +56,12 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 
     await ensureCliInstalled(page, 'Kind');
   }
-  await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+
+  if (process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux') {
+    await createKindCluster(page, CLUSTER_NAME, false, CLUSTER_CREATION_TIMEOUT, { useIngressController: false });
+  } else {
+    await createKindCluster(page, CLUSTER_NAME, true, CLUSTER_CREATION_TIMEOUT);
+  }
 });
 
 test.afterAll(async ({ runner, page }) => {
@@ -70,11 +75,6 @@ test.afterAll(async ({ runner, page }) => {
     console.log('Runner closed');
   }
 });
-
-test.skip(
-  !!process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux',
-  'Tests suite should not run on Linux platform',
-);
 
 test.describe.serial('Deploy a container to the Kind cluster', { tag: '@k8s_e2e' }, () => {
   test('Pull an image and start a container', async ({ navigationBar }) => {
