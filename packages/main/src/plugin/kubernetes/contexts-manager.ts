@@ -402,7 +402,12 @@ export class ContextsManager {
           sendGeneral: true,
           currentContext: this.kubeConfig.currentContext,
           resources: { deployments: true },
-          update: state => state.resources.deployments.push(obj),
+          update: state => {
+            state.resources.deployments = state.resources.deployments.filter(
+              o => o.metadata?.uid !== obj.metadata?.uid,
+            );
+            state.resources.deployments.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -448,7 +453,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { configmaps: true },
-          update: state => state.resources.configmaps.push(obj),
+          update: state => {
+            state.resources.configmaps = state.resources.configmaps.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.configmaps.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -490,7 +498,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           resources: { secrets: true },
           currentContext: this.kubeConfig.currentContext,
-          update: state => state.resources.secrets.push(obj),
+          update: state => {
+            state.resources.secrets = state.resources.secrets.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.secrets.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -535,7 +546,12 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { persistentvolumeclaims: true },
-          update: state => state.resources.persistentvolumeclaims.push(obj),
+          update: state => {
+            state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
+              o => o.metadata?.uid !== obj.metadata?.uid,
+            );
+            state.resources.persistentvolumeclaims.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -579,7 +595,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { nodes: true },
-          update: state => state.resources.nodes.push(obj),
+          update: state => {
+            state.resources.nodes = state.resources.nodes.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.nodes.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -619,7 +638,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { services: true },
-          update: state => state.resources.services.push(obj),
+          update: state => {
+            state.resources.services = state.resources.services.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.services.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -659,7 +681,10 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { ingresses: true },
-          update: state => state.resources.ingresses.push(obj),
+          update: state => {
+            state.resources.ingresses = state.resources.ingresses.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+            state.resources.ingresses.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -705,7 +730,12 @@ export class ContextsManager {
         this.states.setStateAndDispatch(context.name, {
           currentContext: this.kubeConfig.currentContext,
           resources: { routes: true },
-          update: state => state.resources.routes.push(obj),
+          update: state => {
+            state.resources.routes = state.resources.routes.filter(
+              o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+            );
+            state.resources.routes.push(obj);
+          },
         });
       },
       onUpdate: obj => {
@@ -751,6 +781,9 @@ export class ContextsManager {
           resources: { events: true },
           update: state => {
             if (KINDS_WITH_EVENTS.includes(obj.involvedObject.kind)) {
+              state.resources.events = state.resources.events.filter(
+                o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+              );
               state.resources.events.push(obj);
             }
           },
