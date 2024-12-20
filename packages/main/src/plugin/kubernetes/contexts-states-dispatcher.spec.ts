@@ -34,6 +34,7 @@ test('ContextsStatesDispatcher should call updateHealthStates when onContextHeal
     onContextDelete: vi.fn(),
     getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
+    onResourceCountUpdated: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
     send: vi.fn(),
@@ -61,6 +62,7 @@ test('ContextsStatesDispatcher should call updatePermissions when onContextPermi
     onContextDelete: vi.fn(),
     getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
+    onResourceCountUpdated: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
     send: vi.fn(),
@@ -87,6 +89,7 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
     onContextDelete: onContextDeleteMock,
     getHealthCheckersStates: vi.fn(),
     getPermissions: vi.fn(),
+    onResourceCountUpdated: vi.fn(),
   } as unknown as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
     send: vi.fn(),
@@ -239,18 +242,21 @@ test('getContextsPermissions should return the values as an array', () => {
 });
 
 test('updatePermissions should call apiSender.send with kubernetes-contexts-permissions', () => {
-  const manager: ContextsManagerExperimental = {
-    onContextHealthStateChange: vi.fn(),
-    onContextPermissionResult: vi.fn(),
-    onContextDelete: vi.fn(),
-    getHealthCheckersStates: vi.fn(),
-    getPermissions: vi.fn(),
-  } as unknown as ContextsManagerExperimental;
+  const manager: ContextsManagerExperimental = {} as ContextsManagerExperimental;
   const apiSender: ApiSenderType = {
     send: vi.fn(),
   } as unknown as ApiSenderType;
   const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
-  vi.spyOn(dispatcher, 'getContextsPermissions').mockReturnValue([]);
   dispatcher.updatePermissions();
   expect(vi.mocked(apiSender.send)).toHaveBeenCalledWith('kubernetes-contexts-permissions');
+});
+
+test('updateResourcesCount should call apiSender.send with kubernetes-resources-count', () => {
+  const manager: ContextsManagerExperimental = {} as ContextsManagerExperimental;
+  const apiSender: ApiSenderType = {
+    send: vi.fn(),
+  } as unknown as ApiSenderType;
+  const dispatcher = new ContextsStatesDispatcher(manager, apiSender);
+  dispatcher.updateResourcesCount();
+  expect(vi.mocked(apiSender.send)).toHaveBeenCalledWith('kubernetes-resources-count');
 });

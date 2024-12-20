@@ -19,6 +19,7 @@
 import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
+import type { ResourceCount } from '/@api/kubernetes-resource-count.js';
 
 import type { Event } from '../events/emitter.js';
 import { Emitter } from '../events/emitter.js';
@@ -61,6 +62,12 @@ export class ContextsManagerExperimental {
 
   #onContextDelete = new Emitter<DispatcherEvent>();
   onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
+
+  #onResourceUpdated = new Emitter<{ contextName: string; resourceName: string }>();
+  onResourceUpdated: Event<{ contextName: string; resourceName: string }> = this.#onResourceUpdated.event;
+
+  #onResourceCountUpdated = new Emitter<{ contextName: string; resourceName: string }>();
+  onResourceCountUpdated: Event<{ contextName: string; resourceName: string }> = this.#onResourceCountUpdated.event;
 
   constructor() {
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
@@ -123,8 +130,17 @@ export class ContextsManagerExperimental {
             }
             const informer = factory.informer.createInformer(event.kubeConfig);
             this.#informers.set(contextName, resource, informer);
-            informer.onCacheUpdated((_e: CacheUpdatedEvent) => {
-              /* send event to dispatcher */
+            informer.onCacheUpdated((e: CacheUpdatedEvent) => {
+              this.#onResourceUpdated.fire({
+                contextName: e.kubeconfig.getKubeConfig().currentContext,
+                resourceName: e.resourceName,
+              });
+              if (e.countChanged) {
+                this.#onResourceCountUpdated.fire({
+                  contextName: e.kubeconfig.getKubeConfig().currentContext,
+                  resourceName: e.resourceName,
+                });
+              }
             });
             informer.onOffline((_e: OfflineEvent) => {
               /* send event to dispatcher */
@@ -180,6 +196,14 @@ export class ContextsManagerExperimental {
     return result;
   }
 
+  getResourcesCount(): ResourceCount[] {
+    return this.#objectCaches.getAll().map(informer => ({
+      contextName: informer.contextName,
+      resourceName: informer.resourceName,
+      count: informer.value.list().length,
+    }));
+  }
+
   getContextsGeneralState(): Map<string, ContextGeneralState> {
     return new Map<string, ContextGeneralState>();
   }
@@ -232,7 +256,7 @@ export class ContextsManagerExperimental {
   // disposeAllInformers disposes all informers and removes them from registry
   private disposeAllInformers(): void {
     for (const informer of this.#informers.getAll()) {
-      informer.dispose();
+      informer.value.dispose();
     }
   }
 }

@@ -16,6 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface Details<T> {
+  contextName: string;
+  resourceName: string;
+  value: T;
+}
+
 // ContextResourceRegistry stores objects of type T for contexts and resources
 export class ContextResourceRegistry<T> {
   #registry: Map<string, Map<string, T>> = new Map();
@@ -31,11 +37,13 @@ export class ContextResourceRegistry<T> {
     return this.#registry.get(context)?.get(resource);
   }
 
-  getAll(): T[] {
-    const result: T[] = [];
-    for (const contexts of this.#registry.values()) {
-      result.push(...contexts.values());
-    }
-    return result;
+  getAll(): Details<T>[] {
+    return Array.from(this.#registry.entries()).flatMap(([contextName, resources]) => {
+      return Array.from(resources.entries()).map(([resourceName, value]) => ({
+        contextName,
+        resourceName,
+        value,
+      }));
+    });
   }
 }

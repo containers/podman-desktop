@@ -25,7 +25,7 @@ import type {
   User,
   V1ObjectMeta,
 } from '@kubernetes/client-node';
-import { ERROR, KubeConfig } from '@kubernetes/client-node';
+import { DELETE, ERROR, KubeConfig, UPDATE } from '@kubernetes/client-node';
 import { expect, test, vi } from 'vitest';
 
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -96,7 +96,7 @@ test('ResourceInformer should eventually return the list of resources', async ()
   });
 });
 
-test('ResourceInformer should fire onCacheUpdated event', async () => {
+test('ResourceInformer should fire onCacheUpdated event with countChanged to true when informer is started an resources exist', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
   const listFn = vi.fn();
@@ -108,7 +108,65 @@ test('ResourceInformer should fire onCacheUpdated event', async () => {
   informer.onCacheUpdated(onCacheUpdatedCB);
   informer.start();
   await vi.waitFor(() => {
-    expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresource' });
+    expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresource', countChanged: true });
+  });
+});
+
+test('ResourceInformer should fire onCacheUpdated event with countChanged to true when resources are deleted', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const listFn = vi.fn();
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  const items = [
+    { metadata: { name: 'res1', namespace: 'ns1' } },
+    { metadata: { name: 'res2', namespace: 'ns1' } },
+  ] as MyResource[];
+  listFn.mockResolvedValue({ items: items });
+  const informer = new TestResourceInformer<MyResource>(kubeconfig, '/a/path', listFn, 'myresource');
+  const getListWatchOnMock = vi.fn();
+  vi.spyOn(informer, 'getListWatch').mockReturnValue({
+    on: getListWatchOnMock,
+    start: vi.fn().mockResolvedValue({}),
+  } as unknown as ListWatch<MyResource>);
+  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
+    if (event === DELETE) {
+      f(items[0]!);
+    }
+  });
+  const onCacheUpdatedCB = vi.fn();
+  informer.onCacheUpdated(onCacheUpdatedCB);
+  informer.start();
+  await vi.waitFor(() => {
+    expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresource', countChanged: true });
+  });
+});
+
+test('ResourceInformer should fire onCacheUpdated event with countChanged to false when resources are updated', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const listFn = vi.fn();
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  const items = [
+    { metadata: { name: 'res1', namespace: 'ns1' } },
+    { metadata: { name: 'res2', namespace: 'ns1' } },
+  ] as MyResource[];
+  listFn.mockResolvedValue({ items: items });
+  const informer = new TestResourceInformer<MyResource>(kubeconfig, '/a/path', listFn, 'myresource');
+  const getListWatchOnMock = vi.fn();
+  vi.spyOn(informer, 'getListWatch').mockReturnValue({
+    on: getListWatchOnMock,
+    start: vi.fn().mockResolvedValue({}),
+  } as unknown as ListWatch<MyResource>);
+  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
+    if (event === UPDATE) {
+      f({ metadata: { ...items[0]!.metadata, resourceVersion: '2' } });
+    }
+  });
+  const onCacheUpdatedCB = vi.fn();
+  informer.onCacheUpdated(onCacheUpdatedCB);
+  informer.start();
+  await vi.waitFor(() => {
+    expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresource', countChanged: false });
   });
 });
 
