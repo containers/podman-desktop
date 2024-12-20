@@ -1984,10 +1984,6 @@ export function initExposure(): void {
     return ipcInvoke('kubernetes-client:listRoutes');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListServices', async (): Promise<V1Service[]> => {
-    return ipcInvoke('kubernetes-client:listServices');
-  });
-
   let onDataCallbacksKubernetesPodLogId = 0;
   const onDataCallbacksKubernetesPodLog = new Map<number, (name: string, data: string) => void>();
   contextBridge.exposeInMainWorld(

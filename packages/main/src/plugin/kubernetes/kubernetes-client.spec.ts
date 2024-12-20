@@ -900,56 +900,6 @@ test('Expect deleteRoute to be called if there is active connection', async () =
   expect(deleteRouteMock).toBeCalled();
 });
 
-test('should return empty service list if there is no active namespace', async () => {
-  const client = createTestClient();
-
-  const list = await client.listServices();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty service list if cannot connect to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listServices();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty service list if cannot execute call to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    listNamespacedService: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listServices();
-  expect(list.length).toBe(0);
-});
-
-test('should return service list if connection to cluster is ok', async () => {
-  const v1Service: V1Service = {
-    apiVersion: 'k8s.io/v1',
-    kind: 'Service',
-    metadata: {
-      name: 'service',
-    },
-  };
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    listNamespacedService: () =>
-      Promise.resolve({
-        items: [v1Service],
-      }),
-  });
-
-  const list = await client.listServices();
-  expect(list.length).toBe(1);
-  expect(list[0]?.metadata?.name).toEqual('service');
-});
-
 test('should throw error if cannot call the cluster (readNamespacedService reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({

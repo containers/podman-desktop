@@ -677,24 +677,6 @@ export class KubernetesClient {
     return [];
   }
 
-  // List all services
-  async listServices(): Promise<V1Service[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve services if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the services via the kubernetes api
-      try {
-        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        const services = await k8sApi.listNamespacedService({ namespace });
-        return services.items;
-      } catch (_) {
-        // do nothing
-      }
-    }
-    return [];
-  }
-
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
     this.telemetry.track('kubernetesReadPodLog');
     const ns = this.currentNamespace;
