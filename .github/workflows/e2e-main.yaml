@@ -113,7 +113,7 @@ jobs:
         run: pnpm install
 
       - name: Create Kind Cluster
-        uses: helm/kind-action@v1.10.0
+        uses: helm/kind-action@v1.11.0
         if: ${{ env.NPM_TARGET == 'test:e2e:all' }}
         with: 
           cluster_name: 'kind-cluster'
