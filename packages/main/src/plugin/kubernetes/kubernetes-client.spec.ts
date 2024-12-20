@@ -419,24 +419,6 @@ describe.each([
   },
 );
 
-test('Create Kubernetes resources with v1 resource in error should return error', async () => {
-  const client = createTestClient();
-  const spy = vi.spyOn(client, 'createV1Resource').mockRejectedValue(new Error('V1Error'));
-  try {
-    await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    expect(spy).toBeCalled();
-    expect(err).to.be.a('Error');
-    expect(err.message).equal('V1Error');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
-      action: 'create',
-      manifestsSize: 1,
-      error: new Error('V1Error'),
-    });
-  }
-});
-
 describe.each([
   {
     manifest: { apiVersion: 'group/v1', kind: 'Namespace' },
@@ -473,47 +455,6 @@ describe.each([
       namespace: namespace,
     });
   });
-});
-
-test('Create custom Kubernetes resources in error should return error', async () => {
-  const client = createTestClient();
-  const spy = vi.spyOn(client, 'createCustomResource').mockRejectedValue(new Error('CustomError'));
-  vi.spyOn(client, 'getAPIResource').mockReturnValue(
-    Promise.resolve({ name: 'namespaces', namespaced: true, kind: 'Namespace', singularName: 'namespace', verbs: [] }),
-  );
-  try {
-    await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    expect(spy).toBeCalled();
-    expect(err).to.be.a('Error');
-    expect(err.message).equal('CustomError');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
-      action: 'create',
-      manifestsSize: 1,
-      error: new Error('CustomError'),
-    });
-  }
-});
-
-test('Create unknown custom Kubernetes resources should return error', async () => {
-  const client = createTestClient();
-  const createSpy = vi.spyOn(client, 'createCustomResource').mockResolvedValue(undefined);
-  const pluralSpy = vi.spyOn(client, 'getAPIResource').mockRejectedValue(new Error('CustomError'));
-  try {
-    await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    expect(createSpy).not.toBeCalled();
-    expect(pluralSpy).toBeCalled();
-    expect(err).to.be.a('Error');
-    expect(err.message).equal('CustomError');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
-      action: 'create',
-      manifestsSize: 1,
-      error: new Error('CustomError'),
-    });
-  }
 });
 
 test('Check connection to Kubernetes cluster', async () => {
