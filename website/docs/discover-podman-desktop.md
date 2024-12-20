@@ -28,9 +28,9 @@ Access the **Containers** page in the UI to do the container-related tasks:
 - Search, start, restart, stop, or delete a container.
 - Bulk deletion of selected containers.
 - Export a container to your local machine.
-- View the summary and logs of a container.
+- View the summary and [logs](/docs/containers/viewing-container-logs) of a container.
 - View the Kubernetes pod definition of the container.
-- Interact with the container using a terminal.
+- [Interact with the container using a terminal](/docs/containers/accessing-the-terminal).
 - View containers based on their status, whether they are running or stopped.
 - Remove all unused containers for efficient memory usage.
 
