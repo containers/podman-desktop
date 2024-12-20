@@ -31,23 +31,32 @@ import PodColumnStatus from './PodColumnStatus.svelte';
 import PodEmptyScreen from './PodEmptyScreen.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 
-export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+interface Props {
+  searchTerm?: string;
+}
 
-let pods: PodInfoUI[] = [];
-let enginesList: EngineInfoUI[];
+let { searchTerm = $bindable('') }: Props = $props();
 
-$: providerConnections = $providerInfos
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
+$effect(() => {
+  searchPattern.set(searchTerm);
+});
 
-$: providerPodmanConnections = $providerInfos
-  .map(provider => provider.containerConnections)
-  .flat()
-  // keep only podman providers as it is not supported by docker
-  .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
+let pods: PodInfoUI[] = $state([]);
+let enginesList: EngineInfoUI[] = $state([]);
+
+const providerConnections = $derived(
+  $providerInfos
+    .flatMap(provider => provider.containerConnections)
+    .filter(providerContainerConnection => providerContainerConnection.status === 'started'),
+);
+
+const providerPodmanConnections = $derived(
+  $providerInfos
+    .flatMap(provider => provider.containerConnections)
+    // keep only podman providers as it is not supported by docker
+    .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
+    .filter(providerContainerConnection => providerContainerConnection.status === 'started'),
+);
 
 const podUtils = new PodUtils();
 
@@ -79,7 +88,7 @@ onMount(() => {
 });
 
 // delete the items selected in the list
-let bulkDeleteInProgress = false;
+let bulkDeleteInProgress = $state(false);
 async function deleteSelectedPods() {
   const selectedPods = pods.filter(pod => pod.selected);
   if (selectedPods.length === 0) {
@@ -107,7 +116,7 @@ async function deleteSelectedPods() {
   bulkDeleteInProgress = false;
 }
 
-let selectedItemsNumber: number;
+let selectedItemsNumber: number = $state(0);
 let table: Table;
 
 let statusColumn = new TableColumn<PodInfoUI>('Status', {
