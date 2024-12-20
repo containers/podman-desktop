@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -138,4 +138,62 @@ describe('backgrounds', () => {
       'background-image: url("data:image/png;base64-image-light");',
     );
   });
+});
+
+test('opening messageBox and hiding banner', async () => {
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
+
+  render(ExtensionBanner, {
+    banner: gradientBackground,
+    isDark: true,
+  });
+  await tick();
+
+  const card = screen.getByLabelText('Recommended extension');
+  expect(card).toBeDefined();
+
+  const closeButton = screen.getByLabelText('Close');
+  closeButton.click();
+
+  expect(window.showMessageBox).toBeCalledWith({
+    title: 'Hide extension recommendation banners',
+    message: `Do you want to hide extension recommendation banners?`,
+    type: 'warning',
+    buttons: [`No, keep them`, 'Yes, hide'],
+  });
+
+  await waitFor(() =>
+    expect(window.telemetryTrack).toBeCalledWith('hideRecommendationExtensionBanner', {
+      choice: 'hide',
+    }),
+  );
+});
+
+test('opening messageBox and keeping banner', async () => {
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+
+  render(ExtensionBanner, {
+    banner: gradientBackground,
+    isDark: true,
+  });
+  await tick();
+
+  const card = screen.getByLabelText('Recommended extension');
+  expect(card).toBeDefined();
+
+  const closeButton = screen.getByLabelText('Close');
+  closeButton.click();
+
+  expect(window.showMessageBox).toBeCalledWith({
+    title: 'Hide extension recommendation banners',
+    message: `Do you want to hide extension recommendation banners?`,
+    type: 'warning',
+    buttons: [`No, keep them`, 'Yes, hide'],
+  });
+
+  await waitFor(() =>
+    expect(window.telemetryTrack).toBeCalledWith('hideRecommendationExtensionBanner', {
+      choice: 'keep',
+    }),
+  );
 });
