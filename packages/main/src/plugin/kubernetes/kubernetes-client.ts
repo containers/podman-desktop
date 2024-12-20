@@ -652,24 +652,6 @@ export class KubernetesClient {
     return [];
   }
 
-  // List all ingresses
-  async listIngresses(): Promise<V1Ingress[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve ingresses if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the ingresses via the kubernetes api
-      try {
-        const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-        const ingresses = await k8sNetworkingApi.listNamespacedIngress({ namespace });
-        return ingresses.items;
-      } catch (_) {
-        // do nothing
-      }
-    }
-    return [];
-  }
-
   // List all routes
   async listRoutes(): Promise<V1Route[]> {
     const namespace = this.getCurrentNamespace();

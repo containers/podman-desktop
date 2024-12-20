@@ -648,57 +648,6 @@ test('should return deployment if it exists', async () => {
   expect(deployment?.metadata?.name).toEqual('deployment');
 });
 
-// Ingress
-test('should return empty ingress list if there is no active namespace', async () => {
-  const client = createTestClient();
-
-  const list = await client.listIngresses();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty ingress list if cannot connect to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listIngresses();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty ingress list if cannot execute call to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    listNamespacedIngress: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listIngresses();
-  expect(list.length).toBe(0);
-});
-
-test('should return ingress list if connection to cluster is ok', async () => {
-  const v1Ingress: V1Ingress = {
-    apiVersion: 'networking.k8s.io/v1',
-    kind: 'Ingress',
-    metadata: {
-      name: 'ingress',
-    },
-  };
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
-    listNamespacedIngress: () =>
-      Promise.resolve({
-        items: [v1Ingress],
-      }),
-  });
-
-  const list = await client.listIngresses();
-  expect(list.length).toBe(1);
-  expect(list[0]?.metadata?.name).toEqual('ingress');
-});
-
 test('should throw error if cannot call the cluster (readNamespacedIngress reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({
