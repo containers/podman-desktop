@@ -159,7 +159,7 @@
     "tailwindcss": "^3.4.17",
     "tslib": "^2.8.1",
     "typescript": "^5.6.3",
-    "vite": "^6.0.3",
+    "vite": "^6.0.4",
     "vitest": "^2.1.6"
   }
 }
