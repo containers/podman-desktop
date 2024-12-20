@@ -21,6 +21,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import { CONFIGURATION_SECTION } from '/@api/configuration/constants.js';
 
 import type { ApiSenderType } from '../api.js';
 import { TaskManager } from './task-manager.js';
@@ -57,7 +58,7 @@ test('task manager init should register a configuration option', async () => {
   taskManager.init();
   expect(configurationRegistry.registerConfigurations).toHaveBeenCalledOnce();
   expect(configurationRegistry.registerConfigurations).toHaveBeenCalledWith(
-    expect.arrayContaining([expect.objectContaining({ id: 'preferences.experimental.tasks' })]),
+    expect.arrayContaining([expect.objectContaining({ id: `${CONFIGURATION_SECTION.EXPERIMENTAL}.tasks` })]),
   );
   expect(configurationRegistry.registerConfigurations).toHaveBeenCalledWith(
     expect.arrayContaining([

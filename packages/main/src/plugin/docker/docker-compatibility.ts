@@ -21,6 +21,7 @@ import { promises } from 'node:fs';
 import Dockerode from 'dockerode';
 
 import { isMac, isWindows } from '/@/util.js';
+import { CONFIGURATION_SECTION } from '/@api/configuration/constants.js';
 import type {
   DockerContextInfo,
   DockerSocketMappingStatusInfo,
@@ -53,8 +54,8 @@ export class DockerCompatibility {
 
   init(): void {
     const dockerCompatibilityConfiguration: IConfigurationNode = {
-      id: 'preferences.experimental.dockerCompatibility',
-      title: 'Experimental (Docker Compatibility)',
+      id: `${CONFIGURATION_SECTION.EXPERIMENTAL}.dockerCompatibility`,
+      title: 'Docker Compatibility',
       type: 'object',
       properties: {
         [DockerCompatibility.ENABLED_FULL_KEY]: {

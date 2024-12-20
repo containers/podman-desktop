@@ -18,3 +18,8 @@
 
 export const CONFIGURATION_DEFAULT_SCOPE = 'DEFAULT';
 export const CONFIGURATION_ONBOARDING_SCOPE = 'Onboarding';
+
+export enum CONFIGURATION_SECTION {
+  PREFERENCES = 'preferences',
+  EXPERIMENTAL = 'experimental',
+}
