@@ -55,11 +55,11 @@ import {
   CustomObjectsApi,
   Exec,
   FetchError,
+  Health,
   KubeConfig,
   KubernetesObjectApi,
   Log,
   NetworkingV1Api,
-  VersionApi,
   Watch,
 } from '@kubernetes/client-node';
 import { PromiseMiddlewareWrapper } from '@kubernetes/client-node/dist/gen/middleware.js';
@@ -160,6 +160,8 @@ const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 const DEFAULT_NAMESPACE = 'default';
 
 const FIELD_MANAGER = 'podman-desktop';
+
+const CHECK_CONNECTION_TIMEOUT_MS = 1_000;
 
 const SCALABLE_CONTROLLER_TYPES = ['Deployment', 'ReplicaSet', 'StatefulSet'];
 export type ScalableControllerType = (typeof SCALABLE_CONTROLLER_TYPES)[number];
@@ -1042,14 +1044,12 @@ export class KubernetesClient {
   }
 
   // Check that we can connect to the cluster and return a Promise<boolean> of true or false depending on the result.
-  // We will check via trying to retrieve a list of API Versions from the server.
+  // We will check via the health check on the cluster of the current context, with a short timeout.
   async checkConnection(): Promise<boolean> {
     try {
-      const k8sApi = this.kubeConfig.makeApiClient(VersionApi);
-      // getCode will error out if we're unable to connect to the cluster
-      await k8sApi.getCode();
-      return true;
-    } catch (error) {
+      const health = new Health(this.kubeConfig);
+      return await health.readyz({ timeout: CHECK_CONNECTION_TIMEOUT_MS });
+    } catch {
       return false;
     }
   }
