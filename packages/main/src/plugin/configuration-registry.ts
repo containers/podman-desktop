@@ -22,6 +22,7 @@ import * as path from 'node:path';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 
 import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
+import type { IExperimentalConfiguration } from '/@api/configuration/models.js';
 import type { NotificationCardOptions } from '/@api/notification.js';
 
 import type { ApiSenderType } from './api.js';
@@ -73,6 +74,7 @@ export interface IConfigurationPropertySchema {
   hidden?: boolean;
   enum?: string[];
   when?: string;
+  experimental?: IExperimentalConfiguration;
 }
 
 export type ConfigurationScope =
