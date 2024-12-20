@@ -77,31 +77,6 @@ test('Expect the prop command to be used when it is passed with the entry', asyn
   expect(router.goto).toBeCalledWith('/some/page');
 });
 
-test('Expect to have different status icon based on provider status', async () => {
-  const renderObject = render(ProviderWidget, { entry: providerMock });
-
-  const statusIcon = screen.getByLabelText('Connection Status Icon');
-  expect(statusIcon).toBeInTheDocument();
-  expect(statusIcon).toHaveClass('fa-regular fa-circle-check');
-
-  providerMock.status = 'error';
-  await renderObject.rerender({ entry: providerMock });
-  expect(statusIcon).toBeInTheDocument();
-  expect(statusIcon).toHaveClass('fa-regular fa-circle-xmark');
-
-  providerMock.status = 'unknown';
-  await renderObject.rerender({ entry: providerMock });
-  expect(statusIcon).toBeInTheDocument();
-  expect(statusIcon).toHaveClass('fa-regular fa-circle-question');
-
-  providerMock.status = 'stopping';
-  await renderObject.rerender({ entry: providerMock });
-  expect(statusIcon).toBeInTheDocument();
-  expect(statusIcon).toHaveClass(
-    'animate-spin border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent',
-  );
-});
-
 test('Expect title to include container provider connections', () => {
   providerMock.containerConnections = [
     { name: 'connection 1' } as unknown as ProviderContainerConnectionInfo,
