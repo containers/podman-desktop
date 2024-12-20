@@ -652,24 +652,6 @@ export class KubernetesClient {
     return [];
   }
 
-  // List all deployments
-  async listDeployments(): Promise<V1Deployment[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve deployments if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the deployments via the kubernetes api
-      try {
-        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        const deployments = await k8sAppsApi.listNamespacedDeployment({ namespace });
-        return deployments.items;
-      } catch (_) {
-        // do nothing
-      }
-    }
-    return [];
-  }
-
   // List all ingresses
   async listIngresses(): Promise<V1Ingress[]> {
     const namespace = this.getCurrentNamespace();

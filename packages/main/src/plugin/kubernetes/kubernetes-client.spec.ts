@@ -602,57 +602,6 @@ test('kube watcher', () => {
   expect(createWatchObjectSpy).toBeCalled();
 });
 
-// Deployment
-test('should return empty deployment list if there is no active namespace', async () => {
-  const client = createTestClient();
-
-  const list = await client.listDeployments();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty deployment list if cannot connect to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listDeployments();
-  expect(list.length).toBe(0);
-});
-
-test('should return empty deployment list if cannot execute call to cluster', async () => {
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
-    listNamespacedDeployent: () => Promise.reject(new Error('K8sError')),
-  });
-
-  const list = await client.listDeployments();
-  expect(list.length).toBe(0);
-});
-
-test('should return deployment list if connection to cluster is ok', async () => {
-  const v1Deployment: V1Deployment = {
-    apiVersion: 'networking.k8s.io/v1',
-    kind: 'Deployment',
-    metadata: {
-      name: 'deployment',
-    },
-  };
-  const client = createTestClient('default');
-  makeApiClientMock.mockReturnValue({
-    getCode: () => Promise.resolve({ gitVersion: 'v1.20.0' }),
-    listNamespacedDeployment: () =>
-      Promise.resolve({
-        items: [v1Deployment],
-      }),
-  });
-
-  const list = await client.listDeployments();
-  expect(list.length).toBe(1);
-  expect(list[0]?.metadata?.name).toEqual('deployment');
-});
-
 test('should throw error if cannot call the cluster (readNamespacedDeployment reject)', async () => {
   const client = createTestClient('default');
   makeApiClientMock.mockReturnValue({

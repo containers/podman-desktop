@@ -1980,10 +1980,6 @@ export function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<V1Deployment[]> => {
-    return ipcInvoke('kubernetes-client:listDeployments');
-  });
-
   contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
   });
