@@ -652,42 +652,6 @@ export class KubernetesClient {
     return [];
   }
 
-  // List all deployments
-  async listDeployments(): Promise<V1Deployment[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve deployments if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the deployments via the kubernetes api
-      try {
-        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        const deployments = await k8sAppsApi.listNamespacedDeployment({ namespace });
-        return deployments.items;
-      } catch (_) {
-        // do nothing
-      }
-    }
-    return [];
-  }
-
-  // List all ingresses
-  async listIngresses(): Promise<V1Ingress[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve ingresses if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the ingresses via the kubernetes api
-      try {
-        const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-        const ingresses = await k8sNetworkingApi.listNamespacedIngress({ namespace });
-        return ingresses.items;
-      } catch (_) {
-        // do nothing
-      }
-    }
-    return [];
-  }
-
   // List all routes
   async listRoutes(): Promise<V1Route[]> {
     const namespace = this.getCurrentNamespace();
@@ -707,24 +671,6 @@ export class KubernetesClient {
         return body.items;
       } catch (_) {
         // catch 404 error
-        // do nothing
-      }
-    }
-    return [];
-  }
-
-  // List all services
-  async listServices(): Promise<V1Service[]> {
-    const namespace = this.getCurrentNamespace();
-    // Only retrieve services if valid namespace && valid connection, otherwise we will return an empty array
-    const connected = await this.checkConnection();
-    if (namespace && connected) {
-      // Get the services via the kubernetes api
-      try {
-        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-        const services = await k8sApi.listNamespacedService({ namespace });
-        return services.items;
-      } catch (_) {
         // do nothing
       }
     }
@@ -1080,95 +1026,6 @@ export class KubernetesClient {
     this.kubeConfigWatcher?.dispose();
   }
 
-  /**
-   * Convert a apiVersion value to an object with group and version field.
-   *
-   * @param apiVersion the apiVersion field from payload
-   */
-  groupAndVersion(apiVersion: string): { group: string; version: string } {
-    const v = apiVersion.split('/');
-    if (v.length === 1 && v[0]) {
-      return { group: '', version: v[0] };
-    } else if (v.length > 1 && v[0] && v[1]) {
-      return { group: v[0], version: v[1] };
-    }
-    throw new Error(`Invalid apiVersion: ${apiVersion}`);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createV1Resource(client: CoreV1Api, manifest: any, optionalNamespace?: string): Promise<any> {
-    if (manifest.kind === 'Namespace') {
-      return client.createNamespace(manifest);
-    } else if (manifest.kind === 'Pod') {
-      return client.createNamespacedPod(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'Service') {
-      return client.createNamespacedService(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'Binding') {
-      return client.createNamespacedBinding(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'Event') {
-      return client.createNamespacedEvent(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'Endpoints') {
-      return client.createNamespacedEndpoints(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'ConfigMap') {
-      return client.createNamespacedConfigMap(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'LimitRange') {
-      return client.createNamespacedLimitRange(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'PersistentVolumeClaim') {
-      return client.createNamespacedPersistentVolumeClaim(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'PodBinding') {
-      return client.createNamespacedPodBinding({
-        name: manifest.metadata.name,
-        namespace: optionalNamespace ?? manifest.metadata.namespace,
-        body: manifest,
-      });
-    } else if (manifest.kind === 'PodEviction') {
-      return client.createNamespacedPodEviction({
-        name: manifest.metadata.name,
-        namespace: optionalNamespace ?? manifest.metadata.namespace,
-        body: manifest,
-      });
-    } else if (manifest.kind === 'PodTemplate') {
-      return client.createNamespacedPodTemplate(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'ReplicationController') {
-      return client.createNamespacedReplicationController(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'ResourceQuota') {
-      return client.createNamespacedResourceQuota(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'Secret') {
-      return client.createNamespacedSecret(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'ServiceAccount') {
-      return client.createNamespacedServiceAccount(optionalNamespace ?? manifest.metadata.namespace, manifest);
-    } else if (manifest.kind === 'ServiceAccountToken') {
-      return client.createNamespacedServiceAccountToken({
-        name: manifest.metadata.name,
-        namespace: optionalNamespace ?? manifest.metadata.namespace,
-        body: manifest,
-      });
-    }
-    return Promise.reject(new Error(`Unsupported kind ${manifest.kind}`));
-  }
-
-  createCustomResource(
-    client: CustomObjectsApi,
-    group: string,
-    version: string,
-    plural: string,
-    namespace: string | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    manifest: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Promise<any> {
-    if (namespace) {
-      return client.createNamespacedCustomObject({ group, version, namespace, plural, body: manifest });
-    } else {
-      return client.createClusterCustomObject({
-        group,
-        version,
-        plural: manifest.kind.toLowerCase() + 's',
-        body: manifest,
-      });
-    }
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getTags(tags: any[]): any[] {
     for (const tag of tags) {
@@ -1182,32 +1039,6 @@ export class KubernetesClient {
       }
     }
     return tags;
-  }
-
-  async getAPIResource(
-    client: CustomObjectsApi,
-    apiGroup: { group: string; version: string },
-    kind: string,
-  ): Promise<V1APIResource> {
-    let apiResources = this.apiResources.get(apiGroup.group + '/' + apiGroup.version);
-    if (!apiResources) {
-      const response = await client.listClusterCustomObject({
-        group: apiGroup.group,
-        version: apiGroup.version,
-        plural: '',
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      apiResources = (response.body as any).resources;
-      this.apiResources.set(apiGroup.group + '/' + apiGroup.version, apiResources as V1APIResource[]);
-    }
-    if (apiResources) {
-      for (const apiResource of apiResources) {
-        if (apiResource.kind === kind) {
-          return apiResource;
-        }
-      }
-    }
-    throw new Error(`Unable to find API resource for ${apiGroup.group}/${apiGroup.version}/${kind}`);
   }
 
   // load yaml file and extract manifests

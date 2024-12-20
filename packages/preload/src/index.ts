@@ -1980,20 +1980,8 @@ export function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<V1Deployment[]> => {
-    return ipcInvoke('kubernetes-client:listDeployments');
-  });
-
-  contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
-    return ipcInvoke('kubernetes-client:listIngresses');
-  });
-
   contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<V1Route[]> => {
     return ipcInvoke('kubernetes-client:listRoutes');
-  });
-
-  contextBridge.exposeInMainWorld('kubernetesListServices', async (): Promise<V1Service[]> => {
-    return ipcInvoke('kubernetes-client:listServices');
   });
 
   let onDataCallbacksKubernetesPodLogId = 0;

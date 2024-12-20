@@ -2360,20 +2360,8 @@ export class PluginSystem {
       return kubernetesClient.listPods();
     });
 
-    this.ipcHandle('kubernetes-client:listDeployments', async (): Promise<V1Deployment[]> => {
-      return kubernetesClient.listDeployments();
-    });
-
-    this.ipcHandle('kubernetes-client:listIngresses', async (): Promise<V1Ingress[]> => {
-      return kubernetesClient.listIngresses();
-    });
-
     this.ipcHandle('kubernetes-client:listRoutes', async (): Promise<V1Route[]> => {
       return kubernetesClient.listRoutes();
-    });
-
-    this.ipcHandle('kubernetes-client:listServices', async (): Promise<V1Service[]> => {
-      return kubernetesClient.listServices();
     });
 
     this.ipcHandle(
