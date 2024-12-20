@@ -15,14 +15,18 @@ import ProviderResultPage from '../ui/ProviderResultPage.svelte';
 const orderStatus = ['failed', 'success'];
 const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
 
-export let imageInfo: ImageInfo | undefined;
+interface Props {
+  imageInfo?: ImageInfo;
+}
 
-let providers: ProviderUI[];
-let results: CheckUI[] = [];
-let cancellableTokenId: number = 0;
+const { imageInfo }: Props = $props();
 
-let remainingProviders: number;
-let aborted = false;
+let providers: ProviderUI[] = $state([]);
+let results: CheckUI[] = $state([]);
+let cancellableTokenId: number = $state(0);
+
+let remainingProviders: number = $state(0);
+let aborted = $state(false);
 
 let providersUnsubscribe: Unsubscriber;
 
