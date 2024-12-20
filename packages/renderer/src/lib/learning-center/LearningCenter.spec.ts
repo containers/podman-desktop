@@ -20,8 +20,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { tick } from 'svelte';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import learningCenter from '../../../../main/src/plugin/learning-center/guides.json';
 import LearningCenter from './LearningCenter.svelte';
@@ -39,9 +40,25 @@ class ResizeObserver {
   unobserve = vi.fn();
 }
 
+const updateConfigurationValueMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
+const listGuidesMock = vi.fn().mockReturnValue(learningCenter.guides);
+
+beforeAll(() => {
+  Object.defineProperty(window, 'getConfigurationValue', {
+    value: getConfigurationValueMock,
+  });
+  Object.defineProperty(window, 'listGuides', {
+    value: listGuidesMock,
+  });
+  Object.defineProperty(window, 'updateConfigurationValue', {
+    value: updateConfigurationValueMock,
+  });
+  global.ResizeObserver = ResizeObserver;
+});
+
 beforeEach(() => {
-  (window as any).ResizeObserver = ResizeObserver;
-  (window as any).listGuides = vi.fn().mockReturnValue(learningCenter.guides);
+  listGuidesMock.mockReturnValue(learningCenter.guides);
 });
 
 afterEach(() => {
@@ -71,4 +88,56 @@ test('Clicking on LearningCenter title hides carousel with guides', async () => 
   await vi.waitFor(async () => {
     expect(screen.queryByText(learningCenter.guides[0].title)).not.toBeInTheDocument();
   });
+});
+
+test('Toggling expansion sets configuration', async () => {
+  render(LearningCenter);
+
+  // wait for onMount
+  await tick();
+
+  expect(updateConfigurationValueMock).not.toHaveBeenCalled();
+
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveAttribute('aria-expanded', 'true');
+
+  await fireEvent.click(button);
+  expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', false);
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+
+  await fireEvent.click(button);
+  expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', true);
+  expect(button).toHaveAttribute('aria-expanded', 'true');
+
+  await fireEvent.click(button);
+  expect(updateConfigurationValueMock).toHaveBeenCalledWith('learningCenter.expanded', false);
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('Expanded when the config value not set', async () => {
+  render(LearningCenter);
+
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toHaveAttribute('aria-expanded', 'true');
+});
+
+test('Collapsed when the config value is set to not expanded', async () => {
+  getConfigurationValueMock.mockResolvedValue(false);
+  render(LearningCenter);
+
+  await waitFor(() => expect(getConfigurationValueMock).toBeCalled());
+
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('Expanded when the config value is set to expanded', async () => {
+  getConfigurationValueMock.mockResolvedValue(true);
+  render(LearningCenter);
+
+  await waitFor(() => expect(getConfigurationValueMock).toBeCalled());
+
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toHaveAttribute('aria-expanded', 'true');
 });
