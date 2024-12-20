@@ -44,7 +44,7 @@ const providerRegistry: ProviderRegistry = {
 
 export class TestDockerCompatibility extends DockerCompatibility {
   public override getTypeFromServerInfo(
-    info: { OperatingSystem?: string },
+    info: { Name?: string; OperatingSystem?: string },
     podmanInfo?: unknown,
   ): DockerSocketServerInfoType {
     return super.getTypeFromServerInfo(info, podmanInfo);
@@ -75,6 +75,7 @@ vi.mock('../../util', () => {
     isWindows: vi.fn(),
     isMac: vi.fn(),
     isLinux: vi.fn(),
+    getHostname: vi.fn(),
     exec: vi.fn(),
   };
 });
@@ -107,6 +108,17 @@ describe('getTypeFromServerInfo', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
     const serverInfo = {
       OperatingSystem: 'Docker Desktop',
+    };
+    expect(dockerCompatibility.getTypeFromServerInfo(serverInfo)).toBe('docker');
+  });
+
+  test('Docker Engine', async () => {
+    const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
+    vi.spyOn(util, 'isLinux').mockImplementation(() => true);
+    vi.spyOn(util, 'getHostname').mockImplementation(() => 'localhost');
+    const serverInfo = {
+      Name: 'localhost',
+      OperatingSystem: 'Ubuntu',
     };
     expect(dockerCompatibility.getTypeFromServerInfo(serverInfo)).toBe('docker');
   });
