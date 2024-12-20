@@ -27,3 +27,9 @@ Make sure you have:
   ![interaction with container](img/interacting-with-container.png)
 1. Click the **close** icon on the right side of the page.
 
+    :::note
+
+    Alternatively, click the **overflow menu** icon and then select the **Open Terminal** option to access the container terminal.
+    ![open the terminal](img/opening-terminal.png)
+    
+    :::

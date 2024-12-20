@@ -26,4 +26,10 @@ Make sure you have:
     ![analyze the logs](img/analyzing-the-logs.png)
 1. Click the **close** icon on the right side of the page.
 
+    :::note
+
+    Alternatively, click the **overflow menu** icon and then select the **Open Logs** option to view the container logs.
+    ![open the logs](img/opening-logs.png)
+    
+    :::
 
