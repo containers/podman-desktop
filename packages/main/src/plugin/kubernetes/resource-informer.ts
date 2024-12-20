@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Informer, KubernetesObject, ListPromise, ObjectCache } from '@kubernetes/client-node';
-import { CHANGE, ERROR, ListWatch, Watch } from '@kubernetes/client-node';
+import { ADD, DELETE, ERROR, ListWatch, UPDATE, Watch } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from '../events/emitter.js';
@@ -29,8 +29,9 @@ interface BaseEvent {
   resourceName: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface CacheUpdatedEvent extends BaseEvent {}
+export interface CacheUpdatedEvent extends BaseEvent {
+  countChanged: boolean;
+}
 
 export interface OfflineEvent extends BaseEvent {
   offline: boolean;
@@ -66,12 +67,25 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     const internalInformer = this.getListWatch(this.#path, this.#listFn);
     this.#informer = internalInformer;
 
-    // We may replace the unique CHANGE handler
-    // by the ADD/UPDATE/DELETE handlers to get more fine-grained information on changes
-    this.#informer.on(CHANGE, (_obj: T) => {
+    this.#informer.on(UPDATE, (_obj: T) => {
       this.#onCacheUpdated.fire({
         kubeconfig: this.#kubeConfig,
         resourceName: this.#resourceName,
+        countChanged: false,
+      });
+    });
+    this.#informer.on(ADD, (_obj: T) => {
+      this.#onCacheUpdated.fire({
+        kubeconfig: this.#kubeConfig,
+        resourceName: this.#resourceName,
+        countChanged: true,
+      });
+    });
+    this.#informer.on(DELETE, (_obj: T) => {
+      this.#onCacheUpdated.fire({
+        kubeconfig: this.#kubeConfig,
+        resourceName: this.#resourceName,
+        countChanged: true,
       });
     });
     // This is issued when there is an error

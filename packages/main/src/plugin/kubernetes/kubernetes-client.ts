@@ -75,6 +75,7 @@ import type { ContextHealth } from '/@api/kubernetes-contexts-healths.js';
 import type { ContextPermission } from '/@api/kubernetes-contexts-permissions.js';
 import type { ContextGeneralState, ResourceName } from '/@api/kubernetes-contexts-states.js';
 import type { ForwardConfig, ForwardOptions } from '/@api/kubernetes-port-forward-model.js';
+import type { ResourceCount } from '/@api/kubernetes-resource-count.js';
 import type { V1Route } from '/@api/openshift-types.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -1859,5 +1860,12 @@ export class KubernetesClient {
       throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
     }
     return this.contextsStatesDispatcher.getContextsPermissions();
+  }
+
+  public getResourcesCount(): ResourceCount[] {
+    if (!this.contextsStatesDispatcher) {
+      throw new Error('contextsStatesDispatcher is undefined. This should not happen in Kubernetes experimental');
+    }
+    return this.contextsStatesDispatcher.getResourcesCount();
   }
 }

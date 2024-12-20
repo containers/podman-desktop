@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, KubernetesObject } from '@kubernetes/client-node';
+import type { Cluster, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -27,7 +27,7 @@ import { ContextsManagerExperimental } from './contexts-manager-experimental.js'
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
-import type { ResourceInformer } from './resource-informer.js';
+import type { CacheUpdatedEvent, ResourceInformer } from './resource-informer.js';
 
 const onCacheUpdatedMock = vi.fn();
 const onOfflineMock = vi.fn();
@@ -288,7 +288,94 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       }),
     );
     await manager.update(kc);
-    expect(startMock).toHaveBeenCalledTimes(2); // on resource1 for each context
+    expect(startMock).toHaveBeenCalledTimes(2); // on resource1 for each context (resource2 does not have informer declared)
+  });
+
+  describe('informer is started', async () => {
+    let kcSingle1: KubeConfigSingleContext;
+    let kcSingle2: KubeConfigSingleContext;
+    beforeEach(async () => {
+      kcSingle1 = new KubeConfigSingleContext(kc, context1);
+      kcSingle2 = new KubeConfigSingleContext(kc, context2);
+      let call = 0;
+      onreachableMock.mockImplementation(f => {
+        call++;
+        f({
+          kubeConfig: call === 1 ? kcSingle1 : kcSingle2,
+          contextName: call === 1 ? 'context1' : 'context2',
+          checking: false,
+          reachable: call === 1,
+        } as ContextHealthState);
+      });
+      onPermissionResultMock.mockImplementation(f =>
+        f({
+          kubeConfig: call === 1 ? kcSingle1 : kcSingle2,
+          resources: ['resource1', 'resource2'],
+          permitted: true,
+        }),
+      );
+    });
+
+    test('cache updated with a change on resource count', async () => {
+      onCacheUpdatedMock.mockImplementation(f => {
+        f({
+          kubeconfig: kcSingle1,
+          resourceName: 'resource1',
+          countChanged: true,
+        } as CacheUpdatedEvent);
+      });
+      const onResourceUpdatedCB = vi.fn();
+      const onResourceCountUpdatedCB = vi.fn();
+      manager.onResourceUpdated(onResourceUpdatedCB);
+      manager.onResourceCountUpdated(onResourceCountUpdatedCB);
+      await manager.update(kc);
+      // called twice: on resource1 for each context
+      expect(startMock).toHaveBeenCalledTimes(2);
+      expect(onResourceUpdatedCB).toHaveBeenCalledTimes(2);
+      expect(onResourceCountUpdatedCB).toHaveBeenCalledTimes(2);
+    });
+
+    test('cache updated without a change on resource count', async () => {
+      onCacheUpdatedMock.mockImplementation(f => {
+        f({
+          kubeconfig: kcSingle1,
+          resourceName: 'resource1',
+          countChanged: false,
+        } as CacheUpdatedEvent);
+      });
+      const onResourceUpdatedCB = vi.fn();
+      const onResourceCountUpdatedCB = vi.fn();
+      manager.onResourceUpdated(onResourceUpdatedCB);
+      manager.onResourceCountUpdated(onResourceCountUpdatedCB);
+      await manager.update(kc);
+      // called twice: on resource1 for each context
+      expect(startMock).toHaveBeenCalledTimes(2);
+      expect(onResourceUpdatedCB).toHaveBeenCalledTimes(2);
+      expect(onResourceCountUpdatedCB).not.toHaveBeenCalled();
+    });
+
+    test('getResourcesCount', async () => {
+      const listMock = vi.fn();
+      startMock.mockReturnValue({
+        list: listMock,
+        get: vi.fn(),
+      } as ObjectCache<KubernetesObject>);
+      listMock.mockReturnValue([{}, {}]);
+      await manager.update(kc);
+      const counts = manager.getResourcesCount();
+      expect(counts).toEqual([
+        {
+          contextName: 'context1',
+          resourceName: 'resource1',
+          count: 2,
+        },
+        {
+          contextName: 'context2',
+          resourceName: 'resource1',
+          count: 2,
+        },
+      ]);
+    });
   });
 });
 
