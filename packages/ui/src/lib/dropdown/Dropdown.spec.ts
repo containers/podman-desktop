@@ -145,3 +145,35 @@ test('should be able to navigate with keys', async () => {
   expect(item).toBeNull();
   expect(input).toHaveTextContent('C');
 });
+
+test('value of hidden select component is updated based on Dropdown value', async () => {
+  render(Dropdown, {
+    value: 'b',
+    options: [
+      { label: 'A', value: 'a' },
+      { label: 'B', value: 'b' },
+      { label: 'C', value: 'c' },
+    ],
+    name: 'testDropdown',
+  });
+
+  const input = screen.getByRole('button');
+  expect(input).toBeInTheDocument();
+  input.focus();
+
+  let selectItem = screen.getByRole('combobox');
+  expect(selectItem).toBeInTheDocument();
+  expect(selectItem).toHaveValue('b');
+
+  // open dropdown (selects A)
+  await userEvent.keyboard('[ArrowDown]');
+  const item = screen.queryByRole('button', { name: 'A' });
+  expect(item).not.toBeNull();
+
+  // select A, closes dropdown and updates selection
+  await userEvent.keyboard('[Enter]');
+
+  selectItem = screen.getByRole('combobox');
+  expect(selectItem).toBeInTheDocument();
+  expect(selectItem).toHaveValue('a');
+});

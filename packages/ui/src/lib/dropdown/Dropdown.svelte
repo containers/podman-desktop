@@ -231,6 +231,12 @@ function onWindowClick(e: Event): void {
   {/if}
 
   <select use:buildOptions class="hidden" name={name} bind:value={value}>
-    {@render children?.()}
+    {#if !children || children.length === 0}
+      {#each options as option}
+        <option value={option.value}></option>
+      {/each}
+    {:else}
+      {@render children?.()}
+    {/if}
   </select>
 </div>
