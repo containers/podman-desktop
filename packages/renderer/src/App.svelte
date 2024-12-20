@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { router } from 'tinro';
 
+import CreateKubeResource from '/@/lib/kube/CreateKubeResource.svelte';
 import { handleNavigation } from '/@/navigation';
 import { NO_CURRENT_CONTEXT_ERROR } from '/@api/kubernetes-contexts-states';
 import type { NavigationRequest } from '/@api/navigation-request';
@@ -323,6 +324,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           </Route>
           <Route path="/kubernetes/portForward" breadcrumb="Port Forwarding" navigationHint="root">
             <PortForwardingList />
+          </Route>
+          <Route path="/kubernetes/resources/create">
+            <CreateKubeResource/>
           </Route>
         {/if}
         <Route path="/preferences/*" breadcrumb="Settings">

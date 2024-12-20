@@ -19,24 +19,34 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import KubeActions from '/@/lib/kube/KubeActions.svelte';
+import KubeCreateResourceButton from '/@/lib/kube/KubeCreateResourceButton.svelte';
+
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('KubeApplyYAMLButton should be visible', async () => {
-  const { getByTitle } = render(KubeActions);
-
-  const applyYAMLBtn = getByTitle('Apply YAML');
-  expect(applyYAMLBtn).toBeInTheDocument();
-});
-
-test('KubeCreateResourceButton should be visible', async () => {
-  const { getByTitle } = render(KubeActions);
+test('Create Resource button should redirect to kubernetes create resource page', async () => {
+  const { getByTitle } = render(KubeCreateResourceButton);
 
   const createResourceBtn = getByTitle('Create Kubernetes Resource');
   expect(createResourceBtn).toBeInTheDocument();
+
+  await userEvent.click(createResourceBtn);
+
+  await vi.waitFor(() => {
+    expect(router.goto).toHaveBeenCalledWith('/kubernetes/resources/create');
+  });
 });
