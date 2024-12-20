@@ -1101,9 +1101,22 @@ export class PluginSystem {
     this.ipcHandle(
       'container-provider-registry:pushImage',
       async (_listener, engine: string, imageId: string, callbackId: number): Promise<void> => {
-        return containerProviderRegistry.pushImage(engine, imageId, (name: string, data: string) => {
-          this.getWebContentsSender().send('container-provider-registry:pushImage-onData', callbackId, name, data);
+        const msgName = 'container-provider-registry:pushImage-onData';
+        const task = taskManager.createTask({
+          title: `Push image '${imageId}'`,
         });
+        return containerProviderRegistry
+          .pushImage(engine, imageId, (name: string, data: string) => {
+            this.getWebContentsSender().send(msgName, callbackId, name, data);
+          })
+          .then(() => {
+            task.status = 'success';
+          })
+          .catch((error: unknown) => {
+            task.error = String(error);
+            this.getWebContentsSender().send(msgName, callbackId, 'data', JSON.stringify({ error: String(error) }));
+            this.getWebContentsSender().send(msgName, callbackId, 'end');
+          });
       },
     );
     this.ipcHandle(
