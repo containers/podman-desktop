@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import type { ImageCheck } from '@podman-desktop/api';
 import { Spinner } from '@podman-desktop/ui-svelte';
+import type { Snippet } from 'svelte';
 import Fa from 'svelte-fa';
 
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
@@ -21,24 +22,22 @@ interface CheckUI {
   provider: ImageCheckerInfo;
   check: ImageCheck;
 }
+interface Props {
+  providers?: ProviderUI[];
+  results?: CheckUI[];
+  headerInfo: Snippet;
+}
 
-export let providers: ProviderUI[] = [];
+const { headerInfo, providers = [], results = [] }: Props = $props();
 
-export let results: CheckUI[] = [];
-
-let selectedProviders = new Map<string, boolean>();
-
-const selectedSeverities = {
+let selectedProviders = $state(new Map<string, boolean>());
+const selectedSeverities = $state({
   critical: true,
   high: true,
   medium: true,
   low: true,
   success: true,
-};
-
-$: resultsFilteredByProvider = getFilteredResultsByProvider(results, selectedProviders);
-$: countBySeverity = getCountBySeverity(resultsFilteredByProvider);
-$: filtered = getFilteredResultsBySeverity(resultsFilteredByProvider, selectedSeverities);
+});
 
 function getIcon(check: ImageCheck): IconDefinition {
   if (check.status === 'success') {
@@ -55,14 +54,12 @@ function getIcon(check: ImageCheck): IconDefinition {
   }
 }
 
-function getCountBySeverity(results: CheckUI[]): {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-  success: number;
-} {
-  return results.reduce(
+const resultsByProviders = $derived(
+  results.filter(r => selectedProviders.get(r.provider.id) === undefined || selectedProviders.get(r.provider.id)),
+);
+
+const countBySeverity = $derived(
+  resultsByProviders.reduce(
     (acc, current) => {
       if (current.check.status === 'success') {
         acc['success']++;
@@ -81,20 +78,11 @@ function getCountBySeverity(results: CheckUI[]): {
       low: 0,
       success: 0,
     },
-  );
-}
+  ),
+);
 
-function onProviderChecked(id: string, checked: boolean): void {
-  selectedProviders.set(id, checked);
-  selectedProviders = selectedProviders;
-}
-
-function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: Map<string, boolean>): CheckUI[] {
-  return results.filter(r => checkedProviders.get(r.provider.id) === undefined || checkedProviders.get(r.provider.id));
-}
-
-function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any): CheckUI[] {
-  return results.filter(r => {
+const filtered = $derived(
+  resultsByProviders.filter(r => {
     if (r.check.status === 'success') {
       return selectedSeverities['success'];
     }
@@ -102,7 +90,12 @@ function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: an
       return selectedSeverities[r.check.severity];
     }
     return true;
-  });
+  }),
+);
+
+function onProviderChecked(id: string, checked: boolean): void {
+  selectedProviders.set(id, checked);
+  selectedProviders = new Map(selectedProviders);
 }
 
 function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean): void {
@@ -112,7 +105,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
 
 <div class="flex flex-col w-full h-full p-8 pr-0">
   <div class="pr-4">
-    <slot name="header-info" />
+    {@render headerInfo()}
   </div>
   <div class="mb-2 flex flex-row pr-12 pb-2">
     <span class="grow">Checkers</span>

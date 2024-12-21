@@ -9,20 +9,24 @@ import Fa from 'svelte-fa';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
 
-import { type CheckUI, type ProviderUI } from '../ui/ProviderResultPage';
+import type { CheckUI, ProviderUI } from '../ui/ProviderResultPage';
 import ProviderResultPage from '../ui/ProviderResultPage.svelte';
 
 const orderStatus = ['failed', 'success'];
 const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
 
-export let imageInfo: ImageInfo | undefined;
+interface Props {
+  imageInfo?: ImageInfo;
+}
 
-let providers: ProviderUI[];
-let results: CheckUI[] = [];
-let cancellableTokenId: number = 0;
+const { imageInfo }: Props = $props();
 
-let remainingProviders: number;
-let aborted = false;
+let providers: ProviderUI[] = $state([]);
+let results: CheckUI[] = $state([]);
+let cancellableTokenId: number = $state(0);
+
+let remainingProviders: number = $state(0);
+let aborted = $state(false);
 
 let providersUnsubscribe: Unsubscriber;
 
@@ -127,7 +131,9 @@ async function handleAbort() {
 </script>
 
 <ProviderResultPage providers={providers} results={results}>
-  <div class="flex flex-row" slot="header-info">
+  <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
+  {#snippet headerInfo()}
+  <div class="flex flex-row">
     <div class="w-full flex mb-4 space-x-4">
       <Fa size="1.5x" icon={faStethoscope} />
       {#if aborted}
@@ -144,4 +150,5 @@ async function handleAbort() {
       </div>
     {/if}
   </div>
+  {/snippet}
 </ProviderResultPage>
