@@ -173,6 +173,7 @@ export default [
         'error',
         {
           ignoreConditionalTests: true,
+          ignoreMixedLogicalExpressions: true,
         },
       ],
       '@typescript-eslint/no-require-imports': 'off',
