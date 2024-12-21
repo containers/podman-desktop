@@ -55,11 +55,11 @@ function callback(name: string, data: string) {
     // parse JSON message
     const jsonObject = JSON.parse(data);
     if (jsonObject.status) {
-      logsPush.write(jsonObject.status + '\n\r');
-    } else if (jsonObject.error) {
-      gotErrorDuringPush = true;
-      logsPush.write(jsonObject.error.replaceAll('\n', '\n\r') + '\n\r');
+      logsPush?.write(jsonObject.status + '\n\r');
     }
+  } else if (name === 'error') {
+    gotErrorDuringPush = true;
+    logsPush?.write(data + '\n\r');
   } else if (name === 'end') {
     if (!gotErrorDuringPush) {
       pushFinished = true;

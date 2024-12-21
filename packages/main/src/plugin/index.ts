@@ -1101,9 +1101,15 @@ export class PluginSystem {
     this.ipcHandle(
       'container-provider-registry:pushImage',
       async (_listener, engine: string, imageId: string, callbackId: number): Promise<void> => {
-        return containerProviderRegistry.pushImage(engine, imageId, (name: string, data: string) => {
-          this.getWebContentsSender().send('container-provider-registry:pushImage-onData', callbackId, name, data);
-        });
+        const msgName = 'container-provider-registry:pushImage-onData';
+        return containerProviderRegistry
+          .pushImage(engine, imageId, (name: string, data: string) => {
+            this.getWebContentsSender().send(msgName, callbackId, name, data);
+          })
+          .catch((error: unknown) => {
+            this.getWebContentsSender().send(msgName, callbackId, 'error', String(error));
+            this.getWebContentsSender().send(msgName, callbackId, 'end');
+          });
       },
     );
     this.ipcHandle(
