@@ -20,7 +20,7 @@ import { promises } from 'node:fs';
 
 import Dockerode from 'dockerode';
 
-import { isMac, isWindows } from '/@/util.js';
+import { getHostname, isLinux, isMac, isWindows } from '/@/util.js';
 import type {
   DockerContextInfo,
   DockerSocketMappingStatusInfo,
@@ -69,7 +69,7 @@ export class DockerCompatibility {
   }
 
   protected getTypeFromServerInfo(
-    info: { OperatingSystem?: string },
+    info: { Name?: string; OperatingSystem?: string },
     podmanInfo?: unknown,
   ): DockerSocketServerInfoType {
     if (info.OperatingSystem === 'Docker Desktop') {
@@ -77,6 +77,9 @@ export class DockerCompatibility {
     } else if (info.OperatingSystem === 'podman' || podmanInfo) {
       // if podman info is available, then it is podman
       return 'podman';
+    } else if (isLinux() && info.Name === getHostname()) {
+      // Docker Engine
+      return 'docker';
     }
     return 'unknown';
   }

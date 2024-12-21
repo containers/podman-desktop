@@ -32,6 +32,10 @@ const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
   return linux;
 }
+const hostname = os.hostname();
+export function getHostname(): string {
+  return hostname;
+}
 
 export const stoppedExtensions = { val: false };
 
