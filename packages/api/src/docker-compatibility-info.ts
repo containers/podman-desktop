@@ -21,7 +21,7 @@ export enum ExperimentalSettings {
   Enabled = 'enabled',
 }
 
-export type DockerSocketServerInfoType = 'podman' | 'docker' | 'unknown';
+export type DockerSocketServerInfoType = 'podman' | 'docker' | 'lima' | 'unknown';
 
 export interface DockerSocketMappingStatusInfo {
   status: 'running' | 'unreachable';

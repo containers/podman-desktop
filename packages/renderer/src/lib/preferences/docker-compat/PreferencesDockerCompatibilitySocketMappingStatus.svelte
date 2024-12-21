@@ -16,7 +16,8 @@ let isLinux = $state(false);
 
 let dockerSocketMappingStatusInfo: DockerSocketMappingStatusInfo | undefined = $state(undefined);
 
-let engineType: 'kubernetes' | 'podman' | 'docker' | undefined = $state(undefined);
+let engineType: 'kubernetes' | 'podman' | 'docker' | 'lima' | undefined = $state(undefined);
+// 'lima' can provide any engine of 'kubernetes' or 'podman' or 'docker', either one or several
 
 async function refreshSocketMappingStatus(): Promise<void> {
   dockerSocketMappingStatusInfo = await window.getSystemDockerSocketMappingStatus();
@@ -25,6 +26,8 @@ async function refreshSocketMappingStatus(): Promise<void> {
     engineType = 'podman';
   } else if (dockerSocketMappingStatusInfo?.serverInfo?.type === 'docker') {
     engineType = 'docker';
+  } else if (dockerSocketMappingStatusInfo?.serverInfo?.type === 'lima') {
+    engineType = 'lima';
   } else {
     engineType = undefined;
   }
