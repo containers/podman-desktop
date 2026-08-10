@@ -14,22 +14,26 @@ import ProviderStopped from './ProviderStopped.svelte';
 
 const providerInitContexts = new SvelteMap<string, InitializationContext>();
 
-$: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
-$: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
-$: providersConfiguring = $providerInfos.filter(provider => provider.status === 'configuring');
-$: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
-$: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
-$: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
-$: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
+let providersNotInstalled = $derived($providerInfos.filter(provider => provider.status === 'not-installed'));
+let providersInstalled = $derived($providerInfos.filter(provider => provider.status === 'installed'));
+let providersConfiguring = $derived($providerInfos.filter(provider => provider.status === 'configuring'));
+let providersConfigured = $derived($providerInfos.filter(provider => provider.status === 'configured'));
+let providersReady = $derived(
+  $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started'),
+);
+let providersStarting = $derived($providerInfos.filter(provider => provider.status === 'starting'));
+let providersStopped = $derived($providerInfos.filter(provider => provider.status === 'stopped'));
+
+$effect(() => {
+  for (const provider of $providerInfos) {
+    if (!providerInitContexts.has(provider.internalId)) {
+      providerInitContexts.set(provider.internalId, { mode: DoNothingMode });
+    }
+  }
+});
 
 function getInitializationContext(id: string): InitializationContext {
-  let context: InitializationContext | undefined = providerInitContexts.get(id);
-
-  if (!context) {
-    context = { mode: DoNothingMode };
-    providerInitContexts.set(id, context);
-  }
-  return context;
+  return providerInitContexts.get(id) ?? { mode: DoNothingMode };
 }
 </script>
 
