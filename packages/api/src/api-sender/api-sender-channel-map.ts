@@ -131,6 +131,7 @@ export interface ApiSenderChannelMap {
   'registry-register': unknown;
   'registry-unregister': unknown;
   'registry-update': unknown;
+  'navigation-search-provider-items-changed': never;
   'search-bar-enabled': boolean;
   'show-release-notes': never;
   'showCustomPick:add': unknown;

@@ -82,6 +82,7 @@ export * from './proxy.js';
 export * from './pull-event.js';
 export * from './release-notes-info.js';
 export * from './search-option.js';
+export * from './search-result-item-info.js';
 export * from './secret-info.js';
 export * from './status-bar.js';
 export * from './system-overview-info.js';

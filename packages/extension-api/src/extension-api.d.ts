@@ -5120,6 +5120,81 @@ declare module '@podman-desktop/api' {
     icon?: string | { light: string; dark: string };
   }
 
+  /**
+   * A single search result returned by a {@link SearchResultProvider}.
+   */
+  export interface SearchResultItem {
+    /**
+     * Display label for this result in the Command Palette.
+     */
+    label: string;
+
+    /**
+     * Optional icon for this result. Falls back to the extension icon if not provided.
+     */
+    icon?: string | { light: string; dark: string };
+
+    /**
+     * The command to execute when this result is selected.
+     * Must have been registered via {@link commands.registerCommand}.
+     */
+    command: string;
+
+    /**
+     * Optional arguments passed to the command on execution.
+     */
+    args?: unknown[];
+  }
+
+  /**
+   * Parameters passed to {@link SearchResultProvider.provideItems} by the core.
+   */
+  export interface SearchResultProviderParams {
+    /**
+     * Maximum number of results the provider should return. Podman Desktop currently requests up to 10 results.
+     */
+    maxResults: number;
+  }
+
+  /**
+   * A dynamic search result provider that is queried when the user types
+   * in the Command Palette.
+   */
+  export interface SearchResultProvider {
+    /**
+     * Called by the core with the current search query. Providers should
+     * return matching items up to {@link SearchResultProviderParams.maxResults}.
+     *
+     * @param query - The current search text entered by the user.
+     * @param params - Parameters including the maximum number of results.
+     * @param token - A cancellation token that is cancelled when the user
+     *   types a new character, signalling that results are no longer needed.
+     */
+    provideItems(
+      query: string,
+      params: SearchResultProviderParams,
+      token: CancellationToken,
+    ): ProviderResult<SearchResultItem[]>;
+
+    /**
+     * Optional event that fires when the provider's data has changed
+     * (e.g. a new resource was created). While the Command Palette is open
+     * the core subscribes to this event and re-queries the provider.
+     */
+    onDidChangeItems?: Event<void>;
+  }
+
+  /**
+   * Metadata associated with a {@link SearchResultProvider}.
+   */
+  export interface SearchResultProviderMetadata {
+    /**
+     * Label used to identify this provider before each result in the
+     * Command Palette. Defaults to the extension's display name.
+     */
+    readonly label?: string;
+  }
+
   export namespace navigation {
     // Navigate to the Dashboard page
     export function navigateToDashboard(): Promise<void>;
@@ -5268,6 +5343,38 @@ declare module '@podman-desktop/api' {
      * restoring its own webview state accordingly (e.g. via `postMessage`).
      */
     export const onDidNavigateToHistoryEntry: Event<NavigateToHistoryEvent>;
+
+    /**
+     * Register a dynamic search result provider for the Command Palette.
+     *
+     * Unlike static routes registered via {@link navigation.register}, dynamic
+     * providers are queried at search time with the user's input and can return
+     * results based on live data (e.g. running containers, Kubernetes resources).
+     *
+     * @example
+     * ```ts
+     * import { navigation, SearchResultProvider } from '@podman-desktop/api';
+     *
+     * const provider: SearchResultProvider = {
+     *   provideItems(query, params, token) {
+     *     return myResources
+     *       .filter(r => r.name.includes(query))
+     *       .slice(0, params.maxResults)
+     *       .map(r => ({ label: r.name, command: 'myExt.open', args: [r.id] }));
+     *   },
+     * };
+     *
+     * const disposable = navigation.registerSearchResultProvider(provider, { label: 'My Resources' });
+     * ```
+     *
+     * @param provider - The provider that supplies search results.
+     * @param metadata - Optional metadata such as a provider label.
+     * @returns A {@link Disposable} that unregisters the provider when disposed.
+     */
+    export function registerSearchResultProvider(
+      provider: SearchResultProvider,
+      metadata?: SearchResultProviderMetadata,
+    ): Disposable;
   }
 
   /**
