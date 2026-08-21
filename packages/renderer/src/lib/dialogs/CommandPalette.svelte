@@ -4,7 +4,9 @@ import type {
   CommandPaletteSearchOption,
   DocumentationInfo,
   GoToInfo,
+  IDisposable,
   NavigationSearchEntryInfo,
+  SearchResultItemInfo,
 } from '@desktop-framework/api';
 import {
   faArrowUpRightFromSquare,
@@ -16,7 +18,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Button, type IconType, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
-import { onMount, tick } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
 
 import ArrowDownIcon from '/@/lib/images/ArrowDownIcon.svelte';
 import ArrowUpIcon from '/@/lib/images/ArrowUpIcon.svelte';
@@ -29,6 +31,7 @@ import { context } from '/@/stores/context';
 import { navigationRegistry, type NavigationRegistryEntry } from '/@/stores/navigation/navigation-registry';
 import { navigationSearchEntries } from '/@/stores/navigation-search-entries';
 
+import { DynamicSearchController } from './dynamic-search-controller';
 import TextHighLight from './TextHighLight.svelte';
 
 const ENTER_KEY = 'Enter';
@@ -43,7 +46,7 @@ interface Props {
   onclose?: () => void;
 }
 
-type CommandPaletteItem = CommandInfo | DocumentationInfo | GoToInfo | NavigationSearchEntryInfo;
+type CommandPaletteItem = CommandInfo | DocumentationInfo | GoToInfo | NavigationSearchEntryInfo | SearchResultItemInfo;
 
 let { display = false, onclose }: Props = $props();
 
@@ -116,6 +119,30 @@ let filteredExtensionRouteItems: NavigationSearchEntryInfo[] = $derived(
   ),
 );
 
+// Tabs that render dynamic provider results: All (0) and Go to (3)
+const ALL_MODE_INDEX = 0;
+const GO_TO_MODE_INDEX = 3;
+let isDynamicSearchMode = $derived(
+  searchOptionsSelectedIndex === ALL_MODE_INDEX || searchOptionsSelectedIndex === GO_TO_MODE_INDEX,
+);
+
+let dynamicSearchResponse: { query: string; results: SearchResultItemInfo[] } = $state({ query: '', results: [] });
+let dynamicSearchResults = $derived(
+  display && isDynamicSearchMode && inputValue?.trim() === dynamicSearchResponse.query
+    ? dynamicSearchResponse.results
+    : [],
+);
+const dynamicSearchController = new DynamicSearchController({
+  search: (query): Promise<SearchResultItemInfo[]> => window.searchDynamicProviders(query),
+  subscribe: (listener): IDisposable => window.events.receive('navigation-search-provider-items-changed', listener),
+  onResults: (query, results): void => {
+    dynamicSearchResponse = { query, results };
+  },
+  onError: (error): void => {
+    console.error('Failed to search dynamic providers:', error);
+  },
+});
+
 let filteredItems = $derived.by(() => {
   if (searchOptionsSelectedIndex === 1) {
     // Commands mode
@@ -125,12 +152,13 @@ let filteredItems = $derived.by(() => {
     return filteredDocumentationInfoItems;
   } else if (searchOptionsSelectedIndex === 3) {
     // Go to mode
-    return [...filteredGoToItems, ...filteredExtensionRouteItems];
+    return [...filteredGoToItems, ...filteredExtensionRouteItems, ...dynamicSearchResults];
   } else {
     // All mode - combine all
     return [
       ...filteredGoToItems,
       ...filteredExtensionRouteItems,
+      ...dynamicSearchResults,
       ...filteredCommandInfoItems,
       ...filteredDocumentationInfoItems,
     ];
@@ -142,6 +170,11 @@ onMount(async () => {
   isMac = platform === 'darwin';
   documentationItems = await window.getDocumentationItems();
   searchOptions = await window.getCommandPaletteSearchOptions();
+  dynamicSearchController.start();
+});
+
+onDestroy(() => {
+  dynamicSearchController.dispose();
 });
 
 // Focus the input when the command palette becomes visible
@@ -159,11 +192,13 @@ $effect(() => {
 
 let selectedFilteredIndex = $state(0);
 
+$effect(() => {
+  dynamicSearchController.update(display && isDynamicSearchMode, inputValue ?? '');
+});
+
 function displaySearchBar(): void {
-  // clear the input value
   inputValue = '';
   selectedFilteredIndex = 0;
-  // toggle the display
   display = true;
   window.telemetryTrack('globalSearch.opened').catch(console.error);
 }
@@ -233,10 +268,13 @@ async function handleKeydown(e: KeyboardEvent): Promise<void> {
     });
     e.preventDefault();
   } else if (e.key === ENTER_KEY) {
+    const item = filteredItems[selectedFilteredIndex];
     // hide the command palette
     hideCommandPallete();
 
-    await executeAction(selectedFilteredIndex);
+    if (item) {
+      await executeAction(item);
+    }
     e.preventDefault();
   } else if (e.key === TAB_KEY) {
     switchSearchOption(e.shiftKey ? -1 : 1);
@@ -250,15 +288,23 @@ function switchSearchOption(direction: 1 | -1): void {
   searchOptionsSelectedIndex = (searchOptionsSelectedIndex + direction + offset) % searchOptionsLength;
 }
 
-async function executeAction(index: number): Promise<void> {
-  const item = filteredItems[index];
-  if (!item) return;
+function selectSearchOption(index: number): void {
+  searchOptionsSelectedIndex = index;
+}
 
+async function executeAction(item: CommandPaletteItem): Promise<void> {
   let itemType: string;
   let pageLink: string | undefined = undefined;
   let commandHash: string | undefined = undefined;
 
-  if (isDocItem(item)) {
+  if (isDynamicSearchItem(item)) {
+    try {
+      await window.executeCommand(item.command, ...(item.args ?? []));
+    } catch (error) {
+      console.error('Error executing dynamic search result command', error);
+    }
+    itemType = 'DynamicSearchResult';
+  } else if (isDocItem(item)) {
     // Documentation item
     if (item.url) {
       try {
@@ -320,16 +366,18 @@ function hideCommandPallete(): void {
 }
 
 async function clickOnItem(index: number): Promise<void> {
+  const item = filteredItems[index];
   // hide the command palette
   hideCommandPallete();
 
   // execute the action based on current mode
   selectedFilteredIndex = index;
-  await executeAction(selectedFilteredIndex);
+  if (item) {
+    await executeAction(item);
+  }
 }
 
 async function onInputChange(): Promise<void> {
-  // in case of quick pick, filter the items
   selectedFilteredIndex = 0;
 }
 
@@ -348,6 +396,10 @@ function isExtensionRouteItem(item: CommandPaletteItem): item is NavigationSearc
   return 'routeId' in item;
 }
 
+function isDynamicSearchItem(item: CommandPaletteItem): item is SearchResultItemInfo {
+  return 'providerLabel' in item;
+}
+
 function isGoToItem(item: CommandPaletteItem): item is GoToInfo {
   return 'page' in item;
 }
@@ -359,6 +411,10 @@ function isDocItem(item: CommandPaletteItem): item is DocumentationInfo {
 function getItemKey(item: CommandPaletteItem, index: number): string {
   if (isExtensionRouteItem(item)) {
     return `route:${item.routeId}`;
+  }
+
+  if (isDynamicSearchItem(item)) {
+    return `dynamic:${item.providerId}:${item.label}:${item.command}`;
   }
 
   if (isGoToItem(item)) {
@@ -375,6 +431,8 @@ function getItemKey(item: CommandPaletteItem, index: number): string {
 function getTextToHighlight(item: CommandPaletteItem): string {
   if (isExtensionRouteItem(item)) {
     return item.label;
+  } else if (isDynamicSearchItem(item)) {
+    return `${item.providerLabel}: ${item.label}`;
   } else if (isDocItem(item)) {
     return `${item.category}: ${item.name}`;
   } else if (isGoToItem(item)) {
@@ -385,7 +443,7 @@ function getTextToHighlight(item: CommandPaletteItem): string {
 }
 
 function getIcon(item: CommandPaletteItem): IconType {
-  if (isExtensionRouteItem(item)) {
+  if (isExtensionRouteItem(item) || isDynamicSearchItem(item)) {
     return item.icon ?? faTerminal;
   } else if (isDocItem(item)) {
     return item.category === 'Tutorial' ? faFilePen : faFileLines;
@@ -429,9 +487,7 @@ function getIcon(item: CommandPaletteItem): IconType {
             <Button
               type="tab"
               class="focus:outline-hidden"
-              on:click={(): void => {
-                searchOptionsSelectedIndex = index;
-              }}
+              on:click={selectSearchOption.bind(undefined, index)}
               selected={searchOptionsSelectedIndex === index}>
               <div class="flex items-center gap-2">
                 {#if searchOption.shortCut}
@@ -449,10 +505,11 @@ function getIcon(item: CommandPaletteItem): IconType {
         <ul class="max-h-[50vh] overflow-y-auto flex flex-col mt-1">
           {#each filteredItems as item, i (getItemKey(item, i))}
             {@const extensionRouteItem = isExtensionRouteItem(item)}
+            {@const dynamicSearchItem = isDynamicSearchItem(item)}
             {@const goToItem = isGoToItem(item)}
             {@const docItem = isDocItem(item)}
             {@const itemIcon = getIcon(item)}
-            <li class="flex w-full flex-row" bind:this={scrollElements[i]} aria-label={extensionRouteItem ? item.label : goToItem ? item.name : (item.id)}>
+            <li class="flex w-full flex-row" bind:this={scrollElements[i]} aria-label={extensionRouteItem ? item.label : dynamicSearchItem ? getTextToHighlight(item) : goToItem ? item.name : (item.id)}>
               <button
                 onclick={(): Promise<void> => clickOnItem(i)}
                 class="text-[var(--pd-dropdown-item-text)] text-left relative w-full rounded-sm {i === selectedFilteredIndex
