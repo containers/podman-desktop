@@ -582,7 +582,7 @@ function preventDefault(handler: (e: SubmitEvent) => Promise<void>): (e: SubmitE
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <div class="factory-property-markdown-description">
+                    <div class="[&>section]:pb-0 [&_p:last-child]:mb-0">
                       <Markdown markdown={configurationKey.markdownDescription} />
                     </div>
                   {/if}
@@ -622,13 +622,3 @@ function preventDefault(handler: (e: SubmitEvent) => Promise<void>): (e: SubmitE
     </div>
   {/if}
 </div>
-
-<style>
-  .factory-property-markdown-description :global(section) {
-    padding-bottom: 0;
-  }
-
-  .factory-property-markdown-description :global(p:last-child) {
-    margin-bottom: 0;
-  }
-</style>

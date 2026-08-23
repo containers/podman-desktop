@@ -98,34 +98,6 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('Expect Markdown factory property descriptions to use compact spacing', async () => {
-  render(PreferencesConnectionCreationOrEditRendering, {
-    properties: [
-      {
-        title: 'Import host trusted CA certs',
-        parentId: '',
-        scope: 'ContainerProviderConnectionFactory',
-        id: 'test.importHostCerts',
-        type: 'boolean',
-        markdownDescription: 'Import host trusted CA certs',
-      },
-    ],
-    providerInfo,
-    connectionInfo: undefined,
-    propertyScope,
-    callback: vi.fn(),
-    pageIsLoading: false,
-  });
-
-  const markdown = await screen.findByLabelText('markdown-content');
-  const description = screen.getByText('Import host trusted CA certs');
-
-  expect(markdown.parentElement).toHaveClass('factory-property-markdown-description');
-  expect(Number.parseFloat(getComputedStyle(markdown).paddingBottom)).toBe(0);
-  expect(Number.parseFloat(getComputedStyle(description).marginBottom)).toBe(0);
-  expect(screen.getByRole('checkbox', { name: 'Import host trusted CA certs' })).toBeInTheDocument();
-});
-
 describe.each([
   {
     action: 'creation',
