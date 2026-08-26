@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,12 @@ function createProxyAgent(secure: boolean, proxyUrl: string, certificates: Certi
     : new HttpProxyAgent(options as HttpProxyAgentOptions);
 }
 
-export function getProxyUrl(proxy: Proxy, secure: boolean): string | undefined {
+export function getProxyUrl(proxy: Proxy, secure: boolean, hostname?: string, port?: string): string | undefined {
   if (proxy.isEnabled()) {
+    const effectivePort = (port === '' ? undefined : port) ?? (secure ? '443' : '80');
+    if (proxy.isNoProxyMatch(hostname, effectivePort)) {
+      return undefined;
+    }
     return secure ? proxy.proxy?.httpsProxy : proxy.proxy?.httpProxy;
   }
   return undefined;
@@ -64,9 +68,15 @@ export function getProxyUrl(proxy: Proxy, secure: boolean): string | undefined {
 
 type ProxyOptions = { agent?: http.Agent | https.Agent };
 
-export function getOptions(proxy: Proxy, secure: boolean, certificates: Certificates): ProxyOptions {
+export function getOptions(
+  proxy: Proxy,
+  secure: boolean,
+  certificates: Certificates,
+  hostname?: string,
+  port?: string,
+): ProxyOptions {
   const options: ProxyOptions = {};
-  const proxyUrl = getProxyUrl(proxy, secure);
+  const proxyUrl = getProxyUrl(proxy, secure, hostname, port);
   if (proxyUrl) {
     options.agent = createProxyAgent(secure, proxyUrl, certificates);
   } else if (secure) {
@@ -133,11 +143,9 @@ function createHttpPatch(
           options = { ...options };
         }
 
-        const host = options.hostname ?? options.host;
-        const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1';
-        if (!isLocalhost) {
-          options = { ...options, ...getOptions(proxy, options.protocol === 'https:', certificates) };
-        }
+        const host = options.hostname ?? options.host ?? 'localhost';
+        const port = options.port?.toString();
+        options = { ...options, ...getOptions(proxy, options.protocol === 'https:', certificates, host, port) };
 
         return original(options, callback);
       }

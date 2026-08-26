@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,38 @@ test('fetch with http proxy', async () => {
   expect(connectDone).toBeTruthy();
 });
 
+test('fetch skips proxy when hostname matches noProxy', async () => {
+  const proxyServer = await buildProxy();
+  const address = proxyServer.address() as AddressInfo;
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpsProxy: `127.0.0.1:${address.port}`,
+    httpProxy: undefined,
+    noProxy: 'podman-desktop.io',
+  });
+
+  let connectDone = false;
+  proxyServer.on('connect', () => (connectDone = true));
+  await fetch(URL);
+  expect(connectDone).toBeFalsy();
+});
+
+test('fetch uses proxy when hostname does not match noProxy', async () => {
+  const proxyServer = await buildProxy();
+  const address = proxyServer.address() as AddressInfo;
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpsProxy: `127.0.0.1:${address.port}`,
+    httpProxy: undefined,
+    noProxy: 'localhost,example.com',
+  });
+
+  let connectDone = false;
+  proxyServer.on('connect', () => (connectDone = true));
+  await fetch(URL);
+  expect(connectDone).toBeTruthy();
+});
+
 test('check change from manual to system without proxy send event', async () => {
   await proxy?.setState(ProxyState.PROXY_MANUAL);
   await proxy?.setProxy({
@@ -246,4 +278,340 @@ test('fetch with caller-provided dispatcher should not be overridden', async () 
   } finally {
     globalThis.fetch = previousFetch;
   }
+});
+
+test('fetch skips proxy when noProxy has port :443 matching default HTTPS port', async () => {
+  const proxyServer = await buildProxy();
+  const address = proxyServer.address() as AddressInfo;
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpsProxy: `127.0.0.1:${address.port}`,
+    httpProxy: undefined,
+    noProxy: 'podman-desktop.io:443',
+  });
+
+  let connectDone = false;
+  proxyServer.on('connect', () => (connectDone = true));
+  await fetch('https://podman-desktop.io');
+  expect(connectDone).toBeFalsy();
+});
+
+test('fetch uses proxy when noProxy has port :8080 not matching default HTTPS port', async () => {
+  const proxyServer = await buildProxy();
+  const address = proxyServer.address() as AddressInfo;
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpsProxy: `127.0.0.1:${address.port}`,
+    httpProxy: undefined,
+    noProxy: 'podman-desktop.io:8080',
+  });
+
+  let connectDone = false;
+  proxyServer.on('connect', () => (connectDone = true));
+  await fetch('https://podman-desktop.io');
+  expect(connectDone).toBeTruthy();
+});
+
+test('fetch skips proxy when noProxy has port :443 and URL has explicit :443', async () => {
+  const proxyServer = await buildProxy();
+  const address = proxyServer.address() as AddressInfo;
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpsProxy: `127.0.0.1:${address.port}`,
+    httpProxy: undefined,
+    noProxy: 'podman-desktop.io:443',
+  });
+
+  let connectDone = false;
+  proxyServer.on('connect', () => (connectDone = true));
+  await fetch('https://podman-desktop.io:443');
+  expect(connectDone).toBeFalsy();
+});
+
+test('isNoProxyMatch reflects updated rules after setProxy', async () => {
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: 'example.com',
+  });
+
+  expect(proxy?.isNoProxyMatch('example.com')).toBe(true);
+  expect(proxy?.isNoProxyMatch('internal.corp')).toBe(false);
+
+  await proxy?.setProxy({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: 'example.com,internal.corp',
+  });
+
+  expect(proxy?.isNoProxyMatch('example.com')).toBe(true);
+  expect(proxy?.isNoProxyMatch('internal.corp')).toBe(true);
+});
+
+test('isNoProxyMatch returns false for all hosts when noProxy is undefined', async () => {
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: undefined,
+  });
+
+  expect(proxy?.isNoProxyMatch('example.com')).toBe(false);
+});
+
+test('isNoProxyMatch reflects system proxy settings changes', async () => {
+  vi.mocked(getProxySettingsFromSystem).mockResolvedValue({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: '10.0.0.0/8,*.internal.corp',
+  });
+  await proxy?.setState(ProxyState.PROXY_SYSTEM);
+  await proxy?.setProxy(undefined);
+
+  expect(proxy?.isNoProxyMatch('10.5.5.5')).toBe(true);
+  expect(proxy?.isNoProxyMatch('app.internal.corp')).toBe(true);
+  expect(proxy?.isNoProxyMatch('external.com')).toBe(false);
+
+  vi.mocked(getProxySettingsFromSystem).mockResolvedValue({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: 'new.domain.com',
+  });
+  await proxy?.setProxy(undefined);
+
+  expect(proxy?.isNoProxyMatch('new.domain.com')).toBe(true);
+  expect(proxy?.isNoProxyMatch('10.5.5.5')).toBe(false);
+});
+
+test('isNoProxyMatch returns false for all hosts when proxy is disabled', async () => {
+  await proxy?.setState(ProxyState.PROXY_MANUAL);
+  await proxy?.setProxy({
+    httpProxy: 'http://127.0.0.1:8080',
+    httpsProxy: undefined,
+    noProxy: 'example.com',
+  });
+  expect(proxy?.isNoProxyMatch('example.com')).toBe(true);
+
+  await proxy?.setState(ProxyState.PROXY_DISABLED);
+  await proxy?.updateFromConfiguration();
+
+  expect(proxy?.isNoProxyMatch('example.com')).toBe(false);
+});
+
+describe('isNoProxyMatch CIDR validation', () => {
+  test.each([
+    ['10.0.0.0/', 'Malformed CIDR prefix'],
+    ['10.0.0.0/ 8', 'Malformed CIDR prefix'],
+    ['10.0.0.0/33', 'out of range'],
+    ['fd00::/129', 'out of range'],
+  ])('malformed CIDR %s is rejected (expects %s error)', async (input, expectedMsg) => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await proxy?.setState(ProxyState.PROXY_MANUAL);
+    await proxy?.setProxy({ httpProxy: 'http://proxy:8080', httpsProxy: undefined, noProxy: input });
+    expect(proxy?.isNoProxyMatch('10.1.2.3')).toBe(false);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining(expectedMsg));
+    consoleSpy.mockRestore();
+  });
+
+  test.each([
+    ['10.0.0.0/8', '10.1.2.3'],
+    ['fd00::/7', 'fd00::1'],
+  ])('valid CIDR %s matches %s', async (cidr, host) => {
+    await proxy?.setState(ProxyState.PROXY_MANUAL);
+    await proxy?.setProxy({ httpProxy: 'http://proxy:8080', httpsProxy: undefined, noProxy: cidr });
+    expect(proxy?.isNoProxyMatch(host)).toBe(true);
+  });
+});
+
+interface NoProxyTestCase {
+  description: string;
+  noProxy?: string;
+  host: string;
+  port?: string;
+  expected: boolean;
+}
+
+describe('isNoProxyMatch', () => {
+  test.each<NoProxyTestCase>([
+    // Domain & Subdomain Matching
+    {
+      description: 'hostname matches exactly',
+      noProxy: 'internal.example.com',
+      host: 'internal.example.com',
+      expected: true,
+    },
+    {
+      description: 'hostname does not match',
+      noProxy: 'internal.example.com',
+      host: 'podman-desktop.io',
+      expected: false,
+    },
+    { description: '*. prefix matches subdomain', noProxy: '*.example.com', host: 'foo.example.com', expected: true },
+    {
+      description: '*. prefix does not match main domain',
+      noProxy: '*.example.com',
+      host: 'example.com',
+      expected: false,
+    },
+    { description: 'leading dot matches subdomain', noProxy: '.example.com', host: 'sub.example.com', expected: true },
+    {
+      description: 'leading dot does not match main domain',
+      noProxy: '.example.com',
+      host: 'example.com',
+      expected: false,
+    },
+    { description: 'no leading dot matches main domain', noProxy: 'example.com', host: 'example.com', expected: true },
+    {
+      description: 'no leading dot matches subdomain',
+      noProxy: 'example.com',
+      host: 'sub.example.com',
+      expected: true,
+    },
+
+    // Loopback Bypassing
+    { description: 'bypasses for localhost', noProxy: 'example.com', host: 'localhost', expected: true },
+    { description: 'bypasses for 127.0.0.1', noProxy: 'example.com', host: '127.0.0.1', expected: true },
+    { description: 'bypasses for 127.0.0.2', noProxy: 'example.com', host: '127.0.0.2', expected: true },
+    { description: 'bypasses for 127.255.255.255', noProxy: 'example.com', host: '127.255.255.255', expected: true },
+    { description: 'does not bypass for 128.0.0.1', noProxy: 'example.com', host: '128.0.0.1', expected: false },
+    { description: 'bypasses for ::1', noProxy: 'example.com', host: '::1', expected: true },
+    { description: 'bypasses for [::1]', noProxy: 'example.com', host: '[::1]', expected: true },
+    { description: 'bypasses loopback when noProxy is empty', noProxy: '', host: 'localhost', expected: true },
+    {
+      description: 'bypasses loopback when noProxy is undefined',
+      noProxy: undefined,
+      host: '127.0.0.1',
+      expected: true,
+    },
+
+    // IPv4 & CIDR Matching
+    { description: 'matches IP inside CIDR range', noProxy: '10.0.0.0/8', host: '10.1.2.3', expected: true },
+    {
+      description: 'does not match IP outside CIDR range',
+      noProxy: '10.0.0.0/8',
+      host: '192.168.1.1',
+      expected: false,
+    },
+    { description: 'matches exact IPv4 address', noProxy: '192.168.1.100', host: '192.168.1.100', expected: true },
+    { description: 'does not match different IPv4', noProxy: '192.168.1.100', host: '192.168.1.101', expected: false },
+
+    // IPv6 Matching
+    { description: 'matches exact IPv6', noProxy: 'fd00::1', host: 'fd00::1', expected: true },
+    { description: 'does not match different IPv6', noProxy: 'fd00::1', host: 'fd00::2', expected: false },
+    { description: 'matches IPv6 inside CIDR', noProxy: 'fd00::/8', host: 'fd00::1', expected: true },
+    { description: 'does not match IPv6 outside CIDR', noProxy: 'fd00::/8', host: 'fe80::1', expected: false },
+    { description: 'handles bracketed IPv6', noProxy: 'fd00::/8', host: '[fd00::1]', expected: true },
+
+    // Multiple Patterns & Whitespace
+    { description: 'matches first in list', noProxy: 'foo.com,bar.org', host: 'foo.com', expected: true },
+    { description: 'matches second in list', noProxy: 'foo.com,bar.org', host: 'bar.org', expected: true },
+    { description: 'does not match unlisted', noProxy: 'foo.com,bar.org', host: 'other.io', expected: false },
+    { description: 'trims spaces', noProxy: ' foo.com , bar.org ', host: 'foo.com', expected: true },
+    { description: 'ignores empty entries', noProxy: ',foo.com,,bar.org,', host: 'foo.com', expected: true },
+    { description: 'empty noProxy does not match non-loopback', noProxy: '', host: 'example.com', expected: false },
+
+    // Wildcard
+    { description: 'wildcard * matches all', noProxy: '*', host: 'anything.example.com', expected: true },
+    { description: 'wildcard * matches IP', noProxy: '*', host: '10.0.0.1', expected: true },
+
+    // Port Matching
+    {
+      description: 'matches domain when port matches',
+      noProxy: 'example.com:8080',
+      host: 'example.com',
+      port: '8080',
+      expected: true,
+    },
+    {
+      description: 'uses proxy when port differs',
+      noProxy: 'example.com:8080',
+      host: 'example.com',
+      port: '9090',
+      expected: false,
+    },
+    {
+      description: 'uses proxy when no port but entry has port',
+      noProxy: 'example.com:8080',
+      host: 'example.com',
+      expected: false,
+    },
+    {
+      description: 'bypasses regardless of port if entry has no port',
+      noProxy: 'example.com',
+      host: 'example.com',
+      port: '8080',
+      expected: true,
+    },
+    {
+      description: 'matches IP with port',
+      noProxy: '192.168.1.1:8080',
+      host: '192.168.1.1',
+      port: '8080',
+      expected: true,
+    },
+    {
+      description: 'uses proxy when IP port differs',
+      noProxy: '192.168.1.1:8080',
+      host: '192.168.1.1',
+      port: '9090',
+      expected: false,
+    },
+    { description: 'matches IPv6 with port', noProxy: '[fe80::1]:8080', host: 'fe80::1', port: '8080', expected: true },
+    {
+      description: 'uses proxy for IPv6 non-matching port',
+      noProxy: '[fe80::1]:8080',
+      host: 'fe80::1',
+      port: '9090',
+      expected: false,
+    },
+
+    // Mixed entries
+    {
+      description: 'mixed CIDR match',
+      noProxy: '10.0.0.0/8,.internal.corp,192.168.1.42',
+      host: '10.5.5.5',
+      expected: true,
+    },
+    {
+      description: 'mixed subdomain match',
+      noProxy: '10.0.0.0/8,.internal.corp,192.168.1.42',
+      host: 'app.internal.corp',
+      expected: true,
+    },
+    {
+      description: 'mixed exact IP match',
+      noProxy: '10.0.0.0/8,.internal.corp,192.168.1.42',
+      host: '192.168.1.42',
+      expected: true,
+    },
+    {
+      description: 'mixed does not match unlisted',
+      noProxy: '10.0.0.0/8,.internal.corp,192.168.1.42',
+      host: 'public.example.com',
+      expected: false,
+    },
+
+    // Malformed entries
+    { description: 'empty hostname returns false', noProxy: '*', host: '', expected: false },
+    { description: 'trailing colon skipped', noProxy: 'example.com:,other.com', host: 'example.com', expected: false },
+    { description: ':port with no host skipped', noProxy: ':8080,other.com', host: 'other.com', expected: true },
+    { description: ':port with no host does not match', noProxy: ':8080', host: 'example.com', expected: false },
+    {
+      description: 'bracketed IPv6 with empty port skipped',
+      noProxy: '[fd00::1]:,other.com',
+      host: 'fd00::1',
+      expected: false,
+    },
+    {
+      description: 'valid entry after malformed still works',
+      noProxy: 'example.com:,other.com',
+      host: 'other.com',
+      expected: true,
+    },
+  ])('$description', async ({ noProxy, host, port, expected }) => {
+    await proxy?.setState(ProxyState.PROXY_MANUAL);
+    await proxy?.setProxy({ httpProxy: 'http://proxy:8080', httpsProxy: undefined, noProxy });
+    expect(proxy?.isNoProxyMatch(host, port)).toBe(expected);
+  });
 });
