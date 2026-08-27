@@ -114,6 +114,11 @@ export interface InternalContainerProvider {
   // api not there if status is stopped
   api?: Dockerode;
   libpodApi?: LibPod;
+  // the pending reconnect for this provider, or undefined when none is
+  // scheduled. Cleared at the top of setupConnectionAPI, before anything
+  // that can throw, so a throw never leaves this set forever (which would
+  // otherwise suppress every future reconnect for the provider).
+  reconnectTimer?: ReturnType<typeof setTimeout>;
 }
 
 interface JSONEvent {
@@ -270,11 +275,14 @@ export class ContainerProviderRegistry {
 
     api.getEvents((err, stream) => {
       if (err) {
+        // always notify the caller so a retry gets scheduled; `notify` only
+        // gates the console.log below so we do not repeat it on every
+        // subsequent failure until we successfully reconnect.
         if (this.notify) {
           console.log('error is', err);
-          errorCallback(new Error('Error in handling events', err));
           this.notify = false;
         }
+        errorCallback(new Error('Error in handling events', err));
       }
 
       stream?.on('error', error => {
@@ -327,9 +335,8 @@ export class ContainerProviderRegistry {
   }
 
   reconnectContainerProviders(): void {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const provider of this.internalProviders.values()) {
-      if (provider.api) this.setupConnectionAPI(provider, provider.connection);
+      this.setupConnectionAPI(provider, provider.connection);
     }
   }
 
@@ -337,14 +344,25 @@ export class ContainerProviderRegistry {
     internalProvider: InternalContainerProvider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
   ): void {
+    // clear any pending reconnect for this provider first, before anything
+    // below can throw (status() is extension-supplied). Otherwise a throw
+    // would leave the handle set forever and no future reconnect would ever
+    // be scheduled again for this provider (see InternalContainerProvider).
+    clearTimeout(internalProvider.reconnectTimer);
+    internalProvider.reconnectTimer = undefined;
+
+    const status = containerProviderConnection.status();
+
     // abort if connection is stopped
-    if (containerProviderConnection.status() === 'stopped') {
+    if (status === 'stopped') {
       console.log('Aborting reconnect due to error as connection is now stopped');
       return;
     }
 
-    // abort if connection has been removed
-    if (containerProviderConnection.status() === undefined) {
+    // proceed only if the connection is started or starting; abort for
+    // everything else, including a removed connection (undefined) and an
+    // 'unknown' status, which is what a removed podman machine reports.
+    if (status !== 'started' && status !== 'starting') {
       console.log('Aborting reconnect due to error as connection has been removed (probably machine has been removed)');
       return;
     }
@@ -361,10 +379,15 @@ export class ContainerProviderRegistry {
       internalProvider.api = undefined;
       internalProvider.libpodApi = undefined;
 
+      // at most one reconnect is pending per provider
+      if (internalProvider.reconnectTimer) {
+        return;
+      }
+
       // ok we had some errors so we need to reconnect the provider
       // delay the reconnection to avoid too many reconnections
       // retry in 5 seconds
-      setTimeout(() => {
+      internalProvider.reconnectTimer = setTimeout(() => {
         this.setupConnectionAPI(internalProvider, containerProviderConnection);
       }, this.retryDelayEvents);
     };
@@ -437,6 +460,8 @@ export class ContainerProviderRegistry {
 
     return Disposable.create(() => {
       clearInterval(timer);
+      clearTimeout(internalProvider.reconnectTimer);
+      internalProvider.reconnectTimer = undefined;
       onBeforeUpdateDisposable.dispose();
       this.internalProviders.delete(id);
       this.containerProviders.delete(id);
