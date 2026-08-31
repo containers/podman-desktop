@@ -582,7 +582,7 @@ function preventDefault(handler: (e: SubmitEvent) => Promise<void>): (e: SubmitE
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <div class="[&>section]:pb-0 [&_p:last-child]:mb-0">
+                    <div class="[&>section]:pb-0 [&_p]:text-inherit">
                       <Markdown markdown={configurationKey.markdownDescription} />
                     </div>
                   {/if}
