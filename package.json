@@ -58,6 +58,8 @@
     "test:e2e:macos-sanity:run": "node tests/playwright/scripts/run-e2e-suite.mjs --all -g @macos_sanity",
     "test:e2e:pdmachine": "pnpm run test:e2e:build && pnpm run test:e2e:pdmachine:run",
     "test:e2e:pdmachine:run": "node tests/playwright/scripts/run-e2e-suite.mjs --all -g @pdmachine",
+    "test:e2e:pod-environment-filter": "pnpm run test:e2e:build && pnpm run test:e2e:pod-environment-filter:run",
+    "test:e2e:pod-environment-filter:run": "node tests/playwright/scripts/run-e2e-suite.mjs pod-environment-filter",
     "test:e2e:experimental": "pnpm run test:e2e:build && pnpm run test:e2e:experimental:run",
     "test:e2e:experimental:run": "node tests/playwright/scripts/run-e2e-suite.mjs --all -g @experimental",
     "test:e2e:extension": "pnpm run test:e2e:build && pnpm run test:e2e:extension:run",
