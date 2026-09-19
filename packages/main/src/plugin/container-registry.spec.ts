@@ -2244,6 +2244,102 @@ describe('listVolumes', () => {
     });
   });
 
+  test('with fetching the volumes size using the VolumeUsage shape', async () => {
+    const volumesDataMock = {
+      Volumes: [
+        {
+          CreatedAt: '2023-08-21T10:50:52+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+          Name: 'myFirstVolume',
+          Options: {},
+          Scope: 'local',
+        },
+      ],
+      Warnings: [],
+    };
+
+    // newer podman reports the volume usage inside VolumeUsage.Items instead of Volumes
+    const systemDfDataMock = {
+      LayersSize: 0,
+      Images: [],
+      Containers: [],
+      VolumeUsage: {
+        Items: [
+          {
+            Driver: '',
+            Labels: {},
+            Mountpoint: '',
+            Name: 'myFirstVolume',
+            Options: null,
+            Scope: 'local',
+            UsageData: { RefCount: 1, Size: 83990640 },
+          },
+        ],
+      },
+      BuildCache: [],
+    };
+
+    const containersJsonMock = [
+      {
+        Id: 'ae84549539d26cdcafb9865a77bce53ea072fd256cc419b376ce3f33d66bbe75',
+        Names: ['/kind_antonelli'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+        Created: 1692624321,
+        Mounts: [
+          {
+            Type: 'volume',
+            Name: 'myFirstVolume',
+            Source: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+            Destination: '/app',
+            Driver: 'local',
+            Mode: '',
+            RW: true,
+            Propagation: 'rprivate',
+          },
+        ],
+      },
+    ];
+
+    const handlers = [
+      http.get('http://localhost/volumes', () => HttpResponse.json(volumesDataMock)),
+
+      http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
+
+      http.get('http://localhost/system/df', () => HttpResponse.json(systemDfDataMock)),
+    ];
+    server = setupServer(...handlers);
+    server.listen({ onUnhandledRequest: 'error' });
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    // ask for volumes and data
+    const volumes = await containerRegistry.listVolumes(true);
+
+    expect(volumes).toHaveLength(1);
+    const volumeData = volumes[0]?.Volumes[0];
+
+    expect(volumeData?.Name).toBe('myFirstVolume');
+
+    // size is read from VolumeUsage.Items and not left to the -1 default
+    expect(volumeData?.UsageData).toStrictEqual({
+      RefCount: 1,
+      Size: 83990640,
+    });
+  });
+
   test('without fetching the volumes size', async () => {
     const volumesDataMock = {
       Volumes: [

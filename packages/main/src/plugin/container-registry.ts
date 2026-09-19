@@ -1032,7 +1032,12 @@ export class ContainerProviderRegistry {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const volumeListInfo: any = await provider.api.listVolumes();
 
-          let storageDefinition = {
+          // the unversioned /system/df endpoint reports the volume usage either as a
+          // top-level Volumes array (docker) or nested inside VolumeUsage.Items (podman)
+          let storageDefinition: {
+            Volumes?: unknown[];
+            VolumeUsage?: { Items?: unknown[] };
+          } = {
             Volumes: [],
           };
 
@@ -1065,7 +1070,11 @@ export class ContainerProviderRegistry {
 
             // do we have a matching volume in storage definition ?
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const matchingVolume: any = (storageDefinition?.Volumes || []).find(
+            const matchingVolume: any = (
+              storageDefinition?.VolumeUsage?.Items ??
+              storageDefinition?.Volumes ??
+              []
+            ).find(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (volumeStorage: any) => volumeStorage.Name === volumeInfo.Name,
             );
