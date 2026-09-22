@@ -10,6 +10,7 @@ import { router } from 'tinro';
 
 import ContainerConnectionDropdown from '/@/lib/forms/ContainerConnectionDropdown.svelte';
 import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
+import { lastPage } from '/@/stores/breadcrumb';
 import { providerInfos } from '/@/stores/providers';
 
 let containersToImport: { imagePath: string; nameWhenImporting: string }[] = $state([]);
@@ -141,6 +142,7 @@ async function importContainers(): Promise<void> {
 
     <div class="pt-5">
       <ButtonRow>
+        <Button type="secondary" on:click={(): void => router.goto($lastPage.path)}>Cancel</Button>      
         <Button
           on:click={importContainers}
           inProgress={inProgress}

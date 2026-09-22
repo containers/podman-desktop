@@ -8,12 +8,14 @@ import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg
 import { Button, ButtonRow, Checkbox, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import ContainerConnectionDropdown from '/@/lib/forms/ContainerConnectionDropdown.svelte';
 import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
 import FileInput from '/@/lib/ui/FileInput.svelte';
 import TerminalWindow from '/@/lib/ui/TerminalWindow.svelte';
 import { handleNavigation } from '/@/navigation';
+import { lastPage } from '/@/stores/breadcrumb';
 import {
   type BuildImageInfo,
   buildImagesInfo,
@@ -443,6 +445,7 @@ let hasInvalidFields = $derived(
       </div>
 
       <ButtonRow>
+        <Button type="secondary" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
         {#if !buildImageInfo.buildRunning}
           <Button on:click={buildContainerImage} disabled={hasInvalidFields} icon={faCube}>Build</Button>
         {/if}
