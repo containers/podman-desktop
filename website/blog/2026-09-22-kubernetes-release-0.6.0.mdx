@@ -1,0 +1,233 @@
+---
+title: Kubernetes Dashboard v0.6.0 release for Podman Desktop
+description: Kubernetes dashboard v0.6.0 for Podman Desktop has been released!
+slug: podman-desktop-kubernetes-release-0.6.0
+authors: [phmartin]
+tags: [podman-desktop, release, kubernetes, openshift]
+hide_table_of_contents: false
+image: /img/blog/podman-desktop-kubernetes-release-0.6.0/banner.png
+---
+
+import ThemedImage from '@theme/ThemedImage';
+
+Kubernetes Dashboard v0.6.0 for Podman Desktop Release! 🎉
+
+![podman-desktop-kubernetes-hero-0.6.0](/img/blog/podman-desktop-kubernetes-release-0.6.0/banner.png)
+
+Kubernetes Dashboard v0.6.0 for Podman Desktop is now available!
+
+This Kubernetes Extension Pack release includes Kubernetes Dashboard v0.6.0, Kubernetes Contexts v0.3.0, and Kreate v0.4.0.
+These extensions now include:
+
+- **Apply YAML**: Apply Kubernetes YAML from a dedicated page in Kubernetes Dashboard.
+- **Container logs**: View logs of terminated containers, unfollow the log stream, and see the configured tail line count in the terminal.
+- **Deployment scaling**: Scale Deployments directly from the UI.
+- **Resource tables and details**: Choose visible columns on all resource tables, see more information on the pod page, and view Internal IP on the nodes list.
+- **Collapsible navigation**: Sidebar grouped into collapsible sections with icons, including a new Access Control section.
+- **New resource views**: DaemonSets, StatefulSets, ReplicaSets, PersistentVolumes, StorageClasses, ServiceAccounts, Roles, RoleBindings, ClusterRoles, ClusterRoleBindings, Endpoints, EndpointSlices, NetworkPolicies, IngressClasses, HTTPRoutes, Gateways, GatewayClasses, ResourceQuotas, LimitRanges, PodDisruptionBudgets, PriorityClasses, RuntimeClasses, Leases, HorizontalPodAutoscalers, MutatingWebhookConfigurations, and ValidatingWebhookConfigurations.
+- **Lazy resource loading**: Resources are watched on demand as you navigate.
+- **Extension API**: Other extensions can access Kubernetes resource data, and data from the Discovery API.
+- **Context deletion confirmation**: Kubernetes Contexts now always asks for confirmation before deleting a context.
+- **Kreate**: Create namespaces, Jobs, and CronJobs, and select any Kubernetes resource type based on the Discovery API.
+
+{/* truncate */}
+
+## Release details
+
+### Apply YAML
+
+Kubernetes Dashboard now includes a dedicated **Apply YAML** page.
+Open it from the **Apply YAML** button on resource list pages
+to apply manifests to your cluster without leaving Podman Desktop.
+
+<ThemedImage
+  alt="Apply YAML page"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/apply-yaml-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/apply-yaml-dark.png').default,
+  }}
+/>
+
+You can apply YAML in two ways:
+select a `.yaml` or `.yml` file from disk,
+or write custom YAML from scratch in the built-in editor.
+Choose the Kubernetes context to apply to,
+then run the apply action.
+
+The dashboard creates new resources on the cluster.
+If a resource already exists, it is updated with a [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-objects-in-place/#strategic-merge-patch) (`Content-Type: application/strategic-merge-patch+json`).
+When the apply completes, you get a summary of how many resources were applied and of which kinds.
+
+### Container logs
+
+The **Logs** tab on a pod details page now makes it easier to inspect container output,
+including containers that have already stopped.
+
+<ThemedImage
+  alt="Container logs page"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/logs-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/logs-dark.png').default,
+  }}
+/>
+
+You can open logs for a container that is no longer running.
+Terminated containers stay in the container list, marked as not running,
+so you can still read their previous output.
+**Previous logs** also works for restarted containers,
+so you can inspect the output from the previous instance.
+
+Uncheck **Stream logs** to stop following the live stream
+and scroll through the captured lines at your own pace.
+The **Stream logs** option is only shown for running containers.
+
+The line count you set is passed through to the terminal scrollback,
+so the terminal keeps the number of lines you requested.
+
+### Deployment scaling
+
+You can now scale a Deployment from the Deployments list,
+without opening kubectl or editing YAML.
+
+<ThemedImage
+  alt="Scaling a Deployment from the Deployments list"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/scale-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/scale-dark.png').default,
+  }}
+/>
+
+Change the replica count in place on the Deployments list or details page,
+so you can add capacity or scale down without leaving the overview of status and conditions.
+The change is applied only after you confirm it.
+
+Scaling updates the Kubernetes Deployment scale subresource.
+That matters when your RBAC allows patching `deployments/scale`
+but not the Deployment itself.
+
+### Resource tables and details
+
+Resource lists now let you choose which columns to show and in which order,
+so each table can match the information you actually use.
+
+<ThemedImage
+  alt="Column selection on a resource table"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/table-edit-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/table-edit-dark.png').default,
+  }}
+/>
+
+Hide columns you do not need, bring the ones you care about forward, and reset to the default layout when you want a clean slate.
+This uses the same column editing as other Podman Desktop tables,
+and it is available on every resource table, not only Pods.
+
+The pod details page also shows more of the workload context,
+and the Nodes list includes an Internal IP column
+so you can find a node's cluster address without leaving the dashboard.
+
+### Collapsible navigation
+
+The sidebar is grouped into collapsible sections,
+so the many new resource types stay organized instead of filling a long flat list.
+
+<ThemedImage
+  alt="Collapsible navigation sections"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/collapse-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/collapse-dark.png').default,
+  }}
+/>
+
+Resources are grouped under Compute, Config, Network, Storage, and a new Access Control section for RBAC.
+Collapse the areas you are not using to keep the sidebar scannable.
+The dashboard remembers which sections you left open,
+and expands a section when you open a resource that belongs to it.
+For example, opening a Service from the dashboard expands Network
+even if that section was collapsed.
+
+### New resource views
+
+Kubernetes Dashboard now covers many more resource kinds,
+so you can inspect more of the cluster without switching to kubectl.
+
+**Compute:** DaemonSets, StatefulSets, and ReplicaSets.
+
+**Storage:** PersistentVolumes and StorageClasses.
+
+**Network:** Endpoints, EndpointSlices, NetworkPolicies, IngressClasses, HTTPRoutes, Gateways, and GatewayClasses.
+
+**Config:** ServiceAccounts, ResourceQuotas, LimitRanges, PodDisruptionBudgets, PriorityClasses, RuntimeClasses, Leases, HorizontalPodAutoscalers, MutatingWebhookConfigurations, and ValidatingWebhookConfigurations.
+
+**Access Control:** Roles, RoleBindings, ClusterRoles, and ClusterRoleBindings.
+
+### Lazy resource loading
+
+The dashboard no longer watches every resource kind as soon as you connect.
+It starts watching a kind when you open that resource's page.
+
+Common resources such as Pods, Deployments, and Services are still watched immediately,
+so the dashboard overview can show live counts.
+The many new kinds, such as Roles, Gateways, StorageClasses, and many more, wait until you visit them.
+That keeps startup faster and reduces load on the API server.
+
+### Extension API
+
+Other Podman Desktop extensions can now use the Kubernetes Dashboard API
+instead of opening their own connection to the cluster.
+
+They can subscribe to live resource data, context health, and permissions
+from the dashboard's existing watches.
+Kubernetes Contexts uses that subscriber for the state of each context,
+instead of watching the cluster on its own.
+
+They can also call the Kubernetes Discovery API
+to learn which API groups and kinds are served by the cluster.
+That is how Kreate can offer any resource type the cluster knows about,
+not only a hardcoded list.
+
+### Context deletion confirmation
+
+Kubernetes Contexts now asks you to confirm before deleting a context,
+so a context is not removed from your kubeconfig by accident.
+
+<ThemedImage
+  alt="Confirmation dialog when deleting a Kubernetes context"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/delete-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/delete-dark.png').default,
+  }}
+/>
+
+Confirmation is required for every delete, not only the current context.
+If you delete the context you are using, the dialog also warns that you will need to switch to another one.
+
+### Kreate
+
+Kreate can create more kinds of resources,
+including kinds that are not supported by the `kubectl create` command.
+
+<ThemedImage
+  alt="Kreate resource type selection"
+  sources={{
+    light: require('./img/kubernetes-release-0.6.0/kreate-light.png').default,
+    dark: require('./img/kubernetes-release-0.6.0/kreate-dark.png').default,
+  }}
+/>
+
+You can now also create a Namespace, Job, or CronJob, as with `kubectl create`.
+
+You can also pick any other kind the cluster advertises through the Discovery API,
+including custom resources such as those from an installed operator.
+The YAML template will contain the `apiVersion` and `kind` fields,
+and documentation will be provided for the resource fields from the cluster OpenAPI spec.
+
+## Community meeting
+
+If you would like to discuss any of the new features, issues or other topics, please join us at the monthly community meeting that takes place <b>every 4th Thursday of the month</b>. Here are the <b>meeting [details](https://github.com/podman-desktop/community/issues?q=is%3Aissue%20state%3Aopen%20Agenda%20for%20Podman%20Desktop)</b>.
+
+---
+
+## Final notes
+
+The complete list of issues fixed in this release is available for [Dashboard](https://github.com/podman-desktop/extension-kubernetes-dashboard/releases/tag/v0.6.0), [Contexts](https://github.com/podman-desktop/extension-kubernetes-contexts/releases/tag/v0.3.0) and [Kreate](https://github.com/podman-desktop/extension-kreate/releases/tag/v0.4.0).
