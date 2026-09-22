@@ -55,8 +55,17 @@ Choose the Kubernetes context to apply to,
 then run the apply action.
 
 The dashboard creates new resources on the cluster.
-If a resource already exists, it is updated with a [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-objects-in-place/#strategic-merge-patch) (`Content-Type: application/strategic-merge-patch+json`).
+If an existing resource uses a supported built-in Kubernetes API,
+it is updated with a [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-objects-in-place/#strategic-merge-patch) (`Content-Type: application/strategic-merge-patch+json`).
+That patch type is not supported for CustomResourceDefinition APIs,
+so existing custom resources are not updated.
 When the apply completes, you get a summary of how many resources were applied and of which kinds.
+
+You can still patch an existing resource from the YAML tab on its details page,
+including custom resources the dashboard shows such as Gateways.
+That path uses a strategic merge patch for built-in APIs
+and [server-side apply](https://kubernetes.io/docs/reference/using-api/server-side-apply/) for kinds provided by a CustomResourceDefinition,
+which the API server accepts for those APIs.
 
 ### Container logs
 
