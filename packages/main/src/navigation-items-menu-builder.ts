@@ -71,7 +71,21 @@ export class NavigationItemsMenuBuilder {
     );
   }
 
+  /**
+   * True when the item leads to the page currently displayed. Such an item must stay in the
+   * navigation bar, otherwise the user would hide the page they are looking at and lose the
+   * way back to it.
+   */
+  protected isActiveItem(itemName: string): boolean {
+    return this.navigationItems.some(item => item.name === itemName && item.active === true);
+  }
+
   protected async updateNavbarHiddenItem(itemName: string, visible: boolean): Promise<void> {
+    // defense in depth: the menu never offers this, but never hide a protected item
+    if (!visible && (EXCLUDED_ITEMS.includes(itemName) || this.isActiveItem(itemName))) {
+      return;
+    }
+
     let items = this.getDisabledItems();
     if (visible) {
       items = items.filter(i => i !== itemName);
@@ -128,7 +142,7 @@ export class NavigationItemsMenuBuilder {
     // it's at the end with parenthesis like itemName (2)
     const itemName = this.computeItemName(rawItemName);
 
-    if (EXCLUDED_ITEMS.includes(itemName) || isGroupedName(itemName)) {
+    if (EXCLUDED_ITEMS.includes(itemName) || isGroupedName(itemName) || this.isActiveItem(itemName)) {
       return undefined;
     }
 
@@ -201,6 +215,8 @@ export class NavigationItemsMenuBuilder {
       label: this.escapeLabel(item.name),
       type: 'checkbox',
       checked: item.visible,
+      // the active item cannot be unchecked; a hidden item stays restorable even while active
+      enabled: !(item.visible && this.isActiveItem(item.name)),
       click: (): void => {
         // send the item to the frontend to show/hide it
         this.updateNavbarHiddenItem(item.name, !item.visible).catch((e: unknown) =>

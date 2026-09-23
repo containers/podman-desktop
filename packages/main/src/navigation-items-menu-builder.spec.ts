@@ -54,6 +54,9 @@ class TestNavigationItemsMenuBuilder extends NavigationItemsMenuBuilder {
   override buildShowAllMenuItem(): MenuItemConstructorOptions | undefined {
     return super.buildShowAllMenuItem();
   }
+  override updateNavbarHiddenItem(itemName: string, visible: boolean): Promise<void> {
+    return super.updateNavbarHiddenItem(itemName, visible);
+  }
 }
 
 beforeEach(() => {
@@ -115,6 +118,102 @@ describe('buildHideMenuItem', async () => {
       expect.anything(),
       'DEFAULT',
     );
+  });
+});
+
+describe('active item protection', () => {
+  beforeEach(() => {
+    getConfigurationMock.mockReturnValue({ get: () => [] } as unknown as ConfigurationRegistry);
+  });
+
+  test('does not offer a hide menu item for the active item', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([
+      { name: 'Pods', visible: true, index: 0, active: true },
+      { name: 'Volumes', visible: true, index: 1 },
+    ]);
+
+    expect(navigationItemsMenuBuilder.buildHideMenuItem('Pods')).toBeUndefined();
+    expect(navigationItemsMenuBuilder.buildHideMenuItem('Volumes')?.label).toBe('Hide Volumes');
+  });
+
+  test('protects the active item even when its label carries a counter', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0, active: true }]);
+
+    expect(navigationItemsMenuBuilder.buildHideMenuItem('Pods (2)')).toBeUndefined();
+  });
+
+  test('protects the group containing the active item', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([
+      { name: 'Kubernetes', visible: true, index: 0, active: true },
+      { name: 'Pods', visible: true, index: 1 },
+    ]);
+
+    expect(navigationItemsMenuBuilder.buildHideMenuItem('Kubernetes')).toBeUndefined();
+  });
+
+  test('disables the active item in the toggle list, leaving the others enabled', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([
+      { name: 'Pods', visible: true, index: 0, active: true },
+      { name: 'Volumes', visible: true, index: 1 },
+    ]);
+
+    const menu = navigationItemsMenuBuilder.buildNavigationToggleMenuItems();
+
+    expect(menu.find(item => item.label === 'Pods')?.enabled).toBe(false);
+    expect(menu.find(item => item.label === 'Volumes')?.enabled).toBe(true);
+  });
+
+  test('keeps the active item checked so it still reads as visible', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0, active: true }]);
+
+    expect(
+      navigationItemsMenuBuilder.buildNavigationToggleMenuItems().find(item => item.label === 'Pods')?.checked,
+    ).toBe(true);
+  });
+
+  test('leaves a hidden item restorable even while it is the active one', () => {
+    // reachable by navigating to a hidden page from a link: the toggle must not trap the user
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: false, index: 0, active: true }]);
+
+    const podsItem = navigationItemsMenuBuilder.buildNavigationToggleMenuItems().find(item => item.label === 'Pods');
+    expect(podsItem?.enabled).toBe(true);
+    expect(podsItem?.checked).toBe(false);
+  });
+
+  test('updateNavbarHiddenItem refuses to hide the active item', async () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0, active: true }]);
+
+    await navigationItemsMenuBuilder.updateNavbarHiddenItem('Pods', false);
+
+    expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+  });
+
+  test('updateNavbarHiddenItem refuses to hide an excluded item', async () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Settings', visible: true, index: 0 }]);
+
+    await navigationItemsMenuBuilder.updateNavbarHiddenItem('Settings', false);
+
+    expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+  });
+
+  test('updateNavbarHiddenItem still restores a protected item', async () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: false, index: 0, active: true }]);
+
+    await navigationItemsMenuBuilder.updateNavbarHiddenItem('Pods', true);
+
+    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.disabledItems', [], 'DEFAULT');
+  });
+
+  test('hides normally when nothing is flagged active', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([
+      { name: 'Pods', visible: true, index: 0 },
+      { name: 'Volumes', visible: true, index: 1 },
+    ]);
+
+    expect(navigationItemsMenuBuilder.buildHideMenuItem('Pods')?.label).toBe('Hide Pods');
+    expect(
+      navigationItemsMenuBuilder.buildNavigationToggleMenuItems().find(item => item.label === 'Pods')?.enabled,
+    ).toBe(true);
   });
 });
 
