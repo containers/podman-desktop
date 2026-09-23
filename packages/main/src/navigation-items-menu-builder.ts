@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { DisplayItem } from '@desktop-framework/api';
+import type { DisplayItem, MessageBoxOptions, MessageBoxReturnValue } from '@desktop-framework/api';
 import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import { CONFIGURATION_DEFAULT_SCOPE } from '@desktop-framework/api/configuration';
 import type { Configuration } from '@desktop-framework/extension-api';
@@ -26,6 +26,17 @@ import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 
 // items that can't be hidden
 const EXCLUDED_ITEMS = ['Accounts', 'Settings'];
+
+// buttons of the confirmation shown the first time an item is hidden
+const HIDE_BUTTON = 'Hide';
+const DONT_SHOW_AGAIN_BUTTON = `Don't show again`;
+const CANCEL_BUTTON = 'Cancel';
+
+/**
+ * Shows the in-app message box. Electron's native dialog is deliberately not used: every
+ * confirmation in Podman Desktop goes through the application's own dialog component.
+ */
+export type ShowMessageBoxFn = (options: MessageBoxOptions) => Promise<MessageBoxReturnValue>;
 
 const EXPANDED_WIDTH = 160;
 
@@ -41,7 +52,10 @@ function leafName(name: string): string {
 export class NavigationItemsMenuBuilder {
   private navigationItems: DisplayItem[] = [];
 
-  constructor(private configurationRegistry: ConfigurationRegistry) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private showMessageBox: ShowMessageBoxFn,
+  ) {}
 
   receiveNavigationItems(data: DisplayItem[]): void {
     this.navigationItems = data;
@@ -93,6 +107,52 @@ export class NavigationItemsMenuBuilder {
       items.push(itemName);
     }
     await this.setDisabledItems(items);
+  }
+
+  protected isHideConfirmationDismissed(): boolean {
+    return this.getNavbarConfiguration().get<boolean>('hideConfirmationDismissed', false) === true;
+  }
+
+  protected async dismissHideConfirmation(): Promise<void> {
+    await this.configurationRegistry.updateConfigurationValue(
+      'navbar.hideConfirmationDismissed',
+      true,
+      CONFIGURATION_DEFAULT_SCOPE,
+    );
+  }
+
+  /**
+   * Asks the user to confirm the very first hide, so the item does not just vanish with no hint
+   * of how to bring it back. Answers to `Don't show again` are remembered and skip it from then on.
+   *
+   * @returns whether the item may be hidden
+   */
+  protected async confirmHide(itemDisplayName: string): Promise<boolean> {
+    if (this.isHideConfirmationDismissed()) {
+      return true;
+    }
+
+    const { response } = await this.showMessageBox({
+      type: 'question',
+      title: 'Hide From Navigation Bar',
+      message: `Hide "${itemDisplayName}" from the navigation bar?`,
+      detail: 'Right-click the navigation bar to show it again, or to reset the navigation bar entirely.',
+      buttons: [HIDE_BUTTON, DONT_SHOW_AGAIN_BUTTON, CANCEL_BUTTON],
+      defaultId: 0,
+      cancelId: 2,
+    });
+
+    // allowlist: `response` is undefined when the dialog is dismissed, and anything
+    // unrecognised must not be read as consent to hide
+    if (response !== HIDE_BUTTON && response !== DONT_SHOW_AGAIN_BUTTON) {
+      return false;
+    }
+
+    if (response === DONT_SHOW_AGAIN_BUTTON) {
+      await this.dismissHideConfirmation();
+    }
+
+    return true;
   }
 
   /** True when the item is currently present in the main nav (has an index / is in itemOrder). */
@@ -153,8 +213,14 @@ export class NavigationItemsMenuBuilder {
       label: `Hide ${itemDisplayName}`,
       visible: true,
       click: (): void => {
-        // flag the item as being disabled
-        this.updateNavbarHiddenItem(itemName, false).catch((e: unknown) => console.error('error disabling item', e));
+        // confirm the first time, then flag the item as being disabled
+        this.confirmHide(itemDisplayName)
+          .then(async confirmed => {
+            if (confirmed) {
+              await this.updateNavbarHiddenItem(itemName, false);
+            }
+          })
+          .catch((e: unknown) => console.error('error disabling item', e));
       },
     };
     return item;

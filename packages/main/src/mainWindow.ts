@@ -28,6 +28,7 @@ import { DevelopmentModeTracker } from './development-mode-tracker.js';
 import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
 import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
+import type { MessageBox } from './plugin/message-box.js';
 import { LoginMinimizeHandler } from './system/window/login-minimize-handler.js';
 import type { WindowHandler } from './system/window/window-handler.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
@@ -35,6 +36,8 @@ import { isLinux, isMac, stoppedExtensions } from './util.js';
 const openDevTools = new OpenDevTools();
 const loginMinimizeHandler = new LoginMinimizeHandler();
 let navigationItemsMenuBuilder: NavigationItemsMenuBuilder;
+// provided by the plugin system once its container is built, which happens after this window
+let messageBox: MessageBox | undefined;
 
 // development mode for extensions
 export interface WindowConfig {
@@ -162,10 +165,21 @@ async function createWindow(config?: WindowConfig): Promise<BrowserWindow> {
     });
     developmentModeTracker.init();
 
-    navigationItemsMenuBuilder = new NavigationItemsMenuBuilder(configurationRegistry);
+    // the message box is resolved lazily: the navbar can only be right-clicked once the
+    // renderer is up, by which time the plugin system has published it
+    navigationItemsMenuBuilder = new NavigationItemsMenuBuilder(configurationRegistry, async options => {
+      if (!messageBox) {
+        throw new Error('MessageBox is not available yet');
+      }
+      return messageBox.showMessageBox(options);
+    });
 
     // open dev tools (if required)
     openDevTools.open(browserWindow, configurationRegistry);
+  });
+
+  ipcMain.on('message-box', (_, data) => {
+    messageBox = data as MessageBox;
   });
 
   let windowHandler: WindowHandler | undefined;

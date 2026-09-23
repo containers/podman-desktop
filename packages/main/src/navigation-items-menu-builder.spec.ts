@@ -20,10 +20,12 @@ import type { DisplayItem } from '@desktop-framework/api';
 import type { BrowserWindow, ContextMenuParams, MenuItem, MenuItemConstructorOptions } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { NavigationItemsMenuBuilder } from './navigation-items-menu-builder.js';
+import { NavigationItemsMenuBuilder, type ShowMessageBoxFn } from './navigation-items-menu-builder.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 
 let navigationItemsMenuBuilder: TestNavigationItemsMenuBuilder;
+
+const showMessageBoxMock = vi.fn<ShowMessageBoxFn>();
 
 const getConfigurationMock = vi.fn();
 const configurationRegistryMock = {
@@ -59,9 +61,17 @@ class TestNavigationItemsMenuBuilder extends NavigationItemsMenuBuilder {
   }
 }
 
+/** Stub the navbar configuration, falling back to the caller's default for unlisted keys. */
+function mockConfiguration(values: Record<string, unknown>): void {
+  getConfigurationMock.mockReturnValue({
+    get: (key: string, defaultValue?: unknown) => (key in values ? values[key] : defaultValue),
+  } as unknown as ConfigurationRegistry);
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
-  navigationItemsMenuBuilder = new TestNavigationItemsMenuBuilder(configurationRegistryMock);
+  showMessageBoxMock.mockResolvedValue({ response: 'Hide' });
+  navigationItemsMenuBuilder = new TestNavigationItemsMenuBuilder(configurationRegistryMock, showMessageBoxMock);
 });
 
 describe('buildHideMenuItem', async () => {
@@ -81,11 +91,13 @@ describe('buildHideMenuItem', async () => {
 
     expect(getConfigurationMock).toBeCalled();
     // if clicking it should send the item to the configuration as being disabled
-    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
-      'navbar.disabledItems',
-      [expectedDisabledName],
-      'DEFAULT',
-    );
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.disabledItems',
+        [expectedDisabledName],
+        'DEFAULT',
+      );
+    });
   });
 
   test('should not create a menu item if in excluded list', async () => {
@@ -108,16 +120,132 @@ describe('buildHideMenuItem', async () => {
     const menu = navigationItemsMenuBuilder.buildHideMenuItem('Pods');
     menu?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
 
-    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
-      'navbar.disabledItems',
-      ['Pods'],
-      'DEFAULT',
-    );
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.disabledItems',
+        ['Pods'],
+        'DEFAULT',
+      );
+    });
     expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalledWith(
       'navbar.itemOrder',
       expect.anything(),
       'DEFAULT',
     );
+  });
+});
+
+describe('hide confirmation', () => {
+  function clickHide(itemName = 'Pods'): void {
+    const menu = navigationItemsMenuBuilder.buildHideMenuItem(itemName);
+    menu?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
+  }
+
+  test('asks for confirmation through the in-app message box before the first hide', async () => {
+    mockConfiguration({ disabledItems: [] });
+
+    clickHide();
+
+    await vi.waitFor(() => {
+      expect(showMessageBoxMock).toBeCalledWith(
+        expect.objectContaining({
+          type: 'question',
+          title: 'Hide From Navigation Bar',
+          message: 'Hide "Pods" from the navigation bar?',
+          buttons: ['Hide', `Don't show again`, 'Cancel'],
+          cancelId: 2,
+        }),
+      );
+    });
+  });
+
+  test('does not point the user at the dropped Show Hidden Items submenu', async () => {
+    mockConfiguration({ disabledItems: [] });
+
+    clickHide();
+
+    await vi.waitFor(() => expect(showMessageBoxMock).toBeCalled());
+    expect(showMessageBoxMock.mock.calls[0]?.[0]?.detail).not.toContain('Show Hidden Items');
+  });
+
+  test('hides the item when confirmed', async () => {
+    mockConfiguration({ disabledItems: [] });
+    showMessageBoxMock.mockResolvedValue({ response: 'Hide' });
+
+    clickHide();
+
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.disabledItems',
+        ['Pods'],
+        'DEFAULT',
+      );
+    });
+    expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalledWith(
+      'navbar.hideConfirmationDismissed',
+      expect.anything(),
+      'DEFAULT',
+    );
+  });
+
+  test('keeps the item when cancelled', async () => {
+    mockConfiguration({ disabledItems: [] });
+    showMessageBoxMock.mockResolvedValue({ response: 'Cancel' });
+
+    clickHide();
+
+    await vi.waitFor(() => expect(showMessageBoxMock).toBeCalled());
+    expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+  });
+
+  // the dialog resolves to `undefined` when dismissed with Escape, and an unrecognised
+  // answer must never be read as consent to hide
+  test.each([
+    { desc: 'dismissed with Escape', response: undefined },
+    { desc: 'an unexpected answer', response: 'Something else' },
+  ])('keeps the item when the dialog returns $desc', async ({ response }) => {
+    mockConfiguration({ disabledItems: [] });
+    showMessageBoxMock.mockResolvedValue({ response });
+
+    clickHide();
+
+    await vi.waitFor(() => expect(showMessageBoxMock).toBeCalled());
+    expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+  });
+
+  test(`hides the item and remembers the choice on "Don't show again"`, async () => {
+    mockConfiguration({ disabledItems: [] });
+    showMessageBoxMock.mockResolvedValue({ response: `Don't show again` });
+
+    clickHide();
+
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.hideConfirmationDismissed',
+        true,
+        'DEFAULT',
+      );
+    });
+    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+      'navbar.disabledItems',
+      ['Pods'],
+      'DEFAULT',
+    );
+  });
+
+  test('skips the dialog once the user asked not to be prompted again', async () => {
+    mockConfiguration({ disabledItems: [], hideConfirmationDismissed: true });
+
+    clickHide();
+
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.disabledItems',
+        ['Pods'],
+        'DEFAULT',
+      );
+    });
+    expect(showMessageBoxMock).not.toBeCalled();
   });
 });
 
