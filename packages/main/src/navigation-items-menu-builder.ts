@@ -125,9 +125,11 @@ export class NavigationItemsMenuBuilder {
    * Asks the user to confirm the very first hide, so the item does not just vanish with no hint
    * of how to bring it back. Answers to `Don't show again` are remembered and skip it from then on.
    *
+   * @param itemName the plain item name; it is rendered by the in-app dialog and so must not be
+   * run through {@link escapeLabel}, which only exists for Electron menu labels
    * @returns whether the item may be hidden
    */
-  protected async confirmHide(itemDisplayName: string): Promise<boolean> {
+  protected async confirmHide(itemName: string): Promise<boolean> {
     if (this.isHideConfirmationDismissed()) {
       return true;
     }
@@ -135,7 +137,7 @@ export class NavigationItemsMenuBuilder {
     const { response } = await this.showMessageBox({
       type: 'question',
       title: 'Hide From Navigation Bar',
-      message: `Hide "${itemDisplayName}" from the navigation bar?`,
+      message: `Hide "${itemName}" from the navigation bar?`,
       detail: 'Right-click the navigation bar to show it again, or to reset the navigation bar entirely.',
       buttons: [HIDE_BUTTON, DONT_SHOW_AGAIN_BUTTON, CANCEL_BUTTON],
       defaultId: 0,
@@ -153,6 +155,18 @@ export class NavigationItemsMenuBuilder {
     }
 
     return true;
+  }
+
+  /**
+   * Single entry point for every visibility change the context menu offers, so the confirmation
+   * cannot be bypassed by reaching for one hide path rather than the other. Restoring an item is
+   * not destructive and never prompts.
+   */
+  protected async setItemVisibility(itemName: string, visible: boolean): Promise<void> {
+    if (!visible && !(await this.confirmHide(itemName))) {
+      return;
+    }
+    await this.updateNavbarHiddenItem(itemName, visible);
   }
 
   /** True when the item is currently present in the main nav (has an index / is in itemOrder). */
@@ -213,14 +227,7 @@ export class NavigationItemsMenuBuilder {
       label: `Hide ${itemDisplayName}`,
       visible: true,
       click: (): void => {
-        // confirm the first time, then flag the item as being disabled
-        this.confirmHide(itemDisplayName)
-          .then(async confirmed => {
-            if (confirmed) {
-              await this.updateNavbarHiddenItem(itemName, false);
-            }
-          })
-          .catch((e: unknown) => console.error('error disabling item', e));
+        this.setItemVisibility(itemName, false).catch((e: unknown) => console.error('error disabling item', e));
       },
     };
     return item;
@@ -285,7 +292,7 @@ export class NavigationItemsMenuBuilder {
       enabled: !(item.visible && this.isActiveItem(item.name)),
       click: (): void => {
         // send the item to the frontend to show/hide it
-        this.updateNavbarHiddenItem(item.name, !item.visible).catch((e: unknown) =>
+        this.setItemVisibility(item.name, !item.visible).catch((e: unknown) =>
           console.error('error disabling item', e),
         );
       },

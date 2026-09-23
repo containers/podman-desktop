@@ -156,6 +156,73 @@ describe('hide confirmation', () => {
     });
   });
 
+  test('prompts with the plain name, not the Electron-escaped menu label', async () => {
+    // `escapeLabel` doubles `&` so Electron renders it instead of reading it as a mnemonic;
+    // the in-app dialog renders plain text and would show the doubled character verbatim
+    mockConfiguration({ disabledItems: [] });
+
+    clickHide('R&D');
+
+    await vi.waitFor(() => expect(showMessageBoxMock).toBeCalled());
+    expect(showMessageBoxMock.mock.calls[0]?.[0]?.message).toBe('Hide "R&D" from the navigation bar?');
+  });
+
+  describe('from the toggle list', () => {
+    function clickToggle(name: string): void {
+      const items = navigationItemsMenuBuilder.buildNavigationToggleMenuItems();
+      const entry = items.find(item => item.label === name);
+      expect(entry).toBeDefined();
+      entry?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
+    }
+
+    test('unchecking an item asks for confirmation just like the Hide menu entry', async () => {
+      mockConfiguration({ disabledItems: [] });
+      navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0 }]);
+
+      clickToggle('Pods');
+
+      await vi.waitFor(() => {
+        expect(showMessageBoxMock).toBeCalledWith(
+          expect.objectContaining({ message: 'Hide "Pods" from the navigation bar?' }),
+        );
+      });
+      await vi.waitFor(() => {
+        expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+          'navbar.disabledItems',
+          ['Pods'],
+          'DEFAULT',
+        );
+      });
+    });
+
+    test('cancelling leaves the item visible', async () => {
+      mockConfiguration({ disabledItems: [] });
+      showMessageBoxMock.mockResolvedValue({ response: 'Cancel' });
+      navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0 }]);
+
+      clickToggle('Pods');
+
+      await vi.waitFor(() => expect(showMessageBoxMock).toBeCalled());
+      expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+    });
+
+    test('restoring a hidden item is not destructive and never prompts', async () => {
+      mockConfiguration({ disabledItems: ['Pods'] });
+      navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: false, index: 0 }]);
+
+      clickToggle('Pods');
+
+      await vi.waitFor(() => {
+        expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+          'navbar.disabledItems',
+          [],
+          'DEFAULT',
+        );
+      });
+      expect(showMessageBoxMock).not.toBeCalled();
+    });
+  });
+
   test('does not point the user at the dropped Show Hidden Items submenu', async () => {
     mockConfiguration({ disabledItems: [] });
 
@@ -433,13 +500,16 @@ describe('buildNavigationToggleMenuItems', async () => {
     menu[1]?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
 
     expect(getConfigurationMock).toBeCalled();
-    // if clicking it should send the item to the configuration as being disabled
-    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
-      'navbar.disabledItems',
-      // item A & A should not be escaped
-      ['existing', 'A & A'],
-      'DEFAULT',
-    );
+    // if clicking it should send the item to the configuration as being disabled,
+    // once the hide confirmation has been answered
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith(
+        'navbar.disabledItems',
+        // item A & A should not be escaped
+        ['existing', 'A & A'],
+        'DEFAULT',
+      );
+    });
 
     // reset the calls
     vi.mocked(configurationRegistryMock.updateConfigurationValue).mockClear();
