@@ -50,11 +50,8 @@ class TestNavigationItemsMenuBuilder extends NavigationItemsMenuBuilder {
   override buildNavigationToggleMenuItems(): MenuItemConstructorOptions[] {
     return super.buildNavigationToggleMenuItems();
   }
-  override buildResetOrderMenuItem(): MenuItemConstructorOptions | undefined {
-    return super.buildResetOrderMenuItem();
-  }
-  override buildShowAllMenuItem(): MenuItemConstructorOptions | undefined {
-    return super.buildShowAllMenuItem();
+  override buildResetNavigationBarMenuItem(): MenuItemConstructorOptions | undefined {
+    return super.buildResetNavigationBarMenuItem();
   }
   override updateNavbarHiddenItem(itemName: string, visible: boolean): Promise<void> {
     return super.updateNavbarHiddenItem(itemName, visible);
@@ -472,46 +469,47 @@ describe('buildNavigationToggleMenuItems', async () => {
   });
 });
 
-describe('buildResetOrderMenuItem', async () => {
-  test('returns undefined when itemOrder is empty, returns a "Reset Order" item otherwise', async () => {
-    getConfigurationMock.mockReturnValue({ get: () => [] } as unknown as ConfigurationRegistry);
-    navigationItemsMenuBuilder.receiveNavigationItems([
-      { name: 'Pods', visible: true, index: 0 },
-      { name: 'Volumes', visible: true, index: 1 },
-    ]);
-    expect(navigationItemsMenuBuilder.buildResetOrderMenuItem()).toBeUndefined();
+describe('buildResetNavigationBarMenuItem', () => {
+  test('returns undefined when nothing has been customized', () => {
+    mockConfiguration({ itemOrder: [], disabledItems: [] });
 
-    getConfigurationMock.mockReturnValue({
-      get: (key: string) => (key === 'itemOrder' ? ['Pods'] : []),
-    } as unknown as ConfigurationRegistry);
-    const menu = navigationItemsMenuBuilder.buildResetOrderMenuItem();
-    expect(menu?.label).toBe('Reset Order');
-
-    menu?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
-    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.itemOrder', [], 'DEFAULT');
-  });
-});
-
-describe('buildShowAllMenuItem', () => {
-  test('returns undefined when nothing is hidden', () => {
-    getConfigurationMock.mockReturnValue({
-      get: () => [],
-    } as unknown as ConfigurationRegistry);
-    expect(navigationItemsMenuBuilder.buildShowAllMenuItem()).toBeUndefined();
+    expect(navigationItemsMenuBuilder.buildResetNavigationBarMenuItem()).toBeUndefined();
   });
 
-  test('clears disabledItems and does not touch itemOrder', async () => {
-    getConfigurationMock.mockReturnValue({
-      get: (key: string) => (key === 'disabledItems' ? ['Pods', 'Volumes'] : key === 'itemOrder' ? ['Pods'] : []),
-    } as unknown as ConfigurationRegistry);
+  test.each([
+    { desc: 'only the order was changed', itemOrder: ['Pods'], disabledItems: [] },
+    { desc: 'only items were hidden', itemOrder: [], disabledItems: ['Volumes'] },
+    { desc: 'both were changed', itemOrder: ['Pods'], disabledItems: ['Volumes'] },
+  ])('is offered when $desc', ({ itemOrder, disabledItems }) => {
+    mockConfiguration({ itemOrder, disabledItems });
 
-    const menu = navigationItemsMenuBuilder.buildShowAllMenuItem();
-    expect(menu?.label).toBe('Show All');
+    expect(navigationItemsMenuBuilder.buildResetNavigationBarMenuItem()?.label).toBe('Reset Navigation Bar');
+  });
 
+  test('clicking clears both the order and the hidden items', async () => {
+    mockConfiguration({ itemOrder: ['Pods'], disabledItems: ['Volumes'] });
+
+    const menu = navigationItemsMenuBuilder.buildResetNavigationBarMenuItem();
     menu?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
-    expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.disabledItems', [], 'DEFAULT');
+
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.itemOrder', [], 'DEFAULT');
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.disabledItems', [], 'DEFAULT');
+    });
+  });
+
+  test('resetting keeps the answer to the hide confirmation, which is not part of the layout', async () => {
+    mockConfiguration({ itemOrder: ['Pods'], disabledItems: [], hideConfirmationDismissed: true });
+
+    navigationItemsMenuBuilder
+      .buildResetNavigationBarMenuItem()
+      ?.click?.({} as MenuItem, browserWindowMock, {} as unknown as KeyboardEvent);
+
+    await vi.waitFor(() => {
+      expect(configurationRegistryMock.updateConfigurationValue).toBeCalledWith('navbar.itemOrder', [], 'DEFAULT');
+    });
     expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalledWith(
-      'navbar.itemOrder',
+      'navbar.hideConfirmationDismissed',
       expect.anything(),
       'DEFAULT',
     );
@@ -579,7 +577,7 @@ describe('buildNavigationMenu', async () => {
     expect(menu.some(i => i.label?.includes('Pin'))).toBe(false);
   });
 
-  test('Unpin appears before Reset Order when right-clicking a pinned main-nav item', async () => {
+  test('Unpin appears before Reset Navigation Bar when right-clicking a pinned main-nav item', async () => {
     getConfigurationMock.mockReturnValue({
       get: (key: string) => {
         if (key === 'itemOrder') return ['Settings > Resources', 'Pods'];
@@ -599,10 +597,10 @@ describe('buildNavigationMenu', async () => {
     } as unknown as ContextMenuParams);
 
     expect(menu[0]?.label).toBe('Unpin Resources');
-    expect(menu[1]?.label).toBe('Reset Order');
+    expect(menu[1]?.label).toBe('Reset Navigation Bar');
   });
 
-  test('Reset Order and Show All placement: before checklist on bare nav, after hide on specific item', async () => {
+  test('Reset Navigation Bar placement: before checklist on bare nav, after hide on specific item', async () => {
     getConfigurationMock.mockReturnValue({
       get: (key: string) => {
         if (key === 'itemOrder') return ['Pods'];
@@ -616,9 +614,8 @@ describe('buildNavigationMenu', async () => {
     ]);
 
     const bgMenu = navigationItemsMenuBuilder.buildNavigationMenu({ x: 30, y: 0 } as unknown as ContextMenuParams);
-    expect(bgMenu[0]?.label).toBe('Reset Order');
-    expect(bgMenu[1]?.label).toBe('Show All');
-    expect(bgMenu[2]?.type).toBe('separator');
+    expect(bgMenu[0]?.label).toBe('Reset Navigation Bar');
+    expect(bgMenu[1]?.type).toBe('separator');
 
     const itemMenu = navigationItemsMenuBuilder.buildNavigationMenu({
       linkText: 'Pods',
@@ -626,16 +623,14 @@ describe('buildNavigationMenu', async () => {
       y: 100,
     } as unknown as ContextMenuParams);
     expect(itemMenu[0]?.label).toBe('Hide Pods');
-    expect(itemMenu[1]?.label).toBe('Reset Order');
-    expect(itemMenu[2]?.label).toBe('Show All');
-    expect(itemMenu[3]?.type).toBe('separator');
+    expect(itemMenu[1]?.label).toBe('Reset Navigation Bar');
+    expect(itemMenu[2]?.type).toBe('separator');
 
     getConfigurationMock.mockReturnValue({
       get: (key: string) => (key === 'itemOrder' ? [] : key === 'disabledItems' ? [] : 160),
     } as unknown as ConfigurationRegistry);
     navigationItemsMenuBuilder.receiveNavigationItems([{ name: 'Pods', visible: true, index: 0 }]);
     const noOrderMenu = navigationItemsMenuBuilder.buildNavigationMenu({ x: 30, y: 0 } as unknown as ContextMenuParams);
-    expect(noOrderMenu.some(i => i.label === 'Reset Order')).toBe(false);
-    expect(noOrderMenu.some(i => i.label === 'Show All')).toBe(false);
+    expect(noOrderMenu.some(i => i.label === 'Reset Navigation Bar')).toBe(false);
   });
 });

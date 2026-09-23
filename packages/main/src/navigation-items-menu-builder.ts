@@ -300,34 +300,31 @@ export class NavigationItemsMenuBuilder {
     return items;
   }
 
-  protected buildResetOrderMenuItem(): MenuItemConstructorOptions | undefined {
-    if (this.getItemOrder().length === 0) {
+  /**
+   * A single entry restoring the navigation bar to its defaults. Order and visibility used to be
+   * two separate entries, which made the user guess which of them held the customization they
+   * wanted gone; one entry covering both is what "reset" means to them.
+   *
+   * Offered only when something was actually customized, so the menu stays empty-handed otherwise.
+   */
+  protected buildResetNavigationBarMenuItem(): MenuItemConstructorOptions | undefined {
+    if (this.getItemOrder().length === 0 && this.getDisabledItems().length === 0) {
       return undefined;
     }
     return {
-      label: 'Reset Order',
+      label: 'Reset Navigation Bar',
       visible: true,
       click: (): void => {
-        this.resetNavbarItemOrder().catch((e: unknown) => console.error('error resetting item order', e));
+        this.resetNavigationBar().catch((e: unknown) => console.error('error resetting the navigation bar', e));
       },
     };
   }
 
-  protected buildShowAllMenuItem(): MenuItemConstructorOptions | undefined {
-    if (this.getDisabledItems().length === 0) {
-      return undefined;
-    }
-    return {
-      label: 'Show All',
-      visible: true,
-      click: (): void => {
-        this.setDisabledItems([]).catch((e: unknown) => console.error('error clearing hidden navigation items', e));
-      },
-    };
-  }
-
-  protected async resetNavbarItemOrder(): Promise<void> {
+  protected async resetNavigationBar(): Promise<void> {
+    // the `don't ask again` answer is a preference about being prompted, not part of the
+    // navigation bar layout, so it deliberately survives a reset
     await this.setItemOrder([]);
+    await this.setDisabledItems([]);
   }
 
   protected getNavWidth(): number {
@@ -352,13 +349,9 @@ export class NavigationItemsMenuBuilder {
       }
     }
     if (inMainNav) {
-      const resetMenu = this.buildResetOrderMenuItem();
+      const resetMenu = this.buildResetNavigationBarMenuItem();
       if (resetMenu) {
         items.push(resetMenu);
-      }
-      const showAllMenu = this.buildShowAllMenuItem();
-      if (showAllMenu) {
-        items.push(showAllMenu);
       }
       items.push(...this.buildNavigationToggleMenuItems());
     }
