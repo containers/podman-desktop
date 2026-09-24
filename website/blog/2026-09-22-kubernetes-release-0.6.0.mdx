@@ -20,9 +20,26 @@ Kubernetes Dashboard v0.6.0 for Podman Desktop Release! 🎉
   }}
 />
 
-Kubernetes Dashboard v0.6.0 for Podman Desktop is now available!
-
 This Kubernetes Extension Pack release includes Kubernetes Dashboard v0.6.0, Kubernetes Contexts v0.3.0, and Kreate v0.4.0.
+
+The new releases have been added to the catalog.
+If the extensions are already installed, they have been upgraded automatically.
+If not, open the **Extensions > Catalog** page,
+search for the Kubernetes Extension Pack, or for Kubernetes Dashboard, Kubernetes Contexts, and Kreate, and install them.
+
+:::note
+
+The **Kubernetes Dashboard** and **Kubernetes Contexts** extensions replace the Kubernetes dashboard and the Contexts management that are present in core Podman Desktop.
+When an extension is installed, its counterpart in core is disabled.
+
+Those built-in features will not evolve and will be removed in the near future.
+We recommend switching to the extensions in this release to take advantage of the new features.
+
+The pack provides the full set of extensions related to Kubernetes.
+Installing the pack is optional; you can install each extension independently.
+
+:::
+
 These extensions now include:
 
 - **Apply YAML**: Apply Kubernetes YAML from a dedicated page in Kubernetes Dashboard.
@@ -62,7 +79,7 @@ then run the apply action.
 
 The dashboard creates new resources on the cluster.
 If an existing resource uses a supported built-in Kubernetes API,
-it is updated with a [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-objects-in-place/#strategic-merge-patch) (`Content-Type: application/strategic-merge-patch+json`).
+it is updated with a [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/#strategic-merge-patch) (`Content-Type: application/strategic-merge-patch+json`).
 That patch type is not supported for CustomResourceDefinition APIs,
 so existing custom resources are not updated.
 When the apply completes, you get a summary of how many resources were applied and of which kinds.
@@ -200,6 +217,8 @@ They can also call the Kubernetes Discovery API
 to learn which API groups and kinds are served by the cluster.
 That is how Kreate can offer any resource type the cluster knows about,
 not only a hardcoded list.
+
+Extensions that use this API need the [`@podman-desktop/kubernetes-dashboard-extension-api`](https://www.npmjs.com/package/@podman-desktop/kubernetes-dashboard-extension-api) npm package.
 
 ### Context deletion confirmation
 
