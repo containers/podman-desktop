@@ -17,6 +17,7 @@ import type { TypeaheadItem } from '/@/lib/ui/Typeahead';
 import Typeahead from '/@/lib/ui/Typeahead.svelte';
 import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
 import { handleNavigation } from '/@/navigation';
+import { lastPage } from '/@/stores/breadcrumb';
 import { providerInfos } from '/@/stores/providers';
 
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -503,6 +504,7 @@ async function searchFunction(value: string): Promise<void> {
       <div class="w-full flex flex-col justify-end">
         <ButtonRow>
           {#if !pullFinished}
+            <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
             <Button
               icon={faArrowCircleDown}
               disabled={imageNameIsInvalid || pullInProgress}

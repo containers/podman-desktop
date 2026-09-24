@@ -574,6 +574,7 @@ function label(item: ContainerGroupInfoUI | ContainerInfoUI): string {
       {/snippet}
     {#snippet buttons()}
 
+        <Button type="link" on:click={(): void => {openChoiceModal = false;}}>Close</Button>
         <Button type="secondary" on:click={fromExistingImage}>Use existing image</Button>
         <Button type="secondary" on:click={fromDockerfile}>Use Containerfile</Button>
 
