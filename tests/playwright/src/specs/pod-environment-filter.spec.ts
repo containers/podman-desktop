@@ -16,14 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { ResourceElementState } from '/@/model/core/states';
 import type { ContainerInteractiveParams } from '/@/model/core/types';
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
+import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
 import { expect as playExpect, test } from '/@/utility/fixtures';
 import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
-import { waitForPodmanMachineStartup, waitWhile } from '/@/utility/wait';
+import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
 
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
@@ -66,13 +68,27 @@ test.describe
       test.setTimeout(120_000);
 
       try {
-        await deletePod(page, environmentFilterPod);
-        await deleteContainer(page, environmentFilterContainer);
-        await deleteImage(page, environmentFilterImage);
+        // Run every cleanup step regardless of individual failures, then re-throw.
+        const errors: unknown[] = [];
+        for (const cleanup of [
+          (): Promise<void> => deletePod(page, environmentFilterPod),
+          (): Promise<void> => deleteContainer(page, environmentFilterContainer),
+          (): Promise<void> => deleteImage(page, environmentFilterImage),
+          (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
+        ]) {
+          try {
+            await cleanup();
+          } catch (e) {
+            errors.push(e);
+          }
+        }
+
+        if (errors.length > 0) {
+          throw new AggregateError(errors, 'One or more cleanup steps failed');
+        }
       } finally {
-        await deletePodmanMachine(page, secondMachineVisibleName);
+        await runner.close();
       }
-      await runner.close();
     });
 
     test('Creating a second Podman machine', async ({ navigationBar, page }) => {
@@ -86,12 +102,24 @@ test.describe
       await resourcesPage.goToCreateNewResourcePage('podman');
 
       const createMachinePage = new CreateMachinePage(page);
-      await createMachinePage.createMachine(secondMachineVisibleName, {
+      const resourcesPageAfterCreation = await createMachinePage.createMachine(secondMachineVisibleName, {
         isRootful: true,
         startNow: true,
         setAsDefault: false,
         virtualizationProvider: getVirtualizationProvider(),
       });
+
+      // createMachine() waits for "Successful operation" and clicks "Go back to
+      // resources", but the machine's connection can still be starting up
+      // asynchronously. Poll the connection card until it reports Running before
+      // allowing the next test to proceed.
+      await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
+      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineDisplayName);
+      await waitUntil(
+        async () =>
+          (await secondMachineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running),
+        { timeout: 60_000, sendError: true },
+      );
     });
 
     test('Environment filter becomes visible with two running machines', async ({ navigationBar }) => {
