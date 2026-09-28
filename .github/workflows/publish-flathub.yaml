@@ -153,10 +153,6 @@ jobs:
           # update the source url/sha256 of podman desktop
           yq -i '(.modules[].sources[] | select(.url == "*podman-desktop*refs*tags*")) += {"url":strenv(PODMAN_DESKTOP_SOURCE_URL), "sha256":strenv(PODMAN_DESKTOP_SOURCE_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
 
-          # pnpm 12 requires the registry metadata cache for offline installs
-          # inject the build command to move metadata to $XDG_CACHE_HOME (can be removed once the Flathub manifest has this line permanently)
-          sed -i '/mkdir pnpm-store && mv v11 pnpm-store\//a\      # pnpm 12 requires the registry metadata cache for offline installs\n      - mkdir -p $XDG_CACHE_HOME \&\& mv pnpm-metadata/pnpm $XDG_CACHE_HOME/' io.podman_desktop.PodmanDesktop.yml
-
         env:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
           PODMAN_DESKTOP_VERSION: ${{ steps.VERSION.outputs.desktopVersion }}
