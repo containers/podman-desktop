@@ -25,7 +25,7 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
-import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
+import { waitForPodmanMachineStartup, waitWhile } from '/@/utility/wait';
 
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
@@ -111,15 +111,14 @@ test.describe
 
       // createMachine() waits for "Successful operation" and clicks "Go back to
       // resources", but the machine's connection can still be starting up
-      // asynchronously. Poll the connection card until it reports Running before
-      // allowing the next test to proceed.
+      // asynchronously, and the connection card may not yet be in the DOM.
+      // Use toContainText() so Playwright retries both the element lookup and
+      // the text check within a single timeout window.
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
       const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineDisplayName);
-      await waitUntil(
-        async () =>
-          (await secondMachineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running),
-        { timeout: 60_000, sendError: true },
-      );
+      await playExpect(secondMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Running, {
+        timeout: 60_000,
+      });
     });
 
     test('Environment filter becomes visible with two running machines', async ({ navigationBar }) => {
