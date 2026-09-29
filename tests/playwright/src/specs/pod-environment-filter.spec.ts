@@ -115,7 +115,7 @@ test.describe
       // Use toContainText() so Playwright retries both the element lookup and
       // the text check within a single timeout window.
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
-      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineDisplayName);
+      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
       await playExpect(secondMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Running, {
         timeout: 60_000,
       });
