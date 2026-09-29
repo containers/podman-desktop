@@ -834,3 +834,81 @@ test('Expect per-extension Skip button to call updateStepState for each step', a
   const newCalls = updateStepStateMock.mock.calls.slice(callCountBefore);
   expect(newCalls.length).toBeGreaterThanOrEqual(2);
 });
+
+test('Expect "Try again" to reset only the current onboarding, not other onboarding contexts', async () => {
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+
+  onboardingList.set([
+    {
+      extension: 'first-ext',
+      removable: true,
+      title: 'First Onboarding',
+      name: 'first',
+      displayName: 'First',
+      icon: 'data:image/png;base64,first',
+      welcomeMessage: 'First Onboarding',
+      steps: [
+        {
+          id: 'step1',
+          title: 'step 1',
+          state: 'completed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'second-ext',
+      removable: true,
+      title: 'Second Onboarding',
+      name: 'second',
+      displayName: 'Second',
+      icon: 'data:image/png;base64,second',
+      welcomeMessage: 'Second Onboarding',
+      steps: [
+        {
+          id: 'step2',
+          title: 'step 2',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  await waitRender({
+    extensionIds: ['first-ext', 'second-ext'],
+  });
+
+  // Show the first step
+  expect(screen.getByText('step 1')).toBeInTheDocument();
+
+  // Simulate context being set during the first onboarding
+  contextConfig.setValue('first-ext.onboarding.key1', 'first-value');
+
+  // Complete the first onboarding by clicking Next
+  const nextButton = screen.getByRole('button', { name: 'Next Step' });
+  await fireEvent.click(nextButton);
+
+  // Wait for the second onboarding to become active with its failed step
+  await screen.findByText('step 2');
+
+  // Simulate context being set during the second onboarding
+  contextConfig.setValue('second-ext.onboarding.key1', 'second-value');
+
+  // The failed step should show the "Try again" button
+  const tryAgainButton = screen.getByRole('button', { name: 'Try again' });
+  expect(tryAgainButton).toBeInTheDocument();
+
+  await fireEvent.click(tryAgainButton);
+
+  // Verify that resetOnboarding was called with only the second extension
+  expect(vi.mocked(window.resetOnboarding)).toHaveBeenLastCalledWith(['second-ext']);
+
+  // Verify context: first onboarding's context should remain, second onboarding's should be cleared
+  const contextValues = contextConfig.collectAllValues();
+  expect(contextValues['first-ext.onboarding.key1']).toBe('first-value');
+  expect(contextValues['second-ext.onboarding.key1']).toBeUndefined();
+});
