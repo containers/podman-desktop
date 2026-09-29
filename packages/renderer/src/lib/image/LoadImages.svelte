@@ -112,7 +112,7 @@ async function loadImages(): Promise<void> {
 
     <div class="pt-5">
       <ButtonRow>
-        <Button type="secondary" on:click={(): void => router.goto($lastPage.path)}>Cancel</Button>
+        <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Cancel</Button>
         <Button
           on:click={loadImages}
           inProgress={inProgress}

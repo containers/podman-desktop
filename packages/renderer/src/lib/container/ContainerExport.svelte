@@ -113,7 +113,7 @@ async function exportContainer(): Promise<void> {
                 aria-label="Select output file">Browse...</Button>
             </div>
             <ButtonRow class="mt-5">
-              <Button type="secondary" on:click={(): void => router.goto($lastPage.path)}>Cancel</Button>
+              <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Cancel</Button>
               <Button
                 on:click={exportContainer}
                 icon={faDownload}

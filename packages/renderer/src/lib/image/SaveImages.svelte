@@ -165,7 +165,7 @@ async function saveImages(): Promise<void> {
 
       <div class="pt-5 w-full">
         <ButtonRow>
-          <Button type="secondary" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
+          <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
           <Button
             on:click={saveImages}
             inProgress={inProgress}

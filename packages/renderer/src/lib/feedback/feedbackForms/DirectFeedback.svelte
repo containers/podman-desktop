@@ -151,7 +151,7 @@ async function openGitHub(): Promise<void> {
     {/if}
   </svelte:fragment>
   <svelte:fragment slot="buttons">
-    <Button class="underline" type="link" aria-label="Cancel" on:click={(): void => onCloseForm(true)}>Cancel</Button>
+    <Button type="link" aria-label="Cancel" on:click={(): void => onCloseForm(true)}>Cancel</Button>
     <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={sendFeedback}
     >Send feedback</Button>
   </svelte:fragment>
