@@ -312,3 +312,14 @@ test('Expect GitHub section hidden when repository is undefined', async () => {
   expect(screen.queryByLabelText('Like Podman Desktop? Give us a star on GitHub')).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'GitHub' })).not.toBeInTheDocument();
 });
+
+test('Expect Cancel button to call onCloseForm when clicked', async () => {
+  const onCloseFormMock = vi.fn();
+  render(DirectFeedback, { category: 'developers', contentChange: vi.fn(), onCloseForm: onCloseFormMock });
+
+  const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+  expect(cancelButton).toBeInTheDocument();
+  await fireEvent.click(cancelButton);
+
+  expect(onCloseFormMock).toHaveBeenCalledWith(true);
+});

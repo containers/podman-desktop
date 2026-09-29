@@ -151,3 +151,15 @@ test('Expect error shown if import function fails', async () => {
   expect(errorDiv).toBeInTheDocument();
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('import failed');
 });
+
+test('Expect Cancel button to navigate to last page when clicked', async () => {
+  providerInfos.set([providerInfo]);
+  const goToMock = vi.spyOn(router, 'goto');
+  render(ImportContainersImages);
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+  expect(cancelButton).toBeInTheDocument();
+  await userEvent.click(cancelButton);
+
+  expect(goToMock).toBeCalled();
+});

@@ -315,3 +315,16 @@ test('Expect images with same ID and tag but different engines to render without
   const alpineImages = screen.getAllByRole('textbox', { name: 'image docker.io/library/alpine:latest' });
   expect(alpineImages).toHaveLength(2);
 });
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  saveImagesInfo.set([imageInfo]);
+  const goToMock = vi.spyOn(router, 'goto');
+  await waitRender();
+
+  const closeButtons = screen.getAllByRole('button', { name: 'Close' });
+  expect(closeButtons.length).toBe(2);
+  // Click the last Close button (the one in the ButtonRow)
+  await userEvent.click(closeButtons[1]);
+
+  expect(goToMock).toBeCalled();
+});

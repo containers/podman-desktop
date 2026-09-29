@@ -1372,6 +1372,27 @@ test('Expect clicking Existing image button closes dialog', async () => {
   });
 });
 
+test('Expect clicking Close button closes create container dialog', async () => {
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  await waitFor(() => expect(get(providerInfos)).not.toHaveLength(0));
+  await waitRender({});
+
+  const createButton = screen.getByTitle('Create a container');
+  await fireEvent.click(createButton);
+
+  const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
+  const closeButton = within(dialog).getByRole('button', { name: 'Close' });
+  expect(closeButton).toBeInTheDocument();
+  await fireEvent.click(closeButton);
+
+  await waitFor(() => {
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+});
+
 test('Expect contributed icon to be applied to the container row', async () => {
   // the containers store converts without the context and the view contributions, so this
   // icon can only appear if ContainerList overlays it after reading the store

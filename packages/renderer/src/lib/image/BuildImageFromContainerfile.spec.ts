@@ -362,6 +362,14 @@ test('Expect Abort button to being visible when image build is in progress', asy
   resolveCallback();
 });
 
+test('Expect no Close button when not building', async () => {
+  setup();
+  render(BuildImageFromContainerfile);
+
+  const closeButton = screen.queryByRole('button', { name: 'Close' });
+  expect(closeButton).not.toBeInTheDocument();
+});
+
 test('Expect no value for containerImageName input field (no my-custom-image value), just show the placeholder.', async () => {
   setup();
   render(BuildImageFromContainerfile);

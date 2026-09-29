@@ -569,3 +569,15 @@ test('validation: play button enabled when file is selected in file mode', async
   const playButton = screen.getByRole('button', { name: 'Play' });
   expect(playButton).not.toBeDisabled();
 });
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  setup();
+  const goToMock = vi.spyOn(router, 'goto');
+  render(KubePlayYAML, {});
+
+  const closeButton = screen.getByRole('button', { name: 'Close' });
+  expect(closeButton).toBeInTheDocument();
+  await userEvent.click(closeButton);
+
+  expect(goToMock).toBeCalled();
+});

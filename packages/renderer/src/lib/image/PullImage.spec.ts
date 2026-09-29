@@ -754,3 +754,14 @@ describe('Preferred Registries', () => {
     });
   });
 });
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+  render(PullImage);
+
+  const closeButton = screen.getByRole('button', { name: 'Close' });
+  expect(closeButton).toBeInTheDocument();
+  await userEvent.click(closeButton);
+
+  expect(goToMock).toBeCalled();
+});

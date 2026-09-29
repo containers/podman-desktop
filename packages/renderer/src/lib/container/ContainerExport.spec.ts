@@ -118,3 +118,15 @@ test('Expect error shown if export function fails', async () => {
   expect(errorDiv).toBeInTheDocument();
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('error while exporting');
 });
+
+test('Expect Cancel button to navigate to last page when clicked', async () => {
+  containersInfos.set([container]);
+  const goToMock = vi.spyOn(router, 'goto');
+  await waitRender();
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+  expect(cancelButton).toBeInTheDocument();
+  await userEvent.click(cancelButton);
+
+  expect(goToMock).toBeCalled();
+});
