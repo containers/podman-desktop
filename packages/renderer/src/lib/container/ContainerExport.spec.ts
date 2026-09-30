@@ -25,6 +25,7 @@ import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
 
 import ContainerExport from './ContainerExport.svelte';
@@ -121,6 +122,7 @@ test('Expect error shown if export function fails', async () => {
 
 test('Expect Cancel button to navigate to last page when clicked', async () => {
   containersInfos.set([container]);
+  lastPage.set({ name: 'Containers', path: '/containers' });
   const goToMock = vi.spyOn(router, 'goto');
   await waitRender();
 
@@ -128,5 +130,5 @@ test('Expect Cancel button to navigate to last page when clicked', async () => {
   expect(cancelButton).toBeInTheDocument();
   await userEvent.click(cancelButton);
 
-  expect(goToMock).toBeCalled();
+  expect(goToMock).toBeCalledWith('/containers');
 });

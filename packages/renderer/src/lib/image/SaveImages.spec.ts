@@ -25,6 +25,7 @@ import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -318,6 +319,7 @@ test('Expect images with same ID and tag but different engines to render without
 
 test('Expect Close button to navigate to last page when clicked', async () => {
   saveImagesInfo.set([imageInfo]);
+  lastPage.set({ name: 'Images', path: '/images' });
   const goToMock = vi.spyOn(router, 'goto');
   await waitRender();
 
@@ -326,5 +328,5 @@ test('Expect Close button to navigate to last page when clicked', async () => {
   // Click the last Close button (the one in the ButtonRow)
   await userEvent.click(closeButtons[1]);
 
-  expect(goToMock).toBeCalled();
+  expect(goToMock).toBeCalledWith('/images');
 });
