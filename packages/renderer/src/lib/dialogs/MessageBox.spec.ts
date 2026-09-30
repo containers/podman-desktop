@@ -574,4 +574,52 @@ describe('MessageBox', () => {
     await userEvent.keyboard('{Escape}');
     expect(window.sendShowMessageBoxOnSelect).toHaveBeenCalledWith(messageBoxOptions.id, undefined);
   });
+
+  test('Expect danger MessageBox with Cancel to focus Cancel button, not dialog container', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 709,
+      title: 'Delete resource',
+      message: 'Are you sure?',
+      type: 'danger',
+      buttons: ['Cancel', 'Delete'],
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+
+    // Cancel button should have focus, not the dialog
+    expect(cancelButton).toHaveFocus();
+  });
+
+  test('Expect non-danger MessageBox to focus default button on mount', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 710,
+      title: 'Confirm action',
+      message: 'Would you like to proceed?',
+      type: 'question',
+      buttons: ['Cancel', 'Proceed'],
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    const proceedButton = await screen.findByRole('button', { name: 'Proceed' });
+    expect(proceedButton).toHaveFocus();
+  });
+
+  test('Expect danger MessageBox without Cancel button to focus dialog container instead of button', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 712,
+      title: 'Danger without cancel',
+      message: 'This is dangerous',
+      type: 'danger',
+      buttons: ['Delete'],
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveAttribute('tabindex', '-1');
+    await vi.waitFor(() => expect(dialog).toHaveFocus());
+  });
 });

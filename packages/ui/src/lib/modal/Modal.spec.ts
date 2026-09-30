@@ -79,3 +79,18 @@ describe('translation-y', () => {
     expect(dialog.classList).toContain('my-[32px]');
   });
 });
+
+test('focusContainer=true should apply tabindex="-1" and focus the dialog element', async () => {
+  render(Modal, { focusContainer: true });
+
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveAttribute('tabindex', '-1');
+  await vi.waitFor(() => expect(dialog).toHaveFocus());
+});
+
+test('focusContainer=false should not apply tabindex', async () => {
+  render(Modal, { focusContainer: false });
+
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).not.toHaveAttribute('tabindex');
+});
