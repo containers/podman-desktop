@@ -765,5 +765,5 @@ test('Expect Close button to navigate to last page when clicked', async () => {
   expect(closeButton).toBeInTheDocument();
   await userEvent.click(closeButton);
 
-  expect(goToMock).toBeCalledWith('/images');
+  expect(goToMock).toHaveBeenCalledWith('/images');
 });

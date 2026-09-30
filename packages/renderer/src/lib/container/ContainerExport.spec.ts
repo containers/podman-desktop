@@ -130,5 +130,5 @@ test('Expect Cancel button to navigate to last page when clicked', async () => {
   expect(cancelButton).toBeInTheDocument();
   await userEvent.click(cancelButton);
 
-  expect(goToMock).toBeCalledWith('/containers');
+  expect(goToMock).toHaveBeenCalledWith('/containers');
 });
