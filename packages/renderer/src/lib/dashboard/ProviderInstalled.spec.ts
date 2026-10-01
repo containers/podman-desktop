@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderInfo } from '@desktop-framework/api';
+import type { ProviderInfo, PreflightChecksCallback } from '@desktop-framework/api';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { assert, beforeEach, expect, test, vi } from 'vitest';
