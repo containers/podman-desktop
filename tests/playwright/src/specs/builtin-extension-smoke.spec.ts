@@ -198,7 +198,7 @@ async function verifyBuiltInExtensionStatus(
   await extensionStatusLabel.scrollIntoViewIfNeeded();
 
   if (enabled) {
-    await playExpect(extensionStatusLabel).toContainText(ExtensionState.Active, { timeout: 20_000 });
+    await playExpect(extensionStatusLabel).toContainText(ExtensionState.Installed, { timeout: 20_000 });
   } else {
     await playExpect(extensionStatusLabel).toContainText(ExtensionState.Disabled, { timeout: 20_000 });
   }
@@ -217,7 +217,7 @@ async function verifyBuiltInExtensionStatus(
     await playExpect(podmanExtensionPage.disableButton).toBeVisible({
       timeout: 10_000,
     });
-    await playExpect(podmanExtensionPage.status.getByText(ExtensionState.Active)).toBeVisible();
+    await playExpect(podmanExtensionPage.status.getByText(ExtensionState.Installed)).toBeVisible();
   } else {
     await playExpect(podmanExtensionPage.enableButton).toBeVisible({
       timeout: 10_000,
@@ -252,7 +252,7 @@ for (const ext of preInstalledExtensions) {
     test(`Check ${ext.name} is installed and active`, async ({ navigationBar }) => {
       const extensionsPage = await navigationBar.openExtensions();
       const extensionCard = await extensionsPage.getInstalledExtension(ext.name.toLowerCase(), ext.label);
-      await playExpect(extensionCard.status).toHaveText(ExtensionState.Active, { timeout: 20_000 });
+      await playExpect(extensionCard.status).toHaveText(ExtensionState.Installed, { timeout: 20_000 });
     });
 
     test(`Check ${ext.name} is marked as Pre-installed`, async ({ navigationBar }) => {
@@ -282,7 +282,7 @@ for (const ext of preInstalledExtensions) {
       await playExpect(detailsPage.status).toContainText(ExtensionState.Disabled, { timeout: 20_000 });
       await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
       await detailsPage.enableExtension();
-      await playExpect(detailsPage.status).toContainText(ExtensionState.Active, { timeout: 20_000 });
+      await playExpect(detailsPage.status).toContainText(ExtensionState.Installed, { timeout: 20_000 });
       await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
     });
   });

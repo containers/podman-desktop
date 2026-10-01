@@ -163,7 +163,7 @@ for (const { extensionLabel, extensionFullLabel, extensionName, extensionFullNam
           extensionFullName,
         );
         await playExpect(extensionPage.heading).toBeVisible();
-        await playExpect(extensionPage.status).toHaveText(ExtensionState.Active, { timeout: 15_000 });
+        await playExpect(extensionPage.status).toHaveText(ExtensionState.Installed, { timeout: 15_000 });
         // tabs are empty in case there is no error. If there is error, there are two tabs' buttons present
         const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
         // we would like to propagate the error's stack trace into test failure message
@@ -221,7 +221,7 @@ for (const { extensionLabel, extensionFullLabel, extensionName, extensionFullNam
           );
 
           await extensionPage.enableExtension();
-          await playExpect(extensionPage.status).toHaveText(ExtensionState.Active, { timeout: 10_000 });
+          await playExpect(extensionPage.status).toHaveText(ExtensionState.Installed, { timeout: 10_000 });
 
           // check that extension navbar icon is hidden/shown
           if (extensionNavigationBarIcon) {
@@ -318,7 +318,7 @@ test.describe('Install extension via SHA digest', { tag: '@smoke' }, () => {
       ext.extensionFullName,
     );
     await playExpect(extensionPage.heading).toBeVisible();
-    await playExpect(extensionPage.status).toHaveText(ExtensionState.Active, { timeout: 15_000 });
+    await playExpect(extensionPage.status).toHaveText(ExtensionState.Installed, { timeout: 15_000 });
 
     const errorTab = extensionPage.tabs.getByRole('button', { name: 'Error' });
     let stackTrace = '';

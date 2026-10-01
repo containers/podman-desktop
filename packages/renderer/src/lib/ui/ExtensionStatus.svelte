@@ -1,74 +1,28 @@
 <script lang="ts">
-interface Props {
+import type { HTMLAttributes } from 'svelte/elements';
+
+import { ExtensionStatusMapper } from './extension-status';
+import StatusDotIcon from './StatusDotIcon.svelte';
+
+interface Props extends HTMLAttributes<HTMLDivElement> {
   status: string;
 }
-let { status }: Props = $props();
 
-interface ConnectionStatusStyle {
-  bgColor: string;
-  txtColor: string;
-  label: string;
-}
-const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
-const labelStyle = 'my-auto ml-1 font-bold text-[9px]';
-const statusesStyle = new Map<string, ConnectionStatusStyle>([
-  [
-    'started',
-    {
-      bgColor: 'bg-[var(--pd-status-running)]',
-      txtColor: 'text-[var(--pd-status-running)]',
-      label: 'ACTIVE',
-    },
-  ],
-  [
-    'starting',
-    {
-      bgColor: 'bg-[var(--pd-status-starting)]',
-      txtColor: 'text-[var(--pd-status-starting)]',
-      label: 'ACTIVATING',
-    },
-  ],
-  [
-    'stopped',
-    {
-      bgColor: 'bg-[var(--pd-status-stopped)]',
-      txtColor: 'text-[var(--pd-status-stopped)]',
-      label: 'DISABLED',
-    },
-  ],
-  [
-    'stopping',
-    {
-      bgColor: 'bg-[var(--pd-status-terminated)]',
-      txtColor: 'text-[var(--pd-status-terminated)]',
-      label: 'DISABLING',
-    },
-  ],
-  [
-    'failed',
-    {
-      bgColor: 'bg-[var(--pd-status-terminated)]',
-      txtColor: 'text-[var(--pd-status-terminated)]',
-      label: 'FAILED',
-    },
-  ],
-  [
-    'downloadable',
-    {
-      bgColor: 'bg-[var(--pd-notification-dot)]',
-      txtColor: 'text-[var(--pd-status-ready)]',
-      label: 'DOWNLOADABLE',
-    },
-  ],
-]);
-let statusStyle = $derived(
-  statusesStyle.get(status) ?? {
-    bgColor: 'bg-[var(--pd-status-unknown)]',
-    txtColor: 'text-[var(--pd-status-unknown)]',
-    label: status.toUpperCase(),
-  },
-);
+let { status, class: className = '', ...restProps }: Props = $props();
+
+const mapper = new ExtensionStatusMapper();
+const presentation = $derived(mapper.getPresentation(status));
 </script>
 
-<div aria-label="Extension Status Icon" class="bg-{roundIconStyle} {statusStyle.bgColor}"></div>
-<span aria-label="Extension Status Label" class="{labelStyle} {statusStyle.txtColor}">{statusStyle.label}</span>
+<div
+  role="status"
+  aria-label="Extension status"
+  class="flex min-w-0 max-w-full items-center gap-1.5 {className}"
+  {...restProps}>
+  <span class="inline-flex w-3 shrink-0 items-center justify-center">
+    <StatusDotIcon status={presentation.icon} size="12" decorative />
+  </span>
+  <span class="min-w-0 truncate {presentation.labelClass}">
+    {presentation.label}
+  </span>
+</div>

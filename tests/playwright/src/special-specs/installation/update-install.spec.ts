@@ -32,7 +32,7 @@ import { handleConfirmationDialog } from '/@/utility/operations';
 import { isLinux, isMac, isWindows } from '/@/utility/platform';
 
 const installExtensions = process.env.INSTALLATION_TYPE === 'custom-extensions' ? true : false;
-const activeExtensionStatus = 'ACTIVE';
+const installedExtensionStatus = 'Installed';
 let sBar: StatusBar;
 let updateAvailableDialog: Locator;
 let updateDialog: Locator;
@@ -110,7 +110,7 @@ test.describe('Podman Desktop Update installation', { tag: '@update-install' }, 
           podmanExtension.extensionFullLabel,
         );
         await podmanExtensionCard.card.scrollIntoViewIfNeeded();
-        await playExpect(podmanExtensionCard.status).toHaveText(activeExtensionStatus);
+        await playExpect(podmanExtensionCard.status).toHaveText(installedExtensionStatus);
       }).toPass({ timeout: 30_000 });
     });
 
@@ -135,7 +135,9 @@ test.describe('Podman Desktop Update installation', { tag: '@update-install' }, 
           await playExpect(extensionDetailsPage.heading).toBeVisible();
           await test.step
             .skip('Extension is active - unstable on windows now', async () => {
-              await playExpect.soft(extensionDetailsPage.status).toHaveText(activeExtensionStatus, { timeout: 20_000 });
+              await playExpect
+                .soft(extensionDetailsPage.status)
+                .toHaveText(installedExtensionStatus, { timeout: 20_000 });
             });
         });
       });

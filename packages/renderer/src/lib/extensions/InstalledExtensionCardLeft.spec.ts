@@ -48,16 +48,15 @@ test('Expect to see icon, link, badge and actions', async () => {
     readme: '',
     icon: 'iconOfMyExtension.png',
   };
-  const { findByRole, findByLabelText } = render(InstalledExtensionCardLeft, { extension });
+  const { findByRole, findByText } = render(InstalledExtensionCardLeft, { extension });
 
   // get actions be there
   const actions = await findByRole('group', { name: 'Extension Actions' });
   expect(actions).toBeInTheDocument();
 
   // check status
-  const statusLabel = await findByLabelText('Extension Status Label');
+  const statusLabel = await findByText('Installed');
   expect(statusLabel).toBeInTheDocument();
-  expect(statusLabel).toHaveTextContent('ACTIVE');
 
   // get role Extension Badge
   const badge = await findByRole('region', { name: 'Extension Badge' });

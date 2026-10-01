@@ -95,7 +95,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // --------------------------
 
   if (enabled) {
-    await playExpect(extensionStatusLabel).toContainText(ExtensionState.Active, { timeout: 20_000 });
+    await playExpect(extensionStatusLabel).toContainText(ExtensionState.Installed, { timeout: 20_000 });
   } else {
     await playExpect(extensionStatusLabel).toContainText(ExtensionState.Disabled, { timeout: 20_000 });
   }
@@ -115,7 +115,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
     await playExpect(podmanExtensionPage.disableButton).toBeVisible({
       timeout: 10_000,
     });
-    await playExpect(podmanExtensionPage.status.getByText(ExtensionState.Active)).toBeVisible();
+    await playExpect(podmanExtensionPage.status.getByText(ExtensionState.Installed)).toBeVisible();
   } else {
     await playExpect(podmanExtensionPage.enableButton).toBeVisible({
       timeout: 10_000,

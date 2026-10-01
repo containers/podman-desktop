@@ -22,71 +22,56 @@ import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import ExtensionStatus from './ExtensionStatus.svelte';
+import StatusDotIcon from './StatusDotIcon.svelte';
 
-const extensionStatusLabel = 'Extension Status Label';
-const extensionStatusIcon = 'Extension Status Icon';
+test.each([
+  ['started', 'Installed', 'text-(--pd-status-running)', 'running'],
+  ['stopping', 'Disabling', 'text-(--pd-status-waiting)', 'waiting'],
+  ['failed', 'Failed', 'text-(--pd-status-terminated)', 'terminated'],
+])('renders extension state %s as %s', (status, label, labelClass, icon) => {
+  const statusRender = render(ExtensionStatus, { status });
 
-test('Expect green text and icon when extension is running', async () => {
-  render(ExtensionStatus, { status: 'started' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-running)]');
-  expect(label).toHaveTextContent('ACTIVE');
+  expect(screen.getByText(label)).toHaveClass(labelClass);
+  const renderedIcon = statusRender.container.querySelector('[data-testid="status-dot-icon"]');
+  expect(renderedIcon).toHaveAttribute('aria-hidden', 'true');
+  expect(renderedIcon).not.toHaveAttribute('role');
+  expect(renderedIcon).not.toHaveAttribute('aria-label');
+
+  const expectedIcon = render(StatusDotIcon, { status: icon }).container.querySelector(
+    '[data-testid="status-dot-icon"]',
+  );
+  expect(renderedIcon?.querySelector('path')).toHaveAttribute(
+    'd',
+    expectedIcon?.querySelector('path')?.getAttribute('d'),
+  );
 });
 
-test('Expect green text and icon when extension is starting', async () => {
-  render(ExtensionStatus, { status: 'starting' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-status-starting)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-starting)]');
-  expect(label).toHaveTextContent('ACTIVATING');
-});
-
-test('Expect green text and icon when extension is stopped', async () => {
-  render(ExtensionStatus, { status: 'stopped' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-status-stopped)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-stopped)]');
-  expect(label).toHaveTextContent('DISABLED');
-});
-
-test('Expect green text and icon when extension is stopping', async () => {
-  render(ExtensionStatus, { status: 'stopping' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-status-terminated)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-terminated)]');
-  expect(label).toHaveTextContent('DISABLING');
-});
-test('Expect green text and icon when extension is unknown', async () => {
-  render(ExtensionStatus, { status: 'unknown' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-status-unknown)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-unknown)]');
-  expect(label).toHaveTextContent('UNKNOWN');
-});
-
-test('Expect purple text and icon when extension is downloadable', async () => {
+test('preserves the downloadable presentation', () => {
   render(ExtensionStatus, { status: 'downloadable' });
-  const icon = screen.getByLabelText(extensionStatusIcon);
-  const label = screen.getByLabelText(extensionStatusLabel);
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveClass('bg-[var(--pd-notification-dot)]');
-  expect(label).toBeInTheDocument();
-  expect(label).toHaveClass('text-[var(--pd-status-ready)]');
-  expect(label).toHaveTextContent('DOWNLOADABLE');
+
+  expect(screen.getByText('DOWNLOADABLE')).toHaveClass('font-bold', 'text-[9px]', 'text-(--pd-status-ready)');
+  expect(screen.getByTestId('status-dot-icon').querySelector('path')).toHaveAttribute(
+    'fill',
+    'var(--pd-notification-dot)',
+  );
+});
+
+test('renders unsupported states with the unknown presentation', () => {
+  render(ExtensionStatus, { status: 'unexpected' });
+
+  expect(screen.getByText('Unexpected')).toHaveClass('text-(--pd-status-unknown)');
+});
+
+test('provides an accessible status locator and forwards HTML attributes', () => {
+  render(ExtensionStatus, {
+    status: 'started',
+    class: 'custom-class',
+    title: 'Extension status title',
+    'data-source': 'extension',
+  });
+
+  const status = screen.getByRole('status', { name: 'Extension status' });
+  expect(status).toHaveClass('custom-class');
+  expect(status).toHaveAttribute('title', 'Extension status title');
+  expect(status).toHaveAttribute('data-source', 'extension');
 });

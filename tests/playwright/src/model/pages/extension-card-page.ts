@@ -64,7 +64,7 @@ export class ExtensionCardPage extends BasePage {
     this.editButton = this.leftActions.getByRole('button', {
       name: `Edit properties of ${extensionName} extension`,
     });
-    this.status = this.leftActions.getByLabel('Extension Status Label');
+    this.status = this.leftActions.getByRole('status', { name: 'Extension status' });
     this.enableButton = this.extensionActions.getByRole('button', {
       name: 'Start',
     });
@@ -86,20 +86,20 @@ export class ExtensionCardPage extends BasePage {
 
   async disableExtension(): Promise<this> {
     return test.step(`Disable extension: ${this.extensionName}`, async () => {
-      if ((await this.status.innerText()) === 'DISABLED') return this;
+      if ((await this.status.innerText()) === 'Disabled') return this;
 
       await this.disableButton.click();
-      await playExpect(this.status).toHaveText('DISABLED');
+      await playExpect(this.status).toHaveText('Disabled');
       return this;
     });
   }
 
   async enableExtension(): Promise<this> {
     return test.step(`Enable extension: ${this.extensionName}`, async () => {
-      if ((await this.status.innerText()) === 'ACTIVE') return this;
+      if ((await this.status.innerText()) === 'Installed') return this;
 
       await this.enableButton.click();
-      await playExpect(this.status).toHaveText('ACTIVE');
+      await playExpect(this.status).toHaveText('Installed');
       return this;
     });
   }
