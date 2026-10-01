@@ -20,9 +20,10 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { Table, TableColumn, tablePersistence } from '/@/lib';
+import type { ListOrganizerItem } from '/@/lib/layouts/ListOrganizer';
 import SimpleColumn from '/@/lib/table/SimpleColumn.svelte';
 import { Column, Row } from '/@/lib/table/table';
 import { collapsedStateMap } from '/@/lib/table/table-persistence-store.svelte';
@@ -280,7 +281,7 @@ test('Expect overflow-hidden', async () => {
   }
 });
 
-test('Expect update callback', async () => {
+test('sorting invokes the fixture callback', async () => {
   const callback = vi.fn();
   render(TestTable, { onUpdate: callback });
 
@@ -608,6 +609,29 @@ describe('Table#selection', () => {
     await fireEvent.click(parentCheckbox);
     await vi.waitFor(() => expect(selectedItemsNumber).toBe(1));
   });
+
+  test('accepts an initially undefined selected count binding', async () => {
+    const item: Item = { id: 'item-1', name: 'Selectable item' };
+    let selectedItemsNumber: number | undefined;
+
+    render(Table<Item>, {
+      kind: 'undefined-selection-binding-test',
+      data: [item],
+      columns: [NAME_COLUMN],
+      row: ROW,
+      key: (value): string => value.id,
+      get selectedItemsNumber(): number | undefined {
+        return selectedItemsNumber;
+      },
+      set selectedItemsNumber(value: number) {
+        selectedItemsNumber = value;
+      },
+    });
+
+    await vi.waitFor(() => expect(selectedItemsNumber).toBe(0));
+    await fireEvent.click(within(screen.getByRole('row', { name: item.name })).getByRole('checkbox'));
+    await vi.waitFor(() => expect(selectedItemsNumber).toBe(1));
+  });
 });
 
 test('Expect duration cell to be empty when undefined', async () => {
@@ -787,6 +811,27 @@ describe('Table#collapsed', () => {
     expect(barCollapseBtn).toHaveAttribute('aria-expanded', 'true');
   });
 
+  test('re-renders when toggling a row with a plain collapsed array prop', async () => {
+    const { getByRole } = render(Table<Item>, {
+      kind: 'plain-collapsed-array',
+      data: [{ id: 'foo', name: 'foo' }],
+      columns: [SIMPLE_COLUMN],
+      row: ROW,
+      collapsed: [],
+      key: ({ id }: Item): string => id,
+    });
+
+    const row = getByRole('row', { name: 'foo' });
+    expect(screen.getByRole('row', { name: 'foo child' })).toBeDefined();
+    await fireEvent.click(within(row).getByRole('button', { name: 'Collapse Row' }));
+    expect(within(row).getByRole('button', { name: 'Expand Row' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('row', { name: 'foo child' })).not.toBeInTheDocument();
+
+    await fireEvent.click(within(row).getByRole('button', { name: 'Expand Row' }));
+    expect(within(row).getByRole('button', { name: 'Collapse Row' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('row', { name: 'foo child' })).toBeDefined();
+  });
+
   test('item with same name can be distinct using Table#key prop', async () => {
     const { getAllByRole } = render(Table<Item>, {
       kind: 'demo',
@@ -895,6 +940,76 @@ describe('Table#collapsed', () => {
     // Should not have layout management button
     const layoutButton = screen.queryByTitle('Configure Columns');
     expect(layoutButton).not.toBeInTheDocument();
+  });
+});
+
+describe('Table column ordering persistence', () => {
+  const kind = 'column-order-save-test';
+  const columnItems: ListOrganizerItem[] = [
+    { id: 'Name', label: 'Name', enabled: true, originalOrder: 0 },
+    { id: 'Age', label: 'Age', enabled: true, originalOrder: 1 },
+  ];
+
+  afterEach(() => {
+    tablePersistence.storage = undefined;
+  });
+
+  test('saves each column reorder, including a second reorder with the same map size', async () => {
+    const storage = {
+      load: vi.fn().mockResolvedValue(columnItems),
+      save: vi.fn().mockResolvedValue(undefined),
+      reset: vi.fn().mockResolvedValue(columnItems),
+    };
+    tablePersistence.storage = storage;
+
+    render(Table, {
+      kind,
+      data: [{ name: 'Example row' }],
+      columns: [new TableColumn('Name', {}), new TableColumn('Age', {})],
+      row: { info: {} },
+      enableLayoutConfiguration: true,
+    });
+
+    await vi.waitFor(() => expect(storage.save).toHaveBeenCalled());
+    storage.save.mockClear();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Configure Columns' }));
+    let reorderButtons = screen.getAllByRole('button', {
+      name: 'Use arrow keys to reorder, or drag with mouse',
+    });
+    await fireEvent.keyDown(reorderButtons[0], { key: 'ArrowDown' });
+
+    await vi.waitFor(() =>
+      expect(
+        screen
+          .getAllByRole('columnheader')
+          .map(header => header.textContent?.trim())
+          .filter(Boolean),
+      ).toEqual(['Age', 'Name']),
+    );
+    await vi.waitFor(() =>
+      expect(screen.getAllByRole('button', { name: 'Use arrow keys to reorder, or drag with mouse' })[1]).toHaveFocus(),
+    );
+    await vi.waitFor(() => expect(storage.save).toHaveBeenLastCalledWith(kind, [columnItems[1], columnItems[0]]));
+
+    storage.save.mockClear();
+    reorderButtons = screen.getAllByRole('button', {
+      name: 'Use arrow keys to reorder, or drag with mouse',
+    });
+    await fireEvent.keyDown(reorderButtons[0], { key: 'ArrowDown' });
+
+    await vi.waitFor(() =>
+      expect(
+        screen
+          .getAllByRole('columnheader')
+          .map(header => header.textContent?.trim())
+          .filter(Boolean),
+      ).toEqual(['Name', 'Age']),
+    );
+    await vi.waitFor(() =>
+      expect(screen.getAllByRole('button', { name: 'Use arrow keys to reorder, or drag with mouse' })[1]).toHaveFocus(),
+    );
+    await vi.waitFor(() => expect(storage.save).toHaveBeenLastCalledWith(kind, columnItems));
   });
 });
 
