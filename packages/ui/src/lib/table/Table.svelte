@@ -6,16 +6,13 @@
 </style>
 
 <script lang="ts" generics="T extends { selected?: boolean; name?: string }">
-/* eslint-disable import/no-duplicates */
-// https://github.com/import-js/eslint-plugin-import/issues/1479
-import { onMount, tick } from 'svelte';
-import { SvelteMap } from 'svelte/reactivity';
+import { onMount } from 'svelte';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 import Checkbox from '../checkbox/Checkbox.svelte';
 import ChevronExpander from '../icons/ChevronExpander.svelte';
 import type { ListOrganizerItem } from '../layouts/ListOrganizer';
 import ListOrganizer from '../layouts/ListOrganizer.svelte';
-/* eslint-enable import/no-duplicates */
 import type { Column, Row } from './table';
 import { collapsedStateMap, tablePersistence } from './table-persistence-store.svelte';
 
@@ -176,61 +173,89 @@ $: visibleColumns = ((): Column<T, any>[] => {
 
 let tableHtmlDivElement: HTMLDivElement | undefined = undefined;
 
+// Reactive source of truth for the selection UI. Callers may pass a plain /
+// $derived array whose elements are not reactive, so selection is tracked in
+// this SvelteSet; object.selected is mutated in parallel so callers can read it
+// back (e.g. data.filter(o => o.selected)).
+let selectedItems = new SvelteSet<T>();
+
+// (Re)seed the selection from the incoming data whenever it changes.
+$: {
+  const selected = new SvelteSet<T>();
+  for (const object of data) {
+    if (object.selected) {
+      selected.add(object);
+    }
+    for (const child of row.info.children?.(object) ?? []) {
+      if (child.selected) {
+        selected.add(child);
+      }
+    }
+  }
+  selectedItems = selected;
+}
+
+function setSelected(object: T, checked: boolean): void {
+  object.selected = checked;
+  if (checked) {
+    selectedItems.add(object);
+  } else {
+    selectedItems.delete(object);
+  }
+  selectedItems = selectedItems;
+}
+
+// All selectable items (parents and their children) in the current view.
+let selectableItems: T[] = [];
+$: {
+  if (!row.info.selectable) {
+    selectableItems = [];
+  } else {
+    let items: T[] = [];
+    for (const object of data) {
+      if (row.info.selectable(object)) {
+        items.push(object);
+      }
+      for (const child of row.info.children?.(object) ?? []) {
+        if (row.info.selectable(child)) {
+          items.push(child);
+        }
+      }
+    }
+    selectableItems = items;
+  }
+}
+
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
-$: selectedItemsNumber = row.info.selectable
-  ? data.filter(object => row.info.selectable?.(object) && object.selected).length +
-    data.reduce(
-      (previous, current) =>
-        previous +
-        (row.info.children?.(current)?.filter(child => row.info.selectable?.(child) && child.selected).length ?? 0),
-      0,
-    )
-  : 0;
+$: selectedItemsNumber = selectableItems.filter(item => selectedItems.has(item)).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 let selectedAllCheckboxes: boolean | undefined;
-$: selectedAllCheckboxes = row.info.selectable
-  ? data.filter(object => row.info.selectable?.(object)).every(object => object.selected) &&
-    data
-      .reduce(
-        (accumulator, current) => {
-          const children = row.info.children?.(current);
-          if (children) {
-            accumulator.push(...children);
-          }
-          return accumulator;
-        },
-        [] as Array<T>,
-      )
-      .filter(child => row.info.selectable?.(child))
-      .every(child => child.selected) &&
-    data.filter(object => row.info.selectable?.(object)).length > 0
-  : false;
+$: selectedAllCheckboxes = selectableItems.length > 0 && selectableItems.every(item => selectedItems.has(item));
 
-function toggleAll(e: CustomEvent<boolean>): void {
-  const checked = e.detail;
-  if (!row.info.selectable) {
-    return;
+function toggleAll(event: CustomEvent<boolean>): void {
+  const checked = event.detail;
+  for (const item of selectableItems) {
+    setSelected(item, checked);
   }
-  data.filter(object => row.info.selectable?.(object)).forEach(object => (object.selected = checked));
-
-  // toggle children
-  data.forEach(object => {
-    const children = row.info.children?.(object);
-    if (children) {
-      children.filter(child => row.info.selectable?.(child)).forEach(child => (child.selected = checked));
-    }
-  });
-  data = [...data];
+  selectedItems = selectedItems;
 }
 
-let sortCol: Column<T>;
-let sortAscending: boolean;
+const defaultSortCol = columns.find(column => column.title === defaultSortColumn && column.info.comparator);
+let sortCol: Column<T> | undefined = defaultSortCol;
+let sortAscending = defaultSortCol?.info.initialOrder ? defaultSortCol.info.initialOrder !== 'descending' : true;
 
-$: if (data && sortCol) {
-  sortImpl();
-}
+let rows: T[];
+$: rows = ((): T[] => {
+  const comparator = sortCol?.info.comparator;
+  if (!comparator) {
+    return data;
+  }
+
+  const cmp = sortAscending ? comparator : (a: T, b: T): number => -comparator(a, b);
+  return data.toSorted(cmp);
+})();
 
 function sort(column: Column<T>): void {
   if (!column) {
@@ -249,39 +274,7 @@ function sort(column: Column<T>): void {
     sortCol = column;
     sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
   }
-  sortImpl();
 }
-
-function sortImpl(): void {
-  // confirm we're sorting
-  if (!sortCol) {
-    return;
-  }
-
-  let comparator = sortCol.info.comparator;
-  if (!comparator) {
-    // column is not sortable
-    return;
-  }
-
-  if (!sortAscending) {
-    // we're already sorted, switch to reverse order
-    let comparatorTemp = comparator;
-    comparator = (a, b): number => -comparatorTemp(a, b);
-  }
-
-  data = data.toSorted(comparator);
-}
-
-onMount(async () => {
-  const column: Column<T> | undefined = columns.find(column => column.title === defaultSortColumn);
-  if (column?.info.comparator) {
-    sortCol = column;
-    sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
-    await tick(); // Ensure all initializations are complete.
-    sortImpl(); // Explicitly call sortImpl to sort the data initially.
-  }
-});
 
 let gridTemplateColumns: string;
 $: {
@@ -306,15 +299,22 @@ $: {
   gridTemplateColumns = columnWidths.join(' ');
 }
 
-function objectChecked(object: T): void {
+function objectChecked(object: T, event: CustomEvent<boolean>): void {
+  const checked = event.detail;
+  setSelected(object, checked);
   // check for children and set them to the same state
   if (row.info.children) {
     const children = row.info.children(object);
     if (children) {
-      // event fires before parent changes so use '!'
-      children.forEach(child => (child.selected = !object.selected));
+      children.forEach(child => setSelected(child, checked));
     }
   }
+  selectedItems = selectedItems;
+}
+
+function childChecked(child: T, event: CustomEvent<boolean>): void {
+  setSelected(child, event.detail);
+  selectedItems = selectedItems;
 }
 
 function toggleChildren(name: string | undefined): void {
@@ -478,7 +478,7 @@ function handleRowKeyDown(object: T, event: KeyboardEvent): void {
         <div class="whitespace-nowrap place-self-center" role="columnheader">
           <Checkbox
             title="Toggle all"
-            bind:checked={selectedAllCheckboxes}
+            checked={selectedAllCheckboxes}
             disabled={!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}
             indeterminate={selectedItemsNumber > 0 && !selectedAllCheckboxes}
             on:click={toggleAll} />
@@ -535,7 +535,7 @@ function handleRowKeyDown(object: T, event: KeyboardEvent): void {
   </div>
   <!-- Table body -->
   <div role="rowgroup">
-    {#each data as object (object)}
+    {#each rows as object (object)}
       {@const children = row.info.children?.(object) ?? []}
       {@const itemKey = key(object)}
       <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2 border border-[var(--pd-content-table-border)]">
@@ -574,7 +574,7 @@ function handleRowKeyDown(object: T, event: KeyboardEvent): void {
             <div class="whitespace-nowrap place-self-center" role="cell">
               <Checkbox
                 title="Toggle {kind}"
-                bind:checked={object.selected}
+                checked={selectedItems.has(object)}
                 disabled={!row.info.selectable(object)}
                 disabledTooltip={row.info.disabledText}
                 on:click={objectChecked.bind(undefined, object)} />
@@ -618,9 +618,10 @@ function handleRowKeyDown(object: T, event: KeyboardEvent): void {
                 <div class="whitespace-nowrap place-self-center" role="cell">
                   <Checkbox
                     title="Toggle {kind}"
-                    bind:checked={child.selected}
+                    checked={selectedItems.has(child)}
                     disabled={!row.info.selectable(child)}
-                    disabledTooltip={row.info.disabledText} />
+                    disabledTooltip={row.info.disabledText}
+                    on:click={childChecked.bind(undefined, child)} />
                 </div>
               {/if}
               {#each visibleColumns as column, index (index)}
