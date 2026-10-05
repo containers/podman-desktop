@@ -1,6 +1,4 @@
 <script lang="ts">
-import { SvelteMap } from 'svelte/reactivity';
-
 import { providerInfos } from '/@/stores/providers';
 
 import ProviderConfigured from './ProviderConfigured.svelte';
@@ -12,7 +10,8 @@ import ProviderReady from './ProviderReady.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 
-const providerInitContexts = new SvelteMap<string, InitializationContext>();
+// eslint-disable-next-line svelte/prefer-svelte-reactivity
+const providerInitContexts = new Map<string, InitializationContext>();
 
 let providersNotInstalled = $derived($providerInfos.filter(provider => provider.status === 'not-installed'));
 let providersInstalled = $derived($providerInfos.filter(provider => provider.status === 'installed'));
@@ -24,16 +23,14 @@ let providersReady = $derived(
 let providersStarting = $derived($providerInfos.filter(provider => provider.status === 'starting'));
 let providersStopped = $derived($providerInfos.filter(provider => provider.status === 'stopped'));
 
-$effect(() => {
-  for (const provider of $providerInfos) {
-    if (!providerInitContexts.has(provider.internalId)) {
-      providerInitContexts.set(provider.internalId, { mode: DoNothingMode });
-    }
-  }
-});
-
 function getInitializationContext(id: string): InitializationContext {
-  return providerInitContexts.get(id) ?? { mode: DoNothingMode };
+  let context: InitializationContext | undefined = providerInitContexts.get(id);
+
+  if (!context) {
+    context = { mode: DoNothingMode };
+    providerInitContexts.set(id, context);
+  }
+  return context;
 }
 </script>
 
