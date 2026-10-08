@@ -2,23 +2,31 @@
 
 <script lang="ts">
 import { Icon } from '@podman-desktop/ui-svelte/icons';
+import type { HTMLAnchorAttributes } from 'svelte/elements';
 import type { TinroRouteMeta } from 'tinro';
 
 import type { NavigationRegistryEntry } from '/@/stores/navigation/navigation-registry';
 
 import NavItem from './NavItem.svelte';
 
-interface NavRegistryEntryProps {
+interface NavRegistryEntryProps extends Omit<HTMLAnchorAttributes, 'href' | 'onclick'> {
   entry: NavigationRegistryEntry;
   meta: TinroRouteMeta;
   expanded: boolean;
 }
 
-let { entry, meta = $bindable(), expanded = false }: NavRegistryEntryProps = $props();
+let { entry, meta = $bindable(), expanded = false, ...props }: NavRegistryEntryProps = $props();
 </script>
 
 {#if !entry.hidden}
-  <NavItem href={entry.link} counter={entry.counter} tooltip={entry.tooltip} ariaLabel={entry.name} bind:meta={meta} {expanded}>
+  <NavItem
+    href={entry.link}
+    counter={entry.counter}
+    tooltip={entry.tooltip}
+    ariaLabel={entry.name}
+    bind:meta={meta}
+    {expanded}
+    {...props}>
     <div class="flex items-center w-full">
       <div class="flex-shrink-0 flex items-center justify-center w-6">
         {#if entry.icon === undefined}
