@@ -16,25 +16,32 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import type { HTMLAnchorAttributes, MouseEventHandler } from 'svelte/elements';
 import type { TinroRouteMeta } from 'tinro';
 import { expect, test } from 'vitest';
 
 import NavItem from './NavItem.svelte';
 import NavItemTest from './NavItemTest.svelte';
 
-function renderIt(tooltip: string, href: string, meta: any, onClick?: any): void {
-  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick });
+interface RenderOptions extends Omit<HTMLAnchorAttributes, 'href' | 'onclick'> {
+  tooltip: string;
+  href: string;
+  meta: Pick<TinroRouteMeta, 'url'>;
+  ariaLabel?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+}
+
+function renderIt(options: RenderOptions): void {
+  render(NavItem, { ...options, meta: options.meta as TinroRouteMeta });
 }
 
 test('Expect correct role and href', async () => {
   const tooltip = 'Dashboard';
   const href = '/test';
-  renderIt(tooltip, href, { url: href });
+  renderIt({ tooltip, href, meta: { url: href } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -44,10 +51,61 @@ test('Expect correct role and href', async () => {
   expect(element).toHaveClass('focus-visible:outline-[var(--pd-global-nav-icon-selected-highlight)]');
 });
 
+test('Expect class to be appended to the default classes', () => {
+  const tooltip = 'Dashboard';
+  renderIt({ tooltip, href: '/test', meta: { url: '/test' }, class: 'custom-nav-item' });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toHaveClass('custom-nav-item');
+  expect(element).toHaveClass('focus-visible:outline-2');
+});
+
+test('Expect no undefined class when class is not provided', () => {
+  const tooltip = 'Dashboard';
+  renderIt({ tooltip, href: '/test', meta: { url: '/test' } });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element.className).not.toContain('undefined');
+});
+
+test('forwards aria-keyshortcuts to the link', () => {
+  const href = '/test';
+  renderIt({
+    tooltip: 'Dashboard',
+    href,
+    meta: { url: href } as TinroRouteMeta,
+    'aria-keyshortcuts': 'Control+ArrowUp',
+  });
+
+  const link = screen.getByRole('link', { name: 'Dashboard' });
+  expect(link).toHaveAttribute('aria-keyshortcuts', 'Control+ArrowUp');
+});
+
+test('does not add aria-keyshortcuts when it is not provided', () => {
+  renderIt({ tooltip: 'Dashboard', href: '/test', meta: { url: '/test' } as TinroRouteMeta });
+
+  expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('aria-keyshortcuts');
+});
+
+test('prefers ariaLabel prop over a spread aria-label attribute', () => {
+  renderIt({
+    tooltip: 'Dashboard',
+    href: '/test',
+    meta: { url: '/test' } as TinroRouteMeta,
+    ariaLabel: 'Navigation dashboard',
+    'aria-label': 'Spread label',
+  });
+
+  expect(screen.getByRole('link', { name: 'Navigation dashboard' })).toHaveAttribute(
+    'aria-label',
+    'Navigation dashboard',
+  );
+});
+
 test('Expect selection styling', async () => {
   const tooltip = 'Dashboard';
   const href = '/test';
-  renderIt(tooltip, href, { url: href });
+  renderIt({ tooltip, href, meta: { url: href } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -60,7 +118,7 @@ test('Expect selection styling', async () => {
 test('Expect selection styling for encoded URLs', async () => {
   const tooltip = 'Extensions';
   const href = '/test page';
-  renderIt(tooltip, href, { url: '/test%20page' });
+  renderIt({ tooltip, href, meta: { url: '/test%20page' } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -71,7 +129,7 @@ test('Expect selection styling for encoded URLs', async () => {
 test('Expect selection styling for sub-pages', async () => {
   const tooltip = 'Settings';
   const href = '/prefs/resources';
-  renderIt(tooltip, href, { url: '/prefs/resources' });
+  renderIt({ tooltip, href, meta: { url: '/prefs/resources' } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -81,7 +139,7 @@ test('Expect selection styling for sub-pages', async () => {
 
 test('Expect not to have selection styling', async () => {
   const tooltip = 'Dashboard';
-  renderIt(tooltip, '/test', { url: '/elsewhere' });
+  renderIt({ tooltip, href: '/test', meta: { url: '/elsewhere' } });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -129,7 +187,7 @@ test('Expect that having an onClick handler overrides href and works', async () 
   const onClick = (): void => {
     clicked = true;
   };
-  renderIt(tooltip, '/test', { url: '/test' }, onClick);
+  renderIt({ tooltip, href: '/test', meta: { url: '/test' }, onClick });
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
