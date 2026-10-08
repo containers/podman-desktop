@@ -51,7 +51,7 @@ If you have scripts relying on `docker` CLI, you can use the compatibility mode 
 
 If you have the `docker` CLI installed on your computer, you can use the socket file compatibility of docker to ensure that the tool is working with Podman engine instead of Docker.
 
-If you do not have the `docker` CLI installed on your computer, you can [Create a script](https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman) called `docker` that will call the `podman` CLI
+If you do not have the `docker` CLI installed on your computer, you can [alias the Docker CLI](https://podman-desktop.io/docs/migrating-from-docker/aliasing-the-docker-cli) so that the `docker` command calls the `podman` CLI
 
 **_NOTE:_** creating a shell prompt alias, for example `alias docker=podman`, will not work inside scripts that you call.
 

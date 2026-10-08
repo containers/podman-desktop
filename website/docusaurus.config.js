@@ -144,9 +144,12 @@ const config = {
             to: '/docs/migrating-from-docker/managing-docker-compatibility',
             from: [
               '/docs/migrating-from-docker/using-podman-mac-helper',
-              '/docs/migrating-from-docker/emulating-docker-cli-with-podman',
               '/docs/migrating-from-docker/verifying-your-tools-are-using-podman',
             ],
+          },
+          {
+            to: '/docs/migrating-from-docker/aliasing-the-docker-cli',
+            from: '/docs/migrating-from-docker/emulating-docker-cli-with-podman',
           },
           {
             to: '/docs/openshift/developer-sandbox',

@@ -72,6 +72,21 @@ Make sure you have:
 </TabItem>
 </Tabs>
 
+## Aliasing the Docker CLI
+
+If the `docker` command is not available, for example because you removed Docker Desktop, you can make `docker` run Podman instead. The quickest way is a shell alias:
+
+```shell-session
+$ alias docker=podman
+```
+
+A shell alias applies only to your interactive shell. To keep existing scripts working, create a persistent `docker` command instead. See [Aliasing the Docker CLI](/docs/migrating-from-docker/aliasing-the-docker-cli).
+
 #### Verification
 
 - Run `podman` or `podman compose` commands for your Compose applications to check if they run fine.
+
+#### Additional resources
+
+- [Aliasing the Docker CLI](/docs/migrating-from-docker/aliasing-the-docker-cli)
+- [Customizing Docker compatibility](/docs/migrating-from-docker/customizing-docker-compatibility)
