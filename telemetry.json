@@ -19,6 +19,10 @@
     {
       "event": "containerStats",
       "frequency": "dailyPerInstance"
+    },
+    {
+      "event": "registerKubernetesProviderConnection",
+      "frequency": "dailyPerInstance"
     }
   ]
 }
