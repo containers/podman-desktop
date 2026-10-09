@@ -62,6 +62,15 @@ Use an alias when you want a `docker` command in your own terminal and you do no
 
    The profile file does not exist on a new PowerShell installation. The first command creates it, and the parent directory, if needed.
 
+   Your execution policy must also allow the profile to run. The `Restricted` policy blocks all script files, including profiles, and is the effective policy on Windows clients when no policy is set in any scope. Check the effective policy and the policy for each scope:
+
+   ```shell-session
+   $ Get-ExecutionPolicy
+   $ Get-ExecutionPolicy -List
+   ```
+
+   If your execution policy prevents the profile from running, create a persistent `docker` command instead.
+
    PowerShell scripts that you run from the same session can use the alias. Other programs and `cmd.exe` scripts cannot.
 
 #### Verification
