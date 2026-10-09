@@ -16,18 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ImageInfo, ViewInfoUI } from '@desktop-framework/api';
+import type { ImageInfo, ImageUpdateResult, ViewInfoUI } from '@desktop-framework/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContainerInfoUI } from '/@/lib/container/ContainerInfoUI';
 import { ContextUI } from '/@/lib/context/context';
 
 import { ImageUtils } from './image-utils';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 let imageUtils: ImageUtils;
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   imageUtils = new ImageUtils();
 });
 
@@ -279,6 +280,65 @@ describe('getImagesFromManifest and construct ImageInfoUI', () => {
     );
     expect(imageInfoUIs.length).toBe(1);
     expect(imageInfoUIs[0].id).toBe('manifest1');
+  });
+});
+
+describe('updateImages', () => {
+  let image: ImageInfoUI;
+
+  beforeEach(() => {
+    image = {
+      id: 'sha256:abc',
+      shortId: 'abc',
+      name: 'nginx',
+      engineId: 'podman',
+      engineName: 'Podman',
+      tag: 'latest',
+      createdAt: 1599888000,
+      age: '1 day',
+      arch: 'amd64',
+      size: 1024,
+      humanSize: '1.02 kB',
+      base64RepoTag: 'bmdpbng6bGF0ZXN0',
+      selected: false,
+      status: 'UNUSED',
+      badges: [],
+      digest: 'sha256:abc',
+    };
+  });
+
+  test('forwards an empty batch to the backend', async () => {
+    vi.mocked(window.updateImages).mockResolvedValue([]);
+
+    await expect(imageUtils.updateImages([])).resolves.toEqual([]);
+    expect(window.updateImages).toHaveBeenCalledExactlyOnceWith([]);
+  });
+
+  test('propagates backend errors to the caller', async () => {
+    const error = new Error('Registry unavailable');
+    vi.mocked(window.updateImages).mockRejectedValue(error);
+
+    await expect(imageUtils.updateImages([image])).rejects.toThrow(error);
+  });
+
+  test('forwards engine and image IDs in one batch and returns all backend tag results', async () => {
+    const backendResults: ImageUpdateResult[] = [
+      { imageRef: 'nginx:latest', updated: true, status: 'updated', message: 'Updated' },
+      { imageRef: 'nginx:1.29', updated: false, status: 'normal', message: 'Up to date' },
+      { imageRef: 'redis:7', updated: true, status: 'updated', message: 'Updated' },
+    ];
+    vi.mocked(window.updateImages).mockResolvedValue(backendResults);
+
+    const results = await imageUtils.updateImages([
+      image,
+      { ...image, id: 'sha256:redis', name: 'redis', tag: '7', engineId: 'docker' },
+    ]);
+
+    expect(window.updateImages).toHaveBeenCalledExactlyOnceWith([
+      { engineId: 'podman', id: 'sha256:abc' },
+      { engineId: 'docker', id: 'sha256:redis' },
+    ]);
+    expect(results).toEqual(backendResults);
   });
 });
 
