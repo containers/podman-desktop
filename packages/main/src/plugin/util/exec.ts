@@ -48,6 +48,46 @@ class RunErrorImpl extends Error implements RunError {
 export class Exec {
   constructor(private proxy: Proxy) {}
 
+  /**
+   * Escapes one command/arg token for the string @expo/sudo-prompt writes verbatim
+   * into an elevated Windows batch file (CWE-78). Rejects CR/LF and embedded double
+   * quotes (cannot be neutralized by quoting); wraps a token containing cmd.exe
+   * metacharacters or whitespace in double quotes; doubles `%` so batch parsing yields
+   * a literal percent sign. A token already wrapped in quotes with no inner quotes is
+   * passed through (backward compatibility with callers that pre-quote paths), and a
+   * token with none of these characters (e.g. the `del`/`copy` built-ins) is returned
+   * unchanged.
+   *
+   * The `%` doubling neutralizes a single batch-expansion layer (sudo-prompt's `.bat`).
+   * A command that itself re-enters `cmd.exe /c` would re-expand `%VAR%` a second time, so
+   * callers should invoke the target executable directly rather than through a nested shell.
+   */
+  protected escapeWindowsAdminArg(value: string): string {
+    if (/[\r\n]/.test(value)) {
+      throw new Error('Invalid argument for elevated command: line breaks are not allowed');
+    }
+    // Backward compatibility: a token already fully wrapped in double quotes with no
+    // inner quotes is handed through as-is (only doubling %), so callers that
+    // pre-quote a path containing spaces keep working.
+    if (/^"[^"]*"$/.test(value)) {
+      return value.replace(/%/g, '%%');
+    }
+    if (value.includes('"')) {
+      throw new Error('Invalid argument for elevated command: double quotes are not allowed');
+    }
+    // `+` (copy concatenation) and `=` (cmd token separator) are also metacharacters
+    // that must be quoted when they appear in a path.
+    if (!/[\s&|<>^()%,;+=]/.test(value)) {
+      return value;
+    }
+    // A value ending in backslash(es) would escape the closing quote for executables that
+    // parse their command line with CommandLineToArgvW (e.g. `C:\dir\` -> `"C:\dir\"`),
+    // merging this token with the next. Double a trailing backslash run so the closing
+    // quote stays literal.
+    const escaped = value.replace(/%/g, '%%').replace(/\\+$/, match => match + match);
+    return `"${escaped}"`;
+  }
+
   async exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
     let env = { ...process.env };
 
@@ -95,7 +135,29 @@ export class Exec {
             name: 'Admin usage',
             env: sudoEnv,
           };
-          const sudoCommand = `${command} ${(args ?? []).join(' ')}`;
+
+          // Escape the command and each argument individually (see escapeWindowsAdminArg)
+          // so that argument boundaries and literal metacharacters survive sudo-prompt's
+          // flattening into an elevated batch file (CWE-78).
+          let sudoCommand: string;
+          try {
+            sudoCommand = [command, ...(args ?? [])].map(arg => this.escapeWindowsAdminArg(arg)).join(' ');
+          } catch (error) {
+            const err = error as Error;
+            reject(
+              new RunErrorImpl(
+                err.name,
+                `Failed to execute command: ${err.message}`,
+                1,
+                [command, ...(args ?? [])].join(' '),
+                '',
+                '',
+                false,
+                false,
+              ),
+            );
+            return;
+          }
 
           const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer): void => {
             if (error) {
