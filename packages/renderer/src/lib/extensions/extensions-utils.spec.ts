@@ -383,6 +383,7 @@ describe('filters', () => {
   test.each([
     { description: 'single word', searchQuery: 'bar' },
     { description: 'single word and installed', searchQuery: 'bar is:installed' },
+    { description: 'single word and not featured', searchQuery: 'bar not:featured' },
     {
       description: 'single word and installed and not installed, only first boolean is used',
       searchQuery: 'bar is:installed not:installed',
@@ -413,6 +414,7 @@ describe('filters', () => {
 
   test.each([
     { description: 'single word and not installed', searchQuery: 'bar not:installed' },
+    { description: 'single word and featured', searchQuery: 'bar is:featured' },
     { description: 'multiple words and one is not found', searchQuery: 'bar notfound' },
     {
       description: 'multiple words found and multiple categories with one not found',
@@ -432,6 +434,23 @@ describe('filters', () => {
       searchQuery,
     );
     expect(filteredCatalogExtensions.length).toBe(0);
+  });
+
+  test.each([
+    { searchQuery: 'is:featured', expectedIds: ['idYInstalled', 'idZNotInstalled'] },
+    { searchQuery: 'not:featured', expectedIds: ['idAInstalled', 'idBNotInstalled'] },
+    { searchQuery: 'is:featured is:installed', expectedIds: ['idYInstalled'] },
+    { searchQuery: 'is:featured not:installed', expectedIds: ['idZNotInstalled'] },
+  ])('filterCatalogExtensions with $searchQuery', ({ searchQuery, expectedIds }) => {
+    const extensions = extensionsUtils.extractCatalogExtensions(
+      catalogExtensions,
+      featuredExtensions,
+      installedExtensions,
+    );
+
+    const filteredCatalogExtensions = extensionsUtils.filterCatalogExtensions(extensions, searchQuery);
+
+    expect(filteredCatalogExtensions.map(extension => extension.id)).toEqual(expectedIds);
   });
 
   test('filterInstalledExtensions with single word', () => {
