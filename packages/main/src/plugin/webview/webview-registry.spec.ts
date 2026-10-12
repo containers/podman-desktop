@@ -23,10 +23,10 @@ import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type express from 'express';
 import type { Router } from 'express';
 import type { MockInstance } from 'vitest';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, assert, beforeEach, expect, test, vi } from 'vitest';
 
 import type { DevToolsManager } from './devtools-manager.js';
-import type { WebviewPanelImpl } from './webview-panel-impl.js';
+import { WebviewPanelImpl } from './webview-panel-impl.js';
 import { WebviewRegistry } from './webview-registry.js';
 
 // mock node:fs
@@ -354,6 +354,40 @@ test('check configureRouter with valid uuid and file from another directory', as
   expect(sendMock).toHaveBeenCalledWith('not found');
 
   // sendfile not to have been called
+  expect(res.sendFile).not.toHaveBeenCalled();
+});
+
+test('check configureRouter rejects sibling directory sharing the root as prefix', () => {
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+
+  const panel = webviewRegistry.createWebviewPanel(
+    { id: 'extensionId', extensionPath: '/extensionPath' },
+    'viewTypeInfo',
+    'customTitle',
+  );
+  assert(panel instanceof WebviewPanelImpl);
+  const uuid = panel.webview.uuid;
+
+  const func = getRouterFunction('/{*splat}');
+  const req = {
+    path: '/../extensionPath-sibling/package.json',
+    hostname: `${uuid}.webview.localhost`,
+    headers: {
+      referer: 'foo',
+    },
+  };
+  const sendMock = vi.fn();
+  const res = {
+    sendFile: vi.fn(),
+    status: vi.fn().mockReturnValue({
+      send: sendMock,
+    }),
+  };
+
+  func(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(404);
+  expect(sendMock).toHaveBeenCalledWith('not found');
   expect(res.sendFile).not.toHaveBeenCalled();
 });
 
