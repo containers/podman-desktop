@@ -158,6 +158,11 @@ for (const extension of extensionsToTest) {
       await verifyBuiltInExtensionStatus(navigationBar, false, extension);
     });
 
+    test(`Check that ${extension.extensionLabelName} cannot be removed`, async ({ navigationBar }) => {
+      const detailsPage = await openExtensionsPodmanPage(navigationBar, extension);
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+    });
+
     test(`Check that ${extension.extensionLabelName} extension can be re-enabled from Extension Page`, async ({
       navigationBar,
     }) => {
@@ -258,6 +263,23 @@ for (const ext of preInstalledExtensions) {
       const extensionsPage = await navigationBar.openExtensions();
       const version = await extensionsPage.getInstalledExtensionVersion(ext.name.toLowerCase(), ext.label);
       playExpect(version).toBe(expectedVersion);
+    });
+
+    test(`Check ${ext.name} cannot be removed`, async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
+      const detailsPage = await extensionsPage.openExtensionDetails(ext.name.toLowerCase(), ext.label, ext.name);
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+    });
+
+    test(`Check ${ext.name} can be disabled and re-enabled`, async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
+      const detailsPage = await extensionsPage.openExtensionDetails(ext.name.toLowerCase(), ext.label, ext.name);
+      await detailsPage.disableExtension();
+      await playExpect(detailsPage.status).toContainText(ExtensionState.Disabled, { timeout: 20_000 });
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+      await detailsPage.enableExtension();
+      await playExpect(detailsPage.status).toContainText(ExtensionState.Active, { timeout: 20_000 });
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
     });
   });
 }
