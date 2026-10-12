@@ -38,7 +38,7 @@
     "monaco-editor": "^0.57.0",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.6",
-    "svelte-eslint-parser": "^1.8.1",
+    "svelte-eslint-parser": "^1.9.0",
     "svelte-fa": "^4.0.4",
     "svelte-steps": "2.4.1",
     "tailwindcss": "^4.3.3",
