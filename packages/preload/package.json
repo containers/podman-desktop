@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "@desktop-framework/api": "workspace:*",
-    "electron": "44.5.1"
+    "electron": "44.7.0"
   }
 }
