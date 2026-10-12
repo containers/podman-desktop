@@ -557,7 +557,7 @@ export class ExtensionLoader implements IAsyncDisposable {
    * A candidate having the same id as a bundled extension replaces it: set its `overrides` to the bundled
    * extension it replaces. A candidate analyzed with an error does not replace anything.
    */
-  protected markOverridingExtensions(candidates: AnalyzedExtension[]): void {
+  markOverridingExtensions(candidates: AnalyzedExtension[]): void {
     const bundledExtensions = this.extensionsBundle.all();
     for (const extension of candidates) {
       if (extension.error) {
@@ -571,6 +571,18 @@ export class ExtensionLoader implements IAsyncDisposable {
         );
       }
     }
+  }
+
+  /**
+   * Stop and forget the bundled extension having the given id, before loading an installed extension replacing it.
+   * Does nothing if the bundled extension is not loaded, e.g. when an extension replacing it is being updated.
+   */
+  async replaceBundledExtension(bundledExtensionId: string): Promise<void> {
+    if (!this.analyzedExtensions.get(bundledExtensionId)?.bundled) {
+      return;
+    }
+    await this.deactivateExtension(bundledExtensionId);
+    this.analyzedExtensions.delete(bundledExtensionId);
   }
 
   /**
