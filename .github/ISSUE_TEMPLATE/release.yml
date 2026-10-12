@@ -1,0 +1,190 @@
+name: Release
+description: 'Track a Podman Desktop release from notification through announcement.'
+title: 'Release vX.Y.Z'
+labels: ['area/release']
+type: release
+projects: ['podman-desktop/4']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Release record
+        Fill in the required fields before starting.
+        Docs: [RELEASE.md](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md)
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: '1.31.0'
+    validations:
+      required: true
+
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone link
+      placeholder: 'https://github.com/podman-desktop/podman-desktop/milestone/XX'
+    validations:
+      required: true
+
+  - type: input
+    id: release-owner
+    attributes:
+      label: Release owner
+      placeholder: '@username'
+    validations:
+      required: true
+
+  - type: input
+    id: qe-contact
+    attributes:
+      label: QE contact
+      placeholder: '@username (optional)'
+    validations:
+      required: false
+
+  - type: input
+    id: blog-author
+    attributes:
+      label: Blog author
+      placeholder: '@username (optional; often the release owner)'
+    validations:
+      required: false
+
+  - type: input
+    id: notification-date
+    attributes:
+      label: 48h notification date
+      placeholder: 'YYYY-MM-DD'
+    validations:
+      required: true
+
+  - type: input
+    id: trigger-date
+    attributes:
+      label: Target trigger date
+      placeholder: 'YYYY-MM-DD'
+    validations:
+      required: true
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: Dependencies or holds
+      placeholder: "e.g., 'holding for Podman 6.1.3' or 'none' (optional)"
+    validations:
+      required: false
+
+  - type: input
+    id: release-owner-backup
+    attributes:
+      label: Release owner backup (proposed, optional)
+      placeholder: '@username (cover for PTO/holidays)'
+    validations:
+      required: false
+
+  - type: input
+    id: qe-backup
+    attributes:
+      label: QE backup (proposed, optional)
+      placeholder: '@username (cover for PTO/holidays)'
+    validations:
+      required: false
+
+  - type: input
+    id: qe-testing-issue
+    attributes:
+      label: QE testing issue (proposed, optional)
+      placeholder: 'https://github.com/podman-desktop/podman-desktop/issues/XXXXX'
+    validations:
+      required: false
+
+  - type: input
+    id: target-promote-date
+    attributes:
+      label: Target promote-to-latest date (proposed, optional)
+      placeholder: 'YYYY-MM-DD'
+    validations:
+      required: false
+
+  - type: input
+    id: target-announce-date
+    attributes:
+      label: Target announce-complete date (proposed, optional)
+      placeholder: 'YYYY-MM-DD'
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Prepare
+        [Phase 1 in RELEASE.md](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md#phase-1-prepare)
+
+  - type: checkboxes
+    id: prepare
+    attributes:
+      label: 'Phase 1: Prepare'
+      options:
+        - label: 'Milestone scope confirmed (blocking PRs merged or deferred)'
+        - label: '48h notification posted to Slack and Discord'
+
+  - type: markdown
+    attributes:
+      value: |
+        ### 🛑 STOP GATE A -- Do not trigger the release workflow until both boxes above are checked.
+        ---
+        ## Release
+        [Phase 2 in RELEASE.md](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md#phase-2-release)
+
+  - type: checkboxes
+    id: release
+    attributes:
+      label: 'Phase 2: Release'
+      options:
+        - label: 'Release workflow triggered and completed ([steps](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md#21-releasing-on-github----required))'
+        - label: 'Post-workflow cleanup done (bump PR merged, release notes generated, Flathub PR created, npm + schemastore approved)'
+        - label: 'QE notified and QE go received per [Testing sign-off](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md#testing-sign-off)'
+
+  - type: markdown
+    attributes:
+      value: |
+        ### 🛑 STOP GATE B -- Do not promote to latest until:
+        - QE approval posted per Testing sign-off
+        - Release notes confirmed ready (double check with PM / Technical lead)
+        - Blog post PR merged
+
+  - type: checkboxes
+    id: promote
+    attributes:
+      label: 'Promote'
+      options:
+        - label: 'Gate B cleared (QE sign-off, release notes confirmed, blog merged) and release promoted to latest'
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Announce
+        [Phase 3 in RELEASE.md](https://github.com/podman-desktop/podman-desktop/blob/main/RELEASE.md#phase-3-announce)
+        ⚠️ **The release is not complete until all boxes below are checked.**
+
+  - type: checkboxes
+    id: announce
+    attributes:
+      label: 'Phase 3: Announce'
+      options:
+        - label: 'Package managers updated (Flathub merged, Winget triggered, Chocolatey triggered)'
+        - label: 'podman.io updated'
+        - label: 'GitHub Discussion posted + Reddit posted + emails sent'
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / deviations
+      description: 'Anything unusual (respins, delayed steps, known issues).'
+    validations:
+      required: false
