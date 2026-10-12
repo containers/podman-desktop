@@ -34,7 +34,7 @@ export class HelpMenuComponent {
   }
 
   getItems(): Locator {
-    return this.menu.locator('[role="none"]');
+    return this.menu.getByRole('button');
   }
 
   getItem(index: number): Locator {
@@ -42,7 +42,8 @@ export class HelpMenuComponent {
   }
 
   getItemTooltip(index: number, tooltip: string): Locator {
-    return this.getItem(index).getByTitle(tooltip, { exact: true });
+    // the title sits on the item button itself, so match the item rather than a descendant
+    return this.getItem(index).and(this.menu.getByTitle(tooltip, { exact: true }));
   }
 
   getItemIcon(index: number): Locator {
