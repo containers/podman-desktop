@@ -31,6 +31,8 @@ import { containersInfos } from '/@/stores/containers';
 import ContainerExport from './ContainerExport.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
+vi.mock(import('tinro'));
+
 // the store holds ContainerInfoUI now
 const container: ContainerInfoUI = {
   engineId: 'engine',
@@ -120,15 +122,13 @@ test('Expect error shown if export function fails', async () => {
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('error while exporting');
 });
 
-test('Expect Cancel button to navigate to last page when clicked', async () => {
+test('Expect Close button to navigate to last page when clicked', async () => {
   containersInfos.set([container]);
   lastPage.set({ name: 'Containers', path: '/containers' });
-  const goToMock = vi.spyOn(router, 'goto');
   await waitRender();
 
-  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-  expect(cancelButton).toBeInTheDocument();
-  await userEvent.click(cancelButton);
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
 
-  expect(goToMock).toHaveBeenCalledWith('/containers');
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers');
 });

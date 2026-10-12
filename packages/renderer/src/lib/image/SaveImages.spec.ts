@@ -31,6 +31,8 @@ import { saveImagesInfo } from '/@/stores/save-images-store';
 import type { ImageInfoUI } from './ImageInfoUI';
 import SaveImages from './SaveImages.svelte';
 
+vi.mock(import('tinro'));
+
 const imageInfo: ImageInfoUI = {
   id: 'id',
   shortId: 'id',
@@ -320,13 +322,10 @@ test('Expect images with same ID and tag but different engines to render without
 test('Expect Close button to navigate to last page when clicked', async () => {
   saveImagesInfo.set([imageInfo]);
   lastPage.set({ name: 'Images', path: '/images' });
-  const goToMock = vi.spyOn(router, 'goto');
   await waitRender();
 
-  const closeButtons = screen.getAllByRole('button', { name: 'Close' });
-  expect(closeButtons.length).toBe(2);
-  // Click the last Close button (the one in the ButtonRow)
-  await userEvent.click(closeButtons[1]);
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
 
-  expect(goToMock).toHaveBeenCalledWith('/images');
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
 });

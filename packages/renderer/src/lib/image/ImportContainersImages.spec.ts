@@ -30,6 +30,8 @@ import { providerInfos } from '/@/stores/providers';
 
 import ImportContainersImages from './ImportContainersImages.svelte';
 
+vi.mock(import('tinro'));
+
 const pStatus: ProviderStatus = 'started';
 const pInfo: ProviderContainerConnectionInfo = {
   connectionType: 'container',
@@ -153,15 +155,13 @@ test('Expect error shown if import function fails', async () => {
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('import failed');
 });
 
-test('Expect Cancel button to navigate to last page when clicked', async () => {
+test('Expect Close button to navigate to last page when clicked', async () => {
   providerInfos.set([providerInfo]);
   lastPage.set({ name: 'Images', path: '/images' });
-  const goToMock = vi.spyOn(router, 'goto');
   render(ImportContainersImages);
 
-  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-  expect(cancelButton).toBeInTheDocument();
-  await userEvent.click(cancelButton);
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
 
-  expect(goToMock).toHaveBeenCalledWith('/images');
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
 });

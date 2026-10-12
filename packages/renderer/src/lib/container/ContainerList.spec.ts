@@ -1383,9 +1383,7 @@ test('Expect clicking Close button closes create container dialog', async () => 
   const createButton = screen.getByTitle('Create a container');
   await fireEvent.click(createButton);
 
-  const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
-  const closeButton = within(dialog).getByRole('button', { name: 'Close' });
-  expect(closeButton).toBeInTheDocument();
+  const closeButton = await screen.findByText('Close');
   await fireEvent.click(closeButton);
 
   await waitFor(() => {

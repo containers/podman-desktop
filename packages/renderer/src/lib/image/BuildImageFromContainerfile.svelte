@@ -459,7 +459,7 @@ let hasInvalidFields = $derived(
       <TerminalWindow on:init={onInit} bind:terminal={buildImageInfo.logsTerminal} />
       <ButtonRow>
         {#if buildImageInfo.buildRunning}
-          <Button type="secondary" on:click={abortBuild}>Cancel</Button>
+          <Button on:click={abortBuild}>Cancel</Button>
         {/if}
       </ButtonRow>
     </div>

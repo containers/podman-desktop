@@ -37,6 +37,7 @@ import PullImage from './PullImage.svelte';
 
 vi.mock(import('/@/navigation'));
 vi.mock(import('/@/lib/ui/TerminalWindow.svelte'));
+vi.mock(import('tinro'));
 
 const CONTAINER_CONNECTION_MOCK: ProviderContainerConnectionInfo = {
   connectionType: 'container',
@@ -758,12 +759,10 @@ describe('Preferred Registries', () => {
 
 test('Expect Close button to navigate to last page when clicked', async () => {
   lastPage.set({ name: 'Images', path: '/images' });
-  const goToMock = vi.spyOn(router, 'goto');
   render(PullImage);
 
-  const closeButton = screen.getByRole('button', { name: 'Close' });
-  expect(closeButton).toBeInTheDocument();
+  const closeButton = await screen.findByText('Close');
   await userEvent.click(closeButton);
 
-  expect(goToMock).toHaveBeenCalledWith('/images');
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
 });

@@ -318,7 +318,6 @@ test('Expect Cancel button to call onCloseForm when clicked', async () => {
   render(DirectFeedback, { category: 'developers', contentChange: vi.fn(), onCloseForm: onCloseFormMock });
 
   const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
-  expect(cancelButton).toBeInTheDocument();
   await fireEvent.click(cancelButton);
 
   expect(onCloseFormMock).toHaveBeenCalledWith(true);
