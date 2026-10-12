@@ -32,7 +32,6 @@ let { extension, class: className = '', ...restProps }: Props = $props();
       <Badge class="text-[8px] text-(--pd-badge-text)" color="bg-(--pd-badge-bundled-extension-bg)" label="Bundled extension" />
     </Tooltip>
   {/if}
-  <!-- shown next to the devMode badge for an --extension-folder extension replacing a bundled one -->
   {#if extension.overrides}
     <Tooltip right tip="Replaces the bundled extension {extension.overrides.id} v{extension.overrides.version}">
       <Badge class="text-[8px] text-[var(--pd-badge-text)]" color="bg-[var(--pd-badge-bundled-extension-bg)]" label="Overrides" />
