@@ -2460,6 +2460,11 @@ export class ColorRegistry {
       light: dustypurple[600],
     });
 
+    this.registerColor(`${badge}overrides-extension-bg`, {
+      dark: yellow[500],
+      light: yellow[300],
+    });
+
     this.registerColor(`${badge}dd-extension-text`, {
       dark: white,
       light: white,
