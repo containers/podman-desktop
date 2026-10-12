@@ -884,6 +884,13 @@ describe('badge', () => {
       light: tailwindColorPalette.dustypurple[600],
     });
   });
+
+  test('overrides badge', () => {
+    expect(spyOnRegisterColor).toHaveBeenCalledWith('badge-overrides-extension-bg', {
+      dark: tailwindColorPalette.yellow[500],
+      light: tailwindColorPalette.yellow[300],
+    });
+  });
 });
 
 describe('initTooltip', () => {
