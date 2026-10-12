@@ -18,7 +18,7 @@
 
 import { existsSync } from 'node:fs';
 import type * as http from 'node:http';
-import { resolve } from 'node:path';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import type { WebviewInfo, WebviewSimpleInfo } from '@podman-desktop/core-api';
@@ -164,8 +164,9 @@ export class WebviewRegistry {
       // root path in absolute form
       const rootExtensionPathAbsolute = resolve(rootExtensionPath);
 
-      // check that path is subfolder of root path
-      if (!absolutePath.startsWith(rootExtensionPathAbsolute)) {
+      // check that path is subfolder of root path (directory boundary, not string prefix)
+      const relativePath = relative(rootExtensionPathAbsolute, absolutePath);
+      if (relativePath === '..' || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
         res.status(404).send('not found');
         return;
       }
