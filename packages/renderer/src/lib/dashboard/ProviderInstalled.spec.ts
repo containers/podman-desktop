@@ -21,9 +21,13 @@ import '@testing-library/jest-dom/vitest';
 import type { ProviderInfo } from '@desktop-framework/api';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { assert, beforeEach, expect, test, vi } from 'vitest';
 
-import { type InitializationContext, InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
+import {
+  type InitializationContext,
+  InitializeAndStartMode,
+  InitializeOnlyMode,
+} from '/@/lib/dashboard/ProviderInitUtils';
 import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
 import { providerInfos } from '/@/stores/providers';
 
@@ -54,20 +58,17 @@ class InitializationContextImpl {
   }
 }
 
-beforeAll(() => {
+let provider: ProviderInfo;
+
+beforeEach(() => {
+  vi.resetAllMocks();
   vi.mocked(window.initializeProvider).mockResolvedValue([]);
   vi.mocked(window.events.receive).mockImplementation((_channel, func) => {
     func();
     return { dispose: vi.fn() };
   });
-});
 
-beforeEach(() => {
-  providerInfos.set([]);
-});
-
-test('Expect installed provider shows button', async () => {
-  const provider: ProviderInfo = {
+  provider = {
     containerConnections: [],
     containerProviderConnectionCreation: false,
     containerProviderConnectionInitialization: false,
@@ -92,6 +93,10 @@ test('Expect installed provider shows button', async () => {
     canStop: false,
   };
 
+  providerInfos.set([]);
+});
+
+test('Expect installed provider shows button', async () => {
   const initializationContext: InitializationContext = new InitializationContextImpl(
     InitializeAndStartMode,
   ) as unknown as InitializationContext;
@@ -115,6 +120,150 @@ test('Expect installed provider shows button', async () => {
   expect(window.initializeProvider).toHaveBeenCalled();
 });
 
+test.each([
+  {
+    successful: true,
+    description: 'Requirements satisfied',
+    expectedIconClass: 'text-(--pd-state-success)',
+  },
+  {
+    successful: false,
+    description: 'A required dependency is missing',
+    expectedIconClass: 'text-(--pd-state-error)',
+  },
+])(
+  'reports preflight check success=$successful while checks are running',
+  async ({ successful, description, expectedIconClass }) => {
+    const { promise, resolve } = Promise.withResolvers<boolean>();
+    vi.mocked(window.runInstallPreflightChecks).mockImplementation((_providerId, callbacks) => {
+      callbacks.startCheck({ name: 'Check requirements' });
+      callbacks.endCheck({
+        name: 'Check requirements',
+        successful,
+        description,
+      });
+      return promise;
+    });
+
+    provider = { ...provider, installationSupport: true };
+    const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+    render(ProviderInstalled, { provider, initializationContext });
+
+    const runChecksButton = screen.getByRole('button', { name: 'Run checks' });
+    await userEvent.click(runChecksButton);
+
+    expect(window.runInstallPreflightChecks).toHaveBeenCalledWith(provider.internalId, expect.any(Object));
+    const checkTitle = await screen.findByLabelText('precheck-title');
+    expect(checkTitle).toHaveTextContent('Check requirements');
+    const checkIcon = checkTitle.parentElement?.querySelector('svg');
+    assert(checkIcon, 'Expected to find the preflight check status icon');
+    expect(checkIcon).toHaveClass(expectedIconClass);
+    expect(runChecksButton).toHaveAttribute('aria-busy', 'true');
+    expect(await screen.findByLabelText('precheck-description')).toHaveTextContent(description);
+
+    resolve(successful);
+    await waitFor(() => {
+      expect(runChecksButton).toBeEnabled();
+      expect(runChecksButton).toHaveAttribute('aria-busy', 'false');
+    });
+  },
+);
+
+test('clears previous preflight checks when starting another run', async () => {
+  vi.mocked(window.runInstallPreflightChecks).mockImplementationOnce(async (_providerId, callbacks) => {
+    callbacks.startCheck({ name: 'Check requirements' });
+    callbacks.endCheck({
+      name: 'Check requirements',
+      successful: true,
+      description: 'Requirements satisfied',
+    });
+    return true;
+  });
+  const { promise, resolve } = Promise.withResolvers<boolean>();
+  vi.mocked(window.runInstallPreflightChecks).mockReturnValueOnce(promise);
+
+  provider = { ...provider, installationSupport: true };
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  render(ProviderInstalled, { provider, initializationContext });
+
+  const runChecksButton = screen.getByRole('button', { name: 'Run checks' });
+  await userEvent.click(runChecksButton);
+
+  expect(await screen.findByLabelText('precheck-title')).toHaveTextContent('Check requirements');
+  expect(await screen.findByLabelText('precheck-description')).toHaveTextContent('Requirements satisfied');
+  await waitFor(() => {
+    expect(runChecksButton).toBeEnabled();
+    expect(runChecksButton).toHaveAttribute('aria-busy', 'false');
+  });
+
+  await userEvent.click(runChecksButton);
+  expect(window.runInstallPreflightChecks).toHaveBeenCalledTimes(2);
+  await waitFor(() => {
+    expect(runChecksButton).toHaveAttribute('aria-busy', 'true');
+    expect(screen.queryByLabelText('precheck-title')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('precheck-description')).not.toBeInTheDocument();
+  });
+
+  resolve(true);
+  await waitFor(() => {
+    expect(runChecksButton).toBeEnabled();
+    expect(runChecksButton).toHaveAttribute('aria-busy', 'false');
+  });
+});
+
+test('resets the checks-in-progress state when preflight checks fail', async () => {
+  const preflightError = new Error('Preflight checks failed');
+  vi.mocked(window.runInstallPreflightChecks).mockRejectedValue(preflightError);
+
+  provider = { ...provider, installationSupport: true };
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  render(ProviderInstalled, { provider, initializationContext });
+
+  const runChecksButton = screen.getByRole('button', { name: 'Run checks' });
+  await userEvent.click(runChecksButton);
+  await waitFor(() => {
+    expect(runChecksButton).toBeEnabled();
+    expect(runChecksButton).toHaveAttribute('aria-busy', 'false');
+  });
+});
+
+test.each([
+  {
+    name: 'initialize-only',
+    modes: [InitializeOnlyMode],
+    expectedMode: InitializeOnlyMode,
+  },
+  {
+    name: 'initialize-and-start',
+    modes: [InitializeOnlyMode, InitializeAndStartMode],
+    expectedMode: InitializeAndStartMode,
+  },
+])('uses the $name installation option', async ({ modes, expectedMode }) => {
+  provider = { ...provider, containerProviderConnectionInitialization: true };
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  render(ProviderInstalled, { provider, initializationContext });
+
+  const optionsMenuButton = screen.getByRole('button', { name: 'Installation options menu' });
+  for (const mode of modes) {
+    const option = screen.getByRole('button', { name: `${mode} ${provider.name}` });
+    const menuWrapper = option.closest('ul')?.parentElement;
+    assert(menuWrapper, 'Expected to find the installation options menu wrapper');
+
+    expect(menuWrapper).toHaveClass('hidden');
+    await userEvent.click(optionsMenuButton);
+    expect(menuWrapper).not.toHaveClass('hidden');
+
+    await userEvent.click(option);
+    expect(menuWrapper).toHaveClass('hidden');
+    expect(screen.getByRole('button', { name: mode })).toHaveTextContent(mode);
+  }
+
+  const installationButton = screen.getByRole('button', { name: expectedMode });
+  await userEvent.click(installationButton);
+  expect(initializationContext.mode).toBe(expectedMode);
+  expect(window.initializeProvider).toHaveBeenCalledWith(provider.internalId);
+});
+
 test('Expect installed provider shows update button', async () => {
   await verifyStatus(ProviderInstalled, 'installed', false);
 });
@@ -124,32 +273,7 @@ test('Expect installed provider does not show update button if version same', as
 });
 
 test('Expect to see the initialize context error if provider installation fails', async () => {
-  vi.spyOn(window, 'initializeProvider').mockRejectedValue('error');
-  const provider: ProviderInfo = {
-    containerConnections: [],
-    containerProviderConnectionCreation: false,
-    containerProviderConnectionInitialization: false,
-    detectionChecks: [],
-    id: 'myproviderid',
-    images: {},
-    installationSupport: false,
-    internalId: 'myproviderid',
-    kubernetesConnections: [],
-    kubernetesProviderConnectionCreation: false,
-    kubernetesProviderConnectionInitialization: false,
-    vmConnections: [],
-    vmProviderConnectionCreation: false,
-    vmProviderConnectionInitialization: false,
-    links: [],
-    name: 'MyProvider',
-    status: 'installed',
-    warnings: [],
-    extensionId: '',
-    cleanupSupport: false,
-    canStart: false,
-    canStop: false,
-  };
-
+  vi.mocked(window.initializeProvider).mockRejectedValue('error');
   const initializationContext: InitializationContext = new InitializationContextImpl(
     InitializeAndStartMode,
   ) as unknown as InitializationContext;
@@ -169,33 +293,18 @@ test('Expect to see the initialize context error if provider installation fails'
 
   await userEvent.click(button);
 
-  while ((initializationContext as InitializationContextImpl).error !== 'error') {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await waitFor(() => expect(initializationContext.error).toBe('error'));
 
   expect((initializationContext as InitializationContextImpl).promise).toBeDefined();
   expect((initializationContext as InitializationContextImpl).error).toBeDefined();
 });
 
 test('Expect installed provider shows multiple installation warnings', async () => {
-  const provider: ProviderInfo = {
-    containerConnections: [],
-    containerProviderConnectionCreation: false,
-    containerProviderConnectionInitialization: false,
-    detectionChecks: [],
+  provider = {
+    ...provider,
     id: 'podman',
-    images: {},
-    installationSupport: false,
     internalId: 'podman-internal',
-    kubernetesConnections: [],
-    kubernetesProviderConnectionCreation: false,
-    kubernetesProviderConnectionInitialization: false,
-    vmConnections: [],
-    vmProviderConnectionCreation: false,
-    vmProviderConnectionInitialization: false,
-    links: [],
     name: 'Podman',
-    status: 'installed',
     warnings: [
       {
         name: 'Multiple Podman installations detected',
@@ -203,10 +312,6 @@ test('Expect installed provider shows multiple installation warnings', async () 
       },
     ],
     version: '5.0.0',
-    extensionId: '',
-    cleanupSupport: false,
-    canStart: false,
-    canStop: false,
   };
 
   providerInfos.set([provider]);
@@ -220,19 +325,13 @@ test('Expect installed provider shows multiple installation warnings', async () 
 });
 
 test('Expect installed provider shows initialize button section when provider needs initialization', async () => {
-  const provider: ProviderInfo = {
-    containerConnections: [],
-    containerProviderConnectionCreation: false,
+  provider = {
+    ...provider,
     containerProviderConnectionInitialization: true,
-    detectionChecks: [],
     id: 'podman',
-    images: {},
-    installationSupport: false,
-    kubernetesProviderConnectionInitialization: false,
-    links: [],
+    internalId: 'podman-internal',
     name: 'Podman',
-    status: 'installed',
-  } as unknown as ProviderInfo;
+  };
 
   const initializationContext: InitializationContext = new InitializationContextImpl(
     InitializeAndStartMode,
@@ -246,9 +345,7 @@ test('Expect installed provider shows initialize button section when provider ne
   // (see class:hidden={!initializationButtonVisible} in ProviderInstalled.svelte).
   const button = screen.getByRole('button', { name: 'Initialize and start' });
   const buttonWrapper = button.parentElement?.parentElement?.parentElement;
-  if (!buttonWrapper) {
-    throw new Error('Expected to find the initialize button wrapper element');
-  }
+  assert(buttonWrapper, 'Expected to find the initialize button wrapper element');
 
   expect(buttonWrapper).not.toHaveClass('hidden');
 });
@@ -277,20 +374,14 @@ test.each([
   async ({ setupMock, expectButtonHiddenAfterSettle }) => {
     setupMock();
 
-    const provider: ProviderInfo = {
-      containerConnections: [],
-      containerProviderConnectionCreation: false,
+    provider = {
+      ...provider,
       // userToggle starts undefined, so this flag drives the initial visibility.
       containerProviderConnectionInitialization: true,
-      detectionChecks: [],
       id: 'podman',
-      images: {},
-      installationSupport: false,
-      kubernetesProviderConnectionInitialization: false,
-      links: [],
+      internalId: 'podman-internal',
       name: 'Podman',
-      status: 'installed',
-    } as unknown as ProviderInfo;
+    };
 
     const initializationContext: InitializationContext = new InitializationContextImpl(
       InitializeAndStartMode,
