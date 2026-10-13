@@ -416,4 +416,12 @@ export default [
       ],
     },
   },
+
+  {
+    // entry file references the API fragments with /// <reference path> (#19127)
+    files: ['packages/extension-api/src/extension-api.d.ts'],
+    rules: {
+      '@typescript-eslint/triple-slash-reference': ['error', { path: 'always' }],
+    },
+  },
 ];
