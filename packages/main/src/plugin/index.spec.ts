@@ -1287,8 +1287,8 @@ describe('updateImages handler', () => {
     >('container-provider-registry:updateImages');
 
     const images: ImageUpdateInfo[] = [
-      { engineId: 'podman.podman-machine-default', image: 'nginx', tag: 'latest' },
-      { engineId: 'podman.podman-machine-default', image: 'redis', tag: '7' },
+      { engineId: 'podman.podman-machine-default', id: 'sha256:nginx' },
+      { engineId: 'podman.podman-machine-default', id: 'sha256:redis' },
     ];
     const expectedResults = [
       { imageRef: 'nginx', updated: true, status: 'updated', message: 'Image updated successfully' },
@@ -1315,7 +1315,7 @@ describe('updateImages handler', () => {
       ) => Promise<{ result: Awaited<ReturnType<ContainerProviderRegistry['updateImages']>> }>
     >('container-provider-registry:updateImages');
 
-    const images: ImageUpdateInfo[] = [{ engineId: 'podman.podman-machine-default', image: 'nginx', tag: 'latest' }];
+    const images: ImageUpdateInfo[] = [{ engineId: 'podman.podman-machine-default', id: 'sha256:nginx' }];
     vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockResolvedValue([]);
 
     await handle(undefined, images, tokenId);
