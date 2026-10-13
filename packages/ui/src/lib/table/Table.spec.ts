@@ -364,6 +364,252 @@ test('Expect table to be sorted by Name on load, if something has changed in the
   expect(newRows[3].textContent).toContain('Walking');
 });
 
+test.each([
+  { direction: 'ascending', clicks: 1, expectedNames: ['Amy', 'Mia', 'Zoe'] },
+  { direction: 'descending', clicks: 2, expectedNames: ['Zoe', 'Mia', 'Amy'] },
+])('re-sorts replacement data by Name in $direction order', async ({ clicks, expectedNames }) => {
+  const component = render(TestTable);
+  const nameColumnHeader = screen.getByRole('columnheader', { name: 'Name' });
+
+  for (let click = 0; click < clicks; click++) {
+    await fireEvent.click(nameColumnHeader);
+  }
+
+  const people = [
+    { id: 1, name: 'Zoe', age: 31, hobby: 'Reading' },
+    { id: 2, name: 'Amy', age: 28, hobby: 'Hiking' },
+    { id: 3, name: 'Mia', age: 35, hobby: 'Cycling' },
+  ];
+  await component.rerender({ people });
+
+  await vi.waitFor(() => {
+    const rows = screen.getAllByRole('row');
+    expect(rows.slice(1).map(row => row.getAttribute('aria-label'))).toEqual(expectedNames);
+  });
+});
+
+describe('Table#selection', () => {
+  interface Item {
+    id: string;
+    name: string;
+    selected?: boolean;
+    selectable?: boolean;
+    children?: Item[];
+  }
+
+  const NAME_COLUMN = new Column<Item, string>('Name', {
+    renderMapping: (item): string => item.name,
+    renderer: SimpleColumn,
+  });
+  const ROW = new Row<Item, Item>({
+    selectable: (item): boolean => item.selectable !== false,
+    children: (item): Item[] => item.children ?? [],
+  });
+
+  function renderTable(data: Item[]): void {
+    render(Table<Item>, {
+      kind: 'selection-test',
+      data,
+      columns: [NAME_COLUMN],
+      row: ROW,
+      key: (item): string => item.id,
+    });
+  }
+
+  test('seeds selection from selected parents and children and shows an indeterminate header', () => {
+    const data: Item[] = [
+      {
+        id: 'parent-1',
+        name: 'Selected parent',
+        selected: true,
+        children: [{ id: 'child-1', name: 'Selected child', selected: true }],
+      },
+      {
+        id: 'parent-2',
+        name: 'Unselected parent',
+        children: [{ id: 'child-2', name: 'Unselected child' }],
+      },
+    ];
+
+    renderTable(data);
+
+    expect(within(screen.getByRole('row', { name: 'Selected parent' })).getByRole('checkbox')).toBeChecked();
+    expect(within(screen.getByRole('row', { name: 'Selected child' })).getByRole('checkbox')).toBeChecked();
+    expect(within(screen.getByRole('row', { name: 'Unselected parent' })).getByRole('checkbox')).not.toBeChecked();
+    expect(within(screen.getByRole('row', { name: 'Unselected child' })).getByRole('checkbox')).not.toBeChecked();
+
+    const headerCheckbox = screen.getByRole('checkbox', { name: 'Toggle all' });
+    expect(headerCheckbox).not.toBeChecked();
+    expect(headerCheckbox.closest('label')?.querySelector('svg')).toHaveClass(
+      'text-[var(--pd-input-checkbox-indeterminate)]',
+    );
+  });
+
+  test.each([
+    { targetChecked: true, initialChecked: false },
+    { targetChecked: false, initialChecked: true },
+  ])(
+    'Toggle all sets every selectable parent and child to $targetChecked and preserves non-selectable items',
+    async ({ targetChecked, initialChecked }) => {
+      const selectableChild: Item = { id: 'child-1', name: 'Selectable child', selected: initialChecked };
+      const nonSelectableChild: Item = {
+        id: 'child-2',
+        name: 'Non-selectable child',
+        selectable: false,
+        selected: initialChecked,
+      };
+      const selectableParent: Item = {
+        id: 'parent-1',
+        name: 'Selectable parent',
+        selected: initialChecked,
+        children: [selectableChild, nonSelectableChild],
+      };
+      const childOfNonSelectableParent: Item = {
+        id: 'child-3',
+        name: 'Selectable child of non-selectable parent',
+        selected: initialChecked,
+      };
+      const nonSelectableParent: Item = {
+        id: 'parent-2',
+        name: 'Non-selectable parent',
+        selectable: false,
+        selected: initialChecked,
+        children: [childOfNonSelectableParent],
+      };
+      const data = [selectableParent, nonSelectableParent];
+
+      renderTable(data);
+
+      await fireEvent.click(screen.getByRole('checkbox', { name: 'Toggle all' }));
+
+      expect(selectableParent.selected).toBe(targetChecked);
+      expect(selectableChild.selected).toBe(targetChecked);
+      expect(childOfNonSelectableParent.selected).toBe(targetChecked);
+      expect(nonSelectableParent.selected).toBe(initialChecked);
+      expect(nonSelectableChild.selected).toBe(initialChecked);
+      expect(within(screen.getByRole('row', { name: 'Selectable parent' })).getByRole('checkbox')).toHaveProperty(
+        'checked',
+        targetChecked,
+      );
+      expect(within(screen.getByRole('row', { name: 'Selectable child' })).getByRole('checkbox')).toHaveProperty(
+        'checked',
+        targetChecked,
+      );
+      expect(
+        within(screen.getByRole('row', { name: 'Selectable child of non-selectable parent' })).getByRole('checkbox'),
+      ).toHaveProperty('checked', targetChecked);
+      expect(within(screen.getByRole('row', { name: 'Non-selectable parent' })).getByRole('checkbox')).toBeDisabled();
+      expect(within(screen.getByRole('row', { name: 'Non-selectable child' })).getByRole('checkbox')).toBeDisabled();
+
+      const selectedNames = data.filter(item => item.selected).map(item => item.name);
+      expect(selectedNames).toEqual(targetChecked ? ['Selectable parent'] : ['Non-selectable parent']);
+      expect(screen.getByRole('checkbox', { name: 'Toggle all' })).toHaveProperty('checked', targetChecked);
+    },
+  );
+
+  test('toggling a parent cascades selection to its children and writes selected back to the data objects', async () => {
+    const parent: Item = {
+      id: 'parent-1',
+      name: 'Parent',
+      children: [
+        { id: 'child-1', name: 'First child' },
+        { id: 'child-2', name: 'Second child' },
+      ],
+    };
+    const otherParent: Item = { id: 'parent-2', name: 'Other parent' };
+    const data = [parent, otherParent];
+
+    renderTable(data);
+    const parentCheckbox = within(screen.getByRole('row', { name: 'Parent' })).getByRole('checkbox');
+
+    await fireEvent.click(parentCheckbox);
+
+    expect(parent.selected).toBeTruthy();
+    expect(parent.children?.every(child => child.selected)).toBeTruthy();
+    expect(data.filter(item => item.selected)).toEqual([parent]);
+    expect(within(screen.getByRole('row', { name: 'First child' })).getByRole('checkbox')).toBeChecked();
+    expect(within(screen.getByRole('row', { name: 'Second child' })).getByRole('checkbox')).toBeChecked();
+    expect(within(screen.getByRole('row', { name: 'Other parent' })).getByRole('checkbox')).not.toBeChecked();
+    await fireEvent.click(parentCheckbox);
+
+    expect(parent.selected).toBeFalsy();
+    expect(parent.children?.every(child => child.selected === false)).toBeTruthy();
+  });
+
+  test('toggling one child updates only that child', async () => {
+    const parent: Item = {
+      id: 'parent-1',
+      name: 'Parent',
+      children: [
+        { id: 'child-1', name: 'First child' },
+        { id: 'child-2', name: 'Second child' },
+      ],
+    };
+    const data = [parent];
+
+    renderTable(data);
+
+    const parentCheckbox = within(screen.getByRole('row', { name: 'Parent' })).getByRole('checkbox');
+    const firstChildCheckbox = within(screen.getByRole('row', { name: 'First child' })).getByRole('checkbox');
+    const secondChildCheckbox = within(screen.getByRole('row', { name: 'Second child' })).getByRole('checkbox');
+
+    await fireEvent.click(firstChildCheckbox);
+
+    expect(parent.selected).toBeUndefined();
+    expect(parent.children?.[0].selected).toBeTruthy();
+    expect(parent.children?.[1].selected).toBeUndefined();
+    expect(parentCheckbox).not.toBeChecked();
+    expect(firstChildCheckbox).toBeChecked();
+    expect(secondChildCheckbox).not.toBeChecked();
+    const headerCheckbox = screen.getByRole('checkbox', { name: 'Toggle all' });
+    expect(headerCheckbox).not.toBeChecked();
+    expect(headerCheckbox.closest('label')?.querySelector('svg')).toHaveClass(
+      'text-[var(--pd-input-checkbox-indeterminate)]',
+    );
+
+    await fireEvent.click(firstChildCheckbox);
+
+    expect(parent.children?.[0].selected).toBeFalsy();
+  });
+
+  test('binds the selected item count to the consumer', async () => {
+    const parent: Item = {
+      id: 'parent-1',
+      name: 'Selected parent',
+      selected: true,
+      children: [{ id: 'child-1', name: 'Selected child', selected: true }],
+    };
+    const otherParent: Item = { id: 'parent-2', name: 'Other parent' };
+    const data = [parent, otherParent];
+    let selectedItemsNumber = 0;
+
+    render(Table<Item>, {
+      kind: 'selection-binding-test',
+      data,
+      columns: [NAME_COLUMN],
+      row: ROW,
+      key: (item): string => item.id,
+      get selectedItemsNumber(): number {
+        return selectedItemsNumber;
+      },
+      set selectedItemsNumber(value: number) {
+        selectedItemsNumber = value;
+      },
+    });
+
+    const otherParentCheckbox = within(screen.getByRole('row', { name: 'Other parent' })).getByRole('checkbox');
+    const parentCheckbox = within(screen.getByRole('row', { name: 'Selected parent' })).getByRole('checkbox');
+
+    await vi.waitFor(() => expect(selectedItemsNumber).toBe(2));
+
+    await fireEvent.click(otherParentCheckbox);
+    await vi.waitFor(() => expect(selectedItemsNumber).toBe(3));
+
+    await fireEvent.click(parentCheckbox);
+    await vi.waitFor(() => expect(selectedItemsNumber).toBe(1));
+  });
+});
+
 test('Expect duration cell to be empty when undefined', async () => {
   render(TestTable, {});
 
