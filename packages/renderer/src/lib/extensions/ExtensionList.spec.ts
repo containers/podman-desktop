@@ -26,11 +26,13 @@ import { type CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 import { extensionInfos } from '/@/stores/extensions';
 
+import { catalogListFilters } from './catalog-list-filters.svelte';
 import ExtensionList from './ExtensionList.svelte';
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+  catalogListFilters.reset();
 });
 
 export const aFakeExtension: CatalogExtension = {
@@ -153,15 +155,16 @@ test('Expect to see empty screen on catalog page only', async () => {
     expect(screen.getByRole('button', { name: 'Catalog' })).toBeInTheDocument();
   });
 
-  let title = screen.queryByText(`No extensions matching 'A' found`);
-  expect(title).not.toBeInTheDocument();
+  // installed page: 'A installed Extension' matches, so no empty screen
+  expect(screen.queryByText(`No extensions matching 'A' found`)).not.toBeInTheDocument();
+  expect(screen.queryByText('No extensions in the catalog')).not.toBeInTheDocument();
 
   // click on the catalog
   const catalogTab = screen.getByRole('button', { name: 'Catalog' });
   await fireEvent.click(catalogTab);
 
-  title = screen.queryByText(`No extensions matching 'A' found`);
-  expect(title).toBeInTheDocument();
+  // catalog is empty: the catalog owns its own empty screen (search moved to the toolbar)
+  expect(screen.getByText('No extensions in the catalog')).toBeInTheDocument();
 });
 
 test('Expect to see empty screens on both pages', async () => {
@@ -179,8 +182,8 @@ test('Expect to see empty screens on both pages', async () => {
   const catalogTab = screen.getByRole('button', { name: 'Catalog' });
   await fireEvent.click(catalogTab);
 
-  const title = screen.getByText(`No extensions matching 'foo' found`);
-  expect(title).toBeInTheDocument();
+  // catalog is empty: shows its own empty screen regardless of the (installed) search term
+  expect(screen.getByText('No extensions in the catalog')).toBeInTheDocument();
 });
 
 test('Search extension page searches also description', async () => {

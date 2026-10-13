@@ -49,7 +49,9 @@ export class ExtensionsPage {
     this.catalogTab = this.page.getByRole('button', { name: 'Catalog', exact: true });
     this.localExtensionsTab = this.page.getByRole('button', { name: 'Local extensions' });
     this.installExtensionFromOCIImageButton = this.additionalActions.getByLabel('Install custom');
-    this.searchInput = this.search.getByLabel('search extensions');
+    // The search box lives in the NavPage search region on the Installed/Local tabs and in the
+    // catalog toolbar on the Catalog tab; only one is present at a time, so resolve it page-wide.
+    this.searchInput = this.page.getByRole('textbox', { name: 'search extensions' });
     this.refreshCatalogButton = this.page.getByRole('button', { name: 'Refresh the catalog' }).first();
   }
 

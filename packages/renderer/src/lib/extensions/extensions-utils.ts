@@ -242,7 +242,9 @@ export class ExtensionsUtils {
       return (
         (terms.length === 0 ||
           terms.every(term =>
-            `${extension.displayName} ${extension.shortDescription}`.toLowerCase().includes(term.toLowerCase()),
+            `${extension.displayName} ${extension.shortDescription} ${extension.publisherDisplayName}`
+              .toLowerCase()
+              .includes(term.toLowerCase()),
           )) &&
         (categories.length === 0 ||
           categories.every(category => extension.categories.map(c => c.toLowerCase()).includes(category))) &&
@@ -251,5 +253,21 @@ export class ExtensionsUtils {
         (installed === undefined || installed === extension.isInstalled)
       );
     });
+  }
+
+  /** Keep only non-empty, trimmed category labels. */
+  resolveExtensionCategoryTags(categories: string[]): string[] {
+    return categories.map(category => category.trim()).filter(category => category.length > 0);
+  }
+
+  /** Collect the sorted, de-duplicated set of categories present across the given extensions. */
+  collectCatalogCategories(extensions: CatalogExtensionInfoUI[]): string[] {
+    const categories = new Set<string>();
+    for (const extension of extensions) {
+      for (const category of this.resolveExtensionCategoryTags(extension.categories)) {
+        categories.add(category);
+      }
+    }
+    return [...categories].toSorted((a, b) => a.localeCompare(b));
   }
 }
