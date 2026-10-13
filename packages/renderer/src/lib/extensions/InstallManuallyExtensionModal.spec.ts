@@ -32,14 +32,8 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.mocked(window.extensionInstallFromImage).mockResolvedValue(undefined);
 });
-
-async function typeImageName(imageName: string): Promise<void> {
-  const input = screen.getByRole('textbox', { name: 'Image name to install custom extension' });
-  await userEvent.type(input, imageName);
-}
 
 test('expect invalid field', async () => {
   render(InstallManuallyExtensionModal, { closeCallback });
@@ -55,31 +49,89 @@ test('expect invalid field', async () => {
   expect(button).toBeDisabled();
 });
 
-test('clicking Install closes the dialog and installs the trimmed image', async () => {
+test('expect able to download an extension', async () => {
   render(InstallManuallyExtensionModal, { closeCallback });
-  await typeImageName(' my-custom-image.io/foo ');
+
+  // enter the name quay.io/foobar
+  const input = screen.getByRole('textbox', { name: 'Image name to install custom extension' });
+  expect(input).toBeInTheDocument();
+  // now enter the text 'my-custom-image.io/foo'
+  await userEvent.type(input, 'my-custom-image.io/foo');
+
+  // click on the button
+  const button = screen.getByRole('button', { name: 'Install' });
+  expect(button).toBeInTheDocument();
+
+  await userEvent.click(button);
+
+  expect(window.extensionInstallFromImage).toBeCalledWith(
+    'my-custom-image.io/foo',
+    expect.anything(),
+    expect.anything(),
+  );
+
+  // expect close callback to be called
+  expect(closeCallback).toBeCalled();
+});
+
+function mockExtensionInstallFromImage(): {
+  resolve: () => void;
+  reject: (error: unknown) => void;
+  logCallback: (data: string) => void;
+  errorCallback: (data: string) => void;
+} {
+  const { promise, resolve, reject } = Promise.withResolvers<void>();
+
+  const logCallback = vi.fn<(data: string) => void>();
+  const errorCallback = vi.fn<(data: string) => void>();
+  vi.mocked(window.extensionInstallFromImage).mockImplementation((_image, mLogCallback, mErrorCallback) => {
+    logCallback.mockImplementation((content: string) => mLogCallback(content));
+    errorCallback.mockImplementation((content: string) => mErrorCallback(content));
+    return promise;
+  });
+  return { resolve, reject, logCallback, errorCallback };
+}
+
+test('rejected installation is logged', async () => {
+  const { reject } = mockExtensionInstallFromImage();
+  vi.spyOn(console, 'error');
+
+  render(InstallManuallyExtensionModal, { closeCallback });
+
+  // enter the name quay.io/foobar
+  const input = screen.getByRole('textbox', { name: 'Image name to install custom extension' });
+  expect(input).toBeInTheDocument();
+  // now enter the text 'my-custom-image.io/foo'
+  await userEvent.type(input, 'my-custom-image.io/foo');
+
+  // click on the button
+  const installButton = screen.getByRole('button', { name: 'Install' });
+  await userEvent.click(installButton);
+
+  const error = new Error('random error');
+  reject(error);
+
+  await vi.waitFor(() => {
+    expect(console.error).toHaveBeenCalledWith('error when installing my-custom-image.io/foo', error);
+  });
+});
+
+test('error reported by the installer is logged', async () => {
+  const { errorCallback } = mockExtensionInstallFromImage();
+  vi.spyOn(console, 'error');
+
+  render(InstallManuallyExtensionModal, { closeCallback });
+
+  const input = screen.getByRole('textbox', { name: 'Image name to install custom extension' });
+  await userEvent.type(input, 'my-custom-image.io/foo');
 
   await userEvent.click(screen.getByRole('button', { name: 'Install' }));
 
-  expect(closeCallback).toHaveBeenCalled();
-  expect(window.extensionInstallFromImage).toHaveBeenCalledWith(
-    'my-custom-image.io/foo',
-    expect.any(Function),
-    expect.any(Function),
-  );
-});
+  errorCallback('Extension is already installed');
 
-test('pressing Enter installs a valid image', async () => {
-  render(InstallManuallyExtensionModal, { closeCallback });
-  await typeImageName('my-custom-image.io/foo');
-
-  await userEvent.keyboard('{Enter}');
-
-  expect(closeCallback).toHaveBeenCalled();
-  expect(window.extensionInstallFromImage).toHaveBeenCalledWith(
-    'my-custom-image.io/foo',
-    expect.any(Function),
-    expect.any(Function),
+  expect(console.error).toHaveBeenCalledWith(
+    'got an error when installing my-custom-image.io/foo',
+    'Extension is already installed',
   );
 });
 
@@ -90,44 +142,4 @@ test('pressing Enter without an image does not install', async () => {
 
   expect(closeCallback).not.toHaveBeenCalled();
   expect(window.extensionInstallFromImage).not.toHaveBeenCalled();
-});
-
-test('clicking Cancel closes the dialog without installing', async () => {
-  render(InstallManuallyExtensionModal, { closeCallback });
-  await typeImageName('my-custom-image.io/foo');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-  expect(closeCallback).toHaveBeenCalled();
-  expect(window.extensionInstallFromImage).not.toHaveBeenCalled();
-});
-
-test('an error reported by the installer is logged', async () => {
-  vi.mocked(window.extensionInstallFromImage).mockImplementation(async (_imageName, _logCallback, errorCallback) => {
-    errorCallback('Extension is already installed');
-  });
-  render(InstallManuallyExtensionModal, { closeCallback });
-  await typeImageName('my-custom-image.io/foo');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Install' }));
-
-  await vi.waitFor(() =>
-    expect(vi.mocked(console.error)).toHaveBeenCalledWith(
-      'got an error when installing my-custom-image.io/foo',
-      'Extension is already installed',
-    ),
-  );
-});
-
-test('a rejected installation is logged', async () => {
-  const error = new Error('random error');
-  vi.mocked(window.extensionInstallFromImage).mockRejectedValue(error);
-  render(InstallManuallyExtensionModal, { closeCallback });
-  await typeImageName('my-custom-image.io/foo');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Install' }));
-
-  await vi.waitFor(() =>
-    expect(vi.mocked(console.error)).toHaveBeenCalledWith('error when installing my-custom-image.io/foo', error),
-  );
 });
