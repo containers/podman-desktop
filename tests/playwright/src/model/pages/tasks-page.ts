@@ -105,7 +105,8 @@ export class TasksPage extends BasePage {
     const taskStatus = taskRow.getByRole('status');
 
     await playExpect(taskRow).toBeVisible();
-    await playExpect(taskStatus).toBeVisible();
+    // a task in progress displays a progress bar, its status is displayed once completed
+    await playExpect(taskStatus).toBeVisible({ timeout: timeout });
     await playExpect(taskStatus).toContainText(status, { timeout: timeout });
   }
 
