@@ -221,6 +221,25 @@ describe('hide confirmation', () => {
       });
       expect(showMessageBoxMock).not.toBeCalled();
     });
+
+    test.each([
+      { desc: 'an excluded name', items: [{ name: 'Settings', visible: true, index: 0 }], target: 'Settings' },
+      { desc: 'the active item', items: [{ name: 'Pods', visible: true, index: 0, active: true }], target: 'Pods' },
+    ])('never prompts for $desc, whose hide is refused anyway', async ({ items, target }) => {
+      // extensions and webviews contribute names freely, so an item can land in the checklist
+      // under a protected name; prompting there would ask about something that cannot happen
+      mockConfiguration({ disabledItems: [] });
+      showMessageBoxMock.mockResolvedValue({ response: `Don't show again` });
+      navigationItemsMenuBuilder.receiveNavigationItems(items);
+
+      clickToggle(target);
+
+      // let anything the click started settle before asserting that nothing happened
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(showMessageBoxMock).not.toBeCalled();
+      // the dismissal is global: recording it here would silence the prompt for every other item
+      expect(configurationRegistryMock.updateConfigurationValue).not.toBeCalled();
+    });
   });
 
   test('does not point the user at the dropped Show Hidden Items submenu', async () => {
@@ -352,6 +371,18 @@ describe('active item protection', () => {
     const menu = navigationItemsMenuBuilder.buildNavigationToggleMenuItems();
 
     expect(menu.find(item => item.label === 'Pods')?.enabled).toBe(false);
+    expect(menu.find(item => item.label === 'Volumes')?.enabled).toBe(true);
+  });
+
+  test('disables an excluded name in the toggle list', () => {
+    navigationItemsMenuBuilder.receiveNavigationItems([
+      { name: 'Settings', visible: true, index: 0 },
+      { name: 'Volumes', visible: true, index: 1 },
+    ]);
+
+    const menu = navigationItemsMenuBuilder.buildNavigationToggleMenuItems();
+
+    expect(menu.find(item => item.label === 'Settings')?.enabled).toBe(false);
     expect(menu.find(item => item.label === 'Volumes')?.enabled).toBe(true);
   });
 

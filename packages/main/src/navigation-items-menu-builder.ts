@@ -94,9 +94,18 @@ export class NavigationItemsMenuBuilder {
     return this.navigationItems.some(item => item.name === itemName && item.active === true);
   }
 
+  /**
+   * Items that must stay in the navigation bar: the ones the application always needs, and the
+   * one leading to the page on screen. Extensions and webviews contribute names freely, so an
+   * item can carry a protected name without the menu having put it there.
+   */
+  protected isProtectedItem(itemName: string): boolean {
+    return EXCLUDED_ITEMS.includes(itemName) || this.isActiveItem(itemName);
+  }
+
   protected async updateNavbarHiddenItem(itemName: string, visible: boolean): Promise<void> {
     // defense in depth: the menu never offers this, but never hide a protected item
-    if (!visible && (EXCLUDED_ITEMS.includes(itemName) || this.isActiveItem(itemName))) {
+    if (!visible && this.isProtectedItem(itemName)) {
       return;
     }
 
@@ -163,6 +172,11 @@ export class NavigationItemsMenuBuilder {
    * not destructive and never prompts.
    */
   protected async setItemVisibility(itemName: string, visible: boolean): Promise<void> {
+    // bail out ahead of the confirmation: asking about a hide that `updateNavbarHiddenItem` will
+    // refuse would let a `Don't show again` answer persist as the side effect of a no-op
+    if (!visible && this.isProtectedItem(itemName)) {
+      return;
+    }
     if (!visible && !(await this.confirmHide(itemName))) {
       return;
     }
@@ -216,7 +230,7 @@ export class NavigationItemsMenuBuilder {
     // it's at the end with parenthesis like itemName (2)
     const itemName = this.computeItemName(rawItemName);
 
-    if (EXCLUDED_ITEMS.includes(itemName) || isGroupedName(itemName) || this.isActiveItem(itemName)) {
+    if (isGroupedName(itemName) || this.isProtectedItem(itemName)) {
       return undefined;
     }
 
@@ -288,8 +302,8 @@ export class NavigationItemsMenuBuilder {
       label: this.escapeLabel(item.name),
       type: 'checkbox',
       checked: item.visible,
-      // the active item cannot be unchecked; a hidden item stays restorable even while active
-      enabled: !(item.visible && this.isActiveItem(item.name)),
+      // a protected item cannot be unchecked; a hidden one stays restorable even while protected
+      enabled: !(item.visible && this.isProtectedItem(item.name)),
       click: (): void => {
         // send the item to the frontend to show/hide it
         this.setItemVisibility(item.name, !item.visible).catch((e: unknown) =>
