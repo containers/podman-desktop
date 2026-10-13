@@ -18,6 +18,7 @@
 
 import type { Stats } from 'node:fs';
 import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -54,10 +55,43 @@ declare module '@podman-desktop/api' {
 }
 `;
 
-const MOCK_TEMPLATE = '{{#namespaces}}{{name}} {{/namespaces}}{{#classes}}{{name}} {{/classes}}';
+const MOCK_TEMPLATE =
+  '{{#namespaces}}{{name}}:{{#functions}}{{.}},{{/functions}} {{/namespaces}}{{#classes}}{{name}}:{{#methods}}{{.}},{{/methods}} {{/classes}}';
+
+// files are matched on their path relative to the repository root
+let files: Record<string, { content?: string; mtimeMs?: number }>;
+
+function findFile(filePath: unknown): { content?: string; mtimeMs?: number } | undefined {
+  const key = Object.keys(files).find(relativePath => String(filePath).endsWith(path.join(...relativePath.split('/'))));
+  return key ? files[key] : undefined;
+}
+
+function generatedContent(): string {
+  expect(writeFile).toHaveBeenCalledOnce();
+  return String(vi.mocked(writeFile).mock.calls[0]?.[1]);
+}
 
 beforeEach(() => {
   vi.resetAllMocks();
+  files = {
+    'packages/extension-api/src/extension-api.d.ts': { content: MOCK_EXTENSION_API_CONTENT, mtimeMs: 100 },
+    'packages/api-mocks-vitest/src/api.mustache': { content: MOCK_TEMPLATE, mtimeMs: 100 },
+    'product.json': { mtimeMs: 100 },
+  };
+  vi.mocked(stat).mockImplementation(async filePath => {
+    const mtimeMs = findFile(filePath)?.mtimeMs;
+    if (mtimeMs === undefined) {
+      throw Object.assign(new Error(`ENOENT: ${String(filePath)}`), { code: 'ENOENT' });
+    }
+    return { mtimeMs } as Stats;
+  });
+  vi.mocked(readFile).mockImplementation((async (filePath: unknown) => {
+    const content = findFile(filePath)?.content;
+    if (content === undefined) {
+      throw Object.assign(new Error(`ENOENT: ${String(filePath)}`), { code: 'ENOENT' });
+    }
+    return content;
+  }) as unknown as typeof readFile);
   vi.mocked(mkdir).mockResolvedValue(undefined);
   vi.mocked(copyFile).mockResolvedValue(undefined);
   vi.mocked(writeFile).mockResolvedValue(undefined);
@@ -65,12 +99,8 @@ beforeEach(() => {
 
 describe('setup', () => {
   test('skips generation when output file is newer than all inputs', async () => {
-    vi.mocked(stat)
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // extensionApiTypePath
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // templatePath
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // productJsonPath
-      .mockResolvedValueOnce({ mtimeMs: 300 } as Stats) // apiGeneratedFile — newer
-      .mockResolvedValueOnce({ mtimeMs: 300 } as Stats); // packageProductJsonPath
+    files['packages/api-mocks-vitest/src/@podman-desktop/api.ts'] = { mtimeMs: 300 };
+    files['packages/api-mocks-vitest/src/product.json'] = { mtimeMs: 300 };
 
     await setup();
 
@@ -79,42 +109,102 @@ describe('setup', () => {
   });
 
   test('generates output when it does not exist yet', async () => {
-    vi.mocked(stat)
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // extensionApiTypePath
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // templatePath
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // productJsonPath
-      .mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' })); // apiGeneratedFile missing
-
-    vi.mocked(readFile)
-      .mockResolvedValueOnce(MOCK_EXTENSION_API_CONTENT as unknown as Buffer)
-      .mockResolvedValueOnce(MOCK_TEMPLATE as unknown as Buffer);
-
     await setup();
 
     expect(mkdir).toHaveBeenCalled();
     expect(copyFile).toHaveBeenCalled();
-    expect(writeFile).toHaveBeenCalled();
-    const [, writtenContent] = vi.mocked(writeFile).mock.calls[0];
-    expect(String(writtenContent)).toContain('commands');
-    expect(String(writtenContent)).toContain('EventEmitter');
+    const content = generatedContent();
+    expect(content).toContain('commands:registerCommand,executeCommand,onDidExecuteCommand,');
+    expect(content).toContain('EventEmitter:fire,dispose,');
   });
 
   test('regenerates output when it is older than the newest input', async () => {
-    vi.mocked(stat)
-      .mockResolvedValueOnce({ mtimeMs: 500 } as Stats) // extensionApiTypePath — newest input
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // templatePath
-      .mockResolvedValueOnce({ mtimeMs: 100 } as Stats) // productJsonPath
-      .mockResolvedValueOnce({ mtimeMs: 200 } as Stats) // apiGeneratedFile — stale
-      .mockResolvedValueOnce({ mtimeMs: 200 } as Stats); // packageProductJsonPath
-
-    vi.mocked(readFile)
-      .mockResolvedValueOnce(MOCK_EXTENSION_API_CONTENT as unknown as Buffer)
-      .mockResolvedValueOnce(MOCK_TEMPLATE as unknown as Buffer);
+    files['packages/extension-api/src/extension-api.d.ts']!.mtimeMs = 500;
+    files['packages/api-mocks-vitest/src/@podman-desktop/api.ts'] = { mtimeMs: 200 };
+    files['packages/api-mocks-vitest/src/product.json'] = { mtimeMs: 200 };
 
     await setup();
 
     expect(mkdir).toHaveBeenCalled();
     expect(copyFile).toHaveBeenCalled();
     expect(writeFile).toHaveBeenCalled();
+  });
+
+  describe('API split in several files', () => {
+    beforeEach(() => {
+      files['packages/extension-api/src/extension-api.d.ts']!.content = `
+/// <reference path="./common/disposable.d.ts" />
+/// <reference path="./api/commands.d.ts" />
+declare module '@podman-desktop/api' {
+  export const version: string;
+  export namespace commands {
+    export function executeCommand<T>(command: string): Promise<T>;
+  }
+}
+`;
+      files['packages/extension-api/src/common/disposable.d.ts'] = {
+        mtimeMs: 100,
+        content: `
+declare module '@podman-desktop/api' {
+  export class Disposable {
+    dispose(): void;
+    static from(...disposableLikes: { dispose: () => unknown }[]): Disposable;
+  }
+}
+`,
+      };
+      files['packages/extension-api/src/api/commands.d.ts'] = {
+        mtimeMs: 100,
+        content: `
+/// <reference path="../common/disposable.d.ts" />
+declare module '@podman-desktop/api' {
+  export namespace commands {
+    export function registerCommand(command: string): Disposable;
+    export function executeCommand<T>(command: string, ...rest: unknown[]): Promise<T>;
+  }
+}
+`,
+      };
+    });
+
+    test('includes declarations from files referenced by the entry file', async () => {
+      await setup();
+
+      expect(generatedContent()).toContain('Disposable:dispose,from,');
+    });
+
+    test('merges a namespace declared in several files without duplicates', async () => {
+      await setup();
+
+      expect(generatedContent()).toContain('commands:registerCommand,executeCommand, ');
+    });
+
+    test('reads a file referenced several times only once', async () => {
+      await setup();
+
+      const disposableReads = vi
+        .mocked(readFile)
+        .mock.calls.filter(([filePath]) => String(filePath).endsWith(path.join('common', 'disposable.d.ts')));
+      expect(disposableReads).toHaveLength(1);
+    });
+
+    test('regenerates output when a referenced file is newer than the output', async () => {
+      files['packages/extension-api/src/common/disposable.d.ts']!.mtimeMs = 500;
+      files['packages/api-mocks-vitest/src/@podman-desktop/api.ts'] = { mtimeMs: 200 };
+      files['packages/api-mocks-vitest/src/product.json'] = { mtimeMs: 200 };
+
+      await setup();
+
+      expect(generatedContent()).toContain('Disposable:dispose,from,');
+    });
+
+    test('skips generation when output file is newer than every referenced file', async () => {
+      files['packages/api-mocks-vitest/src/@podman-desktop/api.ts'] = { mtimeMs: 300 };
+      files['packages/api-mocks-vitest/src/product.json'] = { mtimeMs: 300 };
+
+      await setup();
+
+      expect(writeFile).not.toHaveBeenCalled();
+    });
   });
 });

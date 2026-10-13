@@ -416,4 +416,12 @@ export default [
       ],
     },
   },
+
+  {
+    // the entry file of the extension API references the files declaring parts of the API (see packages/extension-api/src/README.md)
+    files: ['packages/extension-api/src/extension-api.d.ts'],
+    rules: {
+      '@typescript-eslint/triple-slash-reference': ['error', { path: 'always' }],
+    },
+  },
 ];
