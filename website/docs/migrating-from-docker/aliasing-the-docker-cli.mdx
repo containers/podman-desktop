@@ -55,17 +55,29 @@ Use an alias when you want a `docker` command in your own terminal and you do no
 
 1. Optional: To make the alias available in every new PowerShell session, add the same command to your PowerShell profile. The profile path is stored in the `$PROFILE` variable.
 
+   The profile file does not exist on a new PowerShell installation. Create the file, and the parent directory, if needed:
+
    ```shell-session
    $ if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
+   ```
+
+   Add the alias to the profile:
+
+   ```shell-session
    $ Add-Content -Path $PROFILE -Value 'Set-Alias -Name docker -Value podman'
    ```
 
-   The profile file does not exist on a new PowerShell installation. The first command creates it, and the parent directory, if needed.
+   Your execution policy must also allow the profile to run. The `Restricted` policy blocks all script files, including profiles, and is the effective policy on Windows clients when no policy is set in any scope.
 
-   Your execution policy must also allow the profile to run. The `Restricted` policy blocks all script files, including profiles, and is the effective policy on Windows clients when no policy is set in any scope. Check the effective policy and the policy for each scope:
+   Check the effective policy:
 
    ```shell-session
    $ Get-ExecutionPolicy
+   ```
+
+   Check the policy for each scope:
+
+   ```shell-session
    $ Get-ExecutionPolicy -List
    ```
 
@@ -191,17 +203,29 @@ Create a persistent `docker` command when you want your scripts, build tools, an
 
 #### Verification
 
-- Check that the `docker` command runs Podman:
+1. Check that the `docker` command runs Podman:
 
-  ```shell-session
-  $ docker --help
-  ```
+   ```shell-session
+   $ docker --help
+   ```
 
-  The output includes the Podman description:
+   The output starts with the reminder from the `docker.bat` file:
 
-  ```
-  Manage pods, containers and images
-  ```
+   ```
+   Emulate Docker CLI using podman.
+   ```
+
+   The rest of the output includes the Podman description:
+
+   ```
+   Manage pods, containers and images
+   ```
+
+1. Run a container:
+
+   ```shell-session
+   $ docker run docker.io/hello-world
+   ```
 
 </TabItem>
 <TabItem value="macOS" label="macOS" className="markdown">
@@ -261,7 +285,7 @@ If you reinstall Docker Desktop, it can overwrite or shadow `/usr/local/bin/dock
    $ docker --help
    ```
 
-   The output includes the Podman description:
+   If you created the wrapper script, the output starts with the `Emulate Docker CLI using podman.` reminder. In both cases, the output includes the Podman description:
 
    ```
    Manage pods, containers and images
@@ -339,7 +363,7 @@ $ sudo mkdir -p /usr/local/bin
    $ docker --help
    ```
 
-   The output includes the Podman description:
+   If you created the wrapper script, the output starts with the `Emulate Docker CLI using podman.` reminder. In both cases, the output includes the Podman description:
 
    ```
    Manage pods, containers and images
