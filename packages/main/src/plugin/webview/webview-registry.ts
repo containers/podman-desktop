@@ -155,8 +155,18 @@ export class WebviewRegistry {
         return;
       }
 
-      // construct path from root path and req.path
-      const fullPath = `${rootExtensionPath}/${req.path}`;
+      // decode once so the containment check and existsSync see the real file name
+      let requestPath: string;
+      try {
+        requestPath = decodeURIComponent(req.path);
+      } catch (error: unknown) {
+        console.debug(`webview: unable to decode request path ${req.path}`, error);
+        res.status(404).send('not found');
+        return;
+      }
+
+      // construct path from root path and decoded request path
+      const fullPath = `${rootExtensionPath}/${requestPath}`;
 
       // make it absolute
       const absolutePath = resolve(fullPath);
