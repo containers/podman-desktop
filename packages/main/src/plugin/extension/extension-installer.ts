@@ -372,12 +372,8 @@ export class ExtensionInstaller {
       await Promise.all(
         analyzedExtensions
           .filter(extension => extension?.path)
-          .map(async extension => {
-            try {
-              await rm(extension.path, { recursive: true, force: true });
-            } catch (error: unknown) {
-              console.error(`Unable to clean up extension folder ${extension.path}`, error);
-            }
+          .map(extension => {
+            return rm(extension.path, { recursive: true, force: true });
           }),
       );
       sendError(`Error while installing extension ${imageName}: ${errors.join('\n')}`);

@@ -366,6 +366,30 @@ test('should remove the extension folders when the dependencies analysis reports
   expect(sendEnd).not.toHaveBeenCalled();
 });
 
+test('should not continue when removing the extension folders fails', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+  const extension = { path: '/fake/extension/path', manifest: { name: 'my-extension' } } as AnalyzedExtension;
+
+  vi.spyOn(extensionInstaller, 'analyzeFromImage').mockResolvedValueOnce(extension);
+  vi.spyOn(extensionInstaller, 'analyzeTransitiveDependencies').mockImplementationOnce(
+    async (_extension, analyzedExtensions, errors) => {
+      analyzedExtensions.push(extension);
+      errors.push('fake dependency error');
+      return true;
+    },
+  );
+  vi.mocked(rm).mockRejectedValueOnce(new Error('EACCES'));
+
+  await expect(extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull)).rejects.toThrow('EACCES');
+
+  expect(sendError).not.toHaveBeenCalled();
+  expect(sendEnd).not.toHaveBeenCalled();
+});
+
 test('should report error', async () => {
   const imageToPull = 'fake.io/fake-image:fake-tag';
 
