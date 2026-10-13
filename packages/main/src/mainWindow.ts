@@ -37,7 +37,7 @@ const openDevTools = new OpenDevTools();
 const loginMinimizeHandler = new LoginMinimizeHandler();
 let navigationItemsMenuBuilder: NavigationItemsMenuBuilder;
 // provided by the plugin system once its container is built, which happens after this window
-let messageBox: MessageBox | undefined;
+const messageBoxDeferred = Promise.withResolvers<MessageBox>();
 
 // development mode for extensions
 export interface WindowConfig {
@@ -165,21 +165,19 @@ async function createWindow(config?: WindowConfig): Promise<BrowserWindow> {
     });
     developmentModeTracker.init();
 
-    // the message box is resolved lazily: the navbar can only be right-clicked once the
-    // renderer is up, by which time the plugin system has published it
-    navigationItemsMenuBuilder = new NavigationItemsMenuBuilder(configurationRegistry, async options => {
-      if (!messageBox) {
-        throw new Error('MessageBox is not available yet');
-      }
-      return messageBox.showMessageBox(options);
-    });
+    // The message box only reaches this file once the plugin system has loaded every extension,
+    // seconds after the renderer paints the navbar. Waiting for it keeps an early right-click
+    // queued until the dialog can be shown, rather than dropping it into the handler's catch.
+    navigationItemsMenuBuilder = new NavigationItemsMenuBuilder(configurationRegistry, async options =>
+      (await messageBoxDeferred.promise).showMessageBox(options),
+    );
 
     // open dev tools (if required)
     openDevTools.open(browserWindow, configurationRegistry);
   });
 
   ipcMain.on('message-box', (_, data) => {
-    messageBox = data as MessageBox;
+    messageBoxDeferred.resolve(data as MessageBox);
   });
 
   let windowHandler: WindowHandler | undefined;
