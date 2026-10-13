@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.d.ts"]
+  "include": ["src/**/*.ts"]
 }

@@ -736,9 +736,15 @@ importers:
 
   packages/extension-api:
     devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
       vite:
         specifier: ^8.3.4
         version: 8.3.4(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.23.15)(yaml@2.9.0)
+      vitest:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/node@26.2.0)(@vitest/coverage-v8@5.0.3)(jsdom@30.1.2(@noble/hashes@2.2.0))(msw@2.15.0(@types/node@26.2.0)(typescript@6.0.3))(vite@8.3.4(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/main:
     dependencies:
