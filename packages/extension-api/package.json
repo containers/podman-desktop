@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "types": "./src/extension-api.d.ts",
   "files": [
-    "src"
+    "src/**/*.d.ts"
   ],
   "scripts": {
     "prepare": "",
