@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 # Aliasing the Docker CLI
 
-If you remove Docker, the `docker` command goes with it. Your scripts, your shell history, and the many `docker` examples you find online all stop working, even though Podman can run every one of them.
+If you remove Docker, the `docker` command goes with it. Your scripts, your shell history, and the many `docker` examples you find online all stop working, even though Podman can run most of them.
 
 Because the Podman CLI is a drop-in replacement for most Docker commands, you can make `docker` run Podman instead. You then keep using the commands you already know, and your scripts continue to work without changes.
 
@@ -200,6 +200,15 @@ Create a persistent `docker` command when you want your scripts, build tools, an
 1. Close all `cmd` and PowerShell windows, then open a new one.
 
    Programs read the `PATH` variable when they start, so open windows do not pick up the change.
+
+:::note
+
+A batch file is not an executable. This affects how other programs run the `docker` command:
+
+- Programs that start `docker` without a shell cannot run `docker.bat`. Node.js `execFile()` is one example.
+- In a batch script, run `call docker ...` rather than `docker ...`. Without `call`, control does not return to your script.
+
+:::
 
 #### Verification
 
