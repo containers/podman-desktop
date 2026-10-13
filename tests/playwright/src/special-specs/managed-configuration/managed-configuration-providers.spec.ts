@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { composeExtension } from '/@/model/core/extensions';
 import { CLIToolsPage } from '/@/model/pages/cli-tools-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
 import type { SettingsBar } from '/@/model/pages/settings-bar';
@@ -35,11 +36,11 @@ import { isLinux, isMac } from '/@/utility/platform';
  * downgrade the call never happens and the assertions below would pass for the
  * wrong reason.
  */
-const COMPOSE_TOOL = 'Compose';
-const COMPOSE_PROVIDER_CARD = 'Compose';
-const COMPOSE_EXTENSION_ID = 'podman-desktop.compose';
+// Compose uses the same label for the CLI Tools table row and the Resources card.
+const COMPOSE_TOOL = composeExtension.extensionName;
+const COMPOSE_PROVIDER_CARD = composeExtension.extensionName;
 const blockedUpdateRegexp = new RegExp(
-  `Provider update registration blocked for extension '${COMPOSE_EXTENSION_ID}' by providers.allowUpdate configuration`,
+  `Provider update registration blocked for extension '${composeExtension.extensionFullLabel}' by providers.allowUpdate configuration`,
 );
 
 let settingsBar: SettingsBar;
@@ -103,9 +104,15 @@ test.describe
           await cliToolsPage.installTool(COMPOSE_TOOL);
           await cliToolsPage.downgradeTool(COMPOSE_TOOL);
 
-          // The CLI Tools page is not gated by providers.allowUpdate, so the tool itself
-          // still offers an update. This proves an update really is available and that the
-          // Resources page assertion below is not vacuous.
+          // `providers.allowUpdate` is only enforced in ProviderRegistry.registerUpdate();
+          // CliToolRegistry.registerUpdate() has no such check, so the CLI Tools row still
+          // offers the update even though Compose is not in the allow list. Asserting it here
+          // proves a newer version really was found, which is what keeps the "no update
+          // button" assertion on the Resources card below from passing vacuously.
+          //
+          // TODO(https://github.com/podman-desktop/podman-desktop/issues/19379): this only
+          // covers the blocked path, so a deny-all regression would still pass. Add an
+          // allowed extension (kind) to the fixture and assert its update button IS rendered.
           await playExpect(cliToolsPage.getUpdateButton(COMPOSE_TOOL)).toBeVisible({ timeout: 30_000 });
         });
 
