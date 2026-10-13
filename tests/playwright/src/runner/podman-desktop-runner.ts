@@ -98,14 +98,23 @@ export abstract class Runner {
   protected setupPodmanDesktopCustomFolder(): object {
     // create a clone of the env. object
     const env = { ...process.env };
-    const dir = join(this._customFolder);
-    console.log(`podman desktop custom config will be written to: ${dir}`);
-    env.PODMAN_DESKTOP_HOME_DIR = dir;
 
     // required to get dashboard opened, https://github.com/podman-desktop/podman-desktop/issues/15220
     if (isLinux) {
       env.XDG_SESSION_TYPE = 'x11';
     }
+
+    if (this._runnerOptions._useDefaultHomeDirectory) {
+      // Let the app resolve its own data/config directories against the real host home
+      // directory (no PODMAN_DESKTOP_HOME_DIR override, no pre-seeded settings.json).
+      console.log('Using the real default home directory (PODMAN_DESKTOP_HOME_DIR override skipped)');
+      delete env.PODMAN_DESKTOP_HOME_DIR;
+      return env;
+    }
+
+    const dir = join(this._customFolder);
+    console.log(`podman desktop custom config will be written to: ${dir}`);
+    env.PODMAN_DESKTOP_HOME_DIR = dir;
 
     // add a custom config file by disabling OpenDevTools
     const settingsFile = resolve(dir, 'configuration', 'settings.json');
