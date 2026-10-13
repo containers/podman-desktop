@@ -19,6 +19,7 @@
 import type { Stats } from 'node:fs';
 import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -58,12 +59,18 @@ declare module '@podman-desktop/api' {
 const MOCK_TEMPLATE =
   '{{#namespaces}}{{name}}:{{#functions}}{{.}},{{/functions}} {{/namespaces}}{{#classes}}{{name}}:{{#methods}}{{.}},{{/methods}} {{/classes}}';
 
-// files are matched on their path relative to the repository root
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+
+// path relative to the repository root with forward slashes, whatever the platform and separators used
+function toRepoPath(filePath: unknown): string {
+  return path.relative(REPO_ROOT, String(filePath)).split(path.sep).join('/');
+}
+
+// files are keyed by their path relative to the repository root
 let files: Record<string, { content?: string; mtimeMs?: number }>;
 
 function findFile(filePath: unknown): { content?: string; mtimeMs?: number } | undefined {
-  const key = Object.keys(files).find(relativePath => String(filePath).endsWith(path.join(...relativePath.split('/'))));
-  return key ? files[key] : undefined;
+  return files[toRepoPath(filePath)];
 }
 
 function generatedContent(): string {
@@ -184,7 +191,9 @@ declare module '@podman-desktop/api' {
 
       const disposableReads = vi
         .mocked(readFile)
-        .mock.calls.filter(([filePath]) => String(filePath).endsWith(path.join('common', 'disposable.d.ts')));
+        .mock.calls.filter(
+          ([filePath]) => toRepoPath(filePath) === 'packages/extension-api/src/common/disposable.d.ts',
+        );
       expect(disposableReads).toHaveLength(1);
     });
 

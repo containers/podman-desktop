@@ -26,9 +26,10 @@ import typescript from 'typescript';
 type Namespaces = { [key: string]: string[] };
 type Classes = { [key: string]: string[] };
 
-// The API is split across several files: follow `/// <reference path="..." />` from the entry file
-async function readAPISourceFiles(entryPath: string): Promise<typescript.SourceFile[]> {
-  const sourceFiles: typescript.SourceFile[] = [];
+// The API is split across several files: follow `/// <reference path="..." />` from the entry file.
+// Files are keyed by their path on disk: SourceFile.fileName is normalized with forward slashes by TypeScript
+async function readAPISourceFiles(entryPath: string): Promise<Map<string, typescript.SourceFile>> {
+  const sourceFiles = new Map<string, typescript.SourceFile>();
   const visited = new Set<string>();
 
   const read = async (filePath: string): Promise<void> => {
@@ -41,7 +42,7 @@ async function readAPISourceFiles(entryPath: string): Promise<typescript.SourceF
     for (const reference of sourceFile.referencedFiles) {
       await read(path.resolve(path.dirname(filePath), reference.fileName));
     }
-    sourceFiles.push(sourceFile);
+    sourceFiles.set(filePath, sourceFile);
   };
 
   await read(entryPath);
@@ -134,7 +135,7 @@ export default async function setup(): Promise<void> {
   const apiSourceFiles = await readAPISourceFiles(extensionApiTypePath);
 
   // skip if api.ts is already newer (from template or any extension API .d.ts file)
-  const apiSourceFilesStats = await Promise.all(apiSourceFiles.map(sourceFile => fs.stat(sourceFile.fileName)));
+  const apiSourceFilesStats = await Promise.all(Array.from(apiSourceFiles.keys(), filePath => fs.stat(filePath)));
   const templatePathStats = await fs.stat(templatePath);
   const productJsonPathStats = await fs.stat(productJsonPath);
   try {
@@ -152,7 +153,7 @@ export default async function setup(): Promise<void> {
   } catch {
     console.debug(' ⚙️ packages/api-mocks-vitest/src/@podman-desktop/api.ts does not exist yet; generating it now…');
   }
-  const data = extractNamespacesAndClassesFromAPI(apiSourceFiles);
+  const data = extractNamespacesAndClassesFromAPI(Array.from(apiSourceFiles.values()));
   const template = await fs.readFile(templatePath, 'utf-8');
   const content = Mustache.render(template, toTemplateData(data));
 
