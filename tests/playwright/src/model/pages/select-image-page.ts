@@ -43,7 +43,8 @@ export class SelectImagePage extends BasePage {
     this.runImageButton = page.getByRole('button', { name: 'Run Image' });
     this.pullImageAndRunButton = page.getByRole('button', { name: 'Pull Image and Run' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
-    this.errorMessage = page.getByRole('alert', { name: 'Error Message Content' });
+    // scoped to the footer: the latest-tag WarningMessage is also an unnamed alert
+    this.errorMessage = page.locator('footer').getByRole('alert');
   }
 
   async selectImage(imageName: string): Promise<SelectImagePage> {

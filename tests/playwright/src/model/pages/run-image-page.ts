@@ -46,9 +46,7 @@ export class RunImagePage extends BasePage {
     this.name = page.getByLabel('name').and(page.getByText('Run Image'));
     this.heading = page.getByRole('heading', { name: this.imageName });
     this.closeLink = page.getByRole('link', { name: 'Close' });
-    this.errorAlert = page.getByRole('alert', {
-      name: 'Error Message Content',
-    });
+    this.errorAlert = page.getByLabel('createError').getByRole('alert');
     this.backToImageDetailsLink = page.getByRole('link', {
       name: 'Go back to Image Details',
     });

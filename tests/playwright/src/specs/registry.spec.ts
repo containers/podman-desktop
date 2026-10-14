@@ -82,7 +82,7 @@ test.describe('Registries handling verification', { tag: '@smoke' }, () => {
     await playExpect(registryPage.addRegistryDialog).toBeHidden({ timeout: 10_000 });
 
     await registryPage.submitRegistryForm(registryUrl, 'invalidName', 'invalidPswd');
-    const credsErrorMsg = page.getByRole('dialog', { name: 'Add Registry' }).getByLabel('Error Message Content');
+    const credsErrorMsg = page.getByRole('dialog', { name: 'Add Registry' }).getByRole('alert');
     await playExpect(credsErrorMsg).toBeVisible({ timeout: 30_000 });
     await playExpect(credsErrorMsg).toContainText('Wrong Username or Password', { ignoreCase: true });
     await registryPage.cancelDialogButton.click();

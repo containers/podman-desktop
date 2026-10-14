@@ -45,6 +45,6 @@ onMount(() => {
          wrap, so it widens whatever contains it and spills out of a dialog.
          Not break-all, which chops ordinary words mid-word too; anywhere breaks
          only what would otherwise overflow. -->
-    <div role="alert" aria-label={ariaLabel ?? 'Error Message Content'} class="ml-2 wrap-anywhere">{error}</div>
+    <div role="alert" aria-label={ariaLabel} class="ml-2 wrap-anywhere">{error}</div>
   </div>
 {/if}

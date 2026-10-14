@@ -88,7 +88,7 @@
 | YAML editor           | `#custom-yaml-editor`                                                  |
 | Play button           | `button:has-text("Play")`                                              |
 | Done button           | `button:has-text("Done")`                                              |
-| Error alert           | `[aria-label="Error Message Content"]`                                 |
+| Error alert           | `[role="alert"]`                                                       |
 | Enable build checkbox | `[role="checkbox"][aria-label="Enable build"]`                         |
 | Replace checkbox      | `[role="checkbox"][aria-label="Replace"]`                              |
 

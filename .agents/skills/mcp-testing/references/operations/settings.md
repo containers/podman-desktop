@@ -55,7 +55,7 @@ nav[aria-label="PreferencesNavigation"]         ← settings sidebar
 | HTTPS proxy   | `#httpsProxy`                                                  |
 | No proxy      | `#noProxy`                                                     |
 | Update button | `button:has-text("Update")`                                    |
-| Error alert   | `[role="alert"][aria-label="Error Message Content"]`           |
+| Error alert   | `[role="alert"]`                                               |
 
 ## Operations
 
