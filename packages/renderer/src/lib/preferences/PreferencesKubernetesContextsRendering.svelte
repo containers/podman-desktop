@@ -337,9 +337,10 @@ async function connect(contextName: string): Promise<void> {
                   <div class="flex flex-row pt-2">
                     {#if context.errorMessage}
                       <div class="w-3 h-3 rounded-full bg-[var(--pd-status-dead)]"></div>
-                      <div class="ml-1 text-xs text-[var(--pd-status-dead)]" aria-label="Error">
+                      <div class="ml-1 text-xs text-[var(--pd-status-dead)]">
                         <Tooltip>
                           <div>ERROR</div>
+                          <span class="sr-only">{context.errorMessage}</span>
                           {#snippet tipSnippet()}
                           <div class="p-2">
                             {#if context.errorMessage}

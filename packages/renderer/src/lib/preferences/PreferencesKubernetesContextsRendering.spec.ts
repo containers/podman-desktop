@@ -410,6 +410,8 @@ describe.each([
     if (implemented.errorMessage) {
       const context5 = screen.getAllByRole('row')[4];
       expect(within(context5).queryByText('ERROR')).toBeInTheDocument();
+      expect(within(context5).getByText('an error')).toBeInTheDocument();
+      expect(within(context5).queryByLabelText('Error')).not.toBeInTheDocument();
       expect(within(context5).queryByText('PODS')).not.toBeInTheDocument();
       expect(within(context5).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
     }
