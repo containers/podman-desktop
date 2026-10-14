@@ -19,9 +19,9 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import type { Pack, PackOptions } from 'tar-fs';
+import type { Headers, Pack, PackOptions } from 'tar-fs';
 import tar from 'tar-fs';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { getImageNamePrefix, KubePlayContext } from '/@/plugin/podman/kube.js';
 
@@ -176,6 +176,7 @@ describe('KubePlayContext', () => {
     expect(tar.pack).toHaveBeenCalledWith('foo-bar', {
       finalize: false,
       entries: ['foo', 'bar'],
+      map: expect.any(Function),
       finish: expect.any(Function),
     });
 
@@ -199,5 +200,30 @@ describe('KubePlayContext', () => {
     );
     // ensure finalize is called
     expect(streamMock.finalize).toHaveBeenCalledOnce();
+  });
+
+  test('build should reset ownership of packed entries to root', async () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+
+    const kube = KubePlayContext.fromContent(PLAY_POD_YAML, 'foo-bar');
+    await kube.init();
+
+    kube.build();
+
+    const map = vi.mocked(tar.pack).mock.calls[0]?.[1]?.map;
+    assert(map);
+
+    // a uid/gid outside the rootless user namespace (e.g. above the 262143 tar header limit)
+    const header: Headers = {
+      name: 'foobar',
+      mode: 0o755,
+      mtime: new Date(0),
+      size: 0,
+      type: 'directory',
+      uid: 300000,
+      gid: 300000,
+    };
+
+    expect(map(header)).toStrictEqual({ ...header, uid: 0, gid: 0 });
   });
 });
