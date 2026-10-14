@@ -251,6 +251,45 @@ describe('PreferencesRegistriesEditing', () => {
     await waitFor(() => expect(window.updateImageRegistry).toHaveBeenCalledOnce());
   });
 
+  test('Expect a failed login on an existing registry shows the error text in an alert without a static label', async () => {
+    const registry: Registry = {
+      source: 'test',
+      serverUrl: 'https://test.com',
+      name: 'Test Registry',
+      username: 'user',
+      secret: 'secret',
+    };
+    registriesInfos.set([registry]);
+    vi.mocked(window.checkImageCredentials).mockResolvedValue(undefined);
+    vi.mocked(window.updateImageRegistry).mockRejectedValue(new Error('Wrong Username or Password'));
+    render(PreferencesRegistriesEditing, {});
+
+    await userEvent.click(screen.getByRole('button', { name: 'kebab menu' }));
+    await userEvent.click(screen.getByTitle('Edit password'));
+    await userEvent.click(screen.getByRole('button', { name: 'Login' }));
+
+    const alert = await screen.findByText('Wrong Username or Password');
+    expect(alert).toHaveAttribute('role', 'alert');
+    expect(alert).not.toHaveAttribute('aria-label');
+    expect(screen.queryByLabelText('Error Message Content')).not.toBeInTheDocument();
+  });
+
+  test('Expect a failed login on a suggested registry shows the error text in an alert without a static label', async () => {
+    registriesSuggestedInfos.set([{ name: 'Docker Hub', url: 'docker.io' }]);
+    vi.mocked(window.checkImageCredentials).mockResolvedValue(undefined);
+    vi.mocked(window.createImageRegistry).mockRejectedValue(new Error('Wrong Username or Password'));
+    render(PreferencesRegistriesEditing, {});
+
+    await userEvent.click(screen.getByRole('button', { name: 'Configure' }));
+    await userEvent.type(screen.getByPlaceholderText('Username'), 'user');
+    await userEvent.type(screen.getByPlaceholderText('Password'), 'password');
+    await userEvent.click(screen.getByRole('button', { name: 'Login' }));
+
+    const alert = await screen.findByText('Wrong Username or Password');
+    expect(alert).toHaveAttribute('role', 'alert');
+    expect(alert).not.toHaveAttribute('aria-label');
+  });
+
   test('Expect removing registry calls unregisterImageRegistry', async () => {
     const registry: Registry = {
       source: 'test',
