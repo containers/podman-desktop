@@ -153,6 +153,25 @@ test('Expect basic error styling', async () => {
 
   const err = screen.getByText(error);
   expect(err).toBeInTheDocument();
+
+  expect(element).toBeInvalid();
+  expect(screen.queryByLabelText('error')).not.toBeInTheDocument();
+  expect(document.querySelector('span[aria-hidden="true"]')).toBeInTheDocument();
+});
+
+test.each([
+  { name: 'aria-invalid false overrides error', props: { error: 'Test error', 'aria-invalid': false }, invalid: false },
+  { name: 'showError false hides invalid state', props: { error: 'Test error', showError: false }, invalid: false },
+  { name: 'aria-invalid true without error', props: { 'aria-invalid': true }, invalid: true },
+])('Expect aria-invalid precedence: $name', ({ props, invalid }) => {
+  render(Input, { value: 'test', placeholder: 'test', ...props });
+
+  const element = screen.getByPlaceholderText('test');
+  if (invalid) {
+    expect(element).toBeInvalid();
+  } else {
+    expect(element).not.toBeInvalid();
+  }
 });
 
 test('Expect inputClass styling', async () => {
