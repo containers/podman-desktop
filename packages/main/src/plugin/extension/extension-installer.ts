@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import { cp } from 'node:fs/promises';
+import { cp, rm } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
@@ -369,13 +369,13 @@ export class ExtensionInstaller {
 
     // if we have some undefined objects, it is an error, cleanup extensions
     if (errors.length > 0) {
-      analyzedExtensions
-        .filter(extension => extension !== undefined)
-        .forEach(extension => {
-          if (extension?.path) {
-            fs.rmdirSync(extension.path, { recursive: true });
-          }
-        });
+      await Promise.all(
+        analyzedExtensions
+          .filter(extension => extension?.path)
+          .map(extension => {
+            return rm(extension.path, { recursive: true, force: true });
+          }),
+      );
       sendError(`Error while installing extension ${imageName}: ${errors.join('\n')}`);
       return;
     }

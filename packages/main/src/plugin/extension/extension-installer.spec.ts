@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { rmSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import * as path from 'node:path';
 
 import type { ExtensionInfo } from '@desktop-framework/api';
@@ -90,6 +90,7 @@ const taskManager = {
 } as unknown as TaskManager;
 
 vi.mock(import('node:fs'));
+vi.mock(import('node:fs/promises'));
 vi.mock(import('/@/plugin/docker-extension/docker-desktop-installer.js'));
 
 beforeEach(() => {
@@ -101,7 +102,7 @@ beforeEach(() => {
     error: undefined,
   });
 
-  vi.mocked(rmSync).mockReturnValue(undefined);
+  vi.mocked(rm).mockResolvedValue(undefined);
   vi.mocked(directories.getPluginsDirectory).mockReturnValue('/fake/plugins/directory');
   vi.mocked(directories.getContributionStorageDir).mockReturnValue('/fake/dd/directory');
   extensionInstaller = new ExtensionInstaller(
@@ -339,6 +340,54 @@ test('should fail if an image have incorrect labels', async () => {
 
   // extension not started
   expect(apiSenderSendMock).not.toBeCalled();
+});
+
+test('should remove the extension folders when the dependencies analysis reports errors', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+  const extension = { path: '/fake/extension/path', manifest: { name: 'my-extension' } } as AnalyzedExtension;
+
+  vi.spyOn(extensionInstaller, 'analyzeFromImage').mockResolvedValueOnce(extension);
+  vi.spyOn(extensionInstaller, 'analyzeTransitiveDependencies').mockImplementationOnce(
+    async (_extension, analyzedExtensions, errors) => {
+      analyzedExtensions.push(extension);
+      errors.push('fake dependency error');
+      return true;
+    },
+  );
+
+  await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  expect(rm).toHaveBeenCalledWith('/fake/extension/path', { recursive: true, force: true });
+  expect(sendError).toHaveBeenCalledWith(`Error while installing extension ${imageToPull}: fake dependency error`);
+  expect(sendEnd).not.toHaveBeenCalled();
+});
+
+test('should not continue when removing the extension folders fails', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+  const extension = { path: '/fake/extension/path', manifest: { name: 'my-extension' } } as AnalyzedExtension;
+
+  vi.spyOn(extensionInstaller, 'analyzeFromImage').mockResolvedValueOnce(extension);
+  vi.spyOn(extensionInstaller, 'analyzeTransitiveDependencies').mockImplementationOnce(
+    async (_extension, analyzedExtensions, errors) => {
+      analyzedExtensions.push(extension);
+      errors.push('fake dependency error');
+      return true;
+    },
+  );
+  vi.mocked(rm).mockRejectedValueOnce(new Error('EACCES'));
+
+  await expect(extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull)).rejects.toThrow('EACCES');
+
+  expect(sendError).not.toHaveBeenCalled();
+  expect(sendEnd).not.toHaveBeenCalled();
 });
 
 test('should report error', async () => {
