@@ -17,8 +17,11 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 import type { ExtensionContext, ProxySettings } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { PodmanConfiguration } from './podman-configuration';
@@ -38,10 +41,12 @@ class TestPodmanConfiguration extends PodmanConfiguration {
 let podmanConfiguration: TestPodmanConfiguration;
 
 beforeEach(() => {
+  vi.mocked(extensionApi.env).isLinux = false;
   podmanConfiguration = new TestPodmanConfiguration(extensionContext);
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   vi.resetAllMocks();
   vi.restoreAllMocks();
 });
@@ -202,6 +207,98 @@ test('if provider is set default one (on CLI) and the file does NOT exist, do no
   await podmanConfiguration.updateMachineProviderSettings(VMTYPE.APPLEHV);
 
   expect(fs.promises.writeFile).not.toHaveBeenCalled();
+});
+
+describe('when the containers configuration directory does not exist', () => {
+  test.each<{
+    name: string;
+    update: (configuration: PodmanConfiguration) => Promise<void>;
+    expectedContent: string[];
+  }>([
+    {
+      name: 'Rosetta setting',
+      update: (configuration): Promise<void> => configuration.updateRosettaSetting(true),
+      expectedContent: ['rosetta = true'],
+    },
+    {
+      name: 'machine provider setting',
+      update: (configuration): Promise<void> => configuration.updateMachineProviderSettings(VMTYPE.LIBKRUN),
+      expectedContent: ['provider = "libkrun"'],
+    },
+    {
+      name: 'proxy settings',
+      update: (configuration): Promise<void> =>
+        configuration.updateProxySettings({
+          httpProxy: 'http://localhost:3128',
+          httpsProxy: 'http://localhost:3129',
+          noProxy: 'localhost,127.0.0.1',
+        }),
+      expectedContent: [
+        'http_proxy=http://localhost:3128',
+        'https_proxy=http://localhost:3129',
+        'no_proxy=localhost,127.0.0.1',
+      ],
+    },
+  ])('$name creates the directory before writing containers.conf', async ({ update, expectedContent }) => {
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    await update(podmanConfiguration);
+
+    const location = podmanConfiguration.getContainersFileLocation();
+    const mkdirMock = vi.mocked(fs.promises.mkdir);
+    const writeFileMock = vi.mocked(fs.promises.writeFile);
+    expect(mkdirMock).toHaveBeenCalledWith(path.dirname(location), { recursive: true });
+    for (const expected of expectedContent) {
+      expect(writeFileMock).toHaveBeenCalledWith(location, expect.stringContaining(expected));
+    }
+    expect(mkdirMock.mock.invocationCallOrder[0]).toBeLessThan(writeFileMock.mock.invocationCallOrder[0]);
+  });
+
+  test.each([
+    { name: 'unset', xdgConfigHome: undefined },
+    { name: 'empty', xdgConfigHome: '' },
+  ])('creates the Linux config under the home directory when XDG_CONFIG_HOME is $name', async ({ xdgConfigHome }) => {
+    vi.mocked(extensionApi.env).isLinux = true;
+    vi.stubEnv('XDG_RUNTIME_DIR', undefined);
+    vi.stubEnv('XDG_CONFIG_HOME', xdgConfigHome);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    await podmanConfiguration.updateProxySettings({
+      httpProxy: 'http://localhost:3128',
+      httpsProxy: undefined,
+      noProxy: undefined,
+    });
+
+    const location = path.resolve(os.homedir(), '.config', 'containers', 'containers.conf');
+    expect(podmanConfiguration.getContainersFileLocation()).toBe(location);
+    expect(fs.promises.mkdir).toHaveBeenCalledWith(path.dirname(location), { recursive: true });
+    expect(fs.promises.writeFile).toHaveBeenCalledWith(
+      location,
+      expect.stringContaining('http_proxy=http://localhost:3128'),
+    );
+  });
+
+  test('creates the Linux config under XDG_CONFIG_HOME when set', async () => {
+    vi.mocked(extensionApi.env).isLinux = true;
+    const configHome = path.resolve(os.homedir(), 'custom-config');
+    vi.stubEnv('XDG_CONFIG_HOME', configHome);
+    vi.stubEnv('XDG_RUNTIME_DIR', path.resolve(os.homedir(), 'runtime'));
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    await podmanConfiguration.updateProxySettings({
+      httpProxy: 'http://localhost:3128',
+      httpsProxy: undefined,
+      noProxy: undefined,
+    });
+
+    const location = path.resolve(configHome, 'containers', 'containers.conf');
+    expect(podmanConfiguration.getContainersFileLocation()).toBe(location);
+    expect(fs.promises.mkdir).toHaveBeenCalledWith(path.dirname(location), { recursive: true });
+    expect(fs.promises.writeFile).toHaveBeenCalledWith(
+      location,
+      expect.stringContaining('http_proxy=http://localhost:3128'),
+    );
+  });
 });
 
 test('doUpdateProxySettings should be called one at the time', async () => {

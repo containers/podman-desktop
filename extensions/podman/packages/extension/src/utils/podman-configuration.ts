@@ -178,7 +178,7 @@ export class PodmanConfiguration {
         rosetta: useRosetta,
       };
       const content = toml.stringify(containersConfContent);
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+      await this.writeNewContainersConfigFile(content);
     } else {
       // Read the file
       const containersConfigFile = await this.readContainersConfigFile();
@@ -235,7 +235,7 @@ export class PodmanConfiguration {
         provider: provider,
       };
       const content = toml.stringify(containersConfContent);
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+      await this.writeNewContainersConfigFile(content);
     } else if (fs.existsSync(this.getContainersFileLocation())) {
       // Read the file
       const containersConfigFile = await this.readContainersConfigFile();
@@ -317,7 +317,7 @@ export class PodmanConfiguration {
 
       // write the file
       const content = toml.stringify(containersConfContent);
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+      await this.writeNewContainersConfigFile(content);
     } else {
       // read the content of the file
       const containersConfigFile = await this.readContainersConfigFile();
@@ -422,12 +422,20 @@ export class PodmanConfiguration {
     } else if (extensionApi.env.isWindows) {
       podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');
     } else if (extensionApi.env.isLinux) {
-      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';
-      podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
+      const xdgConfigHome = process.env['XDG_CONFIG_HOME'];
+      podmanConfigContainersPath = xdgConfigHome
+        ? path.resolve(xdgConfigHome, 'containers')
+        : path.resolve(os.homedir(), '.config', 'containers');
     }
 
     // resolve the containers.conffile path
     return path.resolve(podmanConfigContainersPath, 'containers.conf');
+  }
+
+  private async writeNewContainersConfigFile(content: string): Promise<void> {
+    const location = this.getContainersFileLocation();
+    await fs.promises.mkdir(path.dirname(location), { recursive: true });
+    await fs.promises.writeFile(location, content);
   }
 
   protected readContainersConfigFile(): Promise<string> {
