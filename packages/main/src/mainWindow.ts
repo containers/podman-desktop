@@ -37,9 +37,13 @@ const loginMinimizeHandler = new LoginMinimizeHandler();
 let navigationItemsMenuBuilder: NavigationItemsMenuBuilder;
 
 // development mode for extensions
+export interface WindowConfig {
+  icon?: Electron.NativeImage;
+}
+
 let isExtensionsDevelopmentModeEnabled = false;
 
-async function createWindow(): Promise<BrowserWindow> {
+async function createWindow(config?: WindowConfig): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;
   const INITIAL_APP_MIN_WIDTH = 640;
   const INITIAL_APP_HEIGHT = 700;
@@ -58,6 +62,7 @@ async function createWindow(): Promise<BrowserWindow> {
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
     backgroundColor: INITIAL_APP_BACKGROUND_COLOR,
+    ...(config?.icon && { icon: config.icon }),
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
@@ -267,10 +272,10 @@ async function createWindow(): Promise<BrowserWindow> {
 }
 
 // Create a new window if there is no existing window
-export async function createNewWindow(): Promise<BrowserWindow> {
+export async function createNewWindow(config?: WindowConfig): Promise<BrowserWindow> {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  window ??= await createWindow();
+  window ??= await createWindow(config);
   return window;
 }
 

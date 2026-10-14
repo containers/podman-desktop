@@ -15,9 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { CustomPick, CustomPickItem, Event } from '@podman-desktop/api';
-import type { IDisposable } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { IDisposable } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { CustomPick, CustomPickItem, Event } from '@desktop-framework/extension-api';
 
 import { Emitter } from '/@/plugin/events/emitter.js';
 

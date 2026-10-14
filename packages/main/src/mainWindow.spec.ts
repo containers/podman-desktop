@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Configuration } from '@podman-desktop/api';
+import type { Configuration } from '@desktop-framework/extension-api';
 import type Electron from 'electron';
 import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -33,6 +33,7 @@ vi.mock(import('./development-menu-builder.js'));
 vi.mock(import('./development-mode-tracker.js'));
 vi.mock(import('./navigation-items-menu-builder.js'));
 vi.mock(import('./open-dev-tools.js'));
+vi.mock(import('./plugin/app-ready/app-identity-plugin.js'));
 
 vi.mock(import('./util.js'), async () => ({
   isLinux: vi.fn().mockReturnValue(false),

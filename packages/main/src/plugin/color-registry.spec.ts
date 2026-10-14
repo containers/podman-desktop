@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ColorDefinition, RawThemeContribution } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
-import type { IConfigurationChangeEvent } from '@podman-desktop/core-api/configuration';
+import type { ColorDefinition, RawThemeContribution } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
+import type { IConfigurationChangeEvent } from '@desktop-framework/api/configuration';
 import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -882,6 +882,13 @@ describe('badge', () => {
     expect(spyOnRegisterColor).toBeCalledWith('badge-devmode-extension-bg', {
       dark: tailwindColorPalette.dustypurple[600],
       light: tailwindColorPalette.dustypurple[600],
+    });
+  });
+
+  test('overrides badge', () => {
+    expect(spyOnRegisterColor).toHaveBeenCalledWith('badge-overrides-extension-bg', {
+      dark: tailwindColorPalette.yellow[500],
+      light: tailwindColorPalette.yellow[300],
     });
   });
 });
@@ -1946,6 +1953,42 @@ describe('initActionButton', () => {
       hcDark: tailwindColorPalette.accent1[500],
       hcLight: tailwindColorPalette.accent1[700],
     });
+  });
+});
+
+// Until ListItemButtonIcon (issue 19060) and the other direct usages (issue 19415) are migrated, both families
+// must resolve to identical values. Remove this block together with initActionButton().
+describe('action-button tokens stay in sync with their button-* replacements', () => {
+  const ACTION_BUTTON_REPLACEMENTS: [string, string][] = [
+    ['action-button-text', 'button-icon-text'],
+    ['action-button-hover-text', 'button-icon-hover-text'],
+    ['action-button-hover-bg', 'button-icon-hover-bg'],
+    ['action-button-disabled-text', 'button-icon-disabled-text'],
+    ['action-button-bg', 'button-icon-bg'],
+    ['action-button-primary-text', 'button-icon-primary-text'],
+    ['action-button-primary-hover-text', 'button-icon-primary-hover-text'],
+    ['action-button-details-text', 'button-detailed-text'],
+    ['action-button-details-bg', 'button-detailed-bg'],
+    ['action-button-details-hover-text', 'button-detailed-hover-text'],
+    ['action-button-details-disabled-text', 'button-detailed-disabled-text'],
+    ['action-button-details-disabled-bg', 'button-detailed-disabled-bg'],
+    ['action-button-spinner', 'button-spinner'],
+  ];
+
+  beforeEach(() => {
+    colorRegistry.initCommon();
+    colorRegistry.initDefaults();
+    colorRegistry.initButton();
+    colorRegistry.initActionButton();
+  });
+
+  test.each(ACTION_BUTTON_REPLACEMENTS)('%s -> %s', (oldId, newId) => {
+    for (const theme of colorRegistry.listThemes()) {
+      const byId = new Map(colorRegistry.listColors(theme).map(c => [c.id, c.value]));
+
+      expect(byId.get(oldId), `${oldId} missing in ${theme}`).toBeDefined();
+      expect(byId.get(newId), `${newId} in ${theme}`).toBe(byId.get(oldId));
+    }
   });
 });
 

@@ -53,6 +53,7 @@ jobs:
   e2e-tests:
     name: Run All E2E tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 180
     # disable on forks as secrets are not available
     if: github.event.repository.fork == false
     steps:
@@ -94,7 +95,7 @@ jobs:
         with:
           run_install: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -118,7 +119,7 @@ jobs:
           pnpm test:e2e:k8s
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true

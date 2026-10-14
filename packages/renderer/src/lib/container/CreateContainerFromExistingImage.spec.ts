@@ -18,13 +18,13 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageInfo, ProviderStatus } from '@podman-desktop/api';
 import {
   type ImageSearchResult,
   NavigationPage,
   type ProviderContainerConnectionInfo,
   type ProviderInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import type { ImageInfo, ProviderStatus } from '@desktop-framework/extension-api';
 import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';

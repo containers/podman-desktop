@@ -1,35 +1,8 @@
-<style lang="postcss">
-#stepBody::-webkit-scrollbar {
-  width: 1em;
-  height: 50%;
-}
-#stepBody::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px var(--pd-shadow-color-strong);
-}
-#stepBody::-webkit-scrollbar-thumb {
-  background-color: [var(--pd-button-tab-hover-border)];
-}
-#stepBody::-webkit-scrollbar-thumb:hover {
-  background-color: [var(--pd-button-tab-hover-border)];
-}
-#stepBody::-webkit-scrollbar-thumb:active {
-  background-color: [var(--pd-button-tab-hover-border)];
-}
-#stepBody::-webkit-scrollbar-track-piece:start {
-  background: transparent;
-  margin-top: 100px;
-}
-.bodyWithBar::-webkit-scrollbar-track-piece:end {
-  background: transparent;
-  margin-bottom: 70px;
-}
-</style>
-
 <script lang="ts">
+import type { OnboardingInfo, OnboardingStepItem } from '@desktop-framework/api';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
-import type { OnboardingInfo, OnboardingStepItem } from '@podman-desktop/core-api';
-import { Button, ButtonRow, Link, Spinner } from '@podman-desktop/ui-svelte';
+import { Button, ButtonRow, Spinner } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -54,6 +27,7 @@ import {
 import OnboardingComponent from './OnboardingComponent.svelte';
 import OnboardingItem from './OnboardingItem.svelte';
 import { OnboardingTelemetrySession } from './telemetry';
+import OnboardingWizardShell from './wizard/OnboardingWizardShell.svelte';
 
 interface Props {
   extensionIds?: string[];
@@ -311,182 +285,154 @@ let sidebarTitle = $derived(
 <svelte:window on:keydown={handleEscape} />
 
 {#if activeStep}
-  <!-- fake div used to hide scrollbar shadow behind the header as it's a bit transparent  -->
-  <div class="fixed bg-[var(--pd-content-card-bg)] right-0 top-0 h-[100px] w-[30px] z-10 mt-8"></div>
-  <div
-    id="stepBody"
-    role="region"
-    aria-label="Onboarding Body"
-    class="flex flex-col bg-[var(--pd-content-card-bg)] text-[var(--pd-details-body-text)] {globalOnboarding
-      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-no-repeat z-45 pt-9 overflow-y-auto'
-      : 'h-full overflow-y-auto w-full overflow-x-hidden'}"
-    class:bodyWithBar={!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}>
-    <div class="flex flex-col h-full">
-      <div
-        class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-[var(--pd-content-bg)]"
-        role="heading"
-        aria-level={2}
-        aria-label="{activeStep.onboarding.title} Header">
-        <div class="flex flew-row">
-          {#if activeStep?.onboarding?.media && !globalOnboarding}
-            <img
-              class="w-14 h-14 object-contain mr-3"
-              alt={activeStep.onboarding.media.altText}
-              src={activeStep.onboarding.media.path} />
-          {/if}
-          <div class="flex flex-col">
-            <div class="text-lg font-bold text-[var(--pd-content-header)]">
-              {sidebarTitle}
-            </div>
-            {#if !globalOnboarding}
-              {#if activeStep.onboarding.description}
-                <div class="text-sm text-[var(--pd-content-sub-header)]">
-                  {replaceContextKeyPlaceholders(
-                    activeStep.onboarding.description,
-                    activeStep.onboarding.extension,
-                    globalContext,
-                  )}
-                </div>
-              {/if}
-            {/if}
-            <button
-              class="flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)] mt-1"
-              onclick={(): void => setDisplayCancelSetup(true)}>
-              <span class="mr-1">Skip this entire setup</span>
-              <Icon icon={faForward} size="0.8x" />
-            </button>
-          </div>
-        </div>
-        <!-- New section for listing onboardings -->
+  <div class={globalOnboarding ? 'fixed inset-0 z-45 flex flex-col bg-[var(--pd-content-card-bg)]' : 'h-full w-full'}>
+    {#if globalOnboarding}
+      <!-- Drag handle replaces the covered title bar so the window stays movable -->
+      <div class="h-10 shrink-0" style="-webkit-app-region: drag;" aria-hidden="true"></div>
+    {/if}
+    <OnboardingWizardShell
+      sidebarTitle={sidebarTitle}
+      hideSidebar={!globalOnboarding}
+      role="region"
+      aria-label="Onboarding Body"
+      class={globalOnboarding ? 'min-h-0 flex-1 bg-[var(--pd-content-card-bg)]' : 'bg-[var(--pd-content-card-bg)]'}>
+
+    {#snippet leftSidebar()}
+      {#if activeStep}
         {#if globalOnboarding}
-          <div class="flex justify-right mr-3">
-            {#each onboardings as onboarding, index (index)}
-              <div class="flex flex-col items-center ml-8">
-                <!-- Dot indicating active/inactive state -->
-                <span>
+          <nav aria-label="Setup steps">
+            <ol class="space-y-4">
+              {#each onboardings as onboarding, index (index)}
+                <li
+                  class="flex items-start gap-3"
+                  aria-current={onboarding.extension === activeStep.onboarding.extension ? 'step' : undefined}>
                   <div
-                    class="w-5 h-5 rounded-full mb-1 border-2 {onboarding.extension ===
-                    activeStep?.onboarding?.extension
+                    class="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 {onboarding.extension === activeStep.onboarding.extension
                       ? 'bg-[var(--pd-onboarding-active-dot-bg)] border-[var(--pd-onboarding-active-dot-border)]'
                       : 'border-[var(--pd-onboarding-inactive-dot-border)] bg-[var(--pd-onboarding-inactive-dot-bg)]'}">
-                  </div></span>
-
-                <!-- Onboarding title -->
-                <div class="text-md">
-                  {onboarding.title}
-                </div>
-
-                <!-- Skip button for the onboarding -->
-                {#if onboarding.extension === activeStep?.onboarding?.extension}
-                  <button
-                    class="mt-1 flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)]"
-                    onclick={skipCurrentOnboarding}>
-                    <span class="mr-1">Skip</span>
-                    <Icon icon={faForward} size="0.8x" />
-                  </button>
-                {/if}
-              </div>
-            {/each}
-          </div>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm {onboarding.extension === activeStep.onboarding.extension ? 'font-semibold text-[var(--pd-content-header)]' : 'text-[var(--pd-content-sub-header)]'}">
+                      {onboarding.title}
+                    </span>
+                    {#if onboarding.extension === activeStep.onboarding.extension}
+                      <button
+                        class="mt-0.5 flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)]"
+                        onclick={skipCurrentOnboarding}>
+                        <span class="mr-1">Skip</span>
+                        <Icon icon={faForward} size="0.8x" />
+                      </button>
+                    {/if}
+                  </div>
+                </li>
+              {/each}
+            </ol>
+          </nav>
         {/if}
-      </div>
-      {#if activeStep.step.component}
-        <div class="min-w-[700px] mx-auto mt-32" aria-label="Onboarding Component">
-          <OnboardingComponent component={activeStep.step.component} extensionId={activeStep.onboarding.extension} />
-        </div>
-      {:else}
-        <div class="w-[450px] flex flex-col mt-16 pt-24 mx-auto" aria-label="Step Body">
-          {#if activeStep.step.media}
-            <div class="mx-auto">
-              <img
-                class="w-24 h-24 object-contain"
-                alt={activeStep.step.media.altText}
-                src={activeStep.step.media.path} />
-            </div>
-          {:else if activeStep.onboarding.media}
-            <div class="mx-auto">
-              <img
-                class="w-24 h-24 object-contain"
-                alt={activeStep.onboarding.media.altText}
-                src={activeStep.onboarding.media.path} />
-            </div>
-          {/if}
-          <div class="flex flex-row mx-auto">
-            {#if executing}
-              <div class="mt-1 mr-6">
-                <Spinner />
-              </div>
-            {/if}
-            <div class="text-lg" aria-label="Onboarding Status Message">
-              {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
-            </div>
-          </div>
-          {#if activeStep.step.description}
-            <div class="text-sm mx-auto">
-              {replaceContextKeyPlaceholders(
-                activeStep.step.description,
-                activeStep.onboarding.extension,
-                globalContext,
-              )}
-            </div>
-          {/if}
-        </div>
-
-        {#if activeStep.step.state === 'failed'}
-          <div class="mx-auto mt-4">
-            <Button on:click={restartSetup}>Try again</Button>
-          </div>
-        {/if}
-
-        <div class="max-w-[80%] flex flex-col mx-auto">
-          {#if activeStepContent}
-            {#each activeStepContent as row, index (index)}
-              <div class="flex flex-row mx-auto">
-                {#each row as item, index (index)}
-                  <OnboardingItem
-                    extension={activeStep.onboarding.extension}
-                    item={item}
-                    inProgressCommandExecution={inProgressCommandExecution} />
-                {/each}
-              </div>
-            {/each}
-          {/if}
-        </div>
       {/if}
+    {/snippet}
 
-      {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
-        <div class="grow"></div>
-        {#if activeStep.step.state !== 'failed'}
-          <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Next Info Message">
-            Press the <span class="text-[var(--pd-button-text)] bg-[var(--pd-button-primary-bg)] p-0.5">Next</span> button
-            below to proceed.
+    {#snippet leftSidebarFooter()}
+      <button
+        class="flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)]"
+        onclick={(): void => setDisplayCancelSetup(true)}>
+        <span class="mr-1">Skip this entire setup</span>
+        <Icon icon={faForward} size="0.8x" />
+      </button>
+    {/snippet}
+
+    {#snippet rightContent()}
+      {#if activeStep}
+        {#if activeStep.step.component}
+          <div class="w-full max-w-[700px] mx-auto pt-4" aria-label="Onboarding Component">
+            <OnboardingComponent component={activeStep.step.component} extensionId={activeStep.onboarding.extension} />
           </div>
         {:else}
-          <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Exit Info Message">
-            <Link on:click={(): void => setDisplayCancelSetup(true)}>Exit</Link> the setup. You can try again later.
+          <div class="max-w-lg flex flex-col pt-12 mx-auto" aria-label="Step Body">
+            {#if activeStep.step.media}
+              <div class="mx-auto">
+                <img
+                  class="w-24 h-24 object-contain"
+                  alt={activeStep.step.media.altText}
+                  src={activeStep.step.media.path} />
+              </div>
+            {:else if activeStep.onboarding.media}
+              <div class="mx-auto">
+                <img
+                  class="w-24 h-24 object-contain"
+                  alt={activeStep.onboarding.media.altText}
+                  src={activeStep.onboarding.media.path} />
+              </div>
+            {/if}
+            <div class="flex flex-row mx-auto">
+              {#if executing}
+                <div class="mt-1 mr-6">
+                  <Spinner />
+                </div>
+              {/if}
+              <div class="text-lg" aria-label="Onboarding Status Message">
+                {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
+              </div>
+            </div>
+            {#if activeStep.step.description}
+              <div class="text-sm mx-auto">
+                {replaceContextKeyPlaceholders(
+                  activeStep.step.description,
+                  activeStep.onboarding.extension,
+                  globalContext,
+                )}
+              </div>
+            {/if}
+          </div>
+
+          {#if activeStep.step.state === 'failed'}
+            <div class="mx-auto mt-4">
+              <Button on:click={restartSetup}>Try again</Button>
+            </div>
+          {/if}
+
+          <div class="max-w-[80%] flex flex-col mx-auto">
+            {#if activeStepContent}
+              {#each activeStepContent as row, index (index)}
+                <div class="flex flex-row mx-auto">
+                  {#each row as item, index (index)}
+                    <OnboardingItem
+                      extension={activeStep.onboarding.extension}
+                      item={item}
+                      inProgressCommandExecution={inProgressCommandExecution} />
+                  {/each}
+                </div>
+              {/each}
+            {/if}
           </div>
         {/if}
+      {/if}
+    {/snippet}
+
+    {#snippet footer()}
+      {#if activeStep && (!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0)}
         <div
-          class="flex flex-row-reverse p-6 bg-[var(--pd-content-bg)] sticky bottom-0 w-full pr-10 max-h-20 bg-opacity-90 z-20"
+          class="flex justify-end gap-3"
           role="group"
           aria-label="Step Buttons">
+          {#if activeStep.step.state !== 'completed'}
+            <Button
+              type="secondary"
+              aria-label="Cancel Setup"
+              on:click={(): void => setDisplayCancelSetup(true)}>Cancel</Button>
+          {/if}
           <Button
             type="primary"
             aria-label="Next Step"
             disabled={activeStep.step.state === 'failed'}
             on:click={next}>Next</Button>
-          {#if activeStep.step.state !== 'completed'}
-            <Button
-              type="secondary"
-              aria-label="Cancel Setup"
-              class="mr-2 opacity-100"
-              on:click={(): void => setDisplayCancelSetup(true)}>Cancel</Button>
-          {/if}
         </div>
       {/if}
-    </div>
+    {/snippet}
+    </OnboardingWizardShell>
   </div>
 {/if}
+
 {#if displayCancelSetup}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-(--pd-modal-fade) bg-opacity-60 bg-blend-multiply h-full grid z-50">

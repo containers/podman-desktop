@@ -40,6 +40,23 @@ After each step, quit and restart Podman Desktop to ensure that it can detect yo
 1. Reinstall Podman with the Podman installer.
 1. Reinstall Podman with another method.
 
+## Podman Desktop shows an outdated Podman version after Podman is uninstalled
+
+#### Issue
+
+If you uninstall Podman outside Podman Desktop while the application is running, the dashboard might continue to display the previously detected Podman version.
+
+Podman Desktop caches the details of the Podman installation that it detects, and does not check for them continuously, to avoid the performance cost of repeatedly querying the Podman CLI. As a result, the application does not detect that Podman was uninstalled until it restarts.
+
+This applies to Windows, macOS, and Linux.
+
+#### Solution
+
+1. Quit Podman Desktop.
+1. Start Podman Desktop again.
+
+   The dashboard now reflects the current state of your Podman installation.
+
 ## Podman Desktop fails to create a Podman machine
 
 #### Issue

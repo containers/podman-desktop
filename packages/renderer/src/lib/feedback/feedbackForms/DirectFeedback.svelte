@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { DirectFeedbackCategory, FeedbackProperties } from '@desktop-framework/api';
 import {
   faFrown,
   faGrinStars,
@@ -8,7 +9,6 @@ import {
   faSmile,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
-import type { DirectFeedbackCategory, FeedbackProperties } from '@podman-desktop/core-api';
 import { Button, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

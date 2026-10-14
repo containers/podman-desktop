@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
-import type { IConfigurationChangeEvent } from '@podman-desktop/core-api/configuration';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
+import type { IConfigurationChangeEvent } from '@desktop-framework/api/configuration';
 import { nativeTheme } from 'electron';
 import { beforeAll, expect, test, vi } from 'vitest';
 

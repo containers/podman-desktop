@@ -21,8 +21,8 @@ import { cp } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import type { ExtensionInfo } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ExtensionInfo } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { IpcMainEvent } from 'electron';
 import { inject, injectable } from 'inversify';
 

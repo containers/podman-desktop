@@ -18,10 +18,10 @@
 import type { Server } from 'node:net';
 import { createServer } from 'node:net';
 
+import type { ForwardConfig, IDisposable, PortMapping } from '@desktop-framework/api';
+import { WorkloadKind } from '@desktop-framework/api';
 import type { V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
 import { PortForward } from '@kubernetes/client-node';
-import type { ForwardConfig, IDisposable, PortMapping } from '@podman-desktop/core-api';
-import { WorkloadKind } from '@podman-desktop/core-api';
 
 import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import type { ForwardConfigRequirements } from '/@/plugin/kubernetes/kubernetes-port-forward-validation.js';

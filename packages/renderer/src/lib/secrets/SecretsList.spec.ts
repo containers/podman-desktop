@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo, SecretInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo, ProviderInfo, SecretInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';

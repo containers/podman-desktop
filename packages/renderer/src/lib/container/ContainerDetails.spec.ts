@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ContainerInfo, ContainerInspectInfo } from '@podman-desktop/core-api';
+import type { ContainerInfo, ContainerInspectInfo } from '@desktop-framework/api';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';

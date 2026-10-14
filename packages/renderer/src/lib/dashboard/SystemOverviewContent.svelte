@@ -1,11 +1,11 @@
 <script lang="ts">
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import {
   NavigationPage,
   type ProviderConnectionInfo,
   type ProviderContainerConnectionInfo,
   type ProviderInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';

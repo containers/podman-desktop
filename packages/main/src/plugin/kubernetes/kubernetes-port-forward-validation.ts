@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { ForwardConfig } from '@podman-desktop/core-api';
+import type { ForwardConfig } from '@desktop-framework/api';
 
 /**
  * Type representing a function that checks the availability of a port.

@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { ContextGeneralState } from '@desktop-framework/api';
 import type { V1NamespaceList } from '@kubernetes/client-node';
-import type { ContextGeneralState } from '@podman-desktop/core-api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';

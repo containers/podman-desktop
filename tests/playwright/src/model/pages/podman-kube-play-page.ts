@@ -76,17 +76,32 @@ export class PodmanKubePlayPage extends BasePage {
     await playExpect(codeSection).toContainText(jsonResourceDefinition);
   }
 
+  private async selectPodmanRuntime(): Promise<void> {
+    await playExpect(this.selectYamlButton).toBeEnabled();
+    if ((await this.selectYamlButton.getAttribute('aria-pressed')) !== 'true') {
+      await this.selectYamlButton.click();
+    }
+    await playExpect(this.selectYamlButton).toHaveAttribute('aria-pressed', 'true');
+  }
+
   private async selectYamlFile(pathToYaml: string): Promise<void> {
     if (!pathToYaml) {
       throw Error('Path to Yaml file is incorrect or not provided!');
     }
-    await playExpect(this.selectYamlButton).toBeEnabled();
-    await this.selectYamlButton.click();
-    await playExpect(this.selectYamlButton).toHaveAttribute('aria-pressed', 'true');
+    await this.selectPodmanRuntime();
 
     await withMockedOpenFileDialog([pathToYaml], async () => {
       await this.browseButton.click();
     });
+    await playExpect(this.yamlPathInput).toHaveValue(pathToYaml);
+  }
+
+  private async enterYamlFilePath(pathToYaml: string): Promise<void> {
+    if (!pathToYaml) {
+      throw Error('Path to Yaml file is incorrect or not provided!');
+    }
+    await this.selectPodmanRuntime();
+    await this.yamlPathInput.fill(pathToYaml);
     await playExpect(this.yamlPathInput).toHaveValue(pathToYaml);
   }
 
@@ -101,6 +116,9 @@ export class PodmanKubePlayPage extends BasePage {
       switch (podmanKubePlayOption) {
         case PodmanKubePlayOptions.SelectYamlFile:
           await this.selectYamlFile(options.pathToYaml);
+          break;
+        case PodmanKubePlayOptions.EnterYamlFilePath:
+          await this.enterYamlFilePath(options.pathToYaml);
           break;
         case PodmanKubePlayOptions.CreateYamlFileFromScratch:
           await this.createFromScratch(options.jsonResourceDefinition);

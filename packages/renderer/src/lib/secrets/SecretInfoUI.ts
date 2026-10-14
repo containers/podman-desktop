@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { SecretInfo } from '@podman-desktop/core-api';
+import type { SecretInfo } from '@desktop-framework/api';
 
 export interface SecretInfoUI extends SecretInfo {
   selected: boolean;

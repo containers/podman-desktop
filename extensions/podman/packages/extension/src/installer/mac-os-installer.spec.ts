@@ -67,7 +67,7 @@ describe('MacOSInstaller', () => {
 
   test('call arch-specific installer', async () => {
     // mock existSync being true for arch-specific installer
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     // create the installer
     const installer = new MacOSInstaller();
 
@@ -113,7 +113,7 @@ describe('MacOSInstaller', () => {
     const installer = new MacOSInstaller();
 
     // mock existSync being always false (we never find installers)
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
 
     // check we have an installer
     expect(installer).toBeDefined();

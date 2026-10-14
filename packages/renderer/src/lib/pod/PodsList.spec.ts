@@ -23,7 +23,7 @@ import type {
   PodInfo,
   ProviderContainerConnectionInfo,
   ProviderInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 /* eslint-disable import/no-duplicates */

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';

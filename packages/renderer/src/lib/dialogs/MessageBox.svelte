@@ -1,7 +1,7 @@
 <script lang="ts">
+import { type ButtonsType, type DialogType, type DropdownType, type IconButtonType } from '@desktop-framework/api';
 import { faCircle, faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { type ButtonsType, type DialogType, type DropdownType, type IconButtonType } from '@podman-desktop/core-api';
 import { Button, type ButtonType, Dropdown } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';

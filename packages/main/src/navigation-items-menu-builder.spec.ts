@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { DisplayItem } from '@podman-desktop/core-api';
+import type { DisplayItem } from '@desktop-framework/api';
 import type { BrowserWindow, ContextMenuParams, MenuItem, MenuItemConstructorOptions } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 

@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { CheckingState, ContextGeneralState, ResourceName, SecondaryResourceName } from '@desktop-framework/api';
+import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { Informer, KubernetesObject } from '@kubernetes/client-node';
-import type { CheckingState, ContextGeneralState, ResourceName, SecondaryResourceName } from '@podman-desktop/core-api';
-import { NO_CURRENT_CONTEXT_ERROR, secondaryResources } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 
 import { dispatchTimeout } from './contexts-constants.js';
 

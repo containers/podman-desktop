@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { LogType } from '@desktop-framework/api';
 import { faFileLines, faPaste } from '@fortawesome/free-regular-svg-icons';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
-import type { LogType } from '@podman-desktop/core-api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';

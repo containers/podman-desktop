@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import { type Writable, writable } from 'svelte/store';
 
 import { configurationProperties } from './configurationProperties';

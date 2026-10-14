@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { FeedbackMessages, GitHubIssue } from '@podman-desktop/core-api';
+import type { FeedbackMessages, GitHubIssue } from '@desktop-framework/api';
 import { shell } from 'electron';
 import { inject, injectable } from 'inversify';
 

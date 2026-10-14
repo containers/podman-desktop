@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { KubernetesContextResources } from '@desktop-framework/api';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import type { KubernetesContextResources } from '@podman-desktop/core-api';
 import { writable } from 'svelte/store';
 import { beforeAll, expect, type Mock, test, vi } from 'vitest';
 

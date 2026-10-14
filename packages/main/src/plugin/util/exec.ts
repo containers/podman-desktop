@@ -21,8 +21,8 @@ import { spawn } from 'node:child_process';
 import { homedir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
+import type { RunError, RunOptions, RunResult } from '@desktop-framework/extension-api';
 import * as sudo from '@expo/sudo-prompt';
-import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
 
 import type { Proxy } from '/@/plugin/proxy.js';
 import { isLinux, isMac, isWindows } from '/@/util.js';

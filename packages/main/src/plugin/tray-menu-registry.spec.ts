@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
 import { ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 

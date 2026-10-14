@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import type { TaskState, TaskStatus } from '@podman-desktop/core-api';
+import type { TaskState, TaskStatus } from '@desktop-framework/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { CancellationTokenSource } from '/@/plugin/cancellation-token.js';

@@ -1,7 +1,7 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
 
-import { TerminalSettings } from '@podman-desktop/core-api/terminal';
+import { TerminalSettings } from '@desktop-framework/api/terminal';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';

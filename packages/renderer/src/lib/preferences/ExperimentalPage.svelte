@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 import PreferencesRenderingItem from '/@/lib/preferences/PreferencesRenderingItem.svelte';

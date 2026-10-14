@@ -17,7 +17,7 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import type { OnboardingInfo, OnboardingStep } from '@podman-desktop/core-api';
+import type { OnboardingInfo, OnboardingStep } from '@desktop-framework/api';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { ContextUI } from '/@/lib/context/context';

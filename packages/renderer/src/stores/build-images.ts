@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
 import type { Terminal } from '@xterm/xterm';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';

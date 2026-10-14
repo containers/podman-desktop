@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { expect, test } from 'vitest';
 
 import { checkNumericValueValid } from './NumberItemUtils';

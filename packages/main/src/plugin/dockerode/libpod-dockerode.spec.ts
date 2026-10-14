@@ -23,8 +23,8 @@ import type { RequestOptions } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import type { ListImagesOptions } from '@podman-desktop/core-api';
-import type { PlayKubeInfo } from '@podman-desktop/core-api/libpod';
+import type { ListImagesOptions } from '@desktop-framework/api';
+import type { PlayKubeInfo } from '@desktop-framework/api/libpod';
 import type DockerModem from 'docker-modem';
 import Dockerode from 'dockerode';
 import type { DefaultBodyType, HttpResponseResolver, PathParams, ResponseResolverReturnType } from 'msw';

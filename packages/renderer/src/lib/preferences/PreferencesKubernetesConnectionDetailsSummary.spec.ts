@@ -22,11 +22,24 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderKubernetesConnectionInfo } from '@podman-desktop/core-api';
+import type { ProviderKubernetesConnectionInfo } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernetesConnectionDetailsSummary.svelte';
+
+const originalConsoleError = console.error;
+const consoleErrorMock = vi.fn();
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  console.error = consoleErrorMock;
+});
+
+afterEach(() => {
+  console.error = originalConsoleError;
+});
 
 const kubernetesConnection: ProviderKubernetesConnectionInfo = {
   connectionType: 'kubernetes',
@@ -45,22 +58,26 @@ test('Expect that name, url and kubernetes are displayed', async () => {
   render(PreferencesKubernetesConnectionDetailsSummary, {
     kubernetesConnectionInfo: kubernetesConnection,
   });
-  const spanConnection = screen.getByLabelText('connection');
-  expect(spanConnection).toBeInTheDocument();
-  const spanUrl = screen.getByLabelText('url');
-  expect(spanUrl).toBeInTheDocument();
-  const kubernetes = screen.getByLabelText('kubernetes');
-  expect(kubernetes).toBeInTheDocument();
-  expect(kubernetes.textContent).toBe('Kubernetes');
+  await vi.waitFor(() => {
+    const spanConnection = screen.getByLabelText('connection');
+    expect(spanConnection).toBeInTheDocument();
+    const spanUrl = screen.getByLabelText('url');
+    expect(spanUrl).toBeInTheDocument();
+    const kubernetes = screen.getByLabelText('kubernetes');
+    expect(kubernetes).toBeInTheDocument();
+    expect(kubernetes.textContent).toBe('Kubernetes');
+  });
 });
 
 test('Expect error is displayed when connection has error', async () => {
   render(PreferencesKubernetesConnectionDetailsSummary, {
     kubernetesConnectionInfo: { ...kubernetesConnection, error: 'Failed to start cluster' },
   });
-  const errorAlert = screen.getByRole('alert');
-  expect(errorAlert).toBeInTheDocument();
-  expect(errorAlert).toHaveTextContent('Failed to start cluster');
+  await vi.waitFor(() => {
+    const errorAlert = screen.getByRole('alert');
+    expect(errorAlert).toBeInTheDocument();
+    expect(errorAlert).toHaveTextContent('Failed to start cluster');
+  });
 });
 
 test('Expect error is not displayed when connection has no error', async () => {
@@ -68,4 +85,30 @@ test('Expect error is not displayed when connection has no error', async () => {
     kubernetesConnectionInfo: kubernetesConnection,
   });
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+test('logs an error when a Kubernetes configuration value cannot be retrieved', async () => {
+  const error = new Error('Failed to retrieve configuration value');
+  const properties: IConfigurationPropertyRecordedSchema[] = [
+    {
+      parentId: 'preferences.kubernetes',
+      title: 'Context',
+      id: 'kubernetes.context',
+      type: 'string',
+      scope: 'KubernetesConnection',
+      description: 'Context',
+    },
+  ];
+  vi.mocked(window.getConfigurationValue).mockRejectedValue(error);
+
+  render(PreferencesKubernetesConnectionDetailsSummary, {
+    kubernetesConnectionInfo: kubernetesConnection,
+    properties,
+  });
+
+  await vi.waitFor(() => {
+    expect(consoleErrorMock).toHaveBeenCalledWith('Error collecting providers', error);
+  });
+  expect(screen.getByLabelText('connection')).toBeInTheDocument();
+  expect(screen.queryByText('Context')).not.toBeInTheDocument();
 });

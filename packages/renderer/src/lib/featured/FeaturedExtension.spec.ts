@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { FeaturedExtension as IFeaturedExtension } from '@podman-desktop/core-api/featured';
+import type { FeaturedExtension as IFeaturedExtension } from '@desktop-framework/api/featured';
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, test } from 'vitest';
 

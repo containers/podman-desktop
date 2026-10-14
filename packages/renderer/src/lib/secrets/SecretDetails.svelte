@@ -1,5 +1,5 @@
 <script lang="ts">
-import { NavigationPage } from '@podman-desktop/core-api';
+import { NavigationPage } from '@desktop-framework/api';
 import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 

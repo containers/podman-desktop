@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { WebviewInfo } from '@podman-desktop/core-api';
+import type { WebviewInfo } from '@desktop-framework/api';
 import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';

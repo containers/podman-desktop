@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import {
   CONFIGURATION_DEFAULT_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_DEFAULTS_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_LOCKED_SCOPE,
-} from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api/configuration';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ConfigurationImpl } from './configuration-impl.js';

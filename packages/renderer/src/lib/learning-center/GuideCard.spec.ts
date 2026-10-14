@@ -43,7 +43,6 @@ suite('Guide card', () => {
 
   test('shows description', async () => {
     const cardDescription = screen.getByText('description');
-    screen.debug(cardDescription);
     expect(cardDescription).toBeVisible();
   });
 

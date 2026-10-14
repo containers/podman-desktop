@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { OnboardingStepItem } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
-import { CONFIGURATION_ONBOARDING_SCOPE } from '@podman-desktop/core-api/configuration';
+import type { OnboardingStepItem } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '@desktop-framework/api/configuration';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 

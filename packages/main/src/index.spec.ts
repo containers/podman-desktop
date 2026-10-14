@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationChangeEvent, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationChangeEvent, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import type { App } from 'electron';
 import { app, BrowserWindow, Menu } from 'electron';
 import { aboutMenuItem } from 'electron-util/main';
@@ -83,6 +83,7 @@ const extensionLoader = {
   getConfigurationRegistry: vi.fn(),
 } as unknown as ExtensionLoader;
 
+vi.mock(import('/@/plugin/app-ready/app-identity-plugin.js'));
 vi.mock(import('./index.js'), async importOriginal => {
   const electron = await import('electron');
   vi.mocked(electron.app.whenReady).mockReturnValue(constants.appReadyDeferredPromise);

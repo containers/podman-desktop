@@ -1,6 +1,6 @@
 <script lang="ts">
+import { NavigationPage } from '@desktop-framework/api';
 import { faKey, faSignIn, faSignOut } from '@fortawesome/free-solid-svg-icons';
-import { NavigationPage } from '@podman-desktop/core-api';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 
 import { handleNavigation } from '/@/navigation';

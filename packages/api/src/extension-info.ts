@@ -27,6 +27,11 @@ export interface ExtensionUpdateInfo {
   ociUri: string;
 }
 
+export interface OverriddenExtension {
+  id: string;
+  version: string;
+}
+
 export interface ExtensionInfo {
   id: string;
   name: string;
@@ -36,6 +41,8 @@ export interface ExtensionInfo {
   removable: boolean;
   devMode: boolean;
   bundled: boolean;
+  // the bundled extension replaced by this extension, if any
+  overrides?: OverriddenExtension;
   version: string;
   state: string;
   error?: ExtensionError;

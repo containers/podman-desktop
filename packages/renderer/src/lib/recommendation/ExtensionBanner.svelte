@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { MessageBoxReturnValue } from '@podman-desktop/core-api';
-import { type ExtensionBanner } from '@podman-desktop/core-api/recommendations';
+import type { MessageBoxReturnValue } from '@desktop-framework/api';
+import { type ExtensionBanner } from '@desktop-framework/api/recommendations';
 import { CloseButton } from '@podman-desktop/ui-svelte';
 
 import FeaturedExtension from '/@/lib/featured/FeaturedExtension.svelte';

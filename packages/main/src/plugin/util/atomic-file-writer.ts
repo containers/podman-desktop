@@ -19,7 +19,7 @@
 import { randomUUID } from 'node:crypto';
 import { rename, writeFile } from 'node:fs/promises';
 
-import type { IAsyncDisposable } from '@podman-desktop/core-api';
+import type { IAsyncDisposable } from '@desktop-framework/api';
 
 /**
  * Serializes writes to a single file using an atomic write pattern:

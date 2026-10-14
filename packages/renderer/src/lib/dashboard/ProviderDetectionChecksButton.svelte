@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { ProviderInfo } from '@desktop-framework/api';
+import type { ProviderDetectionCheck } from '@desktop-framework/extension-api';
 import { faList } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderDetectionCheck } from '@podman-desktop/api';
-import type { ProviderInfo } from '@podman-desktop/core-api';
 import { Button } from '@podman-desktop/ui-svelte';
 
 interface Props {

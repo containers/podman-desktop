@@ -23,8 +23,8 @@ import type {
   KubernetesContextResources,
   KubernetesTroubleshootingInformation,
   ResourceCount,
-} from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';

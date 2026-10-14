@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -131,7 +131,7 @@ test('Expect to see empty screen on extension page only', async () => {
   render(ExtensionList, { searchTerm: 'A' });
 
   await vi.waitFor(() => {
-    expect(screen.queryByText(`No extensions matching 'A' found`)).toBeInTheDocument();
+    expect(screen.getByText(`No extensions matching 'A' found`)).toBeInTheDocument();
   });
 
   // click on the catalog

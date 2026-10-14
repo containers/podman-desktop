@@ -22,8 +22,8 @@ import {
   DockerCompatibilitySettings,
   type DockerSocketMappingStatusInfo,
   type DockerSocketServerInfoType,
-} from '@podman-desktop/core-api';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import Dockerode from 'dockerode';
 import { inject, injectable } from 'inversify';
 

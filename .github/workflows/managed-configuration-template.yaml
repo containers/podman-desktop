@@ -52,7 +52,7 @@ jobs:
           run_install: false
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -101,7 +101,7 @@ jobs:
           pnpm test:e2e:managed-configuration
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: always()
         with:
           fail_on_failure: true
@@ -111,6 +111,13 @@ jobs:
           require_tests: true
           report_paths: '**/*results.xml'
 
+      - name: Create json file with workflow run attributes
+        if: always()
+        uses: podman-desktop/e2e/.github/actions/generate-test-attributes@053dd9e2e4511c412dcaa835d884eec303797ed6
+        with:
+          filename: workflow-run-attributes.json
+          runs-on-gh-runner: true
+
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
@@ -119,3 +126,4 @@ jobs:
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
+            **/workflow-run-attributes.json

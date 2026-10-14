@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { CheckingState, ContextGeneralState, ForwardConfig } from '@desktop-framework/api';
 import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
-import type { CheckingState, ContextGeneralState, ForwardConfig } from '@podman-desktop/core-api';
 import { derived, type Readable, readable, writable } from 'svelte/store';
 
 import { findMatchInLeaves } from './search-util';

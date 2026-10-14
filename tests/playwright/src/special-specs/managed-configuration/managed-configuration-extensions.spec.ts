@@ -41,35 +41,35 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Managed Configuration - extensions', { tag: '@managed-configuration' }, () => {
-    test.describe
-      .serial('Defaults + Locked setting: Extensions Catalog disabled', () => {
-        test('Installed tab is still visible', async () => {
-          await playExpect(extensionsPage.heading).toBeVisible();
-          await playExpect(extensionsPage.installedTab).toBeVisible();
-        });
+test.describe('Managed Configuration - extensions', { tag: '@managed-configuration' }, () => {
+  test.describe.configure({ mode: 'serial' });
+  test.describe('Defaults + Locked setting: Extensions Catalog disabled', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('Installed tab is still visible', async () => {
+      await playExpect(extensionsPage.heading).toBeVisible();
+      await playExpect(extensionsPage.installedTab).toBeVisible();
+    });
 
-        test('Catalog tab is not rendered when extensions.catalog.enabled is false', async () => {
-          // ExtensionList.svelte conditionally renders the Catalog tab
-          // with {#if enableCatalog}, so the button should not exist in the DOM
-          await playExpect(extensionsPage.catalogTab).not.toBeAttached();
-        });
-      });
-
-    test.describe
-      .serial('Defaults + Locked setting: Local extensions disabled', () => {
-        test('Local extensions tab is not rendered when extensions.localExtensions.enabled is false', async () => {
-          // ExtensionList.svelte conditionally renders the Local extensions tab
-          // with {#if enableLocalExtensions}, so the button should not exist in the DOM
-          await playExpect(extensionsPage.localExtensionsTab).not.toBeAttached();
-        });
-      });
-
-    test.describe
-      .serial('Defaults + Locked setting: Custom Extensions disabled', () => {
-        test('Install custom button is not rendered when extensions.customExtensions.enabled is false', async () => {
-          await playExpect(extensionsPage.installExtensionFromOCIImageButton).not.toBeAttached();
-        });
-      });
+    test('Catalog tab is not rendered when extensions.catalog.enabled is false', async () => {
+      // ExtensionList.svelte conditionally renders the Catalog tab
+      // with {#if enableCatalog}, so the button should not exist in the DOM
+      await playExpect(extensionsPage.catalogTab).not.toBeAttached();
+    });
   });
+
+  test.describe('Defaults + Locked setting: Local extensions disabled', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('Local extensions tab is not rendered when extensions.localExtensions.enabled is false', async () => {
+      // ExtensionList.svelte conditionally renders the Local extensions tab
+      // with {#if enableLocalExtensions}, so the button should not exist in the DOM
+      await playExpect(extensionsPage.localExtensionsTab).not.toBeAttached();
+    });
+  });
+
+  test.describe('Defaults + Locked setting: Custom Extensions disabled', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('Install custom button is not rendered when extensions.customExtensions.enabled is false', async () => {
+      await playExpect(extensionsPage.installExtensionFromOCIImageButton).not.toBeAttached();
+    });
+  });
+});

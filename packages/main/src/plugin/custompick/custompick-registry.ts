@@ -15,9 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { CustomPick, CustomPickItem } from '@podman-desktop/api';
-import { IDisposable } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import { IDisposable } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { CustomPick, CustomPickItem } from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 import { CustomPickImpl } from './custompick-impl.js';

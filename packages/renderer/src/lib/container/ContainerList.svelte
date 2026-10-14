@@ -1,6 +1,6 @@
 <script lang="ts">
+import { NavigationPage } from '@desktop-framework/api';
 import { faPlay, faPlusCircle, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { NavigationPage } from '@podman-desktop/core-api';
 import {
   Button,
   FilteredEmptyScreen,

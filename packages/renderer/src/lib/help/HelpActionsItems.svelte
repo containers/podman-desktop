@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ActionKind, type ItemAction, type ItemInfo } from '@podman-desktop/core-api';
+import { ActionKind, type ItemAction, type ItemInfo } from '@desktop-framework/api';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ImageInfo, ViewInfoUI } from '@podman-desktop/core-api';
+import type { ImageInfo, ViewInfoUI } from '@desktop-framework/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContainerInfoUI } from '/@/lib/container/ContainerInfoUI';

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { TerminalSettings } from '@podman-desktop/core-api/terminal';
+import { TerminalSettings } from '@desktop-framework/api/terminal';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';

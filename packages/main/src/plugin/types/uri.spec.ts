@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Uri as APIUri } from '@podman-desktop/api';
+import type { Uri as APIUri } from '@desktop-framework/extension-api';
 import { afterEach, expect, test, vi } from 'vitest';
 
 import { Uri } from './uri.js';

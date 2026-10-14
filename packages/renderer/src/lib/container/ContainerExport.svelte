@@ -1,6 +1,6 @@
 <script lang="ts">
+import { NavigationPage } from '@desktop-framework/api';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { NavigationPage } from '@podman-desktop/core-api';
 import { Button, ButtonRow, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

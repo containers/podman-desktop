@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { KubeContext } from '@desktop-framework/api';
 import type { Cluster, User } from '@kubernetes/client-node';
-import type { KubeContext } from '@podman-desktop/core-api';
 import { Button, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';

@@ -16,14 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 import type {
   ExtensionBanner,
   RecommendedRegistry,
   RecommendedRegistryExtensionDetails,
-} from '@podman-desktop/core-api/recommendations';
-import { RecommendationsSettings } from '@podman-desktop/core-api/recommendations';
+} from '@desktop-framework/api/recommendations';
+import { RecommendationsSettings } from '@desktop-framework/api/recommendations';
 import { inject, injectable } from 'inversify';
 
 import { ExtensionsCatalog } from '/@/plugin/extension/catalog/extensions-catalog.js';

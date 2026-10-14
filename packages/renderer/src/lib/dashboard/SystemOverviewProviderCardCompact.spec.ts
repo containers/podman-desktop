@@ -23,7 +23,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
   ProviderVmConnectionInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

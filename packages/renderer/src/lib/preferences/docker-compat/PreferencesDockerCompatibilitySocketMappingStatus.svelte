@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { DockerSocketMappingStatusInfo } from '@desktop-framework/api';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-import type { DockerSocketMappingStatusInfo } from '@podman-desktop/core-api';
 import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';

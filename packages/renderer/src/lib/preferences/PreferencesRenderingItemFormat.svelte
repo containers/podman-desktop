@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { ErrorMessage } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 

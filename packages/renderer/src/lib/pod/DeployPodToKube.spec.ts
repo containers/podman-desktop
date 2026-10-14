@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { SimpleContainerInfo, V1Route } from '@desktop-framework/api';
 import type { V1Pod } from '@kubernetes/client-node';
-import type { SimpleContainerInfo, V1Route } from '@podman-desktop/core-api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import * as jsYaml from 'js-yaml';

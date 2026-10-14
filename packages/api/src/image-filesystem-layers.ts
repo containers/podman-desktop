@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ImageFile, ImageFilesystemLayer } from '@podman-desktop/api';
+import type { ImageFile, ImageFilesystemLayer } from '@desktop-framework/extension-api';
 
 import type { FilesystemTree } from './filesystem-tree.js';
 

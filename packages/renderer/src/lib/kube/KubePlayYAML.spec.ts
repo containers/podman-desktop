@@ -18,9 +18,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
-import type { PlayKubeInfo } from '@podman-desktop/core-api/libpod';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import type { PlayKubeInfo } from '@desktop-framework/api/libpod';
+import type { ProviderStatus } from '@desktop-framework/extension-api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
@@ -145,6 +145,47 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   // Expect the following error to be in the document.
   const error = screen.getByText('The following pods were created but failed to start: error 1, error 2');
   expect(error).toBeInTheDocument();
+});
+
+test('allows typing and pasting a YAML path and plays the entered path', async () => {
+  vi.mocked(window.playKube).mockResolvedValue({
+    Pods: [],
+    RmReport: [],
+    Secrets: [],
+    StopReport: [],
+    Volumes: [],
+  });
+
+  setup();
+  render(KubePlayYAML, {});
+
+  const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
+  const playButton = screen.getByRole('button', { name: 'Play' });
+  const yamlPath = '/tmp/podman-kube-play.yaml';
+
+  expect(fileInput).not.toHaveAttribute('readonly');
+  expect(playButton).toBeDisabled();
+
+  await userEvent.type(fileInput, '/tmp/typed-path.yaml');
+  expect(fileInput).toHaveValue('/tmp/typed-path.yaml');
+  expect(playButton).toBeEnabled();
+
+  await userEvent.clear(fileInput);
+  expect(playButton).toBeDisabled();
+
+  await userEvent.type(fileInput, '   ');
+  expect(playButton).toBeEnabled();
+  await userEvent.clear(fileInput);
+
+  await userEvent.click(fileInput);
+  await userEvent.paste(yamlPath);
+  expect(fileInput).toHaveValue(yamlPath);
+  expect(playButton).toBeEnabled();
+
+  await userEvent.click(playButton);
+
+  expect(window.openDialog).not.toHaveBeenCalled();
+  expect(window.playKube).toHaveBeenCalledWith({ type: 'path', value: yamlPath }, expect.anything(), expect.anything());
 });
 
 describe('cancel', () => {
@@ -288,6 +329,33 @@ test('expect workflow selection boxes have the correct selection borders', async
 
   expect(customOption.parentElement?.parentElement).toHaveClass('border-[var(--pd-content-card-border-selected)]');
   expect(customOption.parentElement?.parentElement).not.toHaveClass('border-[var(--pd-content-card-border)]');
+});
+
+test('selecting custom YAML disables the file input until Podman mode is selected again', async () => {
+  setup();
+  render(KubePlayYAML, {});
+
+  const podmanOption = screen.getByRole('button', { name: 'Podman Container Engine Runtime' });
+  const customOption = screen.getByRole('button', { name: 'Create a file from scratch' });
+  const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
+  const browseButton = screen.getByRole('button', { name: 'browse' });
+
+  expect(podmanOption).toHaveAttribute('aria-pressed', 'true');
+  expect(fileInput).toBeEnabled();
+  expect(browseButton).toBeEnabled();
+
+  await userEvent.click(customOption);
+  expect(podmanOption).toHaveAttribute('aria-pressed', 'false');
+  expect(fileInput).toBeDisabled();
+  expect(browseButton).toBeDisabled();
+
+  await userEvent.click(podmanOption);
+  expect(podmanOption).toHaveAttribute('aria-pressed', 'true');
+  expect(fileInput).toBeEnabled();
+  expect(browseButton).toBeEnabled();
+
+  await userEvent.click(browseButton);
+  expect(window.openDialog).toHaveBeenCalledOnce();
 });
 
 describe('Options', () => {

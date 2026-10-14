@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { eventCollect, registerConnectionCallback } from '/@/lib/preferences/preferences-connection-rendering-task';

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { Cluster, Context, KubeConfig, User } from '@kubernetes/client-node';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';

@@ -69,6 +69,7 @@ export default [
       'extensions/*.ts',
       'website/build',
       'scripts/**',
+      'storybook/scripts/**',
       'extensions/*/builtin/**/*',
       'extensions/*/scripts/**/*',
       'extensions/*/packages/*/scripts/**/*',

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { Menu, ProviderInfo } from '@podman-desktop/core-api';
+import type { Menu, ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';

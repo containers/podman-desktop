@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { ProxyState } from '@podman-desktop/core-api';
+import { ProxyState } from '@desktop-framework/api';
 
 export const PROXY_LABELS: Map<ProxyState, string> = new Map([
   [ProxyState.PROXY_SYSTEM, 'System'],

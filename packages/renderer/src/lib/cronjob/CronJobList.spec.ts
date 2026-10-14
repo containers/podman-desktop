@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { IDisposable } from '@desktop-framework/api';
 import type { KubernetesObject, V1CronJob } from '@kubernetes/client-node';
-import type { IDisposable } from '@podman-desktop/core-api';
 import { render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

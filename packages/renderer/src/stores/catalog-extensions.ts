@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore } from './event-store';

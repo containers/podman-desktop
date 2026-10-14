@@ -21,9 +21,9 @@ import { cp, readFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import type { PullEvent } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { v1 } from '@docker/extension-api-client-types';
-import type { PullEvent } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import type Dockerode from 'dockerode';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';

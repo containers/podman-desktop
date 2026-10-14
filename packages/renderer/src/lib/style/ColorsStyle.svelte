@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ColorInfo } from '@podman-desktop/core-api';
+import type { ColorInfo } from '@desktop-framework/api';
 
 import { colorsInfos, darkContextColorsInfos, hcDarkContextColorsInfos } from '/@/stores/colors';
 

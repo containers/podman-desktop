@@ -31,6 +31,9 @@ build/
 # Logs
 *.log
 
+# Dev instance data (created by dev identity plugin)
+.electron-user-data/
+
 # Environment files
 .env
 .env.local

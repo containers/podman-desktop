@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import type { ProviderStatus } from '@desktop-framework/extension-api';
 import type { MenuItemConstructorOptions, NativeImage, Tray } from 'electron';
 import { app, ipcMain, Menu, nativeImage } from 'electron';
 

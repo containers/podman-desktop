@@ -1,5 +1,5 @@
 <script lang="ts">
-import { SYSTEM_OVERVIEW_EXPANDED } from '@podman-desktop/core-api';
+import { SYSTEM_OVERVIEW_EXPANDED } from '@desktop-framework/api';
 import { Expandable, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

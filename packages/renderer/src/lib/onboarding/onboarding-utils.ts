@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OnboardingInfo, OnboardingStatus, OnboardingStep } from '@podman-desktop/core-api';
+import type { OnboardingInfo, OnboardingStatus, OnboardingStep } from '@desktop-framework/api';
 
 import type { ContextUI } from '/@/lib/context/context';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';

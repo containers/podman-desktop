@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ImageFilesystemLayerUI } from '@podman-desktop/core-api';
+import type { ImageFilesystemLayerUI } from '@desktop-framework/api';
 import { createEventDispatcher } from 'svelte';
 
 import { ImageUtils } from './image-utils';

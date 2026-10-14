@@ -19,10 +19,10 @@
 import type { UUID } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
 
+import type { ForwardConfig, IDisposable } from '@desktop-framework/api';
+import { WorkloadKind } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { KubeConfig } from '@kubernetes/client-node';
-import type { ForwardConfig, IDisposable } from '@podman-desktop/core-api';
-import { WorkloadKind } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';

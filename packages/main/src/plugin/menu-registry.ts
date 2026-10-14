@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Menu } from '@podman-desktop/core-api';
+import type { Menu } from '@desktop-framework/api';
 import { inject, injectable } from 'inversify';
 
 import { CommandRegistry } from './command-registry.js';

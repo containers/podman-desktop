@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ProviderConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import { faEdit, faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
 import { Buffer } from 'buffer';
 import type { Snippet } from 'svelte';
 import { router } from 'tinro';

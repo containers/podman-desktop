@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ExtensionInfo } from '@podman-desktop/core-api';
+import type { ExtensionInfo } from '@desktop-framework/api';
 import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { expect, test } from 'vitest';

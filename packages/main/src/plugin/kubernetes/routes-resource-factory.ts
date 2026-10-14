@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { V1Route } from '@desktop-framework/api';
 import type { KubernetesListObject } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import type { V1Route } from '@podman-desktop/core-api';
 
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';

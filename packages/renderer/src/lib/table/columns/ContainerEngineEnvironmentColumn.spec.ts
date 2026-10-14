@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
 import { render } from '@testing-library/svelte';
 import { readable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';

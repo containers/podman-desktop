@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageChecks } from '@podman-desktop/api';
+import type { ImageChecks } from '@desktop-framework/extension-api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';

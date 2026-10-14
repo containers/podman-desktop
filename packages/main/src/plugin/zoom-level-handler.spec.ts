@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Configuration } from '@podman-desktop/api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import type {
   IConfigurationChangeEvent,
   IConfigurationPropertyRecordedSchema,
   IConfigurationRegistry,
-} from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api/configuration';
+import type { Configuration } from '@desktop-framework/extension-api';
 import type { BrowserWindow } from 'electron';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 

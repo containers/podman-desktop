@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ExtensionDevelopmentFolderInfo, ExtensionInfo } from '@podman-desktop/core-api';
-import { ExtensionLoaderSettings } from '@podman-desktop/core-api';
+import type { ExtensionDevelopmentFolderInfo, ExtensionInfo } from '@desktop-framework/api';
+import { ExtensionLoaderSettings } from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';

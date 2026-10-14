@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { OnboardingEmbeddedComponentType, ProviderInfo } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import type { OnboardingEmbeddedComponentType, ProviderInfo } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 

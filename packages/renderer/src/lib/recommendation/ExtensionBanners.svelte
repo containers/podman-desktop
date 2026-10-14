@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ExtensionBanner as ExtensionBannerInfo } from '@podman-desktop/core-api/recommendations';
+import type { ExtensionBanner as ExtensionBannerInfo } from '@desktop-framework/api/recommendations';
 
 import { ContextUI } from '/@/lib/context/context';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';

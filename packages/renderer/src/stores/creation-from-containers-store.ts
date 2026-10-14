@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Port } from '@podman-desktop/api';
+import type { Port } from '@desktop-framework/extension-api';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 

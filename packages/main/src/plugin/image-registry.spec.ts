@@ -23,8 +23,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import type { Registry } from '@podman-desktop/api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { Registry } from '@desktop-framework/extension-api';
 import { http, HttpResponse } from 'msw';
 import { type SetupServer, setupServer } from 'msw/node';
 import * as nodeTar from 'tar';

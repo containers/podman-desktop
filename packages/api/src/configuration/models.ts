@@ -20,7 +20,7 @@ import type {
   Configuration,
   ConfigurationChangeEvent,
   ConfigurationScope as PodmanDesktopApiConfigurationScope,
-} from '@podman-desktop/api';
+} from '@desktop-framework/extension-api';
 import { z } from 'zod';
 
 import type { IDisposable } from '/@/disposable.js';

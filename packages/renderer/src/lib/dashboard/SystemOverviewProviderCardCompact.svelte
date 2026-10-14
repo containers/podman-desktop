@@ -4,7 +4,7 @@ import {
   type ProviderConnectionInfo,
   type ProviderInfo,
   type SystemOverviewStatus,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

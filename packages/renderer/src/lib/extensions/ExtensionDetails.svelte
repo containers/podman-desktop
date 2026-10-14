@@ -94,7 +94,7 @@ let extension: ExtensionDetailsUI | undefined = $derived.by(() => {
       <div class="flex w-full h-full overflow-y-auto p-5 flex-col lg:flex-row">
         {#if screen === 'README'}
           <ExtensionDetailsSummaryCard extensionDetails={extension} />
-          <ExtensionDetailsReadme readme={extension.readme} />
+          <ExtensionDetailsReadme readme={extension.readme} extensionId={extension.id} />
         {:else if screen === 'ERROR'}
           <ExtensionDetailsError {extension} />
         {/if}

@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderConnectionStatus } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderKubernetesConnectionInfo,
   ProviderVmConnectionInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import type { ProviderConnectionStatus } from '@desktop-framework/extension-api';
 import { describe, expect, test } from 'vitest';
 
 import { getConnectionDisplayName, getSystemOverviewStatus, SYSTEM_OVERVIEW_STATUS } from './system-overview.svelte';

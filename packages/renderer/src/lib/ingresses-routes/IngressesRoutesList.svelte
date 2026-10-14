@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { V1Route } from '@desktop-framework/api';
 import { type KubernetesObject } from '@kubernetes/client-node';
-import type { V1Route } from '@podman-desktop/core-api';
 import { TableColumn, TableDurationColumn, TableRow } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as PodmanDesktop from '@podman-desktop/api';
+import type * as PodmanDesktop from '@desktop-framework/extension-api';
 import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { NetworkInspectInfo, ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { NetworkInspectInfo, ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import type { NetworkContainer } from 'dockerode';
 import { tick } from 'svelte';

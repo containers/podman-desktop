@@ -16,11 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { KeyboardUtils } from './keyboard-utils';
 
 const keyboardUtils = new KeyboardUtils();
+
+const originalConsoleError = console.error;
+
+beforeEach(() => {
+  console.error = vi.fn();
+});
+
+afterEach(() => {
+  console.error = originalConsoleError;
+});
 
 describe('isValidAriaKeyShortcuts', () => {
   test('accepts single modifier+key shortcuts', () => {
@@ -57,9 +67,37 @@ describe('isValidAriaKeyShortcuts', () => {
     expect(keyboardUtils.isValidAriaKeyShortcuts('Meta+')).toBeFalsy();
   });
 
-  test('rejects shortcuts without a modifier', () => {
+  test('accepts unmodified function keys F1 through F19', () => {
+    for (let keyNumber = 1; keyNumber <= 19; keyNumber += 1) {
+      expect(keyboardUtils.isValidAriaKeyShortcuts(`F${keyNumber}`)).toBeTruthy();
+    }
+    expect(keyboardUtils.isValidAriaKeyShortcuts('f19')).toBeTruthy();
+  });
+
+  test('rejects unmodified shortcuts that are not function keys F1 through F19', () => {
+    expect(keyboardUtils.isValidAriaKeyShortcuts('A')).toBeFalsy();
     expect(keyboardUtils.isValidAriaKeyShortcuts('ArrowLeft')).toBeFalsy();
     expect(keyboardUtils.isValidAriaKeyShortcuts('Delete')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('F0')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('F20')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('F42')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('F01')).toBeFalsy();
+  });
+
+  test('rejects modifier keys without a non-modifier key', () => {
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Control')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Alt')).toBeFalsy();
+  });
+
+  test('rejects function keys outside F1 through F19 when modified', () => {
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Control+F0')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Control+F20')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Control+F42')).toBeFalsy();
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Control+F01')).toBeFalsy();
+  });
+
+  test('accepts modified character shortcuts', () => {
+    expect(keyboardUtils.isValidAriaKeyShortcuts('Shift+J')).toBeTruthy();
   });
 
   test('rejects invalid modifiers', () => {
@@ -89,6 +127,7 @@ describe('isValidAriaKeyShortcuts', () => {
 describe('sanitizeAriaKeyShortcuts', () => {
   test('preserves valid shortcuts', () => {
     expect(keyboardUtils.sanitizeAriaKeyShortcuts('Control+ArrowLeft')).toBe('Control+ArrowLeft');
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('F5 Shift+J')).toBe('F5 Shift+J');
     expect(keyboardUtils.sanitizeAriaKeyShortcuts('Control+ArrowLeft Meta+ArrowLeft')).toBe(
       'Control+ArrowLeft Meta+ArrowLeft',
     );
@@ -101,7 +140,12 @@ describe('sanitizeAriaKeyShortcuts', () => {
 
   test('returns undefined when all shortcuts are invalid', () => {
     expect(keyboardUtils.sanitizeAriaKeyShortcuts('Invalid+Key')).toBeUndefined();
-    expect(keyboardUtils.sanitizeAriaKeyShortcuts('ArrowLeft')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('A')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('F0')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('F20')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('F42')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('F01')).toBeUndefined();
+    expect(keyboardUtils.sanitizeAriaKeyShortcuts('Control')).toBeUndefined();
     expect(keyboardUtils.sanitizeAriaKeyShortcuts('Cmd+A')).toBeUndefined();
   });
 
@@ -115,5 +159,12 @@ describe('sanitizeAriaKeyShortcuts', () => {
     expect(keyboardUtils.sanitizeAriaKeyShortcuts('  Control+ArrowLeft  Meta+ArrowLeft  ')).toBe(
       'Control+ArrowLeft Meta+ArrowLeft',
     );
+  });
+
+  test('prints errors when shortcuts are invalid', () => {
+    keyboardUtils.sanitizeAriaKeyShortcuts('Control+ArrowLeft Invalid+Key');
+    expect(console.error).toHaveBeenCalledWith('Invalid keyboard shortcuts', 'Control+ArrowLeft Invalid+Key');
+    keyboardUtils.sanitizeAriaKeyShortcuts('Cmd+A Control+B');
+    expect(console.error).toHaveBeenCalledWith('Invalid keyboard shortcuts', 'Cmd+A Control+B');
   });
 });

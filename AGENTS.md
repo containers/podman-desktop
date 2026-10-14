@@ -96,6 +96,16 @@ storybook/              - UI component showcase
 8. We use semantic commits (e.g. `feat(renderer): add feature`)
 9. Every commit must be signed; mention AI assistance
 
+## Pull requests
+
+- Never make a PR unless the developer explicitly asks you to do so.
+- Body: Use the template defined in `.github/PULL_REQUEST_TEMPLATE.md`. Fill in every required section — no empty or placeholder descriptions.
+- UI changes need before/after images or a short video. Use `mcp-testing` skill to capture screenshots
+- Disclose AI-assisted work — add a `Co-authored-by:` trailer or a brief note in the PR description, and flag if the change was made only by AI without human review.
+- Stand behind the change: the PR must be reviewable, explainable, and able to respond to review feedback.
+- One concern per PR. If the description says "also", split it.
+- See [LLM_POLICY.md](LLM_POLICY.md) for the full AI (LLM) development policy.
+
 ## Pattern References
 
 - **Coding standards & Svelte patterns**: [CODE-GUIDELINES.md](CODE-GUIDELINES.md)

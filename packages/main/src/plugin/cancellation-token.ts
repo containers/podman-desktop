@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as extensionApi from '@podman-desktop/api';
-import type { IDisposable } from '@podman-desktop/core-api';
+import type { IDisposable } from '@desktop-framework/api';
+import type * as extensionApi from '@desktop-framework/extension-api';
 
 import { Emitter } from './events/emitter.js';
 

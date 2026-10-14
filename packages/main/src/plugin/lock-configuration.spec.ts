@@ -20,7 +20,7 @@ import {
   CONFIGURATION_LOCKED_KEY,
   CONFIGURATION_SYSTEM_MANAGED_DEFAULTS_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_LOCKED_SCOPE,
-} from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api/configuration';
 import { beforeEach, describe, expect, test } from 'vitest';
 
 import { LockedKeys } from './lock-configuration.js';

@@ -46,67 +46,65 @@ test.afterAll(async ({ runner }) => {
   await runner.close(45_000);
 });
 
-test.describe
-  .serial('Podman installer integration in Podman Desktop', { tag: '@update-install' }, () => {
-    test.describe.configure({ retries: 1 });
-    test('Dashboard Podman provider card assets check', async ({ page }) => {
-      test.skip(!isCI || process.env.GITHUB_ACTIONS !== 'true', 'Only run on macOS and Windows in GitHub Actions');
-      const dashboardPage = await new NavigationBar(page).openDashboard();
-      await playExpect(dashboardPage.heading).toBeVisible();
-      await playExpect(dashboardPage.podmanProvider).toBeVisible({ timeout: 25_000 });
-      await playExpect(dashboardPage.podmanStatusLabel).toBeVisible({ timeout: 5_000 });
-      await playExpect(dashboardPage.podmanStatusLabel).toContainText('NOT-INSTALLED', { timeout: 5_000 });
-      const installButton = dashboardPage.podmanProvider.getByRole('button', { name: 'Install', exact: true });
-      const detectionCheckButton = dashboardPage.podmanProvider.getByRole('button', { name: 'View detection checks' });
-      const podmanCliNotFoundText = dashboardPage.podmanProvider.getByText(/podman.*not found/i);
-      await playExpect(installButton).toBeVisible();
-      await playExpect(detectionCheckButton).toBeVisible();
-      await detectionCheckButton.click();
-      await playExpect(podmanCliNotFoundText).toBeVisible();
-    });
-    test('Podman installer artifacts are present in local assets storage', async ({ runner }) => {
-      const fileFormatRegexp = isWindows ? 'msi' : 'pkg';
-      // x64 = amd64 for both windows and mac, arm64 = arm64 for win, and aarch64 for mac
-      const archPart =
-        process.arch === 'x64' ? 'amd64' : process.arch === 'arm64' ? (isMac ? 'aarch64' : 'arm64') : null;
-      playExpect(archPart, { message: `Unsupported architecture: ${process.arch}` }).not.toBeNull();
-      const podmanInstallerFilePrefix = `podman-${isWindows ? 'installer-windows' : 'installer-macos'}`;
-      console.log(
-        `Trying to find podman installer artifact: ${podmanInstallerFilePrefix}-${archPart}.${fileFormatRegexp}`,
-      );
-      let electronBinary: string | undefined;
-      if (runner instanceof ElectronRunner) {
-        electronBinary = await (runner as ElectronRunner).getElectronApp().evaluate(async ({ app }) => {
-          return app.getPath('exe');
-        });
-      } else {
-        electronBinary = process.env.PODMAN_DESKTOP_BINARY;
-      }
-      if (!electronBinary) {
-        throw new Error('Application executable binary is not defined...');
-      }
-      const electronResourcesPath = isWindows
-        ? path.join(electronBinary, '..', 'resources')
-        : path.join(electronBinary, '..', '..', 'Resources');
-      const podmanAssetsPath = path.join(
-        electronResourcesPath,
-        'extensions',
-        'podman',
-        'packages',
-        'extension',
-        'assets',
-      );
-      playExpect(fs.existsSync(podmanAssetsPath), {
-        message: `Did not find a podman assets path: ${podmanAssetsPath}`,
-      }).toBeTruthy();
-      const files = await fs.promises.readdir(podmanAssetsPath);
-      const findFiles = files.filter(file => new RegExp(`^${podmanInstallerFilePrefix}.*$`).exec(file));
-      console.log(`Files found: ${findFiles}`);
-      // windows file check: "podman-installer-windows-archXX.exe",
-      // on mac: "podman-installer-macos-(universal|archXX)-version.pkg"
-      const architecturePattern = isMac ? `(universal|${archPart})-.*` : `${archPart}.*`;
-      playExpect(findFiles[0]).toMatch(
-        new RegExp(`${podmanInstallerFilePrefix}-${architecturePattern}\\.${fileFormatRegexp}`),
-      );
-    });
+test.describe('Podman installer integration in Podman Desktop', { tag: '@update-install' }, () => {
+  test.describe.configure({ mode: 'serial', retries: 1 });
+  test('Dashboard Podman provider card assets check', async ({ page }) => {
+    test.skip(!isCI || process.env.GITHUB_ACTIONS !== 'true', 'Only run on macOS and Windows in GitHub Actions');
+    const dashboardPage = await new NavigationBar(page).openDashboard();
+    await playExpect(dashboardPage.heading).toBeVisible();
+    await playExpect(dashboardPage.podmanProvider).toBeVisible({ timeout: 25_000 });
+    await playExpect(dashboardPage.podmanStatusLabel).toBeVisible({ timeout: 5_000 });
+    await playExpect(dashboardPage.podmanStatusLabel).toContainText('NOT-INSTALLED', { timeout: 5_000 });
+    const installButton = dashboardPage.podmanProvider.getByRole('button', { name: 'Install', exact: true });
+    const detectionCheckButton = dashboardPage.podmanProvider.getByRole('button', { name: 'View detection checks' });
+    const podmanCliNotFoundText = dashboardPage.podmanProvider.getByText(/podman.*not found/i);
+    await playExpect(installButton).toBeVisible();
+    await playExpect(detectionCheckButton).toBeVisible();
+    await detectionCheckButton.click();
+    await playExpect(podmanCliNotFoundText).toBeVisible();
   });
+  test('Podman installer artifacts are present in local assets storage', async ({ runner }) => {
+    const fileFormatRegexp = isWindows ? 'msi' : 'pkg';
+    // x64 = amd64 for both windows and mac, arm64 = arm64 for win, and aarch64 for mac
+    const archPart = process.arch === 'x64' ? 'amd64' : process.arch === 'arm64' ? (isMac ? 'aarch64' : 'arm64') : null;
+    playExpect(archPart, { message: `Unsupported architecture: ${process.arch}` }).not.toBeNull();
+    const podmanInstallerFilePrefix = `podman-${isWindows ? 'installer-windows' : 'installer-macos'}`;
+    console.log(
+      `Trying to find podman installer artifact: ${podmanInstallerFilePrefix}-${archPart}.${fileFormatRegexp}`,
+    );
+    let electronBinary: string | undefined;
+    if (runner instanceof ElectronRunner) {
+      electronBinary = await (runner as ElectronRunner).getElectronApp().evaluate(async ({ app }) => {
+        return app.getPath('exe');
+      });
+    } else {
+      electronBinary = process.env.PODMAN_DESKTOP_BINARY;
+    }
+    if (!electronBinary) {
+      throw new Error('Application executable binary is not defined...');
+    }
+    const electronResourcesPath = isWindows
+      ? path.join(electronBinary, '..', 'resources')
+      : path.join(electronBinary, '..', '..', 'Resources');
+    const podmanAssetsPath = path.join(
+      electronResourcesPath,
+      'extensions',
+      'podman',
+      'packages',
+      'extension',
+      'assets',
+    );
+    playExpect(fs.existsSync(podmanAssetsPath), {
+      message: `Did not find a podman assets path: ${podmanAssetsPath}`,
+    }).toBeTruthy();
+    const files = await fs.promises.readdir(podmanAssetsPath);
+    const findFiles = files.filter(file => new RegExp(`^${podmanInstallerFilePrefix}.*$`).exec(file));
+    console.log(`Files found: ${findFiles}`);
+    // windows file check: "podman-installer-windows-archXX.exe",
+    // on mac: "podman-installer-macos-(universal|archXX)-version.pkg"
+    const architecturePattern = isMac ? `(universal|${archPart})-.*` : `${archPart}.*`;
+    playExpect(findFiles[0]).toMatch(
+      new RegExp(`${podmanInstallerFilePrefix}-${architecturePattern}\\.${fileFormatRegexp}`),
+    );
+  });
+});

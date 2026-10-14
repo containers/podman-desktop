@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { NavigationPage, type SecretInfo } from '@podman-desktop/core-api';
+import { NavigationPage, type SecretInfo } from '@desktop-framework/api';
 import { render, waitFor } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';

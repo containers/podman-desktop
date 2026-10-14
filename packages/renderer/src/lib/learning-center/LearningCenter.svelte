@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Guide } from '@podman-desktop/core-api/learning-center';
+import type { Guide } from '@desktop-framework/api/learning-center';
 import { Carousel, Expandable } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

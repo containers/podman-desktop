@@ -18,9 +18,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageInfo } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
-import { NavigationPage, PreferredRegistriesSettings } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import { NavigationPage, PreferredRegistriesSettings } from '@desktop-framework/api';
+import type { ImageInfo } from '@desktop-framework/extension-api';
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';

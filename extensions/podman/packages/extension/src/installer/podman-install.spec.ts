@@ -469,7 +469,7 @@ test('check that podman installation refreshed machine settings', async () => {
   vi.spyOn(podmanInstall, 'getInstaller').mockReturnValue(undefined);
 
   // mock existSync being always false (we never find installers)
-  vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+  vi.mocked(fs.existsSync).mockReturnValue(false);
   vi.mocked(extensionApi.window.showInformationMessage).mockResolvedValue('Yes');
   const mock = vi.spyOn(extensionObj, 'calcPodmanMachineSetting');
 

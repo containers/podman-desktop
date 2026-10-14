@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { V1Route } from '@desktop-framework/api';
 import type { V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from '@podman-desktop/core-api';
 import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import Table from '/@/lib/details/DetailsTable.svelte';

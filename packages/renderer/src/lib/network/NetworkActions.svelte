@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { Menu } from '@desktop-framework/api';
+import { MenuContext } from '@desktop-framework/api';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { Menu } from '@podman-desktop/core-api';
-import { MenuContext } from '@podman-desktop/core-api';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { CheckStatus, ProviderInfo } from '@desktop-framework/api';
 import { faRocket } from '@fortawesome/free-solid-svg-icons';
-import type { CheckStatus, ProviderInfo } from '@podman-desktop/core-api';
 import { Button } from '@podman-desktop/ui-svelte';
 
 interface Props {

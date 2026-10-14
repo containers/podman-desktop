@@ -25,7 +25,7 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

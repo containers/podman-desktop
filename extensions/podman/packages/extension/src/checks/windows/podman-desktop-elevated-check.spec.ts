@@ -52,7 +52,9 @@ test('expect PodmanDesktopElevatedCheck preflight check return failure result if
   const podmanDesktopElevatedCheck = new PodmanDesktopElevatedCheck(mockTelemetryLogger);
   const result = await podmanDesktopElevatedCheck.execute();
   expect(result.successful).toBeFalsy();
-  expect(result.description).equal('You must run Test app with administrative rights to run Hyper-V Podman machines.');
+  expect(result.description).equal(
+    'You must run Test app with administrative rights to install and configure Podman with Hyper-V support.',
+  );
   expect(result.docLinks).toBeUndefined();
 });
 

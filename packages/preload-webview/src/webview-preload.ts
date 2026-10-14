@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ColorInfo, ThemeInfo, WebviewInfo } from '@podman-desktop/core-api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import type { ColorInfo, ThemeInfo, WebviewInfo } from '@desktop-framework/api';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';

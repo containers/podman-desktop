@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
-import { CONFIGURATION_DEFAULT_SCOPE } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
+import { CONFIGURATION_DEFAULT_SCOPE } from '@desktop-framework/api/configuration';
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 

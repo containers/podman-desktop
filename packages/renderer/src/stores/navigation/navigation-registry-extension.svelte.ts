@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { type ContributionInfo, type GoToInfo, NavigationPage, type WebviewInfo } from '@desktop-framework/api';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
-import { type ContributionInfo, type GoToInfo, NavigationPage, type WebviewInfo } from '@podman-desktop/core-api';
 
 import ExtensionIcon from '/@/lib/images/ExtensionIcon.svelte';
 import { contributions } from '/@/stores/contribs';

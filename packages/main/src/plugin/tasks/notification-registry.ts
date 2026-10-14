@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type { NotificationCard, NotificationCardOptions } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { NotificationCard, NotificationCardOptions } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import { Notification } from 'electron';
 import { inject, injectable } from 'inversify';
 

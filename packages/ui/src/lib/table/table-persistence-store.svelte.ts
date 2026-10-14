@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { SvelteMap } from 'svelte/reactivity';
+
 import type { TablePersistence } from './table';
 
 export const tablePersistence = $state<{ storage: TablePersistence | undefined }>({ storage: undefined });
@@ -26,4 +28,4 @@ export const tablePersistence = $state<{ storage: TablePersistence | undefined }
  * Table's `kind` prop so each list maintains independent state.
  * Cleared on app restart (in-memory only).
  */
-export const collapsedStateMap = new Map<string, string[]>();
+export const collapsedStateMap = new SvelteMap<string, string[]>();

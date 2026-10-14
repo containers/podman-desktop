@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { KubeContext, SelectedResourceName } from '@desktop-framework/api';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCopy, faPenToSquare, faRightToBracket, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { KubeContext, SelectedResourceName } from '@podman-desktop/core-api';
 import { Button, EmptyScreen, ErrorMessage, Spinner, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';

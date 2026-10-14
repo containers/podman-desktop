@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { TelemetryMessages } from '@podman-desktop/core-api';
+import type { TelemetryMessages } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { expect, test, vi } from 'vitest';

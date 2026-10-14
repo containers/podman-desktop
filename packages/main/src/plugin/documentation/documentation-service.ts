@@ -18,8 +18,8 @@
 
 import { createHash } from 'node:crypto';
 
-import { DocumentationBaseInfo, DocumentationInfo } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import { DocumentationBaseInfo, DocumentationInfo } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { inject, injectable } from 'inversify';
 
 import { Disposable } from '/@/plugin/types/disposable.js';

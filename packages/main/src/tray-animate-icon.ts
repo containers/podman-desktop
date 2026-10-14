@@ -33,7 +33,7 @@ export class AnimatedTray {
   private trayIconLoopId = 0;
   private animatedInterval: NodeJS.Timeout | undefined = undefined;
   private tray: Tray | undefined = undefined;
-  private color = 'default'; // default, light, dark
+  protected color = 'default'; // default, light, dark
   private readonly onThemeUpdated: () => void;
   static readonly MAIN_ASSETS_FOLDER = 'packages/main/src/assets';
 
@@ -46,6 +46,10 @@ export class AnimatedTray {
       this.updateIcon();
     };
     nativeTheme.on('updated', this.onThemeUpdated);
+  }
+
+  protected getAppDisplayName(): string {
+    return product.name;
   }
 
   protected isProd(): boolean {
@@ -129,19 +133,19 @@ export class AnimatedTray {
     switch (this.status) {
       case 'initialized':
         this.tray.setImage(this.getIconPath('empty'));
-        this.tray.setToolTip(`${product.name} is initialized`);
+        this.tray.setToolTip(`${this.getAppDisplayName()} is initialized`);
         break;
       case 'error':
         this.tray.setImage(this.getIconPath('error'));
-        this.tray.setToolTip(`${product.name} has an error`);
+        this.tray.setToolTip(`${this.getAppDisplayName()} has an error`);
         break;
       case 'ready':
         this.tray.setImage(this.getIconPath('default'));
-        this.tray.setToolTip(`${product.name} is ready`);
+        this.tray.setToolTip(`${this.getAppDisplayName()} is ready`);
         break;
       case 'updating':
         this.animatedInterval = setInterval(this.animateTrayIcon.bind(this), 1000);
-        this.tray.setToolTip(`${product.name}: resources are being updated`);
+        this.tray.setToolTip(`${this.getAppDisplayName()}: resources are being updated`);
         break;
     }
   }

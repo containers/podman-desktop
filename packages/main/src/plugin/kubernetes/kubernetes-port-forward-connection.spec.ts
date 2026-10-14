@@ -18,6 +18,8 @@
 
 import { createServer, type Server, type Socket } from 'node:net';
 
+import { type ForwardConfig, type IDisposable, type PortMapping, WorkloadKind } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import {
   AppsV1Api,
   CoreV1Api,
@@ -29,8 +31,6 @@ import {
 } from '@kubernetes/client-node';
 import type { ApiType } from '@kubernetes/client-node/dist/config.js';
 import type { V1PodList } from '@kubernetes/client-node/dist/gen/models/V1PodList.js';
-import { type ForwardConfig, type IDisposable, type PortMapping, WorkloadKind } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import type { WebSocket } from 'isomorphic-ws';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 

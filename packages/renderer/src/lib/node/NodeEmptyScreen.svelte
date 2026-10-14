@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ContextGeneralState } from '@podman-desktop/core-api';
+import type { ContextGeneralState } from '@desktop-framework/api';
 
 import NodeIcon from '/@/lib/images/NodeIcon.svelte';
 import KubernetesEmptyScreen from '/@/lib/kube/KubernetesEmptyScreen.svelte';

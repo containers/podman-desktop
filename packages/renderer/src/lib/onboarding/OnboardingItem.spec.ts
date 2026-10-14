@@ -17,8 +17,8 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import type { OnboardingStepItem } from '@podman-desktop/core-api';
-import { CONFIGURATION_ONBOARDING_SCOPE } from '@podman-desktop/core-api/configuration';
+import type { OnboardingStepItem } from '@desktop-framework/api';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '@desktop-framework/api/configuration';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 

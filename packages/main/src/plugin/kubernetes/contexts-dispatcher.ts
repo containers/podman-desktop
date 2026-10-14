@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Event } from '@desktop-framework/api';
 import type { KubeConfig } from '@kubernetes/client-node';
-import type { Event } from '@podman-desktop/core-api';
 
 import { Emitter } from '/@/plugin/events/emitter.js';
 

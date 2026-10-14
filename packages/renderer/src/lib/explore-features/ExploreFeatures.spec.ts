@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ExploreFeature } from '@podman-desktop/core-api';
+import type { ExploreFeature } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
@@ -107,7 +107,7 @@ test('Clicking on ExploreFeatures title hides carousel with features', async () 
 
   const button = screen.getByRole('button', { name: 'Explore Features' });
   expect(button).toBeInTheDocument();
-  expect(screen.queryByText(exploreFeatures[0].title)).toBeInTheDocument();
+  expect(screen.getByText(exploreFeatures[0].title)).toBeInTheDocument();
   await fireEvent.click(button);
   await vi.waitFor(() => {
     expect(screen.queryByText(exploreFeatures[0].title)).not.toBeInTheDocument();

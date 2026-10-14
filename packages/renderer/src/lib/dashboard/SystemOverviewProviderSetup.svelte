@@ -1,5 +1,5 @@
 <script lang="ts">
-import { NavigationPage, type ProviderInfo } from '@podman-desktop/core-api';
+import { NavigationPage, type ProviderInfo } from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 
 import { handleNavigation } from '/@/navigation';

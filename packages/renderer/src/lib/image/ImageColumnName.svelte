@@ -1,5 +1,5 @@
 <script lang="ts">
-import { NavigationPage } from '@podman-desktop/core-api';
+import { NavigationPage } from '@desktop-framework/api';
 
 import Badge from '/@/lib/ui/Badge.svelte';
 import { handleNavigation } from '/@/navigation';

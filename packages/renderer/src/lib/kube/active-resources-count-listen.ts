@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable, ResourceCount } from '@podman-desktop/core-api';
+import type { IDisposable, ResourceCount } from '@desktop-framework/api';
 
 // listenActiveResourcesCount listens the count of active resources
 export async function listenActiveResourcesCount(

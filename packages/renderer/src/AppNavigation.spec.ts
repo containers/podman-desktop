@@ -18,9 +18,9 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { ContextGeneralState, ContributionInfo, ForwardConfig } from '@desktop-framework/api';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import type { ContextGeneralState, ContributionInfo, ForwardConfig } from '@podman-desktop/core-api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
 import { render, screen } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';

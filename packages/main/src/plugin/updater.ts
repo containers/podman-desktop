@@ -18,8 +18,8 @@
 
 import * as https from 'node:https';
 
-import type { ButtonsType, ReleaseNotesInfo } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ButtonsType, ReleaseNotesInfo } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { app, shell } from 'electron';
 import {
   autoUpdater,

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RecommendedRegistry } from '@podman-desktop/core-api/recommendations';
-import { RecommendationsSettings } from '@podman-desktop/core-api/recommendations';
+import type { RecommendedRegistry } from '@desktop-framework/api/recommendations';
+import { RecommendationsSettings } from '@desktop-framework/api/recommendations';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore, fineGrainedEvents } from './event-store';

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { MenuItem, ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { MenuItem, ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import { dialog, ipcMain } from 'electron';
 import { inject, injectable } from 'inversify';
 

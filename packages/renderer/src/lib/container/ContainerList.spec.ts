@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ContainerInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { ContainerInfo, ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render, type RenderResult, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 /* eslint-disable import/no-duplicates */
@@ -1439,7 +1439,7 @@ test('Expect search not to match the raw compose-prefixed container name', async
 
   // the stripped name still matches, as it did before the store held ContainerInfoUI
   const { unmount } = await waitRender({ searchTerm: 'web-1' });
-  expect(screen.queryByText('web-1')).toBeInTheDocument();
+  expect(screen.getByText('web-1')).toBeInTheDocument();
   unmount();
 
   // the raw prefixed name must not

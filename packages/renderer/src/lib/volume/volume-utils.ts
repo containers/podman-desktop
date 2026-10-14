@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { VolumeInfo } from '@podman-desktop/core-api';
+import type { VolumeInfo } from '@desktop-framework/api';
 import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';

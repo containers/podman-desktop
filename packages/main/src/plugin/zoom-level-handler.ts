@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from '@podman-desktop/core-api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
-import type { IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { IDisposable } from '@desktop-framework/api';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
+import type { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import type { BrowserWindow } from 'electron';
 
 export class ZoomLevelHandler {

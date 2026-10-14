@@ -50,26 +50,26 @@ test.afterAll(async ({ runner, navigationBar }) => {
   await runner.close(45_000);
 });
 
-test.describe
-  .serial('Podman Desktop visual testing', { tag: [] }, () => {
-    test.skip(
-      !process.env.PLAYWRIGHT_SCREENSHOTS_PATH,
-      'Skipping screenshots if PLAYWRIGHT_SCREENSHOTS_PATH is not set.',
-    );
+test.describe('Podman Desktop visual testing', { tag: [] }, () => {
+  test.describe.configure({ mode: 'serial' });
+  test.skip(
+    !process.env.PLAYWRIGHT_SCREENSHOTS_PATH,
+    'Skipping screenshots if PLAYWRIGHT_SCREENSHOTS_PATH is not set.',
+  );
 
-    /**
-     * Containers
-     */
-    test.describe
-      .serial('containers', () => {
-        test('containers empty', async ({ navigationBar }) => {
-          const containersPage = await navigationBar.openContainers();
-          await playExpect(containersPage.heading).toBeVisible();
+  /**
+   * Containers
+   */
+  test.describe('containers', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('containers empty', async ({ navigationBar }) => {
+      const containersPage = await navigationBar.openContainers();
+      await playExpect(containersPage.heading).toBeVisible();
 
-          // Screenshot empty containers list
-          await containersPage.screenshot({
-            name: 'containers-empty',
-          });
-        });
+      // Screenshot empty containers list
+      await containersPage.screenshot({
+        name: 'containers-empty',
       });
+    });
   });
+});

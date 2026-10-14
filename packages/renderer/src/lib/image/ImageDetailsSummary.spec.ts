@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ManifestInspectInfo } from '@podman-desktop/api';
+import type { ManifestInspectInfo } from '@desktop-framework/extension-api';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 

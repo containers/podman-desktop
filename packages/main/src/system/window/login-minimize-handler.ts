@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { app, type BrowserWindow } from 'electron';
 
 /**

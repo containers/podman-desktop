@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { ImageSearchOptions, ProviderContainerConnectionInfo, PullEvent } from '@desktop-framework/api';
+import { NavigationPage, PreferredRegistriesSettings } from '@desktop-framework/api';
 import { faArrowCircleDown, faBan, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import type { ImageSearchOptions, ProviderContainerConnectionInfo, PullEvent } from '@podman-desktop/core-api';
-import { NavigationPage, PreferredRegistriesSettings } from '@podman-desktop/core-api';
 import { Button, ButtonRow, Checkbox, ErrorMessage, Link, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import type { Terminal } from '@xterm/xterm';

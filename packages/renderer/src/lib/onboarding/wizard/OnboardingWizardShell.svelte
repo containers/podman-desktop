@@ -8,6 +8,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   rightContent: Snippet;
   footer: Snippet;
   sidebarTitle?: string;
+  /** When true the sidebar is hidden and only the content area is shown. */
+  hideSidebar?: boolean;
 }
 
 let {
@@ -16,28 +18,31 @@ let {
   rightContent,
   footer,
   sidebarTitle = 'Get started',
+  hideSidebar = false,
   class: className,
   ...restProps
 }: Props = $props();
 </script>
 
 <div class={['flex h-full w-full overflow-hidden', className]} {...restProps}>
-  <aside
-    class="flex min-h-full w-90 min-w-90 shrink-0 flex-col border-r border-(--pd-content-card-border) bg-(--pd-content-bg)">
-    <div class="flex h-full flex-col justify-between px-8 pt-12 pb-8">
-      <div class="flex min-h-0 flex-1 flex-col gap-8">
-        <div class="text-3xl font-semibold leading-none text-(--pd-content-header)">{sidebarTitle}</div>
-        <div class="min-h-0 flex-1 overflow-y-auto">
-          {@render leftSidebar?.()}
+  {#if !hideSidebar}
+    <aside
+      class="flex min-h-full w-56 min-w-56 shrink-0 flex-col bg-(--pd-content-bg)">
+      <div class="flex h-full flex-col justify-between px-6 pt-10 pb-6">
+        <div class="flex min-h-0 flex-1 flex-col gap-6">
+          <div class="text-xl font-bold leading-[1.4] text-(--pd-content-header) [text-wrap:balance]">{sidebarTitle}</div>
+          <div class="min-h-0 flex-1 overflow-y-auto">
+            {@render leftSidebar?.()}
+          </div>
         </div>
+        {#if leftSidebarFooter}
+          <div class="pt-4">
+            {@render leftSidebarFooter()}
+          </div>
+        {/if}
       </div>
-      {#if leftSidebarFooter}
-        <div class="max-w-xs">
-          {@render leftSidebarFooter()}
-        </div>
-      {/if}
-    </div>
-  </aside>
+    </aside>
+  {/if}
 
   <section
     aria-label="Content"
@@ -46,11 +51,11 @@ let {
       aria-hidden="true"
       class="pointer-events-none absolute inset-0 bg-linear-to-br from-transparent via-transparent to-(--pd-button-primary-bg) opacity-10">
     </div>
-    <div class="relative z-10 min-h-0 flex-1 overflow-y-auto p-8 lg:p-10">
+    <div class="relative z-10 min-h-0 flex-1 overflow-y-auto flex flex-col items-center justify-center p-8 lg:p-10">
       {@render rightContent?.()}
     </div>
     {#if footer}
-      <footer class="relative z-10 border-t border-(--pd-content-card-border) bg-transparent px-8 py-5 lg:px-10">
+      <footer class="relative z-10 bg-transparent px-8 pt-4 pb-7 lg:px-10">
         {@render footer()}
       </footer>
     {/if}

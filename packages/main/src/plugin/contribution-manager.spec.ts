@@ -20,9 +20,9 @@ import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import type { FileHandle } from 'node:fs/promises';
 
-import type { RunResult } from '@podman-desktop/api';
-import type { ContributionInfo, IDisposable } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ContributionInfo, IDisposable } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { RunResult } from '@desktop-framework/extension-api';
 import * as jsYaml from 'js-yaml';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -228,10 +228,10 @@ test('Check invalid port file', async () => {
   } as unknown as DockerExtensionMetadata;
 
   // mock existsSync as always returning true
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  vi.mocked(fs.existsSync).mockReturnValue(true);
 
   // fake object
-  vi.spyOn(jsYaml, 'load').mockReturnValue({});
+  vi.mocked(jsYaml.load).mockReturnValue({});
 
   // mock readFile
   vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: fs.PathLike | FileHandle) => {
@@ -317,7 +317,7 @@ test('waitForAContainerConnection delayed twice', async () => {
 
 describe('findComposeBinary', () => {
   test('Check findComposeBinary on Windows', async () => {
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(true);
 
     // mock exec
     vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
@@ -328,7 +328,7 @@ describe('findComposeBinary', () => {
   });
 
   test('Check findComposeBinary not exists on Windows', async () => {
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(true);
 
     // mock exec
     vi.spyOn(exec, 'exec').mockRejectedValue(new Error('not found'));
@@ -340,11 +340,11 @@ describe('findComposeBinary', () => {
   });
 
   test('Check findComposeBinary on macOS', async () => {
-    vi.spyOn(util, 'isMac').mockReturnValue(true);
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
+    vi.mocked(util.isMac).mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(false);
 
     // mock existsSync as returning false first time and true second time
-    vi.spyOn(fs, 'existsSync').mockReturnValueOnce(false).mockReturnValueOnce(true);
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false).mockReturnValueOnce(true);
 
     // mock exec
     vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
@@ -356,12 +356,12 @@ describe('findComposeBinary', () => {
   });
 
   test('Check findComposeBinary on Linux', async () => {
-    vi.spyOn(util, 'isUnixLike').mockReturnValue(true);
-    vi.spyOn(util, 'isMac').mockReturnValue(false);
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
+    vi.mocked(util.isUnixLike).mockReturnValue(true);
+    vi.mocked(util.isMac).mockReturnValue(false);
+    vi.mocked(util.isWindows).mockReturnValue(false);
 
     // mock existsSync as returning true
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
 
     // mock exec
     vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
@@ -609,7 +609,7 @@ test('execComposeCommand on a non-Windows OS', async () => {
   // mock exec
   vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
 
-  vi.spyOn(util, 'isWindows').mockReturnValue(false);
+  vi.mocked(util.isWindows).mockReturnValue(false);
 
   // call
   await contributionManager.execComposeCommand('/fake/directory', ['arg1', 'arg2']);
@@ -640,7 +640,7 @@ test('execComposeCommand on a Windows OS', async () => {
   // mock exec
   vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
 
-  vi.spyOn(util, 'isWindows').mockReturnValue(true);
+  vi.mocked(util.isWindows).mockReturnValue(true);
 
   // call
   await contributionManager.execComposeCommand('/fake/directory', ['arg1', 'arg2']);

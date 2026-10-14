@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
@@ -243,6 +243,6 @@ test('render extensions when catalog is enabled', async () => {
   render(EmbeddableCatalogExtensionList, {});
 
   await vi.waitFor(() => {
-    expect(screen.queryByText('Available extensions')).toBeInTheDocument();
+    expect(screen.getByText('Available extensions')).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 <script lang='ts'>
-import type { IDisposable } from '@podman-desktop/core-api';
+import type { IDisposable } from '@desktop-framework/api';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import type { ComponentProps } from 'svelte';
 import { onDestroy, onMount } from 'svelte';

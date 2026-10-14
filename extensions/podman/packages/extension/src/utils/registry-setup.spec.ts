@@ -89,7 +89,7 @@ afterEach(() => {
 
 test('should work with invalid JSON auth file', async () => {
   // mock the existSync
-  const existSyncSpy = vi.spyOn(fs, 'existsSync');
+  const existSyncSpy = vi.mocked(fs.existsSync);
   existSyncSpy.mockReturnValue(true);
 
   // mock the readFile
@@ -115,7 +115,7 @@ test('should work with invalid JSON auth file', async () => {
 
 test('should work with JSON auth file', async () => {
   // mock the existSync
-  const existSyncSpy = vi.spyOn(fs, 'existsSync');
+  const existSyncSpy = vi.mocked(fs.existsSync);
   existSyncSpy.mockReturnValue(true);
 
   // mock the readFile
@@ -141,7 +141,7 @@ test('should work with JSON auth file', async () => {
 
 test('should work with JSON auth file and alias', async () => {
   // mock the existSync
-  const existSyncSpy = vi.spyOn(fs, 'existsSync');
+  const existSyncSpy = vi.mocked(fs.existsSync);
   existSyncSpy.mockReturnValue(true);
 
   // mock the readFile

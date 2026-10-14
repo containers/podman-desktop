@@ -1,6 +1,13 @@
 <script lang="ts">
-import { faArrowCircleDown, faCube, faDownload, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
-import type { ImageInfo, ViewInfoUI } from '@podman-desktop/core-api';
+import type { ImageInfo, ViewInfoUI } from '@desktop-framework/api';
+import {
+  faCircleArrowDown,
+  faCloudDownload,
+  faCube,
+  faDownload,
+  faTrash,
+  faUpload,
+} from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
   FilteredEmptyScreen,
@@ -321,11 +328,11 @@ function label(item: ImageInfoUI): string {
       type="secondary"
       on:click={importImage}
       title="Import Containers From Filesystem"
-      icon={faArrowCircleDown}
+      icon={faCircleArrowDown}
       aria-label="Import Image">
       Import
     </Button>
-    <Button type="secondary" on:click={gotoPullImage} title="Pull Image From a Registry" icon={faArrowCircleDown}>Pull</Button>
+    <Button type="secondary" on:click={gotoPullImage} title="Pull Image From a Registry" icon={faCloudDownload}>Pull</Button>
     <Button type="primary" on:click={gotoBuildImage} title="Build Image From Containerfile" icon={faCube}>Build</Button>
   {/snippet}
 

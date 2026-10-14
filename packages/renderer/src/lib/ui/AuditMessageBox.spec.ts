@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { AuditRecord, AuditResult } from '@podman-desktop/api';
+import type { AuditRecord, AuditResult } from '@desktop-framework/extension-api';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

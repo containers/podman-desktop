@@ -24,25 +24,6 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import type {
-  Cluster,
-  Context as KubernetesContext,
-  KubernetesObject,
-  User,
-  V1ConfigMap,
-  V1CronJob,
-  V1Deployment,
-  V1Ingress,
-  V1Job,
-  V1NamespaceList,
-  V1Node,
-  V1PersistentVolumeClaim,
-  V1Pod,
-  V1PodList,
-  V1Secret,
-  V1Service,
-} from '@kubernetes/client-node';
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type {
   CliToolInfo,
   ColorInfo,
   CommandInfo,
@@ -79,6 +60,8 @@ import type {
   ImageSearchResult,
   ImagesSaveOptions,
   ImageTagsListOptions,
+  ImageUpdateInfo,
+  ImageUpdateResult,
   ImageUpdateStatus,
   KubeContext,
   KubernetesContextResources,
@@ -127,32 +110,51 @@ import type {
   VolumeListInfo,
   WebviewInfo,
   WelcomeMessages,
-} from '@podman-desktop/core-api';
-import type { ApiSenderChannelMap } from '@podman-desktop/core-api/api-sender';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { AuthenticationProviderInfo } from '@podman-desktop/core-api/authentication';
+} from '@desktop-framework/api';
+import type { ApiSenderChannelMap } from '@desktop-framework/api/api-sender';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { AuthenticationProviderInfo } from '@desktop-framework/api/authentication';
 import {
   type IConfigurationPropertyRecordedSchema,
   IConfigurationRegistry,
-} from '@podman-desktop/core-api/configuration';
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+} from '@desktop-framework/api/configuration';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorInfo,
   KubernetesGeneratorSelector,
-} from '@podman-desktop/core-api/kubernetes';
+} from '@desktop-framework/api/kubernetes';
 import type {
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PlayKubeInfo,
   PlayKubeInput,
-} from '@podman-desktop/core-api/libpod';
-import type { ExtensionBanner, RecommendedRegistry } from '@podman-desktop/core-api/recommendations';
-import type { PinOption } from '@podman-desktop/core-api/status-bar';
+} from '@desktop-framework/api/libpod';
+import type { ExtensionBanner, RecommendedRegistry } from '@desktop-framework/api/recommendations';
+import type { PinOption } from '@desktop-framework/api/status-bar';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
+import type {
+  Cluster,
+  Context as KubernetesContext,
+  KubernetesObject,
+  User,
+  V1ConfigMap,
+  V1CronJob,
+  V1Deployment,
+  V1Ingress,
+  V1Job,
+  V1NamespaceList,
+  V1Node,
+  V1PersistentVolumeClaim,
+  V1Pod,
+  V1PodList,
+  V1Secret,
+  V1Service,
+} from '@kubernetes/client-node';
 import checkDiskSpacePkg from 'check-disk-space';
 import type Dockerode from 'dockerode';
-import type { IpcMainEvent, WebContents } from 'electron';
+import type { IpcMainEvent } from 'electron';
 import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron/main';
 import { Container } from 'inversify';
@@ -269,12 +271,29 @@ const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpa
 
 export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
 
+/**
+ * Subset of Electron's WebContents used by PluginSystem for IPC sends.
+ * Keeps the coupling narrow so the class never depends on the full WebContents surface.
+ */
+interface MainWindowWebContentsSender {
+  send(channel: string, ...args: unknown[]): void;
+  on(eventName: 'dom-ready', listener: () => void): void;
+  isDestroyed(): boolean;
+}
+
 export interface LoggerWithEnd extends containerDesktopAPI.Logger {
   // when task is finished, this function is called
   onEnd: () => void;
 }
 
 export class PluginSystem {
+  // used when no window is available anymore, so sends are simply dropped
+  private static readonly DESTROYED_WEB_CONTENTS_SENDER: MainWindowWebContentsSender = {
+    send: (): void => {},
+    on: (): void => {},
+    isDestroyed: (): boolean => true,
+  };
+
   // ready is when we've finished to initialize extension system
   private isReady = false;
 
@@ -300,8 +319,29 @@ export class PluginSystem {
     });
   }
 
-  getWebContentsSender(): WebContents {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  // the web contents can already be gone while the window is still listed, for example when the
+  // renderer process crashed, so both have to be checked before sending anything
+  private findMainWindow(): BrowserWindow | undefined {
+    return BrowserWindow.getAllWindows().find(w => !w.isDestroyed() && !w.webContents.isDestroyed());
+  }
+
+  /**
+   * Sender for fire-and-forget sends, looked up for every send. It falls back to a sender doing
+   * nothing when the window is gone, so that streams still running while the application is being
+   * closed do not fail.
+   */
+  getWebContentsSender(): MainWindowWebContentsSender {
+    return this.findMainWindow()?.webContents ?? PluginSystem.DESTROYED_WEB_CONTENTS_SENDER;
+  }
+
+  /**
+   * Sender for the callers resolving it once and keeping the reference, like the api sender.
+   * Falling back to a sender doing nothing here would leave such a caller unable to ever reach the
+   * UI, so the missing window is reported instead.
+   * @throws when there is no window to send to
+   */
+  getRequiredWebContentsSender(): MainWindowWebContentsSender {
+    const window = this.findMainWindow();
     if (!window) {
       throw new Error('Unable to find the main window');
     }
@@ -398,12 +438,17 @@ export class PluginSystem {
     logTypes.forEach(logType => this.redirectConsole(logType));
   }
 
-  getApiSender(webContents: WebContents): ApiSenderType {
+  getApiSender(webContents: MainWindowWebContentsSender): ApiSenderType {
     const queuedEvents: { channel: string; data: unknown[] }[] = [];
 
     const flushQueuedEvents = (): void => {
       // flush queued events ?
       if (this.uiReady && this.isReady && queuedEvents.length > 0) {
+        // the window may have been destroyed while the events were queued, drop them instead of failing
+        if (webContents.isDestroyed()) {
+          queuedEvents.length = 0;
+          return;
+        }
         console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
         queuedEvents.forEach(({ channel, data }) => {
           webContents.send('api-sender', channel, ...data);
@@ -517,7 +562,7 @@ export class PluginSystem {
     this.redirectLogging();
 
     // init api sender
-    const apiSender = this.getApiSender(this.getWebContentsSender());
+    const apiSender = this.getApiSender(this.getRequiredWebContentsSender());
     const container = new Container();
     container.bind<ApiSenderType>(ApiSenderType).toConstantValue(apiSender);
     container.bind<IPCHandle>(IPCHandle).toConstantValue(this.ipcHandle);
@@ -1383,6 +1428,17 @@ export class PluginSystem {
         localDigests: string[],
       ): Promise<ImageUpdateStatus> => {
         return imageRegistry.checkImageUpdateStatus(imageReference, imageTag, localDigests);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:updateImages',
+      async (_listener, images: ImageUpdateInfo[], cancellableTokenId?: number): Promise<ImageUpdateResult[]> => {
+        const abortController = this.createAbortControllerOnCancellationToken(
+          cancellationTokenRegistry,
+          cancellableTokenId,
+        );
+        return containerProviderRegistry.updateImages(images, abortController?.signal);
       },
     );
 
@@ -2397,6 +2453,13 @@ export class PluginSystem {
       return extensionsCatalog.refreshCatalog();
     });
 
+    this.ipcHandle(
+      'catalog:fetchReadme',
+      async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<string> => {
+        return extensionsCatalog.fetchReadme(extensionId);
+      },
+    );
+
     this.ipcHandle('documentation:getItems', async (): Promise<DocumentationInfo[]> => {
       return documentationService.getDocumentationItems();
     });
@@ -2606,7 +2669,7 @@ export class PluginSystem {
         }
 
         const task = taskManager.createTask({
-          title: `Creating ${providerConnectionInfo.name} provider`,
+          title: `Updating ${providerConnectionInfo.name} provider`,
           action: {
             name: 'Open task',
             execute: () => {
@@ -2622,7 +2685,7 @@ export class PluginSystem {
             return result;
           })
           .catch((err: unknown) => {
-            task.error = `Something went wrong while creating container provider: ${err}`;
+            task.error = `Something went wrong while updating container provider: ${err}`;
             logger.error(err);
             throw err;
           })

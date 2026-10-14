@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Event } from '@desktop-framework/extension-api';
 import type { Cluster, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
-import type { Event } from '@podman-desktop/api';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContextHealthState } from './context-health-checker.js';

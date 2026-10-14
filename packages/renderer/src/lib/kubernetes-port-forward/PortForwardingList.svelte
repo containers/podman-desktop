@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ForwardConfig, WorkloadKind } from '@desktop-framework/api';
 import { faEthernet } from '@fortawesome/free-solid-svg-icons';
-import type { ForwardConfig, WorkloadKind } from '@podman-desktop/core-api';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
 import PortForwardActions from '/@/lib/kubernetes-port-forward/PortForwardActions.svelte';

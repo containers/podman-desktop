@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
 import { faSignal } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
 import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 

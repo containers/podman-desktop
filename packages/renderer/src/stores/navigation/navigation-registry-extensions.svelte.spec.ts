@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContributionInfo, WebviewInfo } from '@podman-desktop/core-api';
+import type { ContributionInfo, WebviewInfo } from '@desktop-framework/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { contributions } from '/@/stores/contribs';

@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { CustomPickItem } from '@desktop-framework/extension-api';
 import { faAngleDown, faAngleUp, faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-import type { CustomPickItem } from '@podman-desktop/api';
 import { Button, ButtonRow } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';

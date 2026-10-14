@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { NavigationPage, type ProviderInfo } from '@podman-desktop/core-api';
+import { NavigationPage, type ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 

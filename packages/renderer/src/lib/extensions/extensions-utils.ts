@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import type { OverriddenExtension } from '@desktop-framework/api';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 
 import { SearchTermParser } from '/@/lib/search/search-term-parser';
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
@@ -49,6 +50,7 @@ export class ExtensionsUtils {
     let removable: boolean;
     let devMode: boolean;
     let bundled: boolean;
+    let overrides: OverriddenExtension | undefined;
     let state: string;
     let icon: undefined | string | { light: string; dark: string };
     let iconRef: undefined | string;
@@ -72,6 +74,7 @@ export class ExtensionsUtils {
       removable = matchingInstalledExtension.removable;
       devMode = matchingInstalledExtension.devMode;
       bundled = matchingInstalledExtension.bundled;
+      overrides = matchingInstalledExtension.overrides;
       state = matchingInstalledExtension.state;
       icon = matchingInstalledExtension.icon;
       name = matchingInstalledExtension.name;
@@ -141,6 +144,7 @@ export class ExtensionsUtils {
       removable,
       devMode,
       bundled,
+      overrides,
       state,
       icon,
       iconRef,
@@ -233,7 +237,8 @@ export class ExtensionsUtils {
     const keywords = parsed.getFilter('keyword');
     const isValues = parsed.getFilter('is');
     const notValues = parsed.getFilter('not');
-    const installed = isValues.includes('installed') ? true : notValues.includes('installed') ? false : undefined;
+    const installed = this.resolveCatalogBooleanFilter(isValues, notValues, 'installed');
+    const featured = this.resolveCatalogBooleanFilter(isValues, notValues, 'featured');
     return extensions.filter(extension => {
       return (
         (terms.length === 0 ||
@@ -244,8 +249,23 @@ export class ExtensionsUtils {
           categories.every(category => extension.categories.map(c => c.toLowerCase()).includes(category))) &&
         (keywords.length === 0 ||
           keywords.every(keyword => extension.keywords.map(k => k.toLowerCase()).includes(keyword))) &&
-        (installed === undefined || installed === extension.isInstalled)
+        (installed === undefined || installed === extension.isInstalled) &&
+        (featured === undefined || featured === extension.isFeatured)
       );
     });
+  }
+
+  private resolveCatalogBooleanFilter(
+    isValues: string[],
+    notValues: string[],
+    filter: 'installed' | 'featured',
+  ): boolean | undefined {
+    if (isValues.includes(filter)) {
+      return true;
+    }
+    if (notValues.includes(filter)) {
+      return false;
+    }
+    return undefined;
   }
 }

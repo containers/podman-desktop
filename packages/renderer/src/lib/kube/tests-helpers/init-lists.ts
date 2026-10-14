@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IDisposable } from '@desktop-framework/api';
 import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
-import type { IDisposable } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
 import { vi } from 'vitest';
 

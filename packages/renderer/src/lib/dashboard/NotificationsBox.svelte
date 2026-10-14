@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { NotificationCard } from '@podman-desktop/core-api';
+import type { NotificationCard } from '@desktop-framework/api';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 

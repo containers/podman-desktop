@@ -2,7 +2,7 @@
 import './app.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-import type { KubernetesNavigationRequest, NavigationRequest } from '@podman-desktop/core-api';
+import type { KubernetesNavigationRequest, NavigationRequest } from '@desktop-framework/api';
 import { tablePersistence } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 

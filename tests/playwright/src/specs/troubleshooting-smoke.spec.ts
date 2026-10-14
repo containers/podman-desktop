@@ -30,42 +30,42 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Troubleshooting page verification', { tag: '@smoke' }, () => {
-    let troubleshootingPage: TroubleshootingPage;
+test.describe('Troubleshooting page verification', { tag: '@smoke' }, () => {
+  test.describe.configure({ mode: 'serial' });
+  let troubleshootingPage: TroubleshootingPage;
 
-    test('Troubleshooting page is available', async ({ page }) => {
-      const statusBar = new StatusBar(page);
-      await playExpect(statusBar.troubleshootingButton).toBeEnabled();
-      await statusBar.troubleshootingButton.click();
-      troubleshootingPage = new TroubleshootingPage(page);
-      await playExpect(troubleshootingPage.heading).toBeVisible();
-    });
-
-    test('Can reconnect providers', async () => {
-      await troubleshootingPage.openRepairConnections();
-      await playExpect
-        .poll(async () => troubleshootingPage.getContainerConnectionsStatus(), { timeout: 15_000 })
-        .toMatch(/[1-9]\d* running/);
-      const status = await troubleshootingPage.reconnectProviders();
-      playExpect(status).toContain('Done');
-    });
-
-    test('Content of the application Log', async () => {
-      await troubleshootingPage.openLogs();
-      const logs = await troubleshootingPage.getLogs();
-      for (const logEntry of [
-        /System ready. Loading extensions/,
-        /PluginSystem: received dom-ready event from the UI/,
-        /Delayed startup, flushing/,
-        /PluginSystem: initialization done/,
-      ]) {
-        await playExpect(logs).toContainText(logEntry, { timeout: 10_000 });
-      }
-    });
-
-    test('Refresh auth providers store', async () => {
-      await troubleshootingPage.openStores();
-      await troubleshootingPage.refreshStore('auth providers');
-    });
+  test('Troubleshooting page is available', async ({ page }) => {
+    const statusBar = new StatusBar(page);
+    await playExpect(statusBar.troubleshootingButton).toBeEnabled();
+    await statusBar.troubleshootingButton.click();
+    troubleshootingPage = new TroubleshootingPage(page);
+    await playExpect(troubleshootingPage.heading).toBeVisible();
   });
+
+  test('Can reconnect providers', async () => {
+    await troubleshootingPage.openRepairConnections();
+    await playExpect
+      .poll(async () => troubleshootingPage.getContainerConnectionsStatus(), { timeout: 15_000 })
+      .toMatch(/[1-9]\d* running/);
+    const status = await troubleshootingPage.reconnectProviders();
+    playExpect(status).toContain('Done');
+  });
+
+  test('Content of the application Log', async () => {
+    await troubleshootingPage.openLogs();
+    const logs = await troubleshootingPage.getLogs();
+    for (const logEntry of [
+      /System ready. Loading extensions/,
+      /PluginSystem: received dom-ready event from the UI/,
+      /Delayed startup, flushing/,
+      /PluginSystem: initialization done/,
+    ]) {
+      await playExpect(logs).toContainText(logEntry, { timeout: 10_000 });
+    }
+  });
+
+  test('Refresh auth providers store', async () => {
+    await troubleshootingPage.openStores();
+    await troubleshootingPage.refreshStore('auth providers');
+  });
+});

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { GitHubFeedbackCategory } from '@podman-desktop/core-api';
+import type { GitHubFeedbackCategory } from '@desktop-framework/api';
 import { render, type RenderResult } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { type Component, type ComponentProps } from 'svelte';

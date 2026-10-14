@@ -28,14 +28,14 @@ beforeEach(() => {
 });
 
 test('getBase64Image - return undefined if path do not exists', () => {
-  vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+  vi.mocked(fs.existsSync).mockReturnValue(false);
   const result = getBase64Image('unknown');
   expect(result).toBe(undefined);
 });
 
 test('getBase64Image - return undefined if erroring durin execution', () => {
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(fs.readFileSync).mockImplementation(() => {
     throw new Error('error');
   });
   const result = getBase64Image('path');
@@ -43,16 +43,16 @@ test('getBase64Image - return undefined if erroring durin execution', () => {
 });
 
 test('getBase64Image - return base64 image', () => {
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'readFileSync').mockReturnValue('image');
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(fs.readFileSync).mockReturnValue('image');
 
   const result = getBase64Image('path');
   expect(result).toBe('data:image/png;base64,aW1hZ2U=');
 });
 
 test('getBase64Image - return base64 image with svg mime type', () => {
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'readFileSync').mockReturnValue('<svg></svg>');
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(fs.readFileSync).mockReturnValue('<svg></svg>');
 
   const result = getBase64Image('icon.svg');
   expect(result).toBe('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=');

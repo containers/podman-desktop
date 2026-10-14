@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProviderConnectionInfo, SystemOverviewStatus } from '@desktop-framework/api';
+import type { ProviderConnectionStatus } from '@desktop-framework/extension-api';
 import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-regular-svg-icons';
 import { faInfoCircle, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderConnectionStatus } from '@podman-desktop/api';
-import type { ProviderConnectionInfo, SystemOverviewStatus } from '@podman-desktop/core-api';
 import { Spinner } from '@podman-desktop/ui-svelte';
 import type { Component } from 'svelte';
 import { type Writable, writable } from 'svelte/store';

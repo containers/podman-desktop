@@ -96,9 +96,22 @@ You'll need to create another release from the 0.12.x branch. This can be done b
 2. **MAKE SURE** you specify that you want to use the `0.12.x` branch, NOT `main` under `Branch to use for the release`.
 3. Version to release should be `0.12.1` **IMPORTANT NOTE:** Literally `0.12.1` NOT the branch name `0.12.x`.
 
+## Testing sign-off
+
+Before promoting a pre-release to latest, wait for official sign-off.
+
+**Notification:** After testing is done, designated release owner will be tagged on Slack in a message that includes one of two explicit status lines:
+
+- `QE is approving the release of <version>` - **GO:** Proceed with the remaining release steps.
+- `QE is not approving the release of <version>` - **NO-GO:** Hold the release until blockers are resolved.
+
+**Bug details:** The message includes a direct link to the GitHub testing issue. Review the comment on that issue for the full list of discovered bugs, test results, and details.
+
+Do not proceed with promotion until an approval message is posted.
+
 ## Change from pre-release to release
 
-✅ If QE agrees with the release, we have a green light!
+✅ After [Testing sign-off](#testing-sign-off), we have a green light!
 
 1. Ensure release notes PR is ready
 1. Merge the release notes before flagging the release as the 'latest': It is because Podman Desktop is displaying in the UI the release notes of the new release, so as soon as there is an update, the data needs to be there.

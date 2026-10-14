@@ -163,7 +163,7 @@ export default function Home(): JSX.Element {
                       borderWidth: '2px',
                       opacity: 1,
                     }}
-                    className="shadow-lg hover:shadow-xl transition-shadow cursor-pointer "
+                    className="border-solid shadow-lg hover:shadow-xl transition-shadow cursor-pointer "
                   />
                   <img
                     src="/img/play-overlay-button.png"

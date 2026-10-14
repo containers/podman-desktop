@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { StatusBarEntry } from '@podman-desktop/core-api';
-import { ExperimentalTasksSettings } from '@podman-desktop/core-api';
+import type { StatusBarEntry } from '@desktop-framework/api';
+import { ExperimentalTasksSettings } from '@desktop-framework/api';
 import { onDestroy, onMount } from 'svelte';
 
 import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';

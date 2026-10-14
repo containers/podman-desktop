@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { NetworkInspectInfo } from '@podman-desktop/core-api';
+import type { NetworkInspectInfo } from '@desktop-framework/api';
 import { onMount } from 'svelte';
 
 import MonacoEditor from '/@/lib/editor/MonacoEditor.svelte';

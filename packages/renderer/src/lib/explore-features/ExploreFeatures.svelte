@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ExploreFeature } from '@podman-desktop/core-api';
+import type { ExploreFeature } from '@desktop-framework/api';
 import { Carousel, Expandable } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

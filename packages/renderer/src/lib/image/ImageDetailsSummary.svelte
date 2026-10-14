@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ManifestInspectInfo } from '@podman-desktop/api';
+import type { ManifestInspectInfo } from '@desktop-framework/extension-api';
 import { onMount } from 'svelte';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';

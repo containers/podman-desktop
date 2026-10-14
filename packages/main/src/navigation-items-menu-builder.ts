@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Configuration } from '@podman-desktop/api';
-import type { DisplayItem } from '@podman-desktop/core-api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
-import { CONFIGURATION_DEFAULT_SCOPE } from '@podman-desktop/core-api/configuration';
+import type { DisplayItem } from '@desktop-framework/api';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
+import { CONFIGURATION_DEFAULT_SCOPE } from '@desktop-framework/api/configuration';
+import type { Configuration } from '@desktop-framework/extension-api';
 import type { ContextMenuParams, MenuItemConstructorOptions } from 'electron';
 
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';

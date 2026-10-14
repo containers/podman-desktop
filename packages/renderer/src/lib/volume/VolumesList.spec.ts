@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { type ProviderContainerConnectionInfo, type ProviderInfo } from '@podman-desktop/core-api';
+import { type ProviderContainerConnectionInfo, type ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 /* eslint-disable import/no-duplicates */

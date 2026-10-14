@@ -19,9 +19,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { RunResult } from '@podman-desktop/api';
-import type { ContributionInfo } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ContributionInfo } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { RunResult } from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 import * as jsYaml from 'js-yaml';
 

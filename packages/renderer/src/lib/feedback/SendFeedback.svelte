@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { FeedbackCategory } from '@podman-desktop/core-api';
+import type { FeedbackCategory } from '@desktop-framework/api';
 import { Button, CloseButton, Dropdown, Link, Modal } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';

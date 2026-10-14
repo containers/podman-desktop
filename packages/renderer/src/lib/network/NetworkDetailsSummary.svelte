@@ -1,5 +1,5 @@
 <script lang="ts">
-import { NavigationPage } from '@podman-desktop/core-api';
+import { NavigationPage } from '@desktop-framework/api';
 import { Link } from '@podman-desktop/ui-svelte';
 
 import DetailsCell from '/@/lib/details/DetailsCell.svelte';

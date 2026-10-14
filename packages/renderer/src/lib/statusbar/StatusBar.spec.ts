@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { ExperimentalTasksSettings } from '@podman-desktop/core-api';
+import { ExperimentalTasksSettings } from '@desktop-framework/api';
 import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

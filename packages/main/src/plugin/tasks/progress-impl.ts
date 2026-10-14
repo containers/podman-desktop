@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type * as extensionApi from '@podman-desktop/api';
+import type * as extensionApi from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 import { findWindow } from '/@/electron-util.js';

@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { CliToolInfo } from '@desktop-framework/api';
 import { faCircleArrowDown, faCircleArrowUp, faCircleXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { CliToolInfo } from '@podman-desktop/core-api';
 import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

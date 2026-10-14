@@ -23,6 +23,22 @@ import { resolve } from 'node:path';
 import { PassThrough } from 'node:stream';
 
 import type {
+  ContextGeneralState,
+  ContextHealth,
+  ContextPermission,
+  ForwardConfig,
+  ForwardOptions,
+  KubeContext,
+  KubernetesContextResources,
+  KubernetesTroubleshootingInformation,
+  ResourceCount,
+  ResourceName,
+  V1Route,
+} from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
+import type {
   Cluster,
   Context,
   KubernetesListObject,
@@ -65,22 +81,6 @@ import {
   Watch,
 } from '@kubernetes/client-node';
 import { PromiseMiddlewareWrapper } from '@kubernetes/client-node/dist/gen/middleware.js';
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type {
-  ContextGeneralState,
-  ContextHealth,
-  ContextPermission,
-  ForwardConfig,
-  ForwardOptions,
-  KubeContext,
-  KubernetesContextResources,
-  KubernetesTroubleshootingInformation,
-  ResourceCount,
-  ResourceName,
-  V1Route,
-} from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
 import { inject, injectable } from 'inversify';
 import * as jsYaml from 'js-yaml';
 import type { WebSocket } from 'ws';

@@ -18,12 +18,19 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { OverriddenExtension } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test } from 'vitest';
 
 import ExtensionBadge from './ExtensionBadge.svelte';
 
-type ExtensionType = { type: 'dd' | 'pd'; removable: boolean; devMode: boolean; bundled: boolean };
+type ExtensionType = {
+  type: 'dd' | 'pd';
+  removable: boolean;
+  devMode: boolean;
+  bundled: boolean;
+  overrides?: OverriddenExtension;
+};
 
 beforeEach(() => {});
 
@@ -87,4 +94,48 @@ test('Expect to have badge for devMode Extension', async () => {
 
   const tooltip = await screen.findByText('In Development Mode Extension');
   expect(tooltip).toBeInTheDocument();
+});
+
+test('Expect an Overrides badge naming the bundled extension it replaces', async () => {
+  const extension: ExtensionType = {
+    type: 'pd',
+    removable: true,
+    devMode: false,
+    bundled: false,
+    overrides: { id: 'podman-desktop.kind', version: '1.31.0-next' },
+  };
+  render(ExtensionBadge, { extension });
+
+  expect(screen.getByText('Overrides')).toBeInTheDocument();
+
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(
+    await screen.findByText('Replaces the bundled extension podman-desktop.kind v1.31.0-next'),
+  ).toBeInTheDocument();
+});
+
+test('Expect the Overrides badge next to the devMode badge for an --extension-folder extension', () => {
+  const extension: ExtensionType = {
+    type: 'pd',
+    removable: false,
+    devMode: true,
+    bundled: false,
+    overrides: { id: 'podman-desktop.kind', version: '1.31.0-next' },
+  };
+  render(ExtensionBadge, { extension });
+
+  expect(screen.getByText('devMode Extension')).toBeInTheDocument();
+  expect(screen.getByText('Overrides')).toBeInTheDocument();
+});
+
+test('Expect no Overrides badge for an extension not replacing a bundled one', () => {
+  const extension: ExtensionType = {
+    type: 'pd',
+    removable: true,
+    devMode: false,
+    bundled: false,
+  };
+  render(ExtensionBadge, { extension });
+
+  expect(screen.queryByText('Overrides')).not.toBeInTheDocument();
 });

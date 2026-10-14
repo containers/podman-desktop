@@ -17,9 +17,9 @@
  ***********************************************************************/
 import { randomUUID } from 'node:crypto';
 
+import type { ForwardConfig, ForwardOptions, IDisposable } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { KubeConfig } from '@kubernetes/client-node';
-import type { ForwardConfig, ForwardOptions, IDisposable } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 
 import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js';
 import { PortForwardConnectionService } from '/@/plugin/kubernetes/kubernetes-port-forward-connection.js';

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodInfo } from '@podman-desktop/core-api';
+import type { PodInfo } from '@desktop-framework/api';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 

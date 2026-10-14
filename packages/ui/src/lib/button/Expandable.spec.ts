@@ -63,7 +63,7 @@ test('Check title and content are visible by default', async () => {
   expect(title.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'true');
   expect(title.parentElement?.parentElement?.parentElement).toHaveClass('gap-2');
 
-  expect(screen.queryByText('Content')).toBeInTheDocument();
+  expect(screen.getByText('Content')).toBeInTheDocument();
 });
 
 test('Check only content is hidden when closed', async () => {
@@ -91,7 +91,7 @@ test('Check clicking toggles the content', async () => {
   expect(title).toBeVisible();
   expect(title.parentElement?.parentElement).toHaveAttribute('aria-expanded', 'true');
 
-  expect(screen.queryByText('Content')).toBeInTheDocument();
+  expect(screen.getByText('Content')).toBeInTheDocument();
 
   await fireEvent.click(title);
   await waitFor(() => expect(screen.queryByText('Content')).not.toBeInTheDocument());
@@ -108,7 +108,7 @@ test('Check clicking fires an event', async () => {
 
   const title = screen.getByText('Title');
   expect(title).toBeVisible();
-  expect(screen.queryByText('Content')).toBeInTheDocument();
+  expect(screen.getByText('Content')).toBeInTheDocument();
 
   await fireEvent.click(title);
   await waitFor(() => expect(screen.queryByText('Content')).not.toBeInTheDocument());

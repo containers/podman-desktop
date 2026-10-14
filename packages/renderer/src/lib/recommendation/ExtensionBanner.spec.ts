@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ExtensionBanner as IExtensionBanner } from '@podman-desktop/core-api/recommendations';
+import type { ExtensionBanner as IExtensionBanner } from '@desktop-framework/api/recommendations';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

@@ -116,7 +116,7 @@ describe('Grab asset id for a given release id', async () => {
 
 test('should download the file if parent folder does exist', async () => {
   // mock fs
-  const existSyncSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  const existSyncSpy = vi.mocked(fs.existsSync).mockReturnValue(true);
 
   const writeFileSpy = vi.spyOn(fs.promises, 'writeFile');
 
@@ -132,7 +132,7 @@ test('should download the file if parent folder does exist', async () => {
 
 test('should download the file if parent folder does not exist', async () => {
   // mock fs
-  const existSyncSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+  const existSyncSpy = vi.mocked(fs.existsSync).mockReturnValue(false);
   const mkdirSpy = vi.spyOn(fs.promises, 'mkdir').mockResolvedValue('');
 
   const writeFileSpy = vi.spyOn(fs.promises, 'writeFile').mockResolvedValue();

@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
-import type { PodCreatePortOptions } from '@podman-desktop/core-api/libpod';
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
+import type { PodCreatePortOptions } from '@desktop-framework/api/libpod';
 import { Button, ButtonRow, Checkbox, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';

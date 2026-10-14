@@ -21,7 +21,7 @@ import type {
   HostConfigPortBinding,
   PodContainerInfo,
   PodCreatePortOptions,
-} from '@podman-desktop/api';
+} from '@desktop-framework/extension-api';
 
 import type { ProviderContainerConnectionInfo } from './provider-info.js';
 

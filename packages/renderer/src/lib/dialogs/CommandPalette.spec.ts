@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { NavigationPage } from '@podman-desktop/core-api';
+import { NavigationPage } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
@@ -509,7 +509,7 @@ describe('Command Palette', () => {
 
       await userEvent.keyboard(shortcut);
       if (shouldOpen) {
-        expect(screen.queryByRole('textbox', { name: COMMAND_PALETTE_ARIA_LABEL })).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: COMMAND_PALETTE_ARIA_LABEL })).toBeInTheDocument();
       } else {
         expect(screen.queryByRole('textbox', { name: COMMAND_PALETTE_ARIA_LABEL })).not.toBeInTheDocument();
       }

@@ -19,7 +19,7 @@
 import type {
   IConfigurationChangeEvent,
   IConfigurationPropertyRecordedSchema,
-} from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api/configuration';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore } from './event-store';

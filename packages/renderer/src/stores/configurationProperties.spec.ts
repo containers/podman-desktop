@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationChangeEvent } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationChangeEvent } from '@desktop-framework/api/configuration';
 import { assert, beforeEach, expect, test, vi } from 'vitest';
 
 import { onDidChangeConfiguration, setupConfigurationChange } from './configurationProperties';

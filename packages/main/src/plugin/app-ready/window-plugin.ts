@@ -17,6 +17,7 @@
  ********************************************************************/
 import type { App as ElectronApp, BrowserWindow } from 'electron';
 
+import type { WindowConfig } from '/@/mainWindow.js';
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 import type { AppPlugin } from '/@/plugin/app-ready/app-plugin.js';
 import { isMac } from '/@/util.js';
@@ -25,6 +26,7 @@ export class WindowPlugin implements AppPlugin {
   constructor(
     private readonly app: ElectronApp,
     private readonly resolve: (window: BrowserWindow) => void,
+    private readonly config?: WindowConfig,
   ) {}
 
   dispose(): void {}
@@ -36,7 +38,7 @@ export class WindowPlugin implements AppPlugin {
 
     // Platforms: Linux, macOS, Windows
     // Create the main window
-    createNewWindow()
+    createNewWindow(this.config)
       .then(this.resolve)
       .catch((error: unknown) => {
         console.error('Error creating window', error);
@@ -47,7 +49,7 @@ export class WindowPlugin implements AppPlugin {
     // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
     // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
     this.app.on('activate', (_event, hasVisibleWindows) => {
-      createNewWindow()
+      createNewWindow(this.config)
         .then(this.resolve)
         .catch((error: unknown) => {
           console.log('Error creating window', error);

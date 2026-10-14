@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as extensionApi from '@podman-desktop/api';
-import type { ColorDefinition, ColorInfo, RawThemeContribution, ThemeInfo } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import type { ColorDefinition, ColorInfo, RawThemeContribution, ThemeInfo } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
+import type * as extensionApi from '@desktop-framework/extension-api';
 
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';
 
@@ -1625,6 +1625,87 @@ export class ColorRegistry {
       hcLight: red[950],
     });
 
+    // Icon-only (compact) buttons. Replace the `action-button-*` colors, values are unchanged
+    this.registerColor(`${button}icon-text`, {
+      dark: gray[400],
+      light: charcoal[500],
+      hcDark: white,
+      hcLight: black,
+    });
+
+    this.registerColor(`${button}icon-bg`, {
+      dark: charcoal[900],
+      light: gray[400],
+      hcDark: accent1[800],
+      hcLight: accent1[200],
+    });
+
+    this.registerColor(`${button}icon-hover-bg`, {
+      dark: transparent,
+      light: transparent,
+    });
+
+    this.registerColor(`${button}icon-hover-text`, {
+      dark: gray[400],
+      light: charcoal[500],
+      hcDark: white,
+      hcLight: black,
+    });
+
+    this.registerColor(`${button}icon-primary-text`, {
+      dark: gray[275],
+      light: accent1[500],
+      hcDark: accent1[500],
+      hcLight: accent1[700],
+    });
+
+    this.registerColor(`${button}icon-primary-hover-text`, {
+      dark: gray[275],
+      light: accent1[500],
+      hcDark: accent1[500],
+      hcLight: accent1[700],
+    });
+
+    this.registerColor(`${button}icon-disabled-text`, {
+      dark: gray[900],
+      light: gray[900],
+    });
+
+    // Detailed (icon with visible text) buttons
+    this.registerColor(`${button}detailed-text`, {
+      dark: gray[400],
+      light: charcoal[900],
+      hcDark: white,
+      hcLight: black,
+    });
+
+    this.registerColor(`${button}detailed-bg`, {
+      dark: charcoal[800],
+      light: gray[50],
+    });
+
+    this.registerColor(`${button}detailed-hover-text`, {
+      dark: gray[400],
+      light: charcoal[900],
+      hcDark: white,
+      hcLight: black,
+    });
+
+    this.registerColor(`${button}detailed-disabled-text`, {
+      dark: gray[900],
+      light: gray[900],
+    });
+
+    this.registerColor(`${button}detailed-disabled-bg`, {
+      dark: charcoal[800],
+      light: gray[50],
+    });
+
+    this.registerColor(`${button}spinner`, {
+      dark: accent1[400],
+      light: accent1[500],
+    });
+
     // @deprecated since 2026-04-01. See https://github.com/podman-desktop/podman-desktop/issues/16189
     // Unused color
     this.registerColor(`${button}help-link-text`, {
@@ -1635,6 +1716,11 @@ export class ColorRegistry {
     });
   }
 
+  // @deprecated since 2026-09-25. See https://github.com/podman-desktop/podman-desktop/issues/19058
+  // Use the `button-icon-*`, `button-detailed-*` and `button-spinner` colors instead
+  // Still used by ListItemButtonIcon, migrated in https://github.com/podman-desktop/podman-desktop/issues/19060
+  // and by other components, migrated in https://github.com/podman-desktop/podman-desktop/issues/19415
+  // Remove this method once both are done
   protected initActionButton(): void {
     const ab = 'action-button-';
 
@@ -2372,6 +2458,11 @@ export class ColorRegistry {
     this.registerColor(`${badge}devmode-extension-bg`, {
       dark: dustypurple[600],
       light: dustypurple[600],
+    });
+
+    this.registerColor(`${badge}overrides-extension-bg`, {
+      dark: yellow[500],
+      light: yellow[300],
     });
 
     this.registerColor(`${badge}dd-extension-text`, {

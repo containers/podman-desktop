@@ -3,8 +3,8 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { Buffer } from 'buffer';
 

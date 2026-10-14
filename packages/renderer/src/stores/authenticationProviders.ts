@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { AuthenticationProviderInfo } from '@podman-desktop/core-api/authentication';
+import type { AuthenticationProviderInfo } from '@desktop-framework/api/authentication';
 import { type Writable, writable } from 'svelte/store';
 
 import KeyIcon from '/@/lib/images/KeyIcon.svelte';

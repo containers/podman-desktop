@@ -32,15 +32,14 @@ beforeEach(() => {
 });
 
 test('Expect to have readme with URI', async () => {
-  const spyFetch = vi.spyOn(window, 'fetch');
-  spyFetch.mockResolvedValueOnce(new Response('# This is my README'));
+  vi.mocked(window.fetchCatalogReadme).mockResolvedValueOnce('# This is my README');
 
-  await waitRender({ readme: { uri: 'http://my-fake-registry/readme-content' } });
+  await waitRender({ extensionId: 'test.extension', readme: { uri: 'http://my-fake-registry/readme-content' } });
 
   // expect Markdown
-  await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'markdown-content' })).toBeInTheDocument());
+  await vi.waitFor(() => expect(screen.getByRole('region', { name: 'markdown-content' })).toBeInTheDocument());
 
-  await vi.waitFor(() => expect(spyFetch).toHaveBeenCalled());
+  await vi.waitFor(() => expect(window.fetchCatalogReadme).toHaveBeenCalledWith('test.extension'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('region', { name: 'markdown-content' })).toContainHTML(
       '<h1 id="this-is-my-readme">This is my README</h1>',
@@ -49,12 +48,10 @@ test('Expect to have readme with URI', async () => {
 });
 
 test('Expect to have readme with content', async () => {
-  const spyFetch = vi.spyOn(window, 'fetch');
-
-  await waitRender({ readme: { content: '# my README' } });
+  await waitRender({ extensionId: 'test.extension', readme: { content: '# my README' } });
 
   // expect not calling fetch
-  expect(spyFetch).not.toHaveBeenCalled();
+  expect(window.fetchCatalogReadme).not.toHaveBeenCalled();
 
   // expect Markdown
   const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
@@ -63,12 +60,10 @@ test('Expect to have readme with content', async () => {
 });
 
 test('Expect empty screen if no content', async () => {
-  const spyFetch = vi.spyOn(window, 'fetch');
-
-  await waitRender({ readme: { content: '' } });
+  await waitRender({ extensionId: 'test.extension', readme: { content: '' } });
 
   // expect not calling fetch
-  expect(spyFetch).not.toHaveBeenCalled();
+  expect(window.fetchCatalogReadme).not.toHaveBeenCalled();
 
   // expect no Markdown
   const markdownContent = screen.queryByRole('region', { name: 'markdown-content' });
@@ -77,4 +72,28 @@ test('Expect empty screen if no content', async () => {
   // but empty screen
   const emptyScreen = screen.getByRole('heading', { name: 'No Readme' });
   expect(emptyScreen).toBeInTheDocument();
+});
+
+test('Expect empty screen when fetch fails', async () => {
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
+  const fetchError = new Error('Error fetching README');
+  vi.mocked(window.fetchCatalogReadme).mockRejectedValueOnce(fetchError);
+
+  await waitRender({ extensionId: 'test.extension', readme: { uri: 'https://test-uri' } });
+
+  // expect fetch was called with extension ID
+  await vi.waitFor(() => expect(window.fetchCatalogReadme).toHaveBeenCalledWith('test.extension'));
+
+  // expect error to be logged
+  await vi.waitFor(() =>
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Unable to fetch README for extension test.extension', fetchError),
+  );
+
+  // expect empty screen to appear
+  const emptyScreen = await screen.findByRole('heading', { name: 'No Readme' });
+  expect(emptyScreen).toBeInTheDocument();
+
+  // expect no Markdown
+  const markdownContent = screen.queryByRole('region', { name: 'markdown-content' });
+  expect(markdownContent).not.toBeInTheDocument();
 });

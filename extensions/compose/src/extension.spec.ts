@@ -138,7 +138,7 @@ async function getCliToolUpdate(updatable: boolean): Promise<extensionApi.CliToo
     path: 'system-wide-path',
     updatable: updatable,
   });
-  vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+  vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
 
   let update: extensionApi.CliToolSelectUpdate | undefined;
   vi.mocked(cliToolMock.registerUpdate).mockImplementation(mUpdate => {
@@ -167,7 +167,7 @@ describe('registerCLITool', () => {
       updatable: false, // not updatable as unknown location
     });
 
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
 
     await activate(extensionContextMock);
 
@@ -194,7 +194,7 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: false,
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
 
     await activate(extensionContextMock);
 
@@ -228,7 +228,7 @@ describe('registerCLITool', () => {
       updatable: false, // not updatable as unknown location
     });
 
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
 
     await activate(extensionContextMock);
 
@@ -255,7 +255,7 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: false, // not updatable as unknown location
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
     await activate(extensionContextMock);
 
     await vi.waitFor(() => {
@@ -318,7 +318,7 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: true,
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
 
     let installer: extensionApi.CliToolInstaller | undefined;
     vi.mocked(cliToolMock.registerInstaller).mockImplementation(mInstaller => {
@@ -402,9 +402,9 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: false, // not updatable as unknown location
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
     vi.mocked(Detect.prototype.getStoragePath).mockResolvedValue('storage-path');
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.mocked(extensionApi.process.exec).mockResolvedValue({
       stdout: 'system-wide-path',
@@ -438,9 +438,9 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: false, // not updatable as unknown location
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
     vi.mocked(Detect.prototype.getStoragePath).mockResolvedValue('storage-path');
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.promises.unlink).mockRejectedValue({
       code: 'EACCES',
     } as unknown as Error);
@@ -469,9 +469,9 @@ describe('registerCLITool', () => {
       path: 'system-wide-path',
       updatable: false, // not updatable as unknown location
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
     vi.mocked(Detect.prototype.getStoragePath).mockResolvedValue('storage-path');
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(ComposeDownload.prototype.promptUserForVersion).mockResolvedValue({
       tag: 'v1.0.0',
     } as unknown as ComposeGithubReleaseArtifactMetadata);
@@ -574,7 +574,7 @@ describe('provider registerUpdate (Resources page)', () => {
       path: 'system-wide-path',
       updatable: true,
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
   }
 
   function mockCliToolWithVersion(
@@ -624,7 +624,7 @@ describe('provider registerUpdate (Resources page)', () => {
       path: 'system-wide-path',
       updatable: true,
     });
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-wide-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-wide-path');
     vi.mocked(ComposeDownload.prototype.getLatestVersionAsset).mockResolvedValue({
       tag: 'v2.5.0',
     } as unknown as ComposeGithubReleaseArtifactMetadata);

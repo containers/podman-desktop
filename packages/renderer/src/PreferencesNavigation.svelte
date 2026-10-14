@@ -1,6 +1,6 @@
 <script lang="ts">
-import { DockerCompatibilitySettings } from '@podman-desktop/core-api';
-import { CONFIGURATION_DEFAULT_SCOPE } from '@podman-desktop/core-api/configuration';
+import { DockerCompatibilitySettings } from '@desktop-framework/api';
+import { CONFIGURATION_DEFAULT_SCOPE } from '@desktop-framework/api/configuration';
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { onMount, tick } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';

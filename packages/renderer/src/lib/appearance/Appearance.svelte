@@ -1,5 +1,5 @@
 <script lang="ts">
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 

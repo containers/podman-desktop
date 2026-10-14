@@ -18,7 +18,7 @@
 
 import crypto from 'node:crypto';
 
-import type { StatusBarAlignment, StatusBarItem } from '@podman-desktop/api';
+import type { StatusBarAlignment, StatusBarItem } from '@desktop-framework/extension-api';
 
 import type { StatusBarRegistry } from './statusbar-registry.js';
 

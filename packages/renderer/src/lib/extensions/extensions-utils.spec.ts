@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { SearchTermParser } from '/@/lib/search/search-term-parser';
@@ -315,6 +315,34 @@ describe('extractExtensionDetail', () => {
     expect(extensionDetail?.error?.message).toBe('An error occurred');
     expect(extensionDetail?.error?.stack).toBe('line1\nline2');
   });
+
+  test('Check overrides is taken from the installed extension', async () => {
+    const overridingExtensions = [
+      {
+        id: 'idOverriding',
+        displayName: 'Overriding Extension',
+        removable: true,
+        bundled: false,
+        overrides: { id: 'idBundled', version: '1.0.0' },
+      },
+    ] as unknown[] as CombinedExtensionInfoUI[];
+
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
+      catalogExtensions,
+      overridingExtensions,
+      'idOverriding',
+    );
+    expect(extensionDetail?.overrides).toEqual({ id: 'idBundled', version: '1.0.0' });
+  });
+
+  test('Check overrides is undefined for an extension only in the catalog', async () => {
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
+      catalogExtensions,
+      installedExtensions,
+      'idZNotInstalled',
+    );
+    expect(extensionDetail?.overrides).toBeUndefined();
+  });
 });
 
 describe('filters', () => {
@@ -383,6 +411,7 @@ describe('filters', () => {
   test.each([
     { description: 'single word', searchQuery: 'bar' },
     { description: 'single word and installed', searchQuery: 'bar is:installed' },
+    { description: 'single word and not featured', searchQuery: 'bar not:featured' },
     {
       description: 'single word and installed and not installed, only first boolean is used',
       searchQuery: 'bar is:installed not:installed',
@@ -413,6 +442,7 @@ describe('filters', () => {
 
   test.each([
     { description: 'single word and not installed', searchQuery: 'bar not:installed' },
+    { description: 'single word and featured', searchQuery: 'bar is:featured' },
     { description: 'multiple words and one is not found', searchQuery: 'bar notfound' },
     {
       description: 'multiple words found and multiple categories with one not found',
@@ -432,6 +462,23 @@ describe('filters', () => {
       searchQuery,
     );
     expect(filteredCatalogExtensions.length).toBe(0);
+  });
+
+  test.each([
+    { searchQuery: 'is:featured', expectedIds: ['idYInstalled', 'idZNotInstalled'] },
+    { searchQuery: 'not:featured', expectedIds: ['idAInstalled', 'idBNotInstalled'] },
+    { searchQuery: 'is:featured is:installed', expectedIds: ['idYInstalled'] },
+    { searchQuery: 'is:featured not:installed', expectedIds: ['idZNotInstalled'] },
+  ])('filterCatalogExtensions with $searchQuery', ({ searchQuery, expectedIds }) => {
+    const extensions = extensionsUtils.extractCatalogExtensions(
+      catalogExtensions,
+      featuredExtensions,
+      installedExtensions,
+    );
+
+    const filteredCatalogExtensions = extensionsUtils.filterCatalogExtensions(extensions, searchQuery);
+
+    expect(filteredCatalogExtensions.map(extension => extension.id)).toEqual(expectedIds);
   });
 
   test('filterInstalledExtensions with single word', () => {

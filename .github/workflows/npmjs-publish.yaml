@@ -90,7 +90,7 @@ jobs:
         with:
           run_install: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -113,6 +113,7 @@ jobs:
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" packages/extension-api/package.json
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" packages/webview-api/package.json
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" packages/ui/package.json
+          sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" packages/api-mocks-vitest/package.json
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" tests/playwright/package.json
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" extensions/podman/packages/api/package.json
           sed -i  "s#\"version\": \"\(.*\)\",#\"version\": \"${VERSION}\",#g" extensions/docker/packages/api/package.json
@@ -147,4 +148,10 @@ jobs:
       - name: Publish Docker Extension API to npmjs
         run: |
           cd extensions/docker/packages/api
+          pnpm publish --provenance --tag ${{ needs.prepare-version.outputs.dist-tag }} --no-git-checks --access public
+
+      - name: Publish api-mocks-vitest to npmjs
+        run: |
+          cd packages/api-mocks-vitest
+          pnpm build
           pnpm publish --provenance --tag ${{ needs.prepare-version.outputs.dist-tag }} --no-git-checks --access public

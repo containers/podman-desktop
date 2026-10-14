@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ContextGeneralState, ContextHealth, KubeContext } from '@podman-desktop/core-api';
+import type { ContextGeneralState, ContextHealth, KubeContext } from '@desktop-framework/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { readable, type Writable, writable } from 'svelte/store';

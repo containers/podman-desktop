@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ImageInfo } from '@podman-desktop/api';
-import type { ViewInfoUI } from '@podman-desktop/core-api';
+import type { ViewInfoUI } from '@desktop-framework/api';
+import type { ImageInfo } from '@desktop-framework/extension-api';
 import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 

@@ -17,13 +17,13 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderStatus } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
   ProviderVmConnectionInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import type { ProviderStatus } from '@desktop-framework/extension-api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NetworkInspectInfo } from '@podman-desktop/core-api';
+import type { NetworkInspectInfo } from '@desktop-framework/api';
 import type { NetworkContainer } from 'dockerode';
 import { beforeEach, expect, test, vi } from 'vitest';
 

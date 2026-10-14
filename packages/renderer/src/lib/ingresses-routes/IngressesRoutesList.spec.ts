@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { V1Route } from '@desktop-framework/api';
 import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from '@podman-desktop/core-api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { readable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';

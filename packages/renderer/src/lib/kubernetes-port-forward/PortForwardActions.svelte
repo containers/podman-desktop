@@ -1,6 +1,6 @@
 <script lang="ts">
+import { type ForwardConfig } from '@desktop-framework/api';
 import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { type ForwardConfig } from '@podman-desktop/core-api';
 
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import ListItemButtonIcon from '/@/lib/ui/ListItemButtonIcon.svelte';

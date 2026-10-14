@@ -18,7 +18,7 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { ForwardConfig } from '@podman-desktop/core-api';
+import type { ForwardConfig } from '@desktop-framework/api';
 
 import type { Directories } from '/@/plugin/directories.js';
 

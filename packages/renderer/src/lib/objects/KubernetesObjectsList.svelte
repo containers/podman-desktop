@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { IDisposable } from '@desktop-framework/api';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import type { IDisposable } from '@podman-desktop/core-api';
 import type { TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 import { Button, FilteredEmptyScreen, NavPage, Table } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount, type Snippet } from 'svelte';

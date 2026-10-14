@@ -21,6 +21,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ImageInfo, SimpleContainerInfo } from '@desktop-framework/api';
 import type { v1 as dockerDesktopAPI } from '@docker/extension-api-client-types';
 import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-types/dist/v1/dialog.js';
 import type {
@@ -28,7 +29,6 @@ import type {
   NavigationIntents,
   RequestConfig,
 } from '@docker/extension-api-client-types/dist/v1/index.js';
-import type { ImageInfo, SimpleContainerInfo } from '@podman-desktop/core-api';
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper.js';

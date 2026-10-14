@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PinOption } from '@podman-desktop/core-api/status-bar';
-import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
+import type { PinOption } from '@desktop-framework/api/status-bar';
+import { STATUS_BAR_PIN_CONSTANTS } from '@desktop-framework/api/status-bar';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore } from './event-store';

@@ -26,11 +26,13 @@ export class KeyboardUtils {
    * Validates that a keyboard shortcut string follows the ARIA aria-keyshortcuts format.
    *
    * Per the ARIA spec, the attribute value is case-insensitive.
-   * Valid format: "Modifier+Key" where multiple shortcuts are space-separated.
+   * Valid format: "Modifier+Key" or an unmodified function key (F1-F19), where multiple shortcuts are
+   * space-separated.
    * Examples:
    *   - "Control+ArrowLeft" or "control+arrowleft"
    *   - "Control+ArrowLeft Meta+ArrowLeft"
    *   - "Shift+Alt+Delete"
+   *   - "F1" or "F19"
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-keyshortcuts
    * @param value - The keyboard shortcut string to validate
@@ -65,7 +67,12 @@ export class KeyboardUtils {
     const shortcuts = value.trim().split(/\s+/);
     const validShortcuts = shortcuts.filter(shortcut => this.isValidShortcut(shortcut));
 
-    return validShortcuts.length > 0 ? validShortcuts.join(' ') : undefined;
+    const validShortcutsCount = validShortcuts.length;
+    if (validShortcutsCount !== shortcuts.length) {
+      console.error('Invalid keyboard shortcuts', value);
+    }
+
+    return validShortcutsCount > 0 ? validShortcuts.join(' ') : undefined;
   }
 
   private isValidShortcut(shortcut: string): boolean {
@@ -76,9 +83,9 @@ export class KeyboardUtils {
     // Split by + to get parts
     const parts = shortcut.split('+');
 
-    // Must have at least Modifier+Key
+    // Only function keys F1-F19 are valid without modifiers.
     if (parts.length < 2) {
-      return false;
+      return this.isValidFunctionKey(shortcut);
     }
 
     // All parts except the last must be valid modifiers
@@ -96,6 +103,15 @@ export class KeyboardUtils {
       return false;
     }
 
-    return true;
+    return this.isValidModifiedShortcutKey(key);
+  }
+
+  private isValidFunctionKey(key: string): boolean {
+    return /^F([1-9]|1\d)$/i.test(key);
+  }
+
+  private isValidModifiedShortcutKey(key: string): boolean {
+    // Modified non-function keys are valid; function keys must be within F1-F19.
+    return !/^F\d+$/i.test(key) || this.isValidFunctionKey(key);
   }
 }

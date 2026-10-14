@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { InferredNavigationRequest } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
+import type { InferredNavigationRequest } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
 import { router } from 'tinro';
 
 /**

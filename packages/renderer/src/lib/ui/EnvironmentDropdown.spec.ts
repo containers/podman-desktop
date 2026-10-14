@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -612,7 +612,7 @@ test('Expect selectedEnvironment to reset when dropdown hides even if selected v
   providerStore.set([PODMAN_PROVIDER, DOCKER_PROVIDER]);
 
   await vi.waitFor(() => {
-    expect(screen.queryByLabelText('Environment')).toBeInTheDocument();
+    expect(screen.getByLabelText('Environment')).toBeInTheDocument();
   });
 
   // The dropdown should show "All" (not "Podman") because selectedEnvironment was reset

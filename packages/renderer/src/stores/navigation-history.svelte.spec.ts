@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionInfo, NavigationHistoryPushInfo } from '@podman-desktop/core-api';
+import type { ExtensionInfo, NavigationHistoryPushInfo } from '@desktop-framework/api';
 import { writable } from 'svelte/store';
 import { router, type TinroRoute } from 'tinro';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';

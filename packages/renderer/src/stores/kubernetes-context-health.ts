@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextHealth } from '@podman-desktop/core-api';
+import type { ContextHealth } from '@desktop-framework/api';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore } from './event-store';

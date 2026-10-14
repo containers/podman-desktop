@@ -15,14 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { expect, test } from 'vitest';
 
-import { ATLAS_DARK_SRC, ATLAS_LIGHT_SRC, atlasSrcForColorMode } from './theme-assets';
-
-test('atlasSrcForColorMode returns the light atlas for light mode', () => {
-  expect(atlasSrcForColorMode('light')).toBe(ATLAS_LIGHT_SRC);
-});
-
-test('atlasSrcForColorMode returns the dark atlas for dark mode', () => {
-  expect(atlasSrcForColorMode('dark')).toBe(ATLAS_DARK_SRC);
-});
+declare module '@desktop-framework/extension-api' {
+  export * from '@podman-desktop/api';
+}

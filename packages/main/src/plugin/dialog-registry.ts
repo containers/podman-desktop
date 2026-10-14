@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OpenDialogOptions, SaveDialogOptions, Uri as APIUri } from '@podman-desktop/api';
+import type { OpenDialogOptions, SaveDialogOptions, Uri as APIUri } from '@desktop-framework/extension-api';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 import { inject, injectable } from 'inversify';

@@ -26,7 +26,6 @@ import { PassThrough, Readable, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { StringDecoder } from 'node:string_decoder';
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
 import type {
   BuildImageOptions,
   ContainerCreateOptions,
@@ -66,18 +65,19 @@ import type {
   VolumeInfo,
   VolumeInspectInfo,
   VolumeListInfo,
-} from '@podman-desktop/core-api';
-import { ContainerRegistrySettings } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { IConfigurationNode } from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api';
+import { ContainerRegistrySettings } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { IConfigurationNode } from '@desktop-framework/api/configuration';
 import type {
   ContainerCreateMountOption,
   ContainerCreateNetNSOption,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   ContainerCreatePortMappingOption,
   PodmanDevice,
-} from '@podman-desktop/core-api/libpod';
-import { PlayKubeInfo, PlayKubeInput } from '@podman-desktop/core-api/libpod';
+} from '@desktop-framework/api/libpod';
+import { PlayKubeInfo, PlayKubeInput } from '@desktop-framework/api/libpod';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import datejs from 'date.js';
 import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import type { Snippet } from 'svelte';
 
 import Label from '/@/lib/ui/Label.svelte';

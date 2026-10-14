@@ -22,8 +22,8 @@ import {
   OnboardingSchema,
   RawThemeContributionSchema,
   ViewContributionSchema,
-} from '@podman-desktop/core-api';
-import { IConfigurationNodeSchema } from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api';
+import { IConfigurationNodeSchema } from '@desktop-framework/api/configuration';
 import { z } from 'zod';
 
 import { RawCommandSchema } from '/@/plugin/command-registry.js';

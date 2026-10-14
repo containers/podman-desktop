@@ -3,8 +3,8 @@
 <!-- Native scrollbar hidden via Tailwind (no layout space); overlay thumb on hover. -->
 
 <script lang="ts">
-import { NavigationPage } from '@podman-desktop/core-api';
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import { NavigationPage } from '@desktop-framework/api';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import { onDestroy, onMount, tick } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 

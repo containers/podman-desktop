@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { TaskInfo } from '@desktop-framework/api';
 import { faCheckCircle, faCircleExclamation, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import type { TaskInfo } from '@podman-desktop/core-api';
 import { CloseButton, Spinner } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { toast } from '@zerodevx/svelte-toast';

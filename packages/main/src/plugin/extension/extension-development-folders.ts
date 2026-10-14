@@ -19,10 +19,10 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import type { ExtensionDevelopmentFolderInfo } from '@podman-desktop/core-api';
-import { ExtensionDevelopmentFolderInfoSettings } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { ExtensionDevelopmentFolderInfo } from '@desktop-framework/api';
+import { ExtensionDevelopmentFolderInfoSettings } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { inject, injectable } from 'inversify';
 
 import { Emitter } from '/@/plugin/events/emitter.js';

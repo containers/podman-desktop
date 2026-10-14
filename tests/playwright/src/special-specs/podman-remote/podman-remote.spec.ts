@@ -38,61 +38,61 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Verification of Podman Remote', { tag: ['@podman-remote'] }, () => {
-    test('Check Remote Podman Connection is not available', async ({ page, navigationBar }) => {
-      // open preferences page
-      const settingsBar = await navigationBar.openSettings();
-      const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-      await playExpect(resourcesPage.heading).toBeVisible();
-      const podmanResource = new ResourceConnectionCardPage(page, 'podman');
-      await playExpect(podmanResource.card).toBeVisible();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible('podman')).toBeTruthy();
-      const resourcesPodmanConnections = new ResourceConnectionCardPage(page, PODMAN, REMOTE_MACHINE);
-      await playExpect.poll(async () => await resourcesPodmanConnections.doesResourceElementExist()).toBeFalsy();
-    });
-    test('Image on the remote machine is not visible in Podman Desktop', async ({ navigationBar }) => {
-      const imagesPage = await navigationBar.openImages();
-      await playExpect(async () => await imagesPage.waitForImageExists(IMAGE)).rejects.toThrow();
-    });
-
-    test('Podman Remote can be enabled in Preferences', async ({ page, navigationBar }) => {
-      // open preferences page
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.expandPreferencesTab();
-      const podmanExtensionLink = settingsBar.getPreferencesLinkLocator('Extension: Podman');
-      await playExpect(podmanExtensionLink).toBeVisible();
-      await podmanExtensionLink.click();
-      const preferencesPage = new PreferencesPage(page);
-      await playExpect(preferencesPage.heading).toBeVisible();
-      await playExpect(preferencesPage.content).toHaveText(/Extension.*Podman/, {
-        ignoreCase: true,
-        useInnerText: true,
-      });
-      const podmanRemoteCheckbox = preferencesPage.content.getByRole('checkbox', {
-        name: 'Load remote system connections (ssh)',
-      });
-      await playExpect(podmanRemoteCheckbox).toBeEnabled();
-      await toggleCheckbox(podmanRemoteCheckbox, true);
-    });
-
-    test('Check Remote Podman Connection is available', async ({ page, navigationBar }) => {
-      // open preferences page
-      const settingsBar = await navigationBar.openSettings();
-      const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-      await playExpect(resourcesPage.heading).toBeVisible();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(PODMAN)).toBeTruthy();
-      const resourcesPodmanConnections = new ResourceConnectionCardPage(page, PODMAN, REMOTE_MACHINE);
-      await playExpect
-        .poll(async () => await resourcesPodmanConnections.doesResourceElementExist(), { timeout: 15_000 })
-        .toBeTruthy();
-      await playExpect(resourcesPodmanConnections.resourceElementConnectionStatus).toHaveText('RUNNING');
-    });
-    test('Image on the remote machine is now visible', async ({ navigationBar }) => {
-      const imagesPage = await navigationBar.openImages();
-      await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE, 8_000), { timeout: 10_000 }).toBeTruthy();
-    });
+test.describe('Verification of Podman Remote', { tag: ['@podman-remote'] }, () => {
+  test.describe.configure({ mode: 'serial' });
+  test('Check Remote Podman Connection is not available', async ({ page, navigationBar }) => {
+    // open preferences page
+    const settingsBar = await navigationBar.openSettings();
+    const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    const podmanResource = new ResourceConnectionCardPage(page, 'podman');
+    await playExpect(podmanResource.card).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible('podman')).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(page, PODMAN, REMOTE_MACHINE);
+    await playExpect.poll(async () => await resourcesPodmanConnections.doesResourceElementExist()).toBeFalsy();
   });
+  test('Image on the remote machine is not visible in Podman Desktop', async ({ navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    await playExpect(async () => await imagesPage.waitForImageExists(IMAGE)).rejects.toThrow();
+  });
+
+  test('Podman Remote can be enabled in Preferences', async ({ page, navigationBar }) => {
+    // open preferences page
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.expandPreferencesTab();
+    const podmanExtensionLink = settingsBar.getPreferencesLinkLocator('Extension: Podman');
+    await playExpect(podmanExtensionLink).toBeVisible();
+    await podmanExtensionLink.click();
+    const preferencesPage = new PreferencesPage(page);
+    await playExpect(preferencesPage.heading).toBeVisible();
+    await playExpect(preferencesPage.content).toHaveText(/Extension.*Podman/, {
+      ignoreCase: true,
+      useInnerText: true,
+    });
+    const podmanRemoteCheckbox = preferencesPage.content.getByRole('checkbox', {
+      name: 'Load remote system connections (ssh)',
+    });
+    await playExpect(podmanRemoteCheckbox).toBeEnabled();
+    await toggleCheckbox(podmanRemoteCheckbox, true);
+  });
+
+  test('Check Remote Podman Connection is available', async ({ page, navigationBar }) => {
+    // open preferences page
+    const settingsBar = await navigationBar.openSettings();
+    const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+    await playExpect(resourcesPage.heading).toBeVisible();
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(PODMAN)).toBeTruthy();
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(page, PODMAN, REMOTE_MACHINE);
+    await playExpect
+      .poll(async () => await resourcesPodmanConnections.doesResourceElementExist(), { timeout: 15_000 })
+      .toBeTruthy();
+    await playExpect(resourcesPodmanConnections.resourceElementConnectionStatus).toHaveText('RUNNING');
+  });
+  test('Image on the remote machine is now visible', async ({ navigationBar }) => {
+    const imagesPage = await navigationBar.openImages();
+    await playExpect.poll(async () => imagesPage.waitForImageExists(IMAGE, 8_000), { timeout: 10_000 }).toBeTruthy();
+  });
+});
 
 export async function toggleCheckbox(checkbox: Locator, checked: boolean): Promise<void> {
   return test.step(`Ensure checkbox is ${checked ? 'checked' : 'unchecked'}`, async () => {

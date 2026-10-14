@@ -21,6 +21,10 @@ import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
+import { type ForwardConfig, type ForwardOptions, type V1Route, WorkloadKind } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { IConfigurationChangeEvent, IConfigurationRegistry } from '@desktop-framework/api/configuration';
+import type { FileSystemWatcher } from '@desktop-framework/extension-api';
 import * as clientNode from '@kubernetes/client-node';
 import {
   type AppsV1Api,
@@ -44,10 +48,6 @@ import {
   type V1Status,
   type Watch,
 } from '@kubernetes/client-node';
-import type { FileSystemWatcher } from '@podman-desktop/api';
-import { type ForwardConfig, type ForwardOptions, type V1Route, WorkloadKind } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { IConfigurationChangeEvent, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
 import { beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
 import { Emitter } from '/@/plugin/events/emitter.js';

@@ -21,8 +21,8 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '@podman-desktop/core-api';
-import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
+} from '@desktop-framework/api';
+import { STATUS_BAR_PIN_CONSTANTS } from '@desktop-framework/api/status-bar';
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 

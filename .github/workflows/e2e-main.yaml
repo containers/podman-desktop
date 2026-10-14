@@ -93,6 +93,7 @@ jobs:
   e2e-tests:
     name: Run E2E tests - ${{ matrix.installation }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 180
     # disable on forks as secrets are not available
     if: github.event.repository.fork == false
     permissions:
@@ -121,7 +122,8 @@ jobs:
 
       - name: Install Podman v5 using external action
         # Use the action from the other repository
-        uses: redhat-actions/podman-install@aea6ff44f2a4a82da13d22061ce73443a125925d
+        id: podman-install
+        uses: redhat-actions/podman-install@8a89f3eb25c7d5363f4cb5537018df44fe5d7dd1 # v1.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -152,7 +154,7 @@ jobs:
         with:
           run_install: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -166,7 +168,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder elfutils
           flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y flathub org.flatpak.Builder org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
+          flatpak install --user -y flathub org.flatpak.Builder org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08
 
       - name: Run E2E tests in Production Mode
         if: matrix.installation == 'source-build'
@@ -209,8 +211,20 @@ jobs:
           export PODMAN_DESKTOP_BINARY=$path
           pnpm ${{ env.NPM_TARGET }}
 
+      - name: Create json file with workflow run attributes
+        if: always()
+        uses: podman-desktop/e2e/.github/actions/generate-test-attributes@053dd9e2e4511c412dcaa835d884eec303797ed6
+        with:
+          filename: workflow-run-attributes.json
+          runs-on-gh-runner: true
+          podman-version: ${{ steps.podman-install.outputs.podman-version }}
+          extra-attributes: |
+            {
+              "installation": "${{ matrix.installation }}"
+            }
+
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true
@@ -227,6 +241,7 @@ jobs:
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
+            **/workflow-run-attributes.json
 
       - name: Cleanup insecure test registry
         if: always()
@@ -277,7 +292,7 @@ jobs:
         with:
           run_install: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -337,7 +352,7 @@ jobs:
           pnpm test:e2e:update:run
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true
@@ -347,6 +362,17 @@ jobs:
           require_tests:  true
           report_paths: '**/*results.xml'
 
+      - name: Create json file with workflow run attributes
+        if: always()
+        uses: podman-desktop/e2e/.github/actions/generate-test-attributes@053dd9e2e4511c412dcaa835d884eec303797ed6
+        with:
+          filename: workflow-run-attributes.json
+          runs-on-gh-runner: true
+          extra-attributes: |
+            {
+              "installation": "${{ matrix.installation }}"
+            }
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
@@ -354,6 +380,7 @@ jobs:
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
+            **/workflow-run-attributes.json
 
   mac-update-e2e-test:
     name: ${{ matrix.os }} update e2e tests
@@ -392,7 +419,7 @@ jobs:
         with:
           run_install: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -450,8 +477,15 @@ jobs:
           echo "${{ env.PODMAN_DESKTOP_BINARY }}"
           pnpm test:e2e:update:run
 
+      - name: Create json file with workflow run attributes
+        if: always()
+        uses: podman-desktop/e2e/.github/actions/generate-test-attributes@053dd9e2e4511c412dcaa835d884eec303797ed6
+        with:
+          filename: workflow-run-attributes.json
+          runs-on-gh-runner: true
+
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        uses: mikepenz/action-junit-report@6ef3fdcfcd5f0b5d14df3e659ef19b8c6820f93d # v6.6.1
         if: always() # always run even if the previous step fails
         with:
           fail_on_failure: true
@@ -468,3 +502,4 @@ jobs:
           path: |
             ./tests/**/output/
             !./tests/**/traces/raw
+            **/workflow-run-attributes.json

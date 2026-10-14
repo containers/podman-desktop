@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderInfo } from '@podman-desktop/core-api';
-import { PROXY_CONFIG_KEYS, ProxyState } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
+import { PROXY_CONFIG_KEYS, ProxyState } from '@desktop-framework/api';
 import { Dropdown } from '@podman-desktop/ui-svelte';
 import { fireEvent, render } from '@testing-library/svelte';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';

@@ -22,13 +22,13 @@ import { access, copyFile, mkdir, readFile, rename, writeFile } from 'node:fs/pr
 import { homedir } from 'node:os';
 import * as path from 'node:path';
 
-import type { IDisposable } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { IConfigurationNode, IConfigurationPropertySchema } from '@podman-desktop/core-api/configuration';
+import type { IDisposable } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { IConfigurationNode, IConfigurationPropertySchema } from '@desktop-framework/api/configuration';
 import {
   CONFIGURATION_SYSTEM_MANAGED_DEFAULTS_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_LOCKED_SCOPE,
-} from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/api/configuration';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import product from '/@product.json' with { type: 'json' };

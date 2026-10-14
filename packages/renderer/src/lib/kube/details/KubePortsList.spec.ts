@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { WorkloadKind } from '@podman-desktop/core-api';
+import { WorkloadKind } from '@desktop-framework/api';
 import { render, within } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';

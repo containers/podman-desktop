@@ -18,8 +18,8 @@
 
 import { join } from 'node:path';
 
-import type { FontDefinition, IconDefinition, IconInfo, IconsContribution } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { FontDefinition, IconDefinition, IconInfo, IconsContribution } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { inject, injectable } from 'inversify';
 
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';

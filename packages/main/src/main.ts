@@ -15,11 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { IDisposable } from '@podman-desktop/core-api';
+import type { IDisposable } from '@desktop-framework/api';
 import type { App as ElectronApp, BrowserWindow } from 'electron';
 
+import { AppIdentityDevPlugin } from '/@/plugin/app-ready/app-identity-plugin.js';
 import type { AppPlugin } from '/@/plugin/app-ready/app-plugin.js';
 import { DefaultProtocolClient } from '/@/plugin/app-ready/default-protocol-client.js';
+import { DevIconBuilder } from '/@/plugin/app-ready/dev-icon-builder.js';
 import { WindowPlugin } from '/@/plugin/app-ready/window-plugin.js';
 import { SecurityRestrictions } from '/@/security-restrictions.js';
 import { isLinux, isMac, isWindows } from '/@/util.js';
@@ -58,7 +60,14 @@ export class Main implements IDisposable {
     this.app.name = product.name;
     this.mainWindowDeferred = Promise.withResolvers<BrowserWindow>();
     this.protocolLauncher = new ProtocolLauncher(this.mainWindowDeferred);
-    this.#plugins = [new DefaultProtocolClient(this.app), new WindowPlugin(this.app, this.mainWindowDeferred.resolve)];
+    const identity = import.meta.env.DEV
+      ? new AppIdentityDevPlugin(this.app, new DevIconBuilder(this.app.getAppPath()))
+      : undefined;
+    this.#plugins = [
+      ...(identity ? [identity] : []),
+      new DefaultProtocolClient(this.app),
+      new WindowPlugin(this.app, this.mainWindowDeferred.resolve, { icon: identity?.getWindowIcon() }),
+    ];
   }
 
   main(args: string[]): void {
@@ -76,6 +85,10 @@ export class Main implements IDisposable {
   }
 
   protected init(additionalData: AdditionalData): void {
+    this.#plugins.forEach(plugin => {
+      plugin.onBeforeReady?.();
+    });
+
     /**
      * Prevent multiple instances
      */

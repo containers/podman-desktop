@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { ProviderConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
 import { Button, ErrorMessage, Modal } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import type { Terminal } from '@xterm/xterm';

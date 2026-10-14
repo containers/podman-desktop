@@ -65,8 +65,8 @@ test('Expect non-podman unused network to have delete option and disabled edit',
   vi.mocked(window.showMessageBox).mockResolvedValue({ response: 'Delete' });
   render(NetworkActions, { object: network1 });
 
-  expect(screen.queryByTitle('Delete Network')).toBeInTheDocument();
-  expect(screen.queryByTitle('Update Network')).toBeInTheDocument();
+  expect(screen.getByTitle('Delete Network')).toBeInTheDocument();
+  expect(screen.getByTitle('Update Network')).toBeInTheDocument();
   expect(screen.queryByTitle('Update Network')).toBeDisabled();
 
   const deleteButton = screen.getByTitle('Delete Network');
@@ -99,9 +99,9 @@ test('Expect error dialog when network deletion fails', async () => {
 test('Expect podman used network to have edit option and disabled delete', async () => {
   render(NetworkActions, { object: network2 });
 
-  expect(screen.queryByTitle('Delete Network')).toBeInTheDocument();
+  expect(screen.getByTitle('Delete Network')).toBeInTheDocument();
   expect(screen.queryByTitle('Delete Network')).toBeDisabled();
-  expect(screen.queryByTitle('Update Network')).toBeInTheDocument();
+  expect(screen.getByTitle('Update Network')).toBeInTheDocument();
 
   const updateButton = screen.getByTitle('Update Network');
   await fireEvent.click(updateButton);

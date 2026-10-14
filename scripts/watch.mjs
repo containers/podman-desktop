@@ -20,7 +20,8 @@
 
 import { createServer, build, createLogger } from 'vite';
 import electronPath from 'electron';
-import { spawn, spawnSync } from 'node:child_process';
+import { execFile as execFileCb, spawn, spawnSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { generateAsync } from 'dts-for-context-bridge';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -113,6 +114,19 @@ function cleanupOnChildExit(code, signal) {
 process.on('SIGINT', cleanupAndExit);
 process.on('SIGTERM', cleanupAndExit);
 process.on('SIGQUIT', cleanupAndExit);
+
+const execFileAsync = promisify(execFileCb);
+
+async function getGitBranch() {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+    return stdout.trim();
+  } catch (error) {
+    const reason = error.stderr?.trim() ?? error.message;
+    console.error(`[dev] Could not determine git branch: ${reason}`);
+    return '';
+  }
+}
 
 /** @type 'production' | 'development'' */
 const mode = (process.env.MODE = process.env.MODE || 'development');
@@ -371,6 +385,8 @@ const setupExtensionApiWatcher = name => {
         extensions.push(resolve(process.argv[++index]));
       }
     }
+    process.env.VITE_GIT_BRANCH ??= await getGitBranch();
+
     await setupUiPackageWatcher();
 
     const viteDevServer = await createServer({

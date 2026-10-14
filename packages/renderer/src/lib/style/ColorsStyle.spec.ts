@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ColorInfo } from '@podman-desktop/core-api';
+import type { ColorInfo } from '@desktop-framework/api';
 import { render } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

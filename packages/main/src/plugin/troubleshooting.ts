@@ -19,8 +19,8 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 
-import { LogType } from '@podman-desktop/core-api';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import { LogType } from '@desktop-framework/api';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import AdmZip from 'adm-zip';
 import { inject, injectable } from 'inversify';
 import moment from 'moment';

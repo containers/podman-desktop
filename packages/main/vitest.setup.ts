@@ -93,8 +93,10 @@ vi.mock(import('electron'), async () => {
       themeSource: 'system',
     },
     nativeImage: {
+      createFromBitmap: vi.fn(),
       createFromDataURL: vi.fn(),
       createFromBuffer: vi.fn(),
+      createFromPath: vi.fn(),
     },
     screen: {
       getCursorScreenPoint: vi.fn(),

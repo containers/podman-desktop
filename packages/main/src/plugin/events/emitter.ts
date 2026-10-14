@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
-import type { DisposableGroup, Event, IDisposable } from '@podman-desktop/core-api';
+import type { DisposableGroup, Event, IDisposable } from '@desktop-framework/api';
 
 type Callback = (...args: unknown[]) => unknown;
 class CallbackList implements Iterable<Callback> {

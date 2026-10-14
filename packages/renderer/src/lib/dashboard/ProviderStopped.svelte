@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
 
 import ProviderCard from './ProviderCard.svelte';
 

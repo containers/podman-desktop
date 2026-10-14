@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { SimpleContainerInfo } from '@podman-desktop/core-api';
+import type { SimpleContainerInfo } from '@desktop-framework/api';
 import type { IpcMainEvent } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 

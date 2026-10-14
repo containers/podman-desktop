@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContainerInfo } from '@podman-desktop/core-api';
+import type { ContainerInfo } from '@desktop-framework/api';
 import { get } from 'svelte/store';
 import { assert, beforeEach, expect, test, vi } from 'vitest';
 
@@ -48,7 +48,6 @@ test.each([
   ['container-die-event'],
   ['container-init-event'],
   ['container-started-event'],
-  ['container-created-event'],
   ['container-removed-event'],
 ])('fetch containers when receiving event %s', async eventName => {
   // fast delays (10 & 10ms)

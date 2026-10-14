@@ -19,8 +19,8 @@
 import { existsSync, promises } from 'node:fs';
 import path from 'node:path';
 
-import { ExploreFeature } from '@podman-desktop/core-api';
-import { IConfigurationNode } from '@podman-desktop/core-api/configuration';
+import { ExploreFeature } from '@desktop-framework/api';
+import { IConfigurationNode } from '@desktop-framework/api/configuration';
 import { app } from 'electron';
 import { inject, injectable } from 'inversify';
 

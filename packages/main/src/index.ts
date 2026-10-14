@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Event } from '@podman-desktop/core-api';
+import type { Event } from '@desktop-framework/api';
 import { app, ipcMain, Menu, Tray } from 'electron';
 
 import { restoreWindow } from '/@/mainWindow.js';
@@ -30,6 +30,7 @@ import { readShowTrayIconSetting } from './plugin/util/read-tray-setting.js';
 import { ZoomLevelHandler } from './plugin/zoom-level-handler.js';
 import { StartupInstall } from './system/startup-install.js';
 import { WindowHandler } from './system/window/window-handler.js';
+import { AnimatedDevTray } from './tray-animate-dev-icon.js';
 import { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
 import { isMac, isWindows, stoppedExtensions } from './util.js';
@@ -97,7 +98,7 @@ app.whenReady().then(
     // Setup the default tray icon + menu items (skip if user disabled tray)
     const showTrayIcon = readShowTrayIconSetting();
     if (showTrayIcon) {
-      animatedTray = new AnimatedTray();
+      animatedTray = import.meta.env.DEV ? new AnimatedDevTray() : new AnimatedTray();
       tray = new Tray(animatedTray.getDefaultImage());
       animatedTray.setTray(tray);
     }

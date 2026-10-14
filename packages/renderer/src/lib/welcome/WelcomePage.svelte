@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { WelcomeMessages } from '@podman-desktop/core-api';
+import type { WelcomeMessages } from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';

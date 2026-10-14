@@ -15,13 +15,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import { defineConfig } from 'vitest/config';
 
-export const ATLAS_LIGHT_SRC = '/img/banner/5m/atlas-light.svg';
-export const ATLAS_DARK_SRC = '/img/banner/5m/atlas-dark.svg';
-export const TITLE_LIGHT_SRC = '/img/banner/5m/title-light.svg';
-export const TITLE_DARK_SRC = '/img/banner/5m/title-dark.svg';
-
-/** Resolves the particle atlas URL for the active Docusaurus color mode. */
-export function atlasSrcForColorMode(colorMode: 'light' | 'dark'): string {
-  return colorMode === 'dark' ? ATLAS_DARK_SRC : ATLAS_LIGHT_SRC;
-}
+export default defineConfig({
+  test: {
+    name: 'storybook-scripts',
+    include: ['**/*.spec.ts'],
+    environment: 'node',
+  },
+});

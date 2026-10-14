@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type GoToInfo, NavigationPage } from '@podman-desktop/core-api';
+import { type GoToInfo, NavigationPage } from '@desktop-framework/api';
 
 import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
 import { volumeListInfos } from '/@/stores/volumes';

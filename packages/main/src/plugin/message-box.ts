@@ -22,8 +22,8 @@ import type {
   IconButtonType,
   MessageBoxOptions,
   MessageBoxReturnValue,
-} from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { inject, injectable } from 'inversify';
 
 interface MessageBoxCallback {

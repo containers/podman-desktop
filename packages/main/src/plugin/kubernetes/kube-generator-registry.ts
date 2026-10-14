@@ -20,7 +20,7 @@ import type {
   KubernetesGeneratorArgument,
   KubernetesGeneratorInfo,
   KubernetesGeneratorSelector,
-} from '@podman-desktop/core-api/kubernetes';
+} from '@desktop-framework/api/kubernetes';
 import { injectable } from 'inversify';
 
 import { Disposable } from '/@/plugin/types/disposable.js';

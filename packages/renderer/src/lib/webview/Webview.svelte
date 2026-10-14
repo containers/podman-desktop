@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { WebviewInfo } from '@podman-desktop/core-api';
+import type { WebviewInfo } from '@desktop-framework/api';
 import { onDestroy } from 'svelte';
 
 import Route from '/@/Route.svelte';

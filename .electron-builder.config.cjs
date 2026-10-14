@@ -232,7 +232,7 @@ const config = {
     ],
     useWaylandFlags: 'false',
     artifactName: `${product.artifactName}-\${version}.\${ext}`,
-    runtimeVersion: '25.08',
+    runtimeVersion: '26.08',
     branch: 'main',
     files: [
       ['.flatpak-appdata.xml', '/share/metainfo/io.podman_desktop.PodmanDesktop.metainfo.xml'],

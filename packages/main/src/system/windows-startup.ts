@@ -19,8 +19,8 @@
 
 import { existsSync, unlink } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
-import type { IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import { app, type LaunchItems } from 'electron';
+import type { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 
 /**
  * On Windows, launching program automatically on startup is done via %APPDATA%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup folder
@@ -48,7 +48,12 @@ export class WindowsStartup {
     return true;
   }
 
-  async enable(): Promise<void> {
+  /**
+   * Registers the Windows startup item with the current arguments.
+   * An existing item keeps its enabled state unless `forceEnable` is set, so updating
+   * arguments does not override a startup item disabled in Task Manager.
+   */
+  async enable(forceEnable = false): Promise<void> {
     if (!this.shouldEnable()) {
       return;
     }
@@ -67,32 +72,62 @@ export class WindowsStartup {
 
     // We pass in "--minimize" so electron can read the flag on first startup.
     const args = minimize ? ['--minimized'] : [];
-    // check if we are using the portable mode.
-    // in that case we need to register the binary path to the portable file
-    // and not where it is being expanded
-    if (process.env['PORTABLE_EXECUTABLE_FILE']) {
-      this.podmanDesktopBinaryPath = process.env['PORTABLE_EXECUTABLE_FILE'];
-    }
-
-    // do we have an updated version of the binary being installed in AppData/Local
-    // if so, we need to update the startup file to point to the new binary
-    // this is the case when we update the app
-    const programsData = path.resolve(app.getPath('appData'), '..', 'local/Programs/podman-desktop');
-    const podmanDesktopInPrograms = path.resolve(programsData, 'Podman Desktop.exe');
-    if (existsSync(podmanDesktopInPrograms)) {
-      this.podmanDesktopBinaryPath = podmanDesktopInPrograms;
-    }
+    const loginItemPath = `"${this.resolveBinaryPath()}"`;
+    const matchingLaunchItem = this.findMatchingLaunchItem();
 
     app.setLoginItemSettings({
       openAtLogin: true,
-      path: `"${this.podmanDesktopBinaryPath}"`,
+      path: loginItemPath,
       args,
+      enabled: forceEnable || (matchingLaunchItem?.enabled ?? true),
     });
+  }
+
+  /**
+   * Reflects the matching Windows startup item's enabled state in preferences.
+   * Run before registering preference listeners to preserve external overrides
+   * without changing the Windows startup item. Windows removes the entry when it is disabled,
+   * so a missing entry is treated as disabled.
+   */
+  async syncStartupPreference(): Promise<void> {
+    const matchingLaunchItem = this.findMatchingLaunchItem();
+
+    await this.configurationRegistry.updateConfigurationValue(
+      'preferences.login.start',
+      matchingLaunchItem ? matchingLaunchItem.enabled : false,
+    );
   }
 
   async disable(): Promise<void> {
     app.setLoginItemSettings({
       openAtLogin: false,
     });
+  }
+
+  /** Returns the Windows startup item registered for the startup executable, if any. */
+  private findMatchingLaunchItem(): LaunchItems | undefined {
+    const startupExecutablePath = path.normalize(this.resolveBinaryPath()).toLowerCase();
+    return app
+      .getLoginItemSettings()
+      .launchItems.find(launchItem => path.normalize(launchItem.path).toLowerCase() === startupExecutablePath);
+  }
+
+  /** Returns the portable or installed executable path used for Windows startup. */
+  private resolveBinaryPath(): string {
+    // In portable mode, register the portable file rather than the temporary
+    // directory where it is expanded.
+    if (process.env['PORTABLE_EXECUTABLE_FILE']) {
+      this.podmanDesktopBinaryPath = process.env['PORTABLE_EXECUTABLE_FILE'];
+      return this.podmanDesktopBinaryPath;
+    }
+
+    // An update can install a new binary in AppData/Local before it is running.
+    const programsData = path.resolve(app.getPath('appData'), '..', 'local/Programs/podman-desktop');
+    const podmanDesktopInPrograms = path.resolve(programsData, 'Podman Desktop.exe');
+    if (existsSync(podmanDesktopInPrograms)) {
+      this.podmanDesktopBinaryPath = podmanDesktopInPrograms;
+    }
+
+    return this.podmanDesktopBinaryPath;
   }
 }

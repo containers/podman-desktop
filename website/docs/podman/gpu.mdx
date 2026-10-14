@@ -137,20 +137,18 @@ You might need to restart your Podman machine.
 
 #### Verification
 
-Using the GPU functionality requires a specialized Containerfile containing a [patched MESA driver](https://copr.fedorainfracloud.org/coprs/slp/mesa-krunkit/).
+Using the GPU functionality requires a specialized Containerfile containing a [patched MESA driver](https://copr.fedorainfracloud.org/coprs/slp/mesa-libkrun-vulkan/).
 
 1. Create the following Containerfile:
 
 ```Dockerfile
-FROM fedora:40
+FROM fedora:44
 USER 0
 
 RUN dnf -y install dnf-plugins-core && \
-    dnf -y install dnf-plugin-versionlock && \
+    dnf -y copr enable slp/mesa-libkrun-vulkan && \
     dnf -y install mesa-vulkan-drivers vulkan-loader-devel vulkan-headers vulkan-tools vulkan-loader glslc --setopt=install_weak_deps=False && \
-    dnf -y copr enable slp/mesa-krunkit fedora-40-aarch64 && \
-    dnf -y downgrade mesa-vulkan-drivers.aarch64 --repo=copr:copr.fedorainfracloud.org:slp:mesa-krunkit && \
-    dnf versionlock mesa-vulkan-drivers && \
+    dnf -y downgrade mesa-vulkan-drivers mesa-filesystem --repo='copr:copr.fedorainfracloud.org:slp:mesa-libkrun-vulkan' && \
     dnf clean all && rm -rf /var/cache/dnf
 ```
 

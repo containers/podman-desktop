@@ -1,9 +1,9 @@
 <script lang="ts">
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
+import type { PlayKubeInput } from '@desktop-framework/api/libpod';
+import type { OpenDialogOptions } from '@desktop-framework/extension-api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
-import type { OpenDialogOptions } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
-import type { PlayKubeInput } from '@podman-desktop/core-api/libpod';
 import { Button, ButtonRow, Checkbox, ErrorMessage } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
@@ -32,7 +32,7 @@ let hasInvalidFields = $derived.by(() => {
   if (!selectedProviderConnection) return true;
   switch (userChoice) {
     case 'podman':
-      return kubernetesYamlFilePath === undefined;
+      return !kubernetesYamlFilePath;
     case 'custom':
       return customYamlContent.length === 0;
   }
@@ -187,32 +187,37 @@ function toggle(choice: 'podman' | 'custom'): void {
       </div>
 
       <div class="flex flex-col">
-        <button
+        <div
           hidden={providerConnections.length === 0}
-          class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-          aria-label="Podman Container Engine Runtime"
-          aria-pressed={userChoice === 'podman' ? 'true' : 'false'}
+          class="relative border-2 rounded-md p-5 bg-[var(--pd-content-card-inset-bg)]"
           class:border-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
-          class:border-[var(--pd-content-card-border)]={userChoice !== 'podman'}
-          onclick={toggle.bind(undefined, 'podman')}>
-          <div class="flex flex-row align-middle items-center">
+          class:border-[var(--pd-content-card-border)]={userChoice !== 'podman'}>
+          <!-- The selector covers the card, while the file controls stay interactive when this option is selected. -->
+          <button
+            type="button"
+            class="absolute inset-0 w-full rounded-md cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pd-button-focus-ring)]"
+            aria-label="Podman Container Engine Runtime"
+            aria-pressed={userChoice === 'podman' ? 'true' : 'false'}
+            onclick={toggle.bind(undefined, 'podman')}></button>
+          <div class="relative z-10 flex flex-row align-middle items-center pointer-events-none">
             <div
               class="text-2xl pr-2"
               class:text-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
               class:text-[var(--pd-content-card-border)]={userChoice !== 'podman'}>
               <Icon icon={faCircleCheck} />
             </div>
-            <FileInput
-              name="containerFilePath"
-              id="containerFilePath"
-              readonly
-              required
-              bind:value={kubernetesYamlFilePath}
-              placeholder="Select a .yaml file to play"
-              options={kubeFileDialogOptions}
-              class="w-full p-2" />
+            <div class="flex-1" class:pointer-events-auto={userChoice === 'podman'}>
+              <FileInput
+                name="containerFilePath"
+                id="containerFilePath"
+                disabled={userChoice === 'custom'}
+                bind:value={kubernetesYamlFilePath}
+                placeholder="Select a .yaml file to play"
+                options={kubeFileDialogOptions}
+                class="w-full p-2" />
+            </div>
           </div>
-          <div hidden={runStarted}>
+          <div hidden={runStarted} class="relative z-10" class:pointer-events-none={userChoice === 'custom'}>
             {#if providerConnections.length > 1}
               <label
                 for="providerConnectionName"
@@ -231,7 +236,7 @@ function toggle(choice: 'podman' | 'custom'): void {
               <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection.name} />
             {/if}
           </div>
-        </button>
+        </div>
 
         <button
           class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"

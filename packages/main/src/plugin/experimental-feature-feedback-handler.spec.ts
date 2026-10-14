@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Configuration } from '@podman-desktop/api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
+import type { Configuration } from '@desktop-framework/extension-api';
 import type Electron from 'electron';
 import { shell } from 'electron';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

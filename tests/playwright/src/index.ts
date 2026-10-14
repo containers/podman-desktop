@@ -110,3 +110,4 @@ export * from './model/workbench/status-bar';
 
 // export components
 export * from './model/components/dropdown-component';
+export * from './model/components/help-menu-component';

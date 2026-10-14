@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ProviderInfo } from '@desktop-framework/api';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderInfo } from '@podman-desktop/core-api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { router } from 'tinro';

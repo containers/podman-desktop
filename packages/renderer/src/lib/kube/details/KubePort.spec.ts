@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { type ForwardConfig, WorkloadKind } from '@podman-desktop/core-api';
+import { type ForwardConfig, WorkloadKind } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 

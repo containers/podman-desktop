@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
 
 import TroubleshootingContainerEngineGrabContainers from './TroubleshootingContainerEngineGrabContainers.svelte';
 import TroubleshootingContainerEnginePing from './TroubleshootingContainerEnginePing.svelte';

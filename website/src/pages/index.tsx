@@ -5,7 +5,6 @@ import Layout from '@theme/Layout';
 import ThemedImage from '@theme/ThemedImage';
 import React from 'react';
 
-import Banner from '../components/5MBanner';
 import { CNCFCommunityBanner } from '../components/CNCFCommunityBanner';
 import { DownloadClientLinks, DownloadGenericLinks } from '../components/DownloadButton';
 import { ExpandableFAQ } from '../components/ExpandableFAQ';
@@ -104,7 +103,7 @@ function Testimonials(): JSX.Element {
 
 function FAQ(): JSX.Element {
   return (
-    <section className="dark:text-white text-charcoal-300 py-24 font-body text-4xl font-bold leading-[1.2] bg-white dark:bg-black bg-gradient-to-br from-purple-300/70 dark:from-purple-800 to-transparent">
+    <section className="dark:text-white text-charcoal-300 py-24 font-body text-4xl leading-[1.2] bg-white dark:bg-black bg-gradient-to-br from-purple-300/70 dark:from-purple-800 to-transparent">
       <div className="container mx-auto flex flex-col">
         <h2 className="text-4xl font-bold leading-[1.2]">FAQ</h2>
         <div className="p-8">
@@ -437,7 +436,6 @@ export default function Home(): JSX.Element {
       title="Podman Desktop - Containers and Kubernetes"
       description="Podman Desktop - An open source graphical tool for developing on containers and Kubernetes">
       <TailWindThemeSelector />
-      <Banner />
       <Hero />
       <MainFeatures />
       <Pods />

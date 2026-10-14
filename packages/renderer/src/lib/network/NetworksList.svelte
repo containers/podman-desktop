@@ -1,6 +1,6 @@
 <script lang="ts">
+import { NavigationPage } from '@desktop-framework/api';
 import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { NavigationPage } from '@podman-desktop/core-api';
 import { Button, FilteredEmptyScreen, NavPage, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 

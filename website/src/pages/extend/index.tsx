@@ -109,7 +109,7 @@ export default function Home(): JSX.Element {
               Visualizing Extension Capabilities
             </h1>
             <ThemedImage
-              className="py-4"
+              className="mx-auto py-4"
               alt="Extensibility diagram"
               sources={{
                 light: useBaseUrl('img/extend/extend-light.png'),
@@ -126,7 +126,7 @@ export default function Home(): JSX.Element {
               capabilities.
             </p>
             <ThemedImage
-              className="py-4"
+              className="mx-auto py-4"
               alt="Extend with Docker Desktop extensions"
               sources={{
                 light: useBaseUrl('img/extend/extend-dd-light.png'),

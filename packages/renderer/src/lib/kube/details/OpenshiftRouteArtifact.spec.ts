@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { V1Route } from '@podman-desktop/core-api';
+import type { V1Route } from '@desktop-framework/api';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

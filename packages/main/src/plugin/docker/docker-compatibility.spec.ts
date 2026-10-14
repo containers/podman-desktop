@@ -19,9 +19,9 @@
 import type { Stats } from 'node:fs';
 import { promises } from 'node:fs';
 
-import type { ProviderContainerConnection } from '@podman-desktop/api';
-import type { DockerSocketServerInfoType, ProviderInfo } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { DockerSocketServerInfoType, ProviderInfo } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { ProviderContainerConnection } from '@desktop-framework/extension-api';
 import type * as Dockerode from 'dockerode';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 
@@ -148,13 +148,13 @@ describe('resolveLinkIfAny', async () => {
   test('on Windows return same path', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
 
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(true);
     const path = '/var/run/docker.sock';
     expect(await dockerCompatibility.resolveLinkIfAny(path)).toBe(path);
   });
 
   test('on macOS or Linux without symlink return same path', async () => {
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
+    vi.mocked(util.isWindows).mockReturnValue(false);
     const isSymbolicLink = vi.fn();
     vi.spyOn(promises, 'lstat').mockResolvedValue({
       isSymbolicLink,
@@ -170,7 +170,7 @@ describe('resolveLinkIfAny', async () => {
     const path = '/var/run/docker.sock';
     const newPath = '/var/run/docker.sock2';
 
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
+    vi.mocked(util.isWindows).mockReturnValue(false);
     const isSymbolicLink = vi.fn();
     vi.spyOn(promises, 'lstat').mockResolvedValue({
       isSymbolicLink,
@@ -194,7 +194,7 @@ describe('getSystemDockerSocketMappingStatus', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
 
     vi.spyOn(dockerCompatibility, 'getTypeFromServerInfo').mockReturnValue('docker');
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(true);
 
     dockerodePodmanInfoMock.mockResolvedValue({
       ServerVersion: '1.0.0',
@@ -222,7 +222,7 @@ describe('getSystemDockerSocketMappingStatus', async () => {
   test('error on dockerode call', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
 
-    vi.spyOn(util, 'isWindows').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(true);
 
     dockerodeInfoMock.mockRejectedValue(new Error('test error'));
 
@@ -235,8 +235,8 @@ describe('getSystemDockerSocketMappingStatus', async () => {
     const dockerCompatibility = new TestDockerCompatibility(configurationRegistry, providerRegistry);
 
     vi.spyOn(dockerCompatibility, 'getTypeFromServerInfo').mockReturnValue('docker');
-    vi.spyOn(util, 'isWindows').mockReturnValue(false);
-    vi.spyOn(util, 'isMac').mockReturnValue(true);
+    vi.mocked(util.isWindows).mockReturnValue(false);
+    vi.mocked(util.isMac).mockReturnValue(true);
 
     // mock resolveLinkIfAny
     vi.spyOn(dockerCompatibility, 'resolveLinkIfAny').mockResolvedValue(DockerCompatibility.UNIX_SOCKET_PATH);

@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { PodInfo } from '@podman-desktop/core-api';
+import type { PodInfo } from '@desktop-framework/api';
 import { expect, test } from 'vitest';
 
 import { ensureRestrictedSecurityContext, PodUtils } from '/@/lib/pod/pod-utils';

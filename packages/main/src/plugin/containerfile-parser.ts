@@ -18,7 +18,7 @@
 
 import { readFile } from 'node:fs/promises';
 
-import type { ContainerfileInfo } from '@podman-desktop/core-api';
+import type { ContainerfileInfo } from '@desktop-framework/api';
 import { inject, injectable } from 'inversify';
 
 import { IPCHandle } from './api.js';

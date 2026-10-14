@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderInfo } from '@podman-desktop/core-api';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
-import type { ExtensionBanner } from '@podman-desktop/core-api/recommendations';
+import type { ProviderInfo } from '@desktop-framework/api';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
+import type { ExtensionBanner } from '@desktop-framework/api/recommendations';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

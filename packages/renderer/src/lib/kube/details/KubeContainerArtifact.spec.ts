@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { WorkloadKind } from '@desktop-framework/api';
 import type { V1Container } from '@kubernetes/client-node';
-import { WorkloadKind } from '@podman-desktop/core-api';
 import { render, screen } from '@testing-library/svelte';
 import { readable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';

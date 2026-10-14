@@ -15,11 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type containerDesktopAPI from '@podman-desktop/api';
-import type { IDisposable } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { PinOption } from '@podman-desktop/core-api/status-bar';
-import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
+import type { IDisposable } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { PinOption } from '@desktop-framework/api/status-bar';
+import { STATUS_BAR_PIN_CONSTANTS } from '@desktop-framework/api/status-bar';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 import { CommandRegistry } from '/@/plugin/command-registry.js';

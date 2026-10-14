@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { KubeContext } from '@desktop-framework/api';
 import type { Cluster, User } from '@kubernetes/client-node';
-import type { KubeContext } from '@podman-desktop/core-api';
 import { Dropdown } from '@podman-desktop/ui-svelte';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';

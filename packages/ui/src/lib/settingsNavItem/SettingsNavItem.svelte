@@ -4,6 +4,7 @@ import type { Component } from 'svelte';
 
 import ChevronExpander from '../icons/ChevronExpander.svelte';
 import Icon from '../icons/Icon.svelte';
+import { KeyboardUtils } from '../utils/keyboard-utils';
 
 interface Props {
   title: string;
@@ -16,6 +17,8 @@ interface Props {
   iconRight?: IconDefinition | Component | string;
   iconRightAlign?: 'inline' | 'end';
   onClick?: () => void;
+  ariaKeyShortcuts?: string;
+  onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 let {
@@ -29,7 +32,13 @@ let {
   iconRight = undefined,
   iconRightAlign = 'end',
   onClick = (): void => {},
+  ariaKeyShortcuts,
+  onKeyDown,
 }: Props = $props();
+
+const keyboardUtils = new KeyboardUtils();
+
+let sanitizedKeyShortcuts = $derived(keyboardUtils.sanitizeAriaKeyShortcuts(ariaKeyShortcuts));
 
 function click(): void {
   expanded = !expanded;
@@ -37,7 +46,14 @@ function click(): void {
 }
 </script>
 
-<a class="no-underline block w-full" href={href} aria-label={title} title={title} onclick={click}>
+<a
+  class="no-underline block w-full"
+  href={href}
+  aria-label={title}
+  title={title}
+  aria-keyshortcuts={sanitizedKeyShortcuts}
+  onclick={click}
+  onkeydown={onKeyDown}>
   <div
     data-settings-nav-row
     class="flex box-border w-full py-2 items-center cursor-pointer border-l-[4px]"

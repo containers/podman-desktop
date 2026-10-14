@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { ProviderConnectionInfo, ProviderInfo, ProviderKubernetesConnectionInfo } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { ProviderConnectionInfo, ProviderInfo, ProviderKubernetesConnectionInfo } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { Tab } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { Buffer } from 'buffer';

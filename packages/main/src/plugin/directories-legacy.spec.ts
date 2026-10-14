@@ -50,8 +50,8 @@ beforeEach(() => {
     },
   };
 
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'mkdirSync').mockReturnValue('');
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(fs.mkdirSync).mockReturnValue('');
 });
 
 afterEach(() => {
@@ -126,8 +126,8 @@ describe('LegacyDirectories', () => {
 
   describe('Directory Creation', () => {
     test('should create base directory when it does not exist', () => {
-      const mkdirSpy = vi.spyOn(fs, 'mkdirSync');
-      vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+      const mkdirSpy = vi.mocked(fs.mkdirSync);
+      vi.mocked(fs.existsSync).mockReturnValue(false);
 
       provider = new LegacyDirectories();
 

@@ -6,7 +6,7 @@ tags: [podman-desktop, testing, linux, flatpak]
 keywords: [podman desktop, podman, containers, testing, linux, flatpak, release, permissions]
 ---
 
-# Testing a Flatpak from a release {#testing-flatpak-release}
+# Testing a Flatpak from a release
 
 Each Podman Desktop release includes a `.flatpak` bundle in the [GitHub release assets](https://github.com/podman-desktop/podman-desktop/releases). This page explains how to test that bundle correctly, including cases where sandbox permissions have changed between releases.
 
@@ -20,7 +20,7 @@ When you install Podman Desktop from Flathub, the permissions declared in [`io.p
 
   ```shell-session
   $ flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
-  $ flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
+  $ flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08
   ```
 
 #### Procedure: Testing a release bundle

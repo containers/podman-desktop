@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { Menu } from '@desktop-framework/api';
+import { MenuContext, NavigationPage } from '@desktop-framework/api';
 import { faCircleArrowUp, faDownload, faEdit, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { Menu } from '@podman-desktop/core-api';
-import { MenuContext, NavigationPage } from '@podman-desktop/core-api';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 

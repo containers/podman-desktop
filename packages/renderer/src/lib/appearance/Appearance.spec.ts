@@ -19,7 +19,7 @@
 /* eslint-disable no-null/no-null */
 import '@testing-library/jest-dom/vitest';
 
-import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import { AppearanceSettings } from '@desktop-framework/api/appearance';
 import { render, type RenderResult } from '@testing-library/svelte';
 import type { Component, ComponentProps } from 'svelte';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';

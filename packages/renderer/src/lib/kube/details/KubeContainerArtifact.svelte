@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { WorkloadKind } from '@desktop-framework/api';
 import type { V1Container } from '@kubernetes/client-node';
-import type { WorkloadKind } from '@podman-desktop/core-api';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
 

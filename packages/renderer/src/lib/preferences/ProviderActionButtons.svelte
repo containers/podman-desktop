@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { CheckStatus, Menu, ProviderInfo } from '@desktop-framework/api';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
-import type { CheckStatus, Menu, ProviderInfo } from '@podman-desktop/core-api';
 import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { router } from 'tinro';

@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { SecretInfo } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
 import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { SecretInfo } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
 import {
   Button,
   FilteredEmptyScreen,

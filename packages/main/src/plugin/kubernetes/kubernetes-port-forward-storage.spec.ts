@@ -19,8 +19,8 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import type { ForwardConfig } from '@podman-desktop/core-api';
-import { WorkloadKind } from '@podman-desktop/core-api';
+import type { ForwardConfig } from '@desktop-framework/api';
+import { WorkloadKind } from '@desktop-framework/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Directories } from '/@/plugin/directories.js';

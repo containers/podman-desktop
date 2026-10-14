@@ -28,7 +28,7 @@ import TaskManagerClearAllButton from './TaskManagerClearAllButton.svelte';
 vi.mock(import('/@/stores/tasks'));
 
 test('Expect clear tasks is being called', async () => {
-  const clearNotificationsSpy = vi.spyOn(taskStores, 'clearNotifications');
+  const clearNotificationsSpy = vi.mocked(taskStores.clearNotifications);
   render(TaskManagerClearAllButton);
   // expect the button is there
   const clearAll = screen.getByRole('button', { name: 'Clear all' });

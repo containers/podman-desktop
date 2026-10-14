@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { V1Route } from '@podman-desktop/core-api';
+import type { V1Route } from '@desktop-framework/api';
 import { Link } from '@podman-desktop/ui-svelte';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ReleaseNotes } from '@desktop-framework/api';
 import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
-import type { ReleaseNotes } from '@podman-desktop/core-api';
 import { Button, ButtonRow, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 

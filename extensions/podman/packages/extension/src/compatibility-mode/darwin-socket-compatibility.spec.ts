@@ -92,7 +92,7 @@ test('darwin: DarwinSocketCompatibility class, test promptRestart ran within run
 
   vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({} as extensionApi.RunResult);
 
-  const spyFindRunningMachine = vi.spyOn(extension, 'findRunningMachine');
+  const spyFindRunningMachine = vi.mocked(extension.findRunningMachine);
   spyFindRunningMachine.mockResolvedValue('default');
 
   // Mock that enable ran successfully

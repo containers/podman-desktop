@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { SecretInfo } from '@podman-desktop/core-api';
+import type { SecretInfo } from '@desktop-framework/api';
 
 import DetailsCell from '/@/lib/details/DetailsCell.svelte';
 import DetailsTable from '/@/lib/details/DetailsTable.svelte';

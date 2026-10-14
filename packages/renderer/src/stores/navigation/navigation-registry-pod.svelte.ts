@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type GoToInfo, NavigationPage } from '@podman-desktop/core-api';
+import { type GoToInfo, NavigationPage } from '@desktop-framework/api';
 
 import PodIcon from '/@/lib/images/PodIcon.svelte';
 import { podsInfos } from '/@/stores/pods';

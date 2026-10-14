@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ExploreFeature } from '@podman-desktop/core-api';
+import type { ExploreFeature } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';

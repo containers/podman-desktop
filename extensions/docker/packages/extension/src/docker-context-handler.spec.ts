@@ -67,14 +67,14 @@ test('getDockerConfigPath', async () => {
 
 describe('getCurrentContext', () => {
   test('should return default if docker config does not exist', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
 
     const currentContext = await dockerContextHandler.getCurrentContext();
     expect(currentContext).toBe('default');
   });
 
   test('should return context if docker config exist', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.spyOn(fs.promises, 'readFile').mockResolvedValue(JSON.stringify({ currentContext: 'test-context' }));
 
     const currentContext = await dockerContextHandler.getCurrentContext();
@@ -82,7 +82,7 @@ describe('getCurrentContext', () => {
   });
 
   test('should return default if docker config exist but fails to parse it', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.spyOn(fs.promises, 'readFile').mockResolvedValue('not a JSON');
 
     const currentContext = await dockerContextHandler.getCurrentContext();
@@ -93,7 +93,7 @@ describe('getCurrentContext', () => {
 
 describe('switchContext', () => {
   test('should write an empty file if file does not exists', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
 
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([
       { name: 'foo' } as unknown as DockerContextParsingInfo,
@@ -106,7 +106,7 @@ describe('switchContext', () => {
   });
 
   test('should throw error if context does not exists', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([]);
 
@@ -114,7 +114,7 @@ describe('switchContext', () => {
   });
 
   test('should write the content', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([
       { name: 'foo' } as unknown as DockerContextParsingInfo,
       { name: 'bar' } as unknown as DockerContextParsingInfo,
@@ -129,7 +129,7 @@ describe('switchContext', () => {
   });
 
   test('should remove the entry when switching to default', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([
       { name: 'default' } as unknown as DockerContextParsingInfo,
       { name: 'dummy' } as unknown as DockerContextParsingInfo,
@@ -141,7 +141,7 @@ describe('switchContext', () => {
   });
 
   test('should throw error if JSON is invalid', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.spyOn(dockerContextHandler, 'getContexts').mockResolvedValue([
       { name: 'foo' } as unknown as DockerContextParsingInfo,
       { name: 'bar' } as unknown as DockerContextParsingInfo,
@@ -176,7 +176,7 @@ describe('getContexts', () => {
   );
 
   test('should return contexts if directory does not exists', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
     const contexts = await dockerContextHandler.getContexts();
 
     // expect no error
@@ -188,7 +188,7 @@ describe('getContexts', () => {
   });
 
   test('check default on Windows', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
     vi.mocked(env).isWindows = true;
 
     const contexts = await dockerContextHandler.getContexts();
@@ -200,7 +200,7 @@ describe('getContexts', () => {
   });
 
   test('should return contexts if error reading JSON', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
 
     readdirMock.mockResolvedValue([
       {
@@ -229,7 +229,7 @@ describe('getContexts', () => {
   });
 
   test('should return contexts if directory exists', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     readdirMock.mockResolvedValue([
       {
         isDirectory: () => true,
@@ -256,7 +256,7 @@ describe('getContexts', () => {
   });
 
   test('should filter contexts if invalid sha', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     readdirMock.mockResolvedValue([
       { isDirectory: () => true, name: 'invalidsha' } as unknown as fs.Dirent<string>,
       {

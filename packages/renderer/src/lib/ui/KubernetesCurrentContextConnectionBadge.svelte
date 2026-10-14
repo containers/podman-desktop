@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ContextGeneralState, ContextHealth } from '@podman-desktop/core-api';
+import type { ContextGeneralState, ContextHealth } from '@desktop-framework/api';
 import { Spinner } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';

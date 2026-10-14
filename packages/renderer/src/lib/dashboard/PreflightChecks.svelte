@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { CheckStatus } from '@desktop-framework/api';
 import { faCheck, faCircleExclamation, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import type { CheckStatus } from '@podman-desktop/core-api';
 import { Link, Spinner } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

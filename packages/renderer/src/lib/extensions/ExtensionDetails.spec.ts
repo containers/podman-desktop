@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';

@@ -1499,7 +1499,7 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
   const spyPrompt = vi.mocked(extensionApi.window.showInformationMessage);
   spyPrompt.mockResolvedValue('Yes');
 
-  vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+  vi.mocked(fs.existsSync).mockReturnValue(false);
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
@@ -3641,7 +3641,7 @@ describe.each(['windows', 'mac', 'linux'])('podman machine properties audit on %
   });
   if (os === 'linux') {
     test('is not used', async () => {
-      vi.spyOn(fs, 'existsSync').mockImplementation((path: fs.PathLike) => {
+      vi.mocked(fs.existsSync).mockImplementation((path: fs.PathLike) => {
         if (path.toString().endsWith('/podman/podman.sock')) {
           console.log('========>', path);
           return true;

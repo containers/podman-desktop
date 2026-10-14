@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ContextGeneralState, KubeContext } from '@podman-desktop/core-api';
+import type { ContextGeneralState, KubeContext } from '@desktop-framework/api';
 import { render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { expect, test, vi } from 'vitest';

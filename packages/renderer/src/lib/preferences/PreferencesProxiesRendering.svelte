@@ -1,6 +1,6 @@
 <script lang="ts">
+import { type DialogType, PROXY_CONFIG_KEYS, ProxyState } from '@desktop-framework/api';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { type DialogType, PROXY_CONFIG_KEYS, ProxyState } from '@podman-desktop/core-api';
 import { Button, ButtonRow, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 

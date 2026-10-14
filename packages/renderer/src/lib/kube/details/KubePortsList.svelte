@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ForwardConfig, WorkloadKind } from '@podman-desktop/core-api';
+import type { ForwardConfig, WorkloadKind } from '@desktop-framework/api';
 
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import { kubernetesCurrentContextPortForwards } from '/@/stores/kubernetes-contexts-state';

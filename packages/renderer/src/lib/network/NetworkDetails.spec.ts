@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { NetworkInspectInfo } from '@podman-desktop/core-api';
+import type { NetworkInspectInfo } from '@desktop-framework/api';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';

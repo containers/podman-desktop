@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ContextGeneralState, KubeContext, ResourceName, V1Route } from '@desktop-framework/api';
+import { secondaryResources } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type {
   Context,
   CoreV1Event,
@@ -53,9 +56,6 @@ import {
   makeInformer,
   NetworkingV1Api,
 } from '@kubernetes/client-node';
-import type { ContextGeneralState, KubeContext, ResourceName, V1Route } from '@podman-desktop/core-api';
-import { secondaryResources } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 
 import { Backoff } from './backoff.js';
 import {

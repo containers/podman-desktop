@@ -4,7 +4,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "dev": "cross-env STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
+    "dev": "node scripts/dev.mjs",
     "build": "cross-env STORYBOOK_DISABLE_TELEMETRY=1 storybook build"
   },
   "peerDependencies": {
@@ -17,7 +17,7 @@
     "@fortawesome/free-regular-svg-icons": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@podman-desktop/ui-svelte": "workspace:*",
-    "eslint": "^10.11.0",
+    "eslint": "^10.12.0",
     "svelte-fa": "^4.0.4"
   },
   "devDependencies": {
@@ -27,25 +27,25 @@
     "@storybook/addon-svelte-csf": "5.1.2",
     "@storybook/addon-themes": "^10.5.10",
     "@storybook/svelte-vite": "^10.5.10",
-    "@sveltejs/package": "^2.5.8",
-    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@sveltejs/package": "^3.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/svelte": "^5.0.8",
-    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
     "autoprefixer": "^10.6.1",
     "cross-env": "10.1.0",
-    "eslint-plugin-storybook": "10.6.0",
+    "eslint-plugin-storybook": "10.6.1",
     "eslint-plugin-svelte": "^3.23.0",
-    "postcss": "^8.5.28",
+    "postcss": "^8.5.29",
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
     "react-dom": "18.3.1",
     "storybook": "^10.5.5",
-    "svelte": "^5.57.1",
+    "svelte": "^5.57.2",
     "svelte-check": "^4.7.6",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   }
 }

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextPermission } from '@podman-desktop/core-api';
+import type { ContextPermission } from '@desktop-framework/api';
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ProviderInfo } from '@podman-desktop/core-api';
-import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
+import type { ProviderInfo } from '@desktop-framework/api';
+import { STATUS_BAR_PIN_CONSTANTS } from '@desktop-framework/api/status-bar';
 
 import ProviderWidget from '/@/lib/statusbar/ProviderWidget.svelte';
 import { providerInfos } from '/@/stores/providers';

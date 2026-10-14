@@ -1,6 +1,6 @@
 <script lang="ts">
+import { type ForwardConfig, WorkloadKind } from '@desktop-framework/api';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import { type ForwardConfig, WorkloadKind } from '@podman-desktop/core-api';
 import { get } from 'svelte/store';
 
 import { kubernetesCurrentContextPods } from '/@/stores/kubernetes-contexts-state';

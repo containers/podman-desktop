@@ -18,9 +18,9 @@
 
 import * as fs from 'node:fs';
 
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1/http-service.js';
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import type Dockerode from 'dockerode';
 import type { IpcMainEvent } from 'electron';
 import { http, HttpResponse } from 'msw';
@@ -313,7 +313,7 @@ test('Check handlePluginInstall', async () => {
   providerConnectionListImagesMock.mockResolvedValue([matchingImage]);
 
   // mock fs.unlinkSync
-  vi.spyOn(fs, 'unlinkSync').mockResolvedValue();
+  vi.mocked(fs.unlinkSync).mockResolvedValue();
 
   const imageAnalysis = {
     Config: {

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { STATUS_BAR_UPDATED_EVENT_NAME, type StatusBarEntryDescriptor } from '@podman-desktop/core-api';
+import { STATUS_BAR_UPDATED_EVENT_NAME, type StatusBarEntryDescriptor } from '@desktop-framework/api';
 import { type Writable, writable } from 'svelte/store';
 
 import { EventStore } from './event-store';

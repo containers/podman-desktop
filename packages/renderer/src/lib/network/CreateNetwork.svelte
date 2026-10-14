@@ -1,11 +1,11 @@
 <script lang="ts">
-import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import type {
   NetworkCreateFormInfo,
   NetworkCreateOptions,
   ProviderContainerConnectionInfo,
-} from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
+import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Button, ButtonRow, Checkbox, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';

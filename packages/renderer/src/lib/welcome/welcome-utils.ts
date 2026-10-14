@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OnboardingInfo, ProviderInfo } from '@podman-desktop/core-api';
-import { CONFIGURATION_DEFAULT_SCOPE } from '@podman-desktop/core-api/configuration';
-import { TelemetrySettings } from '@podman-desktop/core-api/telemetry';
-import { WelcomeSettings } from '@podman-desktop/core-api/welcome';
+import type { OnboardingInfo, ProviderInfo } from '@desktop-framework/api';
+import { CONFIGURATION_DEFAULT_SCOPE } from '@desktop-framework/api/configuration';
+import { TelemetrySettings } from '@desktop-framework/api/telemetry';
+import { WelcomeSettings } from '@desktop-framework/api/welcome';
 
 // Extend OnboardingInfo to have a selected and containerEngine property
 export interface OnboardingInfoWithAdditionalInfo extends OnboardingInfo {

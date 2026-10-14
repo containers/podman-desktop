@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { WebviewInfo } from '@podman-desktop/core-api';
+import type { WebviewInfo } from '@desktop-framework/api';
 
 interface WebviewEventMap {
   'dom-ready': Event;

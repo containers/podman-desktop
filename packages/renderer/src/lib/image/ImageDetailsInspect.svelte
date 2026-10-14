@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ImageInspectInfo } from '@podman-desktop/core-api';
+import type { ImageInspectInfo } from '@desktop-framework/api';
 import { onMount } from 'svelte';
 
 import MonacoEditor from '/@/lib/editor/MonacoEditor.svelte';

@@ -34,30 +34,27 @@ Set Testcontainers runtime to Podman by using one of the following options:
 
 - Enable the [Docker Compatibility](https://podman-desktop.io/docs/migrating-from-docker/managing-docker-compatibility) feature.
 
-- Create a `.testcontainers.properties` file in your home directory for global configuration of your Testcontainers and add the following line to the configuration file:
+- Set the `DOCKER_HOST` environment variable to your Podman socket:
   - MacOS
 
-    ```title=".testcontainers.properties"
-    docker.host=unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')
-    ```
-
-    Run the following command after configuration:
-
     ```bash
+    $ export DOCKER_HOST=unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')
     $ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
     ```
 
   - Linux:
 
-    ```title=".testcontainers.properties"
-    docker.host=unix://${XDG_RUNTIME_DIR}/podman/podman.sock
+    ```bash
+    $ export DOCKER_HOST=unix://${XDG_RUNTIME_DIR}/podman/podman.sock
     ```
 
-    :::note
+  :::note
 
-    Every language supported by Testcontainers has different properties supported by the .testcontainers.properties file.
+  You can also configure Testcontainers globally with a `.testcontainers.properties` file in your home directory. That file does not run shell commands or expand environment variables, so write the resolved socket path rather than a command.
 
-    :::
+  For Java, `docker.host` in that file also requires `docker.client.strategy=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`.
+
+  :::
 
 > **_OPTIONAL:_** If you are running Podman in rootless mode, you must disable Ryuk by defining this environment variable:
 >
@@ -207,15 +204,13 @@ When running Testcontainers for the first time, ensure that you run your tests i
 $ DEBUG=testcontainers* npm test
 ```
 
-Then, you should be able to see lines similar to the ones below:
+Then, you should be able to see a line similar to the one below:
 
-```
-testcontainers [DEBUG] Loading ".testcontainers.properties" file...
-testcontainers [DEBUG] Loaded ".testcontainers.properties" file
-testcontainers [DEBUG] Found custom configuration: dockerHost: "unix:///run/user/1000//podman/podman.sock
+```console
+testcontainers [DEBUG] Found custom configuration: dockerHost: "unix:///run/user/1000/podman/podman.sock"
 ```
 
-Those lines indicate that Testcontainers found the configuration file, and the containers are created on the Podman engine instead of Docker.
+This line indicates that Testcontainers picked up your Podman socket, and the containers are created on the Podman engine instead of Docker.
 
 ## Conclusion
 

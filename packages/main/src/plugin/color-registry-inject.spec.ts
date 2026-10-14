@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { Container } from 'inversify';
 import { beforeEach, expect, test, vi } from 'vitest';
 

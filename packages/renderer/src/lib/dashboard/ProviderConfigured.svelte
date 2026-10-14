@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { CheckStatus, ProviderInfo } from '@podman-desktop/core-api';
+import type { CheckStatus, ProviderInfo } from '@desktop-framework/api';
 import { Button, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

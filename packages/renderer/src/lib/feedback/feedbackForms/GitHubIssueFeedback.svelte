@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { GitHubFeedbackCategory, GitHubIssue } from '@podman-desktop/core-api';
+import type { GitHubFeedbackCategory, GitHubIssue } from '@desktop-framework/api';
 import { Button, Checkbox, ErrorMessage, Link } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 

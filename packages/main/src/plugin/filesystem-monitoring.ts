@@ -19,8 +19,8 @@
 import * as fs from 'node:fs';
 import * as pathfs from 'node:path';
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type { IAsyncDisposable } from '@podman-desktop/core-api';
+import type { IAsyncDisposable } from '@desktop-framework/api';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import * as chokidar from 'chokidar';
 import { injectable } from 'inversify';
 

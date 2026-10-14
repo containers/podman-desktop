@@ -21,9 +21,9 @@ import * as fs from 'node:fs';
 import * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
 
-import type { IDisposable } from '@podman-desktop/core-api';
-import { ProxyState } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { IDisposable } from '@desktop-framework/api';
+import { ProxyState } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { createProxy, type ProxyServer } from 'proxy';
 import { Agent } from 'undici';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -47,10 +47,10 @@ vi.mock(import('./proxy-system.js'), () => {
 
 // Mock the fs module
 vi.mock(import('node:fs'));
-const readFileSync = vi.spyOn(fs, 'readFileSync');
-const writeFileSync = vi.spyOn(fs, 'writeFileSync');
-const existsSync = vi.spyOn(fs, 'existsSync');
-const mkdirSync = vi.spyOn(fs, 'mkdirSync');
+const readFileSync = vi.mocked(fs.readFileSync);
+const writeFileSync = vi.mocked(fs.writeFileSync);
+const existsSync = vi.mocked(fs.existsSync);
+const mkdirSync = vi.mocked(fs.mkdirSync);
 
 const certificates: Certificates = {
   getAllCertificates: vi.fn(),

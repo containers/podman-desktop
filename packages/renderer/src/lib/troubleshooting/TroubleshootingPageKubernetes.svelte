@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { KubernetesTroubleshootingInformation } from '@desktop-framework/api';
 import { faDatabase, faRefresh } from '@fortawesome/free-solid-svg-icons';
-import type { KubernetesTroubleshootingInformation } from '@podman-desktop/core-api';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';

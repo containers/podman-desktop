@@ -89,7 +89,7 @@ test('kubectl CLI tool registered when detected and extension is activated', asy
     stdout: JSON.stringify(jsonStdout),
     command: 'kubectl version --client=true -o=json',
   });
-  vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('path');
+  vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('path');
 
   const deferred = new Promise<void>(resolve => {
     vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
@@ -300,7 +300,7 @@ test('findKubeCtl not global kubectl but in storage installed on macOS', async (
 
 describe('postActivate', () => {
   test('postActivate should registerUpdate', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -338,7 +338,7 @@ describe('postActivate', () => {
   });
 
   test('syncs detected version to provider on startup', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -398,7 +398,7 @@ describe('postActivate', () => {
   });
 
   test('onUpdate should download and install binary', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -460,7 +460,7 @@ describe('postActivate', () => {
   });
 
   test('onUpdate should not be registered if tool has been installed by user', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -505,7 +505,7 @@ describe('postActivate', () => {
   });
 
   test('doInstall should download and install latest binary', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -577,7 +577,7 @@ describe('postActivate', () => {
   });
 
   test('doInstall should download and install selected binary', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -647,7 +647,7 @@ describe('postActivate', () => {
   });
 
   test('doUninstall should delete all binaries', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -688,7 +688,7 @@ describe('postActivate', () => {
         } as unknown as extensionApi.CliTool);
       },
     );
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(extensionApi.env).isWindows = false;
 
@@ -705,7 +705,7 @@ describe('postActivate', () => {
   });
 
   test('if unlink fails because of a permission issue, it should delete all binaries as admin', async () => {
-    vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
     vi.mocked(extensionApi.process.exec).mockImplementation(
       (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
         new Promise<extensionApi.RunResult>(resolve => {
@@ -746,7 +746,7 @@ describe('postActivate', () => {
         } as unknown as extensionApi.CliTool);
       },
     );
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.promises.unlink).mockRejectedValue({
       code: 'EACCES',
     } as unknown as Error);
@@ -778,7 +778,7 @@ describe('postActivate', () => {
     });
 
     function mockExtensionInstalledKubectl(): void {
-      vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+      vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
       vi.mocked(extensionApi.process.exec).mockImplementation(
         (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
           new Promise<extensionApi.RunResult>(resolve => {
@@ -842,7 +842,7 @@ describe('postActivate', () => {
           id: 165829199,
         },
       ]);
-      vi.spyOn(cliRun, 'getSystemBinaryPath').mockReturnValue('system-path');
+      vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('system-path');
       vi.mocked(extensionApi.process.exec).mockImplementation(
         (_command: string, _args?: string[], _options?: extensionApi.RunOptions) =>
           new Promise<extensionApi.RunResult>(resolve => {

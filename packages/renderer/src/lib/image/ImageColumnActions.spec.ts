@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import ImageColumnActions from './ImageColumnActions.svelte';
@@ -59,6 +59,9 @@ test('Push push and delete manifest actions shown for manifest', async () => {
   render(ImageColumnActions, { object: manifestImage });
 
   // Check for the presence of action buttons
-  expect(screen.queryByText('Push Manifest')).toBeDefined();
-  expect(screen.queryByText('Delete Manifest')).toBeDefined();
+  expect(screen.getByRole('button', { name: 'Delete Manifest' })).toBeInTheDocument();
+
+  // Push Manifest is inside the dropdown menu
+  await fireEvent.click(screen.getByRole('button', { name: 'kebab menu' }));
+  expect(screen.getByTitle('Push Manifest')).toBeInTheDocument();
 });

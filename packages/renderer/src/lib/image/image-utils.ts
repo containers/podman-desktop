@@ -22,7 +22,7 @@ import {
   isViewContributionIcon,
   type ViewContributionBadgeValue,
   type ViewInfoUI,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 // eslint-disable-next-line unicorn/prefer-node-protocol
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';

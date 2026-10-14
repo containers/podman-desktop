@@ -30,15 +30,16 @@
     "prepare": "",
     "clean": "rimraf dist src/@podman-desktop src/product.json *.tsbuildinfo",
     "generate": "tsx -e \"import('./src/vitest-generate-api-global-setup.ts').then(module => module.default())\"",
-    "build": "pnpm generate && tsc -p tsconfig.json",
+    "build": "pnpm generate && tsc -p tsconfig.build.json",
     "watch": "",
     "publish:next": "pnpm version 0.0.1-\"$(date +%s)\" --no-git-tag-version && pnpm publish --registry=https://registry.npmjs.org/ --tag next --no-git-checks --access public"
   },
   "devDependencies": {
+    "@podman-desktop/api": "workspace:*",
     "@types/mustache": "^4.2.6",
     "mustache": "^4.2.0",
     "rimraf": "^6.0.1",
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {

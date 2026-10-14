@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { CheckingState, ContextGeneralState, KubeContext, ResourceName } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import * as kubeclient from '@kubernetes/client-node';
 import { KubeConfig, makeInformer } from '@kubernetes/client-node';
-import type { CheckingState, ContextGeneralState, KubeContext, ResourceName } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type * as ContextConstant from './contexts-constants.js';

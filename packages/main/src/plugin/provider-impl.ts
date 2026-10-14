@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IDisposable } from '@desktop-framework/api';
 import type {
   Auditor,
   ContainerProviderConnection,
@@ -38,8 +39,7 @@ import type {
   ProviderUpdate,
   VmProviderConnection,
   VmProviderConnectionFactory,
-} from '@podman-desktop/api';
-import type { IDisposable } from '@podman-desktop/core-api';
+} from '@desktop-framework/extension-api';
 
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { Emitter } from './events/emitter.js';

@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionUpdateInfo } from '@podman-desktop/core-api';
-import type { IConfigurationNode } from '@podman-desktop/core-api/configuration';
-import { IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { ExtensionUpdateInfo } from '@desktop-framework/api';
+import type { IConfigurationNode } from '@desktop-framework/api/configuration';
+import { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { inject, injectable } from 'inversify';
 import { compare } from 'semver';
 
@@ -131,8 +131,9 @@ export class ExtensionsUpdater {
     const installedExtensions = await this.extensionLoader.listExtensions();
 
     // now, for each installed extension that is not a built-in extension, check if there is a newer version available
+    // an extension replacing a bundled one is not updated, like the bundled extension it replaces
     const extensionsToUpdate = installedExtensions
-      .filter(extension => extension.removable === true)
+      .filter(extension => extension.removable === true && !extension.overrides)
       .map(installedExtension => {
         // find the extension in the list of available extensions
         const availableExtension = availableExtensions.find(extension => extension.id === installedExtension.id);

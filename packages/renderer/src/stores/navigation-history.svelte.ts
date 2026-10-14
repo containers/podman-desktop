@@ -16,8 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { HistoryStackEntry, NavigationHistoryPushInfo } from '@podman-desktop/core-api';
+import type { HistoryStackEntry, NavigationHistoryPushInfo } from '@desktop-framework/api';
+// svelte subpaths share one types entry, not real duplicates
+/* eslint-disable import/no-duplicates */
+import { SvelteSet } from 'svelte/reactivity';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { router } from 'tinro';
 
 import DashboardIcon from '/@/lib/images/DashboardIcon.svelte';
@@ -58,7 +62,7 @@ let isNavigatingHistory = false;
 
 // Extensions being navigated to via back/forward — ignore their pushes
 // until the navigation settles (webview re-mounts and replays initial route)
-const extensionsNavigatingHistory = new Set<string>();
+const extensionsNavigatingHistory = new SvelteSet<string>();
 
 interface ParsedUrl {
   path: string;

@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { AuthenticationProviderInfo, SessionRequestInfo } from '@desktop-framework/api/authentication';
+import { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import type {
   AuthenticationGetSessionOptions,
   AuthenticationProvider,
@@ -24,10 +27,7 @@ import type {
   AuthenticationSessionsChangeEvent,
   Disposable,
   Event,
-} from '@podman-desktop/api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { AuthenticationProviderInfo, SessionRequestInfo } from '@podman-desktop/core-api/authentication';
-import { IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+} from '@desktop-framework/extension-api';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as z from 'zod';
 

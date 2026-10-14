@@ -25,7 +25,7 @@ import type {
   ProviderInformation,
   ProviderLinks,
   ProviderStatus,
-} from '@podman-desktop/api';
+} from '@desktop-framework/extension-api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
 
@@ -48,7 +48,7 @@ export interface ProviderContainerConnectionInfo {
   // can delete the connection
   canDelete: boolean;
   /**
-   * Specify if the corresponding {@link import('@podman-desktop/api').ProviderContainerConnection} instance
+   * Specify if the corresponding {@link import('@desktop-framework/extension-api').ProviderContainerConnection} instance
    * has a shellAccess available
    */
   shellAccess?: boolean;

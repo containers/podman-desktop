@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { NotificationCard } from '@desktop-framework/api';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import type { NotificationCard } from '@podman-desktop/core-api';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 import Markdown from '/@/lib/markdown/Markdown.svelte';

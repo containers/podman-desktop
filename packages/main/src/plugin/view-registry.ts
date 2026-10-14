@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { ViewContribution, ViewInfoUI } from '@podman-desktop/core-api';
+import type { ViewContribution, ViewInfoUI } from '@desktop-framework/api';
 import { injectable } from 'inversify';
 
 import { Disposable } from './types/disposable.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ForwardConfig } from '@podman-desktop/core-api';
+import type { ForwardConfig } from '@desktop-framework/api';
 import { StatusIcon } from '@podman-desktop/ui-svelte';
 
 import EthernetIcon from './EthernetIcon.svelte';

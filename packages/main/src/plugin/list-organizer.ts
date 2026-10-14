@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ListOrganizerItem, SavedListOrganizerConfig } from '@podman-desktop/core-api';
-import { IDisposable } from '@podman-desktop/core-api';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { ListOrganizerItem, SavedListOrganizerConfig } from '@desktop-framework/api';
+import { IDisposable } from '@desktop-framework/api';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { inject, injectable } from 'inversify';
 
 @injectable()

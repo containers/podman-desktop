@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { V1Route } from '@desktop-framework/api';
 import type { V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from '@podman-desktop/core-api';
 
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';

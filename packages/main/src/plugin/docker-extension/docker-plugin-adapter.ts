@@ -19,7 +19,7 @@
 import { spawn } from 'node:child_process';
 import * as os from 'node:os';
 
-import type { SimpleContainerInfo } from '@podman-desktop/core-api';
+import type { SimpleContainerInfo } from '@desktop-framework/api';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
 

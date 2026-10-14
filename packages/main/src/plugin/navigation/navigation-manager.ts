@@ -17,20 +17,20 @@
  ***********************************************************************/
 
 import type {
+  DisposableGroup,
+  NavigationRequest,
+  NavigationSearchEntryInfo,
+  ProviderConnectionInfo,
+} from '@desktop-framework/api';
+import { IDisposable, NavigationPage } from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type {
   NavigateToExtensionsCatalogOptions,
   NavigateToHistoryEvent,
   NavigationHistoryEntry,
   NavigationSearchEntry,
   ProviderContainerConnection,
-} from '@podman-desktop/api';
-import type {
-  DisposableGroup,
-  NavigationRequest,
-  NavigationSearchEntryInfo,
-  ProviderConnectionInfo,
-} from '@podman-desktop/core-api';
-import { IDisposable, NavigationPage } from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/extension-api';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 
 import { CommandRegistry } from '/@/plugin/command-registry.js';

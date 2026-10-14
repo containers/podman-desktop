@@ -28,10 +28,10 @@
 /* eslint-disable sonarjs/single-character-alternation */
 /* eslint-disable sonarjs/updated-loop-counter */
 /* eslint-disable sonarjs/function-return-type */
-import type { Event } from '@podman-desktop/api';
-import type { IDisposable } from '@podman-desktop/core-api';
-import type { ContextKeyValue, IContext } from '@podman-desktop/core-api/context';
-import { CharCode } from '@podman-desktop/core-api/context';
+import type { IDisposable } from '@desktop-framework/api';
+import type { ContextKeyValue, IContext } from '@desktop-framework/api/context';
+import { CharCode } from '@desktop-framework/api/context';
+import type { Event } from '@desktop-framework/extension-api';
 
 import type { LexingError, Token } from './scanner.js';
 import { Scanner, TokenType } from './scanner.js';

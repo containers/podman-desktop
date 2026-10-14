@@ -83,248 +83,248 @@ test.afterAll(async ({ runner, page }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Podman Machine verification', { tag: '@pdmachine' }, () => {
-    test('Setup Podman push notification is present', async ({ page, navigationBar }) => {
-      await test.step('Open dashboard and verify notification', async () => {
-        const dashboardPage = await navigationBar.openDashboard();
-        await playExpect(dashboardPage.mainPage).toBeVisible();
-        await playExpect(dashboardPage.notificationsBox).toBeVisible();
+test.describe('Podman Machine verification', { tag: '@pdmachine' }, () => {
+  test.describe.configure({ mode: 'serial' });
+  test('Setup Podman push notification is present', async ({ page, navigationBar }) => {
+    await test.step('Open dashboard and verify notification', async () => {
+      const dashboardPage = await navigationBar.openDashboard();
+      await playExpect(dashboardPage.mainPage).toBeVisible();
+      await playExpect(dashboardPage.notificationsBox).toBeVisible();
 
-        const notificationPodmanSetup = dashboardPage.notificationsBox
-          .getByRole('region', { name: 'id:' })
-          .filter({ hasText: 'Podman needs to be set up' });
-        await playExpect(notificationPodmanSetup).toBeVisible();
-        await notificationPodmanSetup.getByTitle('Set up Podman').click();
-      });
-
-      await verifyPodmanOnboardingPageVisible(page);
+      const notificationPodmanSetup = dashboardPage.notificationsBox
+        .getByRole('region', { name: 'id:' })
+        .filter({ hasText: 'Podman needs to be set up' });
+      await playExpect(notificationPodmanSetup).toBeVisible();
+      await notificationPodmanSetup.getByTitle('Set up Podman').click();
     });
 
-    test('Return to Dashboard and re-open Onboarding through Settings Resources', async ({ page, navigationBar }) => {
-      await test.step('Return to dashboard', async () => {
-        const dashboardPage = await navigationBar.openDashboard();
-        await playExpect(dashboardPage.heading).toBeVisible({ timeout: TIMEOUT_SHORT });
-      });
+    await verifyPodmanOnboardingPageVisible(page);
+  });
 
-      await test.step('Open onboarding through Settings Resources page', async () => {
-        const settingsBar = await navigationBar.openSettings();
-        await settingsBar.resourcesTab.click();
-
-        const resourcesPage = new ResourcesPage(page);
-        await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-
-        const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
-        await podmanResourceCard.setupButton.click();
-      });
-
-      await verifyPodmanOnboardingPageVisible(page);
+  test('Return to Dashboard and re-open Onboarding through Settings Resources', async ({ page, navigationBar }) => {
+    await test.step('Return to dashboard', async () => {
+      const dashboardPage = await navigationBar.openDashboard();
+      await playExpect(dashboardPage.heading).toBeVisible({ timeout: TIMEOUT_SHORT });
     });
 
-    test('Verify Podman Autostart is enabled and proceed', async ({ page }) => {
-      const podmanOnboardingPage = new PodmanOnboardingPage(page);
-      await playExpect(podmanOnboardingPage.podmanAutostartToggle).toBeChecked({ timeout: TIMEOUT_STANDARD });
-      await podmanOnboardingPage.nextStepButton.click();
+    await test.step('Open onboarding through Settings Resources page', async () => {
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.resourcesTab.click();
+
+      const resourcesPage = new ResourcesPage(page);
+      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+
+      const podmanResourceCard = new ResourceConnectionCardPage(page, RESOURCE_NAME);
+      await podmanResourceCard.setupButton.click();
     });
 
-    test('Expect no machine created message and proceed', async ({ page }) => {
-      const podmanOnboardingPage = new PodmanOnboardingPage(page);
-      await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText(
-        `We could not find any Podman machine. Let's create one!`,
-        { timeout: TIMEOUT_STANDARD },
-      );
-      await podmanOnboardingPage.nextStepButton.click();
+    await verifyPodmanOnboardingPageVisible(page);
+  });
+
+  test('Verify Podman Autostart is enabled and proceed', async ({ page }) => {
+    const podmanOnboardingPage = new PodmanOnboardingPage(page);
+    await playExpect(podmanOnboardingPage.podmanAutostartToggle).toBeChecked({ timeout: TIMEOUT_STANDARD });
+    await podmanOnboardingPage.nextStepButton.click();
+  });
+
+  test('Expect no machine created message and proceed', async ({ page }) => {
+    const podmanOnboardingPage = new PodmanOnboardingPage(page);
+    await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText(
+      `We could not find any Podman machine. Let's create one!`,
+      { timeout: TIMEOUT_STANDARD },
+    );
+    await podmanOnboardingPage.nextStepButton.click();
+  });
+
+  test('Verify default podman machine settings', async ({ page }) => {
+    const podmanOnboardingPage = new PodmanOnboardingPage(page);
+    const { machineCreationForm } = podmanOnboardingPage;
+
+    await test.step('Verify page title and form visibility', async () => {
+      await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText('Create a Podman machine', {
+        timeout: TIMEOUT_STANDARD,
+      });
+      await playExpect(machineCreationForm.podmanMachineConfiguration).toBeVisible();
     });
 
-    test('Verify default podman machine settings', async ({ page }) => {
-      const podmanOnboardingPage = new PodmanOnboardingPage(page);
-      const { machineCreationForm } = podmanOnboardingPage;
+    await test.step('Verify default form values', async () => {
+      await playExpect(machineCreationForm.podmanMachineName).toHaveValue(PODMAN_MACHINE_NAME);
+      await playExpect(machineCreationForm.imagePathBox).toHaveValue('');
+      await playExpect(machineCreationForm.rootPrivilegesCheckbox).toBeChecked();
+      await playExpect(machineCreationForm.startNowCheckbox).toBeChecked();
+    });
 
-      await test.step('Verify page title and form visibility', async () => {
-        await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText('Create a Podman machine', {
-          timeout: TIMEOUT_STANDARD,
-        });
-        await playExpect(machineCreationForm.podmanMachineConfiguration).toBeVisible();
-      });
+    await machineCreationForm.specifyVirtualizationProvider(getVirtualizationProvider());
 
-      await test.step('Verify default form values', async () => {
-        await playExpect(machineCreationForm.podmanMachineName).toHaveValue(PODMAN_MACHINE_NAME);
-        await playExpect(machineCreationForm.imagePathBox).toHaveValue('');
-        await playExpect(machineCreationForm.rootPrivilegesCheckbox).toBeChecked();
-        await playExpect(machineCreationForm.startNowCheckbox).toBeChecked();
-      });
-
-      await machineCreationForm.specifyVirtualizationProvider(getVirtualizationProvider());
-
-      await test.step('Verify platform-specific settings', async () => {
-        if (os.platform() === 'win32') {
-          if (getVirtualizationProvider() !== PodmanVirtualizationProviders.HyperV) {
-            await playExpect(machineCreationForm.userModeNetworkingCheckbox).not.toBeChecked({
-              timeout: TIMEOUT_STANDARD,
-            });
-          }
-        } else {
-          await playExpect(machineCreationForm.podmanMachineCPUs).toBeVisible({ timeout: TIMEOUT_STANDARD });
-          await playExpect(machineCreationForm.podmanMachineMemory).toBeVisible();
-          await playExpect(machineCreationForm.podmanMachineDiskSize).toBeVisible();
+    await test.step('Verify platform-specific settings', async () => {
+      if (os.platform() === 'win32') {
+        if (getVirtualizationProvider() !== PodmanVirtualizationProviders.HyperV) {
+          await playExpect(machineCreationForm.userModeNetworkingCheckbox).not.toBeChecked({
+            timeout: TIMEOUT_STANDARD,
+          });
         }
-      });
+      } else {
+        await playExpect(machineCreationForm.podmanMachineCPUs).toBeVisible({ timeout: TIMEOUT_STANDARD });
+        await playExpect(machineCreationForm.podmanMachineMemory).toBeVisible();
+        await playExpect(machineCreationForm.podmanMachineDiskSize).toBeVisible();
+      }
+    });
+  });
+
+  test('Create a default Podman machine', async ({ page }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
+
+    const podmanOnboardingPage = new PodmanOnboardingPage(page);
+
+    await test.step('Initiate machine creation', async () => {
+      await podmanOnboardingPage.machineCreationForm.createMachineButton.click();
+      await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
+      await podmanOnboardingPage.podmanMachineShowLogsButton.click();
     });
 
-    test('Create a default Podman machine', async ({ page }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
-
-      const podmanOnboardingPage = new PodmanOnboardingPage(page);
-
-      await test.step('Initiate machine creation', async () => {
-        await podmanOnboardingPage.machineCreationForm.createMachineButton.click();
-        await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
-        await podmanOnboardingPage.podmanMachineShowLogsButton.click();
-      });
-
-      await test.step('Wait for machine creation to complete', async () => {
-        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toBeVisible({
-          timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
-        });
-        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText('Podman installed');
-        await podmanOnboardingPage.nextStepButton.click();
-      });
-    });
-
-    test('Open and verify podman machine details', async ({ page, navigationBar }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(TIMEOUT_SETUP);
-
-      await test.step('Verify machine configuration on resource card', async () => {
-        await navigationBar.openDashboard();
-        const settingsBar = await navigationBar.openSettings();
-        await settingsBar.resourcesTab.click();
-
-        const resourcesPage = new ResourcesPage(page);
-        await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
-
-        const resourcesPodmanConnections = new ResourceConnectionCardPage(page, RESOURCE_NAME, PODMAN_MACHINE_NAME);
-        await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: TIMEOUT_SHORT });
-        await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootful);
-        await verifyVirtualizationProvider(
-          resourcesPodmanConnections,
-          getVirtualizationProvider() ?? getDefaultVirtualizationProvider(),
-        );
-      });
-
-      const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
-
-      await test.step('Verify details page elements', async () => {
-        await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
-        await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
-        await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeVisible();
-        await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeVisible();
-        await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeVisible();
-        await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
-      });
-    });
-
-    test('Podman machine operations - STOP', async ({ page, navigationBar }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(TIMEOUT_SETUP + TIMEOUT_LONG);
-
-      const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
-
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
-        timeout: TIMEOUT_SETUP,
-      });
-      await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStopButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Off, {
-        timeout: TIMEOUT_LONG,
-      });
-    });
-
-    test('Podman machine operations - START', async ({ page, navigationBar }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
-
-      const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
-
-      await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineStartButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
+    await test.step('Wait for machine creation to complete', async () => {
+      await playExpect(podmanOnboardingPage.onboardingStatusMessage).toBeVisible({
         timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
       });
+      await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText('Podman installed');
+      await podmanOnboardingPage.nextStepButton.click();
     });
+  });
 
-    test('Podman machine operations - RESTART', async ({ page, navigationBar }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
+  test('Open and verify podman machine details', async ({ page, navigationBar }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(TIMEOUT_SETUP);
 
-      const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
-
-      await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
-      await podmanMachineDetails.podmanMachineRestartButton.click();
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Off, {
-        timeout: TIMEOUT_LONG,
-      });
-
-      await openMachineDetailsPage(page, navigationBar);
-
-      await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
-        timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
-      });
-    });
-
-    test('Podman machine operations - EDIT privileges', async ({ page, navigationBar }) => {
-      test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
-      test.setTimeout(TIMEOUT_SETUP + TIMEOUT_LONG);
-
-      const TOGGLE_TIMEOUT = 120_000;
-
-      await test.step('Navigate to resources page', async () => {
-        await navigationBar.openDashboard();
-        const settingsBar = await navigationBar.openSettings();
-        await settingsBar.resourcesTab.click();
-      });
+    await test.step('Verify machine configuration on resource card', async () => {
+      await navigationBar.openDashboard();
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.resourcesTab.click();
 
       const resourcesPage = new ResourcesPage(page);
       await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
 
       const resourcesPodmanConnections = new ResourceConnectionCardPage(page, RESOURCE_NAME, PODMAN_MACHINE_NAME);
-      await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible({ timeout: TIMEOUT_MEDIUM });
-
-      await test.step('Toggle machine privileges to rootless', async () => {
-        await resourcesPodmanConnections.performConnectionAction(ResourceElementActions.Edit);
-        await resourcesPodmanConnections.toggleMachinePrivileges(PodmanMachinePrivileges.Rootless, TOGGLE_TIMEOUT);
-      });
-
-      await test.step('Wait for machine to restart and verify rootless', async () => {
-        const restartButton = resourcesPodmanConnections.resourceElementConnectionActions.getByRole('button', {
-          name: ResourceElementActions.Restart,
-          exact: true,
-        });
-        await playExpect(restartButton).toBeEnabled({ timeout: TOGGLE_TIMEOUT });
-        await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootless);
-      });
-
-      await test.step('Toggle machine privileges back to rootful', async () => {
-        await resourcesPodmanConnections.performConnectionAction(ResourceElementActions.Edit);
-        await resourcesPodmanConnections.toggleMachinePrivileges(PodmanMachinePrivileges.Rootful, TOGGLE_TIMEOUT);
-      });
-
-      await test.step('Wait for machine to restart and verify rootful', async () => {
-        const restartButton = resourcesPodmanConnections.resourceElementConnectionActions.getByRole('button', {
-          name: ResourceElementActions.Restart,
-          exact: true,
-        });
-        await playExpect(restartButton).toBeEnabled({ timeout: TOGGLE_TIMEOUT });
-        await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootful);
-      });
+      await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: TIMEOUT_SHORT });
+      await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootful);
+      await verifyVirtualizationProvider(
+        resourcesPodmanConnections,
+        getVirtualizationProvider() ?? getDefaultVirtualizationProvider(),
+      );
     });
 
-    test('Clean Up Podman Machine', async ({ page }) => {
-      test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
-      await deletePodmanMachine(page, PODMAN_MACHINE_VISIBLE_NAME);
+    const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
+
+    await test.step('Verify details page elements', async () => {
+      await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
+      await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
+      await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeVisible();
+      await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeVisible();
+      await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeVisible();
+      await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
     });
   });
+
+  test('Podman machine operations - STOP', async ({ page, navigationBar }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(TIMEOUT_SETUP + TIMEOUT_LONG);
+
+    const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
+      timeout: TIMEOUT_SETUP,
+    });
+    await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStopButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Off, {
+      timeout: TIMEOUT_LONG,
+    });
+  });
+
+  test('Podman machine operations - START', async ({ page, navigationBar }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
+
+    const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
+
+    await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineStartButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
+      timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
+    });
+  });
+
+  test('Podman machine operations - RESTART', async ({ page, navigationBar }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(PODMAN_MACHINE_STARTUP_TIMEOUT + TIMEOUT_STANDARD);
+
+    const podmanMachineDetails = await openMachineDetailsPage(page, navigationBar);
+
+    await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeEnabled();
+    await podmanMachineDetails.podmanMachineRestartButton.click();
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Off, {
+      timeout: TIMEOUT_LONG,
+    });
+
+    await openMachineDetailsPage(page, navigationBar);
+
+    await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText(ResourceElementState.Running, {
+      timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
+    });
+  });
+
+  test('Podman machine operations - EDIT privileges', async ({ page, navigationBar }) => {
+    test.skip(process.env.TEST_PODMAN_MACHINE !== 'true');
+    test.setTimeout(TIMEOUT_SETUP + TIMEOUT_LONG);
+
+    const TOGGLE_TIMEOUT = 120_000;
+
+    await test.step('Navigate to resources page', async () => {
+      await navigationBar.openDashboard();
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.resourcesTab.click();
+    });
+
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeTruthy();
+
+    const resourcesPodmanConnections = new ResourceConnectionCardPage(page, RESOURCE_NAME, PODMAN_MACHINE_NAME);
+    await playExpect(resourcesPodmanConnections.resourceElement).toBeVisible({ timeout: TIMEOUT_MEDIUM });
+
+    await test.step('Toggle machine privileges to rootless', async () => {
+      await resourcesPodmanConnections.performConnectionAction(ResourceElementActions.Edit);
+      await resourcesPodmanConnections.toggleMachinePrivileges(PodmanMachinePrivileges.Rootless, TOGGLE_TIMEOUT);
+    });
+
+    await test.step('Wait for machine to restart and verify rootless', async () => {
+      const restartButton = resourcesPodmanConnections.resourceElementConnectionActions.getByRole('button', {
+        name: ResourceElementActions.Restart,
+        exact: true,
+      });
+      await playExpect(restartButton).toBeEnabled({ timeout: TOGGLE_TIMEOUT });
+      await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootless);
+    });
+
+    await test.step('Toggle machine privileges back to rootful', async () => {
+      await resourcesPodmanConnections.performConnectionAction(ResourceElementActions.Edit);
+      await resourcesPodmanConnections.toggleMachinePrivileges(PodmanMachinePrivileges.Rootful, TOGGLE_TIMEOUT);
+    });
+
+    await test.step('Wait for machine to restart and verify rootful', async () => {
+      const restartButton = resourcesPodmanConnections.resourceElementConnectionActions.getByRole('button', {
+        name: ResourceElementActions.Restart,
+        exact: true,
+      });
+      await playExpect(restartButton).toBeEnabled({ timeout: TOGGLE_TIMEOUT });
+      await verifyMachinePrivileges(resourcesPodmanConnections, PodmanMachinePrivileges.Rootful);
+    });
+  });
+
+  test('Clean Up Podman Machine', async ({ page }) => {
+    test.skip(process.env.MACHINE_CLEANUP !== 'true', 'Machine cleanup is disabled');
+    await deletePodmanMachine(page, PODMAN_MACHINE_VISIBLE_NAME);
+  });
+});
 
 async function verifyPodmanOnboardingPageVisible(page: Page): Promise<void> {
   const onboardingPage = new PodmanOnboardingPage(page);

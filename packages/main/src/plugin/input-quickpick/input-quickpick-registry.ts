@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type {
   CancellationToken,
   InputBoxOptions,
   InputBoxValidationMessage,
   QuickPickOptions,
-} from '@podman-desktop/api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 @injectable()

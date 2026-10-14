@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageFilesystemLayerUI } from '@podman-desktop/core-api';
+import type { ImageFilesystemLayerUI } from '@desktop-framework/api';
 import { render, screen, within } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 

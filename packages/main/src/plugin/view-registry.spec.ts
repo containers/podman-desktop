@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ViewContributionIcon } from '@podman-desktop/core-api';
+import type { ViewContributionIcon } from '@desktop-framework/api';
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 
 import type { Disposable } from './types/disposable.js';

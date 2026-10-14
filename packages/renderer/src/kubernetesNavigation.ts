@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesNavigationRequest } from '@podman-desktop/core-api';
+import type { KubernetesNavigationRequest } from '@desktop-framework/api';
 import { router } from 'tinro';
 
 export function navigateTo(nav: KubernetesNavigationRequest): void {

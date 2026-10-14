@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { AuthenticationSessionAccountInformation, ProviderImages } from '@podman-desktop/api';
+import type { AuthenticationSessionAccountInformation, ProviderImages } from '@desktop-framework/extension-api';
 
 export interface SessionRequestInfo {
   id: string;

@@ -22,7 +22,7 @@ import * as fs from 'node:fs';
 import { readFile, realpath } from 'node:fs/promises';
 import * as path from 'node:path';
 
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ExtensionAnalyzer } from './extension-analyzer.js';
 import type { ExtensionManifest } from './extension-manifest-schema.js';
@@ -40,7 +40,7 @@ beforeEach(() => {
 describe('analyze extension and main', () => {
   test('check for extension with main entry', async () => {
     // mock fs.existsSync
-    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    const fsExistsSyncMock = vi.mocked(fs.existsSync);
     fsExistsSyncMock.mockReturnValue(true);
 
     const readmeContent = 'This is my custom README';
@@ -73,7 +73,7 @@ describe('analyze extension and main', () => {
 
   test('check for extension with linked folder', async () => {
     // mock fs.existsSync
-    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    const fsExistsSyncMock = vi.mocked(fs.existsSync);
     fsExistsSyncMock.mockReturnValue(true);
 
     const readmeContent = 'This is my custom README';
@@ -106,7 +106,7 @@ describe('analyze extension and main', () => {
 
   test('check for extension without main entry', async () => {
     // mock fs.existsSync
-    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    const fsExistsSyncMock = vi.mocked(fs.existsSync);
     fsExistsSyncMock.mockReturnValue(true);
 
     vi.mocked(realpath).mockResolvedValue('/fake/path');
@@ -136,7 +136,7 @@ describe('analyze extension and main', () => {
 
   test('check for extension with devMode', async () => {
     // mock fs.existsSync
-    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    const fsExistsSyncMock = vi.mocked(fs.existsSync);
     fsExistsSyncMock.mockReturnValue(true);
 
     vi.mocked(realpath).mockResolvedValue('/fake/path');
@@ -160,6 +160,49 @@ describe('analyze extension and main', () => {
 
     expect(extension?.id).toBe('fooPublisher.fooName');
     expect(extension?.devMode).toBeTruthy();
+  });
+
+  test.each([
+    { name: 'overrides is undefined by default', overrides: undefined },
+    { name: 'overrides is forwarded', overrides: { id: 'podman-desktop.bundled', version: '1.0.0' } },
+  ])('$name', async ({ overrides }) => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(realpath).mockResolvedValue('/fake/path');
+    // package.json manifest
+    vi.mocked(readFile).mockResolvedValue(
+      JSON.stringify({
+        publisher: 'fooPublisher',
+        name: 'fooName',
+        displayName: 'Foo',
+        version: '1.0.0',
+        description: 'Foo extension',
+      }),
+    );
+
+    const extension = await extensionAnalyzer.analyzeExtension({
+      extensionPath: '/fake/path',
+      removable: true,
+      overrides,
+    });
+
+    expect(extension.id).toBe('fooPublisher.fooName');
+    expect(extension.error).toBeUndefined();
+    expect(extension.overrides).toEqual(overrides);
+  });
+
+  test('overrides is forwarded when the extension has no package.json', async () => {
+    // no package.json file
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+    vi.mocked(realpath).mockResolvedValue('/fake/path');
+
+    const extension = await extensionAnalyzer.analyzeExtension({
+      extensionPath: '/fake/path',
+      removable: true,
+      overrides: { id: 'podman-desktop.bundled', version: '1.0.0' },
+    });
+
+    assert(extension.error);
+    expect(extension.overrides).toEqual({ id: 'podman-desktop.bundled', version: '1.0.0' });
   });
 });
 

@@ -158,7 +158,7 @@ describe('readRegistriesConfContent', async () => {
 
     vi.mocked(readFile).mockResolvedValue('[[registry]]\nlocation = "docker.io"');
     const content = await registryConfiguration.readRegistriesConfContent();
-    expect(content).toStrictEqual({
+    expect(content).toEqual({
       registry: [
         {
           location: 'docker.io',

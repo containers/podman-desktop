@@ -27,7 +27,34 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DEFAULT_PREINSTALLED_FILE = path.resolve(__dirname, '..', '..', 'resources', 'preinstalled-extensions.txt');
+const DEFAULT_PREINSTALLED_FILE =
+  process.env.PRODUCT_TESTS === '1'
+    ? path.resolve(__dirname, '..', '..', 'resources', 'rh-preinstalled-extensions.txt')
+    : path.resolve(__dirname, '..', '..', 'resources', 'preinstalled-extensions.txt');
+const DEFAULT_CATALOG_JSON_FILE =
+  process.env.PRODUCT_TESTS === '1'
+    ? path.resolve(__dirname, '..', '..', 'resources', 'rh-catalog-filtering.json')
+    : path.resolve(__dirname, '..', '..', 'resources', 'catalog-filtering.json');
+
+interface CatalogExtension {
+  displayName: string;
+}
+
+function loadCatalogExtensionName(): string {
+  const defaultCatalogFile = process.env.CATALOG_JSON_FILE;
+  const catalogFile = defaultCatalogFile ?? DEFAULT_CATALOG_JSON_FILE;
+
+  // eslint-disable-next-line n/no-sync
+  const catalog = JSON.parse(readFileSync(catalogFile, 'utf-8')) as { extensions: CatalogExtension[] };
+  const extensionName = catalog.extensions[0]?.displayName;
+  if (!extensionName) {
+    throw new Error(`No extension displayName found in catalog file: ${catalogFile}`);
+  }
+
+  return extensionName;
+}
+
+const catalogExtensionName = loadCatalogExtensionName();
 
 interface PreInstalledExtension {
   label: string;
@@ -135,6 +162,11 @@ for (const extension of extensionsToTest) {
       await verifyBuiltInExtensionStatus(navigationBar, false, extension);
     });
 
+    test(`Check that ${extension.extensionLabelName} cannot be removed`, async ({ navigationBar }) => {
+      const detailsPage = await openExtensionsPodmanPage(navigationBar, extension);
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+    });
+
     test(`Check that ${extension.extensionLabelName} extension can be re-enabled from Extension Page`, async ({
       navigationBar,
     }) => {
@@ -236,6 +268,23 @@ for (const ext of preInstalledExtensions) {
       const version = await extensionsPage.getInstalledExtensionVersion(ext.name.toLowerCase(), ext.label);
       playExpect(version).toBe(expectedVersion);
     });
+
+    test(`Check ${ext.name} cannot be removed`, async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
+      const detailsPage = await extensionsPage.openExtensionDetails(ext.name.toLowerCase(), ext.label, ext.name);
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+    });
+
+    test(`Check ${ext.name} can be disabled and re-enabled`, async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
+      const detailsPage = await extensionsPage.openExtensionDetails(ext.name.toLowerCase(), ext.label, ext.name);
+      await detailsPage.disableExtension();
+      await playExpect(detailsPage.status).toContainText(ExtensionState.Disabled, { timeout: 20_000 });
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+      await detailsPage.enableExtension();
+      await playExpect(detailsPage.status).toContainText(ExtensionState.Active, { timeout: 20_000 });
+      await playExpect(detailsPage.removeExtensionButton).not.toBeEnabled();
+    });
   });
 }
 
@@ -268,7 +317,7 @@ test.describe('Extension search filtering', { tag: ['@smoke', '@windows_sanity',
       .toBe(totalCards);
   });
 
-  test('Filter catalog extensions by name', async ({ navigationBar }) => {
+  test(`Filter catalog extension (${catalogExtensionName}) by name`, async ({ navigationBar }) => {
     const extensionsPage = await navigationBar.openExtensions();
     await playExpect(extensionsPage.heading).toBeVisible();
     await extensionsPage.openCatalogTab();
@@ -278,9 +327,9 @@ test.describe('Extension search filtering', { tag: ['@smoke', '@windows_sanity',
       .toBeGreaterThan(0);
     const totalCards = await extensionsPage.countCatalogExtensionCards();
 
-    await extensionsPage.filterByName('Bootable Containers');
+    await extensionsPage.filterByName(catalogExtensionName);
     await playExpect
-      .poll(async () => await extensionsPage.extensionCardIsVisible('Bootable Containers'), { timeout: 10_000 })
+      .poll(async () => await extensionsPage.extensionCardIsVisible(catalogExtensionName), { timeout: 10_000 })
       .toBeTruthy();
     await playExpect
       .poll(async () => await extensionsPage.countCatalogExtensionCards(), { timeout: 10_000 })

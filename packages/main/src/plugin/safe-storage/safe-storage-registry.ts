@@ -20,7 +20,7 @@ import { cpSync, existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import type { Event, IAsyncDisposable, NotificationCardOptions } from '@podman-desktop/core-api';
+import type { Event, IAsyncDisposable, NotificationCardOptions } from '@desktop-framework/api';
 import { safeStorage } from 'electron';
 import { inject, injectable } from 'inversify';
 

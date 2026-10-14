@@ -19,16 +19,16 @@
 import * as os from 'node:os';
 import { promisify } from 'node:util';
 
+import type { Event, FeedbackProperties } from '@desktop-framework/api';
+import { TelemetryMessages } from '@desktop-framework/api';
+import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
+import { TelemetrySettings } from '@desktop-framework/api/telemetry';
 import type {
   TelemetryLogger,
   TelemetryLoggerOptions,
   TelemetrySender,
   TelemetryTrustedValue,
-} from '@podman-desktop/api';
-import type { Event, FeedbackProperties } from '@podman-desktop/core-api';
-import { TelemetryMessages } from '@podman-desktop/core-api';
-import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
-import { TelemetrySettings } from '@podman-desktop/core-api/telemetry';
+} from '@desktop-framework/extension-api';
 import type { EventProperties } from '@segment/analytics-core';
 import { Analytics, type UserTraits } from '@segment/analytics-node';
 import { app } from 'electron';

@@ -23,14 +23,14 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
 import type {
   ImageSearchOptions,
   ImageSearchResult,
   ImageTagsListOptions,
   ImageUpdateStatus,
-} from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import type * as Dockerode from 'dockerode';
 import { inject, injectable } from 'inversify';
 import * as nodeTar from 'tar';

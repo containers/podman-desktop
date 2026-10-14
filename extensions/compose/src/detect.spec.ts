@@ -223,7 +223,7 @@ describe('Check docker socket', async () => {
     const socketPathMock = vi.spyOn(detect, 'getSocketPath');
     socketPathMock.mockResolvedValue('/foo/docker.sock');
 
-    const spyGet: MockInstance<HttpGet> = vi.spyOn(http, 'get');
+    const spyGet: MockInstance<HttpGet> = vi.mocked(http.get);
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as http.ClientRequest;
 
@@ -248,7 +248,7 @@ describe('Check docker socket', async () => {
     const socketPathMock = vi.spyOn(detect, 'getSocketPath');
     socketPathMock.mockResolvedValue('/foo/docker.sock');
 
-    const spyGet: MockInstance<HttpGet> = vi.spyOn(http, 'get');
+    const spyGet: MockInstance<HttpGet> = vi.mocked(http.get);
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as http.ClientRequest;
 
@@ -270,7 +270,7 @@ describe('Check docker socket', async () => {
     const socketPathMock = vi.spyOn(detect, 'getSocketPath');
     socketPathMock.mockResolvedValue('/foo/docker.sock');
 
-    const spyGet: MockInstance<HttpGet> = vi.spyOn(http, 'get');
+    const spyGet: MockInstance<HttpGet> = vi.mocked(http.get);
     const clientRequestEmitter = new EventEmitter();
     const myRequest = clientRequestEmitter as http.ClientRequest;
     const spyOnce = vi.spyOn(clientRequestEmitter, 'once');

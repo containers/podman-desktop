@@ -1,5 +1,5 @@
 {
-  "name": "@podman-desktop/core-api",
+  "name": "@desktop-framework/api",
   "version": "1.31.0-next",
   "description": "API to be consumed by main/renderer/preload packages",
   "type": "module",
@@ -16,9 +16,10 @@
     "test:watch": "vitest watch --coverage --passWithNoTests"
   },
   "devDependencies": {
+    "@podman-desktop/api": "workspace:*",
     "@types/hosted-git-info": "^3.0.5",
-    "vite-plugin-dts": "^5.1.0",
-    "vitest": "^5.0.1"
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.3"
   },
   "exports": {
     ".": {

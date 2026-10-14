@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { IDisposable } from '@desktop-framework/api';
 import type { KubernetesObject, V1Secret } from '@kubernetes/client-node';
-import type { IDisposable } from '@podman-desktop/core-api';
 import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';

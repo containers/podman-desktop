@@ -1,9 +1,9 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 /* eslint-enable import/no-duplicates */
-import type { ProviderContainerConnectionInfo } from '@podman-desktop/core-api';
+import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Button, ButtonRow, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 

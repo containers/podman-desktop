@@ -20,7 +20,8 @@ import * as fs from 'node:fs';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
+import type { OverriddenExtension } from '@desktop-framework/api';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import { injectable } from 'inversify';
 import { z } from 'zod';
 
@@ -37,6 +38,9 @@ export interface AnalyzedExtension {
   api?: typeof containerDesktopAPI;
   removable: boolean;
   bundled: boolean;
+
+  // the bundled extension replaced by this extension, if any
+  overrides?: OverriddenExtension;
 
   // true if the extension is running in development mode
   // it means we're using a separate development folder
@@ -64,6 +68,7 @@ export interface ExtensionAnalyzerOptions {
   removable: boolean;
   devMode?: boolean;
   bundled?: boolean;
+  overrides?: OverriddenExtension;
 }
 
 @injectable()
@@ -73,6 +78,7 @@ export class ExtensionAnalyzer {
     removable,
     devMode,
     bundled,
+    overrides,
   }: ExtensionAnalyzerOptions): Promise<AnalyzedExtension> {
     const resolvedExtensionPath = await realpath(extensionPath);
     // do nothing if there is no package.json file
@@ -90,6 +96,7 @@ export class ExtensionAnalyzer {
         removable: removable,
         devMode: devMode ?? false,
         bundled: bundled ?? false,
+        overrides,
         subscriptions: [],
         dispose(): void {},
         error,
@@ -123,6 +130,7 @@ export class ExtensionAnalyzer {
       removable,
       devMode: devMode ?? false,
       bundled: bundled ?? false,
+      overrides,
       subscriptions: disposables,
       dispose(): void {
         for (const disposable of disposables) {

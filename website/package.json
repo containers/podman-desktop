@@ -49,16 +49,16 @@
     "@octokit/rest": "^22.0.1",
     "@tailwindcss/postcss": "^4.3.3",
     "markdownlint": "^0.41.1",
-    "markdownlint-cli2": "^0.23.2",
+    "markdownlint-cli2": "^0.23.3",
     "markdownlint-cli2-formatter-summarize": "^0.0.8",
     "msw": "^2.15.0",
-    "postcss": "^8.5.28",
+    "postcss": "^8.5.29",
     "tailwindcss": "^4.3.3",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.13.1",
     "typescript": "^6.0.3",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "browserslist": {
     "production": [

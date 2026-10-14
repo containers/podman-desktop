@@ -1,8 +1,8 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
 import { faMinusCircle, faPlusCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
 import { Button, ButtonRow, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { get } from 'svelte/store';

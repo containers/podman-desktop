@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionInfo } from '@podman-desktop/core-api';
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { ExtensionInfo } from '@desktop-framework/api';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -162,4 +162,35 @@ test('should check for updates and try to update one extension automatically', a
 
   // telemetry is called
   expect(telemetry.track).toBeCalled();
+});
+
+test('should not update an extension replacing a bundled one', async () => {
+  const overridingExtension: ExtensionInfo = {
+    id: 'foo.extension1',
+    name: 'extension1',
+    description: 'Extension 1',
+    displayName: 'Extension 1',
+    publisher: 'foo',
+    removable: true,
+    devMode: false,
+    bundled: false,
+    overrides: { id: 'foo.extension1', version: '1.0.0' },
+    version: '1.0.0',
+    state: 'started',
+    path: '/plugins/extension1',
+    readme: '',
+  };
+
+  // the catalog has a newer version of the extension
+  extensionsCatalogGetExtensionsMock.mockResolvedValue([catalogExtension1, catalogExtension2]);
+  extensionLoaderListExtensionsMock.mockResolvedValue([overridingExtension]);
+
+  // auto update is enabled
+  getConfigMock.mockReturnValue(true);
+
+  await extensionsUpdater.init();
+
+  expect(extensionLoaderSetExtensionsUpdatesMock).not.toHaveBeenCalled();
+  expect(extensionLoader.removeExtension).not.toHaveBeenCalled();
+  expect(extensionInstaller.installFromImage).not.toHaveBeenCalled();
 });

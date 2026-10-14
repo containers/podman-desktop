@@ -28,50 +28,50 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe
-  .serial('Basic e2e verification of podman desktop start', {
-    tag: ['@smoke', '@windows_sanity', '@macos_sanity'],
-  }, () => {
-    test.describe
-      .serial('Welcome page handling', () => {
-        test('Check the Welcome page is displayed', async ({ welcomePage }) => {
-          await playExpect(welcomePage.welcomeMessage).toBeVisible();
-        });
+test.describe('Basic e2e verification of podman desktop start', {
+  tag: ['@smoke', '@windows_sanity', '@macos_sanity'],
+}, () => {
+  test.describe.configure({ mode: 'serial' });
+  test.describe('Welcome page handling', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('Check the Welcome page is displayed', async ({ welcomePage }) => {
+      await playExpect(welcomePage.welcomeMessage).toBeVisible();
+    });
 
-        test('Welcome page overlays the navigation resize handle', async ({ page, welcomePage }) => {
-          await playExpect(welcomePage.welcomeMessage).toBeVisible();
+    test('Welcome page overlays the navigation resize handle', async ({ page, welcomePage }) => {
+      await playExpect(welcomePage.welcomeMessage).toBeVisible();
 
-          const resizeHandle = page.getByRole('separator', { name: 'Resize navigation bar' });
-          const resizeHandleIsTopmost = await resizeHandle.evaluate(element => {
-            const { left, top, width, height } = element.getBoundingClientRect();
-            return document.elementFromPoint(left + width / 2, top + height / 2) === element;
-          });
-
-          playExpect(resizeHandleIsTopmost).toBeFalsy();
-        });
-
-        test('Telemetry checkbox is present, set to true, consent can be changed', async ({ welcomePage }) => {
-          await playExpect(welcomePage.telemetryConsent).toBeVisible();
-          await playExpect(welcomePage.telemetryConsent).toBeChecked();
-          await welcomePage.turnOffTelemetry();
-        });
-
-        test('Redirection from Welcome page to Dashboard works', async ({ welcomePage }) => {
-          const dashboardPage = await welcomePage.closeWelcomePage();
-          await playExpect(dashboardPage.heading).toBeVisible();
-        });
+      const resizeHandle = page.getByRole('separator', { name: 'Resize navigation bar' });
+      const resizeHandleIsTopmost = await resizeHandle.evaluate(element => {
+        const { left, top, width, height } = element.getBoundingClientRect();
+        return document.elementFromPoint(left + width / 2, top + height / 2) === element;
       });
 
-    test.describe
-      .serial('Navigation Bar test', () => {
-        test('Verify navigation items are visible', async ({ navigationBar }) => {
-          await playExpect(navigationBar.navigationLocator).toBeVisible();
-          await playExpect(navigationBar.dashboardLink).toBeVisible();
-          await playExpect(navigationBar.imagesLink).toBeVisible();
-          await playExpect(navigationBar.podsLink).toBeVisible();
-          await playExpect(navigationBar.containersLink).toBeVisible();
-          await playExpect(navigationBar.volumesLink).toBeVisible();
-          await playExpect(navigationBar.settingsLink).toBeVisible();
-        });
-      });
+      playExpect(resizeHandleIsTopmost).toBeFalsy();
+    });
+
+    test('Telemetry checkbox is present, set to true, consent can be changed', async ({ welcomePage }) => {
+      await playExpect(welcomePage.telemetryConsent).toBeVisible();
+      await playExpect(welcomePage.telemetryConsent).toBeChecked();
+      await welcomePage.turnOffTelemetry();
+    });
+
+    test('Redirection from Welcome page to Dashboard works', async ({ welcomePage }) => {
+      const dashboardPage = await welcomePage.closeWelcomePage();
+      await playExpect(dashboardPage.heading).toBeVisible();
+    });
   });
+
+  test.describe('Navigation Bar test', () => {
+    test.describe.configure({ mode: 'serial' });
+    test('Verify navigation items are visible', async ({ navigationBar }) => {
+      await playExpect(navigationBar.navigationLocator).toBeVisible();
+      await playExpect(navigationBar.dashboardLink).toBeVisible();
+      await playExpect(navigationBar.imagesLink).toBeVisible();
+      await playExpect(navigationBar.podsLink).toBeVisible();
+      await playExpect(navigationBar.containersLink).toBeVisible();
+      await playExpect(navigationBar.volumesLink).toBeVisible();
+      await playExpect(navigationBar.settingsLink).toBeVisible();
+    });
+  });
+});

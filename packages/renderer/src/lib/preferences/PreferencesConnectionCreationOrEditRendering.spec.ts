@@ -21,8 +21,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { get } from 'svelte/store';

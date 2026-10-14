@@ -1,9 +1,5 @@
 <script lang="ts">
-import {
-  NavigationPage,
-  type ProviderContainerConnectionInfo,
-  type SecretCreateOptions,
-} from '@podman-desktop/core-api';
+import { NavigationPage, type ProviderContainerConnectionInfo, type SecretCreateOptions } from '@desktop-framework/api';
 import { Button, ButtonRow, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 

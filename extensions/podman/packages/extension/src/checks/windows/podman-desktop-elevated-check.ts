@@ -38,7 +38,7 @@ export class PodmanDesktopElevatedCheck extends MemoizedBaseCheck {
     const client = await getPowerShellClient(this.telemetryLogger);
     if (!(await client.isRunningElevated())) {
       return this.createFailureResult({
-        description: `You must run ${env.appName} with administrative rights to run Hyper-V Podman machines.`,
+        description: `You must run ${env.appName} with administrative rights to install and configure Podman with Hyper-V support.`,
       });
     }
     return this.createSuccessfulResult();

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { KubeContext } from '@desktop-framework/api';
 import type { Context } from '@kubernetes/client-node';
-import type { KubeContext } from '@podman-desktop/core-api';
 
 import { kubernetesIconBase64 } from './KubeIcon';
 

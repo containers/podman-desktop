@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ProviderImages } from '@podman-desktop/api';
-import type { ProviderInfo } from '@podman-desktop/core-api';
+import type { ProviderInfo } from '@desktop-framework/api';
+import type { ProviderImages } from '@desktop-framework/extension-api';
 import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { expect, test } from 'vitest';

@@ -18,7 +18,7 @@
 
 import * as os from 'node:os';
 
-import type { IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 
 import product from '/@product.json' with { type: 'json' };
 
@@ -37,8 +37,12 @@ export class StartupInstall {
     }
   }
 
-  async enableStartupOnLogin(): Promise<void> {
-    await this.osStartup?.enable();
+  async enableStartupOnLogin(forceEnable = false): Promise<void> {
+    if (this.osStartup instanceof WindowsStartup) {
+      await this.osStartup.enable(forceEnable);
+    } else {
+      await this.osStartup?.enable();
+    }
   }
 
   async disableStartupOnLogin(): Promise<void> {
@@ -91,12 +95,21 @@ export class StartupInstall {
 
     this.configurationRegistry.registerConfigurations([loginStartConfigurationNode, startMinimizeConfigurationNode]);
 
+    if (this.osStartup instanceof WindowsStartup) {
+      try {
+        await this.osStartup.syncStartupPreference();
+      } catch (error: unknown) {
+        console.error('Failed to synchronize Windows startup preference', error);
+      }
+    }
+
     // add notification handling
 
     this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'preferences.login.start') {
         if (e.value === true) {
-          await this.enableStartupOnLogin();
+          // explicitly enabled from Podman Desktop: re-enable an item disabled in Task Manager
+          await this.enableStartupOnLogin(true);
         } else {
           await this.disableStartupOnLogin();
         }

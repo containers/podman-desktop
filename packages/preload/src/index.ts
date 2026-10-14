@@ -23,25 +23,6 @@
 import EventEmitter from 'node:events';
 
 import type {
-  Cluster,
-  Context,
-  KubernetesObject,
-  User,
-  V1ConfigMap,
-  V1CronJob,
-  V1Deployment,
-  V1Ingress,
-  V1Job,
-  V1NamespaceList,
-  V1Node,
-  V1PersistentVolumeClaim,
-  V1Pod,
-  V1PodList,
-  V1Secret,
-  V1Service,
-} from '@kubernetes/client-node';
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type {
   CliToolInfo,
   ColorInfo,
   CommandInfo,
@@ -81,6 +62,8 @@ import type {
   ImageSearchResult,
   ImagesSaveOptions,
   ImageTagsListOptions,
+  ImageUpdateInfo,
+  ImageUpdateResult,
   ImageUpdateStatus,
   ItemInfo,
   KubeContext,
@@ -132,28 +115,47 @@ import type {
   VolumeListInfo,
   WebviewInfo,
   WelcomeMessages,
-} from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { AuthenticationProviderInfo } from '@podman-desktop/core-api/authentication';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
-import type { ContextInfo } from '@podman-desktop/core-api/context';
-import type { CatalogExtension } from '@podman-desktop/core-api/extension-catalog';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+} from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { AuthenticationProviderInfo } from '@desktop-framework/api/authentication';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
+import type { ContextInfo } from '@desktop-framework/api/context';
+import type { CatalogExtension } from '@desktop-framework/api/extension-catalog';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
   KubernetesGeneratorInfo,
   KubernetesGeneratorSelector,
-} from '@podman-desktop/core-api/kubernetes';
-import type { Guide } from '@podman-desktop/core-api/learning-center';
+} from '@desktop-framework/api/kubernetes';
+import type { Guide } from '@desktop-framework/api/learning-center';
 import type {
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PlayKubeInfo,
   PlayKubeInput,
-} from '@podman-desktop/core-api/libpod';
-import type { ExtensionBanner, RecommendedRegistry } from '@podman-desktop/core-api/recommendations';
-import type { PinOption } from '@podman-desktop/core-api/status-bar';
+} from '@desktop-framework/api/libpod';
+import type { ExtensionBanner, RecommendedRegistry } from '@desktop-framework/api/recommendations';
+import type { PinOption } from '@desktop-framework/api/status-bar';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
+import type {
+  Cluster,
+  Context,
+  KubernetesObject,
+  User,
+  V1ConfigMap,
+  V1CronJob,
+  V1Deployment,
+  V1Ingress,
+  V1Job,
+  V1NamespaceList,
+  V1Node,
+  V1PersistentVolumeClaim,
+  V1Pod,
+  V1PodList,
+  V1Secret,
+  V1Service,
+} from '@kubernetes/client-node';
 import { contextBridge, ipcRenderer } from 'electron';
 
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -633,6 +635,13 @@ export function initExposure(): void {
     'checkImageUpdateStatus',
     async (imageReference: string, imageTag: string, localDigests: string[]): Promise<ImageUpdateStatus> => {
       return ipcInvoke('image-registry:checkImageUpdateStatus', imageReference, imageTag, localDigests);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'updateImages',
+    async (images: ImageUpdateInfo[], cancellableTokenId?: number): Promise<ImageUpdateResult[]> => {
+      return ipcInvoke('container-provider-registry:updateImages', images, cancellableTokenId);
     },
   );
 
@@ -1712,6 +1721,10 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('refreshCatalogExtensions', async (): Promise<void> => {
     return ipcInvoke('catalog:refreshExtensions');
+  });
+
+  contextBridge.exposeInMainWorld('fetchCatalogReadme', async (extensionId: string): Promise<string> => {
+    return ipcInvoke('catalog:fetchReadme', extensionId);
   });
 
   contextBridge.exposeInMainWorld('getDocumentationItems', async (): Promise<DocumentationInfo[]> => {

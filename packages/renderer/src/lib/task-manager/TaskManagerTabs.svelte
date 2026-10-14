@@ -1,5 +1,5 @@
 <script lang="ts">
-import { TASK_STATUSES } from '@podman-desktop/core-api';
+import { TASK_STATUSES } from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 
 import { IS_TASK_STATUSES } from '/@/stores/tasks';

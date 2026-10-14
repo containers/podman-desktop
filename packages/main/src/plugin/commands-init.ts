@@ -16,14 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Uri } from '@podman-desktop/api';
 import type {
   IDisposable,
   KubernetesNavigationRequest,
   ProviderContainerConnectionInfo,
   PullEvent,
-} from '@podman-desktop/core-api';
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+} from '@desktop-framework/api';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { Uri } from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 import { securityRestrictionCurrentHandler } from '/@/security-restrictions-handler.js';

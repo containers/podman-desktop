@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { TASK_STATUSES } from '@podman-desktop/core-api';
+import { TASK_STATUSES } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 

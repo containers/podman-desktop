@@ -18,7 +18,7 @@
 
 import * as path from 'node:path';
 
-import type { Onboarding, OnboardingInfo, OnboardingStatus } from '@podman-desktop/core-api';
+import type { Onboarding, OnboardingInfo, OnboardingStatus } from '@desktop-framework/api';
 import { inject, injectable } from 'inversify';
 
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';

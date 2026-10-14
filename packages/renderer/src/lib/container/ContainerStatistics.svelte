@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ContainerStatsInfo } from '@podman-desktop/core-api';
+import type { ContainerStatsInfo } from '@desktop-framework/api';
 import { onDestroy, onMount } from 'svelte';
 
 import Donut from '/@/lib/donut/Donut.svelte';

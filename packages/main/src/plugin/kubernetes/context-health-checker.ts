@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Event } from '@desktop-framework/api';
+import type { Disposable } from '@desktop-framework/extension-api';
 import { Health } from '@kubernetes/client-node';
-import type { Disposable } from '@podman-desktop/api';
-import type { Event } from '@podman-desktop/core-api';
 
 import { Emitter } from '/@/plugin/events/emitter.js';
 

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OnboardingInfo, ProviderInfo } from '@podman-desktop/core-api';
-import { WelcomeSettings } from '@podman-desktop/core-api/welcome';
+import type { OnboardingInfo, ProviderInfo } from '@desktop-framework/api';
+import { WelcomeSettings } from '@desktop-framework/api/welcome';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { WelcomeUtils } from './welcome-utils';

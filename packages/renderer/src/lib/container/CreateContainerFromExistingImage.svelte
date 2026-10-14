@@ -1,12 +1,12 @@
 <script lang="ts">
-import { faArrowCircleDown, faCircleCheck, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import {
   type ImageInfo,
   type ImageSearchOptions,
   NavigationPage,
   type ProviderContainerConnectionInfo,
   type PullEvent,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import { faArrowCircleDown, faCircleCheck, faCog, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, ButtonRow, Checkbox, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import type { Terminal } from '@xterm/xterm';

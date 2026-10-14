@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageInspectInfo } from '@podman-desktop/core-api';
+import type { ImageInspectInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { Terminal } from '@xterm/xterm';
 import { tick } from 'svelte';

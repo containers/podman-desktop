@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { SecretInfo } from '@podman-desktop/core-api';
+import type { SecretInfo } from '@desktop-framework/api';
 import { derived, type Writable, writable } from 'svelte/store';
 
 import SecretIcon from '/@/lib/images/SecretIcon.svelte';

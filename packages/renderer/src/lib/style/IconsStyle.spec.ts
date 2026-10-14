@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { IconInfo } from '@podman-desktop/core-api';
+import type { IconInfo } from '@desktop-framework/api';
 import { render } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { expect, test, vi } from 'vitest';

@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { V1Route } from '@desktop-framework/api';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
-import type { V1Route } from '@podman-desktop/core-api';
 import { Button, ButtonRow, Checkbox, ErrorMessage, Input, Link } from '@podman-desktop/ui-svelte';
 import * as jsYaml from 'js-yaml';
 import { onDestroy, onMount } from 'svelte';

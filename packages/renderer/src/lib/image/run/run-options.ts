@@ -32,7 +32,7 @@ export interface RunOptions {
     containerName: string;
     entrypoint: string;
     command: string;
-    volumeMounts: { source: string; target: string }[];
+    volumeMounts: { sourceType: 'bind' | 'volume'; source: string; target: string }[];
     environmentVariables: { key: string; value: string }[];
     environmentFiles: string[];
     hostContainerPortMappings: { hostPort: PortInfo; containerPort: string }[];

@@ -85,21 +85,32 @@ ipconfig getifaddr en0
 }
 ```
 
-#### Step 4: Build the update binary (v99.0.0)
+#### Step 4: Build the initial binary (v1.0.0)
 
 ```bash
-
 # pre-build
 pnpm install && pnpm build
 
-# replace the version with 99.0.0
-sed -i '' 's/"version": ".*"/"version": "99.0.0"/' package.json
+# set version to 1.0.0
+sed -i '' 's/"version": ".*"/"version": "1.0.0"/' package.json
 
-# build the compiled binary
-CSC_NAME="Podman Desktop Test" pnpm compile:current
+# build the dmg
+CSC_NAME="Podman Desktop Test" pnpm compile:current --mac dmg --arm64
+
+# save the v1.0.0 dmg (building v99.0.0 next will overwrite dist/)
+cp dist/podman-desktop-1.0.0-arm64.dmg /tmp/podman-desktop-1.0.0-arm64.dmg
 ```
 
-#### Step 5: Re-sign, repackage, and host the update
+#### Step 5: Build the update binary (v99.0.0)
+
+```bash
+sed -i '' 's/"version": ".*"/"version": "99.0.0"/' package.json
+
+# default targets include zip, which is needed for latest-mac.yml
+CSC_NAME="Podman Desktop Test" pnpm compile:current --mac --arm64
+```
+
+#### Step 6: Re-sign, repackage, and host the update
 
 electron-builder signs the main executable, but the Electron Framework inside the bundle may retain a different Team ID. You must re-sign with `--deep`, repackage the ZIP, and update the checksum.
 
@@ -114,7 +125,7 @@ cd dist/mac-arm64
 ditto -c -k --sequesterRsrc --keepParent "Podman Desktop.app" /tmp/update-repack/podman-desktop-99.0.0-arm64.zip
 cd -
 
-# Get new checksum and size to check..
+# Get new checksum and size
 NEW_SHA512=$(shasum -a 512 /tmp/update-repack/podman-desktop-99.0.0-arm64.zip | awk '{print $1}' | xxd -r -p | base64)
 NEW_SIZE=$(stat -f%z /tmp/update-repack/podman-desktop-99.0.0-arm64.zip)
 echo "sha512: $NEW_SHA512"
@@ -130,16 +141,6 @@ cp dist/podman-desktop-99.0.0-arm64.zip.blockmap ~/update-server/
 **IMPORTANT!:**
 
 Edit `~/update-server/latest-mac.yml` and replace the `sha512` and `size` for the `arm64.zip` entry with the values printed above, or this will NOT work.
-
-#### Step 6: Build the current binary (v1.0.0)
-
-Now we will build the current binary that we will test updating to.
-
-```bash
-sed -i '' 's/"version": ".*"/"version": "1.0.0"/' package.json
-
-CSC_NAME="Podman Desktop Test" pnpm compile:current
-```
 
 #### Step 7: Start the update server
 
@@ -158,10 +159,13 @@ curl http://<YOUR_LOCAL_IP>:8080/latest-mac.yml | head -2
 
 #### Step 8: Install and run
 
-Install your `1.0.0` binary locally (the .app):
+Install v1.0.0 from the dmg:
 
 ```bash
-cp -R "dist/mac-arm64/Podman Desktop.app" "/Applications/Podman Desktop.app"
+# Open the v1.0.0 dmg and drag "Podman Desktop" to the Applications folder
+open /tmp/podman-desktop-1.0.0-arm64.dmg
+
+# After installing, re-sign and launch
 codesign --force --deep --sign "Podman Desktop Test" "/Applications/Podman Desktop.app"
 open "/Applications/Podman Desktop.app"
 ```
@@ -177,6 +181,7 @@ Stop the update server, and clean up / remove your test keys!
 ```bash
 podman stop update-server
 rm -rf ~/update-server /tmp/update-repack
+rm -f /tmp/podman-desktop-1.0.0-arm64.dmg
 rm -f /tmp/test-key.pem /tmp/test-cert.pem /tmp/test-cert.p12 /tmp/cert.cfg
 security delete-identity -c "Podman Desktop Test"
 git checkout product.json package.json
@@ -200,19 +205,31 @@ Get your local IP and set it:
 }
 ```
 
-#### Step 2: Build the update binary (v99.0.0)
+#### Step 2: Build the initial binary (v1.0.0)
 
 ```powershell
 pnpm install
 pnpm build
 
-# Edit package.json to set version to "99.0.0"
+# Set version to 1.0.0
+(Get-Content package.json -Raw) -replace '"version":\s*".*?"', '"version": "1.0.0"' | Set-Content package.json
+
+pnpm compile:current
+
+# Save the v1.0.0 installer (building v99.0.0 next will overwrite dist/)
+copy dist\podman-desktop-1.0.0-setup-x64.exe $HOME\podman-desktop-1.0.0-setup-x64.exe
+```
+
+#### Step 3: Build the update binary (v99.0.0)
+
+```powershell
+# Set version to 99.0.0
 (Get-Content package.json -Raw) -replace '"version":\s*".*?"', '"version": "99.0.0"' | Set-Content package.json
 
 pnpm compile:current
 ```
 
-#### Step 3: Host the update
+#### Step 4: Host the update
 
 ```powershell
 mkdir $HOME\update-server
@@ -220,15 +237,6 @@ mkdir $HOME\update-server
 copy dist\latest.yml $HOME\update-server\
 copy dist\podman-desktop-99.0.0-setup-x64.exe $HOME\update-server\
 copy dist\podman-desktop-99.0.0-setup-x64.exe.blockmap $HOME\update-server\
-```
-
-#### Step 4: Build the current binary (v1.0.0)
-
-```powershell
-# Edit package.json to set version to "1.0.0"
-(Get-Content package.json -Raw) -replace '"version":\s*".*?"', '"version": "1.0.0"' | Set-Content package.json
-
-pnpm compile:current
 ```
 
 #### Step 5: Start the update server
@@ -242,7 +250,7 @@ curl http://<YOUR_LOCAL_IP>:8080/latest.yml
 
 #### Step 6: Install and run
 
-Install the v1.0.0 setup exe from `dist/`, then launch the app. It should detect v99.0.0 and offer to update. Test that it downloads / updates.
+Install the v1.0.0 setup exe from `$HOME\podman-desktop-1.0.0-setup-x64.exe`, then launch the app. It should detect v99.0.0 and offer to update. Test that it downloads / updates.
 
 #### Step 7: Clean up
 
@@ -251,6 +259,7 @@ Clean up by stopping podman + removing the gen files.
 ```powershell
 podman stop update-server
 Remove-Item -Recurse $HOME\update-server
+Remove-Item $HOME\podman-desktop-1.0.0-setup-x64.exe
 git checkout product.json package.json
 ```
 

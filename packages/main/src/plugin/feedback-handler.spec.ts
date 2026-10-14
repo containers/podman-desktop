@@ -18,7 +18,7 @@
 
 import { release } from 'node:os';
 
-import type { ExtensionInfo, GitHubIssue } from '@podman-desktop/core-api';
+import type { ExtensionInfo, GitHubIssue } from '@desktop-framework/api';
 import { shell } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 

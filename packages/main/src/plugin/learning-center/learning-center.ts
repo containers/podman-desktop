@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Guide } from '@podman-desktop/core-api/learning-center';
+import type { Guide } from '@desktop-framework/api/learning-center';
 
 import { rotateArray } from '/@/plugin/util/array-mutation.js';
 import product from '/@product.json' with { type: 'json' };

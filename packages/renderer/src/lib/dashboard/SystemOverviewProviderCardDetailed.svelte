@@ -4,7 +4,7 @@ import {
   type ProviderConnectionInfo,
   type ProviderContainerConnectionInfo,
   type ProviderInfo,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
 import { Button } from '@podman-desktop/ui-svelte';
 
 import SystemOverviewProviderCardBase from '/@/lib/dashboard/SystemOverviewProviderCardBase.svelte';

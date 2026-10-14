@@ -23,7 +23,7 @@ import { cp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import minimist from 'minimist';
 
 import type { Certificates } from '/@/plugin/certificates.js';

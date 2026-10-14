@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ImageInfo } from '@podman-desktop/api';
-import type { ImageInspectInfo, SecretInfo } from '@podman-desktop/core-api';
+import type { ImageInspectInfo, SecretInfo } from '@desktop-framework/api';
+import type { ImageInfo } from '@desktop-framework/extension-api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { tick } from 'svelte';
@@ -28,10 +28,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, type Mock, test, vi
 
 import type { ContainerInfoUI } from '/@/lib/container/ContainerInfoUI';
 import RunImage from '/@/lib/image/RunImage.svelte';
+import type { VolumeInfoUI } from '/@/lib/volume/VolumeInfoUI';
 import { mockBreadcrumb } from '/@/stores/breadcrumb.spec';
 import { containersInfos } from '/@/stores/containers';
 import { imagesInfos } from '/@/stores/images';
 import { secretsInfo } from '/@/stores/secrets';
+import { volumeListInfos } from '/@/stores/volumes';
 
 const originalConsoleDebug = console.debug;
 
@@ -50,6 +52,7 @@ beforeAll(() => {
   });
   vi.mocked(window.listNetworks).mockResolvedValue([]);
   vi.mocked(window.listContainers).mockResolvedValue([]);
+  vi.mocked(window.listVolumes).mockResolvedValue([]);
   vi.mocked(window.createAndStartContainer).mockResolvedValue({ id: '1234' });
 
   mockBreadcrumb();
@@ -59,6 +62,7 @@ beforeEach(() => {
   console.error = vi.fn();
   vi.clearAllMocks();
   secretsInfo.set([]);
+  volumeListInfos.set([]);
   router.goto('/basic');
 });
 
@@ -775,5 +779,230 @@ describe('RunImage container name collision', () => {
     await userEvent.type(nameInput, 'existing-container');
 
     await waitFor(() => expect(screen.getByText(/The name existing-container already exists/)).toBeInTheDocument());
+  });
+});
+
+describe('RunImage volume mounts', () => {
+  test('Expect volumes from volumeListInfos store to be filtered by engine and sorted', async () => {
+    volumeListInfos.set([
+      {
+        name: 'volume-b',
+        shortName: 'volume-b',
+        engineId: 'engineid',
+      } as VolumeInfoUI,
+      {
+        name: 'volume-a',
+        shortName: 'volume-a',
+        engineId: 'engineid',
+      } as VolumeInfoUI,
+      {
+        name: 'other-engine-volume',
+        shortName: 'other-engine-volume',
+        engineId: 'other-engine',
+      } as VolumeInfoUI,
+    ]);
+
+    await createRunImage('', []);
+
+    const basicTab = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(basicTab);
+
+    // Switch source type from Host path to Existing volume
+    const sourceTypeDropdown = screen.getByRole('button', { name: 'Host path' });
+    await fireEvent.click(sourceTypeDropdown);
+
+    const existingVolumeOption = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(existingVolumeOption);
+
+    // Open existing volume dropdown
+    const volumeDropdown = screen.getByRole('button', { name: 'Select a volume' });
+    await fireEvent.click(volumeDropdown);
+
+    expect(screen.getByRole('button', { name: 'volume-a' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'volume-b' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'other-engine-volume' })).not.toBeInTheDocument();
+  });
+
+  test('Expect 64-character hash volume names to display shortName but submit full name', async () => {
+    const fullHashVolume = 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef';
+    const shortVolumeName = 'a1b2c3d4e5f6';
+
+    volumeListInfos.set([
+      {
+        name: fullHashVolume,
+        shortName: shortVolumeName,
+        engineId: 'engineid',
+      } as VolumeInfoUI,
+    ]);
+
+    await createRunImage('', []);
+
+    const basicTab = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(basicTab);
+
+    // Switch source type to Existing volume
+    const sourceTypeDropdown = screen.getByRole('button', { name: 'Host path' });
+    await fireEvent.click(sourceTypeDropdown);
+    const existingVolumeOption = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(existingVolumeOption);
+
+    // Verify option label uses the short name
+    const volumeDropdown = screen.getByRole('button', { name: 'Select a volume' });
+    await fireEvent.click(volumeDropdown);
+    const shortOption = screen.getByRole('button', { name: shortVolumeName });
+    await fireEvent.click(shortOption);
+
+    // Set container target
+    const targetInput = screen.getByRole('textbox', { name: 'Path inside the container 0' });
+    await userEvent.clear(targetInput);
+    await userEvent.type(targetInput, '/mnt/hash');
+
+    const createButton = screen.getByRole('button', { name: 'Create and start' });
+    await fireEvent.click(createButton);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({
+        HostConfig: expect.objectContaining({
+          Binds: [`${fullHashVolume}:/mnt/hash`],
+        }),
+      }),
+    );
+  });
+
+  test('Expect named volume to be submitted as Binds', async () => {
+    volumeListInfos.set([
+      {
+        name: 'application-data',
+        shortName: 'application-data',
+        engineId: 'engineid',
+      } as VolumeInfoUI,
+    ]);
+
+    await createRunImage('', []);
+
+    const basicTab = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(basicTab);
+
+    // Switch source type to Existing volume
+    const sourceTypeDropdown = screen.getByRole('button', { name: 'Host path' });
+    await fireEvent.click(sourceTypeDropdown);
+    const existingVolumeOption = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(existingVolumeOption);
+
+    // Select application-data
+    const volumeDropdown = screen.getByRole('button', { name: 'Select a volume' });
+    await fireEvent.click(volumeDropdown);
+    const appDataOption = screen.getByRole('button', { name: 'application-data' });
+    await fireEvent.click(appDataOption);
+
+    // Set container target
+    const targetInput = screen.getByRole('textbox', { name: 'Path inside the container 0' });
+    await userEvent.clear(targetInput);
+    await userEvent.type(targetInput, '/var/lib/application');
+
+    const createButton = screen.getByRole('button', { name: 'Create and start' });
+    await fireEvent.click(createButton);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({
+        HostConfig: expect.objectContaining({
+          Binds: ['application-data:/var/lib/application'],
+        }),
+      }),
+    );
+  });
+
+  test('Expect host path to be submitted and mode switch to clear source', async () => {
+    volumeListInfos.set([
+      {
+        name: 'my-vol',
+        shortName: 'my-vol',
+        engineId: 'engineid',
+      } as VolumeInfoUI,
+    ]);
+
+    await createRunImage('', []);
+
+    const basicTab = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(basicTab);
+
+    // Default is Host path
+    const hostPathInput = screen.getByRole('textbox', { name: 'Host path 0' });
+    await userEvent.type(hostPathInput, '/host/data');
+
+    const targetInput = screen.getByRole('textbox', { name: 'Path inside the container 0' });
+    await userEvent.type(targetInput, '/container/data');
+
+    // Switch to Existing volume and verify source was cleared
+    const sourceTypeDropdown = screen.getByRole('button', { name: 'Host path' });
+    await fireEvent.click(sourceTypeDropdown);
+    const existingVolumeOption = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(existingVolumeOption);
+
+    // Dropdown should be on 'Select a volume' (cleared)
+    expect(screen.getByRole('button', { name: 'Select a volume' })).toBeInTheDocument();
+
+    // Switch back to Host path
+    const sourceTypeDropdown2 = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(sourceTypeDropdown2);
+    const hostPathOption = screen.getByRole('button', { name: 'Host path' });
+    await fireEvent.click(hostPathOption);
+
+    const hostPathInput2 = screen.getByRole('textbox', { name: 'Host path 0' });
+    expect((hostPathInput2 as HTMLInputElement).value).toBe('');
+
+    // Fill again and submit as host path
+    await userEvent.type(hostPathInput2, '/host/data');
+
+    const createButton = screen.getByRole('button', { name: 'Create and start' });
+    await fireEvent.click(createButton);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({
+        HostConfig: expect.objectContaining({
+          Binds: ['/host/data:/container/data'],
+        }),
+      }),
+    );
+  });
+
+  test('Expect incomplete rows to be omitted from container submission', async () => {
+    await createRunImage('', []);
+
+    const basicTab = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(basicTab);
+
+    // Verify host path works
+    const hostPathInput = screen.getByRole('textbox', { name: 'Host path 0' });
+    await userEvent.type(hostPathInput, '/valid/host/path');
+
+    const targetInput = screen.getByRole('textbox', { name: 'Path inside the container 0' });
+    await userEvent.type(targetInput, '/valid/container/path');
+
+    // Add another row that is incomplete
+    const addVolumeButton = screen.getByRole('button', { name: 'Add volume mount after index 0' });
+    await fireEvent.click(addVolumeButton);
+
+    // Switch row 1 to Existing volume without selecting a volume
+    const sourceTypeDropdowns = screen.getAllByRole('button', { name: 'Host path' });
+    await fireEvent.click(sourceTypeDropdowns[1]);
+    const existingVolumeOption = screen.getByRole('button', { name: 'Existing volume' });
+    await fireEvent.click(existingVolumeOption);
+
+    const createButton = screen.getByRole('button', { name: 'Create and start' });
+    await fireEvent.click(createButton);
+
+    // Incomplete row 1 is omitted, only complete row 0 is in Binds
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({
+        HostConfig: expect.objectContaining({
+          Binds: ['/valid/host/path:/valid/container/path'],
+        }),
+      }),
+    );
   });
 });

@@ -18,8 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import type { ContextGeneralState, ContextPermission, KubeContext, ResourceCount } from '@desktop-framework/api';
 import type { KubernetesObject, V1Deployment } from '@kubernetes/client-node';
-import type { ContextGeneralState, ContextPermission, KubeContext, ResourceCount } from '@podman-desktop/core-api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { readable, writable } from 'svelte/store';

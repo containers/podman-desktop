@@ -44,6 +44,7 @@ export interface DeployPodOptions {
 export enum PodmanKubePlayOptions {
   SelectYamlFile = 0,
   CreateYamlFileFromScratch = 1,
+  EnterYamlFilePath = 2,
 }
 
 export interface PlayFromScratch {
@@ -56,7 +57,12 @@ export interface PlayFromYaml {
   pathToYaml: string;
 }
 
-export type PlayYamlOptions = PlayFromScratch | PlayFromYaml;
+export interface PlayFromTypedYaml {
+  podmanKubePlayOption: PodmanKubePlayOptions.EnterYamlFilePath;
+  pathToYaml: string;
+}
+
+export type PlayYamlOptions = PlayFromScratch | PlayFromYaml | PlayFromTypedYaml;
 
 export enum KubernetesResources {
   Nodes = 'Nodes',
@@ -168,4 +174,38 @@ export enum ProxyElementId {
   HTTP_PROXY = 'httpProxy',
   HTTPS_PROXY = 'httpsProxy',
   NO_PROXY = 'noProxy',
+}
+
+export interface ProductHelpMenuItem {
+  title: string;
+  tooltip?: string;
+  icon: string;
+  link?: string;
+  command?: string;
+}
+
+export interface ProductConfiguration {
+  helpMenu: { items: ProductHelpMenuItem[] };
+}
+
+export interface HelpMenuAction {
+  kind: HelpMenuActionKind;
+  parameter: string;
+}
+
+export interface HelpMenuItem {
+  title: string;
+  tooltip?: string;
+  icon: string;
+  enabled: boolean;
+  action?: HelpMenuAction;
+}
+
+export interface HelpMenuWindow extends Window {
+  helpMenuGetItems: () => Promise<HelpMenuItem[]>;
+}
+
+export enum HelpMenuActionKind {
+  LINK = 0,
+  COMMAND = 1,
 }

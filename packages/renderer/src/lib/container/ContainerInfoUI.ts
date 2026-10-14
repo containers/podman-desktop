@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Port } from '@desktop-framework/extension-api';
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import type { Port } from '@podman-desktop/api';
 import type { Component } from 'svelte';
 
 // type of groups

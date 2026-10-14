@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RunResult } from '@podman-desktop/api';
+import type { RunResult } from '@desktop-framework/extension-api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { RegistryItem } from 'winreg';
 import WinReg from 'winreg';

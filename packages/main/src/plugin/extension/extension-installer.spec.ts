@@ -19,9 +19,9 @@
 import { rmSync } from 'node:fs';
 import * as path from 'node:path';
 
-import type { ExtensionInfo } from '@podman-desktop/core-api';
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { CatalogFetchableExtension } from '@podman-desktop/core-api/extension-catalog';
+import type { ExtensionInfo } from '@desktop-framework/api';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { CatalogFetchableExtension } from '@desktop-framework/api/extension-catalog';
 import type { IpcMain, IpcMainEvent } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 

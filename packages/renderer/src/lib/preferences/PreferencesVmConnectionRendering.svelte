@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ProviderConnectionInfo, ProviderInfo, ProviderVmConnectionInfo } from '@podman-desktop/core-api';
-import { NavigationPage } from '@podman-desktop/core-api';
+import type { ProviderConnectionInfo, ProviderInfo, ProviderVmConnectionInfo } from '@desktop-framework/api';
+import { NavigationPage } from '@desktop-framework/api';
 import { Tab } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';

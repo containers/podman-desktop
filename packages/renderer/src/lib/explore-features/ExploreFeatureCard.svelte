@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { ExploreFeature } from '@desktop-framework/api';
 import { faCirclePlay, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import type { ExploreFeature } from '@podman-desktop/core-api';
 import { Button, CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { router } from 'tinro';

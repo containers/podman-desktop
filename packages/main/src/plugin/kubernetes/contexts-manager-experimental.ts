@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 import type {
   ContextGeneralState,
   ContextPermission,
@@ -25,7 +24,8 @@ import type {
   KubernetesTroubleshootingInformation,
   ResourceCount,
   ResourceName,
-} from '@podman-desktop/core-api';
+} from '@desktop-framework/api';
+import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import { Emitter } from '/@/plugin/events/emitter.js';
 

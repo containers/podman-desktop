@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { securityRestrictionCurrentHandler } from '/@/security-restrictions-handler.js';

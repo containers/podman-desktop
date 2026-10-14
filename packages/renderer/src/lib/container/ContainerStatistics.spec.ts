@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { ContainerStatsInfo } from '@podman-desktop/core-api';
+import type { ContainerStatsInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CatalogFetchableExtension } from '@podman-desktop/core-api/extension-catalog';
-import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import type { CatalogFetchableExtension } from '@desktop-framework/api/extension-catalog';
+import type { FeaturedExtension } from '@desktop-framework/api/featured';
 import { inject, injectable } from 'inversify';
 
 import { ExtensionsCatalog } from '/@/plugin/extension/catalog/extensions-catalog.js';

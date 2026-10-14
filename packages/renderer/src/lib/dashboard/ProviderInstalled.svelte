@@ -1,9 +1,9 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
 
+import type { CheckStatus, ProviderInfo } from '@desktop-framework/api';
+import { TerminalSettings } from '@desktop-framework/api/terminal';
 import { faList } from '@fortawesome/free-solid-svg-icons';
-import type { CheckStatus, ProviderInfo } from '@podman-desktop/core-api';
-import { TerminalSettings } from '@podman-desktop/core-api/terminal';
 import { Button, Spinner } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';

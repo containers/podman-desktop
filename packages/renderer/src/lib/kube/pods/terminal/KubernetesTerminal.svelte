@@ -1,5 +1,5 @@
 <script lang="ts">
-import { TerminalSettings } from '@podman-desktop/core-api/terminal';
+import { TerminalSettings } from '@desktop-framework/api/terminal';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { type IDisposable, Terminal } from '@xterm/xterm';

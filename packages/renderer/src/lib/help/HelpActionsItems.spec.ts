@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { ActionKind, type ItemInfo } from '@podman-desktop/core-api';
+import { ActionKind, type ItemInfo } from '@desktop-framework/api';
 import { render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 

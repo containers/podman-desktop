@@ -1,9 +1,9 @@
 <script lang="ts">
+import type { CheckStatus, Menu, ProviderConnectionInfo, ProviderInfo } from '@desktop-framework/api';
+import { MenuContext } from '@desktop-framework/api';
+import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
+import type { ContainerProviderConnection } from '@desktop-framework/extension-api';
 import { faCircleInfo, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import type { ContainerProviderConnection } from '@podman-desktop/api';
-import type { CheckStatus, Menu, ProviderConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
-import { MenuContext } from '@podman-desktop/core-api';
-import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
 import { DropdownMenu, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { Buffer } from 'buffer';

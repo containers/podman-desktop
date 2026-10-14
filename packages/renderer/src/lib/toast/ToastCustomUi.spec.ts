@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { TaskInfo } from '@podman-desktop/core-api';
+import type { TaskInfo } from '@desktop-framework/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { toast } from '@zerodevx/svelte-toast';
 import { beforeEach, expect, test, vi } from 'vitest';

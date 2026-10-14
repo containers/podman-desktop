@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { OpenDialogOptions } from '@desktop-framework/extension-api';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
-import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, Input } from '@podman-desktop/ui-svelte';
 
 interface Props {

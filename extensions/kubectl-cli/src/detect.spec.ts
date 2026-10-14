@@ -102,7 +102,7 @@ describe('Check storage path', async () => {
   });
 
   test('found', async () => {
-    const existSyncSpy = vi.spyOn(fs, 'existsSync');
+    const existSyncSpy = vi.mocked(fs.existsSync);
     existSyncSpy.mockReturnValue(true);
 
     const result = await detect.getStoragePath();

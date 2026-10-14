@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { Guide } from '@podman-desktop/core-api/learning-center';
+import type { Guide } from '@desktop-framework/api/learning-center';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
@@ -72,7 +72,7 @@ test('Clicking on LearningCenter title hides carousel with guides', async () => 
 
   const button = screen.getByRole('button', { name: 'Learning Center' });
   expect(button).toBeInTheDocument();
-  expect(screen.queryByText(guides[0].title)).toBeInTheDocument();
+  expect(screen.getByText(guides[0].title)).toBeInTheDocument();
   await fireEvent.click(button);
   await vi.waitFor(async () => {
     expect(screen.queryByText(guides[0].title)).not.toBeInTheDocument();

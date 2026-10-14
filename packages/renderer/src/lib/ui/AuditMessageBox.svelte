@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { AuditResult } from '@desktop-framework/extension-api';
 import { faCircleInfo, faTriangleExclamation, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
-import type { AuditResult } from '@podman-desktop/api';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 interface Props {

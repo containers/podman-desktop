@@ -1,6 +1,6 @@
 <script lang="ts">
+import type { IDisposable, ResourceCount } from '@desktop-framework/api';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import type { IDisposable, ResourceCount } from '@podman-desktop/core-api';
 import { Expandable, Link } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 

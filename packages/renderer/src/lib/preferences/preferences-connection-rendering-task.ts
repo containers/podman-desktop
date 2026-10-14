@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Logger as LoggerType } from '@podman-desktop/api';
+import type { Logger as LoggerType } from '@desktop-framework/extension-api';
 
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
 

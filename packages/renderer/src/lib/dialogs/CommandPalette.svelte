@@ -1,4 +1,11 @@
 <script lang="ts">
+import type {
+  CommandInfo,
+  CommandPaletteSearchOption,
+  DocumentationInfo,
+  GoToInfo,
+  NavigationSearchEntryInfo,
+} from '@desktop-framework/api';
 import {
   faArrowUpRightFromSquare,
   faChevronRight,
@@ -7,13 +14,6 @@ import {
   faMagnifyingGlass,
   faTerminal,
 } from '@fortawesome/free-solid-svg-icons';
-import type {
-  CommandInfo,
-  CommandPaletteSearchOption,
-  DocumentationInfo,
-  GoToInfo,
-  NavigationSearchEntryInfo,
-} from '@podman-desktop/core-api';
 import { Button, type IconType, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount, tick } from 'svelte';

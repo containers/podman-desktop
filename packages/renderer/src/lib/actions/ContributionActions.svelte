@@ -1,7 +1,7 @@
 <script lang="ts">
+import type { Menu } from '@desktop-framework/api';
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
-import type { Menu } from '@podman-desktop/core-api';
 import { onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 

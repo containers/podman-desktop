@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
+import type * as containerDesktopAPI from '@desktop-framework/extension-api';
 import { inject, injectable } from 'inversify';
 
 import { ConfigurationRegistry } from './configuration-registry.js';

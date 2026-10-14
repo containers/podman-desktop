@@ -21,8 +21,8 @@
  *--------------------------------------------------------------------------------------------*/
 // based on https://github.com/microsoft/vscode/blob/3eed9319874b7ca037128962593b6a8630869253/src/vs/platform/contextkey/browser/contextKeyService.ts
 
-import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
-import type { IContext } from '@podman-desktop/core-api/context';
+import { ApiSenderType } from '@desktop-framework/api/api-sender';
+import type { IContext } from '@desktop-framework/api/context';
 import { inject, injectable } from 'inversify';
 
 @injectable()
