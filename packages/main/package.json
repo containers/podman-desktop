@@ -19,7 +19,7 @@
   "devDependencies": {
     "@docker/extension-api-client-types": "0.4.2",
     "@podman-desktop/api": "workspace:*",
-    "@types/adm-zip": "^0.5.8",
+    "@types/adm-zip": "^0.6.0",
     "@types/culori": "^4.0.1",
     "@types/dockerode": "^3.3.47",
     "@types/express": "^5.0.6",
