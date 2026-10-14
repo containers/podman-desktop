@@ -18,16 +18,22 @@ const config = {
   url: inDevMode ? 'http://localhost:3000' : 'https://podman-desktop.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'containers',
   projectName: 'podman-desktop',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
+  future: {
+    v4: true,
+    faster: false,
+  },
   markdown: {
     mermaid: true,
     parseFrontMatter: async params => {
       return createNotesFiles(params);
+    },
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
     },
   },
   themes: ['@docusaurus/theme-mermaid'],
