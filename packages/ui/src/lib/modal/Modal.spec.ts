@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { createRawSnippet } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -90,7 +90,7 @@ describe('Enter activates the default button', () => {
 
   test('Enter with focus dropped to the body clicks the default button', async () => {
     renderWithButtons();
-    (document.activeElement as HTMLElement | null)?.blur();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     await userEvent.keyboard('{Enter}');
 
     expect(defaultClick).toHaveBeenCalledOnce();
@@ -145,6 +145,15 @@ describe('Enter activates the default button', () => {
     expect(defaultClick).not.toHaveBeenCalled();
   });
 
+  test('Enter is ignored during IME composition', async () => {
+    renderWithButtons();
+    const input = screen.getByLabelText('name');
+    input.focus();
+    await fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
   test('Escape still closes', async () => {
     const closeMock = vi.fn();
     const children = createRawSnippet(() => ({
@@ -155,6 +164,54 @@ describe('Enter activates the default button', () => {
 
     expect(closeMock).toHaveBeenCalled();
   });
+});
+
+describe('stacked modals', () => {
+  const lowerClick = vi.fn();
+  const upperClick = vi.fn();
+
+  function renderModal(label: string, onclick: () => void): () => void {
+    const children = createRawSnippet(() => ({
+      render: (): string => `<button type="button" data-default>${label}</button>`,
+    }));
+    const { unmount } = render(Modal, { name: label, children });
+    screen.getByRole('button', { name: label }).addEventListener('click', onclick);
+    return unmount;
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('only the topmost modal handles Enter', async () => {
+    renderModal('Lower', lowerClick);
+    renderModal('Upper', upperClick);
+    await fireEvent.keyDown(document.body, { key: 'Enter' });
+
+    expect(upperClick).toHaveBeenCalledOnce();
+    expect(lowerClick).not.toHaveBeenCalled();
+  });
+
+  test('the lower modal handles Enter again once the top one is destroyed', async () => {
+    renderModal('Lower', lowerClick);
+    const unmountUpper = renderModal('Upper', upperClick);
+    unmountUpper();
+    await fireEvent.keyDown(document.body, { key: 'Enter' });
+
+    expect(lowerClick).toHaveBeenCalledOnce();
+    expect(upperClick).not.toHaveBeenCalled();
+  });
+});
+
+test('Tab keeps focus inside the modal', async () => {
+  const children = createRawSnippet(() => ({
+    render: (): string => '<div><button type="button">First</button><button type="button">Last</button></div>',
+  }));
+  render(Modal, { children });
+  screen.getByRole('button', { name: 'Last' }).focus();
+  await userEvent.keyboard('{Tab}');
+
+  expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
 });
 
 describe('translation-y', () => {

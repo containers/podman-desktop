@@ -41,6 +41,7 @@ describe('MessageBox', () => {
     );
     render(MessageBox, {});
   }
+
   test('Expect that title, message, and buttons are displayed', async () => {
     const idRequest = 123;
 
@@ -178,7 +179,7 @@ describe('MessageBox', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteButton).not.toHaveAttribute('data-default');
-    (document.activeElement as HTMLElement | null)?.blur();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     await userEvent.keyboard('{Enter}');
     expect(window.sendShowMessageBoxOnSelect).not.toHaveBeenCalled();
   });
