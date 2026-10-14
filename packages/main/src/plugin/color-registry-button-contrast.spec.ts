@@ -18,7 +18,7 @@
 
 import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { wcagContrast } from 'culori';
-import { describe, expect, test, vi } from 'vitest';
+import { assert, describe, expect, test, vi } from 'vitest';
 
 import { Disposable } from '/@/plugin/types/disposable.js';
 
@@ -45,7 +45,7 @@ const MIN_CONTRAST = 3;
 
 // Button.svelte draws the ring with outline-offset-2, so a 2px gap of the surface behind the button
 // separates the ring from the button fill. The surface is therefore the only adjacent colour (WCAG 2.4.7).
-const SURFACES = ['content-bg', 'content-card-bg', 'content-card-inset-bg', 'modal-bg'];
+const SURFACES = ['content-bg', 'content-card-bg', 'content-card-inset-bg', 'modal-bg', 'invert-content-bg'];
 const RINGS = ['button-focus-ring', 'button-focus-ring-danger'];
 
 describe.each(['light', 'dark', 'hc-light', 'hc-dark'])('button focus ring contrast in %s theme', theme => {
@@ -55,9 +55,9 @@ describe.each(['light', 'dark', 'hc-light', 'hc-dark'])('button focus ring contr
   test.each(cases)('%s against %s is at least 3:1', (ring, surface) => {
     const ringValue = colors.get(ring);
     const surfaceValue = colors.get(surface);
-    expect(ringValue).toBeDefined();
-    expect(surfaceValue).toBeDefined();
+    assert(ringValue, `${ring} is not registered in ${theme}`);
+    assert(surfaceValue, `${surface} is not registered in ${theme}`);
 
-    expect(wcagContrast(ringValue as string, surfaceValue as string)).toBeGreaterThanOrEqual(MIN_CONTRAST);
+    expect(wcagContrast(ringValue, surfaceValue)).toBeGreaterThanOrEqual(MIN_CONTRAST);
   });
 });
