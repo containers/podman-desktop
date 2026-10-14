@@ -254,13 +254,13 @@ async function removeExistingRegistry(registry: containerDesktopAPI.Registry): P
 
   <!-- Preferred Registries section start -->
   {#if preferredRegistriesProperty}
-    <div class="bg-[var(--pd-invert-content-card-bg)] rounded-md mb-4">
+    <div class="bg-[var(--pd-invert-content-card-bg)] rounded-md mb-4" role="region" aria-label="Preferred registries">
       <PreferencesRenderingItem record={preferredRegistriesProperty} />
     </div>
   {/if}
   <!-- Preferred Registries section end -->
 
-  <div class="container bg-[var(--pd-invert-content-card-bg)] rounded-md p-3">
+  <div class="container bg-[var(--pd-invert-content-card-bg)] rounded-md p-3" role="region" aria-label="Configured registries">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-[var(--pd-content-text)]" role="table" aria-label="Registries">
       <div
