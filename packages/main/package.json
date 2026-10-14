@@ -21,7 +21,7 @@
     "@podman-desktop/api": "workspace:*",
     "@types/adm-zip": "^0.5.8",
     "@types/culori": "^4.0.1",
-    "@types/dockerode": "^3.3.47",
+    "@types/dockerode": "^4.0.2",
     "@types/express": "^5.0.6",
     "@types/getos": "^3.0.4",
     "@types/minimist": "^1.2.5",
