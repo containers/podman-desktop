@@ -1029,8 +1029,8 @@ importers:
         specifier: ^3.4.10
         version: 3.4.16
       eslint-plugin-svelte:
-        specifier: ^3.23.0
-        version: 3.23.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
+        specifier: ^3.23.1
+        version: 3.23.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
       filesize:
         specifier: ^11.0.25
         version: 11.0.25
@@ -1144,8 +1144,8 @@ importers:
         specifier: ^8.71.1
         version: 8.71.1(@typescript-eslint/parser@8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3))(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       eslint-plugin-svelte:
-        specifier: ^3.23.0
-        version: 3.23.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
+        specifier: ^3.23.1
+        version: 3.23.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
       jsdom:
         specifier: ^30.1.2
         version: 30.1.2(@noble/hashes@2.2.0)
@@ -1247,8 +1247,8 @@ importers:
         specifier: 10.6.1
         version: 10.6.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       eslint-plugin-svelte:
-        specifier: ^3.23.0
-        version: 3.23.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
+        specifier: ^3.23.1
+        version: 3.23.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0))
       postcss:
         specifier: '>=8.5.18'
         version: 8.5.29
@@ -8106,8 +8106,8 @@ packages:
     peerDependencies:
       eslint: '>=8'
 
-  eslint-plugin-svelte@3.23.0:
-    resolution: {integrity: sha512-n9jRklDqy0+W834568a4ZIZTK7DHXxvvHHxxGP8nNq7N//pOZMubttskHOquyGgfTR4Z05q2NdGNlsTpIEA48w==}
+  eslint-plugin-svelte@3.23.1:
+    resolution: {integrity: sha512-+w86Jlx4IRUuuvtqD6j4njql+akx+81JnpvbN5de3AV5iq2SexvST/Jr51CiTlKeY0i+vhoKjPO/ywFKIP75sA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0 || ^10.0.0
@@ -20932,10 +20932,10 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-svelte@3.23.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0)):
+  eslint-plugin-svelte@3.23.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))(svelte@5.57.2(@typescript-eslint/types@8.70.0)):
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
-      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/sourcemap-codec': 1.6.0
       eslint: 10.12.0(jiti@2.7.0)(supports-color@8.1.1)
       esutils: 2.0.3
       globals: 16.5.0

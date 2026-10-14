@@ -35,7 +35,7 @@
     "autoprefixer": "^10.6.1",
     "cross-env": "10.1.0",
     "eslint-plugin-storybook": "10.6.1",
-    "eslint-plugin-svelte": "^3.23.0",
+    "eslint-plugin-svelte": "^3.23.1",
     "postcss": "^8.5.29",
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
