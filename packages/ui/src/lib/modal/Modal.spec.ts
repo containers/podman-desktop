@@ -20,7 +20,8 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { createRawSnippet } from 'svelte';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import Modal from './Modal.svelte';
 
@@ -59,6 +60,101 @@ test('Escape key should trigger close', async () => {
 
   await userEvent.keyboard('{Escape}');
   expect(closeMock).toHaveBeenCalled();
+});
+
+describe('Enter activates the default button', () => {
+  const defaultClick = vi.fn();
+  const otherClick = vi.fn();
+
+  function renderWithButtons(markDefault = true): void {
+    const children = createRawSnippet(() => ({
+      render: (): string =>
+        `<div><input aria-label="name" /><textarea aria-label="notes"></textarea><button type="button">Other</button><button type="button" ${markDefault ? 'data-default' : ''}>OK</button></div>`,
+    }));
+    render(Modal, { children });
+    screen.getByRole('button', { name: 'OK' }).addEventListener('click', defaultClick);
+    screen.getByRole('button', { name: 'Other' }).addEventListener('click', otherClick);
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('Enter in a text input clicks the default button', async () => {
+    renderWithButtons();
+    await userEvent.type(screen.getByLabelText('name'), 'x{Enter}');
+
+    expect(defaultClick).toHaveBeenCalledOnce();
+    expect(otherClick).not.toHaveBeenCalled();
+  });
+
+  test('Enter with focus dropped to the body clicks the default button', async () => {
+    renderWithButtons();
+    (document.activeElement as HTMLElement | null)?.blur();
+    await userEvent.keyboard('{Enter}');
+
+    expect(defaultClick).toHaveBeenCalledOnce();
+  });
+
+  test('Enter in an input outside the modal does not click the default button', async () => {
+    renderWithButtons();
+    const outside = document.createElement('input');
+    document.body.appendChild(outside);
+    await userEvent.type(outside, '{Enter}');
+    outside.remove();
+
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Enter does nothing when no button is marked default', async () => {
+    renderWithButtons(false);
+    await userEvent.type(screen.getByLabelText('name'), '{Enter}');
+
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Enter in a textarea does not click the default button', async () => {
+    renderWithButtons();
+    await userEvent.type(screen.getByLabelText('notes'), '{Enter}');
+
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Enter on a focused non-default button activates only that button', async () => {
+    renderWithButtons();
+    screen.getByRole('button', { name: 'Other' }).focus();
+    await userEvent.keyboard('{Enter}');
+
+    expect(otherClick).toHaveBeenCalledOnce();
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Space on a focused non-default button activates only that button', async () => {
+    renderWithButtons();
+    screen.getByRole('button', { name: 'Other' }).focus();
+    await userEvent.keyboard(' ');
+
+    expect(otherClick).toHaveBeenCalledOnce();
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Enter with a modifier key does not click the default button', async () => {
+    renderWithButtons();
+    await userEvent.type(screen.getByLabelText('name'), '{Control>}{Enter}{/Control}');
+
+    expect(defaultClick).not.toHaveBeenCalled();
+  });
+
+  test('Escape still closes', async () => {
+    const closeMock = vi.fn();
+    const children = createRawSnippet(() => ({
+      render: (): string => '<button type="button" data-default>OK</button>',
+    }));
+    render(Modal, { onclose: closeMock, children });
+    await userEvent.keyboard('{Escape}');
+
+    expect(closeMock).toHaveBeenCalled();
+  });
 });
 
 describe('translation-y', () => {

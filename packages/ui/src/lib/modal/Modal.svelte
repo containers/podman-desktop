@@ -44,8 +44,35 @@ const handle_keydown = (e: KeyboardEvent): void => {
 
   if (e.key === 'Tab') {
     tabWithinParent(e, modal);
+    return;
+  }
+
+  if (e.key === 'Enter') {
+    handleEnter(e);
   }
 };
+
+// Enter activates the button marked `default`, like a native desktop dialog. Controls that consume Enter
+// themselves (buttons, links, textareas, selects, contenteditable) keep their native behavior.
+// A body target means focus was dropped (e.g. a click on the dialog text), so the modal still owns the key.
+function handleEnter(e: KeyboardEvent): void {
+  if (e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+    return;
+  }
+  if (
+    !(e.target instanceof HTMLElement) ||
+    (e.target !== document.body && !modal.contains(e.target)) ||
+    e.target.isContentEditable ||
+    e.target.closest('button, a, textarea, select')
+  ) {
+    return;
+  }
+  const defaultButton = modal.querySelector<HTMLButtonElement>('button[data-default]:enabled');
+  if (defaultButton) {
+    e.preventDefault();
+    defaultButton.click();
+  }
+}
 
 const previously_focused = typeof document !== 'undefined' && (document.activeElement as HTMLElement);
 

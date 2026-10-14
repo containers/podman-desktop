@@ -202,7 +202,8 @@ function getInitialButtonFocus(): 'first' | 'last' | 'none' {
               <Button type="primary" icon={button.icon} on:click={async (): Promise<void> => await clickButton(i)}>{button.label}</Button>
             {/if}
           {:else}
-            <Button type={getButtonType(defaultId === i)} on:click={async (): Promise<void> => await clickButton(i)}>{buttonsType[i]}</Button>
+            <!-- Enter triggers the default button, except in danger dialogs where it must not run the destructive action -->
+            <Button type={getButtonType(defaultId === i)} default={defaultId === i && type !== 'danger'} on:click={async (): Promise<void> => await clickButton(i)}>{buttonsType[i]}</Button>
           {/if}
         {/each}
       

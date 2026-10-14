@@ -128,6 +128,61 @@ describe('MessageBox', () => {
     expect(window.sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, undefined);
   });
 
+  test('Expect Enter with no focused control to select the default button', async () => {
+    const idRequest = 458;
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'My custom title',
+      message: 'My message',
+      buttons: ['Cancel', 'OK'],
+    };
+
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: MessageBoxOptions) => void) => {
+        if (message === 'showMessageBox:open') {
+          callback(messageBoxOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
+
+    render(MessageBox, {});
+
+    const ok = await screen.findByRole('button', { name: 'OK' });
+    expect(ok).toHaveAttribute('data-default');
+    // simulate a click on the dialog text, which drops focus to the body
+    ok.blur();
+    await userEvent.keyboard('{Enter}');
+    expect(window.sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, 1, undefined);
+  });
+
+  test('Expect Enter not to select the destructive default button of a danger dialog', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 459,
+      title: 'Delete',
+      message: 'Delete this?',
+      type: 'danger',
+      buttons: ['Cancel', 'Delete'],
+    };
+
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: MessageBoxOptions) => void) => {
+        if (message === 'showMessageBox:open') {
+          callback(messageBoxOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
+
+    render(MessageBox, {});
+
+    const deleteButton = await screen.findByRole('button', { name: 'Delete' });
+    expect(deleteButton).not.toHaveAttribute('data-default');
+    (document.activeElement as HTMLElement | null)?.blur();
+    await userEvent.keyboard('{Enter}');
+    expect(window.sendShowMessageBoxOnSelect).not.toHaveBeenCalled();
+  });
+
   test('Expect that tabbing works', async () => {
     const idRequest = 567;
 
