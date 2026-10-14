@@ -37,10 +37,10 @@ test('Should display info message', async () => {
     ],
   } as AuditResult;
   render(AuditMessageBox, { auditResult: dummyResult });
-  const infoMessage = screen.getByLabelText('info');
+  const infoMessage = screen.getByRole('status');
 
   expect(infoMessage).toBeInTheDocument();
-  expect(infoMessage).toHaveTextContent('Dummy info message');
+  expect(infoMessage).toHaveTextContent('Info: Dummy info message');
 });
 
 test('Should display warning message', async () => {
@@ -53,10 +53,10 @@ test('Should display warning message', async () => {
     ],
   } as AuditResult;
   render(AuditMessageBox, { auditResult: dummyResult });
-  const warnMessage = screen.getByLabelText('warning');
+  const warnMessage = screen.getByRole('status');
 
   expect(warnMessage).toBeInTheDocument();
-  expect(warnMessage).toHaveTextContent('Dummy warning message');
+  expect(warnMessage).toHaveTextContent('Warning: Dummy warning message');
 });
 
 test('Should display error message', async () => {
@@ -69,10 +69,10 @@ test('Should display error message', async () => {
     ],
   } as AuditResult;
   render(AuditMessageBox, { auditResult: dummyResult });
-  const errMessage = screen.getByLabelText('error');
+  const errMessage = screen.getByRole('alert');
 
   expect(errMessage).toBeInTheDocument();
-  expect(errMessage).toHaveTextContent('Dummy error message');
+  expect(errMessage).toHaveTextContent('Error: Dummy error message');
 });
 
 test('Should update data when audit result is updated', async () => {
@@ -85,10 +85,10 @@ test('Should update data when audit result is updated', async () => {
     ],
   } as AuditResult;
   const renderComponent = render(AuditMessageBox, { auditResult: dummyResult });
-  const errMessage = screen.getByLabelText('error');
+  const errMessage = screen.getByRole('alert');
 
   expect(errMessage).toBeInTheDocument();
-  expect(errMessage).toHaveTextContent('Dummy error message');
+  expect(errMessage).toHaveTextContent('Error: Dummy error message');
 
   // now we update the audit result field
   await renderComponent.rerender({
@@ -105,12 +105,12 @@ test('Should update data when audit result is updated', async () => {
   // wait for tick
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  const afterUpdateError = screen.queryByLabelText('error');
+  const afterUpdateError = screen.queryByRole('alert');
   expect(afterUpdateError).not.toBeInTheDocument();
 
   // check the info message now
-  const infoMessage = screen.getByLabelText('info');
+  const infoMessage = screen.getByRole('status');
 
   expect(infoMessage).toBeInTheDocument();
-  expect(infoMessage).toHaveTextContent('Dummy info message');
+  expect(infoMessage).toHaveTextContent('Info: Dummy info message');
 });
