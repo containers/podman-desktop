@@ -38,6 +38,32 @@ if (process.env.AIRGAP_DOWNLOAD) {
   macosArches = ['x64', 'arm64'];
 }
 
+function isUniversalMacBuild(context) {
+  return (
+    context.electronPlatformName === 'darwin' &&
+    (context.appOutDir.endsWith('mac-universal-x64-temp') || context.appOutDir.endsWith('mac-universal-arm64-temp'))
+  );
+}
+
+function getBuildExtensionPlatforms(context) {
+  const os = {
+    darwin: 'darwin',
+    win32: 'windows',
+    linux: 'linux',
+  }[context.electronPlatformName];
+  const architecture = context.arch === Arch.x64 ? 'amd64' : context.arch === Arch.arm64 ? 'arm64' : undefined;
+
+  if (!os || !architecture) {
+    throw new Error(`Unsupported remote extension build platform: ${context.electronPlatformName}/${context.arch}`);
+  }
+
+  const platform = `${os}/${architecture}`;
+  return {
+    buildPlatform: platform,
+    platforms: isUniversalMacBuild(context) ? ['darwin/amd64', 'darwin/arm64'] : [platform],
+  };
+}
+
 async function addElectronFuses(context) {
   const { electronPlatformName, arch } = context;
 
@@ -80,12 +106,19 @@ async function packageRemoteExtensions(context) {
     return;
   }
 
-  const destination = path.resolve('./extensions-extra');
+  const { buildPlatform, platforms } = getBuildExtensionPlatforms(context);
+  const destination = path.resolve(
+    './extensions-extra',
+    buildPlatform.replace('/', '-'),
+    path.basename(context.appOutDir),
+  );
+  await fs.promises.rm(destination, { recursive: true, force: true });
+  await fs.promises.mkdir(destination, { recursive: true });
 
   await new Promise((resolve, reject) => {
     execFile(
       'node',
-      [downloadScript, `--output=${destination}`],
+      [downloadScript, `--output=${destination}`, `--platform=${platforms.join(',')}`],
       { maxBuffer: 10 * 1024 * 1024 }, // use 10MB else default size is too small and we get stdout maxBuffer length exceeded
       (error, stdout, stderr) => {
         console.log(stdout);
@@ -98,7 +131,10 @@ async function packageRemoteExtensions(context) {
       },
     );
   });
-  context.packager.config.extraResources.push('./extensions-extra/**');
+  context.packager.config.extraResources.push({
+    from: destination,
+    to: 'extensions-extra',
+  });
 }
 
 /**

@@ -29,7 +29,12 @@
     "default": "https://registry.podman-desktop.io/api/extensions.json"
   },
   "extensions": {
-    "remote": [],
+    "remote": [
+      {
+        "name": "apple-container",
+        "oci": "ghcr.io/podman-desktop/extension-apple-container:0.2.0"
+      }
+    ],
     "developmentDocumentation": "https://podman-desktop.io/docs/extensions/developing"
   },
   "helpMenu": {
