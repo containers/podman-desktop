@@ -43,10 +43,10 @@ const loading = $derived(state?.inProgress && action === state?.action);
 
 const style = $derived(
   disable
-    ? 'text-[var(--pd-action-button-disabled-text)] cursor-not-allowed'
+    ? 'text-[var(--pd-button-icon-disabled-text)] cursor-not-allowed'
     : color === 'secondary'
-      ? 'text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)]'
-      : 'text-[var(--pd-action-button-primary-text)] hover:text-[var(--pd-action-button-primary-hover-text)]',
+      ? 'text-[var(--pd-button-icon-text)] hover:text-[var(--pd-button-icon-hover-text)]'
+      : 'text-[var(--pd-button-icon-primary-text)] hover:text-[var(--pd-button-icon-primary-hover-text)]',
 );
 </script>
 

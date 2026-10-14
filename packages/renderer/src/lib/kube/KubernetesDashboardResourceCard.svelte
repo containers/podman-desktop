@@ -32,7 +32,7 @@ async function openLink(): Promise<void> {
     {/if}
   </div>
   <div class="grid grid-cols-{activeCount !== undefined ? '3' : '2'} gap-4 w-full grow items-end">
-    <div class="justify-self-center text-(--pd-action-button-primary-text)"><KubernetesIcon kind={kind} size="40"/></div>
+    <div class="justify-self-center text-(--pd-button-icon-primary-text)"><KubernetesIcon kind={kind} size="40"/></div>
     {#if activeCount !== undefined}
     <div class="flex flex-col">
       <span class="text-[var(--pd-invert-content-card-text)]">Active</span>

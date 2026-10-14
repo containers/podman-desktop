@@ -489,16 +489,16 @@ function getIcon(item: CommandPaletteItem): IconType {
 
         <div class="border-[var(--pd-global-nav-bg-border)] border-t-[1px] flex flex-row items-center px-3 pt-2 gap-4 text-sm">
           <span class="flex items-center gap-2 text-[var(--pd-button-tab-text)] border-[var(--pd-button-tab-border-selected)]">
-            <Icon icon={EnterIcon} class="bg-[var(--pd-action-button-bg)] rounded-sm p-1.5" size='2.2em'/>
+            <Icon icon={EnterIcon} class="bg-[var(--pd-button-icon-bg)] rounded-sm p-1.5" size='2.2em'/>
             To select
           </span>
           <div class="flex items-center gap-2 text-[var(--pd-button-tab-text)] border-[var(--pd-button-tab-border-selected)]">
-            <Icon icon={ArrowUpIcon} class="bg-[var(--pd-action-button-bg)] rounded-sm p-1.5" size='2.2em'/>
-            <Icon icon={ArrowDownIcon} class="bg-[var(--pd-action-button-bg)] rounded-sm p-1.5" size='2.2em'/>
+            <Icon icon={ArrowUpIcon} class="bg-[var(--pd-button-icon-bg)] rounded-sm p-1.5" size='2.2em'/>
+            <Icon icon={ArrowDownIcon} class="bg-[var(--pd-button-icon-bg)] rounded-sm p-1.5" size='2.2em'/>
             To navigate
           </div>
           <div class="flex items-center gap-2 text-[var(--pd-button-tab-text)] border-[var(--pd-button-tab-border-selected)]">
-            <div class='bg-[var(--pd-action-button-bg)] rounded-sm text-base px-1 py-0.5'>esc</div>
+            <div class='bg-[var(--pd-button-icon-bg)] rounded-sm text-base px-1 py-0.5'>esc</div>
             To close
           </div>
         </div>

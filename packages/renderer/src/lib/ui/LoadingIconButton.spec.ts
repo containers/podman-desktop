@@ -35,12 +35,12 @@ type TestScenario = {
 
 const EXPECT_ENABLE = {
   disabled: false,
-  classes: ['text-[var(--pd-action-button-text)]', 'hover:text-[var(--pd-action-button-hover-text)]'],
+  classes: ['text-[var(--pd-button-icon-text)]', 'hover:text-[var(--pd-button-icon-hover-text)]'],
 };
 
 const EXPECT_DISABLE = {
   disabled: true,
-  classes: ['text-[var(--pd-action-button-disabled-text)]', 'cursor-not-allowed'],
+  classes: ['text-[var(--pd-button-icon-disabled-text)]', 'cursor-not-allowed'],
 };
 
 function assert(action: string, expected: { disabled: boolean; classes: string[] }): void {
@@ -100,10 +100,7 @@ test.each([
     },
     expected: {
       disabled: false,
-      classes: [
-        'text-[var(--pd-action-button-primary-text)]',
-        'hover:text-[var(--pd-action-button-primary-hover-text)]',
-      ],
+      classes: ['text-[var(--pd-button-icon-primary-text)]', 'hover:text-[var(--pd-button-icon-primary-hover-text)]'],
     },
   },
   {

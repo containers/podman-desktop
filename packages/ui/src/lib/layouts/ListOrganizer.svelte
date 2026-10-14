@@ -246,8 +246,8 @@ function handleReset(): void {
 
 <div class="relative inline-block {className}" bind:this={containerElement}>
   <button
-    class="cursor-pointer text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
-    class:text-[var(--pd-action-button-hover-text)]={isOpen}
+    class="cursor-pointer text-[var(--pd-button-icon-text)] hover:text-[var(--pd-button-icon-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
+    class:text-[var(--pd-button-icon-hover-text)]={isOpen}
     onclick={toggleDropdown}
     title={title}
     aria-label={title}

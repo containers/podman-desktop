@@ -90,7 +90,7 @@ describe('Custom button', () => {
     const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
     expect(markdownContent).toBeInTheDocument();
     expect(markdownContent).toContainHTML(
-      `<button class="fa-solid ${icon} before:px-1 fa-3x hover:text-[var(--pd-action-button-primary-hover-text)]"`,
+      `<button class="fa-solid ${icon} before:px-1 fa-3x hover:text-[var(--pd-button-icon-primary-hover-text)]"`,
     );
     expect(markdownContent).toContainHTML('data-command="command"');
     expect(markdownContent).toContainHTML(`data-args="arg1"`);
@@ -110,7 +110,7 @@ describe('Custom button', () => {
     const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
     expect(markdownContent).toBeInTheDocument();
     expect(markdownContent).toContainHTML(
-      `<button class="fa-solid ${icon} before:px-1 fa-xs hover:text-[var(--pd-action-button-primary-hover-text)]"`,
+      `<button class="fa-solid ${icon} before:px-1 fa-xs hover:text-[var(--pd-button-icon-primary-hover-text)]"`,
     );
     expect(markdownContent).toContainHTML('data-command="command"');
     expect(markdownContent).toContainHTML(`data-args="arg1"`);

@@ -90,6 +90,6 @@ async function installExtension(): Promise<void> {
     loading={installInProgress} />
   <span
     class:hidden={!installInProgress}
-    class="absolute -top-[15px] right-0 text-[var(--pd-action-button-spinner)]"
+    class="absolute -top-[15px] right-0 text-[var(--pd-button-spinner)]"
     style="font-size: 8px">{percentage}</span>
 </button>

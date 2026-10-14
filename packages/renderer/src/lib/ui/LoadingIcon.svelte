@@ -27,6 +27,6 @@ let {
     aria-label="spinner"
     class="{loading
       ? ''
-      : 'hidden'} {loadingWidthClass} {loadingHeightClass} rounded-full animate-spin -translate-1/2 border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent absolute left-1/2 top-1/2">
+      : 'hidden'} {loadingWidthClass} {loadingHeightClass} rounded-full animate-spin -translate-1/2 border border-solid border-[var(--pd-button-spinner)] border-t-transparent absolute left-1/2 top-1/2">
   </div>
 </div>
