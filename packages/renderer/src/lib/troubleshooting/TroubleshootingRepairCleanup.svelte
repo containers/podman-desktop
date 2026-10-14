@@ -80,8 +80,8 @@ async function cleanup(): Promise<void> {
 
   <div>
     {#if cleanupFailures.length > 0}
-      <div class="text-[var(--pd-state-error)] text-xs flex flex-row items-center" role="alert" aria-label="error">
-        <Icon class="pr-1" size="1x" icon={faWarning} />{cleanupFailures.length} failures
+      <div class="text-[var(--pd-state-error)] text-xs flex flex-row items-center" role="alert">
+        <Icon class="pr-1" size="1x" icon={faWarning} ariaHidden={true} />{cleanupFailures.length} failures
       </div>
     {/if}
   </div>
