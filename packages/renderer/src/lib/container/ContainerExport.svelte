@@ -3,10 +3,12 @@ import { NavigationPage } from '@desktop-framework/api';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { Button, ButtonRow, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 
 import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
 import { Uri } from '/@/lib/uri/Uri';
 import { handleNavigation } from '/@/navigation';
+import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
 
 import type { ContainerInfoUI } from './ContainerInfoUI';
@@ -111,6 +113,7 @@ async function exportContainer(): Promise<void> {
                 aria-label="Select output file">Browse...</Button>
             </div>
             <ButtonRow class="mt-5">
+              <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
               <Button
                 on:click={exportContainer}
                 icon={faDownload}

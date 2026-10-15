@@ -25,10 +25,13 @@ import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 
 import type { ImageInfoUI } from './ImageInfoUI';
 import SaveImages from './SaveImages.svelte';
+
+vi.mock(import('tinro'));
 
 const imageInfo: ImageInfoUI = {
   id: 'id',
@@ -314,4 +317,15 @@ test('Expect images with same ID and tag but different engines to render without
   // Both images should be displayed without errors - query all with same name since they have identical display names
   const alpineImages = screen.getAllByRole('textbox', { name: 'image docker.io/library/alpine:latest' });
   expect(alpineImages).toHaveLength(2);
+});
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  saveImagesInfo.set([imageInfo]);
+  lastPage.set({ name: 'Images', path: '/images' });
+  await waitRender();
+
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
 });

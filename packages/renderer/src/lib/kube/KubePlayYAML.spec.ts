@@ -26,6 +26,7 @@ import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
 import { providerInfos } from '/@/stores/providers';
 
 import KubePlayYAML from './KubePlayYAML.svelte';
@@ -568,4 +569,15 @@ test('validation: play button enabled when file is selected in file mode', async
   // Play button should now be enabled
   const playButton = screen.getByRole('button', { name: 'Play' });
   expect(playButton).not.toBeDisabled();
+});
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  setup();
+  lastPage.set({ name: 'Pods', path: '/pods' });
+  render(KubePlayYAML, {});
+
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/pods');
 });

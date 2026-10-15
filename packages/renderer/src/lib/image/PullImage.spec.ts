@@ -29,6 +29,7 @@ import { router } from 'tinro';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { handleNavigation } from '/@/navigation';
+import { lastPage } from '/@/stores/breadcrumb';
 import { providerInfos } from '/@/stores/providers';
 import { recommendedRegistries } from '/@/stores/recommendedRegistries';
 
@@ -36,6 +37,7 @@ import PullImage from './PullImage.svelte';
 
 vi.mock(import('/@/navigation'));
 vi.mock(import('/@/lib/ui/TerminalWindow.svelte'));
+vi.mock(import('tinro'));
 
 const CONTAINER_CONNECTION_MOCK: ProviderContainerConnectionInfo = {
   connectionType: 'container',
@@ -753,4 +755,14 @@ describe('Preferred Registries', () => {
       expect(window.searchImageInRegistry).toHaveBeenCalledWith(expect.objectContaining({ registry: 'docker.io' }));
     });
   });
+});
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  lastPage.set({ name: 'Images', path: '/images' });
+  render(PullImage);
+
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
 });

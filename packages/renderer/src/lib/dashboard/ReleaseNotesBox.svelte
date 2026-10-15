@@ -88,6 +88,7 @@ onDestroy(async () => {
           </div>
         {/if}
         <ButtonRow class="mt-2">
+          <Button type="secondary" on:click={onClose}>Dismiss</Button>
           <Link on:click={openReleaseNotes}>Learn more</Link>
           <Button on:click={updatePodmanDesktop} hidden={!$updateAvailable} icon={faCircleArrowUp}>Update</Button>
         </ButtonRow>

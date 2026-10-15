@@ -6,6 +6,7 @@ import { router } from 'tinro';
 
 import EngineFormPage from '/@/lib/ui//EngineFormPage.svelte';
 import { Uri } from '/@/lib/uri/Uri';
+import { lastPage } from '/@/stores/breadcrumb';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -164,6 +165,7 @@ async function saveImages(): Promise<void> {
 
       <div class="pt-5 w-full">
         <ButtonRow>
+          <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
           <Button
             on:click={saveImages}
             inProgress={inProgress}

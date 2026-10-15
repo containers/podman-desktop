@@ -25,10 +25,13 @@ import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
 
 import ContainerExport from './ContainerExport.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
+
+vi.mock(import('tinro'));
 
 // the store holds ContainerInfoUI now
 const container: ContainerInfoUI = {
@@ -117,4 +120,15 @@ test('Expect error shown if export function fails', async () => {
   expect(goToMock).not.toBeCalled();
   expect(errorDiv).toBeInTheDocument();
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('error while exporting');
+});
+
+test('Expect Close button to navigate to last page when clicked', async () => {
+  containersInfos.set([container]);
+  lastPage.set({ name: 'Containers', path: '/containers' });
+  await waitRender();
+
+  const closeButton = await screen.findByText('Close');
+  await userEvent.click(closeButton);
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers');
 });

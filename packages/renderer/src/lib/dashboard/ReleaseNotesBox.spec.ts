@@ -163,6 +163,16 @@ test('expect clicking on close button to not show banner anymore', async () => {
   expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
 });
 
+test('expect clicking on Dismiss button to not show banner anymore', async () => {
+  render(ReleaseNotesBox);
+  const dismissButton = await screen.findByRole('button', { name: 'Dismiss' });
+  await userEvent.click(dismissButton);
+
+  await waitFor(() => expect(updateConfigurationValueMock).toBeCalledWith('releaseNotesBanner.show', '1.1.0'));
+  expect(screen.queryByText(responseJSON.title)).not.toBeInTheDocument();
+  expect(screen.queryByText(responseJSON.summary)).not.toBeInTheDocument();
+});
+
 test('expect no release notes widget if no notesUrl as well', async () => {
   podmanDesktopGetReleaseNotesMock.mockResolvedValue({
     releaseNotesAvailable: false,

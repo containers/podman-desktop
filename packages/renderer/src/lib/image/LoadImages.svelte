@@ -10,6 +10,7 @@ import { router } from 'tinro';
 
 import ContainerConnectionDropdown from '/@/lib/forms/ContainerConnectionDropdown.svelte';
 import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
+import { lastPage } from '/@/stores/breadcrumb';
 import { providerInfos } from '/@/stores/providers';
 
 let archivesToLoad = $state<string[]>([]);
@@ -111,6 +112,7 @@ async function loadImages(): Promise<void> {
 
     <div class="pt-5">
       <ButtonRow>
+        <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
         <Button
           on:click={loadImages}
           inProgress={inProgress}
