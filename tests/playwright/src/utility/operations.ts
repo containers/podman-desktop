@@ -685,7 +685,7 @@ export async function setDockerCompatibilityFeature(page: Page, enable: boolean)
   }
 
   //Close the preferences bar
-  await settingsBar.expandPreferencesTab();
+  await settingsBar.collapsePreferencesTab();
 }
 
 export async function setStatusBarProvidersFeature(

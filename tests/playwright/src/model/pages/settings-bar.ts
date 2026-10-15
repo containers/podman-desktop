@@ -29,6 +29,7 @@ export class SettingsBar {
   readonly registriesTab: Locator;
   readonly authenticationTab: Locator;
   readonly preferencesTab: Locator;
+  readonly preferencesDisclosureButton: Locator;
   readonly cliToolsTab: Locator;
   readonly kubernetesTab: Locator;
 
@@ -42,6 +43,10 @@ export class SettingsBar {
     this.cliToolsTab = this.settingsNavBar.getByRole('link', { name: 'CLI Tools' });
     this.kubernetesTab = this.settingsNavBar.getByRole('link', { name: 'Kubernetes' });
     this.preferencesTab = this.settingsNavBar.getByRole('link', { name: 'preferences' });
+    this.preferencesDisclosureButton = this.settingsNavBar.getByRole('button', {
+      name: 'Toggle preferences',
+      exact: true,
+    });
   }
 
   public async openTabPage<T extends SettingsPage>(type: new (page: Page) => T): Promise<T> {
@@ -67,7 +72,18 @@ export class SettingsBar {
   }
 
   public async expandPreferencesTab(): Promise<void> {
-    await playExpect(this.preferencesTab).toBeVisible({ timeout: 10_000 });
-    await this.preferencesTab.click();
+    await playExpect(this.preferencesDisclosureButton).toBeVisible({ timeout: 10_000 });
+    if ((await this.preferencesDisclosureButton.getAttribute('aria-expanded')) !== 'true') {
+      await this.preferencesDisclosureButton.click();
+    }
+    await playExpect(this.preferencesDisclosureButton).toHaveAttribute('aria-expanded', 'true');
+  }
+
+  public async collapsePreferencesTab(): Promise<void> {
+    await playExpect(this.preferencesDisclosureButton).toBeVisible({ timeout: 10_000 });
+    if ((await this.preferencesDisclosureButton.getAttribute('aria-expanded')) !== 'false') {
+      await this.preferencesDisclosureButton.click();
+    }
+    await playExpect(this.preferencesDisclosureButton).toHaveAttribute('aria-expanded', 'false');
   }
 }
