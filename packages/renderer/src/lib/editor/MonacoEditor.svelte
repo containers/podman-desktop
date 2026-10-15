@@ -21,6 +21,7 @@ let divEl: HTMLDivElement;
 let editor: monaco.editor.IStandaloneCodeEditor;
 let Monaco;
 let isDarkUnsubscribe: Unsubscriber;
+let linkOpenerDisposable: monaco.IDisposable | undefined;
 
 const dispatch = createEventDispatcher<{ contentChange: string }>();
 
@@ -79,10 +80,23 @@ onMount(async () => {
     // Emit the content change so we can use it in the parent component
     dispatch('contentChange', editor.getValue());
   });
+
+  linkOpenerDisposable = Monaco.editor.registerLinkOpener({
+    async open(resource: monaco.Uri): Promise<boolean> {
+      try {
+        await window.openExternal(resource.toString(true));
+        return true;
+      } catch (err: unknown) {
+        console.error('Failed to open external link from Monaco editor', err);
+        return false;
+      }
+    },
+  });
 });
 
 onDestroy(() => {
   editor?.dispose();
+  linkOpenerDisposable?.dispose();
   if (isDarkUnsubscribe) {
     isDarkUnsubscribe();
   }
