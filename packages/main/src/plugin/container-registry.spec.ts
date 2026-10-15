@@ -403,7 +403,7 @@ class DockerodeTestStatusError extends Error {
 
 let containerRegistry: TestContainerProviderRegistry;
 
-const telemetryTrackMock = vi.fn().mockResolvedValue({});
+const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
 const apiSender: ApiSenderType = {
@@ -411,17 +411,13 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
-// Mock that the return value is true
-// since we check libpod API setting enabled to be true or not
-const getConfigMock = vi.fn().mockReturnValue(true);
+const getConfigMock = vi.fn();
 const getConfigurationMock = vi.fn();
-getConfigurationMock.mockReturnValue({
-  get: getConfigMock,
-});
 const configurationRegistry = {
   getConfiguration: getConfigurationMock,
 } as unknown as ConfigurationRegistry;
 
+vi.mock(import('./image-registry.js'));
 vi.mock(import('node:fs'));
 vi.mock(import('node:stream/promises'), async () => {
   return {
@@ -434,8 +430,11 @@ vi.mock(import('node:fs/promises'));
 vi.mock(import('/@/plugin/podman/kube.js'));
 
 beforeEach(() => {
-  vi.mocked(apiSender.receive).mockClear();
-  vi.mocked(apiSender.send).mockClear();
+  vi.resetAllMocks();
+  // Enable the libpod API setting by default.
+  getConfigMock.mockReturnValue(true);
+  getConfigurationMock.mockReturnValue({ get: getConfigMock });
+  vi.mocked(ImageRegistry.prototype.getRegistryConfig).mockResolvedValue({});
 
   const certificates: Certificates = {
     init: vi.fn(),
@@ -1696,7 +1695,6 @@ describe('buildImage', () => {
     vi.mocked(fs.existsSync).mockImplementation(path => {
       return String(path).endsWith('Containerfile.0') || String(path).endsWith('Containerfile.1');
     });
-    vi.mocked(dockerAPI.buildImage).mockClear();
 
     // Mock tar.pack to call the original one with the additional parameter `fs`,
     // virtualizing an fs with empty directories
@@ -1805,7 +1803,6 @@ describe('buildImage', () => {
     vi.mocked(fs.existsSync).mockImplementation(path => {
       return String(path).endsWith('Containerfile.0') || String(path).endsWith('Containerfile.1');
     });
-    vi.mocked(dockerAPI.buildImage).mockClear();
 
     // Mock tar.pack to call the original one with the additional parameter `fs`,
     // virtualizing an fs with empty directories
@@ -4048,7 +4045,6 @@ test('check handleEvents with loadArchive', async () => {
 
 test('check handleEvents is not calling the console.log for health_status event', async () => {
   const consoleLogSpy = vi.spyOn(console, 'log');
-  consoleLogSpy.mockClear();
   const getEventsMock = vi.fn();
   let eventsMockCallback: ((ignored: unknown, stream: PassThrough) => void) | undefined;
   // keep the function passed in parameter of getEventsMock
@@ -4154,7 +4150,6 @@ test('check handleEvents normalizes Docker v1.52+ event before emitting to exten
 
 test('check handleEvents does not log Docker compound health_status actions', async () => {
   const consoleLogSpy = vi.spyOn(console, 'log');
-  consoleLogSpy.mockClear();
 
   const getEventsMock = vi.fn();
   let eventsMockCallback: ((ignored: unknown, stream: PassThrough) => void) | undefined;
@@ -4225,7 +4220,6 @@ test('check handleEvents prefers Podman-style fields over Docker-style fields', 
 });
 
 test('check handleEvents tracks telemetry when stream emits error', async () => {
-  telemetryTrackMock.mockClear();
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   const getEventsMock = vi.fn();
   let eventsMockCallback: ((ignored: unknown, stream: PassThrough) => void) | undefined;
@@ -5896,7 +5890,6 @@ describe('saveImages', () => {
       },
       api,
     } as unknown as InternalContainerProvider);
-    pipelineMock.mockClear();
     await containerRegistry.saveImages({
       outputTarget: 'path',
       images: [
@@ -6346,7 +6339,6 @@ test('saveImage succeeds', async () => {
     },
     api,
   } as unknown as InternalContainerProvider);
-  pipelineMock.mockClear();
   await containerRegistry.saveImage('podman1', 'an-image', '/path/to/file');
 
   expect(pipelineMock).toHaveBeenCalledOnce();
@@ -6380,7 +6372,6 @@ test('saveImage succeeds when a passing a cancellable token never canceled', asy
     },
     api,
   } as unknown as InternalContainerProvider);
-  pipelineMock.mockClear();
   await containerRegistry.saveImage('podman1', 'an-image', '/path/to/file', token);
 
   expect(pipelineMock).toHaveBeenCalledOnce();
@@ -6767,9 +6758,6 @@ describe('prune images', () => {
       status: vi.fn(),
     },
   };
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
 
   test('prune all with podman ', async () => {
     // set provider
@@ -6930,10 +6918,6 @@ describe('kube play', () => {
   const KUBE_PLAY_OPT = {
     replace: true,
   };
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
 
   test('non-supported version should throw an error', async () => {
     vi.mocked(PODMAN_PROVIDER.api.version).mockResolvedValue(PODMAN_523_VERSION);
@@ -7330,7 +7314,6 @@ describe('createSecret', () => {
     };
 
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
-    telemetryTrackMock.mockClear();
 
     await containerRegistry.createSecret({
       name: 'my-secret',
@@ -7366,7 +7349,6 @@ describe('createSecret', () => {
     };
 
     containerRegistry.addInternalProvider('podman', internalContainerProvider);
-    telemetryTrackMock.mockClear();
 
     await expect(
       containerRegistry.createSecret({
@@ -7469,7 +7451,6 @@ describe('removeSecret', () => {
     };
 
     containerRegistry.addInternalProvider('podman1', internalContainerProvider);
-    telemetryTrackMock.mockClear();
 
     await containerRegistry.removeSecret('podman1', 'secret123');
 
@@ -7499,7 +7480,6 @@ describe('removeSecret', () => {
     };
 
     containerRegistry.addInternalProvider('podman1', internalContainerProvider);
-    telemetryTrackMock.mockClear();
 
     await expect(containerRegistry.removeSecret('podman1', 'secret123')).rejects.toThrow('remove failed');
 
@@ -7826,7 +7806,7 @@ describe('updateImages', () => {
   const pullMock = vi.fn();
   const followProgressMock = vi.fn();
   const imageInspectMock = vi.fn();
-  const getImageMock = vi.fn(() => ({ inspect: imageInspectMock }));
+  const getImageMock = vi.fn();
   const fakeDockerode = {
     pull: pullMock,
     modem: { followProgress: followProgressMock },
@@ -7834,13 +7814,10 @@ describe('updateImages', () => {
   } as unknown as Dockerode;
 
   beforeEach(() => {
-    pullMock.mockReset();
-    followProgressMock.mockReset();
-    getImageMock.mockClear();
-    imageInspectMock.mockReset();
+    getImageMock.mockReturnValue({ inspect: imageInspectMock });
     imageInspectMock.mockResolvedValue({ RepoDigests: ['nginx@sha256:old'] });
-    telemetryTrackMock.mockReset();
     followProgressMock.mockImplementation((_s: unknown, f: (err: Error | null) => void) => f(null));
+    pullMock.mockResolvedValue({});
     containerRegistry.addInternalProvider('testEngine', {
       name: 'testEngine',
       id: 'testEngine',
@@ -7850,7 +7827,7 @@ describe('updateImages', () => {
   });
 
   test('returns an up-to-date result without pulling the image', async () => {
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus').mockResolvedValue({
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus).mockResolvedValue({
       status: 'normal',
       updateAvailable: false,
       message: 'Up to date',
@@ -7872,14 +7849,12 @@ describe('updateImages', () => {
   });
 
   test('cancels in-progress image pulls through the abort signal', async () => {
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus').mockResolvedValue({
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus).mockResolvedValue({
       status: 'normal',
       updateAvailable: true,
       remoteDigest: 'sha256:new',
       message: '',
     });
-    vi.spyOn(ImageRegistry.prototype, 'getAuthconfigForImage').mockReturnValue(undefined);
-    pullMock.mockResolvedValue({});
     followProgressMock.mockImplementation((_stream: unknown, onFinished: (error: Error | null) => void): void => {
       const abortSignal = pullMock.mock.calls[0]?.[1]?.abortSignal as AbortSignal;
       abortSignal.addEventListener('abort', () => onFinished(new Error('Update canceled')));
@@ -7905,7 +7880,7 @@ describe('updateImages', () => {
 
   test('does not pull when the update is skipped', async () => {
     const mockStatus: ImageUpdateStatus = { status: 'skipped', updateAvailable: false, message: 'Skipped' };
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus').mockResolvedValue(mockStatus);
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus).mockResolvedValue(mockStatus);
 
     const [result] = await containerRegistry.updateImages([
       { engineId: 'testEngine', image: 'nginx:latest', tag: 'latest' },
@@ -7919,7 +7894,7 @@ describe('updateImages', () => {
   });
 
   test('checks update status with current repository digests from the backend', async () => {
-    const checkImageUpdateStatusMock = vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus').mockResolvedValue({
+    const checkImageUpdateStatusMock = vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus).mockResolvedValue({
       status: 'normal',
       updateAvailable: false,
       message: 'Up to date',
@@ -7936,11 +7911,9 @@ describe('updateImages', () => {
 
   test('checks and updates each tag independently when an image has multiple tags', async () => {
     imageInspectMock.mockResolvedValue({ RepoDigests: ['example.com/app@sha256:old'] });
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus')
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus)
       .mockResolvedValueOnce({ status: 'normal', updateAvailable: false, message: 'Up to date' })
       .mockResolvedValueOnce({ status: 'normal', updateAvailable: true, message: 'Update available' });
-    vi.spyOn(ImageRegistry.prototype, 'getAuthconfigForImage').mockReturnValue(undefined);
-    pullMock.mockResolvedValue({});
 
     const results = await containerRegistry.updateImages([
       { engineId: 'testEngine', image: 'example.com/app:stable', tag: 'stable' },
@@ -7966,8 +7939,7 @@ describe('updateImages', () => {
 
   test('returns error when engine not found', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
-    const checkImageUpdateStatusMock = vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus');
-    checkImageUpdateStatusMock.mockClear();
+    const checkImageUpdateStatusMock = vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus);
 
     const [result] = await containerRegistry.updateImages([
       { engineId: 'nonexistent', image: 'nginx:latest', tag: 'latest' },
@@ -7990,7 +7962,7 @@ describe('updateImages', () => {
 
   test('returns every result when one image update rejects', async () => {
     vi.spyOn(console, 'error').mockReturnValue(undefined);
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus').mockResolvedValue({
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus).mockResolvedValue({
       status: 'normal',
       updateAvailable: false,
       message: 'Up to date',
@@ -8013,7 +7985,7 @@ describe('updateImages', () => {
   });
 
   test('pulls updated images, skips failures, and tracks one batch event', async () => {
-    vi.spyOn(ImageRegistry.prototype, 'checkImageUpdateStatus')
+    vi.mocked(ImageRegistry.prototype.checkImageUpdateStatus)
       .mockResolvedValueOnce({
         status: 'normal',
         updateAvailable: true,
@@ -8025,8 +7997,6 @@ describe('updateImages', () => {
         updateAvailable: false,
         message: 'Registry unavailable',
       });
-    vi.spyOn(ImageRegistry.prototype, 'getAuthconfigForImage').mockReturnValue(undefined);
-    pullMock.mockResolvedValue({});
 
     const results = await containerRegistry.updateImages([
       { engineId: 'testEngine', image: 'nginx:latest', tag: 'latest' },
