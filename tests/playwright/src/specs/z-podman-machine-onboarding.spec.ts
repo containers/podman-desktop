@@ -328,8 +328,8 @@ test.describe
 
 async function verifyPodmanOnboardingPageVisible(page: Page): Promise<void> {
   const onboardingPage = new PodmanOnboardingPage(page);
-  await playExpect(onboardingPage.header).toBeVisible();
   await playExpect(onboardingPage.mainPage).toBeVisible();
+  await playExpect(onboardingPage.nextStepButton).toBeEnabled();
 }
 
 async function openMachineDetailsPage(

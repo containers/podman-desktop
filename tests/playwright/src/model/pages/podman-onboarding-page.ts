@@ -57,8 +57,8 @@ export class PodmanOnboardingPage extends OnboardingPage {
     } = {},
   ): Promise<void> {
     return test.step(`Create Podman machine '${machineName}' from onboarding`, async () => {
-      await playExpect(this.header).toBeVisible();
       await playExpect(this.mainPage).toBeVisible();
+      await playExpect(this.nextStepButton).toBeEnabled();
       await this.nextStepButton.click();
       await playExpect(this.onboardingStatusMessage).toHaveText(
         `We could not find any Podman machine. Let's create one!`,
