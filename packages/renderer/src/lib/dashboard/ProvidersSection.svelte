@@ -1,36 +1,26 @@
 <script lang="ts">
-import { SvelteMap } from 'svelte/reactivity';
-
 import { providerInfos } from '/@/stores/providers';
 
 import ProviderConfigured from './ProviderConfigured.svelte';
 import ProviderConfiguring from './ProviderConfiguring.svelte';
-import { DoNothingMode, type InitializationContext } from './ProviderInitUtils';
+import { ProviderInitializationContexts } from './ProviderInitUtils';
 import ProviderInstalled from './ProviderInstalled.svelte';
 import ProviderNotInstalled from './ProviderNotInstalled.svelte';
 import ProviderReady from './ProviderReady.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 
-const providerInitContexts = new SvelteMap<string, InitializationContext>();
+const providerInitContexts = new ProviderInitializationContexts();
 
-$: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
-$: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
-$: providersConfiguring = $providerInfos.filter(provider => provider.status === 'configuring');
-$: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
-$: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
-$: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
-$: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
-
-function getInitializationContext(id: string): InitializationContext {
-  let context: InitializationContext | undefined = providerInitContexts.get(id);
-
-  if (!context) {
-    context = { mode: DoNothingMode };
-    providerInitContexts.set(id, context);
-  }
-  return context;
-}
+let providersNotInstalled = $derived($providerInfos.filter(provider => provider.status === 'not-installed'));
+let providersInstalled = $derived($providerInfos.filter(provider => provider.status === 'installed'));
+let providersConfiguring = $derived($providerInfos.filter(provider => provider.status === 'configuring'));
+let providersConfigured = $derived($providerInfos.filter(provider => provider.status === 'configured'));
+let providersReady = $derived(
+  $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started'),
+);
+let providersStarting = $derived($providerInfos.filter(provider => provider.status === 'starting'));
+let providersStopped = $derived($providerInfos.filter(provider => provider.status === 'stopped'));
 </script>
 
 <!-- Provider is ready display a box to indicate some information -->
@@ -53,7 +43,7 @@ display a box to indicate how to make the provider ready -->
     {#each providersInstalled as providerInstalled (providerInstalled.internalId)}
         <ProviderInstalled
             provider={providerInstalled}
-            initializationContext={getInitializationContext(providerInstalled.internalId)} />
+            initializationContext={providerInitContexts.get(providerInstalled.internalId)} />
     {/each}
 {/if}
 
@@ -62,7 +52,7 @@ display a box to indicate how to make the provider ready -->
     {#each providersConfiguring as providerConfiguring (providerConfiguring.internalId)}
         <ProviderConfiguring
             provider={providerConfiguring}
-            initializationContext={getInitializationContext(providerConfiguring.internalId)} />
+            initializationContext={providerInitContexts.get(providerConfiguring.internalId)} />
     {/each}
 {/if}
 
@@ -72,7 +62,7 @@ display a box to indicate how to make the provider ready /* (providerConfigured.
     {#each providersConfigured as providerConfigured (providerConfigured.internalId)}
         <ProviderConfigured
             provider={providerConfigured}
-            initializationContext={getInitializationContext(providerConfigured.internalId)} />
+            initializationContext={providerInitContexts.get(providerConfigured.internalId)} />
     {/each}
 {/if}
 

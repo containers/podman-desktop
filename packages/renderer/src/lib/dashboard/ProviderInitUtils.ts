@@ -31,6 +31,19 @@ export interface InitializationContext {
   error?: string;
 }
 
+export class ProviderInitializationContexts {
+  private readonly contexts = new Map<string, InitializationContext>();
+
+  get(internalId: string): InitializationContext {
+    let context = this.contexts.get(internalId);
+    if (!context) {
+      context = { mode: DoNothingMode };
+      this.contexts.set(internalId, context);
+    }
+    return context;
+  }
+}
+
 export const InitializationSteps = [
   { icon: Fa, iconProps: { icon: faWrench } },
   { icon: Fa, iconProps: { icon: faPlay } },
