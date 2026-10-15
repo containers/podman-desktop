@@ -122,7 +122,6 @@ let podmanBinary: PodmanBinary;
 let rosettaProvisioner: RosettaProvisioner;
 
 let certificateDetectionService: CertificateDetectionService | undefined;
-let certificateDetectionInterval: NodeJS.Timeout | undefined;
 
 const wslHelper = new WslHelper();
 const qemuHelper = new QemuHelper();
@@ -2021,10 +2020,6 @@ export async function deactivate(): Promise<void> {
   await inversifyBinding?.dispose();
   inversifyBinding = undefined;
 
-  if (certificateDetectionInterval) {
-    clearInterval(certificateDetectionInterval);
-    certificateDetectionInterval = undefined;
-  }
   certificateDetectionService = undefined;
 }
 
@@ -2447,22 +2442,7 @@ async function initializeCertificateDetection(telemetryLogger: extensionApi.Tele
     enableTelemetry: true,
   });
 
-  // Initial detection
-  _doDetectCustomCertificates(certificateDetectionService);
-
-  // Set up periodic detection (every 24 hours)
-  certificateDetectionInterval = setInterval(
-    () => {
-      if (certificateDetectionService) {
-        _doDetectCustomCertificates(certificateDetectionService);
-      }
-    },
-    24 * 60 * 60 * 1000,
-  );
-}
-
-function _doDetectCustomCertificates(certificateService: CertificateDetectionService): void {
-  certificateService.detectCustomCertificates().catch((error: unknown) => {
+  certificateDetectionService.detectCustomCertificates().catch((error: unknown) => {
     console.warn(`Can't detect custom registry certificates: ${error}`);
   });
 }

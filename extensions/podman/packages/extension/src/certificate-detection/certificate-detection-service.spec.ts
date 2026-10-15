@@ -250,21 +250,59 @@ describe('CertificateDetectionService', () => {
       });
     });
 
-    test('should send telemetry when enabled', async () => {
-      vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
+    test('should send telemetry when certificates are found', async () => {
+      createMockFileSystemWithCerts('registry.example.com', [
+        createMockDirent({
+          name: 'ca.crt',
+          isFile: (): boolean => true,
+          parentPath: '/etc/containers/certs.d/registry.example.com',
+        }),
+      ]);
 
       await serviceWithTelemetry.detectCustomCertificates();
 
       expect(mockTelemetryLogger.logUsage).toHaveBeenCalledWith(
         'custom_certs',
         expect.objectContaining({
-          using_custom_certificates: false,
-          certificate_count: 0,
+          using_custom_certificates: true,
+          certificate_count: 1,
           scan_duration_ms: expect.any(Number),
           is_windows: false,
           is_linux: false,
           is_mac: false,
           errors: '',
+        }),
+      );
+    });
+
+    test('should not send telemetry when no certificates and no errors are found', async () => {
+      vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
+
+      const result = await serviceWithTelemetry.detectCustomCertificates();
+
+      expect(result).toMatchObject({
+        hasCustomCertificates: false,
+        certificateCount: 0,
+        scanDurationMs: expect.any(Number),
+        errors: [],
+      });
+      expect(mockTelemetryLogger.logUsage).not.toHaveBeenCalled();
+    });
+
+    test('should send telemetry when no certificates are found but the scan reported errors', async () => {
+      const serviceWithTimeout = new CertificateDetectionService(mockTelemetryLogger, { scanTimeoutMs: 1 });
+
+      vi.mocked(fs.access).mockResolvedValue();
+      vi.mocked(fs.readdir).mockReturnValue(new Promise(resolve => setTimeout(() => resolve([]), 100)));
+
+      await serviceWithTimeout.detectCustomCertificates();
+
+      expect(mockTelemetryLogger.logUsage).toHaveBeenCalledWith(
+        'custom_certs',
+        expect.objectContaining({
+          using_custom_certificates: false,
+          certificate_count: 0,
+          errors: 'Scan operation timed out',
         }),
       );
     });
@@ -285,7 +323,13 @@ describe('CertificateDetectionService', () => {
   describe('platform detection', () => {
     test('should detect Windows environment with telemetry enabled', async () => {
       vi.mocked(env).isWindows = true;
-      vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
+      createMockFileSystemWithCerts('registry.example.com', [
+        createMockDirent({
+          name: 'ca.crt',
+          isFile: (): boolean => true,
+          parentPath: '/etc/containers/certs.d/registry.example.com',
+        }),
+      ]);
 
       await serviceWithTelemetry.detectCustomCertificates();
 
@@ -301,7 +345,13 @@ describe('CertificateDetectionService', () => {
 
     test('should detect macOS environment with telemetry enabled', async () => {
       vi.mocked(env).isMac = true;
-      vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
+      createMockFileSystemWithCerts('registry.example.com', [
+        createMockDirent({
+          name: 'ca.crt',
+          isFile: (): boolean => true,
+          parentPath: '/etc/containers/certs.d/registry.example.com',
+        }),
+      ]);
 
       await serviceWithTelemetry.detectCustomCertificates();
 
@@ -317,7 +367,13 @@ describe('CertificateDetectionService', () => {
 
     test('should detect Linux environment with telemetry enabled', async () => {
       vi.mocked(env).isLinux = true;
-      vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
+      createMockFileSystemWithCerts('registry.example.com', [
+        createMockDirent({
+          name: 'ca.crt',
+          isFile: (): boolean => true,
+          parentPath: '/etc/containers/certs.d/registry.example.com',
+        }),
+      ]);
 
       await serviceWithTelemetry.detectCustomCertificates();
 
@@ -337,8 +393,13 @@ describe('CertificateDetectionService', () => {
       vi.mocked(env).isWindows = true;
       vi.mocked(os.homedir).mockReturnValue('C:\\Users\\testuser');
 
-      vi.mocked(fs.access).mockResolvedValue();
-      vi.mocked(fs.readdir).mockResolvedValue([]);
+      createMockFileSystemWithCerts('registry.example.com', [
+        createMockDirent({
+          name: 'ca.crt',
+          isFile: (): boolean => true,
+          parentPath: '/etc/containers/certs.d/registry.example.com',
+        }),
+      ]);
 
       await serviceWithTelemetry.detectCustomCertificates();
 

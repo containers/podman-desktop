@@ -211,6 +211,10 @@ export class CertificateDetectionService {
   }
 
   private async sendTelemetry(result: CertificateDetectionResult): Promise<void> {
+    if (!result.hasCustomCertificates && result.errors.length === 0) {
+      return;
+    }
+
     const telemetryRecords = {
       using_custom_certificates: result.hasCustomCertificates,
       certificate_count: result.certificateCount,
