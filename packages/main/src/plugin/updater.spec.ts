@@ -24,7 +24,7 @@ import type { Configuration } from '@desktop-framework/extension-api';
 import { app, shell } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -571,6 +571,49 @@ test('expect command update to be called when configuration value on startup', (
   expect(commandRegistryMock.executeCommand).toHaveBeenCalledWith('update', 'startup');
 });
 
+test.each([
+  // 12 hours in the future - within the 24h "Remind me tomorrow" snooze
+  { now: '2026-01-01T00:00:00Z', timestamp: '2026-01-01T12:00:00Z', expectedCalled: false },
+  // in the past relative to the current (mocked) time
+  { now: '2026-01-02T00:00:00Z', timestamp: '2026-01-01T12:00:00Z', expectedCalled: true },
+  // further out than a full snooze (e.g. saved while the system clock was wrong): ignored
+  { now: '2026-01-01T00:00:00Z', timestamp: '2027-01-01T00:00:00Z', expectedCalled: true },
+])(
+  'expect command update called=$expectedCalled with now $now and next reminder timestamp $timestamp',
+  ({ now, timestamp, expectedCalled }) => {
+    vi.setSystemTime(new Date(now));
+
+    let mListener: (() => void) | undefined;
+    vi.mocked(autoUpdater.on).mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+      if (channel === 'update-available') mListener = listener as () => void;
+      return {} as unknown as AppUpdater;
+    });
+
+    mockConfiguration({
+      'update.reminder': 'startup',
+      'update.nextReminderTimestamp': new Date(timestamp).getTime(),
+    });
+
+    new Updater(
+      messageBoxMock,
+      configurationRegistryMock,
+      statusBarRegistryMock,
+      commandRegistryMock,
+      taskManagerMock,
+      apiSenderMock,
+    ).init();
+
+    assert(mListener);
+    mListener();
+
+    if (expectedCalled) {
+      expect(commandRegistryMock.executeCommand).toHaveBeenCalledWith('update', 'startup');
+    } else {
+      expect(commandRegistryMock.executeCommand).not.toHaveBeenCalled();
+    }
+  },
+);
+
 test('expect command update not to be called when configuration value on never', () => {
   let mListener: (() => void) | undefined;
   vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
@@ -635,7 +678,9 @@ test('clicking on "Later" then "Don\'t show again" should set the configuration 
   expect(configurationMock.update).toHaveBeenCalledWith('update.reminder', 'never');
 });
 
-test('clicking on "Later" then "Remind me later" should only dismiss the dialog', async () => {
+test('clicking on "Later" then "Remind me tomorrow" should snooze the prompt for 24 hours', async () => {
+  vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
   vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
     response: 'Later',
     dropdownIndex: 0,
@@ -645,10 +690,36 @@ test('clicking on "Later" then "Remind me later" should only dismiss the dialog'
 
   await mListener('startup');
 
-  expect(configurationMock.update).not.toHaveBeenCalled();
+  expect(configurationMock.update).not.toHaveBeenCalledWith('update.reminder', 'never');
+  expect(configurationMock.update).toHaveBeenCalledWith(
+    'update.nextReminderTimestamp',
+    new Date('2026-01-02T00:00:00Z').getTime(),
+  );
   expect(taskManagerMock.createTask).not.toHaveBeenCalled();
   expect(autoUpdater.downloadUpdate).not.toHaveBeenCalled();
   expect(shell.openExternal).not.toHaveBeenCalled();
+});
+
+test('expect an error to be logged if saving the next reminder timestamp fails', async () => {
+  vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
+  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
+    response: 'Later',
+    dropdownIndex: 0,
+  });
+
+  vi.mocked(configurationMock.update).mockRejectedValueOnce(new Error('write failed'));
+
+  const mListener = initUpdaterAndGetUpdateListener();
+
+  await mListener('startup');
+
+  await vi.waitFor(() =>
+    expect(console.error).toHaveBeenCalledWith(
+      'Something went wrong while trying to update update.nextReminderTimestamp preference',
+      new Error('write failed'),
+    ),
+  );
 });
 
 describe('expect update command to depends on context', async () => {
@@ -709,7 +780,7 @@ describe('expect update command to depends on context', async () => {
       buttons: [
         'Update now',
         `What's new`,
-        { type: 'dropdownButton', heading: 'Later', buttons: ['Remind me later', `Don't show again`] },
+        { type: 'dropdownButton', heading: 'Later', buttons: ['Remind me tomorrow', `Don't show again`] },
       ],
       message:
         'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',

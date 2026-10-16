@@ -85,8 +85,8 @@ test.describe('Podman Desktop Update installation', { tag: '@update-install' }, 
     const laterDropdownButton = updateAvailableDialog.getByRole('button', { name: 'Later' });
     await playExpect(laterDropdownButton).toBeVisible();
     await laterDropdownButton.click();
-    const remindLaterOption = updateAvailableDialog.getByRole('button', { name: 'Remind me later' });
-    await playExpect(remindLaterOption).toBeVisible();
+    const remindTomorrowOption = updateAvailableDialog.getByRole('button', { name: 'Remind me tomorrow' });
+    await playExpect(remindTomorrowOption).toBeVisible();
     const doNotShowAgainOption = updateAvailableDialog.getByRole('button', { name: `Don't show again` });
     await playExpect(doNotShowAgainOption).toBeVisible();
     const closeButton = updateAvailableDialog.getByRole('button', { name: 'Close' });
