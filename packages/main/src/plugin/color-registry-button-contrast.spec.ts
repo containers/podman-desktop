@@ -18,12 +18,17 @@
 
 import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { wcagContrast } from 'culori';
-import { assert, describe, expect, test, vi } from 'vitest';
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { Disposable } from '/@/plugin/types/disposable.js';
 
 import { ColorRegistry } from './color-registry.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
+import type { DefaultConfiguration } from './default-configuration.js';
+import type { Directories } from './directories.js';
+import type { LockedConfiguration } from './locked-configuration.js';
+
+vi.mock(import('./configuration-registry.js'));
 
 class TestColorRegistry extends ColorRegistry {
   override initColors(): void {
@@ -31,14 +36,25 @@ class TestColorRegistry extends ColorRegistry {
   }
 }
 
-const registry = new TestColorRegistry(
-  { send: vi.fn(), receive: vi.fn() } as ApiSenderType,
-  {
-    onDidChangeConfiguration: vi.fn(),
-    addConfigurationEnum: vi.fn().mockReturnValue(Disposable.noop()),
-  } as unknown as ConfigurationRegistry,
-);
-registry.initColors();
+const apiSender: ApiSenderType = {
+  send: vi.fn(),
+  receive: vi.fn(),
+};
+
+let registry: TestColorRegistry;
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.mocked(ConfigurationRegistry.prototype.addConfigurationEnum).mockReturnValue(Disposable.noop());
+  const configurationRegistry = new ConfigurationRegistry(
+    apiSender,
+    {} as Directories,
+    {} as DefaultConfiguration,
+    {} as LockedConfiguration,
+  );
+  registry = new TestColorRegistry(apiSender, configurationRegistry);
+  registry.initColors();
+});
 
 // WCAG 1.4.11 non-text contrast
 const MIN_CONTRAST = 3;
@@ -49,10 +65,10 @@ const SURFACES = ['content-bg', 'content-card-bg', 'content-card-inset-bg', 'mod
 const RINGS = ['button-focus-ring', 'button-focus-ring-danger'];
 
 describe.each(['light', 'dark', 'hc-light', 'hc-dark'])('button focus ring contrast in %s theme', theme => {
-  const colors = new Map(registry.listColors(theme).map(c => [c.id, c.value]));
   const cases = RINGS.flatMap(ring => SURFACES.map(surface => [ring, surface] as const));
 
   test.each(cases)('%s against %s is at least 3:1', (ring, surface) => {
+    const colors = new Map(registry.listColors(theme).map(c => [c.id, c.value]));
     const ringValue = colors.get(ring);
     const surfaceValue = colors.get(surface);
     assert(ringValue, `${ring} is not registered in ${theme}`);

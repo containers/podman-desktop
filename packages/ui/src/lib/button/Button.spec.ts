@@ -312,3 +312,16 @@ test('Disabled pressed button should keep aria-pressed but use disabled styling'
   expect(button).toHaveClass('bg-[var(--pd-button-disabled-bg)]');
   expect(button).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 });
+
+// the contrast spec in packages/main checks these tokens, so the ring must really use them
+test.each([
+  ['primary', 'focus-visible:outline-[var(--pd-button-focus-ring)]'],
+  ['secondary', 'focus-visible:outline-[var(--pd-button-focus-ring)]'],
+  ['link', 'focus-visible:outline-[var(--pd-button-focus-ring)]'],
+  ['tab', 'focus-visible:outline-[var(--pd-button-focus-ring)]'],
+  ['danger', 'focus-visible:outline-[var(--pd-button-focus-ring-danger)]'],
+])('Check %s button uses its focus ring token', (type, ringClass) => {
+  render(Button, { type: type as any });
+
+  expect(screen.getByRole('button')).toHaveClass(ringClass);
+});
