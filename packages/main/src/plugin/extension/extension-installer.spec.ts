@@ -716,7 +716,6 @@ describe('installing an extension replacing a bundled one', () => {
     sendLog = vi.fn();
     sendError = vi.fn();
     sendEnd = vi.fn();
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     getImageConfigLabelsMock.mockResolvedValue({
       'org.opencontainers.image.title': 'kind',
@@ -748,7 +747,8 @@ describe('installing an extension replacing a bundled one', () => {
     expect(messageBox.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Replace Extension?',
-        message: `This extension is replacing your existing extension named 'Kind'.`,
+        message: 'Are you sure you want to replace extension Kind?',
+        detail: 'Uninstalling the new extension restores the bundled Kind extension.',
       }),
     );
     expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('podman-desktop.kind');
@@ -769,19 +769,20 @@ describe('installing an extension replacing a bundled one', () => {
   });
 
   test('removes the extracted files when the confirmation cannot be asked', async () => {
+    vi.spyOn(console, 'error');
     const error = new Error('no renderer');
     vi.mocked(messageBox.showMessageBox).mockRejectedValue(error);
 
     await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
 
-    expect(vi.mocked(console.error)).toHaveBeenCalledWith('Error while asking to replace a bundled extension', error);
+    expect(console.error).toHaveBeenCalledWith('Error while asking to replace a bundled extension', error);
     expect(rm).toHaveBeenCalledWith(installedExtension.path, { recursive: true, force: true });
     expect(sendError).toHaveBeenCalledWith(`Installation of ${imageToPull} cancelled.`);
     expect(loadExtensionsMock).not.toHaveBeenCalled();
   });
 
   test('does not ask for confirmation when the bundled extension is not loaded', async () => {
-    // e.g. the extension replacing it has been removed to be updated
+    // e.g. restoring it failed after the extension replacing it was uninstalled
     listExtensionsMock.mockResolvedValue([]);
 
     await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);

@@ -439,8 +439,8 @@ export class ExtensionInstaller {
         }
         const result = await this.messageBox.showMessageBox({
           title: 'Replace Extension?',
-          message: `This extension is replacing your existing extension named '${bundledExtension.displayName}'.`,
-          detail: 'Uninstalling it restores your existing extension.',
+          message: `Are you sure you want to replace extension ${bundledExtension.displayName}?`,
+          detail: `Uninstalling the new extension restores the bundled ${bundledExtension.displayName} extension.`,
           buttons: ['Replace', 'Cancel'],
           type: 'question',
         });
