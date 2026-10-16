@@ -780,16 +780,6 @@ describe('installing an extension replacing a bundled one', () => {
     expect(loadExtensionsMock).not.toHaveBeenCalled();
   });
 
-  test('does not ask for confirmation when installing an update', async () => {
-    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull, undefined, undefined, {
-      confirm: false,
-    });
-
-    expect(messageBox.showMessageBox).not.toHaveBeenCalled();
-    expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('podman-desktop.kind');
-    expect(loadExtensionsMock).toHaveBeenCalledWith([installedExtension]);
-  });
-
   test('does not ask for confirmation when the bundled extension is not loaded', async () => {
     // e.g. the extension replacing it has been removed to be updated
     listExtensionsMock.mockResolvedValue([]);

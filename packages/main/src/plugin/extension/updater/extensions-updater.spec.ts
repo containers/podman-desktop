@@ -151,14 +151,11 @@ test('should check for updates and try to update one extension automatically', a
     { id: 'foo.extension1', ociUri: 'oci-registry.foo/foo/bar1', version: '2.0.0' },
   ]);
 
-  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
+  expect(extensionInstaller.installFromImage).toBeCalledWith(
     expect.anything(),
     expect.anything(),
     expect.anything(),
     'oci-registry.foo/foo/bar1',
-    undefined,
-    undefined,
-    { confirm: false },
   );
 
   expect(extensionLoader.removeExtension).toBeCalledWith('foo.extension1');
@@ -167,7 +164,7 @@ test('should check for updates and try to update one extension automatically', a
   expect(telemetry.track).toBeCalled();
 });
 
-test('should update an extension replacing a bundled one without asking to replace it again', async () => {
+test('should not update an extension replacing a bundled one', async () => {
   const overridingExtension: ExtensionInfo = {
     id: 'foo.extension1',
     name: 'extension1',
@@ -193,18 +190,7 @@ test('should update an extension replacing a bundled one without asking to repla
 
   await extensionsUpdater.init();
 
-  expect(extensionLoaderSetExtensionsUpdatesMock).toHaveBeenCalledWith([
-    { id: 'foo.extension1', ociUri: 'oci-registry.foo/foo/bar1', version: '2.0.0' },
-  ]);
-  expect(extensionLoader.removeExtension).toHaveBeenCalledWith('foo.extension1');
-  // the installer marks the new version as replacing the bundled extension again
-  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
-    expect.anything(),
-    expect.anything(),
-    expect.anything(),
-    'oci-registry.foo/foo/bar1',
-    undefined,
-    undefined,
-    { confirm: false },
-  );
+  expect(extensionLoaderSetExtensionsUpdatesMock).not.toHaveBeenCalled();
+  expect(extensionLoader.removeExtension).not.toHaveBeenCalled();
+  expect(extensionInstaller.installFromImage).not.toHaveBeenCalled();
 });

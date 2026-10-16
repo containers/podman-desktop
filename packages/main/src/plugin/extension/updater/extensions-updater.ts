@@ -131,8 +131,9 @@ export class ExtensionsUpdater {
     const installedExtensions = await this.extensionLoader.listExtensions();
 
     // now, for each installed extension that is not a built-in extension, check if there is a newer version available
+    // an extension replacing a bundled one is not updated, like the bundled extension it replaces
     const extensionsToUpdate = installedExtensions
-      .filter(extension => extension.removable === true)
+      .filter(extension => extension.removable === true && !extension.overrides)
       .map(installedExtension => {
         // find the extension in the list of available extensions
         const availableExtension = availableExtensions.find(extension => extension.id === installedExtension.id);
@@ -228,16 +229,7 @@ export class ExtensionsUpdater {
       };
 
       // install the extension
-      // the user already accepted replacing a bundled extension when installing the extension being updated
-      await this.extensionInstaller.installFromImage(
-        reportMessage,
-        reportMessage,
-        reportMessage,
-        ociUri,
-        undefined,
-        undefined,
-        { confirm: false },
-      );
+      await this.extensionInstaller.installFromImage(reportMessage, reportMessage, reportMessage, ociUri);
     } catch (err) {
       console.error(`Error while updating extension ${extensionId}:`, err);
       telemetryOptions.error = err;

@@ -41,11 +41,6 @@ import { MessageBox } from '/@/plugin/message-box.js';
 import { TaskManager } from '/@/plugin/tasks/task-manager.js';
 import { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
-export interface InstallFromImageOptions {
-  // ask the user before replacing a bundled extension, disabled for updates
-  confirm?: boolean;
-}
-
 @injectable()
 export class ExtensionInstaller {
   #dockerDesktopInstaller: DockerDesktopInstaller;
@@ -313,7 +308,6 @@ export class ExtensionInstaller {
     imageName: string,
     extensionAnalyzed?: (extension: AnalyzedExtension) => void,
     catalogExtensionId?: string,
-    options?: InstallFromImageOptions,
   ): Promise<void> {
     const task = this.taskManager.createTask({
       title: `Installing extension ${imageName}`,
@@ -335,7 +329,6 @@ export class ExtensionInstaller {
         (progress: number) => {
           task.progress = progress;
         },
-        options,
       );
     } catch (error: unknown) {
       task.error = String(error);
@@ -355,7 +348,6 @@ export class ExtensionInstaller {
     extensionAnalyzed?: (extension: AnalyzedExtension) => void,
     catalogExtensionId?: string,
     onProgress?: (progress: number) => void,
-    options?: InstallFromImageOptions,
   ): Promise<void> {
     // now collect all transitive dependencies
     const analyzedExtensions: AnalyzedExtension[] = [];
@@ -393,7 +385,7 @@ export class ExtensionInstaller {
       return;
     }
 
-    if (options?.confirm !== false && !(await this.confirmOverrides(analyzedExtensions))) {
+    if (!(await this.confirmOverrides(analyzedExtensions))) {
       await this.removeAnalyzedExtensions(analyzedExtensions);
       sendError(`Installation of ${imageName} cancelled.`);
       return;
