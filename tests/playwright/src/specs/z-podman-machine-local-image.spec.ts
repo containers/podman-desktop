@@ -57,6 +57,11 @@ const TIMEOUT_LONG = 60_000;
 const TIMEOUT_MACHINE_CREATION = 360_000;
 const TIMEOUT_AFTER_ALL = 180_000;
 
+// Whether user-mode networking should be enabled for new machines. Derived
+// from the same env var used by createPodmanMachineFromCLI so the creation
+// form matches the job's default machine configuration.
+const enableUserNet = process.env.PODMAN_NETWORKING === '1';
+
 // ---------------------------------------------------------------------------
 // Common skip condition: Linux is always excluded and TEST_PODMAN_MACHINE must
 // be set, matching the convention used in the other machine test suites.
@@ -83,13 +88,15 @@ test.afterAll(async ({ runner }) => {
 
   try {
     if (test.info().status === 'failed') {
-      // Reset any machines left in a broken state by the test, then restore
-      // the default machine so subsequent suites in the same CI run have a
-      // clean environment. We deliberately do NOT wait for startup here
-      // because the next suite will do that if it needs a running machine.
+      // Reset any machines left in a broken state before recreating the default.
       await resetPodmanMachinesFromCLI();
-      await createPodmanMachineFromCLI();
     }
+    // Always ensure the default machine is initialised and started so that
+    // subsequent suites in the same CI run have a clean running environment.
+    // Starting the local-image machine with startNow=true deactivates the
+    // previously active machine on single-active-VM providers (e.g. WSL),
+    // so we need to restore it unconditionally — not only on failure.
+    await createPodmanMachineFromCLI();
   } catch (error) {
     console.log('Error during teardown cleanup:', error);
   }
@@ -115,11 +122,6 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
     `Skipped: requires non-Linux platform, TEST_PODMAN_MACHINE=true, and airgap image at ${AIRGAP_IMAGE_PATH}`,
   );
 
-  test.afterAll(async ({ page }) => {
-    test.setTimeout(TIMEOUT_AFTER_ALL);
-    await deletePodmanMachine(page, LOCAL_IMAGE_MACHINE_NAME);
-  });
-
   test('Create podman machine using airgap-embedded image', async ({ page, navigationBar }) => {
     test.setTimeout(TIMEOUT_MACHINE_CREATION + TIMEOUT_MEDIUM);
 
@@ -141,6 +143,7 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
       const creationPage = new PodmanOnboardingPage(page);
       await creationPage.machineCreationForm.setupAndCreateMachine(LOCAL_IMAGE_MACHINE_NAME, {
         isRootful: true,
+        enableUserNet,
         startNow: true,
         virtualizationProvider: getVirtualizationProvider(),
         imagePath: AIRGAP_IMAGE_PATH,
@@ -180,7 +183,7 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
   });
 
   test('Delete airgap machine', async ({ page }) => {
-    test.setTimeout(TIMEOUT_LONG);
+    test.setTimeout(TIMEOUT_AFTER_ALL);
     await deletePodmanMachine(page, LOCAL_IMAGE_MACHINE_NAME);
   });
 });
@@ -201,11 +204,6 @@ test.describe('Podman machine creation with externally provided image path', { t
     baseSkipCondition || !EXTERNAL_IMAGE_PATH,
     'Skipped: requires non-Linux platform, TEST_PODMAN_MACHINE=true, and MACHINE_IMAGE_PATH env var to be set',
   );
-
-  test.afterAll(async ({ page }) => {
-    test.setTimeout(TIMEOUT_AFTER_ALL);
-    await deletePodmanMachine(page, LOCAL_IMAGE_MACHINE_NAME);
-  });
 
   test('Create podman machine using externally provided image path', async ({ page, navigationBar }) => {
     test.setTimeout(TIMEOUT_MACHINE_CREATION + TIMEOUT_MEDIUM);
@@ -228,6 +226,7 @@ test.describe('Podman machine creation with externally provided image path', { t
       const creationPage = new PodmanOnboardingPage(page);
       await creationPage.machineCreationForm.setupAndCreateMachine(LOCAL_IMAGE_MACHINE_NAME, {
         isRootful: true,
+        enableUserNet,
         startNow: true,
         virtualizationProvider: getVirtualizationProvider(),
         imagePath: EXTERNAL_IMAGE_PATH,
@@ -267,7 +266,7 @@ test.describe('Podman machine creation with externally provided image path', { t
   });
 
   test('Delete externally-imaged machine', async ({ page }) => {
-    test.setTimeout(TIMEOUT_LONG);
+    test.setTimeout(TIMEOUT_AFTER_ALL);
     await deletePodmanMachine(page, LOCAL_IMAGE_MACHINE_NAME);
   });
 });
