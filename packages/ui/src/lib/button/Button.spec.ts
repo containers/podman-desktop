@@ -23,6 +23,7 @@ import '@testing-library/jest-dom/vitest';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 
 import Button from './Button.svelte';
@@ -212,16 +213,41 @@ test('Unknown button type falls back to primary styling', () => {
   consoleWarnSpy.mockRestore();
 });
 
-test('Button should have aria-disabled when disabled', async () => {
-  render(Button, { disabled: true });
-  const button = screen.getByRole('button');
-  expect(button).toHaveAttribute('aria-disabled', 'true');
-});
+test.each([{ disabled: true }, { inProgress: true }])(
+  'Button with %o stays focusable, exposes aria-disabled and keeps its title',
+  async props => {
+    render(Button, { ...props, title: 'Why it is unavailable' });
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).not.toHaveAttribute('disabled');
+    expect(button).toHaveAttribute('title', 'Why it is unavailable');
+    expect(button).toHaveClass('focus-visible:outline-[var(--pd-button-focus-ring)]');
+    await userEvent.tab();
+    expect(button).toHaveFocus();
+  },
+);
 
-test('Button should have aria-disabled when inProgress', async () => {
-  render(Button, { inProgress: true });
+test.each([{ disabled: true }, { inProgress: true }])(
+  'Button with %o does not call onclick on click, Enter or Space',
+  async props => {
+    const onclick = vi.fn();
+    render(Button, { ...props, onclick });
+    const button = screen.getByRole('button');
+    await userEvent.click(button);
+    button.focus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    expect(onclick).not.toHaveBeenCalled();
+  },
+);
+
+test('Enabled button has no aria-disabled and calls onclick', async () => {
+  const onclick = vi.fn();
+  render(Button, { onclick });
   const button = screen.getByRole('button');
-  expect(button).toHaveAttribute('aria-disabled', 'true');
+  expect(button).not.toHaveAttribute('aria-disabled');
+  await userEvent.click(button);
+  expect(onclick).toHaveBeenCalledOnce();
 });
 
 test('Button should have aria-busy when inProgress', async () => {

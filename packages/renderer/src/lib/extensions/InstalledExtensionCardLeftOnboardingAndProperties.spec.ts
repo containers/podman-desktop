@@ -73,7 +73,7 @@ test('Expect to have onboarding button for extension', async () => {
   expect(onboardingButton).toBeInTheDocument();
 
   // expect button to be enabled
-  expect(onboardingButton).toBeEnabled();
+  expect(onboardingButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // click on it
   await fireEvent.click(onboardingButton);
@@ -115,7 +115,7 @@ test('expect edit properties button being enabled', async () => {
   expect(editPropertiesButton).toBeInTheDocument();
 
   // expect button to be enabled
-  expect(editPropertiesButton).toBeEnabled();
+  expect(editPropertiesButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // click on it
   await fireEvent.click(editPropertiesButton);

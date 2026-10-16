@@ -127,13 +127,13 @@ test('Expect Preview on GitHub button to be disabled if there is no title or des
   });
 
   // default: disabled
-  expect(preview).toBeDisabled();
+  expect(preview).toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.type(title, 'Bug title');
   await userEvent.type(description, 'Bug description');
 
   await vi.waitFor(() => {
-    expect(preview).toBeEnabled();
+    expect(preview).not.toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -214,7 +214,7 @@ test.each<GitHubFeedbackCategory>(['bug', 'feature'])(
 
     // wait enable
     await vi.waitFor(() => {
-      expect(preview).toBeEnabled();
+      expect(preview).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     // preview

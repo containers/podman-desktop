@@ -48,12 +48,19 @@ if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
 
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
 
+// aria-disabled instead of native disabled keeps the button focusable, so the title is reachable by keyboard
+function handleClick(): void {
+  if (disabled || inProgress) return;
+  onclick();
+}
+
 let pressedActive = $derived(pressed === true && !disabled && !inProgress);
 
 let classes = $derived.by(() => {
   let result: string;
   if (disabled || inProgress) {
-    result = 'bg-[var(--pd-button-disabled-bg)] text-[var(--pd-button-disabled-text)] border border-transparent';
+    result =
+      'bg-[var(--pd-button-disabled-bg)] text-[var(--pd-button-disabled-text)] border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pd-button-focus-ring)]';
   } else if (type === 'primary') {
     result = pressedActive
       ? 'bg-[var(--pd-button-primary-hover-bg)] text-[var(--pd-button-primary-text)] border shadow-[0px_1px_4px_0px_var(--pd-shadow-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pd-button-focus-ring)]'
@@ -107,9 +114,8 @@ let classes = $derived.by(() => {
   hidden={hidden}
   title={title}
   aria-label={ariaLabel}
-  onclick={onclick}
-  disabled={disabled || inProgress}
-  aria-disabled={disabled || inProgress}
+  onclick={handleClick}
+  aria-disabled={disabled || inProgress || undefined}
   aria-busy={inProgress}
   aria-pressed={pressed}>
   {#if icon ?? inProgress}

@@ -109,7 +109,7 @@ test('Expect input and button enabled by default', async () => {
   render(FileInput, { options: { title: 'title' } });
 
   expect(screen.getByRole('textbox')).not.toBeDisabled();
-  expect(screen.getByRole('button')).not.toBeDisabled();
+  expect(screen.getByRole('button')).not.toHaveAttribute('aria-disabled', 'true');
   expect(screen.queryByLabelText('error')).not.toBeInTheDocument();
 });
 
@@ -120,7 +120,7 @@ test('Expect clicking browse does not open file dialog when disabled', async () 
   expect(input).toBeDisabled();
 
   const browseButton = screen.getByRole('button');
-  expect(browseButton).toBeDisabled();
+  expect(browseButton).toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(browseButton);
 

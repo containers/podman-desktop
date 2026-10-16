@@ -73,7 +73,7 @@ test('Expect load button to be disabled', async () => {
   render(LoadImages);
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
-  expect(btnLoadImages).toBeDisabled();
+  expect(btnLoadImages).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect loadImage button to be enabled when atleast one archive is selected', async () => {
@@ -86,7 +86,7 @@ test('Expect loadImage button to be enabled when atleast one archive is selected
 
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
-  expect(btnLoadImages).toBeEnabled();
+  expect(btnLoadImages).not.toHaveAttribute('aria-disabled', 'true');
 
   expect(vi.mocked(window.openDialog)).toBeCalledWith({
     selectors: ['multiSelections', 'openFile'],
@@ -104,7 +104,7 @@ test('Expect loadImage button to be disabled when atleast one archive is selecte
 
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
-  expect(btnLoadImages).toBeDisabled();
+  expect(btnLoadImages).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect load button calls loadImages func', async () => {
@@ -119,7 +119,7 @@ test('Expect load button calls loadImages func', async () => {
 
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
-  expect(btnLoadImages).toBeEnabled();
+  expect(btnLoadImages).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(btnLoadImages);
 
   expect(vi.mocked(window.loadImages)).toBeCalledWith({
@@ -140,7 +140,7 @@ test('Expect error shown if loadImages function fails', async () => {
 
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
-  expect(btnLoadImages).toBeEnabled();
+  expect(btnLoadImages).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(btnLoadImages);
 
   expect(vi.mocked(window.loadImages)).toBeCalledWith({

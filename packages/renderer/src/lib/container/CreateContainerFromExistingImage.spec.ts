@@ -148,11 +148,11 @@ test('Expect that textbox and two buttons show up when page opened', async () =>
   expect(entry).toBeInTheDocument();
   const cancelButton = screen.getByRole('button', { name: 'Cancel' });
   expect(cancelButton).toBeInTheDocument();
-  expect(cancelButton).not.toBeDisabled();
+  expect(cancelButton).not.toHaveAttribute('aria-disabled', 'true');
 
   const actionButton = screen.getByRole('button', { name: 'Run Image' });
   expect(actionButton).toBeInTheDocument();
-  expect(actionButton).toBeDisabled();
+  expect(actionButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect that typeahead menu has Local Images and Registry Images headings', async () => {
@@ -199,7 +199,7 @@ test('Expect not a local image to have an active pull image and run button', asy
   const pullImagebutton = screen.getByRole('button', { name: 'Pull Image and Run' });
 
   expect(pullImagebutton).toBeInTheDocument();
-  expect(pullImagebutton).not.toBeDisabled();
+  expect(pullImagebutton).not.toHaveAttribute('aria-disabled', 'true');
 
   await user.click(pullImagebutton);
   expect(window.pullImage).toHaveBeenCalledWith(pInfo, 'docker.io/image12', expect.any(Function));
@@ -230,7 +230,7 @@ test('Expect a local image to have an active run image button', async () => {
   const selectImagebutton = screen.getByRole('button', { name: 'Run Image' });
 
   expect(selectImagebutton).toBeInTheDocument();
-  expect(selectImagebutton).not.toBeDisabled();
+  expect(selectImagebutton).not.toHaveAttribute('aria-disabled', 'true');
 
   await user.click(selectImagebutton);
   await vi.waitFor(() => {
@@ -340,7 +340,7 @@ describe('container connections', () => {
 
     // Get the run button and click on it
     const runBtn = getByRole('button', { name: 'Pull Image and Run' });
-    expect(runBtn).toBeEnabled();
+    expect(runBtn).not.toHaveAttribute('aria-disabled', 'true');
 
     const { promise } = Promise.withResolvers<void>();
     vi.mocked(window.pullImage).mockReturnValue(promise);

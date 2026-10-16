@@ -28,7 +28,7 @@ test('Expect copy in clipboard', async () => {
   render(EmptyScreen, { icon: '', commandline: 'podman run hello:world', onclick: mock });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(button);
   expect(mock).toBeCalledWith('podman run hello:world');
 });

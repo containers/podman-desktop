@@ -35,7 +35,7 @@ test('button should be enabled', async () => {
   const btn = getByRole('button', {
     name: 'Collect and save logs as .zip',
   });
-  expect(btn).toBeEnabled();
+  expect(btn).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('save button should call window#troubleshootingSaveLogs', async () => {

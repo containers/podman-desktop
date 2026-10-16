@@ -64,7 +64,7 @@ test('Expect Save button is disabled if output path is not selected', async () =
 
   const saveButton = screen.getByRole('button', { name: 'Save images' });
   expect(saveButton).toBeInTheDocument();
-  expect(saveButton).toBeDisabled();
+  expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect deleteImage is not visible if page has been opened with one item', async () => {
@@ -102,7 +102,7 @@ test('Expect save button to be enabled if output target is selected and saveImag
 
   const saveButton = screen.getByRole('button', { name: 'Save images' });
   expect(saveButton).toBeInTheDocument();
-  expect(saveButton).toBeDisabled();
+  expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
   const selectOutputPathButton = screen.getByRole('button', { name: 'Select output folder' });
   expect(selectOutputPathButton).toBeInTheDocument();
@@ -111,7 +111,7 @@ test('Expect save button to be enabled if output target is selected and saveImag
 
   const saveButtonAfterSelection = screen.getByRole('button', { name: 'Save images' });
   expect(saveButtonAfterSelection).toBeInTheDocument();
-  expect(saveButtonAfterSelection).toBeEnabled();
+  expect(saveButtonAfterSelection).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(saveButtonAfterSelection);
 
@@ -168,7 +168,7 @@ test('Expect saveImages function called with tagged images', async () => {
 
   const saveButton = screen.getByRole('button', { name: 'Save images' });
   expect(saveButton).toBeInTheDocument();
-  expect(saveButton).toBeEnabled();
+  expect(saveButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(saveButton);
 
@@ -207,7 +207,7 @@ test('Expect error message dispayed if saveImages fails', async () => {
 
   const saveButtonAfterSelection = screen.getByRole('button', { name: 'Save images' });
   expect(saveButtonAfterSelection).toBeInTheDocument();
-  expect(saveButtonAfterSelection).toBeEnabled();
+  expect(saveButtonAfterSelection).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(saveButtonAfterSelection);
 

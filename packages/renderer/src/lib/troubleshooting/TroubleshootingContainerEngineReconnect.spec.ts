@@ -30,7 +30,7 @@ test('Check reconnect button is available and click on it', async () => {
   const reconnectButton = screen.getByRole('button', { name: 'Reconnect providers' });
   expect(reconnectButton).toBeInTheDocument();
   // click on the ping button
-  expect(reconnectButton).toBeEnabled();
+  expect(reconnectButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(reconnectButton);
 
   // check that we have the ping result
@@ -53,7 +53,7 @@ test('Check reconnect button is available and get error', async () => {
   const reconnectButton = screen.getByRole('button', { name: 'Reconnect providers' });
   expect(reconnectButton).toBeInTheDocument();
   // click on the ping button
-  expect(reconnectButton).toBeEnabled();
+  expect(reconnectButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(reconnectButton);
 
   // check that we have the reconnect result

@@ -60,7 +60,7 @@ test('Expect export button to be disabled', async () => {
   await waitRender();
   const btnExportcontainer = screen.getByRole('button', { name: 'Export container' });
   expect(btnExportcontainer).toBeInTheDocument();
-  expect(btnExportcontainer).toBeDisabled();
+  expect(btnExportcontainer).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect export button to be enabled when output target is selected', async () => {
@@ -73,7 +73,7 @@ test('Expect export button to be enabled when output target is selected', async 
 
   const btnExportcontainer = screen.getByRole('button', { name: 'Export container' });
   expect(btnExportcontainer).toBeInTheDocument();
-  expect(btnExportcontainer).toBeEnabled();
+  expect(btnExportcontainer).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect export function called when export button is clicked', async () => {

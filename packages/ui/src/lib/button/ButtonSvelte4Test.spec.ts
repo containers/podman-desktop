@@ -63,3 +63,17 @@ test('click event should be propagated', async () => {
 
   expect(onclickMock).toHaveBeenCalledOnce();
 });
+
+test('click event should not be propagated when disabled', async () => {
+  const onclickMock = vi.fn();
+  const { getByRole } = render(ButtonSvelte4Test, {
+    onclick: onclickMock,
+    icon: undefined,
+    content: undefined,
+    disabled: true,
+  });
+
+  await fireEvent.click(getByRole('button'));
+
+  expect(onclickMock).not.toHaveBeenCalled();
+});

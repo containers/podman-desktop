@@ -130,7 +130,7 @@ describe.each([
     });
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
-    expect(createButton).toBeEnabled();
+    expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect Close button redirects to Resources page', async () => {
@@ -385,11 +385,11 @@ describe.each([
     await vi.waitFor(() => expect(vi.mocked(window.auditConnectionParameters)).toBeCalled());
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
-    await vi.waitFor(() => expect(createButton).toBeDisabled());
+    await vi.waitFor(() => expect(createButton).toHaveAttribute('aria-disabled', 'true'));
 
     await fireEvent.input(inputElement as Element, { target: { value: '2' } });
     await vi.waitFor(() => expect(vi.mocked(window.auditConnectionParameters)).toBeCalledTimes(2));
-    await vi.waitFor(() => expect(createButton).toBeEnabled());
+    await vi.waitFor(() => expect(createButton).not.toHaveAttribute('aria-disabled', 'true'));
   });
 });
 

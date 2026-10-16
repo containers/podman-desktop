@@ -95,7 +95,7 @@ describe('UpdateContext', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that empty context name disables save button', async () => {
@@ -106,13 +106,13 @@ describe('UpdateContext', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const contextName = screen.getByLabelText('Name');
     await userEvent.click(contextName);
     await userEvent.paste('');
 
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that empty context namespace disables save button', async () => {
@@ -123,13 +123,13 @@ describe('UpdateContext', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const contextNamespace = screen.getByLabelText('Namespace');
     await userEvent.click(contextNamespace);
     await userEvent.paste('');
 
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that valid context name enables save button', async () => {
@@ -140,13 +140,13 @@ describe('UpdateContext', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const contextName = screen.getByLabelText('Name');
     await userEvent.click(contextName);
     await userEvent.paste('some-valid-name');
 
-    expect(saveButton).toBeEnabled();
+    expect(saveButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('basic contexts should have inputs prefill', async () => {

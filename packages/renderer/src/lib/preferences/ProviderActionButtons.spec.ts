@@ -581,7 +581,7 @@ describe('ProviderActionButtons', () => {
     });
 
     const createButton = screen.getByRole('button', { name: `Create new ${provider.name}` });
-    expect(createButton).toBeDisabled();
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
 
     const tooltipTrigger = screen.getByTestId('tooltip-trigger');
     await fireEvent.mouseEnter(tooltipTrigger);
@@ -615,7 +615,7 @@ describe('ProviderActionButtons', () => {
 
     const createButton = screen.getByRole('button', { name: `Create new Kind Cluster` });
     expect(createButton).toBeInTheDocument();
-    expect(createButton).not.toBeDisabled();
+    expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('shows a provider contribution for any provider', () => {
@@ -701,7 +701,7 @@ describe('ProviderActionButtons', () => {
       hasAnyConfiguration: vi.fn().mockReturnValue(false),
     });
 
-    expect(screen.getByRole('button', { name: 'Initialize' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Initialize' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('enables a provider contribution when its disabled condition does not match', () => {
@@ -720,7 +720,7 @@ describe('ProviderActionButtons', () => {
       hasAnyConfiguration: vi.fn().mockReturnValue(false),
     });
 
-    expect(screen.getByRole('button', { name: 'Initialize' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Initialize' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('enables a provider contribution when its disabled condition is invalid', () => {
@@ -737,7 +737,7 @@ describe('ProviderActionButtons', () => {
       hasAnyConfiguration: vi.fn().mockReturnValue(false),
     });
 
-    expect(screen.getByRole('button', { name: 'Initialize' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Initialize' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('runs a provider contribution when clicked', async () => {

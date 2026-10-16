@@ -165,23 +165,23 @@ test('allows typing and pasting a YAML path and plays the entered path', async (
   const yamlPath = '/tmp/podman-kube-play.yaml';
 
   expect(fileInput).not.toHaveAttribute('readonly');
-  expect(playButton).toBeDisabled();
+  expect(playButton).toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.type(fileInput, '/tmp/typed-path.yaml');
   expect(fileInput).toHaveValue('/tmp/typed-path.yaml');
-  expect(playButton).toBeEnabled();
+  expect(playButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.clear(fileInput);
-  expect(playButton).toBeDisabled();
+  expect(playButton).toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.type(fileInput, '   ');
-  expect(playButton).toBeEnabled();
+  expect(playButton).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.clear(fileInput);
 
   await userEvent.click(fileInput);
   await userEvent.paste(yamlPath);
   expect(fileInput).toHaveValue(yamlPath);
-  expect(playButton).toBeEnabled();
+  expect(playButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(playButton);
 
@@ -343,17 +343,17 @@ test('selecting custom YAML disables the file input until Podman mode is selecte
 
   expect(podmanOption).toHaveAttribute('aria-pressed', 'true');
   expect(fileInput).toBeEnabled();
-  expect(browseButton).toBeEnabled();
+  expect(browseButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(customOption);
   expect(podmanOption).toHaveAttribute('aria-pressed', 'false');
   expect(fileInput).toBeDisabled();
-  expect(browseButton).toBeDisabled();
+  expect(browseButton).toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(podmanOption);
   expect(podmanOption).toHaveAttribute('aria-pressed', 'true');
   expect(fileInput).toBeEnabled();
-  expect(browseButton).toBeEnabled();
+  expect(browseButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(browseButton);
   expect(window.openDialog).toHaveBeenCalledOnce();
@@ -455,7 +455,7 @@ describe('Custom YAML mode', () => {
     await userEvent.click(customOption);
 
     const playButton = screen.getByRole('button', { name: 'Play custom YAML' });
-    expect(playButton).toBeDisabled();
+    expect(playButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('button text changes to "Play custom YAML"', async () => {
@@ -555,7 +555,7 @@ test('validation: play button disabled when no file selected in file mode', asyn
 
   // In file mode with no file selected, button should be disabled
   const playButton = screen.getByRole('button', { name: 'Play' });
-  expect(playButton).toBeDisabled();
+  expect(playButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('validation: play button enabled when file is selected in file mode', async () => {
@@ -568,7 +568,7 @@ test('validation: play button enabled when file is selected in file mode', async
 
   // Play button should now be enabled
   const playButton = screen.getByRole('button', { name: 'Play' });
-  expect(playButton).not.toBeDisabled();
+  expect(playButton).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect Close button to navigate to last page when clicked', async () => {

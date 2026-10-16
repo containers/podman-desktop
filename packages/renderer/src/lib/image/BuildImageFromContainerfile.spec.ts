@@ -96,7 +96,7 @@ test('Expect Build button is disabled', async () => {
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeDisabled();
+  expect(buildButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect Build button is enabled', async () => {
@@ -113,7 +113,7 @@ test('Expect Build button is enabled', async () => {
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect Done button is enabled once build is done', async () => {
@@ -130,12 +130,12 @@ test('Expect Done button is enabled once build is done', async () => {
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(buildButton);
 
   const doneButton = screen.getByRole('button', { name: 'Done' });
   expect(doneButton).toBeInTheDocument();
-  expect(doneButton).toBeEnabled();
+  expect(doneButton).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Select multiple platforms and expect pressing Build will do two buildImage builds', async () => {
@@ -190,7 +190,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(buildButton);
 
   // Expect buildImage to be called twice, once with the platform 'linux/arm64' and once with 'linux/amd64',
@@ -254,7 +254,7 @@ test('Select multiple platforms without image name should disable Build button',
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeDisabled();
+  expect(buildButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Selecting no platforms should disable Build button', async () => {
@@ -281,7 +281,7 @@ test('Selecting no platforms should disable Build button', async () => {
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeDisabled();
+  expect(buildButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Selecting one platform only calls buildImage once with the selected platform, make sure that it has a name', async () => {
@@ -301,7 +301,7 @@ test('Selecting one platform only calls buildImage once with the selected platfo
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(buildButton);
 
@@ -350,14 +350,14 @@ test('Expect Abort button to being visible when image build is in progress', asy
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(buildButton);
 
   await waitFor(() => {
     const abortButton = screen.getByRole('button', { name: 'Cancel' });
     expect(abortButton).toBeInTheDocument();
-    expect(abortButton).toBeEnabled();
+    expect(abortButton).not.toHaveAttribute('aria-disabled', 'true');
   });
   resolveCallback();
 });
@@ -411,7 +411,7 @@ test('Expect recommended extension in case of build error', async () => {
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(buildButton);
 
   // expect to find the widget to install extension
@@ -450,7 +450,7 @@ test('Expect build to include build arguments', async () => {
   // Expect to be able to build fine with the build arguments / no errors.
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(buildButton);
 });
 
@@ -527,7 +527,7 @@ test('Expect build page to load a state for a build requested by taskId', async 
   // Expect to be able to build fine with the build arguments / no errors.
   buildButton = rendering.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeVisible();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(buildButton);
 
@@ -615,7 +615,7 @@ test('Expect error to be displayed if uppercase character in image name', async 
   // Verify the build button is still disabled
   const buildButton = getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeDisabled();
+  expect(buildButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 describe('Build image that has an intermediate target', () => {
@@ -644,7 +644,7 @@ describe('Build image that has an intermediate target', () => {
     await userEvent.click(getByRole('button', { name: target }));
 
     const buildButton = getByRole('button', { name: 'Build' });
-    expect(buildButton).toBeEnabled();
+    expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
     await userEvent.click(buildButton);
 
     expect(window.buildImage).toHaveBeenCalledTimes(1);
@@ -683,7 +683,7 @@ test('Expect to have a checkbox on by default to validate registries before buil
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
-  expect(buildButton).toBeEnabled();
+  expect(buildButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(buildButton);
 

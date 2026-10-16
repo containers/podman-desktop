@@ -73,7 +73,7 @@ test('Expect Create button is working', async () => {
 
   const createButton = screen.getByRole('button', { name: createButtonTitle });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // click on it
   await userEvent.click(createButton);
@@ -102,7 +102,7 @@ test('Expect Create with a custom name', async () => {
 
   const createButton = screen.getByRole('button', { name: createButtonTitle });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // expect no combo box as only one provider
   const providerSelect = screen.queryByRole('combobox', { name: 'Provider Choice' });
@@ -194,7 +194,7 @@ test('Expect Create with a custom name and multiple providers', async () => {
 
   const createButton = screen.getByRole('button', { name: createButtonTitle });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // change the provider's choice
   const providerSelect = screen.getByRole('combobox', { name: 'Provider Choice' });
@@ -256,7 +256,7 @@ test('Expect error and disabled button when volume name already exists', async (
     expect(
       screen.getByText('The name "existing-volume" already exists. Please choose a different name.'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeDisabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -291,7 +291,7 @@ test('Expect no error when volume name is unique', async () => {
 
   await waitFor(() => {
     expect(screen.queryByText(/already exists/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeEnabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).not.toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -332,7 +332,7 @@ test('Expect no error when volume name is empty', async () => {
 
   await waitFor(() => {
     expect(screen.queryByText(/already exists/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeEnabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).not.toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -379,7 +379,7 @@ test('Expect revalidation when provider changes', async () => {
 
   await waitFor(() => {
     expect(screen.getByText(/already exists/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeDisabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).toHaveAttribute('aria-disabled', 'true');
   });
 
   const providerSelect = screen.getByRole('combobox', { name: 'Provider Choice' });
@@ -387,7 +387,7 @@ test('Expect revalidation when provider changes', async () => {
 
   await waitFor(() => {
     expect(screen.queryByText(/already exists/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeEnabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).not.toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -435,7 +435,7 @@ test('Expect no false positive when providers share connection name', async () =
   // podman.Docker is selected first — no volume named 'my-vol' there
   await waitFor(() => {
     expect(screen.queryByText(/already exists/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeEnabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   // switch to docker.Docker — 'my-vol' exists there
@@ -445,7 +445,7 @@ test('Expect no false positive when providers share connection name', async () =
 
   await waitFor(() => {
     expect(screen.getByText(/already exists/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeDisabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -524,7 +524,7 @@ test('Expect error clears when name is corrected', async () => {
 
   await waitFor(() => {
     expect(screen.getByText(/already exists/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeDisabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).toHaveAttribute('aria-disabled', 'true');
   });
 
   await userEvent.clear(nameInput);
@@ -532,6 +532,6 @@ test('Expect error clears when name is corrected', async () => {
 
   await waitFor(() => {
     expect(screen.queryByText(/already exists/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: createButtonTitle })).toBeEnabled();
+    expect(screen.getByRole('button', { name: createButtonTitle })).not.toHaveAttribute('aria-disabled', 'true');
   });
 });

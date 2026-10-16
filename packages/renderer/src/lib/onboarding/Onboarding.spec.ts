@@ -70,7 +70,7 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
   const buttonCancel = screen.getByRole('button', { name: 'Cancel Setup' });
   expect(buttonCancel).toBeInTheDocument();
   const nextButton = screen.getByRole('button', { name: 'Next Step' });
-  expect(nextButton).toBeDisabled();
+  expect(nextButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect not to have the "Try again" and "Cancel" buttons if the step represent a completed state', async () => {

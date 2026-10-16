@@ -34,7 +34,7 @@ test('Check ping button is available and click on it', async () => {
   const pingButton = screen.getByRole('button', { name: 'Ping' });
   expect(pingButton).toBeInTheDocument();
   // click on the ping button
-  expect(pingButton).toBeEnabled();
+  expect(pingButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(pingButton);
 
   // check that we have the ping result
@@ -59,7 +59,7 @@ test('Check ping button is available and get error', async () => {
   const pingButton = screen.getByRole('button', { name: 'Ping' });
   expect(pingButton).toBeInTheDocument();
   // click on the ping button
-  expect(pingButton).toBeEnabled();
+  expect(pingButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(pingButton);
 
   // check that we have the ping result

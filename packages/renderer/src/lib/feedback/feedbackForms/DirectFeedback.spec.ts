@@ -50,7 +50,7 @@ test('Expect that the button is disabled when loading the page', async () => {
   render(DirectFeedback, { category: 'developers', contentChange: vi.fn(), onCloseForm: vi.fn() });
   const button = await screen.findByRole('button', { name: 'Send feedback' });
   expect(button).toBeInTheDocument();
-  expect(button).toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect smiley rating group to be exposed as a single-choice control', async () => {
@@ -90,7 +90,7 @@ test('Expect that the button is enabled after clicking on a smiley', async () =>
   await fireEvent.click(smiley);
 
   // now expect to have the button enabled
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
 
   // and the indication is gone
   expect(screen.queryByText('Please select an experience smiley')).not.toBeInTheDocument();
@@ -99,7 +99,7 @@ test('Expect that the button is enabled after clicking on a smiley', async () =>
 test('Expect very sad smiley errors without feedback', async () => {
   render(DirectFeedback, { category: 'developers', contentChange: vi.fn(), onCloseForm: vi.fn() });
   const button = await screen.findByRole('button', { name: 'Send feedback' });
-  expect(button).toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
 
   // expect to have indication why the button is disabled
   expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
@@ -109,7 +109,7 @@ test('Expect very sad smiley errors without feedback', async () => {
   await fireEvent.click(smiley);
 
   // expect button is still disabled, but with different indication
-  expect(button).toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
   const message = screen.getByText('Please share contact info or details on how we can improve');
   expect(message).toBeInTheDocument();
 
@@ -120,14 +120,14 @@ test('Expect very sad smiley errors without feedback', async () => {
   await userEvent.type(feedback, 'PD is awesome');
 
   // button is enabled and the indication is gone
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
   expect(message).not.toBeInTheDocument();
 });
 
 test('Expect sad smiley warns without feedback', async () => {
   render(DirectFeedback, { category: 'developers', contentChange: vi.fn(), onCloseForm: vi.fn() });
   const button = await screen.findByRole('button', { name: 'Send feedback' });
-  expect(button).toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
 
   // expect to have indication why the button is disabled
   expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
@@ -137,7 +137,7 @@ test('Expect sad smiley warns without feedback', async () => {
   await fireEvent.click(smiley);
 
   // expect button is now enabled, but with different indication
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
   const warn = screen.getByText('We would really appreciate knowing how we can improve');
   expect(warn).toBeInTheDocument();
 
@@ -216,7 +216,7 @@ test('Expect category to be sent', async () => {
   // click on submit button
   const button = screen.getByRole('button', { name: 'Send feedback' });
   expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(button);
 
   await vi.waitFor(() => {
@@ -249,7 +249,7 @@ test('Expect design category to be sent when design category is used', async () 
   // click on submit button
   const button = screen.getByRole('button', { name: 'Send feedback' });
   expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(button);
 
   await vi.waitFor(() => {

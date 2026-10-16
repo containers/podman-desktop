@@ -134,7 +134,7 @@ test('Expect save button is disabled if input value is invalid', async () => {
 
   const buttonSave = await screen.findByRole('button', { name: 'Save' });
   expect(buttonSave).toBeInTheDocument();
-  expect((buttonSave as HTMLButtonElement).disabled).toBeTruthy();
+  expect(buttonSave).toHaveAttribute('aria-disabled', 'true');
 
   const buttonEditAfterRendering = screen.queryByRole('button', { name: 'Edit' });
   expect(buttonEditAfterRendering).not.toBeInTheDocument();
@@ -171,7 +171,7 @@ test('Expect onSave function called if save button is clicked', async () => {
 
   const buttonSave = await screen.findByRole('button', { name: 'Save' });
   expect(buttonSave).toBeInTheDocument();
-  expect((buttonSave as HTMLButtonElement).disabled).toBeFalsy();
+  expect(buttonSave).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(buttonSave);
 
@@ -209,7 +209,7 @@ test('Expect onSave function not called and in progress is disabled if Cancel bu
 
   const buttonSave = await screen.findByRole('button', { name: 'Save' });
   expect(buttonSave).toBeInTheDocument();
-  expect((buttonSave as HTMLButtonElement).disabled).toBeFalsy();
+  expect(buttonSave).not.toHaveAttribute('aria-disabled', 'true');
 
   const buttonCancel = await screen.findByRole('button', { name: 'Cancel' });
   expect(buttonCancel).toBeInTheDocument();

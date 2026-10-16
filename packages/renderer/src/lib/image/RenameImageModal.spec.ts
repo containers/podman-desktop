@@ -79,7 +79,7 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that empty image name disables save button', async () => {
@@ -90,13 +90,13 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const imageName = screen.getByLabelText('Image Name');
     await userEvent.click(imageName);
     await userEvent.paste('');
 
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that empty image tag disables save button', async () => {
@@ -107,13 +107,13 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const imageTag = screen.getByLabelText('Image Tag');
     await userEvent.click(imageTag);
     await userEvent.paste('');
 
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that valid image name enables save button', async () => {
@@ -124,13 +124,13 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const imageName = screen.getByLabelText('Image Name');
     await userEvent.click(imageName);
     await userEvent.paste('some-valid-name');
 
-    expect(saveButton).toBeEnabled();
+    expect(saveButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that valid image tag enables save button', async () => {
@@ -141,13 +141,13 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const imageTag = screen.getByLabelText('Image Tag');
     await userEvent.click(imageTag);
     await userEvent.paste('some-valid-tag');
 
-    expect(saveButton).toBeEnabled();
+    expect(saveButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('basic images should have inputs prefill', async () => {
@@ -198,7 +198,7 @@ describe('RenameImageModel', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
 
     const imageName = screen.getByLabelText('Image Name');
     await userEvent.click(imageName);
@@ -208,7 +208,7 @@ describe('RenameImageModel', () => {
     await userEvent.click(imageTag);
     await userEvent.paste('some-valid-tag');
 
-    expect(saveButton).toBeEnabled();
+    expect(saveButton).not.toHaveAttribute('aria-disabled', 'true');
     await userEvent.click(saveButton);
 
     await vi.waitFor(() => {

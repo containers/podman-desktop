@@ -63,7 +63,7 @@ test('Check logs are displayed with clipboard button', async () => {
   const clipboardButton = screen.getByRole('button', { name: 'Copy To Clipboard' });
   expect(clipboardButton).toBeInTheDocument();
   // click on the clipboard button
-  expect(clipboardButton).toBeEnabled();
+  expect(clipboardButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(clipboardButton);
 
   // timestamps are hidden by default, so clipboard should not include them

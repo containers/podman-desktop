@@ -110,7 +110,7 @@ describe('PullImage', () => {
     expect(entry).toBeInTheDocument();
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that whitespace does not enable button', async () => {
@@ -118,7 +118,7 @@ describe('PullImage', () => {
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that valid entry enables button', async () => {
@@ -126,7 +126,7 @@ describe('PullImage', () => {
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that valid entry enables button after user input', async () => {
@@ -134,13 +134,13 @@ describe('PullImage', () => {
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
 
     const textbox = screen.getByRole('textbox', { name: 'Image to pull' });
     await userEvent.click(textbox);
     await userEvent.paste('some-valid-image');
 
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that action is displayed', async () => {
@@ -149,7 +149,7 @@ describe('PullImage', () => {
     const regButton = 'Manage registries';
     const button = screen.getByRole('button', { name: regButton });
     expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that pull image is reporting an error', async () => {
@@ -590,7 +590,7 @@ describe('container connections', () => {
 
     // get the pull button
     const pullImagebutton = getByRole('button', { name: 'Pull image' });
-    expect(pullImagebutton).toBeEnabled();
+    expect(pullImagebutton).not.toHaveAttribute('aria-disabled', 'true');
     pullImagebutton.click();
 
     await vi.waitFor(() => {

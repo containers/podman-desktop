@@ -98,7 +98,7 @@ test('Expect Create button is disabled when name is empty', async () => {
 
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeDisabled();
+  expect(createButton).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect Basic and Advanced tabs to be present', async () => {
@@ -649,12 +649,12 @@ test('Expect Create button to be disabled when ipvlan selected without subnet', 
 
   // Create button should be disabled without subnet for ipvlan
   const createButton = screen.getByRole('button', { name: 'Create' });
-  expect(createButton).toBeDisabled();
+  expect(createButton).toHaveAttribute('aria-disabled', 'true');
 
   // Enter subnet - button should become enabled
   const subnet = screen.getByRole('textbox', { name: 'Subnet *' });
   await userEvent.type(subnet, '10.89.0.0/24');
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await userEvent.click(createButton);
 

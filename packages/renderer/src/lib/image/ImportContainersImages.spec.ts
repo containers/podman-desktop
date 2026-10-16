@@ -73,7 +73,7 @@ test('Expect import button to be disabled', async () => {
   render(ImportContainersImages);
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
-  expect(btnImportContainer).toBeDisabled();
+  expect(btnImportContainer).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect import button to be enabled when atleast one container image is selected', async () => {
@@ -86,7 +86,7 @@ test('Expect import button to be enabled when atleast one container image is sel
 
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
-  expect(btnImportContainer).toBeEnabled();
+  expect(btnImportContainer).not.toHaveAttribute('aria-disabled', 'true');
 
   expect(vi.mocked(window.openDialog)).toBeCalledWith({
     selectors: ['multiSelections', 'openFile'],
@@ -104,7 +104,7 @@ test('Expect import button to be enabled when atleast one container image is sel
 
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
-  expect(btnImportContainer).toBeDisabled();
+  expect(btnImportContainer).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect import call importContainer func', async () => {
@@ -119,7 +119,7 @@ test('Expect import call importContainer func', async () => {
 
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
-  expect(btnImportContainer).toBeEnabled();
+  expect(btnImportContainer).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(btnImportContainer);
 
   expect(vi.mocked(window.importContainer)).toBeCalledWith({
@@ -141,7 +141,7 @@ test('Expect error shown if import function fails', async () => {
 
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
-  expect(btnImportContainer).toBeEnabled();
+  expect(btnImportContainer).not.toHaveAttribute('aria-disabled', 'true');
   await userEvent.click(btnImportContainer);
 
   expect(vi.mocked(window.importContainer)).toBeCalledWith({

@@ -522,7 +522,7 @@ describe('RunImage', () => {
 
     const button = screen.getByRole('button', { name: 'Create and start' });
     await tick();
-    expect((button as HTMLButtonElement).disabled).toBeTruthy();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect "Add secret mapping" button to be disabled when no secrets available', async () => {
@@ -533,7 +533,7 @@ describe('RunImage', () => {
     await fireEvent.click(link);
 
     const addButton = screen.getByRole('button', { name: 'Add secret mapping' });
-    expect(addButton).toBeDisabled();
+    expect(addButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect "Add secret mapping" button to be enabled when secrets are available', async () => {
@@ -546,7 +546,7 @@ describe('RunImage', () => {
     await fireEvent.click(link);
 
     const addButton = screen.getByRole('button', { name: 'Add secret mapping' });
-    expect(addButton).toBeEnabled();
+    expect(addButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect mount secret mapping to be sent to API as Secrets', async () => {
@@ -744,7 +744,7 @@ describe('RunImage', () => {
 
     const createButton = screen.getByRole('button', { name: 'Create' });
     await tick();
-    expect((createButton as HTMLButtonElement).disabled).toBeTruthy();
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect Cancel button navigates to images page', async () => {

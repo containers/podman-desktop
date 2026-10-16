@@ -40,7 +40,7 @@ describe('PreferencesRegistriesEditing', () => {
 
     const button = screen.getByRole('button', { name: 'Add registry' });
     expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that existing registries are visible', async () => {
@@ -61,7 +61,7 @@ describe('PreferencesRegistriesEditing', () => {
     // can still add more registries
     const button = screen.getByRole('button', { name: 'Add registry' });
     expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect registry without name shows serverUrl', async () => {
@@ -220,7 +220,7 @@ describe('PreferencesRegistriesEditing', () => {
 
     const loginButton = screen.getByRole('button', { name: 'Login' });
     expect(loginButton).toBeInTheDocument();
-    expect(loginButton).toBeDisabled();
+    expect(loginButton).toHaveAttribute('aria-disabled', 'true');
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     expect(cancelButton).toBeInTheDocument();
@@ -276,14 +276,14 @@ describe('PreferencesRegistriesEditing', () => {
 
     const button = screen.getByRole('button', { name: 'Add registry' });
     expect(button).toBeInTheDocument();
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
 
     const entry = screen.getByPlaceholderText('https://registry.io');
     expect(entry).toBeInTheDocument();
 
     const loginButton = screen.getByRole('button', { name: 'Add' });
     expect(loginButton).toBeInTheDocument();
-    expect(loginButton).toBeDisabled();
+    expect(loginButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Expect that adding registry using self signed or not verifiable certificate triggers confirmation request', async () => {
@@ -295,14 +295,14 @@ describe('PreferencesRegistriesEditing', () => {
     const username = screen.getByPlaceholderText('Username');
     const url = screen.getByPlaceholderText('https://registry.io');
     expect(button).toBeVisible();
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(password).toBeVisible();
     expect(username).toBeVisible();
     expect(url).toBeVisible();
     await userEvent.type(url, 'https://registry.host');
     await userEvent.type(username, 'username');
     await userEvent.type(password, 'password');
-    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute('aria-disabled', 'true');
     vi.mocked(window.checkImageCredentials)
       .mockRejectedValueOnce(new Error('unable to verify the first certificate'))
       .mockRejectedValueOnce(new Error('self signed certificate in certificate chain'));
@@ -311,7 +311,7 @@ describe('PreferencesRegistriesEditing', () => {
       .mockResolvedValueOnce({ response: 'Add' });
     await userEvent.click(button);
     button = screen.getByRole('button', { name: 'Add' });
-    await waitFor(() => expect(button).toBeEnabled());
+    await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true'));
     await userEvent.click(button);
     expect(window.showMessageBox).toHaveBeenCalledTimes(2);
     expect(window.createImageRegistry).toHaveBeenCalledOnce();

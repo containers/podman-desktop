@@ -48,12 +48,12 @@ test('Check cleanupProviders is called and button is in progress', async () => {
   vi.mocked(window.cleanupProviders).mockReturnValue(new Promise(resolve => setTimeout(resolve, 10)));
 
   // click on the cleanup button
-  expect(cleanupButton).toBeEnabled();
+  expect(cleanupButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(cleanupButton);
 
   await waitFor(() => {
     // button should be in progress
-    expect(cleanupButton).toBeDisabled();
+    expect(cleanupButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   // svg should be inside the button
@@ -62,7 +62,7 @@ test('Check cleanupProviders is called and button is in progress', async () => {
 
   await waitFor(() => {
     // button should not be in progress anymore
-    expect(cleanupButton).toBeEnabled();
+    expect(cleanupButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   // check that we asked for confirmation
@@ -90,7 +90,7 @@ test('Check errors are displayed with clipboard button', async () => {
   vi.mocked(window.cleanupProviders).mockRejectedValue(new Error('test error'));
 
   // click on the cleanup button
-  expect(cleanupButton).toBeEnabled();
+  expect(cleanupButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(cleanupButton);
 
   // check that we asked for confirmation

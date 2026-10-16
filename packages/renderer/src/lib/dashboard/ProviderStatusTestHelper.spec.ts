@@ -70,7 +70,7 @@ export async function verifyStatus<
       expect(updateButton).toBeInTheDocument();
       if (expectedDisabled !== undefined) {
         if (expectedDisabled) {
-          expect(updateButton).toBeDisabled();
+          expect(updateButton).toHaveAttribute('aria-disabled', 'true');
         } else {
           expect(updateButton).toBeEnabled();
         }

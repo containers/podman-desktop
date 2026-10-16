@@ -53,7 +53,7 @@ test('Expect the close button is on the page', async () => {
   await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Skip' });
   expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('Expect that the close button closes the window', async () => {

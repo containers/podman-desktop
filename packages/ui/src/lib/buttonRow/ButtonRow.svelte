@@ -22,9 +22,9 @@ function focusInitialAction(): void {
     return;
   }
 
-  const focusableActions = Array.from(buttonRow.querySelectorAll<HTMLElement>('button:not([disabled])')).filter(
-    action => action.closest('[hidden], [aria-hidden="true"]') === null,
-  );
+  const focusableActions = Array.from(
+    buttonRow.querySelectorAll<HTMLElement>('button:not([disabled]):not([aria-disabled="true"])'),
+  ).filter(action => action.closest('[hidden], [aria-hidden="true"]') === null);
   const action = initialFocus === 'first' ? focusableActions[0] : focusableActions[focusableActions.length - 1];
   action?.focus();
 }

@@ -46,7 +46,7 @@ test('expect invalid field', async () => {
   expect(button).toBeInTheDocument();
 
   // disabled due to error
-  expect(button).toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('expect able to download an extension', async () => {

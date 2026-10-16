@@ -144,7 +144,7 @@ test('Expect to create routes with OpenShift and open Link', async () => {
 
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
   await fireEvent.click(createButton);
 
   // wait that openshiftCreateRouteMock is called
@@ -197,7 +197,7 @@ test('Expect to send telemetry event', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await fireEvent.click(createButton);
   await waitFor(() =>
@@ -219,7 +219,7 @@ test('Expect to send telemetry event with OpenShift', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await fireEvent.click(createButton);
   await waitFor(() =>
@@ -239,7 +239,7 @@ test('Expect to send telemetry error event', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // expect it throws a telemetry event reporting an error
   await fireEvent.click(createButton);
@@ -257,7 +257,7 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // Press the deploy button
   await fireEvent.click(createButton);
@@ -295,7 +295,7 @@ test('Test deploying a group of compose containers with type compose still funct
   await waitRender({ type: 'compose' } as Partial<DeployPodToKube>);
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // Press the deploy button
   await fireEvent.click(createButton);
@@ -333,7 +333,7 @@ test('When modifying the pod name, metadata.apps.label should also have been cha
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   const podNameInput = screen.getByLabelText('Pod Name');
   await userEvent.click(podNameInput);
@@ -375,7 +375,7 @@ test('When deploying a pod, restricted security context is added', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // Click restricted
   const useRestricted = screen.getByRole('checkbox', { name: 'Use Restricted Security Context' });
@@ -427,7 +427,7 @@ test('Succeed to deploy ingress if service is selected', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // Checkmark the ingress
   const checkbox = screen.getByRole('checkbox', { name: 'Create Ingress' });
@@ -445,7 +445,7 @@ test('fail to deploy ingress if service is unselected', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   // Press the deploy button
   await fireEvent.click(createButton);
@@ -460,7 +460,7 @@ test('Should display Open pod button after successful deployment', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   vi.mocked(window.kubernetesCreatePod).mockResolvedValue({
     metadata: { name: 'my-pod', namespace: 'default' },
@@ -478,11 +478,11 @@ test('Should display Open pod button after successful deployment', async () => {
 
   const doneButton = screen.getByRole('button', { name: 'Done' });
   expect(doneButton).toBeInTheDocument();
-  expect(doneButton).toBeEnabled();
+  expect(doneButton).not.toHaveAttribute('aria-disabled', 'true');
 
   const openPodButton = screen.getByRole('button', { name: 'Open Pod' });
   expect(openPodButton).toBeInTheDocument();
-  expect(openPodButton).toBeEnabled();
+  expect(openPodButton).not.toHaveAttribute('aria-disabled', 'true');
 
   await fireEvent.click(openPodButton);
   expect(window.navigateToRoute).toBeCalledWith('kubernetes', {
@@ -500,7 +500,7 @@ test('Done button should go back to previous page', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   vi.mocked(window.kubernetesCreatePod).mockResolvedValue({
     metadata: { name: 'foobar/api-fake-cluster.com:6443', namespace: 'default' },
@@ -519,7 +519,7 @@ test('Done button should go back to previous page', async () => {
     return screen.getByRole('button', { name: 'Done' });
   });
   expect(doneButton).toBeInTheDocument();
-  expect(doneButton).toBeEnabled();
+  expect(doneButton).not.toHaveAttribute('aria-disabled', 'true');
 
   lastPage.set({ name: 'perious page', path: '/last' });
   await fireEvent.click(doneButton);
@@ -580,7 +580,7 @@ test('ImagePullBackOff error should be reported', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
-  expect(createButton).toBeEnabled();
+  expect(createButton).not.toHaveAttribute('aria-disabled', 'true');
 
   vi.mocked(window.kubernetesCreatePod).mockResolvedValue({
     metadata: { name: 'my-pod', namespace: 'default' },
@@ -617,6 +617,6 @@ test('ImagePullBackOff error should be reported', async () => {
     // The deploy button is displayed again, meaning that the deploy process has been aborted
     const deployButton = screen.getByRole('button', { name: 'Deploy' });
     expect(deployButton).toBeVisible();
-    expect(deployButton).toBeEnabled();
+    expect(deployButton).not.toHaveAttribute('aria-disabled', 'true');
   });
 });

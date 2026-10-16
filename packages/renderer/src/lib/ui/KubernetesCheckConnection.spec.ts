@@ -48,7 +48,7 @@ test('button is displayed and active if current context is defined and is not re
   render(KubernetesCheckConnection);
   const button = screen.queryByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveProperty('disabled', false);
+  expect(button).not.toHaveAttribute('aria-disabled', 'true');
 });
 
 test('button is not displayed if current context is defined and is reachable', async () => {
@@ -108,5 +108,5 @@ test('button is displayed and disabled if current context is defined, is not rea
   render(KubernetesCheckConnection);
   const button = screen.queryByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveProperty('disabled', true);
+  expect(button).toHaveAttribute('aria-disabled', 'true');
 });

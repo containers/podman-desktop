@@ -194,22 +194,22 @@ describe('Expect Push Image dialog', () => {
 
   test('have "Cancel" and "Push Image" buttons disabled after open when auth configuration is missing', async () => {
     await runTo('DialogOpened', false);
-    expect(button('Push image')).toBeDisabled();
-    expect(button('Cancel')).toBeEnabled();
+    expect(button('Push image')).toHaveAttribute('aria-disabled', 'true');
+    expect(button('Cancel')).not.toHaveAttribute('aria-disabled', 'true');
     expect(terminal()).toBeNull();
   });
 
   test('have "Cancel" and "Push Image" buttons enable after open when auth configuration is present', async () => {
     await runTo('DialogOpened');
-    expect(button('Push image')).toBeEnabled();
-    expect(button('Cancel')).toBeEnabled();
+    expect(button('Push image')).not.toHaveAttribute('aria-disabled', 'true');
+    expect(button('Cancel')).not.toHaveAttribute('aria-disabled', 'true');
     expect(terminal()).toBeNull();
   });
 
   test('to close when "Cancel" button pressed', async () => {
     await runTo('DialogOpened');
     const cancelButton = button('Cancel');
-    expect(cancelButton).toBeEnabled();
+    expect(cancelButton).not.toHaveAttribute('aria-disabled', 'true');
     if (cancelButton) {
       await fireEvent.click(cancelButton);
     }
@@ -222,7 +222,7 @@ describe('Expect Push Image dialog', () => {
     expect(callback).not.toBe(undefined);
     // window.pushImage() called, `Cancel` and `Push Image` buttons are
     // disabled and waiting for callback being called with first-message/data/end events
-    expect(button('Push image')).toBeDisabled();
+    expect(button('Push image')).toHaveAttribute('aria-disabled', 'true');
     expect(button('Cancel')).toBe(null);
     expect(screen.queryByRole('term')).toBeVisible();
   });
@@ -235,21 +235,21 @@ describe('Expect Push Image dialog', () => {
   test('to write "status" property to terminal received in "data" even', async () => {
     await runTo('DataMessage');
     expect(Terminal.prototype.write).toBeCalledWith('DataMessage\n\r');
-    expect(button('Push image')).toBeDisabled();
+    expect(button('Push image')).toHaveAttribute('aria-disabled', 'true');
     expect(button('Cancel')).toBe(null);
   });
 
   test('to write error message to terminal from "data" event and reset buttons to initial state', async () => {
     await runTo('DataErrorMessage');
     expect(Terminal.prototype.write).toBeCalledWith('DataErrorMessage\n\r');
-    expect(button('Push image')).toBeDisabled();
+    expect(button('Push image')).toHaveAttribute('aria-disabled', 'true');
     expect(button('Cancel')).toBe(null);
   });
 
   test('to show "Cancel" and "Push image" buttons after push call finished with error', async () => {
     await runTo('EndAfterError');
-    expect(button('Push image')).toBeEnabled();
-    expect(button('Cancel')).toBeEnabled();
+    expect(button('Push image')).not.toHaveAttribute('aria-disabled', 'true');
+    expect(button('Cancel')).not.toHaveAttribute('aria-disabled', 'true');
     expect(terminal()).toBeVisible();
   });
 
@@ -257,14 +257,14 @@ describe('Expect Push Image dialog', () => {
     await runTo('End');
     expect(button('Push image')).toBe(null);
     expect(button('Cancel')).toBe(null);
-    expect(button('Done')).toBeEnabled();
+    expect(button('Done')).not.toHaveAttribute('aria-disabled', 'true');
     expect(terminal()).toBeVisible();
   });
 
   test('to close when "Done" button pressed', async () => {
     await runTo('End');
     const doneButton = button('Done');
-    expect(doneButton).toBeEnabled();
+    expect(doneButton).not.toHaveAttribute('aria-disabled', 'true');
     if (doneButton) {
       await fireEvent.click(doneButton);
     }
