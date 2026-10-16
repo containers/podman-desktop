@@ -19,10 +19,6 @@ spec:
     - name: HOME
       value: /home/redis
     image: ghcr.io/podmandesktop-ci/podify-demo-backend:v1
-    resources:
-        limits:
-          cpu: 1
-          memory: 500Mi
     automountServiceAccountToken: false
     name: backend-podified
     ports:
@@ -38,10 +34,6 @@ spec:
     - name: HOSTNAME
       value: 4daf7345fc17
     image: ghcr.io/podmandesktop-ci/podify-demo-frontend:v1
-    resources:
-        limits:
-          cpu: 1
-          memory: 500Mi
     automountServiceAccountToken: false
     name: frontend-podified
     securityContext:
