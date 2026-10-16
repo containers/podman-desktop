@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@docker/extension-api-client-types": "0.4.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.4"
   },
   "dependencies": {
     "@desktop-framework/api": "workspace:*",

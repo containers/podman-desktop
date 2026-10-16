@@ -58,7 +58,7 @@
     "typedoc-plugin-markdown": "^4.13.1",
     "typescript": "^6.0.3",
     "vite": "^8.3.4",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.4"
   },
   "browserslist": {
     "production": [
