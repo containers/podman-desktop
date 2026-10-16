@@ -707,16 +707,12 @@ function buildExtensionInfo(id: string, fields: Partial<ExtensionInfo> = {}): Ex
 
 describe('installing an extension replacing a bundled one', () => {
   const imageToPull = 'fake.io/kind:1.99.0';
-  let sendLog: (message: string) => void;
-  let sendError: (message: string) => void;
-  let sendEnd: (message: string) => void;
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
   let installedExtension: AnalyzedExtension;
 
   beforeEach(() => {
-    sendLog = vi.fn();
-    sendError = vi.fn();
-    sendEnd = vi.fn();
-
     getImageConfigLabelsMock.mockResolvedValue({
       'org.opencontainers.image.title': 'kind',
       'org.opencontainers.image.description': 'Kind',
