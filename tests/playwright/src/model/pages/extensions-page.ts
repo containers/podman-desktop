@@ -19,6 +19,9 @@
 import type { Locator, Page } from '@playwright/test';
 import test, { expect as playExpect } from '@playwright/test';
 
+import { TaskState } from '/@/model/core/states';
+import { StatusBar } from '/@/model/workbench/status-bar';
+
 import { ExtensionCardPage } from './extension-card-page';
 import type { ExtensionDetailsPage } from './extension-details-page';
 
@@ -80,12 +83,13 @@ export class ExtensionsPage {
 
       await installButton.click();
 
-      const doneButton = dialog.getByRole('button', {
-        name: 'Done',
-        exact: true,
-      });
-      await playExpect(doneButton).toBeEnabled({ timeout: timeout });
-      await doneButton.click();
+      // the dialog closes once the installation starts, the installation being reported by its task
+      await playExpect(dialog).not.toBeVisible();
+
+      const tasksPage = await new StatusBar(this.page).openTasksPage();
+      await tasksPage.awaitTaskCompletion(`Installing extension ${extension}`, TaskState.Success, timeout);
+      await tasksPage.closeButton.click();
+      await playExpect(tasksPage.tasksManagerWindow).not.toBeVisible();
 
       return this;
     });
