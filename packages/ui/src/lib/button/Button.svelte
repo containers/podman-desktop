@@ -1,11 +1,12 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import type { Component, Snippet } from 'svelte';
-import { createEventDispatcher, untrack } from 'svelte';
+import { createEventDispatcher, onMount, untrack } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
 import type { ButtonType } from './Button';
+import { warnIfLabelNotInName } from './label-in-name';
 
 interface Props {
   title?: string;
@@ -45,6 +46,13 @@ let {
 if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
   throw new Error('Icon-only buttons must have an aria-label for accessibility');
 }
+
+let buttonElement: HTMLButtonElement | undefined = $state();
+
+// checked once on mount: the visible text is not observed afterwards, so later changes are not re-checked
+onMount(() => {
+  if (!inProgress) warnIfLabelNotInName(ariaLabel, buttonElement?.textContent ?? null);
+});
 
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
 
@@ -97,6 +105,7 @@ let classes = $derived.by(() => {
 </script>
 
 <button
+  bind:this={buttonElement}
   type="button"
   class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
   class:border-[var(--pd-button-tab-border-selected)]={(type === 'tab' && selected === true && !disabled && !inProgress) ||

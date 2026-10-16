@@ -23,9 +23,18 @@ import '@testing-library/jest-dom/vitest';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test, vi } from 'vitest';
+import { createRawSnippet } from 'svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import Button from './Button.svelte';
+
+const textSnippet = (text: string): ReturnType<typeof createRawSnippet> =>
+  createRawSnippet(() => ({ render: () => `<span>${text}</span>` }));
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+});
 
 interface CommonClassOptions {
   hasBorder?: boolean;
@@ -198,8 +207,6 @@ test('Button hidden should be hidden', async () => {
 });
 
 test('Unknown button type falls back to primary styling', () => {
-  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
   // Force an invalid type to exercise the else fallback branch
   render(Button, { type: 'unknown-type' as never });
 
@@ -207,9 +214,7 @@ test('Unknown button type falls back to primary styling', () => {
   expect(button).toHaveClass('bg-[var(--pd-button-primary-bg)]');
   expect(button).toHaveClass('text-[var(--pd-button-primary-text)]');
 
-  expect(consoleWarnSpy).toHaveBeenCalledWith('Unknown button type: unknown-type, falling back to primary');
-
-  consoleWarnSpy.mockRestore();
+  expect(console.warn).toHaveBeenCalledWith('Unknown button type: unknown-type, falling back to primary');
 });
 
 test('Button should have aria-disabled when disabled', async () => {
@@ -311,4 +316,30 @@ test('Disabled pressed button should keep aria-pressed but use disabled styling'
   expect(button).toHaveAttribute('aria-pressed', 'true');
   expect(button).toHaveClass('bg-[var(--pd-button-disabled-bg)]');
   expect(button).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
+});
+
+test('warns once when the aria-label does not contain the visible text', () => {
+  render(Button, { 'aria-label': 'Remove', children: textSnippet('Delete') });
+  expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+  expect(console.warn).toHaveBeenCalledExactlyOnceWith(
+    'Button aria-label "Remove" does not contain its visible text "Delete"',
+  );
+});
+
+test('does not warn when the aria-label contains the visible text', () => {
+  render(Button, { 'aria-label': 'Delete container', children: textSnippet('delete') });
+  expect(screen.getByRole('button', { name: 'Delete container' })).toBeInTheDocument();
+  expect(console.warn).not.toHaveBeenCalled();
+});
+
+test('does not check the visible text of an icon-only button', () => {
+  render(Button, { icon: faTrash, 'aria-label': 'Delete' });
+  expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  expect(console.warn).not.toHaveBeenCalled();
+});
+
+test('does not check the label while the button is in progress', () => {
+  render(Button, { inProgress: true, 'aria-label': 'Remove', children: textSnippet('Delete') });
+  expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+  expect(console.warn).not.toHaveBeenCalled();
 });
