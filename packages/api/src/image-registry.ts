@@ -66,14 +66,12 @@ export interface ImageUpdateStatus {
  */
 export interface ImageUpdateInfo {
   engineId: string;
-  /** Full image reference, e.g. "quay.io/podman/hello:latest" */
-  image: string;
-  /** Image tag, e.g. "latest" */
-  tag: string;
+  /** Image id, e.g. "sha256:…". Every tag referencing this image is updated. */
+  id: string;
 }
 
 /**
- * Per-image result returned by the backend updateImages call.
+ * Per-tag result returned by the backend updateImages call.
  */
 export interface ImageUpdateResult {
   imageRef: string;

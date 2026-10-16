@@ -55,6 +55,8 @@ export interface RegistryAuthInfo {
 
 @injectable()
 export class ImageRegistry {
+  static readonly DANGLING_IMAGE_MESSAGE = 'Image is dangling and cannot be checked for updates';
+
   private registries: containerDesktopAPI.Registry[] = [];
   private suggestedRegistries: containerDesktopAPI.RegistrySuggestedProvider[] = [];
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();
@@ -871,7 +873,7 @@ export class ImageRegistry {
       return {
         status: 'skipped',
         updateAvailable: false,
-        message: 'Image is dangling and cannot be checked for updates',
+        message: ImageRegistry.DANGLING_IMAGE_MESSAGE,
       };
     }
 
