@@ -72,7 +72,7 @@ export async function verifyStatus<
         if (expectedDisabled) {
           expect(updateButton).toHaveAttribute('aria-disabled', 'true');
         } else {
-          expect(updateButton).toBeEnabled();
+          expect(updateButton).not.toHaveAttribute('aria-disabled', 'true');
         }
       }
     }
