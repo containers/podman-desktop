@@ -109,9 +109,10 @@ export class CertificateDetectionService {
 
     const directories = await this.getDirectoriesToScan();
     const scanPromise = this.scanDirectories(directories, result);
-    const timeoutPromise = new Promise<void>((_, reject) =>
-      setTimeout(() => reject(new Error('Scan timeout')), this.config.scanTimeoutMs),
-    );
+    let timeoutId: NodeJS.Timeout | undefined;
+    const timeoutPromise = new Promise<void>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Scan timeout')), this.config.scanTimeoutMs);
+    });
 
     try {
       await Promise.race([scanPromise, timeoutPromise]);
@@ -121,6 +122,8 @@ export class CertificateDetectionService {
       } else {
         throw error;
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     result.hasCustomCertificates = result.certificateCount > 0;
@@ -222,17 +225,16 @@ export class CertificateDetectionService {
       is_windows: extensionApi.env.isWindows,
       is_linux: extensionApi.env.isLinux,
       is_mac: extensionApi.env.isMac,
-      errors:
-        result.errors
-          .map(e => {
-            const errorMsg = e.error;
-            const codeMsg = e.code ? ` (${e.code})` : '';
-            return `${errorMsg}${codeMsg}`;
-          })
-          .join('; ') ?? '',
+      errors: result.errors
+        .map(e => {
+          const errorMsg = e.error;
+          const codeMsg = e.code ? ` (${e.code})` : '';
+          return `${errorMsg}${codeMsg}`;
+        })
+        .join('; '),
     };
 
-    this.telemetryLogger!.logUsage('custom_certs', telemetryRecords);
+    this.telemetryLogger?.logUsage('custom_certs', telemetryRecords);
   }
 
   updateConfig(config: Partial<CertificateDetectionConfig>): void {

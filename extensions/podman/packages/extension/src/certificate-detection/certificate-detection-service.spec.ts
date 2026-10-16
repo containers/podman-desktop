@@ -269,6 +269,16 @@ describe('CertificateDetectionService', () => {
       );
     });
 
+    test('should clear the scan timeout once the scan completed', async () => {
+      vi.useFakeTimers();
+
+      mockOneCertificate();
+
+      await serviceWithTelemetry.detectCustomCertificates();
+
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
     test('should handle general errors gracefully with telemetry enabled', async () => {
       vi.mocked(fs.access).mockResolvedValue();
       vi.mocked(fs.readdir).mockRejectedValue(new Error('Critical file system error'));
