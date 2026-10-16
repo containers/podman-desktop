@@ -28,6 +28,7 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 import { createPodmanMachineFromCLI, deletePodmanMachine, resetPodmanMachinesFromCLI } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
+import { waitForPodmanMachineStartup } from '/@/utility/wait';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -84,7 +85,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
   await deletePodmanMachine(page, LOCAL_IMAGE_MACHINE_NAME);
 });
 
-test.afterAll(async ({ runner }) => {
+test.afterAll(async ({ runner, page }) => {
   test.setTimeout(TIMEOUT_AFTER_ALL);
 
   try {
@@ -98,6 +99,11 @@ test.afterAll(async ({ runner }) => {
     // previously active machine on single-active-VM providers (e.g. WSL),
     // so we need to restore it unconditionally — not only on failure.
     await createPodmanMachineFromCLI();
+    // Wait for Podman Desktop to reflect the Running state before closing.
+    // 'podman machine start' returns before the VM is fully reachable; without
+    // this wait the next spec's beforeAll (waitForPodmanMachineStartup, 30 s)
+    // races against PD startup + machine detection and can time out.
+    await waitForPodmanMachineStartup(page);
   } catch (error) {
     console.log('Error during teardown cleanup:', error);
   }
@@ -152,9 +158,16 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
     });
 
     await test.step('Wait for machine creation to complete', async () => {
+      // The goBackButton becoming enabled signals that creation has finished
+      // (success or error). We do NOT click it directly: on some WSL/HyperV
+      // configurations Podman Desktop auto-navigates away from the creation
+      // page once the machine starts, detaching the button before the 30 s
+      // action timeout expires. Navigate back to Resources via the nav bar
+      // instead, which is reliably accessible from any PD screen.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
-      await creationPage.goBackButton.click();
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.resourcesTab.click();
     });
   });
 
@@ -235,9 +248,12 @@ test.describe('Podman machine creation with externally provided image path', { t
     });
 
     await test.step('Wait for machine creation to complete', async () => {
+      // Same pattern as Scenario A: wait for goBackButton to be enabled as the
+      // creation-done signal, then navigate to Resources via the nav bar.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
-      await creationPage.goBackButton.click();
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.resourcesTab.click();
     });
   });
 
