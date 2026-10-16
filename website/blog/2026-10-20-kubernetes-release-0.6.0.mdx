@@ -1,42 +1,42 @@
 ---
-title: Kubernetes Dashboard v0.6.0 release for Podman Desktop
-description: Kubernetes dashboard v0.6.0 for Podman Desktop has been released!
-slug: podman-desktop-kubernetes-release-0.6.0
+title: Kubernetes Extension Pack release for Podman Desktop
+description: Kubernetes Extension Pack for Podman Desktop has been released!
+slug: podman-desktop-kubernetes-extension-pack-release-2026-10
 authors: [phmartin]
-tags: [podman-desktop, release, kubernetes, openshift]
+tags: [podman-desktop, release, kubernetes]
 hide_table_of_contents: false
 image: /img/blog/podman-desktop-kubernetes-release-0.6.0/banner.png
 ---
 
 import ThemedImage from '@theme/ThemedImage';
 
-Kubernetes Dashboard v0.6.0 for Podman Desktop Release! 🎉
+Kubernetes Extension Pack for Podman Desktop Release! 🎉
 
-<ThemedImage
-  alt="Kubernetes Dashboard screenshot"
-  sources={{
-    light: require('./img/kubernetes-release-0.6.0/dashboard-light.png').default,
-    dark: require('./img/kubernetes-release-0.6.0/dashboard-dark.png').default,
-  }}
-/>
+![Kubernetes Dashboard screenshot](/img/blog/podman-desktop-kubernetes-release-0.6.0/banner.png)
 
 This Kubernetes Extension Pack release includes Kubernetes Dashboard v0.6.0, Kubernetes Contexts v0.3.0, and Kreate v0.4.0.
 
 The new releases have been added to the catalog.
-If the extensions are already installed, they have been upgraded automatically.
-If not, open the **Extensions > Catalog** page,
-search for the Kubernetes Extension Pack, or for Kubernetes Dashboard, Kubernetes Contexts, and Kreate, and install them.
+If automatic extension updates are enabled (the default),
+Podman Desktop updates already installed extensions automatically.
+If you have not installed the extensions,
+open the **Extensions > Catalog** page,
+search for the Kubernetes Extension Pack
+or for Kubernetes Dashboard, Kubernetes Contexts, and Kreate,
+and install them.
 
 :::note
 
-The **Kubernetes Dashboard** and **Kubernetes Contexts** extensions replace the Kubernetes dashboard and the Contexts management that are present in core Podman Desktop.
-When an extension is installed, its counterpart in core is disabled.
+Podman Desktop is moving Kubernetes dashboard and context management from core into extensions
+so they can evolve and release independently of the desktop app.
+The Kubernetes Extension Pack remains available in Podman Desktop's catalog,
+making the full set easy to install while letting you choose individual extensions.
+The Kubernetes Dashboard extension also exposes Kubernetes resource data through an API
+that other extensions can use.
 
-Those built-in features will not evolve and will be removed in the near future.
-We recommend switching to the extensions in this release to take advantage of the new features.
-
-The pack provides the full set of extensions related to Kubernetes.
-Installing the pack is optional; you can install each extension independently.
+Installing either Kubernetes Dashboard or Kubernetes Contexts disables the corresponding feature in core.
+The built-in features will not evolve and will be removed in a future release,
+so we recommend switching to the extensions for new features.
 
 :::
 
@@ -258,7 +258,9 @@ and documentation will be provided for the resource fields from the cluster Open
 
 ## Community meeting
 
-If you would like to discuss any of the new features, issues or other topics, please join us at the monthly community meeting that takes place <b>every 4th Thursday of the month</b>. Here are the <b>meeting [details](https://github.com/podman-desktop/community/issues?q=is%3Aissue%20state%3Aopen%20Agenda%20for%20Podman%20Desktop)</b>.
+If you would like to discuss any of the new features, issues, or other topics,
+join us at the monthly community meeting on **the fourth Thursday of each month**.
+See the [meeting details](https://github.com/podman-desktop/community/issues?q=is%3Aissue%20state%3Aopen%20Agenda%20for%20Podman%20Desktop).
 
 ---
 
