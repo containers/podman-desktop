@@ -29,6 +29,7 @@ test.each([
   ['Delete container now', 'delete container', true],
   ['Install custom', 'Install custom...', true],
   ['Install   custom', 'install custom', true],
+  ['Caf\u00e9 menu', 'Cafe\u0301', true],
   ['Remove', 'Delete', false],
   ['Delete', '', true],
   ['Delete', '...', true],

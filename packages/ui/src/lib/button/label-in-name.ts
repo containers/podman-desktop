@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-const normalize = (text: string): string => text.toLowerCase().replace(/\p{P}/gu, '').replace(/\s+/g, ' ').trim();
+const normalize = (text: string): string =>
+  text.normalize('NFC').toLowerCase().replace(/\p{P}/gu, '').replace(/\s+/g, ' ').trim();
 
 /**
  * WCAG 2.5.3 label-in-name: the accessible name must contain the visible text.
