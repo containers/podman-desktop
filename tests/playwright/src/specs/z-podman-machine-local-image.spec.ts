@@ -73,6 +73,7 @@ const baseSkipCondition = isLinux || process.env.TEST_PODMAN_MACHINE !== 'true';
 // ---------------------------------------------------------------------------
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
+  test.setTimeout(TIMEOUT_AFTER_ALL);
   runner.setVideoAndTraceName('podman-machine-local-image-e2e');
   await welcomePage.handleWelcomePage(true);
   // Do NOT start the default machine here. Starting a default machine before
