@@ -4559,8 +4559,9 @@ test('two errors close together schedule exactly one reconnect', () => {
 });
 
 describe('reconnect chain lifecycle', () => {
+  const onBeforeDidUpdateContainerConnection = vi.fn();
   const providerRegistry: ProviderRegistry = {
-    onBeforeDidUpdateContainerConnection: vi.fn().mockReturnValue({ dispose: vi.fn() }),
+    onBeforeDidUpdateContainerConnection,
   } as unknown as ProviderRegistry;
 
   const retryDelay = 300;
@@ -4571,6 +4572,9 @@ describe('reconnect chain lifecycle', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    // the file-level beforeEach runs vi.resetAllMocks(), so the return value has
+    // to be set here rather than where the mock is declared
+    onBeforeDidUpdateContainerConnection.mockReturnValue({ dispose: vi.fn() });
     statusMock.mockReset();
     statusMock.mockReturnValue('started');
     containerProviderConnection = {
