@@ -38,10 +38,10 @@ On macOS and Linux, Podman Desktop copies the CLI tool to the `/usr/local/bin/` 
 
 #### Solution
 
-1. Inspect the target path for the CLI tool that failed to install.
+1. Inspect the target path for the CLI tool that failed to install, where `tool-name` denotes the binary name, such as `kubectl`, `kind`, or `docker-compose`.
 
    ```shell-session
-   $ ls -la /usr/local/bin/kubectl
+   $ ls -la /usr/local/bin/<tool-name>
    ```
 
    The link is broken if it points to a file that no longer exists.
@@ -55,7 +55,7 @@ On macOS and Linux, Podman Desktop copies the CLI tool to the `/usr/local/bin/` 
 3. Remove each broken link.
 
    ```shell-session
-   $ sudo rm /usr/local/bin/kubectl
+   $ sudo rm /usr/local/bin/<tool-name>
    ```
 
    :::caution
