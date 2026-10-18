@@ -725,3 +725,32 @@ test('prompt is not duplicated after restoring terminal from containerTerminals 
     expect(terminalLinesLiveRegion).toHaveTextContent('prompt$ hello world prompt$');
   });
 });
+
+test('resize listener is removed when the terminal is destroyed', async () => {
+  const container: ContainerInfoUI = {
+    id: 'myContainer',
+    state: 'RUNNING',
+    engineId: 'podman',
+  } as unknown as ContainerInfoUI;
+
+  const sendCallbackId = 12345;
+  shellInContainerMock.mockResolvedValue(sendCallbackId);
+
+  const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+  const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+
+  const renderObject = render(ContainerDetailsTerminal, { container, screenReaderMode: true });
+  await waitFor(() => expect(shellInContainerMock).toHaveBeenCalledOnce());
+
+  const added = addEventListenerSpy.mock.calls.filter(([type]) => type === 'resize').map(([, listener]) => listener);
+  expect(added.length).toBeGreaterThan(0);
+
+  // destroy the terminal tab
+  renderObject.unmount();
+
+  // every resize listener put on window must be gone, otherwise it keeps running after unmount
+  const removed = removeEventListenerSpy.mock.calls
+    .filter(([type]) => type === 'resize')
+    .map(([, listener]) => listener);
+  expect(removed).toEqual(expect.arrayContaining(added));
+});
