@@ -41,6 +41,7 @@ import { http, HttpResponse } from 'msw';
 import { type SetupServer, setupServer } from 'msw/node';
 import type { Headers, PackOptions } from 'tar-fs';
 import * as tarstream from 'tar-stream';
+import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
@@ -226,6 +227,16 @@ const fakeContainerInspectInfo: Dockerode.ContainerInspectInfo = {
     MacAddress: '',
     Networks: {},
     Node: undefined,
+  },
+};
+
+const fakeContainerInspectInfoWithPortBindings: Dockerode.ContainerInspectInfo = {
+  ...fakeContainerInspectInfo,
+  HostConfig: {
+    ...fakeContainerInspectInfo.HostConfig,
+    PortBindings: {
+      '80/tcp': [{ HostIp: '127.0.0.1', HostPort: '8080' }],
+    },
   },
 };
 
@@ -4489,6 +4500,89 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
     image: fakeContainerInspectInfo.Config.Image,
     mounts: fakeContainerInspectInfo.Mounts,
     volumes: [],
+  });
+});
+
+describe('replicatePodmanContainer into a pod', () => {
+  function addPodReplicationProvider(): MockInstance<LibPod['createPodmanContainer']> {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' }) as Dockerode & LibPod;
+    const sourceContainer = new Dockerode.Container(undefined, 'container-id');
+    vi.spyOn(sourceContainer, 'inspect').mockResolvedValue(fakeContainerInspectInfoWithPortBindings);
+    vi.spyOn(dockerAPI, 'getContainer').mockReturnValue(sourceContainer);
+
+    const createPodmanContainerMock = vi
+      .spyOn(dockerAPI, 'createPodmanContainer')
+      .mockResolvedValue({ Id: 'new-container', Warnings: [] });
+    const provider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: { socketPath: '/tmp/podman.sock' },
+        status: () => 'started',
+      },
+    };
+    containerRegistry.addInternalProvider('podman1', provider);
+
+    return createPodmanContainerMock;
+  }
+
+  test('does not copy published ports from the source container', async () => {
+    const createPodmanContainerMock = addPodReplicationProvider();
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      { pod: 'pod-id', name: 'container-in-pod' },
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith({
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+      pod: 'pod-id',
+      name: 'container-in-pod',
+    });
+  });
+
+  test.each([
+    {
+      name: 'one explicitly selected port',
+      portmappings: [{ container_port: 80, host_port: 8081, host_ip: '127.0.0.1', protocol: 'tcp' }],
+    },
+    {
+      name: 'multiple explicitly selected ports',
+      portmappings: [
+        { container_port: 80, host_port: 8081, host_ip: '127.0.0.1', protocol: 'tcp' },
+        { container_port: 443, host_port: 8443, host_ip: '', protocol: 'tcp' },
+      ],
+    },
+  ])('preserves $name supplied for a pod', async ({ portmappings }) => {
+    const createPodmanContainerMock = addPodReplicationProvider();
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      { pod: 'pod-id', name: 'container-in-pod', portmappings },
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith({
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+      pod: 'pod-id',
+      name: 'container-in-pod',
+      portmappings,
+    });
   });
 });
 
