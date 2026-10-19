@@ -557,7 +557,7 @@ export class ExtensionLoader implements IAsyncDisposable {
    * A candidate having the same id as a bundled extension replaces it: set its `overrides` to the bundled
    * extension it replaces. A candidate analyzed with an error does not replace anything.
    */
-  markOverridingExtensions(candidates: AnalyzedExtension[]): void {
+  protected markOverridingExtensions(candidates: AnalyzedExtension[]): void {
     const bundledExtensions = this.extensionsBundle.all();
     for (const extension of candidates) {
       if (extension.error) {
@@ -574,8 +574,22 @@ export class ExtensionLoader implements IAsyncDisposable {
   }
 
   /**
+   * Flag an extension installed in the plugins directory as replacing the bundled extension having the same id.
+   * Does nothing if no bundled extension has this id, or if the extension is not an installed one.
+   *
+   * Used by the installer, the extensions loaded at startup being flagged by start().
+   */
+  markIfOverriding(extension: AnalyzedExtension): void {
+    // only an installed extension can replace a bundled one
+    if (extension.bundled || !extension.removable) {
+      return;
+    }
+    this.markOverridingExtensions([extension]);
+  }
+
+  /**
    * Stop and forget the bundled extension having the given id, before loading an installed extension replacing it.
-   * Does nothing if the bundled extension is not loaded, e.g. when an extension replacing it is being updated.
+   * Does nothing if the bundled extension is not loaded, e.g. when restoring it failed.
    */
   async replaceBundledExtension(bundledExtensionId: string): Promise<void> {
     if (!this.analyzedExtensions.get(bundledExtensionId)?.bundled) {

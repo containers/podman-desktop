@@ -59,7 +59,7 @@ const extensionLoader: ExtensionLoader = {
   loadExtensions: loadExtensionsMock,
   analyzeExtension: analyzeExtensionMock,
   ensureExtensionIsEnabled: ensureExtensionsMock,
-  markOverridingExtensions: vi.fn(),
+  markIfOverriding: vi.fn(),
   replaceBundledExtension: vi.fn(),
 } as unknown as ExtensionLoader;
 
@@ -728,10 +728,8 @@ describe('installing an extension replacing a bundled one', () => {
       buildExtensionInfo('podman-desktop.kind', { displayName: 'Kind', removable: false, bundled: true }),
     ]);
     // the loader flags the extension as replacing the bundled one having the same id
-    vi.mocked(extensionLoader.markOverridingExtensions).mockImplementation(candidates => {
-      for (const candidate of candidates) {
-        candidate.overrides = { id: candidate.id, version: '1.31.0-next' };
-      }
+    vi.mocked(extensionLoader.markIfOverriding).mockImplementation(extension => {
+      extension.overrides = { id: extension.id, version: '1.31.0-next' };
     });
   });
 
@@ -794,7 +792,7 @@ describe('installing an extension replacing a bundled one', () => {
     await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
 
     expect(sendError).toHaveBeenCalledWith('Extension podman-desktop.kind is already installed.');
-    expect(extensionLoader.markOverridingExtensions).not.toHaveBeenCalled();
+    expect(extensionLoader.markIfOverriding).not.toHaveBeenCalled();
     expect(loadExtensionsMock).not.toHaveBeenCalled();
   });
 });

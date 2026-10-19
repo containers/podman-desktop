@@ -639,6 +639,34 @@ describe('extensionLoader#start', () => {
   });
 });
 
+describe('markIfOverriding', () => {
+  beforeEach(() => {
+    vi.mocked(extensionsBundle.all).mockReturnValue([bundledPodmanExtension]);
+  });
+
+  test('flags an installed extension having the id of a bundled extension', () => {
+    const installedExtension = buildAnalyzedExtension('podman-desktop.podman');
+
+    extensionLoader.markIfOverriding(installedExtension);
+
+    expect(installedExtension.overrides).toEqual({ id: 'podman-desktop.podman', version: '1.0.0' });
+  });
+
+  test('does not flag an extension which is not installed', () => {
+    const developmentExtension = buildAnalyzedExtension('podman-desktop.podman', { removable: false, devMode: true });
+
+    extensionLoader.markIfOverriding(developmentExtension);
+
+    expect(developmentExtension.overrides).toBeUndefined();
+  });
+
+  test('does not flag a bundled extension', () => {
+    extensionLoader.markIfOverriding(bundledPodmanExtension);
+
+    expect(bundledPodmanExtension.overrides).toBeUndefined();
+  });
+});
+
 describe('replaceBundledExtension', () => {
   beforeEach(() => {
     vi.spyOn(extensionLoader, 'deactivateExtension').mockResolvedValue(undefined);

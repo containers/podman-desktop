@@ -220,7 +220,7 @@ export class ExtensionInstaller {
         return;
       }
       if (analyzedExtension) {
-        this.extensionLoader.markOverridingExtensions([analyzedExtension]);
+        this.extensionLoader.markIfOverriding(analyzedExtension);
       }
       return analyzedExtension;
     } else if (isDDExtension) {
