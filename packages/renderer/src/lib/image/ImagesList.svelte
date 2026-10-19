@@ -381,8 +381,7 @@ function label(item: ImageInfoUI): string {
         defaultSortColumn="Age"
         key={key}
         label={label}
-        enableLayoutConfiguration={true}
-        on:update={(): ImageInfoUI[] => (images = images)}>
+        enableLayoutConfiguration={true}>
       </Table>
     {/if}
   </div>

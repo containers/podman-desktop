@@ -258,8 +258,7 @@ function label(obj: VolumeInfoUI): string {
         defaultSortColumn="Name"
         enableLayoutConfiguration={true}
         key={key}
-        label={label}
-        on:update={(): VolumeInfoUI[] => (volumes = volumes)}>
+        label={label}>
       </Table>
     {/if}
   </div>

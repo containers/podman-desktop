@@ -64,8 +64,7 @@ function label(extensionFolder: SelectableExtensionDevelopmentFolderInfoUI): str
   bind:selectedItemsNumber
   defaultSortColumn="Name"
   key={key}
-  label={label}
-  on:update={(): SelectableExtensionDevelopmentFolderInfoUI[] => (extensionFolderUIInfos = [...extensionFolderUIInfos])}>
+  label={label}>
 </Table>
 
 <div class="h-5 px-6 mb-2">
