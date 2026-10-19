@@ -105,11 +105,6 @@ function loadPreInstalledExtensions(): PreInstalledExtension[] {
 
 const extensionsToTest = [
   {
-    regionAreaLabel: 'podman-desktop.lima',
-    extensionLabelName: 'lima',
-    extensionHeading: 'lima',
-  },
-  {
     regionAreaLabel: 'podman-desktop.registries',
     extensionLabelName: 'registries',
     extensionHeading: 'registries',

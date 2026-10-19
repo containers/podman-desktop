@@ -40,7 +40,6 @@ test.use({
         'podman-desktop.kind',
         'podman-desktop.kube-context',
         'podman-desktop.kubectl-cli',
-        'podman-desktop.lima',
         'podman-desktop.registries',
       ],
     },
