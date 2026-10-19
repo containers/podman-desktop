@@ -31,7 +31,7 @@ import type { ExtensionsCatalog } from '/@/plugin/extension/catalog/extensions-c
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';
 import type { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
 import type { ImageRegistry } from '/@/plugin/image-registry.js';
-import type { MessageBox } from '/@/plugin/message-box.js';
+import { MessageBox } from '/@/plugin/message-box.js';
 import type { TaskManager } from '/@/plugin/tasks/task-manager.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
@@ -92,13 +92,12 @@ const taskManager = {
   createTask: createTaskMock,
 } as unknown as TaskManager;
 
-const messageBox = {
-  showMessageBox: vi.fn(),
-} as unknown as MessageBox;
+let messageBox: MessageBox;
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));
 vi.mock(import('/@/plugin/docker-extension/docker-desktop-installer.js'));
+vi.mock(import('/@/plugin/message-box.js'));
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -112,6 +111,7 @@ beforeEach(() => {
   vi.mocked(rm).mockResolvedValue(undefined);
   vi.mocked(directories.getPluginsDirectory).mockReturnValue('/fake/plugins/directory');
   vi.mocked(directories.getContributionStorageDir).mockReturnValue('/fake/dd/directory');
+  messageBox = new MessageBox(apiSender);
   extensionInstaller = new ExtensionInstaller(
     apiSender,
     extensionLoader,
@@ -784,8 +784,8 @@ describe('installing an extension replacing a bundled one', () => {
     await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
 
     expect(messageBox.showMessageBox).not.toHaveBeenCalled();
-    expect(loadExtensionsMock).toHaveBeenCalledWith([installedExtension]);
-    expect(installedExtension.overrides).toEqual({ id: 'podman-desktop.kind', version: '1.31.0-next' });
+    expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('podman-desktop.kind');
+    expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
   });
 
   test('still refuses an extension having the id of an installed extension which is not bundled', async () => {
