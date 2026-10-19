@@ -207,6 +207,8 @@ test('Button hidden should be hidden', async () => {
 });
 
 test('Unknown button type falls back to primary styling', () => {
+  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
   // Force an invalid type to exercise the else fallback branch
   render(Button, { type: 'unknown-type' as never });
 
@@ -214,7 +216,9 @@ test('Unknown button type falls back to primary styling', () => {
   expect(button).toHaveClass('bg-[var(--pd-button-primary-bg)]');
   expect(button).toHaveClass('text-[var(--pd-button-primary-text)]');
 
-  expect(console.warn).toHaveBeenCalledWith('Unknown button type: unknown-type, falling back to primary');
+  expect(consoleWarnSpy).toHaveBeenCalledWith('Unknown button type: unknown-type, falling back to primary');
+
+  consoleWarnSpy.mockRestore();
 });
 
 test('Button should have aria-disabled when disabled', async () => {
@@ -332,10 +336,30 @@ test('does not warn when the aria-label contains the visible text', () => {
   expect(console.warn).not.toHaveBeenCalled();
 });
 
-test('does not check the visible text of an icon-only button', () => {
+test('does not warn when the button has no visible text', () => {
   render(Button, { icon: faTrash, 'aria-label': 'Delete' });
   expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   expect(console.warn).not.toHaveBeenCalled();
+});
+
+test('checks the label once an in-progress button is done', async () => {
+  const { rerender } = render(Button, { inProgress: true, 'aria-label': 'Remove', children: textSnippet('Delete') });
+  expect(console.warn).not.toHaveBeenCalled();
+
+  await rerender({ inProgress: false });
+  expect(console.warn).toHaveBeenCalledExactlyOnceWith(
+    'Button aria-label "Remove" does not contain its visible text "Delete"',
+  );
+});
+
+test('checks the label again when the aria-label changes', async () => {
+  const { rerender } = render(Button, { 'aria-label': 'Delete', children: textSnippet('Delete') });
+  expect(console.warn).not.toHaveBeenCalled();
+
+  await rerender({ 'aria-label': 'Remove' });
+  expect(console.warn).toHaveBeenCalledExactlyOnceWith(
+    'Button aria-label "Remove" does not contain its visible text "Delete"',
+  );
 });
 
 test('does not check the label while the button is in progress', () => {

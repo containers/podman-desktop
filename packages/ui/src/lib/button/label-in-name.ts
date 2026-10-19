@@ -16,25 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-const normalize = (text: string): string =>
-  text.normalize('NFC').toLowerCase().replace(/\p{P}/gu, '').replace(/\s+/g, ' ').trim();
-
 /**
- * WCAG 2.5.3 label-in-name: the accessible name must contain the visible text.
- * Case, punctuation and whitespace differences are ignored.
+ * WCAG 2.5.3 label-in-name: the accessible name of a button must contain its visible text.
+ * Case, punctuation, symbol and whitespace differences are ignored.
  */
-export function isLabelInName(accessibleName: string, visibleText: string): boolean {
-  const normalizedText = normalize(visibleText);
-  return !normalizedText || normalize(accessibleName).includes(normalizedText);
-}
+export class LabelInName {
+  static #normalize(text: string): string {
+    return text
+      .normalize('NFC')
+      .toLowerCase()
+      .replace(/[\p{P}\p{S}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
-/**
- * Warn once when the visible text of a button is missing from its aria-label.
- * Buttons without an aria-label or without visible text (icon only) are not checked.
- */
-export function warnIfLabelNotInName(accessibleName: string | undefined, visibleText: string | null): void {
-  const text = (visibleText ?? '').replace(/\s+/g, ' ').trim();
-  if (accessibleName && !isLabelInName(accessibleName, text)) {
-    console.warn(`Button aria-label "${accessibleName}" does not contain its visible text "${text}"`);
+  static isLabelInName(accessibleName: string, visibleText: string): boolean {
+    const normalizedText = LabelInName.#normalize(visibleText);
+    return !normalizedText || LabelInName.#normalize(accessibleName).includes(normalizedText);
+  }
+
+  /**
+   * Warn when the visible text of a button is missing from its aria-label.
+   * Buttons without an aria-label or without visible text (icon only) are not checked.
+   */
+  static warnIfNotInName(accessibleName?: string, visibleText?: string): void {
+    const text = (visibleText ?? '').replace(/\s+/g, ' ').trim();
+    if (accessibleName && !LabelInName.isLabelInName(accessibleName, text)) {
+      console.warn(`Button aria-label "${accessibleName}" does not contain its visible text "${text}"`);
+    }
   }
 }

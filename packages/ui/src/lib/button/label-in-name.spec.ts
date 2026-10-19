@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { isLabelInName, warnIfLabelNotInName } from './label-in-name';
+import { LabelInName } from './label-in-name';
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -30,15 +30,17 @@ test.each([
   ['Install custom', 'Install custom...', true],
   ['Install   custom', 'install custom', true],
   ['Caf\u00e9 menu', 'Cafe\u0301', true],
+  ['Next', 'Next >', true],
+  ['Add', 'Add +', true],
   ['Remove', 'Delete', false],
   ['Delete', '', true],
   ['Delete', '...', true],
-])('isLabelInName(%j, %j) is %s', (accessibleName, visibleText, expected) => {
-  expect(isLabelInName(accessibleName, visibleText)).toBe(expected);
+])('LabelInName.isLabelInName(%j, %j) is %s', (accessibleName, visibleText, expected) => {
+  expect(LabelInName.isLabelInName(accessibleName, visibleText)).toBe(expected);
 });
 
-test('warnIfLabelNotInName warns with both strings when the text is missing from the name', () => {
-  warnIfLabelNotInName('Remove', ' Delete \n');
+test('LabelInName.warnIfNotInName warns with both strings when the text is missing from the name', () => {
+  LabelInName.warnIfNotInName('Remove', ' Delete \n');
   expect(console.warn).toHaveBeenCalledExactlyOnceWith(
     'Button aria-label "Remove" does not contain its visible text "Delete"',
   );
@@ -47,8 +49,8 @@ test('warnIfLabelNotInName warns with both strings when the text is missing from
 test.each([
   ['Delete container', 'Delete'],
   [undefined, 'Delete'],
-  ['Delete', null],
-])('warnIfLabelNotInName(%j, %j) does not warn', (accessibleName, visibleText) => {
-  warnIfLabelNotInName(accessibleName, visibleText);
+  ['Delete', undefined],
+])('LabelInName.warnIfNotInName(%j, %j) does not warn', (accessibleName, visibleText) => {
+  LabelInName.warnIfNotInName(accessibleName, visibleText);
   expect(console.warn).not.toHaveBeenCalled();
 });

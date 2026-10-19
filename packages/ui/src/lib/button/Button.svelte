@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import type { Component, Snippet } from 'svelte';
-import { createEventDispatcher, onMount, untrack } from 'svelte';
+import { createEventDispatcher, untrack } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
 import type { ButtonType } from './Button';
-import { warnIfLabelNotInName } from './label-in-name';
+import { LabelInName } from './label-in-name';
 
 interface Props {
   title?: string;
@@ -47,11 +47,11 @@ if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
   throw new Error('Icon-only buttons must have an aria-label for accessibility');
 }
 
-let buttonElement: HTMLButtonElement | undefined = $state();
+let buttonElement: HTMLButtonElement | undefined;
 
-// checked once on mount: the visible text is not observed afterwards, so later changes are not re-checked
-onMount(() => {
-  if (!inProgress) warnIfLabelNotInName(ariaLabel, buttonElement?.textContent ?? null);
+// Re-checked when the aria-label or the in-progress state change; edits to the visible text alone are not observed
+$effect(() => {
+  if (!inProgress) LabelInName.warnIfNotInName(ariaLabel, buttonElement?.textContent ?? undefined);
 });
 
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
