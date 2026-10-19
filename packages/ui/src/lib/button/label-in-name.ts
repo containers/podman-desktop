@@ -18,13 +18,14 @@
 
 /**
  * WCAG 2.5.3 label-in-name: the accessible name of a button must contain its visible text.
- * Case, punctuation, symbol and whitespace differences are ignored.
+ * Case, punctuation, symbol and whitespace differences are ignored; dashes and slashes count as word breaks.
  */
 export class LabelInName {
   static #normalize(text: string): string {
     return text
       .normalize('NFC')
       .toLowerCase()
+      .replace(/[\p{Pd}\p{Pc}/]/gu, ' ')
       .replace(/[\p{P}\p{S}]/gu, '')
       .replace(/\s+/g, ' ')
       .trim();

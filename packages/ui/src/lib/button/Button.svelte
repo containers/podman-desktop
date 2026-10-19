@@ -49,9 +49,10 @@ if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
 
 let buttonElement: HTMLButtonElement | undefined;
 
-// Re-checked when the aria-label or the in-progress state change; edits to the visible text alone are not observed
+// Dev only. Re-checked when the aria-label or the in-progress state change; edits to the visible text alone are not observed
 $effect(() => {
-  if (!inProgress) LabelInName.warnIfNotInName(ariaLabel, buttonElement?.textContent ?? undefined);
+  if (import.meta.env.DEV && !inProgress)
+    LabelInName.warnIfNotInName(ariaLabel, buttonElement?.textContent ?? undefined);
 });
 
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
