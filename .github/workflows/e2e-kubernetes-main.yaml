@@ -74,7 +74,7 @@ jobs:
 
       - name: Install Podman v5 using external action
         # Use the action from the other repository
-        uses: redhat-actions/podman-install@aea6ff44f2a4a82da13d22061ce73443a125925d
+        uses: redhat-actions/podman-install@4a5b244246ee7d71f896e53bbde9d98a503ddb9b
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
