@@ -18,12 +18,14 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { PreferredRegistriesSettings } from '@desktop-framework/api';
 import type { Registry, RegistrySuggestedProvider } from '@desktop-framework/extension-api';
 import { waitFor } from '@testing-library/dom';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import { default as userEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { configurationProperties } from '/@/stores/configurationProperties';
 import { registriesInfos, registriesSuggestedInfos } from '/@/stores/registries';
 
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
@@ -33,6 +35,31 @@ describe('PreferencesRegistriesEditing', () => {
     vi.resetAllMocks();
     registriesInfos.set([]);
     registriesSuggestedInfos.set([]);
+    configurationProperties.set([]);
+  });
+
+  test('Expect the registries list to be a labelled region', () => {
+    render(PreferencesRegistriesEditing, {});
+
+    const region = screen.getByRole('region', { name: 'Configured registries' });
+    expect(within(region).getByRole('table', { name: 'Registries' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Preferred registries' })).not.toBeInTheDocument();
+  });
+
+  test('Expect the preferred registries to be a labelled region when the property exists', () => {
+    configurationProperties.set([
+      {
+        id: `${PreferredRegistriesSettings.SectionName}.${PreferredRegistriesSettings.Preferred}`,
+        title: 'Preferred registries',
+        parentId: '',
+        type: 'string',
+        default: '',
+        description: 'Preferred registries',
+      },
+    ]);
+    render(PreferencesRegistriesEditing, {});
+
+    expect(screen.getByRole('region', { name: 'Preferred registries' })).toBeInTheDocument();
   });
 
   test('Expect that add registry button is visible and enabled', async () => {
