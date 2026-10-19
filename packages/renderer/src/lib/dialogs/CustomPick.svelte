@@ -61,10 +61,8 @@ function handleSelection(
   },
   item: CustomPickItem,
 ): void {
-  if (
-    e.target instanceof HTMLButtonElement &&
-    (e.target.ariaLabel === 'Less detail' || e.target.ariaLabel === 'Show more')
-  ) {
+  // clicks on a button inside the card (show/hide details, or its label/icon) must not change the selection
+  if (e.target instanceof Element && e.target.closest('button')) {
     return;
   }
   //if it's deselecting an item, just do it
