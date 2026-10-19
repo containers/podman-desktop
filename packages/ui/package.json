@@ -171,7 +171,7 @@
     "svelte-fa": "^4.0.4"
   },
   "devDependencies": {
-    "@sveltejs/package": "^3.0.0",
+    "@sveltejs/package": "^3.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
