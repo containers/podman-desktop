@@ -54,7 +54,7 @@
     "getos": "^3.2.1",
     "hpagent": "^1.2.0",
     "inversify": "^8.2.3",
-    "js-yaml": "^5.4.3",
+    "js-yaml": "^5.5.0",
     "minimist": "^1.2.8",
     "moment": "^2.31.0",
     "os-locale": "^8.0.0",

@@ -499,7 +499,7 @@ importers:
         version: link:../../packages/extension-api
       js-yaml:
         specifier: ^5.4.1
-        version: 5.4.3
+        version: 5.5.0
     devDependencies:
       adm-zip:
         specifier: ^0.6.1
@@ -804,7 +804,7 @@ importers:
         version: 8.2.3(reflect-metadata@0.2.2)
       js-yaml:
         specifier: ^5.4.1
-        version: 5.4.3
+        version: 5.5.0
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
@@ -960,7 +960,7 @@ importers:
         version: 5.1.0
       js-yaml:
         specifier: ^5.4.1
-        version: 5.4.3
+        version: 5.5.0
       search-string:
         specifier: ^4.1.0
         version: 4.1.0
@@ -6336,6 +6336,9 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
+  argparse@3.0.3:
+    resolution: {integrity: sha512-Sn98ftV3KfsO8xfLPHG6oT8y+b0yvbrLgZjgPDXsharNY15tTAjqIsIju4S32nl6/iEUNNE4v+yL2Zhm8ooP3w==}
+
   args@5.0.3:
     resolution: {integrity: sha512-h6k/zfFgusnv3i5TU08KQkVKuCPBtL/PWQbWkHUxvJrZ2nAyeaUupneemcrgn1xmqxPQsPIzwkUhOpoqPDRZuA==}
     engines: {node: '>= 6.0.0'}
@@ -9259,8 +9262,8 @@ packages:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
-  js-yaml@5.4.3:
-    resolution: {integrity: sha512-yzzNtgczwgoVHNigCyKTXcQJU4Y8t/ikU4UxXW0BvrLfHTGWZhsNcOT2s/a7vn81/4KqVnNmHjaUEPlvWnNwVw==}
+  js-yaml@5.5.0:
+    resolution: {integrity: sha512-paNr4LFIFPjeeSmwNYdrb8FafLLG/Cr2Af3GjbsHJ5CxIjH4r0c2emlmRdAtpPAieP1gRVzk6buBbVP5gBMGAg==}
     hasBin: true
 
   jsbn@0.1.1:
@@ -16150,7 +16153,7 @@ snapshots:
       form-data: 4.0.6
       hpagent: 1.2.0
       isomorphic-ws: 5.0.0(ws@8.22.0)
-      js-yaml: 5.4.3
+      js-yaml: 5.5.0
       jsonpath-plus: 10.4.0
       openid-client: 6.8.7
       rfc4648: 1.5.4
@@ -18843,6 +18846,8 @@ snapshots:
 
   argparse@2.0.1: {}
 
+  argparse@3.0.3: {}
+
   args@5.0.3:
     dependencies:
       camelcase: 5.0.0
@@ -20782,7 +20787,7 @@ snapshots:
       globals: 15.15.0
       globrex: 0.1.2
       ignore: 5.3.2
-      js-yaml: 5.4.3
+      js-yaml: 5.5.0
       semver: 7.8.5
     optionalDependencies:
       ts-declaration-location: 1.0.7(typescript@6.0.3)
@@ -22186,9 +22191,9 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  js-yaml@5.4.3:
+  js-yaml@5.5.0:
     dependencies:
-      argparse: 2.0.1
+      argparse: 3.0.3
 
   jsbn@0.1.1: {}
 
@@ -22561,7 +22566,7 @@ snapshots:
   markdownlint-cli2@0.23.3(supports-color@8.1.1):
     dependencies:
       globby: 16.2.4
-      js-yaml: 5.4.3
+      js-yaml: 5.5.0
       jsonc-parser: 3.3.1
       jsonpointer: 5.0.1
       markdown-it: 14.3.2
