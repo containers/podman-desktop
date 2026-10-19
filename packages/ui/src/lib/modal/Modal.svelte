@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createEventDispatcher, onDestroy, onMount, type Snippet } from 'svelte';
 
-import { activateDefaultButton, registerModal, tabWithinParent } from '../utils/dialog-utils';
+import { modalStack, tabWithinParent } from '../utils/dialog-utils';
 
 const dispatch = createEventDispatcher();
 
@@ -37,7 +37,7 @@ onMount(() => {
 });
 
 $effect(() => {
-  return registerModal(modal);
+  return modalStack.register(modal);
 });
 
 const handle_keydown = (e: KeyboardEvent): void => {
@@ -52,7 +52,7 @@ const handle_keydown = (e: KeyboardEvent): void => {
   }
 
   if (e.key === 'Enter') {
-    activateDefaultButton(e, modal);
+    modalStack.activateDefaultButton(e, modal);
   }
 };
 

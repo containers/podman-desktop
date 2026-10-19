@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
-import { activateDefaultButton, isTopmostModal, registerModal, tabWithinParent } from './dialog-utils';
+import { ModalStack, tabWithinParent } from './dialog-utils';
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 test('check tabbing order', async () => {
@@ -73,14 +73,19 @@ test('check tabbing order', async () => {
   expect(active).toBe(button1);
 });
 
-function createModal(): { modal: HTMLDivElement; defaultButton: HTMLButtonElement; input: HTMLInputElement } {
+let stack: ModalStack;
+let modal: HTMLDivElement;
+let input: HTMLInputElement;
+let defaultButton: HTMLButtonElement;
+const onDefaultClick = vi.fn();
+
+function createModal(): { modal: HTMLDivElement; input: HTMLInputElement; defaultButton: HTMLButtonElement } {
   const modal = document.createElement('div');
   const input = document.createElement('input');
   const defaultButton = document.createElement('button');
   defaultButton.setAttribute('data-default', '');
   modal.append(input, defaultButton);
-  document.body.append(modal);
-  return { modal, defaultButton, input };
+  return { modal, input, defaultButton };
 }
 
 function pressEnter(target: HTMLElement, init: KeyboardEventInit = {}): KeyboardEvent {
@@ -89,90 +94,66 @@ function pressEnter(target: HTMLElement, init: KeyboardEventInit = {}): Keyboard
   return event;
 }
 
-afterEach(() => {
-  document.body.replaceChildren();
-});
-
-test('registerModal tracks the topmost modal and unregisters', () => {
-  const first = createModal().modal;
-  const second = createModal().modal;
-  const unregisterFirst = registerModal(first);
-  const unregisterSecond = registerModal(second);
-
-  expect(isTopmostModal(second)).toBe(true);
-  expect(isTopmostModal(first)).toBe(false);
-
-  unregisterSecond();
-  expect(isTopmostModal(first)).toBe(true);
-
-  unregisterFirst();
-  expect(isTopmostModal(first)).toBe(false);
+beforeEach(() => {
+  stack = new ModalStack();
+  ({ modal, input, defaultButton } = createModal());
+  defaultButton.addEventListener('click', onDefaultClick);
+  stack.register(modal);
 });
 
 test('activateDefaultButton clicks the default button on Enter from an input', () => {
-  const { modal, defaultButton, input } = createModal();
-  const unregister = registerModal(modal);
-  const click = vi.spyOn(defaultButton, 'click');
-
   const event = pressEnter(input);
-  activateDefaultButton(event, modal);
+  stack.activateDefaultButton(event, modal);
 
-  expect(click).toHaveBeenCalledOnce();
+  expect(onDefaultClick).toHaveBeenCalledOnce();
   expect(event.defaultPrevented).toBe(true);
-  unregister();
 });
 
-test.each([{ shiftKey: true }, { ctrlKey: true }, { altKey: true }, { metaKey: true }, { isComposing: true }])(
-  'activateDefaultButton ignores Enter with %o',
-  init => {
-    const { modal, defaultButton, input } = createModal();
-    const unregister = registerModal(modal);
-    const click = vi.spyOn(defaultButton, 'click');
+test.each([
+  { shiftKey: true },
+  { ctrlKey: true },
+  { altKey: true },
+  { metaKey: true },
+  { isComposing: true },
+  { repeat: true },
+])('activateDefaultButton ignores Enter with %o', init => {
+  stack.activateDefaultButton(pressEnter(input, init), modal);
 
-    activateDefaultButton(pressEnter(input, init), modal);
-
-    expect(click).not.toHaveBeenCalled();
-    unregister();
-  },
-);
+  expect(onDefaultClick).not.toHaveBeenCalled();
+});
 
 test('activateDefaultButton ignores Enter when the modal is not topmost', () => {
-  const { modal, defaultButton, input } = createModal();
-  const unregister = registerModal(modal);
-  const unregisterOther = registerModal(createModal().modal);
-  const click = vi.spyOn(defaultButton, 'click');
+  stack.register(createModal().modal);
+  stack.activateDefaultButton(pressEnter(input), modal);
 
-  activateDefaultButton(pressEnter(input), modal);
+  expect(onDefaultClick).not.toHaveBeenCalled();
+});
 
-  expect(click).not.toHaveBeenCalled();
-  unregisterOther();
-  unregister();
+test('the lower modal handles Enter again once the topmost one is unregistered', () => {
+  const unregisterUpper = stack.register(createModal().modal);
+  unregisterUpper();
+  stack.activateDefaultButton(pressEnter(input), modal);
+
+  expect(onDefaultClick).toHaveBeenCalledOnce();
 });
 
 test('activateDefaultButton leaves Enter on a button, and outside the modal, alone', () => {
-  const { modal, defaultButton } = createModal();
   const outside = document.createElement('input');
-  document.body.append(outside);
-  const unregister = registerModal(modal);
-  const click = vi.spyOn(defaultButton, 'click');
+  stack.activateDefaultButton(pressEnter(defaultButton), modal);
+  stack.activateDefaultButton(pressEnter(outside), modal);
 
-  activateDefaultButton(pressEnter(defaultButton), modal);
-  activateDefaultButton(pressEnter(outside), modal);
-
-  expect(click).not.toHaveBeenCalled();
-  unregister();
+  expect(onDefaultClick).not.toHaveBeenCalled();
 });
 
-test('activateDefaultButton works when focus dropped to the body and skips a disabled default button', () => {
-  const { modal, defaultButton } = createModal();
-  const unregister = registerModal(modal);
-  const click = vi.spyOn(defaultButton, 'click');
+test('activateDefaultButton works when focus dropped to the body', () => {
+  stack.activateDefaultButton(pressEnter(document.body), modal);
 
-  activateDefaultButton(pressEnter(document.body), modal);
-  expect(click).toHaveBeenCalledOnce();
+  expect(onDefaultClick).toHaveBeenCalledOnce();
+});
 
+test('activateDefaultButton skips a disabled default button', () => {
   defaultButton.disabled = true;
-  activateDefaultButton(pressEnter(document.body), modal);
-  expect(click).toHaveBeenCalledOnce();
-  unregister();
+  stack.activateDefaultButton(pressEnter(document.body), modal);
+
+  expect(onDefaultClick).not.toHaveBeenCalled();
 });

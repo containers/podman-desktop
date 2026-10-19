@@ -154,7 +154,7 @@ describe('Enter activates the default button', () => {
     expect(defaultClick).not.toHaveBeenCalled();
   });
 
-  test('Escape still closes', async () => {
+  test('Escape still closes a modal that has a default button', async () => {
     const closeMock = vi.fn();
     const children = createRawSnippet(() => ({
       render: (): string => '<button type="button" data-default>OK</button>',

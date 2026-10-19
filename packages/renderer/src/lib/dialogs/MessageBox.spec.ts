@@ -179,6 +179,7 @@ describe('MessageBox', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteButton).not.toHaveAttribute('data-default');
+    // initial focus is on Cancel, not Delete, so blur whichever element holds it
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     await userEvent.keyboard('{Enter}');
     expect(window.sendShowMessageBoxOnSelect).not.toHaveBeenCalled();
@@ -677,5 +678,32 @@ describe('MessageBox', () => {
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveAttribute('tabindex', '-1');
     await vi.waitFor(() => expect(dialog).toHaveFocus());
+  });
+
+  test('Expect Enter to select a default icon button', async () => {
+    const idRequest = 709;
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'Actions',
+      message: 'Message',
+      buttons: [{ type: 'iconButton', label: 'Run', icon: 'fas fa-play' }],
+    };
+
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: MessageBoxOptions) => void) => {
+        if (message === 'showMessageBox:open') {
+          callback(messageBoxOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
+
+    render(MessageBox, {});
+
+    const run = await screen.findByRole('button', { name: 'Run' });
+    expect(run).toHaveAttribute('data-default');
+    run.blur();
+    await userEvent.keyboard('{Enter}');
+    expect(window.sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, 0, undefined);
   });
 });
