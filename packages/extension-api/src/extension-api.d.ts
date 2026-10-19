@@ -2475,10 +2475,208 @@ declare module '@podman-desktop/api' {
     export function createResources(context: string, manifests: unknown[]): Promise<void>;
 
     /**
+     * Register a provider that supplies Kubernetes resource operations to
+     * Podman Desktop's core Kubernetes UI.
+     *
+     * The returned disposable unregisters the provider when disposed or when
+     * the registering extension is deactivated. The provider must use its own
+     * Kubernetes client implementation; it must not call back into the same
+     * resource-creator dispatch path from its implementation methods.
+     *
+     * @param provider the resource provider to register
+     * @returns a disposable that unregisters the provider
+     */
+    export function registerResourceCreator(provider: KubernetesResourceProvider): Disposable;
+
+    /**
      * Add a KubernetesGenerator to KubernetesGeneratorRegistry
      * @param provider the custom provider to add
      */
     export function registerKubernetesGenerator(provider: KubernetesGeneratorProvider): Disposable;
+  }
+
+  /**
+   * The result of resolving the context and namespace currently selected for
+   * Kubernetes operations in Podman Desktop.
+   */
+  export interface KubernetesResourceTarget {
+    /** Name of the current kubeconfig context. */
+    context: string;
+    /** Current namespace, or `default` when the context has no namespace set. */
+    namespace: string;
+  }
+
+  /**
+   * State describing whether a Kubernetes capability is available on a
+   * particular context.
+   *
+   * `unknown` means the provider could not determine whether the capability
+   * is available, for example because the cluster is unreachable or discovery
+   * was denied by RBAC.
+   */
+  export type KubernetesCapabilityState = 'supported' | 'unsupported' | 'unknown';
+
+  /**
+   * Capabilities discovered for one Kubernetes context.
+   *
+   * All properties are optional so providers can report only the information
+   * they know. New API groups, features, and integration metadata can be added
+   * without requiring existing consumers to handle every possible key.
+   */
+  export interface KubernetesContextCapabilities {
+    /**
+     * API group name to availability state, for example
+     * `route.openshift.io: 'supported'` when OpenShift Routes are available.
+     */
+    apiGroups?: Record<string, KubernetesCapabilityState>;
+
+    /**
+     * Namespaced capability identifiers to availability state. Use stable,
+     * namespaced keys such as `ingress.controller` when reporting features
+     * that are not represented by API group discovery alone.
+     */
+    features?: Record<string, KubernetesCapabilityState>;
+
+    /**
+     * Optional integration-specific data keyed by integration name, such as
+     * `{ openshift: { consoleURL: 'https://...' } }`.
+     *
+     * Values should contain serializable data because capability information
+     * may be forwarded from the main process to the renderer.
+     */
+    integrations?: Record<string, Record<string, unknown>>;
+  }
+
+  /**
+   * A Kubernetes resource object used as a manifest or returned after
+   * creation. This intentionally models only the common top-level fields;
+   * resource-specific fields remain available through the index signature.
+   */
+  export interface KubernetesResource {
+    /** API version for this resource, such as `v1` or `apps/v1`. */
+    apiVersion: string;
+    /** Kubernetes resource kind, such as `Pod`, `Service`, or `Ingress`. */
+    kind: string;
+    /** Common resource metadata. */
+    metadata?: {
+      /** Resource name. */
+      name?: string;
+      /** Namespace for namespaced resources. */
+      namespace?: string;
+    };
+    /** Additional resource-specific fields. */
+    [key: string]: unknown;
+  }
+
+  /**
+   * The subset of a Pod returned by a status watch and consumed by the core
+   * deploy page. This is not a complete Kubernetes Pod manifest type.
+   */
+  export interface KubernetesPodSnapshot {
+    /** Pod identity fields used to display and follow the created Pod. */
+    metadata?: {
+      /** Name of the Pod. */
+      name?: string;
+      /** Namespace containing the Pod. */
+      namespace?: string;
+    };
+    /** Latest Pod phase and per-container status information. */
+    status?: {
+      /** Current Pod phase, such as `Pending`, `Running`, or `Failed`. */
+      phase?: string;
+      /** Latest status reported for each container in the Pod. */
+      containerStatuses?: Array<{
+        /** Name of the container. */
+        name: string;
+        /** Whether Kubernetes reports the container as ready. */
+        ready?: boolean;
+        /** State details used by the deploy UI to show container state. */
+        state?: {
+          /** Present while the container is running. */
+          running?: Record<string, unknown>;
+          /** Present after the container has terminated. */
+          terminated?: Record<string, unknown>;
+          /** Present while the container is waiting to start. */
+          waiting?: {
+            /** Short reason, such as `ImagePullBackOff`. */
+            reason?: string;
+          };
+        };
+      }>;
+    };
+  }
+
+  /**
+   * Supplies context-aware Kubernetes operations to Podman Desktop's core
+   * Kubernetes UI. Extensions register an implementation with
+   * {@link kubernetes.registerResourceCreator}.
+   */
+  export interface KubernetesResourceProvider {
+    /**
+     * Resolve the context and default namespace currently selected for
+     * Kubernetes operations.
+     *
+     * Reject with a descriptive error if there is no usable current context.
+     */
+    getCurrentTarget(): Promise<KubernetesResourceTarget>;
+
+    /**
+     * List namespaces available in the specified context.
+     *
+     * Reject if the list cannot be retrieved, for example when the user lacks
+     * permission. The core UI may then omit the namespace selector and retain
+     * the current/default namespace.
+     *
+     * @param context name of the Kubernetes context to query
+     */
+    listNamespaces(context: string): Promise<string[]>;
+
+    /**
+     * Discover capabilities for the specified context.
+     *
+     * This method is optional so providers can be registered before they
+     * support capability discovery. Missing information should be reported as
+     * `unknown` or omitted rather than treated as unsupported.
+     *
+     * @param context name of the Kubernetes context to query
+     */
+    getCapabilities?(context: string): Promise<KubernetesContextCapabilities>;
+
+    /**
+     * Create the supplied resource manifests on the specified context.
+     *
+     * The result contains the created objects, including server-populated
+     * metadata such as an OpenShift Route host when available.
+     *
+     * @param context name of the Kubernetes context to target
+     * @param manifests resource manifests to create
+     */
+    createResources(context: string, manifests: KubernetesResource[]): Promise<KubernetesResource[]>;
+
+    /**
+     * Watch status updates for one Pod and deliver each current Pod snapshot
+     * to `listener`.
+     *
+     * The returned promise rejects if the watch cannot be established. After
+     * it is established, unrecoverable or terminal watch errors are delivered
+     * to `onError`. The provider should handle transient reconnects internally.
+     * Disposing the returned value stops the watch and prevents further
+     * callbacks.
+     *
+     * @param context name of the Kubernetes context containing the Pod
+     * @param namespace namespace containing the Pod
+     * @param name name of the Pod to watch
+     * @param listener called with the latest Pod status snapshot
+     * @param onError called when the established watch encounters an error
+     * @returns a disposable that stops the watch
+     */
+    watchPodStatus(
+      context: string,
+      namespace: string,
+      name: string,
+      listener: (pod: KubernetesPodSnapshot) => void,
+      onError: (error: Error) => void,
+    ): Promise<Disposable>;
   }
   /**
    * An event describing the update in kubeconfig location
