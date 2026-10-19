@@ -32,8 +32,8 @@ test('Expect basic styling', async () => {
   const button = screen.getByRole('button', { name: label });
   expect(button).toBeInTheDocument();
   expect(button).toHaveAttribute('title', label);
-  expect(button).toHaveClass('text-(--pd-action-button-primary-text)');
-  expect(button).toHaveClass('hover:text-(--pd-action-button-primary-hover-text)');
+  expect(button).toHaveClass('text-(--pd-button-icon-primary-text)');
+  expect(button).toHaveClass('hover:text-(--pd-button-icon-primary-hover-text)');
 });
 
 test('Expect click', async () => {

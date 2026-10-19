@@ -12,7 +12,7 @@ interface Props {
 let { extension }: Props = $props();
 </script>
 
-<div class="flex bg-[var(--pd-action-button-bg)] w-fit rounded-lg" role="group" aria-label="Extension Actions">
+<div class="flex bg-[var(--pd-button-icon-bg)] w-fit rounded-lg" role="group" aria-label="Extension Actions">
   <InstalledExtensionCardLeftLifecycleStart extension={extension} />
   <InstalledExtensionCardLeftLifecycleStop extension={extension} />
   <InstalledExtensionCardLeftLifecycleDelete extension={extension} />

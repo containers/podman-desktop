@@ -45,7 +45,7 @@ export function button(d: Directive): void {
   if (d.attributes && 'command' in d.attributes && 'args' in d.attributes) {
     this.tag(`
       <button
-        class="fa-solid ${this.encode(d.label)} before:px-1 ${this.encode(d.attributes.size ?? 'fa-3x')} hover:text-[var(--pd-action-button-primary-hover-text)]"
+        class="fa-solid ${this.encode(d.label)} before:px-1 ${this.encode(d.attributes.size ?? 'fa-3x')} hover:text-[var(--pd-button-icon-primary-hover-text)]"
         aria-label="${this.encode(d.label)}"
         data-command="${this.encode(d.attributes.command)}"
         data-args="${JSON.parse(d.attributes.args)}">

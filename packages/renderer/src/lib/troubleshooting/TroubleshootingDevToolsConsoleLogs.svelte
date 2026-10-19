@@ -47,9 +47,9 @@ async function copyLogsToClipboard(): Promise<void> {
     <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end items-center gap-1">
       <Button title="Toggle Timestamps" pressed={showTimestamps} on:click={async (): Promise<void> => { showTimestamps = !showTimestamps; await window.updateConfigurationValue(TIMESTAMPS_CONFIG_KEY, showTimestamps); }} type="link"
-        ><Icon class="h-5 w-5 cursor-pointer text-xl {showTimestamps ? 'text-(--pd-action-button-primary-text)' : 'text-(--pd-content-text)'}" icon={faClock} /></Button>
+        ><Icon class="h-5 w-5 cursor-pointer text-xl {showTimestamps ? 'text-(--pd-button-icon-primary-text)' : 'text-(--pd-content-text)'}" icon={faClock} /></Button>
       <Button title="Copy To Clipboard" on:click={async (): Promise<void> => await copyLogsToClipboard()} type="link"
-        ><Icon class="h-5 w-5 cursor-pointer text-xl text-(--pd-action-button-primary-text)" icon={faPaste} /></Button>
+        ><Icon class="h-5 w-5 cursor-pointer text-xl text-(--pd-button-icon-primary-text)" icon={faPaste} /></Button>
     </div>
   </div>
   {#if logs.length > 0}

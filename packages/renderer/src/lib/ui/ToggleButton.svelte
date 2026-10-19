@@ -33,7 +33,7 @@ function onclick(): void {
   class:hover:bg-[var(--pd-button-tab-hover-border)]={!disabled && selected}
   class:bg-[var(--pd-content-card-carousel-disabled-nav)]={disabled}
   class:hover:bg-[var(--pd-content-card-carousel-disabled-nav)]={disabled}
-  class:text-[var(--pd-action-button-disabled-text)]={disabled}
+  class:text-[var(--pd-button-icon-disabled-text)]={disabled}
   class:cursor-not-allowed={disabled}
   onclick={onclick}>
   <div class="flex flex-row items-center space-x-2 px-2 py-1 text-xs">

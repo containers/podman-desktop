@@ -101,7 +101,7 @@ async function openGitHub(): Promise<void> {
           <Icon
             size="1.5x"
             class="cursor-pointer {smileyRating === rating
-              ? 'text-(--pd-action-button-primary-text)'
+              ? 'text-(--pd-button-icon-primary-text)'
               : 'text-(--pd-button-disabled-text)'}"
             {icon} />
         </button>

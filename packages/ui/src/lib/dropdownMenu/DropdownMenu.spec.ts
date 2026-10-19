@@ -51,3 +51,11 @@ test('Expect the onBeforeToggle function to be called when the menu is clicked',
 
   expect(onBeforeToggleMock).toHaveBeenCalled();
 });
+
+test('Expect the detailed background style when shown as a menu action item', () => {
+  render(DropdownMenu, { shownAsMenuActionItem: true });
+
+  const toggleMenuButton = screen.getByRole('button', { name: 'kebab menu' });
+  expect(toggleMenuButton).toHaveClass('bg-[var(--pd-button-detailed-bg)]');
+  expect(toggleMenuButton).toHaveClass('px-3');
+});

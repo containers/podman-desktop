@@ -22,7 +22,7 @@ async function refresh(): Promise<void> {
     <div role="status" aria-label="stores" class="text-xl">Kubernetes monitoring</div>
     <div class="flex flex-1 justify-end">
       <Button title="Refresh" class="ml-5" on:click={refresh} type="link"
-        ><Icon class="h-5 w-5 cursor-pointer text-xl text-(--pd-action-button-primary-text)" icon={faRefresh} /></Button>
+        ><Icon class="h-5 w-5 cursor-pointer text-xl text-(--pd-button-icon-primary-text)" icon={faRefresh} /></Button>
     </div>
   </div>
 
