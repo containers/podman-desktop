@@ -145,6 +145,15 @@ test('activateDefaultButton leaves Enter on a button, and outside the modal, alo
   expect(onDefaultClick).not.toHaveBeenCalled();
 });
 
+test.each(['button', 'submit', 'reset'])('activateDefaultButton leaves Enter on an input of type %s alone', type => {
+  const inputButton = document.createElement('input');
+  inputButton.type = type;
+  modal.append(inputButton);
+  stack.activateDefaultButton(pressEnter(inputButton), modal);
+
+  expect(onDefaultClick).not.toHaveBeenCalled();
+});
+
 test('activateDefaultButton works when focus dropped to the body', () => {
   stack.activateDefaultButton(pressEnter(document.body), modal);
 

@@ -63,7 +63,7 @@ export class ModalStack {
       !(e.target instanceof HTMLElement) ||
       (e.target !== document.body && !modal.contains(e.target)) ||
       e.target.isContentEditable ||
-      e.target.closest('button, a, textarea, select')
+      e.target.closest('button, a, textarea, select, input[type="button"], input[type="submit"], input[type="reset"]')
     ) {
       return;
     }
