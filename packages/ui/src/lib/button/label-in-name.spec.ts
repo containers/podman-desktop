@@ -34,7 +34,7 @@ test.each([
   ['Add', 'Add +', true],
   ['Sign-in', 'Sign in', true],
   ['Sign in', 'Sign-in', true],
-  ["Don't stop", 'Dont stop', true],
+  ['Don\u2019t stop', 'Dont stop', true],
   ['Remove', 'Delete', false],
   ['Delete', '', true],
   ['Delete', '...', true],
