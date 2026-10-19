@@ -82,7 +82,7 @@ function openExtensionDetails(): void {
         <Button
           type="link"
           icon={faCircleInfo}
-          aria-label="{catalogExtensionUI.displayName} details"
+          aria-label="More details about {catalogExtensionUI.displayName}"
           on:click={openExtensionDetails}>More details</Button>
       </div>
     </div>

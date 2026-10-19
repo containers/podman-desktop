@@ -205,7 +205,6 @@ function dragMe(node: HTMLElement): void {
                           !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}>
                         <Button
                           type="link"
-                          aria-label="Show more"
                           icon={faAngleDown}
                           on:click={(): void => setSectionVisibility((i / colsPerRow) * colsPerRow + j, false)}>
                           Show details
@@ -276,7 +275,6 @@ function dragMe(node: HTMLElement): void {
                             class="p-4 bg-[var(--pd-invert-content-card-bg)] group-hover:bg-[var(--pd-modal-dropdown-highlight)] group-[.is-selected]:bg-[var(--pd-modal-dropdown-highlight)] rounded-b-md text-xs flex justify-center border-x-2 border-b-2 border-transparent group-hover:border-[var(--pd-tab-highlight)]">
                             <Button
                               type="link"
-                              aria-label="Less detail"
                               icon={faAngleUp}
                               on:click={(): void => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}>
                               Less details
@@ -295,7 +293,7 @@ function dragMe(node: HTMLElement): void {
 
       <ButtonRow class="m-2">
         <Button type="link" aria-label="Cancel" on:click={cancel}>Cancel</Button>
-        <Button aria-label="Next" disabled={!items.find(item => item.selected)} on:click={next}>Ok</Button>
+        <Button disabled={!items.find(item => item.selected)} on:click={next}>Ok</Button>
       </ButtonRow>
     </div>
   </div>

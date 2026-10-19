@@ -68,7 +68,6 @@ async function openLink(e: MouseEvent, url: string): Promise<void> {
           <ButtonRow class="pt-2">
             <Button type="link" on:click={closeCallback}>Cancel</Button>
             <Button
-              aria-label="Next"
               on:click={(): void => doCreateNew(providerToBeInstalled.provider, providerToBeInstalled.displayName)}
               >Retry</Button>
           </ButtonRow>

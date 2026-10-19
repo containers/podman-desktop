@@ -119,7 +119,7 @@ test('Expect to call doCreateNew if clicking on Next', async () => {
     preflightChecks: [],
   });
 
-  const button = await findByRole('button', { name: 'Next' });
+  const button = await findByRole('button', { name: 'Retry' });
   expect(button).toBeInTheDocument();
 
   await userEvent.click(button);

@@ -140,7 +140,7 @@ function executeProviderMenu(menu: Menu): void {
       {#if showCreateNewButton}
         <Tooltip bottom tip={isCreateButtonDisabled ? warningsTooltip : `Create new ${providerDisplayName}`}>
           <Button
-            aria-label="Create new {providerDisplayName}"
+            aria-label="{buttonTitle} {providerDisplayName}"
             inProgress={providerInstallationInProgress}
             disabled={isCreateButtonDisabled}
             onclick={handleCreateNew}>

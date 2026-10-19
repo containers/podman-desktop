@@ -238,12 +238,16 @@ describe('CLI Tool item', () => {
     expect(updateAvailableElement).toBeDefined();
     expect(updateAvailableElement.textContent).toBe('Update available');
 
-    const failedErrorButton = screen.queryByRole('button', { name: `${cliToolInfoItem3.displayName} failed` });
+    const failedErrorButton = screen.queryByRole('button', {
+      name: `Check why it failed: ${cliToolInfoItem3.displayName}`,
+    });
     expect(failedErrorButton).not.toBeInTheDocument();
 
     await userEvent.click(updateAvailableElement);
 
-    const failedErrorButton2 = screen.getByRole('button', { name: `${cliToolInfoItem3.displayName} failed` });
+    const failedErrorButton2 = screen.getByRole('button', {
+      name: `Check why it failed: ${cliToolInfoItem3.displayName}`,
+    });
     expect(failedErrorButton2).toBeInTheDocument();
 
     // click on it
@@ -256,7 +260,7 @@ describe('CLI Tool item', () => {
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem4,
     });
-    const updateAvailableElement = screen.getByRole('button', { name: 'Update available' });
+    const updateAvailableElement = screen.getByRole('button', { name: 'Upgrade/Downgrade' });
     expect(updateAvailableElement).toBeDefined();
     expect(updateAvailableElement.textContent).toBe('Upgrade/Downgrade');
 
@@ -288,7 +292,7 @@ describe('CLI Tool item', () => {
     const versionElement = screen.getByLabelText('cli-version');
     expect(versionElement).toBeDefined();
     expect(versionElement.textContent).equal(`${cliToolInfoItem4.name} v${cliToolInfoItem4.version}`);
-    const updateAvailableElement = screen.getByRole('button', { name: 'Update available' });
+    const updateAvailableElement = screen.getByRole('button', { name: 'Upgrade/Downgrade' });
     expect(updateAvailableElement).toBeDefined();
     expect(updateAvailableElement.textContent).toBe('Upgrade/Downgrade');
     const updateLoadingButton = screen.getByRole('button', { name: 'Update' });

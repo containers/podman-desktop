@@ -169,7 +169,7 @@ describe('CustomPick', () => {
 
     render(CustomPick, {});
 
-    const button = screen.getByRole('button', { name: 'Next' });
+    const button = screen.getByRole('button', { name: 'Ok' });
     expect(button).toBeInTheDocument();
 
     await userEvent.click(button);
