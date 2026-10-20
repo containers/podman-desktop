@@ -21,12 +21,13 @@ import { arch, release } from 'node:os';
 import type { RunError, RunOptions } from '@podman-desktop/api';
 import { env, process as processAPI, window } from '@podman-desktop/api';
 import { injectable } from 'inversify';
-import { compare } from 'semver';
+import { compare, gte } from 'semver';
 
 import type { PodmanConfiguration } from './podman-configuration';
 import { execPodman, VMTYPE } from './util';
 
 export const ROSETTA_ENABLE_FILE = '/etc/containers/enable-rosetta';
+export const PODMAN_MINIMUM_VERSION_FOR_MACHINE_RESTART = '6.1.0';
 
 // Darwin kernel major version for macOS Tahoe (macOS 26)
 const MACOS_TAHOE_DARWIN_MAJOR_VERSION = 25;
@@ -100,8 +101,8 @@ export class RosettaProvisioner {
    * Returns true if a restart was performed, false if nothing was needed.
    *
    * Errors during file creation (SSH) are caught and logged as warnings because
-   * the machine is still running. Errors during the stop/start cycle are
-   * propagated because the machine state may have changed.
+   * the machine is still running. Errors during machine restart are propagated
+   * because the machine state may have changed.
    * https://blog.podman.io/2025/08/podman-5-6-released-rosetta-status-update/
    */
   async provisionAndRestartForRosetta(
@@ -121,10 +122,13 @@ export class RosettaProvisioner {
     if (!fileCreated) return false;
 
     const args = machineName ? [machineName] : [];
-    // Stop/start errors propagate — the machine state has changed and the
-    // caller must not report a stale status.
-    await execPodman(['machine', 'stop', ...args], vmType);
-    await execPodman(['machine', 'start', ...args], vmType, options);
+    // Restart errors propagate so the caller does not report a stale status.
+    if (gte(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_MACHINE_RESTART)) {
+      await execPodman(['machine', 'restart', ...args], vmType, options);
+    } else {
+      await execPodman(['machine', 'stop', ...args], vmType);
+      await execPodman(['machine', 'start', ...args], vmType, options);
+    }
     return true;
   }
 
