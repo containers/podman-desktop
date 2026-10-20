@@ -26,13 +26,16 @@ import { isDisguisedPodmanPath } from './warnings';
 let server: SetupServer | undefined = undefined;
 
 afterEach(() => {
-  server?.close();
+  // msw 3 throws when closing a server that is not listening
+  if (server?.readyState) {
+    server.close();
+  }
 });
 
 test('isDisguisedPodman', async () => {
   const handlers = [http.get('http://localhost/libpod/_ping', () => HttpResponse.text('OK'))];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const response = await isDisguisedPodmanPath('http://localhost/socket');
 
@@ -49,7 +52,7 @@ test('isDisguisedPodman with timeout', async () => {
     }),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   await expect(isDisguisedPodmanPath('http://localhost:10000/socket', 50)).rejects.toThrow(
     'Socket unreachable due to timeout.',
