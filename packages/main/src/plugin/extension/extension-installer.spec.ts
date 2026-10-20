@@ -31,6 +31,7 @@ import type { ExtensionsCatalog } from '/@/plugin/extension/catalog/extensions-c
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';
 import type { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
 import type { ImageRegistry } from '/@/plugin/image-registry.js';
+import { MessageBox } from '/@/plugin/message-box.js';
 import type { TaskManager } from '/@/plugin/tasks/task-manager.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
@@ -58,6 +59,8 @@ const extensionLoader: ExtensionLoader = {
   loadExtensions: loadExtensionsMock,
   analyzeExtension: analyzeExtensionMock,
   ensureExtensionIsEnabled: ensureExtensionsMock,
+  markIfOverriding: vi.fn(),
+  replaceBundledExtension: vi.fn(),
 } as unknown as ExtensionLoader;
 
 const getImageConfigLabelsMock = vi.fn();
@@ -89,9 +92,12 @@ const taskManager = {
   createTask: createTaskMock,
 } as unknown as TaskManager;
 
+let messageBox: MessageBox;
+
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));
 vi.mock(import('/@/plugin/docker-extension/docker-desktop-installer.js'));
+vi.mock(import('/@/plugin/message-box.js'));
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -105,6 +111,7 @@ beforeEach(() => {
   vi.mocked(rm).mockResolvedValue(undefined);
   vi.mocked(directories.getPluginsDirectory).mockReturnValue('/fake/plugins/directory');
   vi.mocked(directories.getContributionStorageDir).mockReturnValue('/fake/dd/directory');
+  messageBox = new MessageBox(apiSender);
   extensionInstaller = new ExtensionInstaller(
     apiSender,
     extensionLoader,
@@ -115,6 +122,7 @@ beforeEach(() => {
     contributionManager,
     ipcMainOnMock,
     taskManager,
+    messageBox,
   );
 });
 
@@ -653,4 +661,138 @@ test('should install an image with extension pack with an existing dependency al
     expect.any(Function),
     'my-another-extension-link',
   );
+});
+
+/**
+ * Build an extension analyzed from an image, the given fields taking precedence.
+ */
+function buildAnalyzedExtension(id: string, fields: Partial<AnalyzedExtension> = {}): AnalyzedExtension {
+  const name = id.substring(id.indexOf('.') + 1);
+  return {
+    id,
+    name,
+    path: `/fake/plugins/directory/${name}`,
+    manifest: { name, displayName: name, version: '1.0.0', publisher: 'podman-desktop', description: name },
+    readme: '',
+    removable: true,
+    devMode: false,
+    bundled: false,
+    subscriptions: [],
+    dispose: (): void => {},
+    ...fields,
+  };
+}
+
+/**
+ * Build an installed extension, the given fields taking precedence.
+ */
+function buildExtensionInfo(id: string, fields: Partial<ExtensionInfo> = {}): ExtensionInfo {
+  const name = id.substring(id.indexOf('.') + 1);
+  return {
+    id,
+    name,
+    description: name,
+    displayName: name,
+    publisher: 'podman-desktop',
+    removable: true,
+    devMode: false,
+    bundled: false,
+    version: '1.0.0',
+    state: 'started',
+    path: `/fake/plugins/directory/${name}`,
+    readme: '',
+    ...fields,
+  };
+}
+
+describe('installing an extension replacing a bundled one', () => {
+  const imageToPull = 'fake.io/kind:1.99.0';
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+  let installedExtension: AnalyzedExtension;
+
+  beforeEach(() => {
+    getImageConfigLabelsMock.mockResolvedValue({
+      'org.opencontainers.image.title': 'kind',
+      'org.opencontainers.image.description': 'Kind',
+      'org.opencontainers.image.vendor': 'podman-desktop',
+      'io.podman-desktop.api.version': '1.0.0',
+    });
+    vi.spyOn(extensionInstaller, 'extractExtensionFiles').mockResolvedValue();
+
+    installedExtension = buildAnalyzedExtension('podman-desktop.kind');
+    analyzeExtensionMock.mockResolvedValue(installedExtension);
+    // the bundled kind extension is loaded
+    listExtensionsMock.mockResolvedValue([
+      buildExtensionInfo('podman-desktop.kind', { displayName: 'Kind', removable: false, bundled: true }),
+    ]);
+    // the loader flags the extension as replacing the bundled one having the same id
+    vi.mocked(extensionLoader.markIfOverriding).mockImplementation(extension => {
+      extension.overrides = { id: extension.id, version: '1.31.0-next' };
+    });
+  });
+
+  test('replaces the bundled extension after confirmation', async () => {
+    vi.mocked(messageBox.showMessageBox).mockResolvedValue({ response: 'Replace' });
+
+    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+    expect(messageBox.showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Replace Extension?',
+        message: 'Are you sure you want to replace extension Kind?',
+        detail: 'Uninstalling the new extension restores the bundled Kind extension.',
+      }),
+    );
+    expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('podman-desktop.kind');
+    expect(loadExtensionsMock).toHaveBeenCalledWith([installedExtension]);
+    expect(sendError).not.toHaveBeenCalled();
+    expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
+  });
+
+  test('removes the extracted files when the user cancels', async () => {
+    vi.mocked(messageBox.showMessageBox).mockResolvedValue({ response: 'Cancel' });
+
+    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+    expect(rm).toHaveBeenCalledWith(installedExtension.path, { recursive: true, force: true });
+    expect(sendError).toHaveBeenCalledWith(`Installation of ${imageToPull} cancelled.`);
+    expect(extensionLoader.replaceBundledExtension).not.toHaveBeenCalled();
+    expect(loadExtensionsMock).not.toHaveBeenCalled();
+  });
+
+  test('removes the extracted files when the confirmation cannot be asked', async () => {
+    vi.spyOn(console, 'error');
+    const error = new Error('no renderer');
+    vi.mocked(messageBox.showMessageBox).mockRejectedValue(error);
+
+    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+    expect(console.error).toHaveBeenCalledWith('Error while asking to replace a bundled extension', error);
+    expect(rm).toHaveBeenCalledWith(installedExtension.path, { recursive: true, force: true });
+    expect(sendError).toHaveBeenCalledWith(`Installation of ${imageToPull} cancelled.`);
+    expect(loadExtensionsMock).not.toHaveBeenCalled();
+  });
+
+  test('does not ask for confirmation when the bundled extension is not loaded', async () => {
+    // e.g. restoring it failed after the extension replacing it was uninstalled
+    listExtensionsMock.mockResolvedValue([]);
+
+    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+    expect(messageBox.showMessageBox).not.toHaveBeenCalled();
+    expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('podman-desktop.kind');
+    expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
+  });
+
+  test('still refuses an extension having the id of an installed extension which is not bundled', async () => {
+    listExtensionsMock.mockResolvedValue([buildExtensionInfo('podman-desktop.kind')]);
+
+    await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+    expect(sendError).toHaveBeenCalledWith('Extension podman-desktop.kind is already installed.');
+    expect(extensionLoader.markIfOverriding).not.toHaveBeenCalled();
+    expect(loadExtensionsMock).not.toHaveBeenCalled();
+  });
 });

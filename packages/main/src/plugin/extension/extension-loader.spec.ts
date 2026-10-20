@@ -639,6 +639,65 @@ describe('extensionLoader#start', () => {
   });
 });
 
+describe('markIfOverriding', () => {
+  beforeEach(() => {
+    vi.mocked(extensionsBundle.all).mockReturnValue([bundledPodmanExtension]);
+  });
+
+  test('flags an installed extension having the id of a bundled extension', () => {
+    const installedExtension = buildAnalyzedExtension('podman-desktop.podman');
+
+    extensionLoader.markIfOverriding(installedExtension);
+
+    expect(installedExtension.overrides).toEqual({ id: 'podman-desktop.podman', version: '1.0.0' });
+  });
+
+  test('does not flag an extension which is not installed', () => {
+    const developmentExtension = buildAnalyzedExtension('podman-desktop.podman', { removable: false, devMode: true });
+
+    extensionLoader.markIfOverriding(developmentExtension);
+
+    expect(developmentExtension.overrides).toBeUndefined();
+  });
+
+  test('does not flag a bundled extension', () => {
+    extensionLoader.markIfOverriding(bundledPodmanExtension);
+
+    expect(bundledPodmanExtension.overrides).toBeUndefined();
+  });
+});
+
+describe('replaceBundledExtension', () => {
+  beforeEach(() => {
+    vi.spyOn(extensionLoader, 'deactivateExtension').mockResolvedValue(undefined);
+  });
+
+  test('stops and forgets the loaded bundled extension', async () => {
+    extensionLoader.setAnalyzedExtension(bundledPodmanExtension.id, bundledPodmanExtension);
+
+    await extensionLoader.replaceBundledExtension(bundledPodmanExtension.id);
+
+    expect(extensionLoader.deactivateExtension).toHaveBeenCalledWith(bundledPodmanExtension.id);
+    expect(await extensionLoader.listExtensions()).toHaveLength(0);
+  });
+
+  test('does nothing when the extension loaded with this id is not bundled', async () => {
+    const installedExtension = buildAnalyzedExtension('podman-desktop.podman');
+    extensionLoader.setAnalyzedExtension(installedExtension.id, installedExtension);
+
+    await extensionLoader.replaceBundledExtension(installedExtension.id);
+
+    expect(extensionLoader.deactivateExtension).not.toHaveBeenCalled();
+    expect(await extensionLoader.listExtensions()).toHaveLength(1);
+  });
+
+  test('does nothing when no extension is loaded with this id', async () => {
+    await extensionLoader.replaceBundledExtension(bundledPodmanExtension.id);
+
+    expect(extensionLoader.deactivateExtension).not.toHaveBeenCalled();
+  });
+});
+
 describe('restore of a bundled extension on removal', () => {
   let overridingExtension: AnalyzedExtensionWithApi;
 

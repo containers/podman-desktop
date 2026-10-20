@@ -574,6 +574,32 @@ export class ExtensionLoader implements IAsyncDisposable {
   }
 
   /**
+   * Flag an extension installed in the plugins directory as replacing the bundled extension having the same id.
+   * Does nothing if no bundled extension has this id, or if the extension is not an installed one.
+   *
+   * Used by the installer, the extensions loaded at startup being flagged by start().
+   */
+  markIfOverriding(extension: AnalyzedExtension): void {
+    // only an installed extension can replace a bundled one
+    if (extension.bundled || !extension.removable) {
+      return;
+    }
+    this.markOverridingExtensions([extension]);
+  }
+
+  /**
+   * Stop and forget the bundled extension having the given id, before loading an installed extension replacing it.
+   * Does nothing if the bundled extension is not loaded, e.g. when restoring it failed.
+   */
+  async replaceBundledExtension(bundledExtensionId: string): Promise<void> {
+    if (!this.analyzedExtensions.get(bundledExtensionId)?.bundled) {
+      return;
+    }
+    await this.deactivateExtension(bundledExtensionId);
+    this.analyzedExtensions.delete(bundledExtensionId);
+  }
+
+  /**
    * Load back the bundled extension having the given id, after the extension overriding it has been removed.
    *
    * The extension is analyzed again instead of reusing the object cached in the bundle: the cached one
