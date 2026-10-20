@@ -32,7 +32,7 @@ export class OnboardingPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.mainPage = page.getByRole('region', { name: 'Onboarding Body' });
-    this.contentSection = this.mainPage.getByRole('region', { name: 'Content' });
+    this.contentSection = this.mainPage.getByRole('region', { name: 'Content', exact: true });
     this.onboardingComponent = this.mainPage.getByLabel('Onboarding Component');
     this.onboardingStatusMessage = this.mainPage.getByLabel('Onboarding Status Message');
     this.nextInfoMessage = this.mainPage.getByLabel('Next Info Message');

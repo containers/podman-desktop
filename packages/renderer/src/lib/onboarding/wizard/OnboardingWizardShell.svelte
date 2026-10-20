@@ -51,8 +51,10 @@ let {
       aria-hidden="true"
       class="pointer-events-none absolute inset-0 bg-linear-to-br from-transparent via-transparent to-(--pd-button-primary-bg) opacity-10">
     </div>
-    <div class="relative z-10 min-h-0 flex-1 overflow-y-auto flex flex-col items-center justify-center p-8 lg:p-10">
-      {@render rightContent?.()}
+    <div class="relative z-10 min-h-0 flex-1 overflow-y-auto flex flex-col items-center p-8 lg:p-10">
+      <div class="my-auto flex w-full flex-col items-center">
+        {@render rightContent?.()}
+      </div>
     </div>
     {#if footer}
       <footer class="relative z-10 bg-transparent px-8 pt-4 pb-7 lg:px-10">
