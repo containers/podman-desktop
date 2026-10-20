@@ -251,6 +251,7 @@ test.describe
 
       await playExpect(containerDetailsPage.terminalContent).toBeVisible();
       await playExpect(containerDetailsPage.terminalContent).toContainText('@');
+      // eslint-disable-next-line sonarjs/no-fixed-wait-in-tests
       await page.waitForTimeout(1_000);
       await containerDetailsPage.terminalInput.pressSequentially('pwd', { delay: 15 });
       await containerDetailsPage.terminalInput.press('Enter');
@@ -269,6 +270,7 @@ test.describe
 
       await playExpect(containerDetailsPage.terminalContent).toBeVisible();
       await playExpect(containerDetailsPage.terminalContent).toContainText('@');
+      // eslint-disable-next-line sonarjs/no-fixed-wait-in-tests
       await page.waitForTimeout(1_000);
 
       // Use grep -q to avoid flooding the xterm buffer with the full HTML response,
