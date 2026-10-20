@@ -1727,6 +1727,82 @@ describe('showDangerMessage', () => {
   });
 });
 
+describe('automatic updates of an extension', () => {
+  function mockAutoUpdateDisabledExtensionIds(extensionIds: string[]): void {
+    configurationRegistryGetConfigurationMock.mockReturnValue({
+      get: (key: string, defaultValue?: unknown) =>
+        key === ExtensionLoaderSettings.AutoUpdateDisabled ? [...extensionIds] : defaultValue,
+    });
+  }
+
+  test('listExtensions reports the extensions having their automatic updates disabled', async () => {
+    mockAutoUpdateDisabledExtensionIds(['my.extension']);
+    extensionLoader.setAnalyzedExtension('my.extension', buildAnalyzedExtension('my.extension'));
+    extensionLoader.setAnalyzedExtension('my.other-extension', buildAnalyzedExtension('my.other-extension'));
+
+    const extensions = await extensionLoader.listExtensions();
+
+    expect(extensions.map(extension => [extension.id, extension.autoUpdateDisabled])).toEqual([
+      ['my.extension', true],
+      ['my.other-extension', false],
+    ]);
+  });
+
+  test('setExtensionAutoUpdate disables the automatic updates of an extension', async () => {
+    mockAutoUpdateDisabledExtensionIds(['my.other-extension']);
+    extensionLoader.setAnalyzedExtension('my.extension', buildAnalyzedExtension('my.extension'));
+
+    await extensionLoader.setExtensionAutoUpdate('my.extension', false);
+
+    expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.autoUpdateDisabled', [
+      'my.other-extension',
+      'my.extension',
+    ]);
+    expect(apiSender.send).toHaveBeenCalledWith('extensions-updated');
+  });
+
+  test('setExtensionAutoUpdate enables the automatic updates of an extension', async () => {
+    mockAutoUpdateDisabledExtensionIds(['my.other-extension', 'my.extension']);
+    extensionLoader.setAnalyzedExtension('my.extension', buildAnalyzedExtension('my.extension'));
+
+    await extensionLoader.setExtensionAutoUpdate('my.extension', true);
+
+    expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.autoUpdateDisabled', [
+      'my.other-extension',
+    ]);
+  });
+
+  test.each([
+    { name: 'an unknown extension', extension: undefined },
+    {
+      name: 'a bundled extension',
+      extension: buildAnalyzedExtension('my.extension', { removable: false, bundled: true }),
+    },
+    {
+      name: 'an extension replacing a bundled one',
+      extension: buildAnalyzedExtension('my.extension', { overrides: { id: 'my.extension', version: '1.0.0' } }),
+    },
+  ])('setExtensionAutoUpdate refuses $name', async ({ extension }) => {
+    if (extension) {
+      extensionLoader.setAnalyzedExtension(extension.id, extension);
+    }
+
+    await expect(extensionLoader.setExtensionAutoUpdate('my.extension', false)).rejects.toThrow(
+      'Extension my.extension is not updated automatically',
+    );
+    expect(configurationRegistryUpdateConfigurationMock).not.toHaveBeenCalled();
+  });
+
+  test('uninstalling an extension enables its automatic updates again', async () => {
+    mockAutoUpdateDisabledExtensionIds(['my.extension']);
+    extensionLoader.setAnalyzedExtension('my.extension', buildAnalyzedExtension('my.extension'));
+
+    await extensionLoader.removeExtensionPerUserRequest('my.extension');
+
+    expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.autoUpdateDisabled', []);
+  });
+});
+
 describe('Removing extension by user', async () => {
   test('restores the bundled extension enabled when the extension overriding it was stopped', async () => {
     // the overriding extension was stopped before being uninstalled
