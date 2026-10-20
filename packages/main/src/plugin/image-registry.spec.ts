@@ -81,7 +81,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server?.close();
+  // msw 3 throws when closing a server that is not listening
+  if (server?.readyState) {
+    server.close();
+  }
 });
 
 vi.mock(import('./util/zstd.js'));
@@ -217,7 +220,7 @@ describe('extract auth info', () => {
         () => new HttpResponse('', { status: 401, headers: { 'Www-Authenticate': 'Basic realm="Registry Realm"' } }),
       ),
     );
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
     const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
     expect(value).toBeDefined();
     expect(value?.authUrl).toBe('https://my-podman-desktop-fake-registry.io/v2/');
@@ -236,7 +239,7 @@ describe('extract auth info', () => {
           }),
       ),
     );
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
     expect(value).toBeDefined();
@@ -455,7 +458,7 @@ test('expect getImageConfigLabels works', async () => {
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const labels = await imageRegistry.getImageConfigLabels('my-podman-desktop-fake-registry.io/my/extension');
   expect(labels).toBeDefined();
@@ -492,7 +495,7 @@ test('expect getManifestFromImageName works', async () => {
   ];
 
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const manifest = await imageRegistry.getManifestFromImageName('my-podman-desktop-fake-registry.io/my/extension');
   expect(manifest).toStrictEqual(imageRegistryManifestJson);
@@ -513,7 +516,7 @@ test('expect getManifestFromImageName works with digest', async () => {
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const manifest = await imageRegistry.getManifestFromImageName(
     `my-podman-desktop-fake-registry.io/my/extension@${digest}`,
@@ -536,7 +539,7 @@ test('expect getManifestFromImageName works with tag and digest', async () => {
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   // Tag is ignored when digest is present, digest is used for manifest lookup
   const manifest = await imageRegistry.getManifestFromImageName(
@@ -617,7 +620,7 @@ test('expect downloadAndExtractImage works', async () => {
     }),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const destFolder = path.resolve(os.tmpdir(), 'test-folder');
   const logFn = vi.fn();
@@ -716,7 +719,7 @@ test('expect downloadAndExtractImage works with zstd', async () => {
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const destFolder = path.resolve(os.tmpdir(), 'test-folder');
   const logFn = vi.fn();
@@ -760,7 +763,7 @@ test('expect downloadAndExtractImage to remove the temporary files when decompre
       () => new HttpResponse('zstd-content', { headers: { 'content-type': 'application/octet-stream' } }),
     ),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const destFolder = path.resolve(os.tmpdir(), 'test-folder');
   // the layer is rejected, as a decompression bomb would be
@@ -1057,7 +1060,7 @@ test('getManifestFromUrl returns the expected manifest with mediaType', async ()
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -1103,7 +1106,7 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -1155,7 +1158,7 @@ test('getManifestFromUrl returns the expected manifest with docker manifest v2',
     ),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   // mock findBestManifest
   const spyFindBestManifest = vi.spyOn(imageRegistry, 'findBestManifest');
@@ -1229,7 +1232,7 @@ test('getToken with registry auth', async () => {
     }),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const token = await imageRegistry.getToken(
     {
@@ -1256,7 +1259,7 @@ test('getToken without registry auth', async () => {
     http.get('https://my-podman-desktop-fake-registry.io/', () => HttpResponse.json({ token: '12345' })),
   ];
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const token = await imageRegistry.getToken(
     {
@@ -1323,7 +1326,7 @@ test('searchImages with proxy', async () => {
   ];
 
   server = setupServer(...handlers);
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   await expect(imageRegistry.searchImages({ query: 'anything' })).rejects.toThrow('searching images');
 });
@@ -1336,7 +1339,7 @@ test('searchImages without registry', async () => {
     },
   ];
   server = setupServer(http.get('https://index.docker.io/v1/search', () => HttpResponse.json({ results: list })));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
   const result = await imageRegistry.searchImages({ query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -1349,7 +1352,7 @@ test('searchImages without limit', async () => {
     },
   ];
   server = setupServer(http.get('https://index.docker.io/v1/search', () => HttpResponse.json({ results: list })));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
   const result = await imageRegistry.searchImages({ query: 'http' });
   expect(result).toEqual(list);
 });
@@ -1366,7 +1369,7 @@ test.each([
     },
   ];
   server = setupServer(http.get(expectedUrl, () => HttpResponse.json({ results: list })));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
   const result = await imageRegistry.searchImages({ registry, query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
@@ -1387,7 +1390,7 @@ test('listImageTags', async () => {
   server = setupServer(
     http.get('https://registry.example.com/v2/a-name/tags/list', () => HttpResponse.json({ tags: ['1', '2', '3'] })),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const result = await imageRegistry.listImageTags({ image: 'an-image' });
   expect(result).toEqual(['1', '2', '3']);
