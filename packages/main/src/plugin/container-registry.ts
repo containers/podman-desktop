@@ -114,6 +114,11 @@ export interface InternalContainerProvider {
   // api not there if status is stopped
   api?: Dockerode;
   libpodApi?: LibPod;
+  // the pending reconnect for this provider, or undefined when none is
+  // scheduled. Cleared at the top of setupConnectionAPI, before anything
+  // that can throw (status() is extension-supplied), so a throw never leaves
+  // this set forever and suppresses every future reconnect.
+  reconnectTimer?: ReturnType<typeof setTimeout>;
 }
 
 interface JSONEvent {
@@ -270,11 +275,14 @@ export class ContainerProviderRegistry {
 
     api.getEvents((err, stream) => {
       if (err) {
+        // always notify the caller so a retry gets scheduled; `notify` only
+        // gates the console.log below so we do not repeat it on every
+        // subsequent failure until we successfully reconnect.
         if (this.notify) {
           console.log('error is', err);
-          errorCallback(new Error('Error in handling events', err));
           this.notify = false;
         }
+        errorCallback(new Error('Error in handling events', { cause: err }));
       }
 
       stream?.on('error', error => {
@@ -337,15 +345,24 @@ export class ContainerProviderRegistry {
     internalProvider: InternalContainerProvider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
   ): void {
+    // clear the pending reconnect first (see InternalContainerProvider.reconnectTimer)
+    clearTimeout(internalProvider.reconnectTimer);
+    internalProvider.reconnectTimer = undefined;
+
+    const status = containerProviderConnection.status();
+
     // abort if connection is stopped
-    if (containerProviderConnection.status() === 'stopped') {
+    if (status === 'stopped') {
       console.log('Aborting reconnect due to error as connection is now stopped');
       return;
     }
 
-    // abort if connection has been removed
-    if (containerProviderConnection.status() === undefined) {
-      console.log('Aborting reconnect due to error as connection has been removed (probably machine has been removed)');
+    // proceed only if the connection is started; abort for everything else
+    // (undefined, 'unknown', 'stopping', ...). Recovery is not lost: the
+    // errorHandler cleared `api`, so the status poll in registerContainerConnection
+    // re-establishes the connection once the status becomes 'started'.
+    if (status !== 'started') {
+      console.log(`Aborting reconnect due to error as connection status is '${status}'`);
       return;
     }
 
@@ -357,14 +374,23 @@ export class ContainerProviderRegistry {
     // in case of errors reported during handling events like the connection is aborted, etc.
     // we need to reconnect the provider
     const errorHandler = (error: Error): void => {
-      console.warn('Error when handling events', error, 'Will reconnect in 5s', error);
+      // gated by `notify` (reset on a successful reconnect) so a long outage logs once, not every retry
+      if (this.notify) {
+        console.warn('Error when handling events', error, 'Will reconnect in 5s');
+        this.notify = false;
+      }
       internalProvider.api = undefined;
       internalProvider.libpodApi = undefined;
+
+      // at most one reconnect is pending per provider
+      if (internalProvider.reconnectTimer) {
+        return;
+      }
 
       // ok we had some errors so we need to reconnect the provider
       // delay the reconnection to avoid too many reconnections
       // retry in 5 seconds
-      setTimeout(() => {
+      internalProvider.reconnectTimer = setTimeout(() => {
         this.setupConnectionAPI(internalProvider, containerProviderConnection);
       }, this.retryDelayEvents);
     };
@@ -437,6 +463,8 @@ export class ContainerProviderRegistry {
 
     return Disposable.create(() => {
       clearInterval(timer);
+      clearTimeout(internalProvider.reconnectTimer);
+      internalProvider.reconnectTimer = undefined;
       onBeforeUpdateDisposable.dispose();
       this.internalProviders.delete(id);
       this.containerProviders.delete(id);

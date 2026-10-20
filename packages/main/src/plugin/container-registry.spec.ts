@@ -41,7 +41,7 @@ import { http, HttpResponse } from 'msw';
 import { type SetupServer, setupServer } from 'msw/node';
 import type { Headers, PackOptions } from 'tar-fs';
 import * as tarstream from 'tar-stream';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
@@ -389,6 +389,18 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
 
   setRetryDelayEvents(delay: number): void {
     this.retryDelayEvents = delay;
+  }
+
+  // when set, handleEvents does not subscribe to anything: it records the error
+  // callback of each connection attempt so tests can trigger failures at will
+  capturedEventsErrorCallbacks: ((error: Error) => void)[] | undefined;
+
+  override handleEvents(api: Dockerode, errorCallback: (error: Error) => void): void {
+    if (this.capturedEventsErrorCallbacks) {
+      this.capturedEventsErrorCallbacks.push(errorCallback);
+      return;
+    }
+    super.handleEvents(api, errorCallback);
   }
 }
 
@@ -4040,7 +4052,8 @@ test('setupConnectionAPI with errors', async () => {
 
   // filter calls to find the one with container-started-event
   const containerStartedEventCalls = allCalls.filter(call => call[0] === 'container-started-event');
-  expect(containerStartedEventCalls).toHaveLength(0);
+  expect(containerStartedEventCalls).toHaveLength(1);
+  expect(containerStartedEventCalls[0]).toEqual(['container-started-event', fakeId]);
 
   stream2.end();
 
@@ -4096,7 +4109,7 @@ test('setupConnectionAPI with errors after machine being removed', async () => {
   expect(apiSender.send).not.toHaveBeenCalled();
 
   expect(mockedConsoleLog).toHaveBeenCalledWith(
-    'Aborting reconnect due to error as connection has been removed (probably machine has been removed)',
+    `Aborting reconnect due to error as connection status is '${undefinedStatus}'`,
   );
 });
 
@@ -4394,6 +4407,235 @@ test('check handleEvents calls errorCallback and destroys pipeline on parse erro
   expect(errorCallback).toHaveBeenCalledWith(expect.objectContaining({ message: 'Error while parsing events' }));
 
   consoleErrorSpy.mockRestore();
+});
+
+test('check handleEvents calls errorCallback for every consecutive getEvents failure and logs only once', () => {
+  const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  const getEventsMock = vi.fn();
+  let eventsMockCallback: ((err: Error | null, stream?: PassThrough) => void) | undefined;
+  // keep the function passed in parameter of getEventsMock
+  getEventsMock.mockImplementation((options: (err: Error | null, stream?: PassThrough) => void) => {
+    eventsMockCallback = options;
+  });
+
+  const fakeDockerode = {
+    getEvents: getEventsMock,
+  } as unknown as Dockerode;
+
+  const errorCallback = vi.fn();
+
+  containerRegistry.handleEvents(fakeDockerode, errorCallback);
+
+  assert(eventsMockCallback);
+
+  // three consecutive failures to subscribe to the event stream must each
+  // reach errorCallback so that a retry is scheduled every time
+  eventsMockCallback(new Error('connection error 1'));
+  eventsMockCallback(new Error('connection error 2'));
+  eventsMockCallback(new Error('connection error 3'));
+
+  expect(errorCallback).toHaveBeenCalledTimes(3);
+  expect(errorCallback).toHaveBeenCalledWith(
+    expect.objectContaining({
+      message: 'Error in handling events',
+      cause: expect.objectContaining({ message: 'connection error 1' }),
+    }),
+  );
+
+  // ...but the failure is only logged once until a reconnect succeeds
+  expect(consoleLogSpy.mock.calls.filter(call => call[0] === 'error is')).toHaveLength(1);
+
+  consoleLogSpy.mockRestore();
+});
+
+test('setupConnectionAPI reconnect chain via msw continues past the second attempt', async () => {
+  const stream1 = new PassThrough();
+  server = setupServer(
+    http.get('http://localhost/events', () => new HttpResponse(stream1 as unknown as ReadableStream)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const internalContainerProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+      displayName: 'podman',
+      name: 'podman',
+      endpoint: {
+        socketPath: 'http://localhost',
+      },
+      status: () => 'started',
+    },
+  };
+
+  const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman',
+    displayName: 'podman',
+    type: 'podman',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: () => 'started',
+  };
+
+  containerRegistry.setupConnectionAPI(internalContainerProvider, providerConnectionInfo);
+  containerRegistry.setRetryDelayEvents(200);
+
+  // wait for the first connection to be established
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeDefined());
+  await vi.waitFor(() => expect(stream1.listenerCount('error')).toBeGreaterThan(0));
+
+  // first failure
+  stream1.emit('error', new Error('first error'));
+  stream1.end();
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeUndefined());
+
+  // mock the second attempt: this is the retry a latched notify would have
+  // swallowed (see 'setupConnectionAPI with errors')
+  const stream2 = new PassThrough();
+  server.use(http.get('http://localhost/events', () => new HttpResponse(stream2 as unknown as ReadableStream)));
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeDefined());
+  await vi.waitFor(() => expect(stream2.listenerCount('error')).toBeGreaterThan(0));
+
+  // second failure
+  stream2.emit('error', new Error('second error'));
+  stream2.end();
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeUndefined());
+
+  // a third attempt must still happen: the chain has not latched
+  const stream3 = new PassThrough();
+  server.use(http.get('http://localhost/events', () => new HttpResponse(stream3 as unknown as ReadableStream)));
+  await vi.waitFor(() => expect(internalContainerProvider.api).toBeDefined());
+
+  // terminate the chain: no further error is emitted on stream3, so no more
+  // reconnects get scheduled and this test does not leak a running chain.
+  stream3.end();
+});
+
+test('two errors close together schedule exactly one reconnect', () => {
+  vi.useFakeTimers();
+
+  const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman',
+    displayName: 'podman',
+    type: 'podman',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: () => 'started',
+  };
+
+  const internalContainerProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    connection: providerConnectionInfo,
+  };
+
+  // the test registry records the error callback of each connection attempt
+  // instead of subscribing to events, so the test controls when errors happen
+  const attempts: ((error: Error) => void)[] = [];
+  containerRegistry.capturedEventsErrorCallbacks = attempts;
+
+  containerRegistry.setupConnectionAPI(internalContainerProvider, providerConnectionInfo);
+  containerRegistry.setRetryDelayEvents(200);
+
+  expect(attempts).toHaveLength(1);
+
+  // two errors in close succession must schedule exactly one pending reconnect
+  attempts[0]?.(new Error('first close error'));
+  attempts[0]?.(new Error('second close error'));
+
+  expect(internalContainerProvider.api).toBeUndefined();
+  expect(internalContainerProvider.reconnectTimer).toBeDefined();
+
+  // let the single scheduled reconnect fire
+  vi.advanceTimersByTime(200);
+
+  // exactly one reconnect happened (the initial attempt plus one), not two
+  expect(attempts).toHaveLength(2);
+  expect(internalContainerProvider.api).toBeDefined();
+  expect(internalContainerProvider.reconnectTimer).toBeUndefined();
+});
+
+describe('reconnect chain lifecycle', () => {
+  const onBeforeDidUpdateContainerConnection = vi.fn();
+  const providerRegistry: ProviderRegistry = {
+    onBeforeDidUpdateContainerConnection,
+  } as unknown as ProviderRegistry;
+
+  const retryDelay = 300;
+  const statusMock = vi.fn<() => podmanDesktopAPI.ProviderConnectionStatus>();
+  let attempts: ((error: Error) => void)[];
+  let containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection;
+  const podmanProvider = { name: 'podman', id: 'podman' } as unknown as podmanDesktopAPI.Provider;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    // the file-level beforeEach runs vi.resetAllMocks(), so the return value has
+    // to be set here rather than where the mock is declared
+    onBeforeDidUpdateContainerConnection.mockReturnValue({ dispose: vi.fn() });
+    statusMock.mockReset();
+    statusMock.mockReturnValue('started');
+    containerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      displayName: 'podman',
+      endpoint: {
+        socketPath: 'http://localhost',
+      },
+      status: statusMock,
+    };
+    attempts = [];
+    containerRegistry.capturedEventsErrorCallbacks = attempts;
+    containerRegistry.setRetryDelayEvents(retryDelay);
+  });
+
+  test('disposing a connection cancels its pending reconnect', () => {
+    const disposable = containerRegistry.registerContainerConnection(
+      podmanProvider,
+      containerProviderConnection,
+      providerRegistry,
+    );
+    const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
+    expect(internal.api).toBeDefined();
+    expect(attempts).toHaveLength(1);
+
+    // an error schedules a pending reconnect
+    attempts[0]?.(new Error('boom'));
+    expect(internal.reconnectTimer).toBeDefined();
+
+    // dispose while the reconnect is pending
+    disposable.dispose();
+    expect(internal.reconnectTimer).toBeUndefined();
+
+    // past the retry delay, the disposed provider must not reconnect
+    vi.advanceTimersByTime(retryDelay);
+    expect(internal.api).toBeUndefined();
+    expect(attempts).toHaveLength(1);
+  });
+
+  test('a reconnect chain whose status went unknown stops', () => {
+    const disposable = containerRegistry.registerContainerConnection(
+      podmanProvider,
+      containerProviderConnection,
+      providerRegistry,
+    );
+    const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
+    expect(internal.api).toBeDefined();
+
+    // the connection's status is now unknown, e.g. the podman machine was removed
+    statusMock.mockReturnValue('unknown');
+    attempts[0]?.(new Error('boom'));
+
+    // past the retry delay, the chain must terminate rather than keep retrying
+    vi.advanceTimersByTime(retryDelay);
+    expect(internal.api).toBeUndefined();
+    expect(internal.reconnectTimer).toBeUndefined();
+    expect(attempts).toHaveLength(1);
+
+    disposable.dispose();
+  });
 });
 
 test('check volume mounted is replicated when executing replicatePodmanContainer with named volume', async () => {
