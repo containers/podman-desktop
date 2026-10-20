@@ -147,6 +147,7 @@ test('should register a configuration', () => {
   expect(
     configurationNode?.properties?.[ENHANCED_DASHBOARD_CONFIGURATION_KEY]?.experimental?.githubDiscussionLink,
   ).toBe('https://github.com/podman-desktop/podman-desktop/discussions/16055');
+  expect(configurationNode?.properties?.[ENHANCED_DASHBOARD_CONFIGURATION_KEY]?.experimental?.image).toBeDefined();
 });
 
 describe('system overview status', () => {
