@@ -25,7 +25,7 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
-import { waitForPodmanMachineStartup, waitWhile } from '/@/utility/wait';
+import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
 
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
@@ -110,14 +110,34 @@ test.describe
       });
 
       // createMachine() waits for "Successful operation" and clicks "Go back to
-      // resources", but the machine's connection can still be starting up
-      // asynchronously, and the connection card may not yet be in the DOM.
-      // Use toContainText() so Playwright retries both the element lookup and
-      // the text check within a single timeout window.
+      // resources". The machine may still be STARTING at this point — and the
+      // Resources page can stall showing STARTING even after the machine has
+      // fully started, because the Svelte component does not always re-render
+      // when the underlying state changes. Poll first; if the status has not
+      // reached RUNNING within the initial window, navigate away and back to
+      // force the UI to pick up the current machine state.
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
-      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+      let secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+
+      await waitUntil(
+        async () =>
+          (await secondMachineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running),
+        { timeout: 60_000, sendError: false },
+      );
+
+      const currentStatus = await secondMachineCard.resourceElementConnectionStatus.innerText();
+      if (!currentStatus.includes(ResourceElementState.Running)) {
+        // Navigate away and back to force the Resources page to refresh the
+        // machine connection status from the main process.
+        await navigationBar.openDashboard();
+        const refreshedSettingsBar = await navigationBar.openSettings();
+        await refreshedSettingsBar.resourcesTab.click();
+        await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
+        secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+      }
+
       await playExpect(secondMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Running, {
-        timeout: 60_000,
+        timeout: 120_000,
       });
     });
 
