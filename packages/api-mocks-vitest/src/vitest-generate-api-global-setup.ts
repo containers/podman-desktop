@@ -26,12 +26,33 @@ import typescript from 'typescript';
 type Namespaces = { [key: string]: string[] };
 type Classes = { [key: string]: string[] };
 
-async function extractNamespacesAndClassesFromAPI(
-  filePath: string,
-): Promise<{ namespaces: Namespaces; classes: Classes }> {
-  const fileContent = await fs.readFile(filePath, 'utf-8');
-  const sourceFile = typescript.createSourceFile(filePath, fileContent, typescript.ScriptTarget.Latest, true);
+// The API is split across several files: follow `/// <reference path="..." />` from the entry file.
+// Files are keyed by their path on disk: SourceFile.fileName is normalized with forward slashes by TypeScript
+async function readAPISourceFiles(entryPath: string): Promise<Map<string, typescript.SourceFile>> {
+  const sourceFiles = new Map<string, typescript.SourceFile>();
+  const visited = new Set<string>();
 
+  const read = async (filePath: string): Promise<void> => {
+    if (visited.has(filePath)) {
+      return;
+    }
+    visited.add(filePath);
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const sourceFile = typescript.createSourceFile(filePath, fileContent, typescript.ScriptTarget.Latest, true);
+    for (const reference of sourceFile.referencedFiles) {
+      await read(path.resolve(path.dirname(filePath), reference.fileName));
+    }
+    sourceFiles.set(filePath, sourceFile);
+  };
+
+  await read(entryPath);
+  return sourceFiles;
+}
+
+function extractNamespacesAndClassesFromAPI(sourceFiles: typescript.SourceFile[]): {
+  namespaces: Namespaces;
+  classes: Classes;
+} {
   const namespaces: Namespaces = {};
   const classes: Classes = {};
 
@@ -60,8 +81,8 @@ async function extractNamespacesAndClassesFromAPI(
       }
 
       if (functions.length > 0) {
-        // Deduplicate to handle function overloads
-        namespaces[namespaceName] = Array.from(new Set(functions));
+        // Deduplicate to handle function overloads and namespaces declared in several files
+        namespaces[namespaceName] = Array.from(new Set([...(namespaces[namespaceName] ?? []), ...functions]));
       }
     }
 
@@ -77,14 +98,16 @@ async function extractNamespacesAndClassesFromAPI(
           }
         }
         // Deduplicate to handle method overloads
-        classes[className] = Array.from(new Set(methods));
+        classes[className] = Array.from(new Set([...(classes[className] ?? []), ...methods]));
       }
     }
 
     typescript.forEachChild(node, visit);
   };
 
-  visit(sourceFile);
+  for (const sourceFile of sourceFiles) {
+    visit(sourceFile);
+  }
   return { namespaces, classes };
 }
 
@@ -109,15 +132,17 @@ export default async function setup(): Promise<void> {
   const productJsonPath = path.join(repoRoot, 'product.json');
   const packageProductJsonPath = path.join(packageRoot, 'src', 'product.json');
 
-  // skip if api.ts is already newer (from template or extension-api.d.ts file)
-  const extensionApiPathStats = await fs.stat(extensionApiTypePath);
+  const apiSourceFiles = await readAPISourceFiles(extensionApiTypePath);
+
+  // skip if api.ts is already newer (from template or any extension API .d.ts file)
+  const apiSourceFilesStats = await Promise.all(Array.from(apiSourceFiles.keys(), filePath => fs.stat(filePath)));
   const templatePathStats = await fs.stat(templatePath);
   const productJsonPathStats = await fs.stat(productJsonPath);
   try {
     const outputStats = await fs.stat(apiGeneratedFile);
     await fs.stat(packageProductJsonPath);
     const newestInputMtime = Math.max(
-      extensionApiPathStats.mtimeMs,
+      ...apiSourceFilesStats.map(stats => stats.mtimeMs),
       templatePathStats.mtimeMs,
       productJsonPathStats.mtimeMs,
     );
@@ -128,7 +153,7 @@ export default async function setup(): Promise<void> {
   } catch {
     console.debug(' ⚙️ packages/api-mocks-vitest/src/@podman-desktop/api.ts does not exist yet; generating it now…');
   }
-  const data = await extractNamespacesAndClassesFromAPI(extensionApiTypePath);
+  const data = extractNamespacesAndClassesFromAPI(Array.from(apiSourceFiles.values()));
   const template = await fs.readFile(templatePath, 'utf-8');
   const content = Mustache.render(template, toTemplateData(data));
 
