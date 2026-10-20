@@ -4503,35 +4503,41 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
   });
 });
 
-describe('replicatePodmanContainer into a pod', () => {
-  function addPodReplicationProvider(): MockInstance<LibPod['createPodmanContainer']> {
-    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' }) as Dockerode & LibPod;
-    const sourceContainer = new Dockerode.Container(undefined, 'container-id');
-    vi.spyOn(sourceContainer, 'inspect').mockResolvedValue(fakeContainerInspectInfoWithPortBindings);
-    vi.spyOn(dockerAPI, 'getContainer').mockReturnValue(sourceContainer);
+function addPortBindingReplicationProvider(
+  inspectInfo: Dockerode.ContainerInspectInfo = fakeContainerInspectInfoWithPortBindings,
+): MockInstance<LibPod['createPodmanContainer']> {
+  const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const sourceContainer = {
+    inspect: vi.fn(),
+  } as unknown as Dockerode.Container;
+  vi.mocked(sourceContainer.inspect).mockResolvedValue(inspectInfo);
+  dockerAPI.getContainer = vi.fn<Dockerode['getContainer']>();
+  vi.mocked(dockerAPI.getContainer).mockReturnValue(sourceContainer);
 
-    const createPodmanContainerMock = vi
-      .spyOn(dockerAPI, 'createPodmanContainer')
-      .mockResolvedValue({ Id: 'new-container', Warnings: [] });
-    const provider: InternalContainerProvider = {
+  const libpodAPI = {
+    createPodmanContainer: vi.fn(),
+  } as unknown as LibPod;
+  vi.mocked(libpodAPI.createPodmanContainer).mockResolvedValue({ Id: 'new-container', Warnings: [] });
+  const provider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    api: dockerAPI,
+    libpodApi: libpodAPI,
+    connection: {
       name: 'podman',
-      id: 'podman1',
-      api: dockerAPI,
-      libpodApi: dockerAPI,
-      connection: {
-        name: 'podman',
-        type: 'podman',
-        endpoint: { socketPath: '/tmp/podman.sock' },
-        status: () => 'started',
-      },
-    };
-    containerRegistry.addInternalProvider('podman1', provider);
+      type: 'podman',
+      endpoint: { socketPath: '/tmp/podman.sock' },
+      status: () => 'started',
+    },
+  };
+  containerRegistry.addInternalProvider('podman1', provider);
 
-    return createPodmanContainerMock;
-  }
+  return vi.mocked(libpodAPI.createPodmanContainer);
+}
 
+describe('replicatePodmanContainer into a pod', () => {
   test('does not copy published ports from the source container', async () => {
-    const createPodmanContainerMock = addPodReplicationProvider();
+    const createPodmanContainerMock = addPortBindingReplicationProvider();
 
     await containerRegistry.replicatePodmanContainer(
       { engineId: 'podman1', id: 'container-id' },
@@ -4564,7 +4570,7 @@ describe('replicatePodmanContainer into a pod', () => {
       ],
     },
   ])('preserves $name supplied for a pod', async ({ portmappings }) => {
-    const createPodmanContainerMock = addPodReplicationProvider();
+    const createPodmanContainerMock = addPortBindingReplicationProvider();
 
     await containerRegistry.replicatePodmanContainer(
       { engineId: 'podman1', id: 'container-id' },
@@ -4583,6 +4589,125 @@ describe('replicatePodmanContainer into a pod', () => {
       name: 'container-in-pod',
       portmappings,
     });
+  });
+});
+
+describe('replicatePodmanContainer port mapping conversion', () => {
+  beforeEach(() => {
+    vi.stubGlobal('console', { ...console, warn: vi.fn() });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test.each([
+    {
+      name: 'single tcp binding',
+      portBindings: { '80/tcp': [{ HostPort: '8080', HostIp: '' }] },
+      expected: [{ container_port: 80, host_port: 8080, host_ip: undefined, protocol: 'tcp' }],
+    },
+    {
+      name: 'binding with host_ip',
+      portBindings: { '443/tcp': [{ HostPort: '8443', HostIp: '127.0.0.1' }] },
+      expected: [{ container_port: 443, host_port: 8443, host_ip: '127.0.0.1', protocol: 'tcp' }],
+    },
+    {
+      name: 'udp protocol',
+      portBindings: { '53/udp': [{ HostPort: '5353', HostIp: '' }] },
+      expected: [{ container_port: 53, host_port: 5353, host_ip: undefined, protocol: 'udp' }],
+    },
+    {
+      name: 'multiple host bindings on one port',
+      portBindings: {
+        '80/tcp': [
+          { HostPort: '8080', HostIp: '' },
+          { HostPort: '9090', HostIp: '0.0.0.0' },
+        ],
+      },
+      expected: [
+        { container_port: 80, host_port: 8080, host_ip: undefined, protocol: 'tcp' },
+        { container_port: 80, host_port: 9090, host_ip: '0.0.0.0', protocol: 'tcp' },
+      ],
+    },
+    {
+      name: 'random host port',
+      portBindings: { '80/tcp': [{ HostPort: '', HostIp: '' }] },
+      expected: [{ container_port: 80, host_port: undefined, host_ip: undefined, protocol: 'tcp' }],
+    },
+  ])('converts $name when replicating outside a pod', async ({ portBindings, expected }) => {
+    const inspectInfo: Dockerode.ContainerInspectInfo = {
+      ...fakeContainerInspectInfo,
+      HostConfig: { ...fakeContainerInspectInfo.HostConfig, PortBindings: portBindings },
+    };
+    const createPodmanContainerMock = addPortBindingReplicationProvider(inspectInfo);
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      {},
+    );
+
+    const expectedConfiguration = {
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+      portmappings: expected,
+    };
+    expect(createPodmanContainerMock).toHaveBeenCalledWith(expectedConfiguration);
+  });
+
+  test.each([
+    { name: 'explicit port mappings', portmappings: [{ container_port: 443, host_port: 9443, protocol: 'tcp' }] },
+    { name: 'an empty port mappings array', portmappings: [] },
+  ])('prefers $name supplied by the caller over inherited bindings', async ({ portmappings }) => {
+    const createPodmanContainerMock = addPortBindingReplicationProvider();
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      { portmappings },
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith(expect.objectContaining({ portmappings }));
+  });
+
+  test.each([
+    {
+      name: 'non-numeric container port',
+      portBindings: { 'abc/tcp': [{ HostPort: '8080', HostIp: '' }] },
+      warning: 'Skipping invalid port binding "abc/tcp" for container 1234',
+    },
+    {
+      name: 'non-numeric host port',
+      portBindings: { '80/tcp': [{ HostPort: '8080junk', HostIp: '' }] },
+      warning: 'Skipping invalid host port "8080junk" in port binding "80/tcp" for container 1234',
+    },
+  ])('skips $name when replicating outside a pod', async ({ portBindings, warning }) => {
+    const inspectInfo: Dockerode.ContainerInspectInfo = {
+      ...fakeContainerInspectInfo,
+      HostConfig: { ...fakeContainerInspectInfo.HostConfig, PortBindings: portBindings },
+    };
+    const createPodmanContainerMock = addPortBindingReplicationProvider(inspectInfo);
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      {},
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith({
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+    });
+    expect(console.warn).toHaveBeenCalledWith(warning);
   });
 });
 

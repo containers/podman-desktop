@@ -37,6 +37,7 @@ import type {
   ContainerStatsInfo,
   Event,
   HistoryInfo,
+  HostConfigPortBinding,
   ImageInfo,
   ImageInspectInfo,
   ImageLoadOptions,
@@ -1776,7 +1777,12 @@ export class ContainerProviderRegistry {
       const updatedEnv = this.extractContainerEnvironment(containerToReplicate);
 
       // build create container configuration
-      const originalConfiguration = this.getCreateContainsOptionsFromOriginal(containerToReplicate, updatedEnv);
+      const includePortMappings = overrideParameters.pod === undefined;
+      const originalConfiguration = this.getCreateContainsOptionsFromOriginal(
+        containerToReplicate,
+        updatedEnv,
+        includePortMappings,
+      );
 
       // add extra information
       const configuration: ContainerCreateOptions = {
@@ -1801,7 +1807,12 @@ export class ContainerProviderRegistry {
   private getCreateContainsOptionsFromOriginal(
     containerToReplicate: ContainerInspectInfo,
     updatedEnv: { [p: string]: string },
+    includePortMappings: boolean,
   ): Record<string, unknown> {
+    const portmappings = includePortMappings
+      ? this.convertPortBindings(containerToReplicate.Id, containerToReplicate.HostConfig?.PortBindings)
+      : undefined;
+
     return {
       command: containerToReplicate.Config.Cmd,
       entrypoint: containerToReplicate.Config.Entrypoint,
@@ -1813,7 +1824,56 @@ export class ContainerProviderRegistry {
       volumes: containerToReplicate.Mounts.filter(mount => (mount as any).Type === 'volume').map(mount => {
         return { Name: mount.Name, Dest: mount.Destination };
       }),
+      ...(portmappings && { portmappings }),
     };
+  }
+
+  /**
+   * Convert Docker-style HostConfig.PortBindings into the libpod portmappings format.
+   *
+   * Keys are in the format "port/protocol" (e.g. "80/tcp"). Each key maps to an
+   * array of bindings, so a single container port can be exposed on multiple host ports.
+   * An empty HostPort means the host should pick a random available port.
+   */
+  private convertPortBindings(
+    containerId: string,
+    portBindings: HostConfigPortBinding | undefined,
+  ): ContainerCreatePortMappingOption[] | undefined {
+    if (!portBindings || Object.keys(portBindings).length === 0) {
+      return undefined;
+    }
+
+    const portmappings: ContainerCreatePortMappingOption[] = [];
+    for (const [key, value] of Object.entries(portBindings)) {
+      const [portStr, protocol] = key.split('/');
+      const containerPort = Number.parseInt(portStr ?? '', 10);
+      if (Number.isNaN(containerPort) || String(containerPort) !== portStr || !Array.isArray(value)) {
+        console.warn(`Skipping invalid port binding "${key}" for container ${containerId}`);
+        continue;
+      }
+
+      for (const binding of value) {
+        let hostPort: number | undefined;
+        if (binding.HostPort) {
+          hostPort = Number.parseInt(binding.HostPort, 10);
+          if (Number.isNaN(hostPort) || String(hostPort) !== binding.HostPort) {
+            console.warn(
+              `Skipping invalid host port "${binding.HostPort}" in port binding "${key}" for container ${containerId}`,
+            );
+            continue;
+          }
+        }
+
+        portmappings.push({
+          container_port: containerPort,
+          host_port: hostPort,
+          host_ip: binding.HostIp === '' ? undefined : binding.HostIp,
+          protocol,
+        });
+      }
+    }
+
+    return portmappings.length > 0 ? portmappings : undefined;
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {
