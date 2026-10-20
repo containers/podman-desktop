@@ -22,7 +22,6 @@ import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
 import { env as envAPI, process as processAPI, window as windowAPI } from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { PodmanBinary } from './podman-binary';
 import type { PodmanConfiguration } from './podman-configuration';
 import { RosettaProvisioner } from './rosetta';
 import { execPodman } from './util';
@@ -46,8 +45,7 @@ let rosettaProvisioner: RosettaProvisioner;
 beforeEach(() => {
   vi.resetAllMocks();
 
-  const podmanBinary = {} as PodmanBinary;
-  rosettaProvisioner = new RosettaProvisioner(podmanBinary);
+  rosettaProvisioner = new RosettaProvisioner();
 });
 
 describe('checkRosettaMacArm', async () => {
