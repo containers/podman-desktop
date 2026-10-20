@@ -81,7 +81,7 @@ test.describe('Compose onboarding workflow verification', { tag: '@smoke' }, () 
   test('Can enter Compose onboarding', async ({ page, navigationBar }) => {
     const onboardingPage = await openComposeOnboarding(page, navigationBar);
 
-    await playExpect(onboardingPage.heading).toBeVisible();
+    await playExpect(onboardingPage.contentSection).toBeVisible();
 
     const onboardingVersionPage = new ComposeVersionPage(page);
     await playExpect(onboardingVersionPage.onboardingStatusMessage).toContainText(

@@ -328,7 +328,7 @@ test.describe('Podman Machine verification', { tag: '@pdmachine' }, () => {
 
 async function verifyPodmanOnboardingPageVisible(page: Page): Promise<void> {
   const onboardingPage = new PodmanOnboardingPage(page);
-  await playExpect(onboardingPage.header).toBeVisible();
+  await playExpect(onboardingPage.contentSection).toBeVisible();
   await playExpect(onboardingPage.mainPage).toBeVisible();
 }
 
