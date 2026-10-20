@@ -49,7 +49,7 @@ import type { InternalContainerProvider } from '/@/plugin/container-registry.js'
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import { KubePlayContext } from '/@/plugin/podman/kube.js';
-import type { Proxy } from '/@/plugin/proxy.js';
+import type { Proxy as ProxyService } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as util from '/@/util.js';
 
@@ -451,11 +451,11 @@ beforeEach(() => {
     init: vi.fn(),
     getAllCertificates: vi.fn(),
   } as unknown as Certificates;
-  const proxy: Proxy = {
+  const proxy: ProxyService = {
     onDidStateChange: vi.fn(),
     onDidUpdateProxy: vi.fn(),
     isEnabled: vi.fn(),
-  } as unknown as Proxy;
+  } as unknown as ProxyService;
 
   const imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
   containerRegistry = new TestContainerProviderRegistry(apiSender, configurationRegistry, imageRegistry, telemetry);
@@ -7328,11 +7328,11 @@ describe('ContainerRegistrySettings', () => {
       registerConfigurations: registerConfigurationsMock,
     } as unknown as ConfigurationRegistry;
 
-    const proxy: Proxy = {
+    const proxy: ProxyService = {
       onDidStateChange: vi.fn(),
       onDidUpdateProxy: vi.fn(),
       isEnabled: vi.fn(),
-    } as unknown as Proxy;
+    } as unknown as ProxyService;
 
     const imageRegistry = new ImageRegistry(
       {} as ApiSenderType,
