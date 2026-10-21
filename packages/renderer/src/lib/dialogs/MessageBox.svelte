@@ -47,7 +47,8 @@ const showMessageBoxCallback = (messageBoxParameter: unknown): void => {
   buttonOrder = Array.from(buttonsType, (value, index) => index);
 
   // use the provided cancel id, otherwise try to find a button labelled 'cancel'
-  if (options?.cancelId) {
+  // If a provided cancelId is negative, it'll search for 'cancel' label
+  if (options?.cancelId !== undefined && options.cancelId >= 0) {
     cancelId = options.cancelId;
   } else {
     cancelId = buttonsType.findIndex(b => {
@@ -57,8 +58,9 @@ const showMessageBoxCallback = (messageBoxParameter: unknown): void => {
   }
 
   // use the provided default (primary) id, otherwise the first non-cancel button is the default
-  if (options?.defaultId) {
-    defaultId = options.defaultId;
+  // negative defaultId means no default button; out-of-range falls back default first non-cancelId index
+  if (options?.defaultId !== undefined && options.defaultId < buttonsType.length) {
+    defaultId = options.defaultId >= 0 ? options.defaultId : -1;
   } else if (cancelId === 0) {
     defaultId = 1;
   } else {
@@ -66,10 +68,21 @@ const showMessageBoxCallback = (messageBoxParameter: unknown): void => {
   }
 
   // move cancel button to the start/left and default button to the end/right
+  // only apply defaultId sorting if it's a valid button index
   buttonOrder.sort((a, b) => {
-    if (a === cancelId || b === defaultId) {
+    const hasValidDefault = defaultId !== undefined && defaultId >= 0;
+
+    // When cancelId === defaultId, give cancel placement precedence (left side)
+    if (hasValidDefault && cancelId === defaultId) {
+      if (a === cancelId) return -1;
+      if (b === cancelId) return 1;
+      return a - b;
+    }
+
+    // Normal case: cancel left, default right (only if defaultId is valid)
+    if (a === cancelId || (hasValidDefault && b === defaultId)) {
       return -1;
-    } else if (a === defaultId || b === cancelId) {
+    } else if ((hasValidDefault && a === defaultId) || b === cancelId) {
       return 1;
     } else {
       return a - b;
@@ -114,11 +127,23 @@ function getButtonType(b: boolean): ButtonType {
     return 'secondary';
   }
 }
+
+function getInitialButtonFocus(): 'first' | 'last' | 'none' {
+  // Focus first button (cancel) for danger dialogs, when no default button, or when default equals cancel
+  // If cancelId < 0 (no cancel button), button focus is none
+  if (type === 'danger' || (defaultId !== undefined && (defaultId < 0 || defaultId === cancelId))) {
+    if (cancelId < 0) {
+      return 'none';
+    }
+    return 'first';
+  }
+  // Otherwise focus last button (default)
+  return 'last';
+}
 </script>
 
 {#if display}
-  <!-- for danger MessageBox, the initial focus will be on the cancel button (first one) while in all others types the focus will be on the default button (last one) -->
-  <Dialog title={title} onclose={onClose} initialButtonFocus={type === 'danger' ? 'first' : 'last'}>
+  <Dialog title={title} onclose={onClose} initialButtonFocus={getInitialButtonFocus()}>
     {#snippet icon()}
       
         {#if type === 'error' || type === 'danger'}

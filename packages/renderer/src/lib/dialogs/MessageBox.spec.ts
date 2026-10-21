@@ -20,12 +20,27 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import MessageBox from './MessageBox.svelte';
 import type { MessageBoxOptions } from './messagebox-input';
 
 describe('MessageBox', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  function showMessageBox(options: MessageBoxOptions): void {
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: MessageBoxOptions) => void) => {
+        if (message === 'showMessageBox:open') {
+          callback(options);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
+    render(MessageBox, {});
+  }
   test('Expect that title, message, and buttons are displayed', async () => {
     const idRequest = 123;
 
@@ -381,5 +396,182 @@ describe('MessageBox', () => {
     await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
     await fireEvent.click(screen.getByRole('button', { name: 'Run' }));
     expect(window.sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, 0, undefined);
+  });
+
+  test('Expect cancelId: 0 to honor button at index 0 even when label is not "Cancel"', async () => {
+    const idRequest = 7015;
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'Delete file',
+      message: 'Delete this file?',
+      buttons: ['Keep', 'Delete'],
+      cancelId: 0,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    // Button at index 0 is treated as cancel (rendered as "Cancel" link on left, triggered by Escape)
+    // Note: allButtons[0] is the dialog close button, so action buttons start at index 1
+    const allButtons = screen.getAllByRole('button');
+    expect(allButtons[1]).toHaveTextContent('Cancel');
+    expect(allButtons[2]).toHaveTextContent('Delete');
+
+    await userEvent.keyboard('{Escape}');
+    expect(window.sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, 0);
+  });
+
+  test('Expect explicit defaultId: 0 to be honored', async () => {
+    const idRequest = 710;
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'Default at zero',
+      message: 'Message',
+      buttons: ['Delete', 'Proceed', 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    const deleteButton = screen.getByRole('button', { name: 'Delete' });
+    expect(deleteButton.className).toContain('pd-button-primary-bg');
+  });
+
+  test.each([
+    {
+      title: 'with',
+      buttons: ['Proceed', 'Cancel'],
+      expectedIndex: 1,
+      hasCancelButton: true,
+    },
+    {
+      title: 'without',
+      buttons: ['Proceed', 'Abort'],
+      expectedIndex: undefined,
+      hasCancelButton: false,
+    },
+  ])(
+    'Expect cancelId: -1 $title Cancel button to behave correctly on Escape',
+    async ({ buttons, expectedIndex, hasCancelButton }) => {
+      const messageBoxOptions: MessageBoxOptions = {
+        id: 711,
+        title: 'Negative cancelId test',
+        message: 'Message',
+        buttons,
+        cancelId: -1,
+      };
+
+      showMessageBox(messageBoxOptions);
+
+      if (hasCancelButton) {
+        // Cancel should be auto-detected and placed on the left
+        const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+        const otherButton = screen.getByRole('button', { name: buttons[0] });
+        expect(cancelButton.compareDocumentPosition(otherButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      }
+
+      await userEvent.keyboard('{Escape}');
+      expect(window.sendShowMessageBoxOnSelect).toHaveBeenCalledWith(messageBoxOptions.id, expectedIndex);
+    },
+  );
+
+  test('Expect cancelId: 0 and defaultId: 0 to place button at index 0 on the left as cancel', async () => {
+    const idRequest = 714;
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'Both IDs at zero',
+      message: 'Message',
+      buttons: ['Abort', 'Continue'],
+      cancelId: 0,
+      defaultId: 0,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    // When both IDs point to index 0, cancel placement takes precedence (left side)
+    // Note: allButtons[0] is the dialog close button, so action buttons start at index 1
+    const allButtons = screen.getAllByRole('button');
+    expect(allButtons[1]).toHaveTextContent('Cancel');
+    expect(allButtons[2]).toHaveTextContent('Continue');
+
+    // Initial focus should be on the Cancel button (first) when defaultId === cancelId
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await vi.waitFor(() => {
+      expect(cancelButton).toHaveFocus();
+    });
+
+    // Escape should trigger button at index 0
+    await userEvent.keyboard('{Escape}');
+    expect(window.sendShowMessageBoxOnSelect).toHaveBeenCalledWith(idRequest, 0);
+  });
+
+  test('Expect out-of-range defaultId to fall back to auto-detection', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 714,
+      title: 'Out of range default',
+      message: 'Message',
+      buttons: ['Option A', 'Option B', 'Cancel'],
+      defaultId: 5, // out of range (only 3 buttons)
+      cancelId: 2,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    // With out-of-range defaultId, should fall back to first non-cancel button (index 0)
+    const optionAButton = screen.getByRole('button', { name: 'Option A' });
+    expect(optionAButton.className).toContain('pd-button-primary-bg');
+  });
+
+  test('Expect defaultId: -1 to use no primary button styling and focus first button', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 713,
+      title: 'Negative default',
+      message: 'Message',
+      buttons: ['Cancel', 'Option A', 'Option B'],
+      defaultId: -1,
+      cancelId: 0,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    // With defaultId: -1, no button should have primary styling
+    const optionAButton = screen.getByRole('button', { name: 'Option A' });
+    const optionBButton = screen.getByRole('button', { name: 'Option B' });
+    expect(optionAButton.className).toContain('pd-button-secondary-bg');
+    expect(optionBButton.className).toContain('pd-button-secondary-bg');
+
+    // Initial focus should be on first button (Cancel), not last
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await vi.waitFor(() => {
+      expect(cancelButton).toHaveFocus();
+    });
+  });
+
+  test('Expect both cancelId: -1 and defaultId: -1 to show all secondary buttons', async () => {
+    const messageBoxOptions: MessageBoxOptions = {
+      id: 716,
+      title: 'No cancel or default',
+      message: 'Message',
+      buttons: ['Option A', 'Option B', 'Option C'],
+      cancelId: -1,
+      defaultId: -1,
+    };
+
+    showMessageBox(messageBoxOptions);
+
+    // All buttons should have secondary styling
+    const optionAButton = screen.getByRole('button', { name: 'Option A' });
+    const optionBButton = screen.getByRole('button', { name: 'Option B' });
+    const optionCButton = screen.getByRole('button', { name: 'Option C' });
+    expect(optionAButton.className).toContain('pd-button-secondary-bg');
+    expect(optionBButton.className).toContain('pd-button-secondary-bg');
+    expect(optionCButton.className).toContain('pd-button-secondary-bg');
+
+    // Buttons should keep their original labels (not replaced with "Cancel")
+    expect(optionAButton).toHaveTextContent('Option A');
+
+    // Escape should send undefined (no cancel button)
+    await userEvent.keyboard('{Escape}');
+    expect(window.sendShowMessageBoxOnSelect).toHaveBeenCalledWith(messageBoxOptions.id, undefined);
   });
 });
