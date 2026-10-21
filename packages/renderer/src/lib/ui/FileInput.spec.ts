@@ -110,7 +110,7 @@ test('Expect input and button enabled by default', async () => {
 
   expect(screen.getByRole('textbox')).not.toBeDisabled();
   expect(screen.getByRole('button')).not.toBeDisabled();
-  expect(screen.queryByLabelText('error')).not.toBeInTheDocument();
+  expect(screen.getByRole('textbox')).not.toBeInvalid();
 });
 
 test('Expect clicking browse does not open file dialog when disabled', async () => {
@@ -132,5 +132,5 @@ test('Expect error message displayed when error prop is provided', async () => {
   render(FileInput, { options: { title: 'title' }, error });
 
   expect(screen.getByText(error)).toBeInTheDocument();
-  expect(screen.getByLabelText('error')).toBeInTheDocument();
+  expect(screen.getByRole('textbox')).toBeInvalid();
 });

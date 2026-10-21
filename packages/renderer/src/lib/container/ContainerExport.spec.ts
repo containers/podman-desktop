@@ -111,7 +111,7 @@ test('Expect error shown if export function fails', async () => {
   expect(btnExportcontainer).toBeInTheDocument();
   await userEvent.click(btnExportcontainer);
 
-  const errorDiv = screen.getByLabelText('Error Message Content');
+  const errorDiv = screen.getByRole('alert');
 
   expect(window.exportContainer).toBeCalledWith(container.engineId, {
     id: container.id,

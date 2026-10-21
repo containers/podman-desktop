@@ -489,7 +489,7 @@ document.querySelector('[role="status"]');
 document.querySelector('[role="region"][aria-label="Notifications Box"]');
 
 // Error messages
-document.querySelector('[role="alert"][aria-label="Error Message Content"]');
+document.querySelector('[role="alert"]');
 
 // Extension status
 document.querySelector('[aria-label="Extension Status Label"]');

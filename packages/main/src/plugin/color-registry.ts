@@ -733,7 +733,9 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}sub-header`, {
       dark: accent1[400],
-      light: accent1[500],
+      light: accent1[600],
+      hcDark: accent1[500],
+      hcLight: accent1[700],
     });
 
     this.registerColor(`${ct}header-icon`, {

@@ -222,7 +222,7 @@ export abstract class MainPage extends BasePage {
     return test.step(`Filter ${this.title} by environment: ${environment}`, async () => {
       await playExpect(this.environmentDropdown).toBeVisible();
       await this.environmentDropdown.click();
-      const option = this.environmentDropdown.getByRole('button').filter({ hasText: environment });
+      const option = this.environmentDropdown.getByRole('button', { name: environment, exact: true });
       await playExpect(option).toBeVisible();
       await option.click();
     });

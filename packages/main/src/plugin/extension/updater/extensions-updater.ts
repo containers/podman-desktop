@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ExtensionUpdateInfo } from '@desktop-framework/api';
+import { isAutoUpdatable } from '@desktop-framework/api';
 import type { IConfigurationNode } from '@desktop-framework/api/configuration';
 import { IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { inject, injectable } from 'inversify';
@@ -131,9 +132,8 @@ export class ExtensionsUpdater {
     const installedExtensions = await this.extensionLoader.listExtensions();
 
     // now, for each installed extension that is not a built-in extension, check if there is a newer version available
-    // an extension replacing a bundled one is not updated, like the bundled extension it replaces
     const extensionsToUpdate = installedExtensions
-      .filter(extension => extension.removable === true && !extension.overrides)
+      .filter(extension => isAutoUpdatable(extension))
       .map(installedExtension => {
         // find the extension in the list of available extensions
         const availableExtension = availableExtensions.find(extension => extension.id === installedExtension.id);
@@ -185,9 +185,15 @@ export class ExtensionsUpdater {
     // if auto update is not enabled, flag the extensions as "can be updated"
     this.extensionLoader.setExtensionsUpdates(extensionsToUpdateFiltered);
 
-    // if auto update is enabled, update all extensions
+    // if auto update is enabled, update all extensions but the ones having their automatic updates disabled
     if (this.isAutoUpdateEnabled()) {
-      await this.updateExtensions(extensionsToUpdateFiltered, true);
+      const autoUpdateDisabledExtensionIds = new Set(
+        installedExtensions.filter(extension => extension.autoUpdateDisabled).map(extension => extension.id),
+      );
+      await this.updateExtensions(
+        extensionsToUpdateFiltered.filter(extension => !autoUpdateDisabledExtensionIds.has(extension.id)),
+        true,
+      );
     } else {
       // report in telemetry that user has updates available
       const telemetryOptions = {

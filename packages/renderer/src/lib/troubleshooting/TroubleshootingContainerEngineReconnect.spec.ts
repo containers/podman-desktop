@@ -39,7 +39,7 @@ test('Check reconnect button is available and click on it', async () => {
   expect(reconnectResult).toHaveTextContent('Done');
 
   // and no error
-  const errorMesssage = screen.queryByRole('alert', { name: 'Error Message Content' });
+  const errorMesssage = screen.queryByRole('alert');
   expect(errorMesssage).not.toBeInTheDocument();
 });
 
@@ -62,7 +62,7 @@ test('Check reconnect button is available and get error', async () => {
   expect(reconnectResult).toHaveTextContent('Done');
 
   // and no error
-  const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+  const errorMesssage = screen.getByRole('alert');
   expect(errorMesssage).toBeInTheDocument();
   expect(errorMesssage).toHaveTextContent('Unable to ping container engine');
 });

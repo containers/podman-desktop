@@ -68,14 +68,14 @@
 
 ### SelectImagePage
 
-| Element      | Selector                                             |
-| ------------ | ---------------------------------------------------- |
-| Heading      | `[role="heading"]:has-text("Select an image")`       |
-| Image input  | `[placeholder="Select or enter an image to run"]`    |
-| Run Image    | `button:has-text("Run Image")`                       |
-| Pull and Run | `button:has-text("Pull Image and Run")`              |
-| Cancel       | `button:has-text("Cancel")`                          |
-| Error alert  | `[role="alert"][aria-label="Error Message Content"]` |
+| Element      | Selector                                          |
+| ------------ | ------------------------------------------------- |
+| Heading      | `[role="heading"]:has-text("Select an image")`    |
+| Image input  | `[placeholder="Select or enter an image to run"]` |
+| Run Image    | `button:has-text("Run Image")`                    |
+| Pull and Run | `button:has-text("Pull Image and Run")`           |
+| Cancel       | `button:has-text("Cancel")`                       |
+| Error alert  | `footer [role="alert"]`                           |
 
 ### RunImagePage
 
@@ -87,7 +87,7 @@
 | Command               | `[aria-label="Command"]`                                   |
 | Start Container       | `[aria-label="Start Container"]`                           |
 | Close link            | `a:has-text("Close")`                                      |
-| Error alert           | `[role="alert"][aria-label="Error Message Content"]`       |
+| Error alert           | `[aria-label="createError"] [role="alert"]`                |
 | Basic tab             | `a:has-text("Basic")`                                      |
 | Advanced tab          | `a:has-text("Advanced")`                                   |
 | Networking tab        | `a:has-text("Networking")`                                 |

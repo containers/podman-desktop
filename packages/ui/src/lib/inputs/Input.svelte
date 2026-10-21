@@ -122,10 +122,10 @@ async function onClear(): Promise<void> {
       {maxlength}
       {pattern}
       aria-label={ariaLabel}
-      aria-invalid={ariaInvalid}
+      aria-invalid={ariaInvalid ?? (error && showError ? true : undefined)}
       bind:value />
     {#if error && showError}
-      <span class="px-0.5 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
+      <span class="px-0.5 text-[color:var(--pd-input-field-error-text)]" aria-hidden="true">
         <Icon icon={faCircleExclamation}/>
       </span>
     {/if}

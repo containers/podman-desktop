@@ -37,6 +37,7 @@ export class PullImagePage extends BasePage {
   readonly viewDetailsButton: Locator;
   readonly runButton: Locator;
   readonly pullErrorMessage: Locator;
+  readonly containerEngineDropdown: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -62,14 +63,26 @@ export class PullImagePage extends BasePage {
     this.viewDetailsButton = this.tabContent.getByRole('button', { name: 'View details', exact: true });
     this.runButton = this.tabContent.getByRole('button', { name: 'Run', exact: true });
     this.pullErrorMessage = page.getByRole('alert').filter({ hasText: 'no running provider' });
+    this.containerEngineDropdown = this.tabContent.getByLabel('Container Engine');
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 60_000): Promise<ImagesPage> {
+  async pullImage(imageName: string, tag = '', timeout = 60_000, connectionName?: string): Promise<ImagesPage> {
     return test.step(`Pulling image ${imageName}:${tag}`, async () => {
+      if (connectionName) await this.selectContainerEngine(connectionName);
       await this.startPull(imageName, tag);
       await this.waitForPullCompletion(timeout);
       await this.closeButton.click();
       return new ImagesPage(this.page);
+    });
+  }
+
+  async selectContainerEngine(connectionName: string): Promise<void> {
+    return test.step(`Select container engine: ${connectionName}`, async () => {
+      await playExpect(this.containerEngineDropdown).toBeVisible();
+      await this.containerEngineDropdown.click();
+      const option = this.page.getByRole('button', { name: connectionName, exact: true });
+      await playExpect(option).toBeVisible();
+      await option.click();
     });
   }
 

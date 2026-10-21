@@ -30,9 +30,17 @@ test('Check error message', async () => {
   render(ErrorMessage, { error });
 
   // check error message
-  const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+  const errorMesssage = screen.getByRole('alert');
   expect(errorMesssage).toBeInTheDocument();
   expect(errorMesssage).toHaveTextContent(error);
+  // no static label: it would replace the error text as the accessible name
+  expect(errorMesssage).not.toHaveAttribute('aria-label');
+});
+
+test('an explicit aria-label overrides the error text as accessible name', () => {
+  render(ErrorMessage, { error: 'This is an error message', 'aria-label': 'Custom label' });
+
+  expect(screen.getByRole('alert', { name: 'Custom label' })).toBeInTheDocument();
 });
 
 test('an error with a run of characters that has nothing to wrap at can wrap', async () => {
@@ -45,5 +53,5 @@ test('an error with a run of characters that has nothing to wrap at can wrap', a
   // with no spaces in it cannot wrap, so it widens whatever contains it and
   // spills out of the dialog. wrap-anywhere breaks only what would otherwise
   // overflow.
-  expect(screen.getByRole('alert', { name: 'Error Message Content' })).toHaveClass('wrap-anywhere');
+  expect(screen.getByRole('alert')).toHaveClass('wrap-anywhere');
 });

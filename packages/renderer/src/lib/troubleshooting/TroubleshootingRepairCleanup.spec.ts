@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 
 import TroubleshootingRepairCleanup from './TroubleshootingRepairCleanup.svelte';
@@ -108,4 +108,8 @@ test('Check errors are displayed with clipboard button', async () => {
   const alterSection = screen.getByRole('alert');
   expect(alterSection).toBeInTheDocument();
   expect(alterSection).toHaveTextContent('1 failures');
+  expect(alterSection).not.toHaveAttribute('aria-label');
+  // the decorative icon is hidden from assistive tech and exposes no image role
+  expect(alterSection.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+  expect(within(alterSection).queryByRole('img')).not.toBeInTheDocument();
 });

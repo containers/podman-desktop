@@ -22,8 +22,7 @@ import { BasePage } from './base-page';
 
 export class OnboardingPage extends BasePage {
   readonly mainPage: Locator;
-  readonly header: Locator;
-  readonly skipSetupButton: Locator;
+  readonly contentSection: Locator;
   readonly onboardingComponent: Locator;
   readonly onboardingStatusMessage: Locator;
   readonly nextInfoMessage: Locator;
@@ -33,8 +32,7 @@ export class OnboardingPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.mainPage = page.getByRole('region', { name: 'Onboarding Body' });
-    this.header = this.mainPage.getByRole('heading', { name: 'Header' });
-    this.skipSetupButton = this.header.getByRole('button', { name: 'Skip this entire setup' });
+    this.contentSection = this.mainPage.getByRole('region', { name: 'Content', exact: true });
     this.onboardingComponent = this.mainPage.getByLabel('Onboarding Component');
     this.onboardingStatusMessage = this.mainPage.getByLabel('Onboarding Status Message');
     this.nextInfoMessage = this.mainPage.getByLabel('Next Info Message');

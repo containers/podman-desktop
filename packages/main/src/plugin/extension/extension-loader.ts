@@ -26,7 +26,13 @@ import type {
   ExtensionUpdateInfo,
   ImageInspectInfo,
 } from '@desktop-framework/api';
-import { DEFAULT_TIMEOUT, ExtensionLoaderSettings, IAsyncDisposable, PodInfo } from '@desktop-framework/api';
+import {
+  DEFAULT_TIMEOUT,
+  ExtensionLoaderSettings,
+  IAsyncDisposable,
+  isAutoUpdatable,
+  PodInfo,
+} from '@desktop-framework/api';
 import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import type * as containerDesktopAPI from '@desktop-framework/extension-api';
@@ -124,6 +130,9 @@ export interface AnalyzedExtensionWithApi extends AnalyzedExtension {
  */
 @injectable()
 export class ExtensionLoader implements IAsyncDisposable {
+  private static readonly AUTO_UPDATE_DISABLED_KEY =
+    `${ExtensionLoaderSettings.SectionName}.${ExtensionLoaderSettings.AutoUpdateDisabled}`;
+
   private moduleLoader: ModuleLoader;
 
   protected activatedExtensions = new Map<string, ActivatedExtension>();
@@ -269,6 +278,7 @@ export class ExtensionLoader implements IAsyncDisposable {
   }
 
   async listExtensions(): Promise<ExtensionInfo[]> {
+    const autoUpdateDisabledExtensionIds = this.getAutoUpdateDisabledExtensionIds();
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
       name: extension.manifest.name,
       displayName: extension.manifest.displayName,
@@ -284,6 +294,7 @@ export class ExtensionLoader implements IAsyncDisposable {
       bundled: extension.bundled,
       overrides: extension.overrides,
       update: extension.update,
+      autoUpdateDisabled: autoUpdateDisabledExtensionIds.includes(extension.id),
       readme: extension.readme,
       icon: extension.manifest.icon ? this.updateImage(extension.manifest.icon, extension.path) : undefined,
       repository: extension.manifest.repository,
@@ -387,6 +398,20 @@ export class ExtensionLoader implements IAsyncDisposable {
       },
     };
 
+    const autoUpdateDisabledExtensionConfiguration: IConfigurationNode = {
+      id: 'preferences.extensions',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionLoader.AUTO_UPDATE_DISABLED_KEY]: {
+          description: 'Extensions not updated automatically',
+          type: 'array',
+          default: [],
+          hidden: true,
+        },
+      },
+    };
+
     const developmentModeExtensionConfiguration: IConfigurationNode = {
       id: 'preferences.extensions',
       title: 'Extensions',
@@ -420,6 +445,7 @@ export class ExtensionLoader implements IAsyncDisposable {
       disabledExtensionConfiguration,
       developmentModeExtensionConfiguration,
       allowCustomExtensions,
+      autoUpdateDisabledExtensionConfiguration,
     ]);
   }
 
@@ -448,6 +474,36 @@ export class ExtensionLoader implements IAsyncDisposable {
 
       this.setDisabledExtensionIds(disabledExtensionIds);
     }
+  }
+
+  getAutoUpdateDisabledExtensionIds(): string[] {
+    return this.configurationRegistry
+      .getConfiguration(ExtensionLoaderSettings.SectionName)
+      .get<string[]>(ExtensionLoaderSettings.AutoUpdateDisabled, []);
+  }
+
+  /**
+   * Enable or disable the automatic updates of an extension: the updates of an extension having them disabled
+   * are still flagged, but not applied automatically.
+   */
+  async setExtensionAutoUpdate(extensionId: string, enabled: boolean): Promise<void> {
+    const extension = this.analyzedExtensions.get(extensionId);
+    if (!extension || !isAutoUpdatable(extension)) {
+      throw new Error(`Extension ${extensionId} is not updated automatically`);
+    }
+    await this.saveExtensionAutoUpdate(extensionId, enabled);
+  }
+
+  protected async saveExtensionAutoUpdate(extensionId: string, enabled: boolean): Promise<void> {
+    const autoUpdateDisabledExtensionIds = this.getAutoUpdateDisabledExtensionIds().filter(id => id !== extensionId);
+    if (!enabled) {
+      autoUpdateDisabledExtensionIds.push(extensionId);
+    }
+    await this.configurationRegistry.updateConfigurationValue(
+      ExtensionLoader.AUTO_UPDATE_DISABLED_KEY,
+      autoUpdateDisabledExtensionIds,
+    );
+    this.apiSender.send('extensions-updated');
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -571,6 +627,32 @@ export class ExtensionLoader implements IAsyncDisposable {
         );
       }
     }
+  }
+
+  /**
+   * Flag an extension installed in the plugins directory as replacing the bundled extension having the same id.
+   * Does nothing if no bundled extension has this id, or if the extension is not an installed one.
+   *
+   * Used by the installer, the extensions loaded at startup being flagged by start().
+   */
+  markIfOverriding(extension: AnalyzedExtension): void {
+    // only an installed extension can replace a bundled one
+    if (extension.bundled || !extension.removable) {
+      return;
+    }
+    this.markOverridingExtensions([extension]);
+  }
+
+  /**
+   * Stop and forget the bundled extension having the given id, before loading an installed extension replacing it.
+   * Does nothing if the bundled extension is not loaded, e.g. when restoring it failed.
+   */
+  async replaceBundledExtension(bundledExtensionId: string): Promise<void> {
+    if (!this.analyzedExtensions.get(bundledExtensionId)?.bundled) {
+      return;
+    }
+    await this.deactivateExtension(bundledExtensionId);
+    this.analyzedExtensions.delete(bundledExtensionId);
   }
 
   /**
@@ -1981,6 +2063,10 @@ export class ExtensionLoader implements IAsyncDisposable {
       await this.removeExtension(extensionId);
 
       this.ensureExtensionIsEnabled(extensionId);
+      // a later installation of the extension starts with its automatic updates enabled
+      if (this.getAutoUpdateDisabledExtensionIds().includes(extensionId)) {
+        await this.saveExtensionAutoUpdate(extensionId, true);
+      }
       // the extension was hiding a bundled one, enabled above as they share the same id: bring it back
       if (overriddenExtensionId) {
         await this.restoreBundledExtension(overriddenExtensionId);

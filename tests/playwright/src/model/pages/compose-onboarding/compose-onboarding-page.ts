@@ -16,15 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from 'playwright';
+import type { Page } from 'playwright';
 
 import { OnboardingPage } from '/@/model/pages/onboarding-page';
 
 export class ComposeOnboardingPage extends OnboardingPage {
-  readonly heading: Locator;
-
   constructor(page: Page) {
     super(page);
-    this.heading = this.page.getByRole('heading', { name: 'Compose Setup Header' });
   }
 }

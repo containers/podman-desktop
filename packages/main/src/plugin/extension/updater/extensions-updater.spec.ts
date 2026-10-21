@@ -194,3 +194,53 @@ test('should not update an extension replacing a bundled one', async () => {
   expect(extensionLoader.removeExtension).not.toHaveBeenCalled();
   expect(extensionInstaller.installFromImage).not.toHaveBeenCalled();
 });
+
+/**
+ * Build an extension installed by the user, the given fields taking precedence.
+ */
+function buildExtensionInfo(id: string, fields: Partial<ExtensionInfo> = {}): ExtensionInfo {
+  const name = id.substring(id.indexOf('.') + 1);
+  return {
+    id,
+    name,
+    description: name,
+    displayName: name,
+    publisher: 'foo',
+    removable: true,
+    devMode: false,
+    bundled: false,
+    version: '1.0.0',
+    state: 'started',
+    path: `/plugins/${name}`,
+    readme: '',
+    ...fields,
+  };
+}
+
+test('should flag but not apply the update of an extension having its automatic updates disabled', async () => {
+  // the catalog has newer versions of both extensions
+  extensionsCatalogGetExtensionsMock.mockResolvedValue([catalogExtension1, catalogExtension2]);
+  extensionLoaderListExtensionsMock.mockResolvedValue([
+    buildExtensionInfo('foo.extension1', { autoUpdateDisabled: true }),
+    buildExtensionInfo('foo.extension2'),
+  ]);
+
+  // auto update is enabled
+  getConfigMock.mockReturnValue(true);
+
+  await extensionsUpdater.init();
+
+  expect(extensionLoaderSetExtensionsUpdatesMock).toHaveBeenCalledWith([
+    { id: 'foo.extension1', ociUri: 'oci-registry.foo/foo/bar1', version: '2.0.0' },
+    { id: 'foo.extension2', ociUri: 'oci-registry.foo/foo/bar2', version: '4.0.0' },
+  ]);
+  expect(extensionLoader.removeExtension).toHaveBeenCalledOnce();
+  expect(extensionLoader.removeExtension).toHaveBeenCalledWith('foo.extension2');
+  expect(extensionInstaller.installFromImage).toHaveBeenCalledOnce();
+  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    'oci-registry.foo/foo/bar2',
+  );
+});

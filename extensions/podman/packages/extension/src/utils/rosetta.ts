@@ -20,10 +20,9 @@ import { arch, release } from 'node:os';
 
 import type { RunError, RunOptions } from '@podman-desktop/api';
 import { env, process as processAPI, window } from '@podman-desktop/api';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { compare } from 'semver';
 
-import { PodmanBinary } from './podman-binary';
 import type { PodmanConfiguration } from './podman-configuration';
 import { execPodman, VMTYPE } from './util';
 
@@ -38,11 +37,6 @@ const PODMAN_MINIMUM_VERSION_FOR_ROSETTA_ENABLE_FILE = '5.6.0';
 
 @injectable()
 export class RosettaProvisioner {
-  constructor(
-    @inject(PodmanBinary)
-    private readonly podmanBinary: PodmanBinary,
-  ) {}
-
   /**
    * Returns true when all conditions for the /etc/containers/enable-rosetta
    * opt-in are satisfied: AppleHV provider on macOS Tahoe+ ARM64 with Rosetta

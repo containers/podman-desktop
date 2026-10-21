@@ -41,6 +41,7 @@ import { http, HttpResponse } from 'msw';
 import { type SetupServer, setupServer } from 'msw/node';
 import type { Headers, PackOptions } from 'tar-fs';
 import * as tarstream from 'tar-stream';
+import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
@@ -48,7 +49,7 @@ import type { InternalContainerProvider } from '/@/plugin/container-registry.js'
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import { KubePlayContext } from '/@/plugin/podman/kube.js';
-import type { Proxy } from '/@/plugin/proxy.js';
+import type { Proxy as ProxyService } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as util from '/@/util.js';
 
@@ -226,6 +227,16 @@ const fakeContainerInspectInfo: Dockerode.ContainerInspectInfo = {
     MacAddress: '',
     Networks: {},
     Node: undefined,
+  },
+};
+
+const fakeContainerInspectInfoWithPortBindings: Dockerode.ContainerInspectInfo = {
+  ...fakeContainerInspectInfo,
+  HostConfig: {
+    ...fakeContainerInspectInfo.HostConfig,
+    PortBindings: {
+      '80/tcp': [{ HostIp: '127.0.0.1', HostPort: '8080' }],
+    },
   },
 };
 
@@ -440,11 +451,11 @@ beforeEach(() => {
     init: vi.fn(),
     getAllCertificates: vi.fn(),
   } as unknown as Certificates;
-  const proxy: Proxy = {
+  const proxy: ProxyService = {
     onDidStateChange: vi.fn(),
     onDidUpdateProxy: vi.fn(),
     isEnabled: vi.fn(),
-  } as unknown as Proxy;
+  } as unknown as ProxyService;
 
   const imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
   containerRegistry = new TestContainerProviderRegistry(apiSender, configurationRegistry, imageRegistry, telemetry);
@@ -4492,6 +4503,89 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
   });
 });
 
+describe('replicatePodmanContainer into a pod', () => {
+  function addPodReplicationProvider(): MockInstance<LibPod['createPodmanContainer']> {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' }) as Dockerode & LibPod;
+    const sourceContainer = new Dockerode.Container(undefined, 'container-id');
+    vi.spyOn(sourceContainer, 'inspect').mockResolvedValue(fakeContainerInspectInfoWithPortBindings);
+    vi.spyOn(dockerAPI, 'getContainer').mockReturnValue(sourceContainer);
+
+    const createPodmanContainerMock = vi
+      .spyOn(dockerAPI, 'createPodmanContainer')
+      .mockResolvedValue({ Id: 'new-container', Warnings: [] });
+    const provider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: { socketPath: '/tmp/podman.sock' },
+        status: () => 'started',
+      },
+    };
+    containerRegistry.addInternalProvider('podman1', provider);
+
+    return createPodmanContainerMock;
+  }
+
+  test('does not copy published ports from the source container', async () => {
+    const createPodmanContainerMock = addPodReplicationProvider();
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      { pod: 'pod-id', name: 'container-in-pod' },
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith({
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+      pod: 'pod-id',
+      name: 'container-in-pod',
+    });
+  });
+
+  test.each([
+    {
+      name: 'one explicitly selected port',
+      portmappings: [{ container_port: 80, host_port: 8081, host_ip: '127.0.0.1', protocol: 'tcp' }],
+    },
+    {
+      name: 'multiple explicitly selected ports',
+      portmappings: [
+        { container_port: 80, host_port: 8081, host_ip: '127.0.0.1', protocol: 'tcp' },
+        { container_port: 443, host_port: 8443, host_ip: '', protocol: 'tcp' },
+      ],
+    },
+  ])('preserves $name supplied for a pod', async ({ portmappings }) => {
+    const createPodmanContainerMock = addPodReplicationProvider();
+
+    await containerRegistry.replicatePodmanContainer(
+      { engineId: 'podman1', id: 'container-id' },
+      { engineId: 'podman1' },
+      { pod: 'pod-id', name: 'container-in-pod', portmappings },
+    );
+
+    expect(createPodmanContainerMock).toHaveBeenCalledWith({
+      command: fakeContainerInspectInfo.Config.Cmd,
+      entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+      env: {},
+      image: fakeContainerInspectInfo.Config.Image,
+      mounts: fakeContainerInspectInfo.Mounts,
+      volumes: [],
+      pod: 'pod-id',
+      name: 'container-in-pod',
+      portmappings,
+    });
+  });
+});
+
 test('test that pushManifest does not error', async () => {
   const pushManifestMock = vi.fn();
 
@@ -7234,11 +7328,11 @@ describe('ContainerRegistrySettings', () => {
       registerConfigurations: registerConfigurationsMock,
     } as unknown as ConfigurationRegistry;
 
-    const proxy: Proxy = {
+    const proxy: ProxyService = {
       onDidStateChange: vi.fn(),
       onDidUpdateProxy: vi.fn(),
       isEnabled: vi.fn(),
-    } as unknown as Proxy;
+    } as unknown as ProxyService;
 
     const imageRegistry = new ImageRegistry(
       {} as ApiSenderType,

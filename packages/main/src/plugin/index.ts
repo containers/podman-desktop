@@ -2509,6 +2509,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'extension-loader:setExtensionAutoUpdate',
+      async (_listener: Electron.IpcMainInvokeEvent, extensionId: string, enabled: boolean): Promise<void> => {
+        return this.extensionLoader.setExtensionAutoUpdate(extensionId, enabled);
+      },
+    );
+
+    this.ipcHandle(
       'shell:openExternal',
       async (_listener: Electron.IpcMainInvokeEvent, link: string): Promise<void> => {
         if (securityRestrictionCurrentHandler.handler) {

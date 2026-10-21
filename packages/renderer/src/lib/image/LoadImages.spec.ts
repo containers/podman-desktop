@@ -148,7 +148,7 @@ test('Expect error shown if loadImages function fails', async () => {
     archives: ['path/file.tar'],
   });
 
-  const errorDiv = screen.getByLabelText('Error Message Content');
+  const errorDiv = screen.getByRole('alert');
   expect(errorDiv).toBeInTheDocument();
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('load failed');
 });
