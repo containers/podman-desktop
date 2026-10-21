@@ -104,11 +104,11 @@ test.afterAll(async ({ runner, page }) => {
     // this wait the next spec's beforeAll (waitForPodmanMachineStartup, 30 s)
     // races against PD startup + machine detection and can time out.
     await waitForPodmanMachineStartup(page);
-  } catch (error) {
-    console.log('Error during teardown cleanup:', error);
+  } finally {
+    // Always close the runner so subsequent suites can start a fresh instance,
+    // even when an unexpected CLI error propagates from the try block above.
+    await runner.close();
   }
-
-  await runner.close();
 });
 
 // ---------------------------------------------------------------------------
@@ -131,6 +131,16 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
 
   test('Create podman machine using airgap-embedded image', async ({ page, navigationBar }) => {
     test.setTimeout(TIMEOUT_MACHINE_CREATION + TIMEOUT_MEDIUM);
+
+    // PD shows a "set as default machine?" dialog when a non-default machine
+    // starts running (startNow: true). The modal overlays the entire page and
+    // blocks all pointer events — including the nav bar — until dismissed.
+    // Register a locator handler so Playwright auto-dismisses it whenever it
+    // appears during any subsequent action, regardless of timing.
+    const ignoreButton = page.getByRole('button', { name: 'Ignore' });
+    await page.addLocatorHandler(ignoreButton, async () => {
+      await ignoreButton.click();
+    });
 
     await test.step('Navigate to Resources and open machine creation page', async () => {
       const settingsBar = await navigationBar.openSettings();
@@ -164,25 +174,14 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
       // page once the machine starts, detaching the button before the 30 s
       // action timeout expires. Navigate back to Resources via the nav bar
       // instead, which is reliably accessible from any PD screen.
+      // The "set as default?" dialog is handled by the locator handler above.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
-
-      // PD shows a "set as default machine?" dialog when a non-default machine
-      // starts running (startNow: true). The modal overlays the entire page and
-      // blocks all pointer events — including the nav bar — until dismissed.
-      // Click Ignore: we don't need this machine to be the default, and the
-      // afterAll restores the real default machine via CLI regardless.
-      try {
-        const ignoreButton = page.getByRole('button', { name: 'Ignore' });
-        await ignoreButton.waitFor({ state: 'visible', timeout: TIMEOUT_SHORT });
-        await ignoreButton.click();
-      } catch {
-        // dialog did not appear — that is fine
-      }
-
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
     });
+
+    await page.removeLocatorHandler(ignoreButton);
   });
 
   test('Verify airgap machine reaches Running state', async ({ page, navigationBar }) => {
@@ -236,6 +235,13 @@ test.describe('Podman machine creation with externally provided image path', { t
   test('Create podman machine using externally provided image path', async ({ page, navigationBar }) => {
     test.setTimeout(TIMEOUT_MACHINE_CREATION + TIMEOUT_MEDIUM);
 
+    // Same pattern as Scenario A: register the locator handler before creation
+    // so the "set as default?" dialog is dismissed automatically at any point.
+    const ignoreButton = page.getByRole('button', { name: 'Ignore' });
+    await page.addLocatorHandler(ignoreButton, async () => {
+      await ignoreButton.click();
+    });
+
     await test.step('Navigate to Resources and open machine creation page', async () => {
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
@@ -262,23 +268,13 @@ test.describe('Podman machine creation with externally provided image path', { t
     });
 
     await test.step('Wait for machine creation to complete', async () => {
-      // Same pattern as Scenario A: wait for goBackButton to be enabled as the
-      // creation-done signal, dismiss the "set as default?" dialog if present,
-      // then navigate to Resources via the nav bar.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
-
-      try {
-        const ignoreButton = page.getByRole('button', { name: 'Ignore' });
-        await ignoreButton.waitFor({ state: 'visible', timeout: TIMEOUT_SHORT });
-        await ignoreButton.click();
-      } catch {
-        // dialog did not appear — that is fine
-      }
-
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
     });
+
+    await page.removeLocatorHandler(ignoreButton);
   });
 
   test('Verify externally-imaged machine reaches Running state', async ({ page, navigationBar }) => {
