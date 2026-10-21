@@ -112,7 +112,6 @@ export class PodmanRemoteSshTunnel {
           // Create a connection to the remote socket via SSH
           this.#client?.openssh_forwardOutStreamLocal(this.remotePath, (err, remoteSocket) => {
             if (err) {
-              this.#error = err.message;
               localSocket.end();
               return;
             }
@@ -139,14 +138,12 @@ export class PodmanRemoteSshTunnel {
 
             // Handle local socket error
             localSocket.on('error', err => {
-              this.#error = err.message;
               console.error('Podman ssh tunnel local socket error using configuration', this.#sshConfig, err);
               remoteSocket.end();
             });
 
             // Handle remote socket error
             remoteSocket.on('error', (err: unknown) => {
-              this.#error = getErrorMessage(err);
               console.error('Podman ssh tunnel remote socket error using configuration', this.#sshConfig, err);
               localSocket.end();
             });
@@ -171,19 +168,16 @@ export class PodmanRemoteSshTunnel {
       this.#error = err.message;
       console.error('SSH connection error:', err);
       this.#status = 'unknown';
-      this.#server?.close();
-      this.#server = undefined;
-      this.#listening = false;
+      this.#closeServer();
       this.handleReconnect();
     });
 
+    // ssh2 emits 'end' and 'close' after 'error', so keep any more specific error already set
     this.#client.on('end', () => {
       this.#status = 'stopped';
       if (this.#reconnect) {
-        this.#error = 'SSH connection ended unexpectedly';
-        this.#server?.close();
-        this.#server = undefined;
-        this.#listening = false;
+        this.#error ??= 'SSH connection ended unexpectedly';
+        this.#closeServer();
       }
       this.handleReconnect();
     });
@@ -191,13 +185,17 @@ export class PodmanRemoteSshTunnel {
     this.#client.on('close', () => {
       this.#status = 'stopped';
       if (this.#reconnect) {
-        this.#error = 'SSH connection closed unexpectedly';
-        this.#server?.close();
-        this.#server = undefined;
-        this.#listening = false;
+        this.#error ??= 'SSH connection closed unexpectedly';
+        this.#closeServer();
       }
       this.handleReconnect();
     });
+  }
+
+  #closeServer(): void {
+    this.#server?.close();
+    this.#server = undefined;
+    this.#listening = false;
   }
 
   handleReconnect(): void {
@@ -228,14 +226,4 @@ export class PodmanRemoteSshTunnel {
   protected isListening(): boolean {
     return this.#listening;
   }
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === 'object' && error && 'message' in error) {
-    return String(error.message);
-  }
-  return String(error);
 }
