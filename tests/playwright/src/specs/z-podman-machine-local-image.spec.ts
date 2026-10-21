@@ -166,6 +166,20 @@ test.describe('Podman machine creation with airgap-embedded image', { tag: ['@pd
       // instead, which is reliably accessible from any PD screen.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
+
+      // PD shows a "set as default machine?" dialog when a non-default machine
+      // starts running (startNow: true). The modal overlays the entire page and
+      // blocks all pointer events — including the nav bar — until dismissed.
+      // Click Ignore: we don't need this machine to be the default, and the
+      // afterAll restores the real default machine via CLI regardless.
+      try {
+        const ignoreButton = page.getByRole('button', { name: 'Ignore' });
+        await ignoreButton.waitFor({ state: 'visible', timeout: TIMEOUT_SHORT });
+        await ignoreButton.click();
+      } catch {
+        // dialog did not appear — that is fine
+      }
+
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
     });
@@ -249,9 +263,19 @@ test.describe('Podman machine creation with externally provided image path', { t
 
     await test.step('Wait for machine creation to complete', async () => {
       // Same pattern as Scenario A: wait for goBackButton to be enabled as the
-      // creation-done signal, then navigate to Resources via the nav bar.
+      // creation-done signal, dismiss the "set as default?" dialog if present,
+      // then navigate to Resources via the nav bar.
       const creationPage = new PodmanOnboardingPage(page);
       await playExpect(creationPage.goBackButton).toBeEnabled({ timeout: TIMEOUT_MACHINE_CREATION });
+
+      try {
+        const ignoreButton = page.getByRole('button', { name: 'Ignore' });
+        await ignoreButton.waitFor({ state: 'visible', timeout: TIMEOUT_SHORT });
+        await ignoreButton.click();
+      } catch {
+        // dialog did not appear — that is fine
+      }
+
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
     });
