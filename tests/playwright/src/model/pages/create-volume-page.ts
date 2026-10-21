@@ -29,6 +29,7 @@ export class CreateVolumePage extends BasePage {
   readonly doneButton: Locator;
   readonly closeButton: Locator;
   readonly createVolumeButton: Locator;
+  readonly providerChoice: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -40,11 +41,20 @@ export class CreateVolumePage extends BasePage {
     this.doneButton = this.page.getByRole('button', { name: 'Done' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
     this.createVolumeButton = this.page.getByRole('button', { name: 'Create' });
+    this.providerChoice = this.page.getByLabel('Provider Choice');
   }
 
-  async createVolume(name: string): Promise<VolumesPage> {
+  async selectContainerEngine(connectionName: string): Promise<void> {
+    return test.step(`Select container engine: ${connectionName}`, async () => {
+      await playExpect(this.providerChoice).toBeVisible();
+      await this.providerChoice.selectOption({ label: connectionName });
+    });
+  }
+
+  async createVolume(name: string, connectionName?: string): Promise<VolumesPage> {
     return test.step(`Create volume ${name}`, async () => {
       await this.volumeNameBox.fill(name);
+      if (connectionName) await this.selectContainerEngine(connectionName);
       await playExpect(this.createVolumeButton).toBeEnabled();
       await this.createVolumeButton.click();
       await playExpect(this.doneButton).toBeEnabled({ timeout: 30000 });
