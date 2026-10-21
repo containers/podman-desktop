@@ -51,7 +51,12 @@ export class PodmanKubePlayPage extends BasePage {
     this.customYamlEditor = page.locator('#custom-yaml-editor');
     this.playButton = page.getByRole('button', { name: 'Play' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
-    this.alertMessage = this.page.getByLabel('Error Message Content');
+    // The Monaco editor renders its own empty role=alert nodes (.monaco-alert), so exclude them.
+    // ErrorMessage and WarningMessage both render an unnamed role=alert, so only the text tells them apart.
+    // Update this filter if that warning's wording changes or another warning is added
+    this.alertMessage = this.page
+      .locator('[role="alert"]:not(.monaco-alert)')
+      .filter({ hasNotText: 'created but failed to start' });
     this.buildCheckbox = page.getByRole('checkbox', { name: 'Enable build' }).locator('..');
     this.replaceCheckbox = page.getByRole('checkbox', { name: 'Replace' }).locator('..');
   }

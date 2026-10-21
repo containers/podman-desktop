@@ -211,7 +211,7 @@ test('Expect error message dispayed if saveImages fails', async () => {
 
   await userEvent.click(saveButtonAfterSelection);
 
-  const errorDiv = screen.getByLabelText('Error Message Content');
+  const errorDiv = screen.getByRole('alert');
 
   expect(vi.mocked(window.saveImages)).toBeCalledWith({
     images: [

@@ -41,9 +41,8 @@ export abstract class CreateClusterBasePage extends BasePage {
     this.goBackButton = this.page.getByRole('button', {
       name: 'Go back to resources',
     });
-    this.errorMessage = this.content.getByRole('alert', {
-      name: 'Error Message Content',
-    });
+    // AuditMessageBox alerts carry an aria-label (error/warning/info); ErrorMessage's has none
+    this.errorMessage = this.content.locator('[role="alert"]:not([aria-label])');
   }
 
   async createCluster(timeout: number = 300_000): Promise<void> {

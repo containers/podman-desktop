@@ -41,7 +41,7 @@ export class ProxyPage extends SettingsPage {
     this.httpProxy = this.content.getByRole('textbox').and(this.content.locator('#httpProxy'));
     this.httpsProxy = this.content.getByRole('textbox').and(this.content.locator('#httpsProxy'));
     this.noProxy = this.content.getByRole('textbox').and(this.content.locator('#noProxy'));
-    this.proxyAlert = this.content.getByRole('alert', { name: 'Error Message Content' });
+    this.proxyAlert = this.content.getByRole('alert');
     this.proxyDialog = this.page.getByRole('dialog', { name: 'Proxy Settings' });
   }
 

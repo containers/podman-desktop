@@ -45,7 +45,7 @@ export class ImageEditPage extends BasePage {
     });
     this.name = name;
     this.imageTag = this.editDialog.getByLabel('imageTag');
-    this.alertDialog = page.getByLabel('Error Message Content');
+    this.alertDialog = this.editDialog.getByRole('alert');
   }
 
   async renameImage(name: string, tag = ''): Promise<ImagesPage> {

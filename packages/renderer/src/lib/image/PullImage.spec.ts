@@ -162,7 +162,7 @@ describe('PullImage', () => {
     await userEvent.click(pullImagebutton);
 
     // expect that the error message is displayed
-    const errorMessage = screen.getByRole('alert', { name: 'Error Message Content' });
+    const errorMessage = screen.getByRole('alert');
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('Image does not exists');
   });
@@ -183,7 +183,7 @@ describe('PullImage', () => {
     await userEvent.keyboard('image-does-not-exist[Enter]');
 
     // expect that the error message is displayed
-    const errorMessage = screen.getByRole('alert', { name: 'Error Message Content' });
+    const errorMessage = screen.getByRole('alert');
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('Image does not exists');
   });
@@ -203,7 +203,7 @@ describe('PullImage', () => {
     await userEvent.click(pullImagebutton);
 
     // expect that the error message is displayed
-    const errorMessage = screen.getByRole('alert', { name: 'Error Message Content' });
+    const errorMessage = screen.getByRole('alert');
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('Image does not exists');
 
@@ -292,7 +292,7 @@ describe('PullImage', () => {
     await vi.waitFor(() => {
       expect(screen.getByRole('button', { name: 'Pull image' })).toBeInTheDocument();
     });
-    expect(screen.queryByRole('alert', { name: 'Error Message Content' })).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });
 
