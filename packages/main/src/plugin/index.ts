@@ -1438,7 +1438,33 @@ export class PluginSystem {
           cancellationTokenRegistry,
           cancellableTokenId,
         );
-        return containerProviderRegistry.updateImages(images, abortController?.signal);
+        const task = taskManager.createTask({
+          title: `Updating image${images.length > 1 ? 's' : ''}`,
+          cancellable: cancellableTokenId !== undefined,
+          cancellationTokenSourceId: cancellableTokenId,
+        });
+
+        try {
+          const results = await containerProviderRegistry.updateImages(images, abortController?.signal);
+          const summary = results.map(result => `${result.imageRef}: ${result.message}`).join('; ');
+          task.name = `Image update: ${summary || 'No images updated'}`;
+          const failures = results.filter(result => result.status === 'error');
+          if (abortController?.signal.aborted) {
+            task.status = 'canceled';
+          } else if (failures.length > 0) {
+            task.error = failures.map(result => `${result.imageRef}: ${result.message}`).join('\n');
+          } else {
+            task.status = 'success';
+          }
+          return results;
+        } catch (error: unknown) {
+          if (abortController?.signal.aborted) {
+            task.status = 'canceled';
+          } else {
+            task.error = String(error);
+          }
+          throw error;
+        }
       },
     );
 
