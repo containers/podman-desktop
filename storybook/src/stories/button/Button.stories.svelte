@@ -43,6 +43,7 @@ const { Story } = defineMeta({
 
 type ButtonVariant = {
   name: string;
+  lang?: string;
   args: Record<string, unknown>;
 };
 
@@ -80,16 +81,13 @@ const iconVariants: ButtonVariant[] = [
   { name: 'Link With Icon', args: { type: 'link', content: 'More details', icon: faArrowUpRightFromSquare } },
   { name: 'Icon Only', args: { type: 'primary', icon: faTrash, 'aria-label': 'Delete' } },
   { name: 'Icon Only Secondary', args: { type: 'secondary', icon: faPlusCircle, 'aria-label': 'Add' } },
-  { name: 'Icon Only With Title', args: { type: 'primary', icon: faPlusCircle, title: 'Add build argument' } },
+  {
+    name: 'Icon Only With Tooltip',
+    args: { type: 'primary', icon: faPlusCircle, 'aria-label': 'Add build argument', title: 'Add build argument' },
+  },
   {
     name: 'Disabled Icon Only',
-    args: {
-      type: 'secondary',
-      icon: faPlusCircle,
-      disabled: true,
-      title: 'Cannot add more items',
-      'aria-label': 'Add item',
-    },
+    args: { type: 'secondary', icon: faPlusCircle, disabled: true, 'aria-label': 'Add item' },
   },
 ];
 
@@ -126,10 +124,6 @@ const patternVariants: ButtonVariant[] = [
     name: 'Custom Padding Compact',
     args: { type: 'primary', content: 'Update to v1.2.3', padding: 'px-3 py-0.5', icon: faRocket },
   },
-  {
-    name: 'Disabled With Validation',
-    args: { type: 'primary', content: 'Submit', disabled: true, title: 'Form contains invalid fields' },
-  },
   { name: 'Loading Installation', args: { type: 'primary', content: 'Install', icon: faRocket, inProgress: true } },
   { name: 'Loading Pull', args: { type: 'primary', content: 'Pull image', icon: faArrowCircleDown, inProgress: true } },
   { name: 'With Margin Right', args: { type: 'secondary', content: 'Cancel', class: 'mr-3' } },
@@ -143,23 +137,32 @@ const edgeVariants: ButtonVariant[] = [
     name: 'Very Long Text',
     args: { type: 'primary', content: 'This is a button with very long text that might wrap or overflow' },
   },
-  { name: 'Empty Text With Icon', args: { type: 'primary', icon: faTrash } },
   { name: 'Hidden Button', args: { type: 'primary', content: 'Hidden', hidden: true } },
   { name: 'Custom Class', args: { type: 'primary', content: 'Custom Class', class: 'opacity-50 hover:opacity-100' } },
   {
     name: 'Custom Aria Label',
-    args: { type: 'primary', content: 'Button', 'aria-label': 'Custom accessible label for screen readers' },
+    args: { type: 'danger', content: 'Delete', icon: faTrash, 'aria-label': 'Delete container web-1' },
   },
   {
     name: 'All Props',
     args: {
       type: 'primary',
-      content: 'All Props',
-      icon: faBell,
-      title: 'This is a tooltip',
-      'aria-label': 'Accessible label',
+      content: 'Pull image',
+      icon: faArrowCircleDown,
+      title: 'Pull the image from its registry',
+      'aria-label': 'Pull image quay.io/podman/hello',
       class: 'custom-class',
     },
+  },
+  {
+    name: 'Long Label (German)',
+    lang: 'de',
+    args: { type: 'primary', content: 'Alle nicht verwendeten Images entfernen', icon: faTrash },
+  },
+  {
+    name: 'Long Label (Finnish)',
+    lang: 'fi',
+    args: { type: 'secondary', content: 'Poista kaikki käyttämättömät levykuvat' },
   },
 ];
 
@@ -187,8 +190,23 @@ const toggleVariants: ButtonVariant[] = [
   { name: 'Toggle Disabled Pressed', args: { type: 'secondary', content: 'Filter', pressed: true, disabled: true } },
 ];
 
+const rtlVariants: ButtonVariant[] = [
+  { name: 'Primary With Icon', lang: 'ar', args: { type: 'primary', content: 'سحب الصورة', icon: faArrowCircleDown } },
+  {
+    name: 'Link With Icon',
+    lang: 'ar',
+    args: { type: 'link', content: 'مزيد من التفاصيل', icon: faArrowUpRightFromSquare },
+  },
+  {
+    name: 'Loading With Icon',
+    lang: 'ar',
+    args: { type: 'primary', content: 'تثبيت', icon: faRocket, inProgress: true },
+  },
+  { name: 'Icon Only', lang: 'ar', args: { type: 'secondary', icon: faPlusCircle, 'aria-label': 'إضافة' } },
+];
+
 // biome-ignore lint/correctness/noUnusedVariables: used in markup
-const groupKinds: Record<string, { label: string; variants: ButtonVariant[] }> = {
+const groupKinds: Record<string, { label: string; variants: ButtonVariant[]; dir?: 'ltr' | 'rtl' }> = {
   basic: { label: 'Basic Types', variants: basicVariants },
   states: { label: 'States', variants: stateVariants },
   icons: { label: 'Icons', variants: iconVariants },
@@ -197,19 +215,27 @@ const groupKinds: Record<string, { label: string; variants: ButtonVariant[] }> =
   edges: { label: 'Edge Cases', variants: edgeVariants },
   toggles: { label: 'Toggle Buttons', variants: toggleVariants },
   tabs: { label: 'Tabs', variants: tabVariants },
+  rtl: { label: 'Right-to-Left', variants: rtlVariants, dir: 'rtl' },
 };
 </script>
 
 {#snippet template({ ...args })}
   {#if args.kind && groupKinds[args.kind]}
-    <div class="bg-(--pd-content-card-bg) p-4">
+    <div class="bg-(--pd-content-card-bg) p-4" dir={groupKinds[args.kind].dir}>
       <div class="flex flex-col gap-4">
         <div class="text-sm font-semibold text-(--pd-content-header)">{groupKinds[args.kind].label}</div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {#each groupKinds[args.kind].variants as variant (variant.name)}
             <div class="flex flex-col gap-2">
               <div class="text-xs text-(--pd-content-text)">{variant.name}</div>
-              <Button {...variant.args}>{variant.args.content}</Button>
+              <!-- An empty body still counts as children, which would hide a missing aria-label on icon-only buttons -->
+              <div class="contents" lang={variant.lang}>
+                {#if variant.args.content}
+                  <Button {...variant.args}>{variant.args.content}</Button>
+                {:else}
+                  <Button {...variant.args} />
+                {/if}
+              </div>
             </div>
           {/each}
         </div>
@@ -230,3 +256,4 @@ const groupKinds: Record<string, { label: string; variants: ButtonVariant[] }> =
 <Story name="Edge Cases" args={{ kind: 'edges' }} />
 <Story name="Toggle Buttons" args={{ kind: 'toggles' }} />
 <Story name="Tabs" args={{ kind: 'tabs' }} />
+<Story name="RTL" args={{ kind: 'rtl' }} />
