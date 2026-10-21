@@ -1,0 +1,189 @@
+#
+# Copyright (C) 2026 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Full E2E test suite on Windows, triggered on demand via the
+# 'area/e2e-full' label.
+#
+# HOW IT WORKS
+# ─────────────────────────────────────────────────────────────────────────────
+# • This workflow fires ONLY when the 'area/e2e-full' label is added to a PR
+#   (pull_request types: [labeled]).  Pushing a new commit does NOT re-trigger
+#   it — only explicitly removing and re-adding the label does.
+#
+# • concurrency cancel-in-progress: false means that if the label is re-added
+#   while a run is already in progress, the new run is queued rather than
+#   cancelling the running one.  The running job finishes; the queued run
+#   starts afterwards.
+#
+# • This workflow is intentionally NOT a required status check.  A PR can merge
+#   without it passing.  Teams use it for targeted cross-platform validation
+#   on PRs that touch platform-specific behaviour.
+#
+# WHO CAN ADD THE LABEL
+# ─────────────────────────────────────────────────────────────────────────────
+# GitHub restricts label management to repo collaborators (Write permission or
+# higher).  External contributors cannot add labels to their own PRs; a
+# maintainer or triager must add 'area/e2e-full' to trigger this workflow.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: e2e-full-pr
+
+on:
+  # pull_request_target is used so that the workflow always runs in the
+  # context of the base (upstream) repo, giving it full access to its
+  # secrets — including PODMANDESKTOP_CI_BOT_TOKEN — even when the PR
+  # originates from a fork.  It is safe here because the workflow never
+  # checks out or executes any code from the PR branch.
+  pull_request_target:
+    types: [labeled]
+
+# Separate concurrency group from pr-check so this workflow never cancels or
+# is cancelled by the standard PR check suite.
+# cancel-in-progress: false — do NOT cancel a running job if the label is
+# re-added while a run is already active; queue the new run instead.
+# (Pushes never re-trigger this workflow — only a label event does.)
+concurrency:
+  group: e2e-full-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ─── Windows (HyperV) ────────────────────────────────────────────────────
+  # Dispatches podman-desktop/e2e → podman-desktop-e2e-nightly-windows-hyperv.yaml
+  # using the PR's fork and branch as the build source.
+  # Runs against the 'latest' Podman release only (not the nightly matrix)
+  # to keep PR-check cost proportionate.
+  # Waits for the dispatched run to complete (Option A) so the PR check
+  # reflects the actual E2E result rather than just a successful dispatch.
+  trigger-windows-hyperv-e2e:
+    if: github.event.label.name == 'area/e2e-full'
+    name: trigger windows HyperV full e2e tests
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Check token availability
+        env:
+          TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
+        run: |
+          if [ -z "${TOKEN}" ]; then
+            echo "::error::PODMANDESKTOP_CI_BOT_TOKEN is not available."
+            echo "This workflow dispatches cross-repo and requires a bot token."
+            echo "GitHub does not pass secrets to pull_request workflows from forks."
+            echo "Once this workflow is merged to main it will be migrated to"
+            echo "pull_request_target which has access to secrets for fork PRs too."
+            exit 1
+          fi
+
+      - name: Trigger and watch HyperV E2E workflow in podman-desktop/e2e
+        env:
+          GH_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
+          # PR context is passed through env vars rather than being interpolated
+          # directly into the script, preventing shell injection via crafted
+          # branch or fork names.
+          PR_FORK: ${{ github.event.pull_request.head.repo.owner.login }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # Record timestamp before dispatch so we can identify exactly this run
+          # even if another PR dispatches the same workflow concurrently.
+          DISPATCH_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          gh workflow run podman-desktop-e2e-nightly-windows-hyperv.yaml \
+            --repo podman-desktop/e2e \
+            -f repo_branch="FORK=${PR_FORK},BRANCH=${PR_BRANCH}" \
+            -f npm_target="test:e2e" \
+            -f env_vars="TEST_PODMAN_MACHINE=true" \
+            -f podman_version="latest" \
+            -f podman_provider="hyperv"
+          # Poll until the run created at or after our dispatch timestamp appears
+          # (up to 60 s).  This avoids watching a concurrent or stale run.
+          RUN_ID=""
+          for i in $(seq 1 12); do
+            RUN_ID=$(gh run list \
+              --repo podman-desktop/e2e \
+              --workflow podman-desktop-e2e-nightly-windows-hyperv.yaml \
+              --limit 5 --json databaseId,createdAt \
+              | jq -r --arg ts "${DISPATCH_TIME}" \
+              '[.[] | select(.createdAt >= $ts)] | first | .databaseId // empty')
+            [ -n "${RUN_ID}" ] && break
+            sleep 5
+          done
+          if [ -z "${RUN_ID}" ]; then
+            echo "::error::Could not find the dispatched HyperV run after 60 s."
+            exit 1
+          fi
+          echo "Triggered HyperV run ID: ${RUN_ID}"
+          gh run watch "${RUN_ID}" --repo podman-desktop/e2e --exit-status
+
+  # ─── Windows (WSL) ───────────────────────────────────────────────────────
+  # Dispatches podman-desktop/e2e → podman-desktop-e2e-nightly-windows-wsl.yaml
+  trigger-windows-wsl-e2e:
+    if: github.event.label.name == 'area/e2e-full'
+    name: trigger windows WSL full e2e tests
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Check token availability
+        env:
+          TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
+        run: |
+          if [ -z "${TOKEN}" ]; then
+            echo "::error::PODMANDESKTOP_CI_BOT_TOKEN is not available."
+            echo "This workflow dispatches cross-repo and requires a bot token."
+            echo "GitHub does not pass secrets to pull_request workflows from forks."
+            echo "Once this workflow is merged to main it will be migrated to"
+            echo "pull_request_target which has access to secrets for fork PRs too."
+            exit 1
+          fi
+
+      - name: Trigger and watch WSL E2E workflow in podman-desktop/e2e
+        env:
+          GH_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
+          # PR context is passed through env vars rather than being interpolated
+          # directly into the script, preventing shell injection via crafted
+          # branch or fork names.
+          PR_FORK: ${{ github.event.pull_request.head.repo.owner.login }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # Record timestamp before dispatch so we can identify exactly this run
+          # even if another PR dispatches the same workflow concurrently.
+          DISPATCH_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          gh workflow run podman-desktop-e2e-nightly-windows-wsl.yaml \
+            --repo podman-desktop/e2e \
+            -f repo_branch="FORK=${PR_FORK},BRANCH=${PR_BRANCH}" \
+            -f npm_target="test:e2e" \
+            -f env_vars='TEST_PODMAN_MACHINE="true",CLI_TOOLS="all"' \
+            -f podman_version="latest" \
+            -f podman_provider="wsl"
+          # Poll until the run created at or after our dispatch timestamp appears
+          # (up to 60 s).  This avoids watching a concurrent or stale run.
+          RUN_ID=""
+          for i in $(seq 1 12); do
+            RUN_ID=$(gh run list \
+              --repo podman-desktop/e2e \
+              --workflow podman-desktop-e2e-nightly-windows-wsl.yaml \
+              --limit 5 --json databaseId,createdAt \
+              | jq -r --arg ts "${DISPATCH_TIME}" \
+              '[.[] | select(.createdAt >= $ts)] | first | .databaseId // empty')
+            [ -n "${RUN_ID}" ] && break
+            sleep 5
+          done
+          if [ -z "${RUN_ID}" ]; then
+            echo "::error::Could not find the dispatched WSL run after 60 s."
+            exit 1
+          fi
+          echo "Triggered WSL run ID: ${RUN_ID}"
+          gh run watch "${RUN_ID}" --repo podman-desktop/e2e --exit-status
+
