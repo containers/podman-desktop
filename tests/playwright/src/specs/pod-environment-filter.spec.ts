@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { ResourceElementState } from '/@/model/core/states';
-import type { ContainerInteractiveParams } from '/@/model/core/types';
+import { type ContainerInteractiveParams, PodmanVirtualizationProviders } from '/@/model/core/types';
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
@@ -49,8 +49,10 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.describe
   .serial('Verification of pod filtering by environment', { tag: '@pdmachine' }, () => {
     test.skip(
-      isLinux || process.env.TEST_PODMAN_MACHINE !== 'true',
-      'Test suite requires a second Podman machine and should only run when TEST_PODMAN_MACHINE is true',
+      isLinux ||
+        process.env.TEST_PODMAN_MACHINE !== 'true' ||
+        getVirtualizationProvider() === PodmanVirtualizationProviders.HyperV,
+      'Test suite requires a second Podman machine; skipped on Linux, when TEST_PODMAN_MACHINE is not set, or when running with Hyper-V (only one Podman machine allowed)',
     );
 
     test.beforeAll(async ({ page }) => {
