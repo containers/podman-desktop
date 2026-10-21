@@ -16,3 +16,13 @@ repository (or from another issue tracker). -->
 do not forget to provide unit/component tests -->
 
 - [ ] Tests are covering the bug fix or the new feature
+
+### AI usage (optional)
+
+<!-- Optional disclosure: if an AI model assisted in creating this pull request,
+you may check the box and name the model(s) used. Leaving this section untouched
+is perfectly fine. -->
+
+- [ ] This pull request was created with the assistance of an AI model
+
+Model(s) used (optional): <!-- e.g. Claude Opus 5.5, GPT Sol 5.1 -->
