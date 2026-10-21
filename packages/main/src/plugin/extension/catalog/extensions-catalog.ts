@@ -166,7 +166,7 @@ export class ExtensionsCatalog {
               };
             })
             // newest version first, whatever the order in the catalog
-            .sort((a, b) => this.compareVersionsNewestFirst(a.version, b.version)),
+            .toSorted((a, b) => this.compareVersionsNewestFirst(a.version, b.version)),
         };
       });
     }
