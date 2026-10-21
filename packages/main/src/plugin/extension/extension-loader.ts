@@ -130,7 +130,7 @@ export interface AnalyzedExtensionWithApi extends AnalyzedExtension {
  */
 @injectable()
 export class ExtensionLoader implements IAsyncDisposable {
-  static readonly AUTO_UPDATE_DISABLED_KEY =
+  private static readonly AUTO_UPDATE_DISABLED_KEY =
     `${ExtensionLoaderSettings.SectionName}.${ExtensionLoaderSettings.AutoUpdateDisabled}`;
 
   private moduleLoader: ModuleLoader;
