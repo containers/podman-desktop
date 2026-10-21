@@ -23,4 +23,5 @@ export enum ExtensionLoaderSettings {
   MaxActivationTime = 'maxActivationTime',
   Disabled = 'disabled',
   DevelopmentMode = 'developmentMode',
+  AutoUpdateDisabled = 'autoUpdateDisabled',
 }

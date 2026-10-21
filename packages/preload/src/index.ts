@@ -1775,6 +1775,13 @@ export function initExposure(): void {
     return ipcInvoke('extension-loader:ensureExtensionIsEnabled', extensionId);
   });
 
+  contextBridge.exposeInMainWorld(
+    'setExtensionAutoUpdate',
+    async (extensionId: string, enabled: boolean): Promise<void> => {
+      return ipcInvoke('extension-loader:setExtensionAutoUpdate', extensionId, enabled);
+    },
+  );
+
   contextBridge.exposeInMainWorld('openExternal', async (link: string): Promise<void> => {
     return ipcInvoke('shell:openExternal', link);
   });

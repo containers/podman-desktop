@@ -4,6 +4,7 @@ import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 import type { ExtensionDetailsUI } from './extension-details-ui';
+import ExtensionAutoUpdate from './ExtensionAutoUpdate.svelte';
 import ExtensionDetailsSummaryCardEntry from './InstalledExtensionDetailsSummaryCardEntry.svelte';
 
 interface Props {
@@ -32,6 +33,10 @@ const hasResources = $derived(Boolean(repositoryUrl) || Boolean(extensionDetails
   <div
     class="bg-[var(--pd-details-card-bg)] lg:w-40 h-fit lg:ml-4 p-4 rounded-md flex flex-row lg:flex-col w-full space-x-4 lg:space-x-0">
     <ExtensionDetailsSummaryCardEntry label="version" value={extensionDetails.version} />
+
+    {#if extensionDetails.installedExtension}
+      <ExtensionAutoUpdate extension={extensionDetails.installedExtension} />
+    {/if}
 
     <ExtensionDetailsSummaryCardEntry label="released" value={extensionDetails.releaseDate} />
 
