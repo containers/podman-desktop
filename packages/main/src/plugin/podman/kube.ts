@@ -21,7 +21,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { loadAll } from 'js-yaml';
-import type { Pack } from 'tar-fs';
+import type { Headers, Pack } from 'tar-fs';
 import tar from 'tar-fs';
 
 /**
@@ -138,6 +138,13 @@ export class KubePlayContext {
     return tar.pack(this.#context, {
       finalize: false,
       entries: Array.from(this.#buildContexts.keys()),
+      // reset ownership to root: the host uid/gid may not fit in the tar header or be mapped in the user namespace
+      // https://github.com/podman-container-tools/podman/blob/54ba3be4c02d386160ddef59086b6f9acd9be26d/pkg/bindings/images/build.go#L1233
+      map: (header: Headers): Headers => {
+        header.uid = 0;
+        header.gid = 0;
+        return header;
+      },
       finish(stream: Pack): void {
         // inside the tar we need a play.yaml file as per spec
         // https://docs.podman.io/en/latest/_static/api.html#tag/containers/operation/PlayKubeLibpod
