@@ -66,8 +66,14 @@ async function resolveShortname(): Promise<void> {
     return;
   }
   if (imageToPull && !imageToPull.includes('/')) {
-    shortnameImages =
-      (await window.resolveShortnameImage($state.snapshot(selectedProviderConnection), imageToPull)) ?? [];
+    shortnameImages = [];
+    try {
+      shortnameImages =
+        (await window.resolveShortnameImage($state.snapshot(selectedProviderConnection), imageToPull)) ?? [];
+    } catch (error: unknown) {
+      // the engine rejects a name it cannot parse, such as ':', and is unreachable when its machine is stopped
+      console.debug(`Could not resolve shortname '${imageToPull}':`, error);
+    }
     // not a shortname
   } else {
     podmanFQN = '';

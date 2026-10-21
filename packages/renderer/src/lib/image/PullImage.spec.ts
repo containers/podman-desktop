@@ -68,6 +68,7 @@ const PROVIDER_INFO_MOCK: ProviderInfo = {
 } as unknown as ProviderInfo;
 
 const originalConsoleError = console.error;
+const originalConsoleDebug = console.debug;
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -85,6 +86,7 @@ beforeEach(() => {
     return undefined;
   });
   console.error = vi.fn();
+  console.debug = vi.fn();
   vi.mocked(window.resolveShortnameImage).mockResolvedValue(['docker.io/test1']);
   vi.mocked(window.getCancellableTokenSource).mockResolvedValue(1234);
   vi.mocked(window.cancelToken).mockResolvedValue(undefined);
@@ -98,6 +100,7 @@ beforeEach(() => {
 
 afterEach(() => {
   console.error = originalConsoleError;
+  console.debug = originalConsoleDebug;
 });
 
 const buttonText = 'Pull image';
@@ -765,4 +768,39 @@ test('Expect Close button to navigate to last page when clicked', async () => {
   await userEvent.click(closeButton);
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/images');
+});
+
+describe('image name the engine cannot parse', () => {
+  test('should report the engine error when pulling a name it cannot parse', async () => {
+    vi.mocked(window.pullImage).mockRejectedValue(new Error('invalid reference format'));
+    render(PullImage);
+
+    await userEvent.keyboard('.[Enter]');
+
+    const errorMessage = await screen.findByRole('alert', { name: 'Error Message Content' });
+    expect(errorMessage).toHaveTextContent('Error while pulling image from test: invalid reference format');
+  });
+
+  // the engine rejects a name like ':' that it cannot parse, and the rejection used to escape
+  // the onChange handler as an 'Uncaught (in promise)' error
+  test('should not leak a rejection when the engine cannot resolve the name', async () => {
+    vi.mocked(window.resolveShortnameImage).mockRejectedValue(
+      new Error('(HTTP code 400) bad parameter - resolving ":": cannot parse input: ":": invalid reference format'),
+    );
+    render(PullImage);
+
+    const textbox = screen.getByRole('textbox', { name: 'Image to pull' });
+    await userEvent.click(textbox);
+    await userEvent.paste(':');
+
+    await vi.waitFor(() => {
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Could not resolve shortname'),
+        expect.anything(),
+      );
+    });
+
+    // nothing could be resolved, so no Podman FQN is proposed
+    expect(screen.queryByRole('checkbox', { name: 'Use Podman FQN' })).not.toBeInTheDocument();
+  });
 });
