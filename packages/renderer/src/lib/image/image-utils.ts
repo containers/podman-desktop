@@ -18,6 +18,7 @@
 
 import {
   type ImageInfo,
+  type ImageUpdateResult,
   isViewContributionBadge,
   isViewContributionIcon,
   type ViewContributionBadgeValue,
@@ -253,6 +254,10 @@ export class ImageUtils {
   deleteImage(image: ImageInfoUI): Promise<void> {
     const imageId = image.name === '<none>' ? image.id : `${image.name}:${image.tag}`;
     return window.deleteImage(image.engineId, imageId);
+  }
+
+  async updateImages(images: ImageInfoUI[]): Promise<ImageUpdateResult[]> {
+    return window.updateImages(images.map(({ engineId, id }) => ({ engineId, id })));
   }
 
   getImageInfoUI(
