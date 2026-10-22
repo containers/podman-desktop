@@ -26,6 +26,7 @@ import { PodmanCleanupWindows } from '/@/cleanup/podman-cleanup-windows';
 import { Installer } from '/@/installer/installer';
 import { MacOSInstaller } from '/@/installer/mac-os-installer';
 import { WinInstaller } from '/@/installer/win-installer';
+import { PodmanMachineLifecycle } from '/@/utils/podman-machine-lifecycle';
 import { RosettaProvisioner } from '/@/utils/rosetta';
 
 import { InversifyBinding } from './inversify-binding';
@@ -59,6 +60,16 @@ describe('inversifyBinding', () => {
 
     const value = container.get(RosettaProvisioner);
     expect(value).toBeInstanceOf(RosettaProvisioner);
+  });
+
+  test('should bind PodmanMachineLifecycle as a singleton', async () => {
+    const container: InversifyContainer = await inversifyBinding.init();
+
+    const first = container.get(PodmanMachineLifecycle);
+    const second = container.get(PodmanMachineLifecycle);
+
+    expect(first).toBeInstanceOf(PodmanMachineLifecycle);
+    expect(first).toBe(second);
   });
 
   describe('windows', () => {

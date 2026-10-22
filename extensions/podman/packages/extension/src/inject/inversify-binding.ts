@@ -42,6 +42,7 @@ import { WinInstaller } from '/@/installer/win-installer';
 import { WinPlatform } from '/@/platforms/win-platform';
 import { PodmanProvider } from '/@/providers/podman-provider';
 import { PodmanBinary } from '/@/utils/podman-binary';
+import { PodmanMachineLifecycle } from '/@/utils/podman-machine-lifecycle';
 import { PodmanWindowsLegacyInstaller } from '/@/utils/podman-windows-legacy-installer';
 import { RosettaProvisioner } from '/@/utils/rosetta';
 
@@ -66,6 +67,7 @@ export class InversifyBinding {
     this.#inversifyContainer.bind(PodmanInstall).toSelf().inSingletonScope();
     this.#inversifyContainer.bind(WinPlatform).toSelf().inSingletonScope();
     this.#inversifyContainer.bind(PodmanBinary).toSelf().inSingletonScope();
+    this.#inversifyContainer.bind(PodmanMachineLifecycle).toSelf().inSingletonScope();
 
     this.#inversifyContainer.bind(WinBitCheck).toSelf().inSingletonScope();
     this.#inversifyContainer.bind(WinVersionCheck).toSelf().inSingletonScope();
