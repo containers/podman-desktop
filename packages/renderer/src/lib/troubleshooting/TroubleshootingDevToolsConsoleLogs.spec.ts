@@ -79,7 +79,7 @@ test('Timestamps are hidden by default and shown after toggle', async () => {
   const logsList = screen.getByRole('list', { name: 'logs' });
 
   // timestamps should be hidden by default
-  expect(logsList.textContent).not.toContain('14:30:45');
+  expect(logsList.textContent).not.toContain('2026-04-29 14:30:45');
   expect(logsList.textContent).toContain('hello');
 
   // click the toggle timestamps button
@@ -90,15 +90,15 @@ test('Timestamps are hidden by default and shown after toggle', async () => {
   expect(toggleButton).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
   await fireEvent.click(toggleButton);
 
-  // timestamps should now be visible
-  expect(logsList.textContent).toContain('14:30:45');
+  // timestamps should now be visible, including the full date
+  expect(logsList.textContent).toContain('2026-04-29 14:30:45');
   expect(toggleButton).toHaveAttribute('aria-pressed', 'true');
   expect(toggleButton).toHaveClass('bg-[var(--pd-button-link-hover-bg)]');
   expect(toggleButton).toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 
   // click again to hide
   await fireEvent.click(toggleButton);
-  expect(logsList.textContent).not.toContain('14:30:45');
+  expect(logsList.textContent).not.toContain('2026-04-29 14:30:45');
   expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
   expect(toggleButton).toHaveClass('bg-[var(--pd-button-link-bg)]');
   expect(toggleButton).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
@@ -136,5 +136,7 @@ test('Clipboard includes timestamps when toggle is enabled', async () => {
   const clipboardButton = screen.getByRole('button', { name: 'Copy To Clipboard' });
   await fireEvent.click(clipboardButton);
 
-  expect(window.clipboardWriteText).toHaveBeenCalledWith('14:30:45 log : test1\n14:30:45 error : test2');
+  expect(window.clipboardWriteText).toHaveBeenCalledWith(
+    '2026-04-29 14:30:45 log : test1\n2026-04-29 14:30:45 error : test2',
+  );
 });
