@@ -638,3 +638,24 @@ test('connection names starting with a dash should never be parsed as podman opt
     'ssh://user@host/run/podman/podman.sock',
   ]);
 });
+
+test('add command should only accept ssh URIs with a host and a socket path', async () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+  vi.mocked(extensionApi.window.showInputBox).mockResolvedValueOnce('my-remote').mockResolvedValueOnce(undefined);
+
+  remoteConnections.registerCommands();
+  await getCommandHandler('podman.remote.addConnection')();
+
+  const validateInput = vi.mocked(extensionApi.window.showInputBox).mock.calls[1]?.[0]?.validateInput;
+  expect(validateInput).toBeDefined();
+
+  for (const invalid of ['', 'ssh:', 'ssh:foo', 'ssh://', 'ssh://host', 'ssh://host/', 'http://host/path']) {
+    expect(validateInput?.(invalid), invalid).toBeDefined();
+  }
+  for (const valid of ['ssh://host/run/podman/podman.sock', 'ssh://user@host:2222/run/user/1000/podman/podman.sock']) {
+    expect(validateInput?.(valid), valid).toBeUndefined();
+  }
+});

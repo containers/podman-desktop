@@ -163,7 +163,8 @@ export class PodmanRemoteConnections {
       title: 'Add a remote Podman connection',
       prompt: 'SSH URI of the Podman service',
       placeHolder: 'ssh://user@host:22/run/user/1000/podman/podman.sock',
-      validateInput: value => (this.isValidSshUri(value) ? undefined : 'Enter a valid ssh:// URI'),
+      validateInput: value =>
+        this.isValidSshUri(value) ? undefined : 'Enter an ssh:// URI with a host and a socket path',
     });
     if (!uri) {
       return;
@@ -242,7 +243,8 @@ export class PodmanRemoteConnections {
 
   protected isValidSshUri(value: string): boolean {
     try {
-      return new URL(value.trim()).protocol === 'ssh:';
+      const uri = new URL(value.trim());
+      return uri.protocol === 'ssh:' && uri.hostname !== '' && uri.pathname !== '' && uri.pathname !== '/';
     } catch {
       return false;
     }
