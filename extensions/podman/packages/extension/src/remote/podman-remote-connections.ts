@@ -102,20 +102,20 @@ export class PodmanRemoteConnections {
     if (options.isDefault) {
       args.push('--default');
     }
-    args.push(options.name, options.uri);
+    args.push('--', options.name, options.uri);
     await extensionApi.process.exec(getPodmanCli(), args);
   }
 
   async removeConnection(name: string): Promise<void> {
-    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'remove', name]);
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'remove', '--', name]);
   }
 
   async renameConnection(oldName: string, newName: string): Promise<void> {
-    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'rename', oldName, newName]);
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'rename', '--', oldName, newName]);
   }
 
   async setDefaultConnection(name: string): Promise<void> {
-    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', name]);
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', '--', name]);
   }
 
   registerCommands(): void {

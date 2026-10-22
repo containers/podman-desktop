@@ -402,6 +402,7 @@ test('addConnection should call podman system connection add with identity and d
     '--identity',
     '/home/user/.ssh/id_ed25519',
     '--default',
+    '--',
     'my-remote',
     'ssh://user@host:22/run/podman/podman.sock',
   ]);
@@ -417,6 +418,7 @@ test('addConnection should not pass identity nor default flags when not provided
     'system',
     'connection',
     'add',
+    '--',
     'my-remote',
     'ssh://user@host/run/podman/podman.sock',
   ]);
@@ -434,12 +436,14 @@ test('removeConnection, renameConnection and setDefaultConnection should call th
     'system',
     'connection',
     'remove',
+    '--',
     'a',
   ]);
   expect(extensionApi.process.exec).toHaveBeenNthCalledWith(2, expect.anything(), [
     'system',
     'connection',
     'rename',
+    '--',
     'a',
     'b',
   ]);
@@ -447,6 +451,7 @@ test('removeConnection, renameConnection and setDefaultConnection should call th
     'system',
     'connection',
     'default',
+    '--',
     'b',
   ]);
 });
@@ -494,6 +499,7 @@ test('add command should prompt for name, uri and identity then add the connecti
     'system',
     'connection',
     'add',
+    '--',
     'my-remote',
     'ssh://user@host/run/podman/podman.sock',
   ]);
@@ -551,6 +557,7 @@ test('remove command should list remote connections and remove the selected one'
     'system',
     'connection',
     'remove',
+    '--',
     'remote-1',
   ]);
 });
@@ -586,6 +593,48 @@ test('registered remote connection should expose a delete lifecycle removing the
     'system',
     'connection',
     'remove',
+    '--',
     'remote-1',
+  ]);
+});
+
+test('connection names starting with a dash should never be parsed as podman options', async () => {
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
+  const remoteConnections = new TestPodmanRemoteConnections(extensionContext, provider);
+
+  await remoteConnections.removeConnection('--all');
+  await remoteConnections.renameConnection('--all', '-n');
+  await remoteConnections.setDefaultConnection('--all');
+  await remoteConnections.addConnection({ name: '--all', uri: 'ssh://user@host/run/podman/podman.sock' });
+
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(1, expect.anything(), [
+    'system',
+    'connection',
+    'remove',
+    '--',
+    '--all',
+  ]);
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(2, expect.anything(), [
+    'system',
+    'connection',
+    'rename',
+    '--',
+    '--all',
+    '-n',
+  ]);
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(3, expect.anything(), [
+    'system',
+    'connection',
+    'default',
+    '--',
+    '--all',
+  ]);
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(4, expect.anything(), [
+    'system',
+    'connection',
+    'add',
+    '--',
+    '--all',
+    'ssh://user@host/run/podman/podman.sock',
   ]);
 });
