@@ -48,6 +48,7 @@ export class HyperVPrep {
   private readonly telemetryLogger!: TelemetryLogger;
 
   #command: Disposable | undefined;
+  #preparedThisSession = false;
 
   @postConstruct()
   async init(): Promise<void> {
@@ -116,7 +117,7 @@ export class HyperVPrep {
       console.error('Failed to run podman system hyperv-prep --status', error);
     }
 
-    context.setValue(HYPERV_PREP_NOT_APPLIED_KEY, status !== HyperVPrepStatus.APPLIED);
+    context.setValue(HYPERV_PREP_NOT_APPLIED_KEY, status !== HyperVPrepStatus.APPLIED && !this.#preparedThisSession);
     return status;
   }
 
@@ -132,6 +133,7 @@ export class HyperVPrep {
       const currentStatus = await this.getStatus();
       if (currentStatus === HyperVPrepStatus.APPLIED) {
         await window.showInformationMessage('Hyper-V preparation is already applied.');
+        await this.refreshContext();
         return;
       }
     } catch (error) {
@@ -167,7 +169,16 @@ export class HyperVPrep {
       return;
     }
 
-    this.telemetryLogger.logUsage('podman.hypervPrep');
+    this.#preparedThisSession = true;
+    const updatedStatus = await this.refreshContext();
+    this.telemetryLogger.logUsage('podman.hypervPrep', { status: updatedStatus ?? 'unknown' });
+    if (!updatedStatus) {
+      await window.showInformationMessage(
+        `Hyper-V preparation completed successfully, but the status could not be confirmed.\n\n${HYPERV_PREP_RELOGIN_MESSAGE}`,
+      );
+      return;
+    }
+
     await window.showInformationMessage(
       `Hyper-V preparation completed successfully.\n\n${HYPERV_PREP_RELOGIN_MESSAGE}`,
     );

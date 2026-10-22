@@ -54,7 +54,8 @@
       },
       {
         "command": "podman.hypervPrep",
-        "title": "Podman: Prepare Hyper-V"
+        "title": "Podman: Prepare Hyper-V",
+        "enablement": "podman.hypervPrepSupported"
       },
       {
         "command": "podman.uninstallLegacyPodmanInstaller",
@@ -486,6 +487,13 @@
       "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists && !onboardingContext:podmanRemoteConnectionExists) || podman.needPodmanMachineCleanup"
     },
     "menus": {
+      "dashboard/provider": [
+        {
+          "command": "podman.hypervPrep",
+          "title": "Prepare Hyper-V",
+          "when": "providerId === podman && podman.hypervPrepSupported && podman.hypervPrepNotApplied"
+        }
+      ],
       "dashboard/container-connection": [
         {
           "command": "podman.setupRegistry",

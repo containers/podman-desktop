@@ -323,7 +323,8 @@ describe('HyperVPrep command handler', () => {
     const callback = await setupHyperVPrepCommand();
     vi.mocked(execPodman)
       .mockResolvedValueOnce({ stdout: NEEDED_STATUS_OUTPUT, stderr: '', command: 'status' })
-      .mockResolvedValueOnce({ stdout: '', stderr: '', command: 'run' });
+      .mockResolvedValueOnce({ stdout: '', stderr: '', command: 'run' })
+      .mockResolvedValueOnce({ stdout: APPLIED_STATUS_OUTPUT, stderr: '', command: 'status' });
 
     await callback();
 
@@ -334,7 +335,7 @@ describe('HyperVPrep command handler', () => {
     );
     expect(extensionApi.window.withProgress).toHaveBeenCalled();
     expect(execPodman).toHaveBeenCalledWith(['system', 'hyperv-prep'], undefined, { isAdmin: true });
-    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('podman.hypervPrep');
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('podman.hypervPrep', { status: 'applied' });
     expect(extensionApi.window.showInformationMessage).toHaveBeenCalledWith(
       expect.stringContaining('Hyper-V preparation completed successfully.'),
     );
@@ -422,5 +423,40 @@ describe('HyperVPrep command handler', () => {
     );
     expect(telemetryLoggerMock.logError).toHaveBeenCalledWith('hypervPrepStatusCheckFailed', { error });
     expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    {
+      name: 'notApplied',
+      result: { stdout: NEEDED_STATUS_OUTPUT, stderr: '', command: 'status' },
+      status: 'notApplied',
+      message: 'Hyper-V preparation completed successfully.',
+    },
+    {
+      name: 'unavailable',
+      result: createRunError('Failed to execute command: Access denied', { stderr: 'Access denied' }),
+      status: 'unknown',
+      message: 'Hyper-V preparation completed successfully, but the status could not be confirmed.',
+    },
+  ])('reports the result accurately when refreshed status is $name', async ({ result, status, message }) => {
+    const callback = await setupHyperVPrepCommand();
+    vi.mocked(execPodman)
+      .mockResolvedValueOnce({ stdout: NEEDED_STATUS_OUTPUT, stderr: '', command: 'status' })
+      .mockResolvedValueOnce({ stdout: '', stderr: '', command: 'run' });
+
+    if (result instanceof Error) {
+      vi.mocked(execPodman).mockRejectedValueOnce(result);
+    } else {
+      vi.mocked(execPodman).mockResolvedValueOnce(result);
+    }
+
+    await callback();
+
+    expect(extensionApi.window.showInformationMessage).toHaveBeenCalledWith(expect.stringContaining(message));
+    expect(extensionApi.context.setValue).toHaveBeenLastCalledWith(HYPERV_PREP_NOT_APPLIED_KEY, false);
+    expect(extensionApi.window.showInformationMessage).toHaveBeenCalledWith(
+      expect.stringContaining(HYPERV_PREP_RELOGIN_MESSAGE),
+    );
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('podman.hypervPrep', { status });
   });
 });
