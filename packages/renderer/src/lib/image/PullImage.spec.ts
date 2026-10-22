@@ -777,7 +777,7 @@ describe('image name the engine cannot parse', () => {
 
     await userEvent.keyboard('.[Enter]');
 
-    const errorMessage = await screen.findByRole('alert', { name: 'Error Message Content' });
+    const errorMessage = await screen.findByRole('alert');
     expect(errorMessage).toHaveTextContent('Error while pulling image from test: invalid reference format');
   });
 
