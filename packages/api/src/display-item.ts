@@ -24,6 +24,12 @@ export interface DisplayItem {
    * Undefined when the item is pinnable but not currently in the main nav.
    */
   index?: number;
+  /**
+   * True when this item leads to the page currently being displayed, so hiding it would
+   * make the active page unreachable from the navigation bar. Set for the selected entry
+   * and for any group containing it.
+   */
+  active?: boolean;
 }
 
 export interface DragPayload {

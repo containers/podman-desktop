@@ -41,6 +41,12 @@ export class NavigationItemsInit {
           default: [],
           hidden: true,
         },
+        ['navbar.hideConfirmationDismissed']: {
+          description: 'Whether the user asked not to be prompted again when hiding a navigation item',
+          type: 'boolean',
+          default: false,
+          hidden: true,
+        },
       },
     };
 

@@ -40,7 +40,7 @@ test('should register a configuration', async () => {
   expect(configurationNode?.id).toBe('preferences.navBar');
   expect(configurationNode?.title).toBe('User Confirmation');
   expect(configurationNode?.properties).toBeDefined();
-  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(2);
+  expect(Object.keys(configurationNode?.properties ?? {}).length).toBe(3);
   expect(configurationNode?.properties?.['navbar.disabledItems']).toBeDefined();
   expect(configurationNode?.properties?.['navbar.disabledItems']?.description).toBe(
     'Items being disabled in the navigation bar',
@@ -54,4 +54,11 @@ test('should register a configuration', async () => {
   );
   expect(configurationNode?.properties?.['navbar.itemOrder']?.type).toStrictEqual(['array']);
   expect(configurationNode?.properties?.['navbar.itemOrder']?.default).toStrictEqual([]);
+
+  expect(configurationNode?.properties?.['navbar.hideConfirmationDismissed']).toBeDefined();
+  expect(configurationNode?.properties?.['navbar.hideConfirmationDismissed']?.description).toBe(
+    'Whether the user asked not to be prompted again when hiding a navigation item',
+  );
+  expect(configurationNode?.properties?.['navbar.hideConfirmationDismissed']?.type).toBe('boolean');
+  expect(configurationNode?.properties?.['navbar.hideConfirmationDismissed']?.default).toBe(false);
 });
