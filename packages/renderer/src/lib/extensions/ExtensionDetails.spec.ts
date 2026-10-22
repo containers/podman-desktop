@@ -240,3 +240,22 @@ test('Expect details page to update when extensionId prop changes', async () => 
     expect(screen.queryByRole('heading', { name: 'A installed Extension extension' })).not.toBeInTheDocument(),
   );
 });
+
+test('Expect to have details page for downloadable catalog extension', async () => {
+  const extensionId = 'idAInstalled';
+
+  catalogExtensionInfos.set([aFakeExtension]);
+  extensionInfos.set([]);
+
+  await waitRender({ extensionId });
+
+  const heading = screen.getByRole('heading', { name: 'A Extension extension' });
+  expect(heading).toBeInTheDocument();
+
+  const statusLabel = screen.getByLabelText('Extension Status Label');
+  expect(statusLabel).toHaveTextContent('DOWNLOADABLE');
+
+  const installText = screen.getByText('Install this extension with a single click');
+  expect(installText).toBeInTheDocument();
+});
+

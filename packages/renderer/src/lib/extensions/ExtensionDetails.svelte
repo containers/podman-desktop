@@ -38,27 +38,22 @@ let extension: ExtensionDetailsUI | undefined = $derived.by(() => {
 {#if extension}
   <DetailsPage title="{extension.displayName} extension" subtitle={extension.description} bind:this={detailsPage}>
     {#snippet iconSnippet()}
-      <div class="flex flex-col mt-1 items-baseline w-8">
-        <div class="w-8 min-h-8">
-          <!-- Display icon being installed using base64 -->
-          {#if extension.icon}
-            <ExtensionIcon {extension} />
-          {:else if extension.iconRef}
-            <img src={extension.iconRef} alt="{extension.displayName} icon" class="max-w-8 max-h-8" />
-          {/if}
-        </div>
-        <div class="flex flex-row mt-3">
-          <ExtensionStatus status={extension.type === 'dd' ? 'started' : extension.state} />
-        </div>
+      <div class="w-8 min-h-8">
+        <!-- Display icon being installed using base64 -->
+        {#if extension.icon}
+          <ExtensionIcon {extension} />
+        {:else if extension.iconRef}
+          <img src={extension.iconRef} alt="{extension.displayName} icon" class="max-w-8 max-h-8" />
+        {/if}
       </div>
     {/snippet}
     {#snippet actionsSnippet()}
-      <div class="flex items-center space-x-10 w-full">
+      <div class="flex items-center justify-end space-x-3 w-full">
         {#if extension.installedExtension}
           <InstalledExtensionActions class="w-48" extension={extension.installedExtension} />
         {:else if extension.fetchable}
-          <div class="flex flex-1 justify-items-end w-18 flex-col items-end place-content-center">
-            <div class="italic text-sm text-[var(--pd-content-text)] pb-3">
+          <div class="flex items-center space-x-3">
+            <div class="italic text-sm text-[var(--pd-content-text)]">
               Install this extension with a single click
             </div>
             <FeaturedExtensionDownload {extension} />
@@ -68,8 +63,11 @@ let extension: ExtensionDetailsUI | undefined = $derived.by(() => {
     {/snippet}
 
     {#snippet detailSnippet()}
-      <div class="flex">
-        <ExtensionBadge class="mt-2" {extension} />
+      <div class="flex flex-row items-center gap-2 mt-2">
+        <div class="flex flex-row">
+          <ExtensionStatus status={extension.type === 'dd' ? 'started' : extension.state} />
+        </div>
+        <ExtensionBadge {extension} />
       </div>
     {/snippet}
     <!-- Display tabs only if extension is in error state -->
