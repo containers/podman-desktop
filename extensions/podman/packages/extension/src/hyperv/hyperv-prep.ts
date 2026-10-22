@@ -16,9 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject, injectable } from 'inversify';
+import type { Disposable, TelemetryLogger } from '@podman-desktop/api';
+import { commands, ProgressLocation, window } from '@podman-desktop/api';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { gte, valid } from 'semver';
 
+import { HYPERV_PREP_COMMAND, HYPERV_PREP_RELOGIN_MESSAGE } from '/@/constants';
+import { TelemetryLoggerSymbol } from '/@/inject/symbols';
 import { PodmanBinary } from '/@/utils/podman-binary';
 import { execPodman } from '/@/utils/util';
 
@@ -34,6 +38,22 @@ export class HyperVPrep {
 
   @inject(PodmanBinary)
   private readonly podmanBinary!: PodmanBinary;
+
+  @inject(TelemetryLoggerSymbol)
+  private readonly telemetryLogger!: TelemetryLogger;
+
+  #command: Disposable | undefined;
+
+  @postConstruct()
+  init(): void {
+    this.#command = commands.registerCommand(HYPERV_PREP_COMMAND, this.prepare.bind(this));
+  }
+
+  @preDestroy()
+  dispose(): void {
+    this.#command?.dispose();
+    this.#command = undefined;
+  }
 
   async isSupported(): Promise<boolean> {
     const binaryInfo = await this.podmanBinary.getBinaryInfo();
@@ -67,5 +87,75 @@ export class HyperVPrep {
     const isGroupMember = membership?.toLowerCase() === 'current user is a member';
 
     return isGroupMember ? HyperVPrepStatus.APPLIED : HyperVPrepStatus.NOT_APPLIED;
+  }
+
+  protected async run(): Promise<void> {
+    await execPodman(['system', 'hyperv-prep'], undefined, { isAdmin: true });
+  }
+
+  private async prepare(): Promise<void> {
+    if (!(await this.isSupported())) {
+      await window.showInformationMessage(
+        `Hyper-V preparation requires Podman ${HyperVPrep.PODMAN_MINIMUM_VERSION} or later.`,
+      );
+      return;
+    }
+
+    try {
+      const currentStatus = await this.getStatus();
+      if (currentStatus === HyperVPrepStatus.APPLIED) {
+        await window.showInformationMessage('Hyper-V preparation is already applied.');
+        return;
+      }
+    } catch (error) {
+      console.error('Hyper-V preparation status check failed', error);
+      this.telemetryLogger.logError('hypervPrepStatusCheckFailed', { error });
+      const message = this.getErrorMessage(error, 'Unknown error while checking Hyper-V preparation status.');
+      await window.showErrorMessage(`Hyper-V preparation status check failed: ${message}`);
+      return;
+    }
+
+    const confirmation = await window.showInformationMessage(
+      'Prepare Hyper-V now? Administrator approval (UAC) is required.',
+      'Yes',
+      'No',
+    );
+    if (confirmation !== 'Yes') {
+      return;
+    }
+
+    try {
+      await window.withProgress(
+        {
+          location: ProgressLocation.TASK_WIDGET,
+          title: 'Preparing Hyper-V',
+        },
+        () => this.run(),
+      );
+    } catch (error) {
+      console.error('Hyper-V preparation failed', error);
+      this.telemetryLogger.logError('hypervPrepFailed', { error });
+      const message = this.getErrorMessage(error, 'Unknown error while preparing Hyper-V.');
+      await window.showErrorMessage(`Hyper-V preparation failed: ${message}`);
+      return;
+    }
+
+    this.telemetryLogger.logUsage('podman.hypervPrep');
+    await window.showInformationMessage(
+      `Hyper-V preparation completed successfully.\n\n${HYPERV_PREP_RELOGIN_MESSAGE}`,
+    );
+  }
+
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (
+      error instanceof Error &&
+      'stderr' in error &&
+      typeof error.stderr === 'string' &&
+      error.stderr.trim().length > 0
+    ) {
+      return error.stderr;
+    }
+
+    return error instanceof Error ? error.message || fallback : fallback;
   }
 }
