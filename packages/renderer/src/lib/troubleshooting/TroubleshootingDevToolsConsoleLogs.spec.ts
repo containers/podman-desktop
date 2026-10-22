@@ -71,7 +71,7 @@ test('Check logs are displayed with clipboard button', async () => {
 });
 
 test('Timestamps are hidden by default and shown after toggle', async () => {
-  const fixedDate = new Date('2026-04-29T14:30:45');
+  const fixedDate = new Date('2026-04-29T14:30:45Z');
   vi.mocked(window.getDevtoolsConsoleLogs).mockResolvedValue([{ logType: 'log', message: 'hello', date: fixedDate }]);
 
   await waitRender({});
@@ -79,7 +79,7 @@ test('Timestamps are hidden by default and shown after toggle', async () => {
   const logsList = screen.getByRole('list', { name: 'logs' });
 
   // timestamps should be hidden by default
-  expect(logsList.textContent).not.toContain('2026-04-29 14:30:45');
+  expect(logsList.textContent).not.toContain('2026-04-29T14:30:45.000Z');
   expect(logsList.textContent).toContain('hello');
 
   // click the toggle timestamps button
@@ -91,14 +91,14 @@ test('Timestamps are hidden by default and shown after toggle', async () => {
   await fireEvent.click(toggleButton);
 
   // timestamps should now be visible, including the full date
-  expect(logsList.textContent).toContain('2026-04-29 14:30:45');
+  expect(logsList.textContent).toContain('2026-04-29T14:30:45.000Z');
   expect(toggleButton).toHaveAttribute('aria-pressed', 'true');
   expect(toggleButton).toHaveClass('bg-[var(--pd-button-link-hover-bg)]');
   expect(toggleButton).toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 
   // click again to hide
   await fireEvent.click(toggleButton);
-  expect(logsList.textContent).not.toContain('2026-04-29 14:30:45');
+  expect(logsList.textContent).not.toContain('2026-04-29T14:30:45.000Z');
   expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
   expect(toggleButton).toHaveClass('bg-[var(--pd-button-link-bg)]');
   expect(toggleButton).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
@@ -120,7 +120,7 @@ test('Toggle persists the setting via updateConfigurationValue', async () => {
 });
 
 test('Clipboard includes timestamps when toggle is enabled', async () => {
-  const fixedDate = new Date('2026-04-29T14:30:45');
+  const fixedDate = new Date('2026-04-29T14:30:45Z');
   vi.mocked(window.getDevtoolsConsoleLogs).mockResolvedValue([
     { logType: 'log', message: 'test1', date: fixedDate },
     { logType: 'error', message: 'test2', date: fixedDate },
@@ -137,6 +137,6 @@ test('Clipboard includes timestamps when toggle is enabled', async () => {
   await fireEvent.click(clipboardButton);
 
   expect(window.clipboardWriteText).toHaveBeenCalledWith(
-    '2026-04-29 14:30:45 log : test1\n2026-04-29 14:30:45 error : test2',
+    '2026-04-29T14:30:45.000Z log : test1\n2026-04-29T14:30:45.000Z error : test2',
   );
 });
