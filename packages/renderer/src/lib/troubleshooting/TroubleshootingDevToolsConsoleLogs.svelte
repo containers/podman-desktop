@@ -4,6 +4,7 @@ import { faFileLines, faPaste } from '@fortawesome/free-regular-svg-icons';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 
 import NoLogIcon from '/@/lib/ui/NoLogIcon.svelte';
@@ -26,10 +27,7 @@ onMount(async () => {
 onDestroy(() => {});
 
 function formatTimestamp(date: Date): string {
-  const pad = (value: number): string => String(value).padStart(2, '0');
-  const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-  const time = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-  return `${day} ${time}`;
+  return moment(date).format();
 }
 
 async function copyLogsToClipboard(): Promise<void> {
