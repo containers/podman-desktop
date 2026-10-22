@@ -2680,10 +2680,11 @@ export function initExposure(): void {
     'imageCheck',
     async (
       id: string,
-      image: containerDesktopAPI.ImageInfo,
+      engineId: string,
+      imageId: string,
       cancellationToken?: number,
     ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
-      return ipcInvoke('image-checker:check', id, image, cancellationToken);
+      return ipcInvoke('image-checker:check', id, engineId, imageId, cancellationToken);
     },
   );
 
@@ -2712,10 +2713,11 @@ export function initExposure(): void {
     'imageGetFilesystemLayers',
     async (
       id: string,
-      image: containerDesktopAPI.ImageInfo,
+      engineId: string,
+      imageId: string,
       cancellationToken?: number,
     ): Promise<ImageFilesystemLayersUI | undefined> => {
-      return ipcInvoke('image-files:getFilesystemLayers', id, image, cancellationToken);
+      return ipcInvoke('image-files:getFilesystemLayers', id, engineId, imageId, cancellationToken);
     },
   );
 
