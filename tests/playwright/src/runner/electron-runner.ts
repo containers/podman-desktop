@@ -373,7 +373,7 @@ export class ElectronRunner extends Runner {
     const args = pdArgs ? [pdArgs] : ['.'];
     // executablePath defaults to this package's installation location: node_modules/.bin/electron
     const executablePath = pdArgs ? join(pdArgs, 'node_modules', '.bin', 'electron') : (pdBinary ?? undefined);
-    const timeout = 45000;
+    const timeout = this._runnerOptions._electronLaunchTimeout;
     return {
       args,
       executablePath,
