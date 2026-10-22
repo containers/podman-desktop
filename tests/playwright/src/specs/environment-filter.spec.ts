@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2026 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,41 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
-
 import { ResourceElementState } from '/@/model/core/states';
-import { PodmanVirtualizationProviders } from '/@/model/core/types';
+import { type ContainerInteractiveParams, PodmanVirtualizationProviders } from '/@/model/core/types';
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
 import { NavigationBar } from '/@/model/workbench/navigation';
 import { expect as playExpect, test } from '/@/utility/fixtures';
-import { deletePodmanMachine } from '/@/utility/operations';
+import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
-import { waitForPodmanMachineStartup, waitUntil } from '/@/utility/wait';
+import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
 
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
-const defaultMachineConnectionName = 'podman-machine-default';
 const defaultMachineDisplayName = 'Podman Machine';
+const defaultMachineConnectionName = 'podman-machine-default';
+const environmentFilterImage = 'ghcr.io/linuxcontainers/alpine';
+const environmentFilterContainer = 'environment-filter-container';
+const environmentFilterPod = 'environment-filter-pod';
 const environmentFilterVolume = 'environment-filter-volume';
+const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
-async function deleteVolumeIfExists(page: Page, volumeName: string): Promise<void> {
-  const volumesPage = await new NavigationBar(page).openVolumes();
-  await playExpect(volumesPage.heading).toBeVisible({ timeout: 10_000 });
-  if ((await volumesPage.getVolumeRowByName(volumeName)) === undefined) {
-    console.log(`volume '${volumeName}' does not exist, skipping...`);
-    return;
-  }
-  await volumesPage.deleteVolume(volumeName);
-  await volumesPage.waitForVolumeDelete(volumeName, 30_000);
-}
-
-test.beforeAll(async ({ runner, welcomePage, page }) => {
-  runner.setVideoAndTraceName('volumes-environment-filter-e2e');
+test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
+  runner.setVideoAndTraceName('environment-filter-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
+  const images = await navigationBar.openImages();
+  await waitWhile(async () => await images.pageIsEmpty(), {
+    sendError: false,
+    message: 'Images page is empty, there are no images present',
+  });
 });
 
 test.describe
-  .serial('Verification of volume filtering by environment', { tag: '@pdmachine' }, () => {
+  .serial('Verification of resource filtering by environment', { tag: '@pdmachine' }, () => {
     test.skip(
       isLinux ||
         process.env.TEST_PODMAN_MACHINE !== 'true' ||
@@ -80,7 +76,17 @@ test.describe
         // Run every cleanup step regardless of individual failures, then re-throw.
         const errors: unknown[] = [];
         for (const cleanup of [
-          (): Promise<void> => deleteVolumeIfExists(page, environmentFilterVolume),
+          (): Promise<void> => deletePod(page, environmentFilterPod),
+          async (): Promise<void> => {
+            const volumes = await new NavigationBar(page).openVolumes();
+            await playExpect(volumes.heading).toBeVisible({ timeout: 10_000 });
+            if ((await volumes.getVolumeRowByName(environmentFilterVolume)) !== undefined) {
+              await volumes.deleteVolume(environmentFilterVolume);
+              await volumes.waitForVolumeDelete(environmentFilterVolume);
+            }
+          },
+          (): Promise<void> => deleteContainer(page, environmentFilterContainer),
+          (): Promise<void> => deleteImage(page, environmentFilterImage),
           (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
         ]) {
           try {
@@ -149,6 +155,50 @@ test.describe
     });
 
     test('Environment filter becomes visible with two running machines', async ({ navigationBar }) => {
+      const pods = await navigationBar.openPods();
+      await playExpect.poll(async () => await pods.isEnvironmentFilterVisible(), { timeout: 30_000 }).toBeTruthy();
+    });
+
+    test('Filtering pods by environment', async ({ navigationBar }) => {
+      test.setTimeout(120_000);
+
+      let images = await navigationBar.openImages();
+      const pullImagePage = await images.openPullImage();
+      images = await pullImagePage.pullImage(environmentFilterImage, 'latest', 60_000, 'podman-machine-default');
+      await playExpect
+        .poll(async () => await images.waitForImageExists(environmentFilterImage), { timeout: 10_000 })
+        .toBeTruthy();
+
+      const imageDetails = await images.openImageDetails(environmentFilterImage);
+      const runImage = await imageDetails.openRunImage();
+      const containers = await runImage.startContainer(environmentFilterContainer, containerStartParams);
+      await playExpect(containers.header).toBeVisible();
+      await playExpect
+        .poll(async () => await containers.containerExists(environmentFilterContainer), { timeout: 15_000 })
+        .toBeTruthy();
+
+      const createPodPage = await containers.openCreatePodPage([environmentFilterContainer]);
+      const pods = await createPodPage.createPod(environmentFilterPod);
+      await playExpect(pods.heading).toBeVisible({ timeout: 60_000 });
+      await playExpect.poll(async () => await pods.podExists(environmentFilterPod), { timeout: 15_000 }).toBeTruthy();
+
+      await test.step(`Filter by ${secondMachineDisplayName} shows no pods`, async () => {
+        await pods.filterByEnvironment(secondMachineDisplayName);
+        await playExpect.poll(async () => await pods.countRowsFromTable(), { timeout: 10_000 }).toBe(0);
+      });
+
+      await test.step(`Filter by ${defaultMachineDisplayName} shows the created pod`, async () => {
+        await pods.filterByEnvironment(defaultMachineDisplayName);
+        await playExpect
+          .poll(async () => await pods.countRowsFromTable(), { timeout: 10_000 })
+          .toBeGreaterThanOrEqual(1);
+        await playExpect.poll(async () => await pods.podExists(environmentFilterPod), { timeout: 10_000 }).toBeTruthy();
+      });
+
+      await pods.clearFilterByEnvironment();
+    });
+
+    test('Environment filter is visible on the Volumes page', async ({ navigationBar }) => {
       const volumes = await navigationBar.openVolumes();
       await playExpect(volumes.heading).toBeVisible();
       await playExpect.poll(async () => await volumes.isEnvironmentFilterVisible(), { timeout: 30_000 }).toBeTruthy();
