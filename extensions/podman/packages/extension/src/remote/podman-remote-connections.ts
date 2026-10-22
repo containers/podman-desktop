@@ -91,9 +91,9 @@ export class PodmanRemoteConnections {
       .filter(connection => connection.URI.startsWith('ssh:'));
   }
 
-  // The monitoring loop picks up the changes made by the methods below on its next cycle.
+  // These wrap `podman system connection add|remove|rename|default`.
+  // The monitoring loop picks up the changes on its next cycle.
 
-  // equivalent of `podman system connection add`
   async addConnection(options: AddRemoteConnectionOptions): Promise<void> {
     const args = ['system', 'connection', 'add'];
     if (options.identity) {
@@ -106,22 +106,18 @@ export class PodmanRemoteConnections {
     await extensionApi.process.exec(getPodmanCli(), args);
   }
 
-  // equivalent of `podman system connection remove`
   async removeConnection(name: string): Promise<void> {
     await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'remove', name]);
   }
 
-  // equivalent of `podman system connection rename`
   async renameConnection(oldName: string, newName: string): Promise<void> {
     await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'rename', oldName, newName]);
   }
 
-  // equivalent of `podman system connection default`
   async setDefaultConnection(name: string): Promise<void> {
     await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', name]);
   }
 
-  // register the commands used to manage the remote connections from the UI
   registerCommands(): void {
     this.#extensionContext.subscriptions.push(
       extensionApi.commands.registerCommand('podman.remote.addConnection', () =>
