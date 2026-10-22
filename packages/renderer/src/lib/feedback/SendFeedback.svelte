@@ -96,15 +96,15 @@ onMount(async () => {
       <GitHubIssueFeedback onCloseForm={hideModal} category={category} categoryLinks={categoryGitHubLinks} contentChange={handleUpdate}/>
     {:else if category === 'other'}
       <FeedbackForm>
-        <svelte:fragment slot="content">
+        {#snippet content()}
           <p class="block mt-4 mb-4 text-sm font-medium text-[var(--pd-modal-text)]">Could not find the right category? Take a look at these additional options:</p>
           {#each Object.entries(feedbackLinks) as [category, link] (category)}
             <Link aria-label={`${category} link`} class="block mt-1" onclick={(): Promise<void> => window.openExternal(link)}>{category}</Link>
           {/each}
-        </svelte:fragment>
-        <svelte:fragment slot="buttons">
+        {/snippet}
+        {#snippet buttons()}
           <Button class="underline" type="link" aria-label="Cancel" onclick={hideModal}>Cancel</Button>
-        </svelte:fragment>
+        {/snippet}
       </FeedbackForm>
     {/if}
   </Modal>
