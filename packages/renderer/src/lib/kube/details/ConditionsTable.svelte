@@ -1,17 +1,22 @@
 <script lang="ts">
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
+import type { HTMLAttributes } from 'svelte/elements';
 
-export let conditions: {
-  type: string;
-  status: string;
-  lastTransitionTime?: Date;
-  reason?: string;
-  message?: string;
-}[];
+interface Props extends HTMLAttributes<HTMLTableRowElement> {
+  conditions: {
+    type: string;
+    status: string;
+    lastTransitionTime?: Date;
+    reason?: string;
+    message?: string;
+  }[];
+}
+
+let { conditions, ...restProps }: Props = $props();
 </script>
 
-<tr>
+<tr {...restProps}>
   <td colspan="2">
     <table class="w-full ml-2.5">
       <tbody>

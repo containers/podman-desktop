@@ -48,3 +48,14 @@ test('conditions are displayed in a table', async () => {
   within(row).getByText('Kubelet ready');
   within(row).getByText('kubelet is posting ready status');
 });
+
+test('extra HTML attributes are forwarded to the root row', async () => {
+  render(ConditionsTable, {
+    conditions: [],
+    'aria-label': 'Conditions',
+    class: 'custom-class',
+  });
+
+  const row = screen.getByRole('row', { name: 'Conditions' });
+  expect(row).toHaveClass('custom-class');
+});
