@@ -947,8 +947,13 @@ export class LibpodDockerode {
     prototypeOfDockerode.resolveShortnameImage = function (shortname: string): Promise<{
       Names: string[];
     }> {
+      // encodeURIComponent leaves dots untouched, and a '.' or '..' segment makes the Podman API
+      // answer with a redirect that docker-modem is unable to follow (it throws an uncaught
+      // 'TypeError: Invalid URL'), so dots are encoded as well to keep the segment as-is.
+      const encodedShortname = encodeURIComponent(shortname).replaceAll('.', '%2E');
+
       const optsf = {
-        path: `/v5.0.0/libpod/images/${shortname}/resolve`,
+        path: `/v5.0.0/libpod/images/${encodedShortname}/resolve`,
         method: 'GET',
         statusCodes: {
           // in the documentation it says code 204, but only code 200 works as intended

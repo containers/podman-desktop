@@ -600,3 +600,41 @@ describe('secrets', () => {
     await expect((api as unknown as LibPod).removeSecret('secret123')).rejects.toThrow();
   });
 });
+
+describe('resolveShortnameImage', () => {
+  test('should resolve a shortname', async () => {
+    server = setupServer(
+      http.get('http://localhost/v5.0.0/libpod/images/nginx/resolve', () =>
+        HttpResponse.json({ Names: ['docker.io/library/nginx:latest'] }),
+      ),
+    );
+    server.listen({ onUnhandledRequest: 'error' });
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+    const response = await (api as unknown as LibPod).resolveShortnameImage('nginx');
+
+    expect(response.Names).toStrictEqual(['docker.io/library/nginx:latest']);
+  });
+
+  // asserted on the modem rather than through msw: msw parses the URL with the WHATWG parser,
+  // which decodes '%2E' back to '.' and normalizes the dot segment away, so '/images/%2E/resolve'
+  // would be seen as '/images/resolve', hiding exactly what is tested here
+  test.each([
+    { shortname: '.', expected: '%2E' },
+    { shortname: '..', expected: '%2E%2E' },
+    { shortname: 'foo.bar', expected: 'foo%2Ebar' },
+    { shortname: 'foo/bar', expected: 'foo%2Fbar' },
+  ])('should encode $shortname so it cannot alter the request path', async ({ shortname, expected }) => {
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' }) as unknown as DockerodeInternals;
+    const dial = vi.spyOn(api.modem, 'dial').mockImplementation((_options, callback) => {
+      callback?.(null, { Names: [] });
+    });
+
+    await (api as unknown as LibPod).resolveShortnameImage(shortname);
+
+    expect(dial).toHaveBeenCalledOnce();
+    const dialOptions = dial.mock.calls[0]?.[0];
+    assert(dialOptions);
+    expect(dialOptions.path).toBe(`/v5.0.0/libpod/images/${expected}/resolve`);
+  });
+});
