@@ -23,7 +23,18 @@ import { expect, test } from 'vitest';
 
 import StatusDotIcon from './StatusDotIcon.svelte';
 
-const allStatuses = ['running', 'terminated', 'waiting', 'stopped', 'paused', 'exited', 'dead', 'created', 'degraded'];
+const allStatuses = [
+  'running',
+  'terminated',
+  'waiting',
+  'stopped',
+  'paused',
+  'exited',
+  'dead',
+  'created',
+  'degraded',
+  'downloadable',
+];
 
 test.each(allStatuses)('Expect SVG icon to render for %s status', (status: string) => {
   render(StatusDotIcon, { status });
@@ -45,12 +56,23 @@ test.each(allStatuses)('Expect role="img" for %s status', (status: string) => {
   expect(svg).toHaveAttribute('role', 'img');
 });
 
-test.each(allStatuses)('Expect correct fill color for %s status', (status: string) => {
-  render(StatusDotIcon, { status });
-  const svg = screen.getByTestId('status-dot-icon');
-  const path = svg.querySelector('path');
-  expect(path).not.toBeNull();
-  expect(path).toHaveAttribute('fill', `var(--pd-status-${status})`);
+test.each(allStatuses.filter(status => status !== 'downloadable'))(
+  'Expect correct fill color for %s status',
+  (status: string) => {
+    render(StatusDotIcon, { status });
+    const svg = screen.getByTestId('status-dot-icon');
+    const path = svg.querySelector('path');
+    expect(path).not.toBeNull();
+    expect(path).toHaveAttribute('fill', `var(--pd-status-${status})`);
+  },
+);
+
+test('Expect downloadable status to preserve notification dot color', () => {
+  render(StatusDotIcon, { status: 'downloadable' });
+  expect(screen.getByTestId('status-dot-icon').querySelector('path')).toHaveAttribute(
+    'fill',
+    'var(--pd-notification-dot)',
+  );
 });
 
 test('Expect unknown status to use unknown fill color', () => {
@@ -78,4 +100,12 @@ test('Expect custom class to be applied', () => {
   render(StatusDotIcon, { status: 'running', class: 'my-custom-class' });
   const svg = screen.getByTestId('status-dot-icon');
   expect(svg).toHaveClass('my-custom-class');
+});
+
+test('Expect decorative icon to be hidden from assistive technology', () => {
+  render(StatusDotIcon, { status: 'running', decorative: true });
+  const svg = screen.getByTestId('status-dot-icon');
+  expect(svg).toHaveAttribute('aria-hidden', 'true');
+  expect(svg).not.toHaveAttribute('role');
+  expect(svg).not.toHaveAttribute('aria-label');
 });

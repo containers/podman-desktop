@@ -113,7 +113,7 @@ test.describe('Kind End-to-End Tests', { tag: '@k8s_e2e' }, () => {
       await playExpect
         .poll(async () => await extensionsPage.extensionIsInstalled(EXTENSION_LABEL), { timeout: 10000 })
         .toBeTruthy();
-      await playExpect(kindExtension.status).toHaveText(ExtensionState.Active);
+      await playExpect(kindExtension.status).toHaveText(ExtensionState.Installed);
       await kindExtension.disableExtension();
       await navigationBar.openSettings();
       await playExpect.poll(async () => resourcesPage.resourceCardIsVisible(RESOURCE_NAME)).toBeFalsy();

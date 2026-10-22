@@ -47,7 +47,7 @@ export class ExtensionDetailsPage extends BasePage {
     this.removeExtensionButton = this.header.getByRole('button', {
       name: 'Delete',
     });
-    this.status = this.header.getByLabel('Extension Status Label');
+    this.status = this.header.getByRole('status', { name: 'Extension status' });
     this.errorStackTrace = this.tabContent.getByRole('group', {
       name: 'Stack Trace',
       exact: true,
@@ -56,20 +56,20 @@ export class ExtensionDetailsPage extends BasePage {
 
   async disableExtension(): Promise<this> {
     return test.step(`Disable extension: ${this.extensionName}`, async () => {
-      if ((await this.status.innerText()) === 'DISABLED') return this;
+      if ((await this.status.innerText()) === 'Disabled') return this;
 
       await this.disableButton.click();
-      await playExpect(this.status).toHaveText('DISABLED', { timeout: 30000 });
+      await playExpect(this.status).toHaveText('Disabled', { timeout: 30000 });
       return this;
     });
   }
 
   async enableExtension(): Promise<this> {
     return test.step(`Enable extension: ${this.extensionName}`, async () => {
-      if ((await this.status.innerText()) === 'ACTIVE') return this;
+      if ((await this.status.innerText()) === 'Installed') return this;
 
       await this.enableButton.click();
-      await playExpect(this.status).toHaveText('ACTIVE', { timeout: 30000 });
+      await playExpect(this.status).toHaveText('Installed', { timeout: 30000 });
       return this;
     });
   }
