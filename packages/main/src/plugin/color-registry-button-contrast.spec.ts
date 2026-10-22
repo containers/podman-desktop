@@ -67,7 +67,7 @@ const RINGS = ['button-focus-ring', 'button-focus-ring-danger'];
 describe.each(['light', 'dark', 'hc-light', 'hc-dark'])('button focus ring contrast in %s theme', theme => {
   const cases = RINGS.flatMap(ring => SURFACES.map(surface => [ring, surface] as const));
 
-  test.each(cases)('%s against %s is at least 3:1', (ring, surface) => {
+  test.each(cases)(`%s against %s is at least ${MIN_CONTRAST}:1`, (ring, surface) => {
     const colors = new Map(registry.listColors(theme).map(c => [c.id, c.value]));
     const ringValue = colors.get(ring);
     const surfaceValue = colors.get(surface);
