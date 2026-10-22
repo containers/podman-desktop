@@ -25,6 +25,22 @@
         "title": "Podman: Socket Compatibility Mode"
       },
       {
+        "command": "podman.remote.addConnection",
+        "title": "Podman: Add remote connection"
+      },
+      {
+        "command": "podman.remote.removeConnection",
+        "title": "Podman: Remove remote connection"
+      },
+      {
+        "command": "podman.remote.renameConnection",
+        "title": "Podman: Rename remote connection"
+      },
+      {
+        "command": "podman.remote.setDefaultConnection",
+        "title": "Podman: Set default remote connection"
+      },
+      {
         "command": "podman.onboarding.checkInstalledCommand",
         "title": "Podman: Check podman installation"
       },

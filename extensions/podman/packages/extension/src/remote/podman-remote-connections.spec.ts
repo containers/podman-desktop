@@ -19,8 +19,12 @@
 import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
+import { getPodmanCli } from '/@/utils/podman-cli';
+
 import { PodmanRemoteConnections } from './podman-remote-connections';
 import type { PodmanRemoteSshTunnel } from './podman-remote-ssh-tunnel';
+
+vi.mock(import('/@/utils/podman-cli'));
 
 const extensionContext = {} as extensionApi.ExtensionContext;
 
@@ -28,6 +32,7 @@ const provider = {} as extensionApi.Provider;
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(getPodmanCli).mockReturnValue('podman');
 });
 
 afterEach(() => {
@@ -377,4 +382,210 @@ test('stop should cancel the recurring monitoring timer', async () => {
   // advancing well past the interval must not trigger any further monitoring
   await vi.advanceTimersByTimeAsync(15000);
   expect(spyRefreshRemoteConnections).not.toHaveBeenCalled();
+});
+
+test('addConnection should call podman system connection add with identity and default flags', async () => {
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
+  const remoteConnections = new TestPodmanRemoteConnections(extensionContext, provider);
+
+  await remoteConnections.addConnection({
+    name: 'my-remote',
+    uri: 'ssh://user@host:22/run/podman/podman.sock',
+    identity: '/home/user/.ssh/id_ed25519',
+    isDefault: true,
+  });
+
+  expect(extensionApi.process.exec).toHaveBeenCalledWith(expect.anything(), [
+    'system',
+    'connection',
+    'add',
+    '--identity',
+    '/home/user/.ssh/id_ed25519',
+    '--default',
+    'my-remote',
+    'ssh://user@host:22/run/podman/podman.sock',
+  ]);
+});
+
+test('addConnection should not pass identity nor default flags when not provided', async () => {
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
+  const remoteConnections = new TestPodmanRemoteConnections(extensionContext, provider);
+
+  await remoteConnections.addConnection({ name: 'my-remote', uri: 'ssh://user@host/run/podman/podman.sock' });
+
+  expect(extensionApi.process.exec).toHaveBeenCalledWith(expect.anything(), [
+    'system',
+    'connection',
+    'add',
+    'my-remote',
+    'ssh://user@host/run/podman/podman.sock',
+  ]);
+});
+
+test('removeConnection, renameConnection and setDefaultConnection should call the matching podman command', async () => {
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
+  const remoteConnections = new TestPodmanRemoteConnections(extensionContext, provider);
+
+  await remoteConnections.removeConnection('a');
+  await remoteConnections.renameConnection('a', 'b');
+  await remoteConnections.setDefaultConnection('b');
+
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(1, expect.anything(), [
+    'system',
+    'connection',
+    'remove',
+    'a',
+  ]);
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(2, expect.anything(), [
+    'system',
+    'connection',
+    'rename',
+    'a',
+    'b',
+  ]);
+  expect(extensionApi.process.exec).toHaveBeenNthCalledWith(3, expect.anything(), [
+    'system',
+    'connection',
+    'default',
+    'b',
+  ]);
+});
+
+function getCommandHandler(commandId: string): () => Promise<void> {
+  const call = vi.mocked(extensionApi.commands.registerCommand).mock.calls.find(c => c[0] === commandId);
+  return call?.[1] as () => Promise<void>;
+}
+
+test('registerCommands should register the four remote connection commands', () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+
+  remoteConnections.registerCommands();
+
+  const registered = vi.mocked(extensionApi.commands.registerCommand).mock.calls.map(call => call[0]);
+  expect(registered).toStrictEqual([
+    'podman.remote.addConnection',
+    'podman.remote.removeConnection',
+    'podman.remote.renameConnection',
+    'podman.remote.setDefaultConnection',
+  ]);
+});
+
+test('add command should prompt for name, uri and identity then add the connection', async () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+  vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+    get: () => true,
+  } as unknown as extensionApi.Configuration);
+  vi.mocked(extensionApi.window.showInputBox)
+    .mockResolvedValueOnce('my-remote')
+    .mockResolvedValueOnce('ssh://user@host/run/podman/podman.sock')
+    .mockResolvedValueOnce('');
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({} as extensionApi.RunResult);
+
+  remoteConnections.registerCommands();
+  await getCommandHandler('podman.remote.addConnection')();
+
+  expect(extensionApi.process.exec).toHaveBeenCalledWith(expect.anything(), [
+    'system',
+    'connection',
+    'add',
+    'my-remote',
+    'ssh://user@host/run/podman/podman.sock',
+  ]);
+});
+
+test('add command should show an error when podman fails', async () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+  vi.mocked(extensionApi.window.showInputBox)
+    .mockResolvedValueOnce('my-remote')
+    .mockResolvedValueOnce('ssh://user@host/run/podman/podman.sock')
+    .mockResolvedValueOnce('');
+  vi.mocked(extensionApi.process.exec).mockRejectedValue({ stderr: 'connection already exists' });
+
+  remoteConnections.registerCommands();
+  await getCommandHandler('podman.remote.addConnection')();
+
+  expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith(
+    expect.stringContaining('connection already exists'),
+  );
+});
+
+test('add command should do nothing when the prompt is cancelled', async () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+  vi.mocked(extensionApi.window.showInputBox).mockResolvedValueOnce(undefined);
+
+  remoteConnections.registerCommands();
+  await getCommandHandler('podman.remote.addConnection')();
+
+  expect(extensionApi.process.exec).not.toHaveBeenCalled();
+});
+
+test('remove command should list remote connections and remove the selected one', async () => {
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    provider,
+  );
+  vi.mocked(extensionApi.process.exec)
+    .mockResolvedValueOnce({
+      stdout: JSON.stringify([{ Name: 'remote-1', URI: 'ssh://user@host/run/podman/podman.sock' }]),
+    } as unknown as extensionApi.RunResult)
+    .mockResolvedValueOnce({} as extensionApi.RunResult);
+  vi.mocked(extensionApi.window.showQuickPick).mockResolvedValue('remote-1' as never);
+
+  remoteConnections.registerCommands();
+  await getCommandHandler('podman.remote.removeConnection')();
+
+  expect(extensionApi.window.showQuickPick).toHaveBeenCalledWith(['remote-1'], expect.anything());
+  expect(extensionApi.process.exec).toHaveBeenLastCalledWith(expect.anything(), [
+    'system',
+    'connection',
+    'remove',
+    'remote-1',
+  ]);
+});
+
+test('registered remote connection should expose a delete lifecycle removing the system connection', async () => {
+  vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+    get: () => true,
+  } as unknown as extensionApi.Configuration);
+  const registerContainerProviderConnection = vi.fn().mockReturnValue({ dispose: vi.fn() });
+  const remoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions: [] } as unknown as extensionApi.ExtensionContext,
+    { registerContainerProviderConnection } as unknown as extensionApi.Provider,
+  );
+  vi.spyOn(remoteConnections, 'readPrivateKey').mockResolvedValue('fake-key');
+  vi.spyOn(remoteConnections, 'createTunnel').mockReturnValue({
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    status: () => 'started',
+  } as unknown as PodmanRemoteSshTunnel);
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    stdout: JSON.stringify([{ Name: 'remote-1', URI: 'ssh://user@host:22/run/podman/podman.sock', Identity: '/key' }]),
+  } as unknown as extensionApi.RunResult);
+
+  vi.useFakeTimers();
+  const refresh = remoteConnections.refreshRemoteConnections();
+  await vi.advanceTimersByTimeAsync(1000);
+  await refresh;
+
+  const connection = registerContainerProviderConnection.mock.calls[0]?.[0] as extensionApi.ContainerProviderConnection;
+  await connection.lifecycle?.delete?.();
+
+  expect(extensionApi.process.exec).toHaveBeenLastCalledWith(expect.anything(), [
+    'system',
+    'connection',
+    'remove',
+    'remote-1',
+  ]);
 });

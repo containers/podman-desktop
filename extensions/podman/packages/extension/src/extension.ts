@@ -1703,6 +1703,7 @@ export async function start(
   // Initialize remote connections before machine monitoring so hasConnections()
   // is populated before the first updateMachines() call
   podmanRemoteConnections = new PodmanRemoteConnections(extensionContext, provider);
+  podmanRemoteConnections.registerCommands();
   await podmanRemoteConnections.start();
 
   // Podman Machine support is on macOS, Windows and Linux

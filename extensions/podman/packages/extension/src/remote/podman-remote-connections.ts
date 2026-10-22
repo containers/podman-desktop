@@ -35,6 +35,15 @@ interface ConnectionListFormatJson {
   Identity?: string;
 }
 
+export interface AddRemoteConnectionOptions {
+  name: string;
+  uri: string;
+  // path to the SSH private key, when omitted the ssh-agent is used
+  identity?: string;
+  // mark the new connection as the default one for the podman CLI
+  isDefault?: boolean;
+}
+
 interface RemoteSystemConnection {
   name: string;
   sshTunnel: PodmanRemoteSshTunnel;
@@ -80,6 +89,167 @@ export class PodmanRemoteConnections {
     return connections
       .filter(connection => connection.IsMachine !== true)
       .filter(connection => connection.URI.startsWith('ssh:'));
+  }
+
+  // The monitoring loop picks up the changes made by the methods below on its next cycle.
+
+  // equivalent of `podman system connection add`
+  async addConnection(options: AddRemoteConnectionOptions): Promise<void> {
+    const args = ['system', 'connection', 'add'];
+    if (options.identity) {
+      args.push('--identity', options.identity);
+    }
+    if (options.isDefault) {
+      args.push('--default');
+    }
+    args.push(options.name, options.uri);
+    await extensionApi.process.exec(getPodmanCli(), args);
+  }
+
+  // equivalent of `podman system connection remove`
+  async removeConnection(name: string): Promise<void> {
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'remove', name]);
+  }
+
+  // equivalent of `podman system connection rename`
+  async renameConnection(oldName: string, newName: string): Promise<void> {
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'rename', oldName, newName]);
+  }
+
+  // equivalent of `podman system connection default`
+  async setDefaultConnection(name: string): Promise<void> {
+    await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', name]);
+  }
+
+  // register the commands used to manage the remote connections from the UI
+  registerCommands(): void {
+    this.#extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand('podman.remote.addConnection', () =>
+        this.runCommand(() => this.promptAddConnection()),
+      ),
+      extensionApi.commands.registerCommand('podman.remote.removeConnection', () =>
+        this.runCommand(() => this.promptRemoveConnection()),
+      ),
+      extensionApi.commands.registerCommand('podman.remote.renameConnection', () =>
+        this.runCommand(() => this.promptRenameConnection()),
+      ),
+      extensionApi.commands.registerCommand('podman.remote.setDefaultConnection', () =>
+        this.runCommand(() => this.promptSetDefaultConnection()),
+      ),
+    );
+  }
+
+  protected async runCommand(action: () => Promise<void>): Promise<void> {
+    try {
+      await action();
+    } catch (error: unknown) {
+      // process.exec rejects with a RunError carrying the CLI output in stderr
+      const stderr = (error as { stderr?: string } | undefined)?.stderr?.trim();
+      let message = error instanceof Error ? error.message : String(error);
+      if (stderr) {
+        message = stderr;
+      }
+      await extensionApi.window.showErrorMessage(`Podman remote connection error: ${message}`);
+    }
+  }
+
+  protected async promptAddConnection(): Promise<void> {
+    const name = await extensionApi.window.showInputBox({
+      title: 'Add a remote Podman connection',
+      prompt: 'Name of the connection',
+      validateInput: value => (value.trim() ? undefined : 'The name is required'),
+    });
+    if (!name) {
+      return;
+    }
+
+    const uri = await extensionApi.window.showInputBox({
+      title: 'Add a remote Podman connection',
+      prompt: 'SSH URI of the Podman service',
+      placeHolder: 'ssh://user@host:22/run/user/1000/podman/podman.sock',
+      validateInput: value => (this.isValidSshUri(value) ? undefined : 'Enter a valid ssh:// URI'),
+    });
+    if (!uri) {
+      return;
+    }
+
+    const identity = await extensionApi.window.showInputBox({
+      title: 'Add a remote Podman connection',
+      prompt: 'Path to the SSH private key (leave empty to use the ssh-agent)',
+    });
+    // undefined means the prompt was cancelled, an empty string means no identity
+    if (identity === undefined) {
+      return;
+    }
+
+    await this.addConnection({ name: name.trim(), uri: uri.trim(), identity: identity.trim() || undefined });
+
+    const monitored = extensionApi.configuration
+      .getConfiguration('podman')
+      .get<boolean>(CONFIGURATION_REMOTE_ENABLED_KEY);
+    if (monitored) {
+      await extensionApi.window.showInformationMessage(`Remote Podman connection ${name} added.`);
+    } else {
+      await extensionApi.window.showInformationMessage(
+        `Remote Podman connection ${name} added. Enable 'Load remote system connections (ssh)' in the Podman preferences to use it in Podman Desktop.`,
+      );
+    }
+  }
+
+  protected async promptRemoveConnection(): Promise<void> {
+    const name = await this.pickConnection('Select the remote connection to remove');
+    if (!name) {
+      return;
+    }
+    await this.removeConnection(name);
+    await extensionApi.window.showInformationMessage(`Remote Podman connection ${name} removed.`);
+  }
+
+  protected async promptRenameConnection(): Promise<void> {
+    const oldName = await this.pickConnection('Select the remote connection to rename');
+    if (!oldName) {
+      return;
+    }
+    const newName = await extensionApi.window.showInputBox({
+      title: 'Rename a remote Podman connection',
+      prompt: `New name for ${oldName}`,
+      value: oldName,
+      validateInput: value => (value.trim() ? undefined : 'The name is required'),
+    });
+    if (!newName || newName.trim() === oldName) {
+      return;
+    }
+    await this.renameConnection(oldName, newName.trim());
+    await extensionApi.window.showInformationMessage(`Remote Podman connection ${oldName} renamed to ${newName}.`);
+  }
+
+  protected async promptSetDefaultConnection(): Promise<void> {
+    const name = await this.pickConnection('Select the remote connection to set as default');
+    if (!name) {
+      return;
+    }
+    await this.setDefaultConnection(name);
+    await extensionApi.window.showInformationMessage(`Remote Podman connection ${name} is now the default.`);
+  }
+
+  protected async pickConnection(placeHolder: string): Promise<string | undefined> {
+    const connections = await this.grabRemoteConnections();
+    if (connections.length === 0) {
+      await extensionApi.window.showInformationMessage('No remote Podman connection found.');
+      return undefined;
+    }
+    return extensionApi.window.showQuickPick(
+      connections.map(connection => connection.Name),
+      { placeHolder },
+    );
+  }
+
+  protected isValidSshUri(value: string): boolean {
+    try {
+      return new URL(value.trim()).protocol === 'ssh:';
+    } catch {
+      return false;
+    }
   }
 
   async start(): Promise<void> {
@@ -167,6 +337,11 @@ export class PodmanRemoteConnections {
           type: 'podman',
           endpoint: {
             socketPath: localPath,
+          },
+          lifecycle: {
+            delete: async (): Promise<void> => {
+              await this.removeConnection(connection.Name);
+            },
           },
         });
         this.#extensionContext.subscriptions.push(connectionDisposable);
