@@ -21,6 +21,7 @@ import { tmpdir } from 'node:os';
 
 import type {
   ImageUpdateInfo,
+  ImageUpdateResult,
   NotificationCardOptions,
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -1278,6 +1279,19 @@ describe('checkImageUpdateStatus handler', () => {
 });
 
 describe('updateImages handler', () => {
+  type UpdateImagesHandler = (
+    event: unknown,
+    images: ImageUpdateInfo[],
+    cancellableTokenId?: number,
+  ) => Promise<{ result: ImageUpdateResult[] } | { error: Error }>;
+
+  let task: TaskImpl;
+
+  beforeEach(() => {
+    task = new TaskImpl('update-image-task', 'Updating image');
+    vi.mocked(TaskManager.prototype.createTask).mockReturnValue(task);
+  });
+
   test('should delegate image updates to the container provider registry', async () => {
     const handle = getHandler<
       (
@@ -1300,6 +1314,119 @@ describe('updateImages handler', () => {
 
     expect(ContainerProviderRegistry.prototype.updateImages).toHaveBeenCalledExactlyOnceWith(images, undefined);
     expect(result.result).toEqual(expectedResults);
+    expect(TaskManager.prototype.createTask).toHaveBeenCalledExactlyOnceWith({
+      title: 'Updating images',
+      cancellable: false,
+      cancellationTokenSourceId: undefined,
+    });
+    expect(task.state).toBe('completed');
+    expect(task.status).toBe('success');
+    expect(task.name).toBe('Image update: nginx: Image updated successfully; redis: Already up to date');
+  });
+
+  test.each([
+    { status: 'updated', updated: true, message: 'Image updated successfully', taskStatus: 'success' },
+    { status: 'normal', updated: false, message: 'Already up to date', taskStatus: 'success' },
+    { status: 'skipped', updated: false, message: 'Image has no tags', taskStatus: 'success' },
+    { status: 'error', updated: false, message: 'Registry unavailable', taskStatus: 'failure' },
+  ] as const)('records a single-image $status result in the task', async ({ status, updated, message, taskStatus }) => {
+    const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
+    const results: ImageUpdateResult[] = [{ imageRef: 'nginx:latest', status, updated, message }];
+    const { promise, resolve } = Promise.withResolvers<ImageUpdateResult[]>();
+    vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockReturnValue(promise);
+
+    const pending = handle(undefined, [{ engineId: 'podman', id: 'sha256:nginx' }]);
+
+    expect(TaskManager.prototype.createTask).toHaveBeenCalledExactlyOnceWith({
+      title: 'Updating image',
+      cancellable: false,
+      cancellationTokenSourceId: undefined,
+    });
+    expect(task.state).toBe('running');
+    expect(task.status).toBe('in-progress');
+
+    resolve(results);
+    await expect(pending).resolves.toEqual({ result: results });
+
+    expect(task.state).toBe('completed');
+    expect(task.status).toBe(taskStatus);
+    expect(task.name).toBe(`Image update: nginx:latest: ${message}`);
+    if (taskStatus === 'failure') {
+      expect(task.error).toBe('nginx:latest: Registry unavailable');
+    } else {
+      expect(task.error).toBeUndefined();
+    }
+  });
+
+  test('marks partial failures as failed while preserving every tag result', async () => {
+    const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
+    const results: ImageUpdateResult[] = [
+      { imageRef: 'nginx:latest', updated: true, status: 'updated', message: 'Updated' },
+      { imageRef: 'nginx:stable', updated: false, status: 'normal', message: 'Already up to date' },
+      { imageRef: 'other:latest', updated: false, status: 'error', message: 'Registry unavailable' },
+    ];
+    vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockResolvedValue(results);
+
+    await expect(handle(undefined, [{ engineId: 'podman', id: 'sha256:nginx' }])).resolves.toEqual({ result: results });
+
+    expect(task.state).toBe('completed');
+    expect(task.status).toBe('failure');
+    expect(task.error).toBe('other:latest: Registry unavailable');
+    expect(task.name).toBe(
+      'Image update: nginx:latest: Updated; nginx:stable: Already up to date; other:latest: Registry unavailable',
+    );
+  });
+
+  test('completes the task when no results are returned', async () => {
+    const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
+    vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockResolvedValue([]);
+
+    await expect(handle(undefined, [])).resolves.toEqual({ result: [] });
+
+    expect(task.state).toBe('completed');
+    expect(task.name).toBe('Image update: No images updated');
+  });
+
+  test('marks a rejected update as failed and preserves the IPC error', async () => {
+    const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
+    const error = new Error('Engine unavailable');
+    vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockRejectedValue(error);
+
+    await expect(handle(undefined, [{ engineId: 'podman', id: 'sha256:nginx' }])).resolves.toEqual({ error });
+
+    expect(task.state).toBe('completed');
+    expect(task.status).toBe('failure');
+    expect(task.error).toBe('Error: Engine unavailable');
+  });
+
+  test.each(['result', 'rejection'] as const)('marks cancellation as canceled for a backend %s', async outcome => {
+    const createTokenHandler = getHandler<() => Promise<{ result: number }>>('cancellableTokenSource:create');
+    const cancelTokenHandler = getHandler<(_event: unknown, id: number) => Promise<void>>('cancellableToken:cancel');
+    const { result: tokenId } = await createTokenHandler();
+    const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
+    const { promise, resolve, reject } = Promise.withResolvers<ImageUpdateResult[]>();
+    vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockReturnValue(promise);
+
+    const pending = handle(undefined, [{ engineId: 'podman', id: 'sha256:nginx' }], tokenId);
+    expect(TaskManager.prototype.createTask).toHaveBeenCalledExactlyOnceWith({
+      title: 'Updating image',
+      cancellable: true,
+      cancellationTokenSourceId: tokenId,
+    });
+    await cancelTokenHandler(undefined, tokenId);
+    const signal = vi.mocked(ContainerProviderRegistry.prototype.updateImages).mock.calls[0]?.[1];
+    expect(signal?.aborted).toBe(true);
+
+    if (outcome === 'result') {
+      resolve([{ imageRef: 'nginx:latest', updated: false, status: 'error', message: 'Update canceled' }]);
+    } else {
+      reject(new Error('Update canceled'));
+    }
+    await pending;
+
+    expect(task.state).toBe('completed');
+    expect(task.status).toBe('canceled');
+    expect(task.error).toBeUndefined();
   });
 
   test('should forward an abort signal when a cancellation token id is passed', async () => {
