@@ -269,6 +269,34 @@ describe('extractCatalogExtensions', () => {
   });
 });
 
+describe('extractCatalogExtensions with a bundled extension', () => {
+  test.each([
+    { name: 'a bundled extension', bundled: true },
+    { name: 'an extension installed by the user', bundled: false },
+  ])('isBundled is $bundled when the installed extension is $name', ({ bundled }) => {
+    const installedExtension: CombinedExtensionInfoUI = {
+      id: 'idAInstalled',
+      name: 'a-extension',
+      description: 'A extension',
+      displayName: 'A Extension',
+      publisher: 'FooPublisher',
+      removable: !bundled,
+      devMode: false,
+      bundled,
+      version: '1.31.0',
+      state: 'started',
+      path: '/extensions/a-extension',
+      readme: '',
+      type: 'pd',
+    };
+
+    const [catalogExtension] = extensionsUtils.extractCatalogExtensions([aFakeExtension], [], [installedExtension]);
+
+    expect(catalogExtension?.isInstalled).toBe(true);
+    expect(catalogExtension?.isBundled).toBe(bundled);
+  });
+});
+
 describe('extractExtensionDetail', () => {
   test('Check with extension M not being installed or in the catalog', async () => {
     const extensionDetail = extensionsUtils.extractExtensionDetail(

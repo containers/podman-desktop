@@ -185,6 +185,7 @@ export class ExtensionsUtils {
         const icon = latestVersion?.files.find(f => f.assetType === 'icon');
         const installed = installedExtensions.find(installedExtension => installedExtension.id === catalogExtension.id);
         const isInstalled = !!installed;
+        const isBundled = !!installed?.bundled;
         const isFeatured = featuredExtensions.some(featuredExtension => featuredExtension.id === catalogExtension.id);
 
         const shortDescription = catalogExtension.shortDescription;
@@ -201,6 +202,7 @@ export class ExtensionsUtils {
           iconHref: icon?.data,
           publisherDisplayName,
           isInstalled,
+          isBundled,
           installedVersion,
           shortDescription,
           categories,

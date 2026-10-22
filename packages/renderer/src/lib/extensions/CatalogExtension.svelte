@@ -60,7 +60,7 @@ function openExtensionDetails(): void {
         </div>
       </div>
 
-      {#if catalogExtensionUI.isInstalled}
+      {#if catalogExtensionUI.isInstalled && !catalogExtensionUI.isBundled}
         <div class="flex flex-1 text-[var(--pd-invert-content-info-icon)] p-1 justify-items-end flex-row place-content-end items-center">
           <Icon class="ml-1.5 mr-2" size="1.1x" icon={faCheckCircle} />
           <div class="uppercase text-sm cursor-default">Already installed</div>
@@ -74,7 +74,9 @@ function openExtensionDetails(): void {
     <div class="items-end flex flex-1">
       <div class="text-[var(--pd-content-text)] text-sm">
         v{catalogExtensionUI.fetchVersion}
-        {#if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
+        {#if catalogExtensionUI.isBundled}
+          <span>(bundled: v{catalogExtensionUI.installedVersion})</span>
+        {:else if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
           <span>(installed: v{catalogExtensionUI.installedVersion})</span>
         {/if}
       </div>

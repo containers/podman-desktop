@@ -26,6 +26,8 @@ export interface CatalogExtensionInfoUI {
   iconHref?: string;
   publisherDisplayName: string;
   isInstalled: boolean;
+  // the installed extension is a bundled one, which the catalog extension can replace
+  isBundled: boolean;
   installedVersion?: string;
   shortDescription: string;
   categories: string[];

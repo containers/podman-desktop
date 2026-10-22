@@ -46,6 +46,7 @@ test('Expect to have more details working', async () => {
     fetchVersion: '',
     publisherDisplayName: 'Foo publisher',
     isInstalled: false,
+    isBundled: false,
     shortDescription: 'my description',
     categories: [],
     keywords: [],
@@ -83,6 +84,7 @@ test('Expect to see featured and fetch button', async () => {
     fetchVersion: '',
     publisherDisplayName: 'Foo publisher',
     isInstalled: false,
+    isBundled: false,
     shortDescription: 'my description',
     categories: [],
     keywords: [],
@@ -126,6 +128,7 @@ test('Expect to have version of installed one', async () => {
     installedVersion: '2.0.0',
     publisherDisplayName: 'Foo publisher',
     isInstalled: true,
+    isBundled: false,
     shortDescription: 'my description',
     categories: [],
     keywords: [],
@@ -140,4 +143,51 @@ test('Expect to have version of installed one', async () => {
   // check if installed version is displayed
   const installedVersion = screen.getByText('(installed: v2.0.0)');
   expect(installedVersion).toBeInTheDocument();
+});
+
+test('Expect a catalog extension matching a bundled one to be installable', async () => {
+  const catalogExtensionUI: CatalogExtensionInfoUI = {
+    id: 'podman-desktop.kind',
+    displayName: 'Kind',
+    isFeatured: false,
+    fetchable: true,
+    fetchLink: 'quay.io/kind:2.0.0',
+    fetchVersion: '2.0.0',
+    installedVersion: '1.31.0-next',
+    publisherDisplayName: 'Podman Desktop',
+    isInstalled: true,
+    isBundled: true,
+    shortDescription: 'Kind extension',
+    categories: [],
+    keywords: [],
+  };
+
+  render(CatalogExtension, { catalogExtensionUI });
+
+  screen.getByRole('button', { name: 'Install podman-desktop.kind Extension' });
+  screen.getByText('(bundled: v1.31.0-next)');
+  expect(screen.queryByText('Already installed')).not.toBeInTheDocument();
+});
+
+test('Expect a catalog extension installed by the user to be already installed', async () => {
+  const catalogExtensionUI: CatalogExtensionInfoUI = {
+    id: 'podman-desktop.kind',
+    displayName: 'Kind',
+    isFeatured: false,
+    fetchable: true,
+    fetchLink: 'quay.io/kind:2.0.0',
+    fetchVersion: '2.0.0',
+    installedVersion: '2.0.0',
+    publisherDisplayName: 'Podman Desktop',
+    isInstalled: true,
+    isBundled: false,
+    shortDescription: 'Kind extension',
+    categories: [],
+    keywords: [],
+  };
+
+  render(CatalogExtension, { catalogExtensionUI });
+
+  screen.getByText('Already installed');
+  expect(screen.queryByRole('button', { name: 'Install podman-desktop.kind Extension' })).not.toBeInTheDocument();
 });
