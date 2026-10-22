@@ -253,6 +253,31 @@ export async function deleteNetwork(page: Page, name: string): Promise<void> {
   });
 }
 
+/**
+ * Delete volume defined by its name
+ * @param page playwright's page object
+ * @param name name of volume to be removed
+ */
+export async function deleteVolume(page: Page, name: string): Promise<void> {
+  return test.step(`Delete volume with name ${name}`, async () => {
+    const navigationBar = new NavigationBar(page);
+    const volumesPage = await navigationBar.openVolumes();
+    await playExpect(volumesPage.heading).toBeVisible({ timeout: 10_000 });
+    // the environment filter is component-local and survives navigating to the same page,
+    // so reset it to make sure the volume is not hidden by a leftover filter
+    if (await volumesPage.isEnvironmentFilterVisible()) {
+      await volumesPage.clearFilterByEnvironment();
+    }
+
+    if ((await volumesPage.getVolumeRowByName(name)) === undefined) {
+      console.log(`volume '${name}' does not exist, skipping...`);
+    } else {
+      await volumesPage.deleteVolume(name);
+      await volumesPage.waitForVolumeDelete(name);
+    }
+  });
+}
+
 export interface HandleConfirmationDialogOptions {
   page: Page;
   dialogTitle: string | RegExp;

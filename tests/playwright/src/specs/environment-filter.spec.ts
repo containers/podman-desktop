@@ -21,9 +21,8 @@ import { type ContainerInteractiveParams, PodmanVirtualizationProviders } from '
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
-import { NavigationBar } from '/@/model/workbench/navigation';
 import { expect as playExpect, test } from '/@/utility/fixtures';
-import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
+import { deleteContainer, deleteImage, deletePod, deletePodmanMachine, deleteVolume } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
 import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
@@ -77,14 +76,7 @@ test.describe
         const errors: unknown[] = [];
         for (const cleanup of [
           (): Promise<void> => deletePod(page, environmentFilterPod),
-          async (): Promise<void> => {
-            const volumes = await new NavigationBar(page).openVolumes();
-            await playExpect(volumes.heading).toBeVisible({ timeout: 10_000 });
-            if ((await volumes.getVolumeRowByName(environmentFilterVolume)) !== undefined) {
-              await volumes.deleteVolume(environmentFilterVolume);
-              await volumes.waitForVolumeDelete(environmentFilterVolume);
-            }
-          },
+          (): Promise<void> => deleteVolume(page, environmentFilterVolume),
           (): Promise<void> => deleteContainer(page, environmentFilterContainer),
           (): Promise<void> => deleteImage(page, environmentFilterImage),
           (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
@@ -219,7 +211,11 @@ test.describe
 
       await test.step(`Filter by ${secondMachineDisplayName} shows no volumes`, async () => {
         await volumes.filterByEnvironment(secondMachineDisplayName);
-        await playExpect.poll(async () => await volumes.countVolumesFromTable(), { timeout: 15_000 }).toBe(0);
+        await playExpect
+          .poll(async () => (await volumes.getVolumeRowByName(environmentFilterVolume)) === undefined, {
+            timeout: 15_000,
+          })
+          .toBeTruthy();
       });
 
       await test.step(`Filter by ${defaultMachineDisplayName} shows the created volume`, async () => {
