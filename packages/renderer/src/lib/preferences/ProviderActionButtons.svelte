@@ -138,7 +138,7 @@ function executeProviderMenu(menu: Menu): void {
   {:else}
     <div class="flex flex-row justify-around flex-wrap gap-2">
       {#if showCreateNewButton}
-        <Tooltip bottom tip={isCreateButtonDisabled ? warningsTooltip : `Create new ${providerDisplayName}`}>
+        <Tooltip bottom tip={isCreateButtonDisabled ? warningsTooltip : `${buttonTitle} ${providerDisplayName}`}>
           <Button
             aria-label="{buttonTitle} {providerDisplayName}"
             inProgress={providerInstallationInProgress}

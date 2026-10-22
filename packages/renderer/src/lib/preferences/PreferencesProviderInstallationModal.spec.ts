@@ -108,7 +108,7 @@ test('Expect to call closeCallback if clicking on Cancel', async () => {
   expect(closeCallback).toBeCalled();
 });
 
-test('Expect to call doCreateNew if clicking on Next', async () => {
+test('Expect to call doCreateNew if clicking on Retry', async () => {
   const { findByRole } = render(PreferencesProviderInstallationModal, {
     providerToBeInstalled: {
       provider: providerInfo,
