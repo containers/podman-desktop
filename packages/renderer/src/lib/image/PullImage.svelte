@@ -33,7 +33,7 @@ const imageUtils = new ImageUtils();
 
 let logsPull = $state<Terminal>();
 let pullError = $state('');
-let pullInProgress = $state(false);
+let pullRunning = $state(false);
 let pullCompleted = $state(false);
 let pullCancellableTokenId = $state<number | undefined>();
 let pullCancellationRequested = $state(false);
@@ -86,6 +86,9 @@ let isImageInStore = $derived.by(() => {
 // the image gets into the store asynchronously and before running the pulled image, it has to be in the images store
 // so we defined that pull is finished when the pull is completed and the image is in the store
 let pullFinished = $derived(pullCompleted && isImageInStore);
+
+// pull is still in progress if it is running or if it is completed but not finished yet
+let pullInProgress = $derived(pullRunning || (pullCompleted && !pullFinished));
 
 const lineNumberPerId = new SvelteMap<string, number>();
 let lineIndex = 0;
@@ -175,7 +178,7 @@ async function pullImage(): Promise<void> {
   // reset error
   pullError = '';
 
-  pullInProgress = true;
+  pullRunning = true;
   try {
     pullCancellationRequested = false;
     pullCancellableTokenId = await window.getCancellableTokenSource();
@@ -220,7 +223,7 @@ async function pullImage(): Promise<void> {
     }
   } finally {
     pullCancellableTokenId = undefined;
-    pullInProgress = false;
+    pullRunning = false;
     pullCancellationRequested = false;
   }
 }
