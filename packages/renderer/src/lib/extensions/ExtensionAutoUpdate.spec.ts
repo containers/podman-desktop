@@ -96,13 +96,15 @@ test('the button is in progress while the automatic updates are being changed', 
   await vi.waitFor(() => expect(button).toBeEnabled());
 });
 
+test('the automatic updates of a bundled extension can be disabled', () => {
+  render(ExtensionAutoUpdate, { extension: buildExtension({ removable: false, bundled: true }) });
+
+  screen.getByRole('button', { name: 'Disable' });
+});
+
 test.each([
-  { name: 'a bundled extension', extension: buildExtension({ removable: false, bundled: true }) },
   { name: 'a Docker Desktop extension', extension: buildExtension({ type: 'dd' }) },
-  {
-    name: 'an extension replacing a bundled one',
-    extension: buildExtension({ overrides: { id: 'foo.bar', version: '1.0.0' } }),
-  },
+  { name: 'an extension from a development folder', extension: buildExtension({ removable: false, devMode: true }) },
 ])('nothing is offered for $name, never updated automatically', ({ extension }) => {
   render(ExtensionAutoUpdate, { extension });
 

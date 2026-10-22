@@ -60,9 +60,9 @@ export interface ExtensionInfo {
 }
 
 /**
- * Only the extensions installed by the user are updated automatically: an extension replacing a bundled one is not,
- * like the bundled extension it replaces.
+ * The extensions installed by the user and the bundled ones are updated from the catalog, a bundled extension being
+ * replaced by its new version. Extensions loaded from a development folder are not.
  */
-export function isAutoUpdatable(extension: Pick<ExtensionInfo, 'removable' | 'overrides'>): boolean {
-  return extension.removable && !extension.overrides;
+export function isAutoUpdatable(extension: Pick<ExtensionInfo, 'removable' | 'bundled'>): boolean {
+  return extension.removable || extension.bundled;
 }

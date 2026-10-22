@@ -131,7 +131,7 @@ export class ExtensionsUpdater {
     // now, grab list of installed extensions
     const installedExtensions = await this.extensionLoader.listExtensions();
 
-    // now, for each installed extension that is not a built-in extension, check if there is a newer version available
+    // now, for each installed or bundled extension, check if there is a newer version available
     const extensionsToUpdate = installedExtensions
       .filter(extension => isAutoUpdatable(extension))
       .map(installedExtension => {
@@ -227,8 +227,16 @@ export class ExtensionsUpdater {
     }
 
     try {
-      // uninstall the extension
-      await this.extensionLoader.removeExtension(extensionId);
+      const installedExtension = (await this.extensionLoader.listExtensions()).find(
+        extension => extension.id === extensionId,
+      );
+      if (installedExtension?.bundled) {
+        // a bundled extension cannot be uninstalled: stop it, the new version replaces it
+        await this.extensionLoader.replaceBundledExtension(extensionId);
+      } else {
+        // uninstall the extension
+        await this.extensionLoader.removeExtension(extensionId);
+      }
 
       const reportMessage = (message: string): void => {
         console.log(message);

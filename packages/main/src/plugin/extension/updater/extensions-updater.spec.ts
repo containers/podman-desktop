@@ -83,6 +83,7 @@ const extensionLoader = {
   listExtensions: extensionLoaderListExtensionsMock,
   setExtensionsUpdates: extensionLoaderSetExtensionsUpdatesMock,
   removeExtension: vi.fn(),
+  replaceBundledExtension: vi.fn(),
 } as unknown as ExtensionLoader;
 
 const getConfigMock = vi.fn();
@@ -164,35 +165,64 @@ test('should check for updates and try to update one extension automatically', a
   expect(telemetry.track).toBeCalled();
 });
 
-test('should not update an extension replacing a bundled one', async () => {
-  const overridingExtension: ExtensionInfo = {
-    id: 'foo.extension1',
-    name: 'extension1',
-    description: 'Extension 1',
-    displayName: 'Extension 1',
-    publisher: 'foo',
-    removable: true,
-    devMode: false,
-    bundled: false,
-    overrides: { id: 'foo.extension1', version: '1.0.0' },
-    version: '1.0.0',
-    state: 'started',
-    path: '/plugins/extension1',
-    readme: '',
-  };
-
-  // the catalog has a newer version of the extension
+test('should automatically replace a bundled extension by its new version', async () => {
+  // the catalog has a newer version of the bundled extension
   extensionsCatalogGetExtensionsMock.mockResolvedValue([catalogExtension1, catalogExtension2]);
-  extensionLoaderListExtensionsMock.mockResolvedValue([overridingExtension]);
+  extensionLoaderListExtensionsMock.mockResolvedValue([
+    buildExtensionInfo('foo.extension1', { removable: false, bundled: true }),
+  ]);
 
   // auto update is enabled
   getConfigMock.mockReturnValue(true);
 
   await extensionsUpdater.init();
 
-  expect(extensionLoaderSetExtensionsUpdatesMock).not.toHaveBeenCalled();
+  expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('foo.extension1');
   expect(extensionLoader.removeExtension).not.toHaveBeenCalled();
-  expect(extensionInstaller.installFromImage).not.toHaveBeenCalled();
+  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    'oci-registry.foo/foo/bar1',
+  );
+});
+
+test('should automatically update an extension replacing a bundled one', async () => {
+  // the catalog has a newer version of the extension replacing a bundled one
+  extensionsCatalogGetExtensionsMock.mockResolvedValue([catalogExtension1, catalogExtension2]);
+  extensionLoaderListExtensionsMock.mockResolvedValue([
+    buildExtensionInfo('foo.extension1', { overrides: { id: 'foo.extension1', version: '1.0.0' } }),
+  ]);
+
+  // auto update is enabled
+  getConfigMock.mockReturnValue(true);
+
+  await extensionsUpdater.init();
+
+  expect(extensionLoader.removeExtension).toHaveBeenCalledWith('foo.extension1');
+  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    'oci-registry.foo/foo/bar1',
+  );
+});
+
+test('should replace a bundled extension by its new version when updating it', async () => {
+  extensionLoaderListExtensionsMock.mockResolvedValue([
+    buildExtensionInfo('foo.extension1', { removable: false, bundled: true }),
+  ]);
+
+  await extensionsUpdater.updateExtension('foo.extension1', 'oci-registry.foo/foo/bar1');
+
+  expect(extensionLoader.replaceBundledExtension).toHaveBeenCalledWith('foo.extension1');
+  expect(extensionLoader.removeExtension).not.toHaveBeenCalled();
+  expect(extensionInstaller.installFromImage).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    'oci-registry.foo/foo/bar1',
+  );
 });
 
 /**
