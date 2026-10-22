@@ -1,11 +1,29 @@
 # Release process for Podman Desktop
 
+## Release notes
+
+Start the release notes before the pre-release workflow.
+
+You can generate release notes by using the [release notes tool](https://github.com/podman-desktop/tool-release-notes), which goes through each PR and creates it accordingly.
+
+Alternatively, you can manually create it:
+
+1. Use an [example template](#release-notes-template) for the release notes.
+1. Create a PR to the blog folder of the website using the file format: `website/blog/2023-07-12-release-0.13.md`
+1. Example of request when using `gh` cli tool for 1.9.0 milestone: `gh pr list --limit 300 --repo "podman-desktop/podman-desktop" --search "state:closed milestone:1.9.0" --json title,number,url --template '{{range .}}- {{.title}} [#{{.number}}]({{.url}}){{"\n"}}{{end}}'`
+1. Add any images to the `website/img/podman-desktop-release-0.13` folder.
+
+Before the merge:
+
+1. Request a review from the docs maintainers.
+1. Get approval from domain reviewers (PM, engineering, docs)
+1. Preview the highlighted features on the PD dashboard (max of 3 bullet points). Shorten lines that wrap.
+
 ## Pre-requisites
 
 - Create Task issue `Release vX.X.X` for the current sprint (if such an issue does not already exist), then update the type to Release and assign it to yourself.
 - Confirm with Podman Desktop maintainers that pending / need-to-go-in PR's have been merged.
-- Notify main contributors on Discord / Slack.
-- Release notes for the blog: Communicate with the person who has been tasked with creating the documentation. If you are assigned, see the below ["Documentation"](#documentation) section.
+- Release notes for the blog: Communicate with the person who has been tasked with creating the documentation. If you are assigned, see [Release notes](#release-notes).
 
 In the below example, we will pretend that we're upgrading from `0.11.0` to `0.12.0`. Please use the CORRECT release numbers as these are just example numbers.
 
@@ -21,45 +39,78 @@ Below is what a typical release week may look like (This is just an example of t
 
 ## Releasing on GitHub
 
-1. Go to https://github.com/containers/podman-desktop/actions/workflows/release.yaml
+### Main release
+
+For patch updates and QE re-spins, use [Patch releases](#patch-releases).
+
+1. Notify the main contributors on Discord / Slack before the pre-release. Include the completed milestone link and ask about blockers:
+
+   > A pre-release will be triggered for 0.12.0. Here is the completed milestone: `<milestone link>`. Do you have any blockers?
+
+1. Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/release.yaml
 1. Click on the top right drop-down menu `Run workflow`
 1. Enter the name of the release. Example: `0.12.0` (DO NOT use the v prefix like v0.12.0)
-1. Specify the branch to use for the new release. It's main for all major releases. For a bugfix release, you'll select a different branch.
+1. Set `Branch to use for the release` to `main`.
 1. Click on the `Run workflow` button.
 1. Note: `Run workflow` takes approximately 30-50 minutes. Brew a coffee, work on the release notes, and/or complete the next two steps while you wait.
-1. Close the milestone for the respective release, make sure that all tasks within the milestone are completed / updated before closing. https://github.com/containers/podman-desktop/milestones
+1. Close the milestone for the respective release, make sure that all tasks within the milestone are completed / updated before closing. https://github.com/podman-desktop/podman-desktop/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
-1. Check that https://github.com/containers/podman-desktop/actions/workflows/release.yaml has been completed. Sometimes it will flake, so you may need to re-run it.
+1. Check that https://github.com/podman-desktop/podman-desktop/actions/workflows/release.yaml has been completed. Sometimes it will flake, so you may need to re-run it.
 1. There should be an automated PR that has been created. Approve this and set to auto-merge. This will be automatically merged in after all tests have been ran (takes 10-30 minutes). The title looks like `chore: 📢 Bump version to 0.13.0`. Rerun workflow manually if some of e2e tests are failing.
 1. Above PR MUST be merged before continuing with the steps.
-1. Edit the new release https://github.com/containers/podman-desktop/releases/edit/v0.12.0
+1. Edit the new release https://github.com/podman-desktop/podman-desktop/releases/edit/v0.12.0
 1. Select previous tag (v0.11.0) and click on `Generate release notes` and then click on `Update release`
-1. 🚨 Create the flathub PR once the release is available. This allows users / QE to test the new version. **IMPORTANT NOTE:** We will hold the merge until it is approved.
+
+Continue with [Prepare for QE](#prepare-for-qe).
+
+### Patch releases
+
+Use this checklist for QE re-spins and fixes after a release.
+
+**Cherry picking:**
+
+1. If `0.12.x` does not exist, create it from the original release tag, `v0.12.0`:
+
+   ```sh
+   $ git fetch origin --tags
+   $ git checkout -b 0.12.x v0.12.0
+   $ git push --set-upstream origin 0.12.x
+   ```
+
+   If the branch exists, reuse it for subsequent patches. Do not create it from `main`.
+
+1. Create PRs with the fixes that merge into `main`.
+1. Use Mergify to open backport PRs with this comment on each main PR: `@Mergifyio backport 0.12.x`.
+1. Wait for all fix PRs and backport PRs to merge before a re-spin.
+
+**Re-spin a release:**
+
+1. Update the existing blog release notes with this patch version and its fixes, including each re-spin.
+1. Notify the main contributors on Discord / Slack about the patch pre-release and ask about blockers.
+1. Open the [release workflow](https://github.com/podman-desktop/podman-desktop/actions/workflows/release.yaml).
+1. Set `Branch to use for the release` to `0.12.x`.
+
+   **Important:** Do not select `main` for a re-spin.
+
+1. Set `Version to release` to `0.12.1`, or the next unused patch version. Do not enter `v0.12.1` or `0.12.x`.
+1. Click `Run workflow`.
+1. Wait for the workflow to complete.
+1. Edit the new release at https://github.com/podman-desktop/podman-desktop/releases/edit/v0.12.1.
+1. Select the previous tag and click `Generate release notes`.
+1. Click `Update release`.
+
+Continue with [Prepare for QE](#prepare-for-qe) for each patch, including each re-spin.
+
+### Prepare for QE
+
+1. 🚨 Create the Flathub PR once the release is available. This allows users / QE to test the new version. **Do not merge it before QE approval.**
 
    This PR can be created by doing the following:
-   - Go to https://github.com/containers/podman-desktop/actions/workflows/publish-flathub.yaml
+   - Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/publish-flathub.yaml
    - Click on the top right drop-down `Run workflow`
-   - Enter the release version `0.12.0` for example. DO NOT add the `v`
+   - Enter the release version, for example `0.12.0` or `0.12.1`. Do not add the `v`.
    - Click `Run workflow`
    - You can view the PR at: https://github.com/flathub/io.podman_desktop.PodmanDesktop/pulls/podman-desktop-bot
-
-1. Approve `npmjs-publish.yaml` workflow **IMPORTANT NOTE:** We should wait for release note to be merged
-
-   The workflow will be waiting for manual approval
-   - Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/npmjs-publish.yaml?query=is%3Awaiting
-   - Click on `View details` of the run corresponding to the release you wish to publish
-   - Click on `Review Deployment`
-   - Check `npmjs-publish.yaml` then click on `Approve and Deploy`
-   - Cancel any other pending run (If you did one or several re-spin, previous release tag will also wait, we should not publish them).
-
-1. Approve `schemastore-sync-extension-schema.yaml` workflow
-
-   The workflow will be waiting for manual approval
-   - Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/schemastore-sync-extension-schema.yaml?query=is%3Awaiting
-   - Click on `View details` of the run corresponding to the release you wish to sync
-   - Click on `Review Deployment`
-   - Check `schemastore-sync-extension-schema.yaml` then click on `Approve and Deploy`
-   - Cancel any other pending run (If you did one or several re-spin, previous release tag will also wait, we should not sync them).
 
 ## Test release before it is rolling out.
 
@@ -71,30 +122,9 @@ The release may be tested using the assets generated within the pre-release.
 
 ## QE and cherry picking fixes
 
-- ❌ All critical bugs and regressions reported by QE are investigated and reviewed. If we determine that any of these issues warrant blocking the release, the necessary fixes will be implemented, and a new release candidate will be created—incrementing the patch version (e.g., 0.12.1 instead of 0.12.0).
+- ❌ All critical bugs and regressions reported by QE are investigated and reviewed. If an issue blocks the release, the team implements the fixes and creates a new release candidate. The patch version increases, for example, from `0.12.0` to `0.12.1`.
 
-**Cherry picking:**
-
-If there are fixes that need to be made to the release as brought up by QE the following steps need to be completed (using hypothetical release 0.12.0 as an example):
-
-1. Create the cherry-fix branch `0.12.x` from tag `0.12.0`:
-
-```sh
-$ git fetch --tags
-$ git checkout -b 0.12.x v0.12.0
-$ git push origin 0.12.x
-```
-
-2. Create PRs with the fixes that merge into `main` and use Mergify to open backport PRs to `0.12.x` by adding the following comment in the main PRs: `@Mergifyio backport 0.12.x`
-3. Make sure all PRs are merged, before re-spinning a release.
-
-**Re-spin a release:**
-
-You'll need to create another release from the 0.12.x branch. This can be done by doing the following:
-
-1. Go to `Run workflow` in the [release steps](/RELEASE.md#releasing-on-github) again.
-2. **MAKE SURE** you specify that you want to use the `0.12.x` branch, NOT `main` under `Branch to use for the release`.
-3. Version to release should be `0.12.1` **IMPORTANT NOTE:** Literally `0.12.1` NOT the branch name `0.12.x`.
+Follow [Patch releases](#patch-releases) for the branch, backport, and re-spin steps.
 
 ## Testing sign-off
 
@@ -103,7 +133,7 @@ Before promoting a pre-release to latest, wait for official sign-off.
 **Notification:** After testing is done, designated release owner will be tagged on Slack in a message that includes one of two explicit status lines:
 
 - `QE is approving the release of <version>` - **GO:** Proceed with the remaining release steps.
-- `QE is not approving the release of <version>` - **NO-GO:** Hold the release until blockers are resolved.
+- `QE is not approving the release of <version>` - **NO-GO:** Hold the release. Follow [Patch releases](#patch-releases) for fixes, then repeat QE tests and wait for sign-off.
 
 **Bug details:** The message includes a direct link to the GitHub testing issue. Review the comment on that issue for the full list of discovered bugs, test results, and details.
 
@@ -113,7 +143,7 @@ Do not proceed with promotion until an approval message is posted.
 
 ✅ After [Testing sign-off](#testing-sign-off), we have a green light!
 
-1. Ensure release notes PR is ready
+1. Make sure that the release notes PR includes the final patch version and approval from both @Firewall and @slemeur.
 1. Merge the release notes before flagging the release as the 'latest': It is because Podman Desktop is displaying in the UI the release notes of the new release, so as soon as there is an update, the data needs to be there.
 
 **DO NOT FORGET to change from pre-release to release!**
@@ -122,24 +152,64 @@ This is done on your release URL
 
 **Do not forget to change the release from 'pre-release' to 'latest release' before proceeding**.
 
-1.  Go to your release: https://github.com/containers/podman-desktop/releases/tag/vX.X.X
+1.  Go to your release: https://github.com/podman-desktop/podman-desktop/releases/tag/vX.X.X
 2.  Press the edit button.
 3.  Uncheck `Set as a pre-release`
+4.  Click `Update release`.
+
+**This change triggers update notifications for all Podman Desktop users.**
 
 **IMPORTANT NOTE:** Only the .z version that was approved by QE should be changed from pre-release to release. Any previous blocked versions need to stay as pre-release. For example, if the respin version `0.12.1` was approved by QE after finding bugs in `0.12.0`, only `0.12.1` should be moved from pre-release to release.
+
+## Updating the podman.io website
+
+**Update podman.io immediately after promotion.** Old download links cause users to install an outdated version and receive an update notification.
+
+The below workflow will create a PR for the Podman [website](https://podman.io) by updating the version number.
+
+1. Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/publish-to-podman_io.yaml
+1. Click on the top right drop-down `Run workflow`
+1. Select the release (under tags), which would be `v0.12.0`
+1. Enter the release version `0.12.0`. DO NOT add the `v`
+1. Click `Run workflow`
+1. Make sure that the PR exists at https://github.com/podman-container-tools/podman.io/pulls.
+1. Ask someone with merge rights to merge the PR promptly.
+
+## Publishing packages and the extension schema
+
+**Note:** After a re-spin, runs for previous release tags also wait for approval.
+
+1. Approve `npmjs-publish.yaml` workflow after the release notes merge.
+
+   The workflow waits for manual approval.
+   - Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/npmjs-publish.yaml?query=is%3Awaiting
+   - Click on `View details` of the run corresponding to the release you wish to publish
+   - Click on `Review Deployment`
+   - Check `npmjs-publish.yaml` then click on `Approve and Deploy`
+   - Cancel all other pending runs.
+
+1. Approve `schemastore-sync-extension-schema.yaml` workflow
+
+   The workflow waits for manual approval.
+   - Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/schemastore-sync-extension-schema.yaml?query=is%3Awaiting
+   - Click on `View details` of the run corresponding to the release you wish to sync
+   - Click on `Review Deployment`
+   - Check `schemastore-sync-extension-schema.yaml` then click on `Approve and Deploy`
+   - Cancel all other pending runs.
 
 ## Updating package managers (Brew, Winget, Chocolatey, Flathub)
 
 Pre-requisites:
 
-- Ensure the release is OK (green workflow, artifacts are there https://github.com/containers/podman-desktop/releases).
+- Ensure the release is OK (green workflow, artifacts are there https://github.com/podman-desktop/podman-desktop/releases).
 
 ### Flathub
 
 PR was created during the release, but it was not yet merged.
 The link to the PR is at https://github.com/flathub/io.podman_desktop.PodmanDesktop/pulls/podman-desktop-bot
 
-1. once the PR passes all tests and release is accepted, merge the PR
+1. Make sure that the PR passes all tests and that QE approves the Flathub PR.
+1. Ask someone with merge rights to merge the PR.
 
 #### Brew
 
@@ -149,7 +219,7 @@ The link to the PR is at https://github.com/flathub/io.podman_desktop.PodmanDesk
 
 Publish to winget. The workflow will create an automated PR to the Winget pkgs repository https://github.com/microsoft/winget-pkgs/
 
-1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-winget.yaml
+1. Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/publish-to-winget.yaml
 1. Click on the top right drop-down `Run workflow`
 1. Select the release (under tags), which would be `v0.12.0`
 1. Enter the release version `0.12.0`. DO NOT add the `v`
@@ -161,7 +231,7 @@ You can view the PR at: https://github.com/microsoft/winget-pkgs/pulls?q=is%3Apr
 
 Publish to chocolatey. The workflow will create an automatic submission to the chocolatey site at https://community.chocolatey.org/packages/podman-desktop/#versionhistory
 
-1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-chocolatey.yaml
+1. Go to https://github.com/podman-desktop/podman-desktop/actions/workflows/publish-to-chocolatey.yaml
 1. Click on the top right drop-down `Run workflow`
 1. Run the workflow from the main branch.
 1. Enter the release version `0.12.0`. DO NOT add the `v`
@@ -169,68 +239,42 @@ Publish to chocolatey. The workflow will create an automatic submission to the c
 
 Afterwards, you'll have to:
 
-- Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/containers/podman-desktop/pulls?q=is%3Apr+Update+Chocolatey
+- Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/podman-desktop/podman-desktop/pulls?q=is%3Apr+Update+Chocolatey
 
 You can view the progress at: https://community.chocolatey.org/packages/podman-desktop/0.12.0
-
-## Documentation
-
-### Release notes
-
-You can generate release notes by using the [release notes tool](https://github.com/podman-desktop/tool-release-notes). This will go through each PR that is linked with the given milestone and automatically generate release notes.
-
-> **_NOTE:_** If the issue is not in given milestone it will not be in release notes. The release notes are generated locally on your machine, you just need to add the images with editing the highlighted PRs (since those can be generated by AI model). And copy the release notes to right folder in podman-desktop repository.
-
-OR
-
-1. Use an [example template](#release-notes-template) for the release notes.
-1. Create a PR to the blog folder of the website using the file format: `website/blog/2023-07-12-release-0.13.md`
-1. Example of request when using `gh` cli tool for 1.9.0 milestone: `gh pr list --limit 300 --repo "containers/podman-desktop" --search "state:closed milestone:1.9.0" --json title,number,url --template '{{range .}}- {{.title}} [#{{.number}}]({{.url}}){{"\n"}}{{end}}'`
-1. Add any images to the `website/img/podman-desktop-release-0.13` folder.
-1. Ping the respective docs maintainers for a review before merging.
-
-### Updating the podman.io website
-
-The below workflow will create a PR for the Podman [website](https://podman.io) by updating the version number.
-
-1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-podman_io.yaml
-1. Click on the top right drop-down `Run workflow`
-1. Select the release (under tags), which would be `v0.12.0`
-1. Enter the release version `0.12.0`. DO NOT add the `v`
-1. Click `Run workflow`
-1. Check that the PR has been created after the workflow at https://github.com/containers/podman.io/pull/
 
 ## Announcements
 
 #### Release notes
 
-1. Double check with the Project Manager / Technical lead that the release notes are ready
-1. Merge the release notes (there should be a pending PR such as: `Release notes 0.12`), this will now be published on the blog.
+1. Make sure that the Project Manager / Technical lead agrees that the release notes are ready.
+1. Make sure that the release notes are live on the blog before announcements.
 
 #### Github discussions
 
-1. Create a new announcement at https://github.com/containers/podman-desktop/discussions
+1. Create a new announcement at https://github.com/podman-desktop/podman-desktop/discussions
 1. Example template:
 
 ```
 Hello,
 
-A new release of Podman Desktop is out: [v0.12.0](https://github.com/containers/podman-desktop/milestone/12?closed=1)
+A new release of Podman Desktop is out: [v0.12.0](https://github.com/podman-desktop/podman-desktop/milestone/12?closed=1)
 
 Download it from the [download section](https://podman-desktop.io/downloads) of the [Podman Desktop website](https://podman-desktop.io/)
 
 Release Notes are available at https://podman-desktop.io/blog/podman-desktop-release-0.12
 
-Full Changelog is available at https://github.com/containers/podman-desktop/releases/tag/v0.12.0
+Full Changelog is available at https://github.com/podman-desktop/podman-desktop/releases/tag/v0.12.0
 ```
 
 #### Create a post on Reddit
 
-An example of a previous post: https://www.reddit.com/r/podman/comments/10moat6/a_new_version_of_podman_desktop_is_out_v0110/
+See [previous release posts in the Podman Desktop subreddit](https://www.reddit.com/r/podmandesktop/search/?q=release&restrict_sr=on).
 
 1. Click create post on the [Podman Desktop subreddit](https://www.reddit.com/r/podmandesktop/).
 2. Title it: `A new version of Podman Desktop is out: v0.12.0`
 3. Copy over release notes (markdown works on Reddit)
+4. Replace `<ThemedImage>` components with Markdown links to the images, such as `[Screenshot](https://podman-desktop.io/img/...)`.
 
 #### Email announcement
 
@@ -248,7 +292,7 @@ slug: podman-desktop-release-X.X
 authors: [YOURUSERNAME]
 tags: [podman-desktop, release, kubernetes, openshift]
 hide_table_of_contents: false
-<!-- This image link is used for social media previews / thumbnails. Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
+<!-- This image link is used for social media previews / thumbnails. Release images are available: https://github.com/redhat-developer/podman-desktop-internal/tree/main/release-images -->
 image: /img/blog/podman-desktop-release-1.X/X.png
 ---
 
@@ -271,7 +315,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 <!-- IDEALLY, ADD CARTOON SELKIE FOR RELEASE -->
 
 <!-- EXAMPLE -->
-<!-- Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
+<!-- Release images are available: https://github.com/redhat-developer/podman-desktop-internal/tree/main/release-images -->
 <!-- ![Podman-desktop-1-1-hero](img/podman-desktop-release-1.1/podman-desktop-release-1.1.png) -->
 
 ---
@@ -295,7 +339,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 <!-- CATCHALL SECTION FOR MINOR ENHANCEMENTS -- >
 <!-- USE BULLET POINTS -->
 <!-- EXAMPLE -->
-<!-- - Show warning when creating a pod with two containers that use the same port [#2671](https://github.com/containers/podman-desktop/pull/2671). -->
+<!-- - Show warning when creating a pod with two containers that use the same port [#2671](https://github.com/podman-desktop/podman-desktop/pull/2671). -->
 
 ---
 
@@ -304,7 +348,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 <!-- CATCHALL SECTION FOR BUG FIXES -- >
 <!-- USE BULLET POINTS -->
 <!-- EXAMPLE -->
-<!-- - Could not install extensions on Windows 10 [#2762](https://github.com/containers/podman-desktop/pull/2762). -->
+<!-- - Could not install extensions on Windows 10 [#2762](https://github.com/podman-desktop/podman-desktop/pull/2762). -->
 
 ---
 
@@ -315,14 +359,14 @@ release we received pull requests from the following people:
 
 <!-- INCLUDE SHOUTOUTS TO OUTSIDE CONTRIBUTORS -->
 <!-- EXAMPLE -->
-<!-- - [AsciiWolf](https://github.com/AsciiWolf) in [#2607 - fix typing error in Flathub name](https://github.com/containers/podman-desktop/pull/2607) and [#2609 - fix Flatpak install instructions](https://github.com/containers/podman-desktop/pull/2609) -->
+<!-- - [AsciiWolf](https://github.com/AsciiWolf) in [#2607 - fix typing error in Flathub name](https://github.com/podman-desktop/podman-desktop/pull/2607) and [#2609 - fix Flatpak install instructions](https://github.com/podman-desktop/podman-desktop/pull/2609) -->
 
 ---
 
 ## Final notes
 
 <!-- EDIT BELOW VERSION NUMBERS! -->
-The complete list of issues fixed in this release is available [here](https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3AX.X.0) and [here](https://github.com/containers/podman-desktop/issues?q=is%3Aclosed+milestone%3AX.X.0).
+The complete list of issues fixed in this release is available [here](https://github.com/podman-desktop/podman-desktop/issues?q=is%3Aclosed+milestone%3AX.X.0) and [here](https://github.com/podman-desktop/podman-desktop/issues?q=is%3Aclosed+milestone%3AX.X.0).
 
-Get the latest release from the [Downloads](/downloads) section of the website and boost your development journey with Podman Desktop. Additionally, visit the [GitHub repository](https://github.com/containers/podman-desktop) and see how you can help us make Podman Desktop better.
+Get the latest release from the [Downloads](/downloads) section of the website and boost your development journey with Podman Desktop. Additionally, visit the [GitHub repository](https://github.com/podman-desktop/podman-desktop) and see how you can help us make Podman Desktop better.
 ```
