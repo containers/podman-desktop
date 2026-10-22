@@ -2,6 +2,7 @@
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
 import ExtensionDetailsLink from './ExtensionDetailsLink.svelte';
+import ExtensionUpdateLink from './ExtensionUpdateLink.svelte';
 
 interface Props {
   extension: CombinedExtensionInfoUI;
@@ -25,6 +26,7 @@ let { extension }: Props = $props();
     <div aria-label="Version">
       {#if extension.version}
         v{extension.version}
+        <ExtensionUpdateLink {extension} />
       {/if}
     </div>
   </div>
