@@ -59,3 +59,27 @@ test('Escape key should trigger close', async () => {
   await userEvent.keyboard('{Escape}');
   expect(closeMock).toHaveBeenCalled();
 });
+
+test('dialog container should not take focus by default', async () => {
+  render(Dialog, { title: 'A dialog', onclose: vi.fn() });
+
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).not.toHaveAttribute('tabindex');
+  expect(dialog).not.toHaveFocus();
+});
+
+test('initialButtonFocus none should focus the dialog container', async () => {
+  render(Dialog, { title: 'A dialog', onclose: vi.fn(), initialButtonFocus: 'none' });
+
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveAttribute('tabindex', '-1');
+  await vi.waitFor(() => expect(dialog).toHaveFocus());
+});
+
+test.each(['first', 'last'] as const)('initialButtonFocus %s should not focus the dialog container', async focus => {
+  render(Dialog, { title: 'A dialog', onclose: vi.fn(), initialButtonFocus: focus });
+
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).not.toHaveAttribute('tabindex');
+  expect(dialog).not.toHaveFocus();
+});
