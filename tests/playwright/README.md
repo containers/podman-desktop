@@ -34,6 +34,14 @@ This approach is beneficial in the way that we do not need to have the `electron
 
 If you set `PODMAN_DESKTOP_BINARY` and `PODMAN_DESKTOP_ARGS` at the same time, the runner will throw an error since you cannot really run tests in both mode at the same time.
 
+### Configuring the Electron launch timeout
+
+The Electron runner waits up to 90 seconds for the application to launch by default. For a per-suite override, pass `electronLaunchTimeout` in `RunnerOptions` (in milliseconds):
+
+```typescript
+test.use({ runnerOptions: new RunnerOptions({ electronLaunchTimeout: 90_000 }) });
+```
+
 You can get testing-enabled Podman Desktop binaries and installation files from [testing-prereleases repository](https://github.com/podman-desktop/testing-prereleases).
 
 ## Usage of @podman-desktop/tests-playwright to develop the podman-desktop tests in the Podman Desktop repository
