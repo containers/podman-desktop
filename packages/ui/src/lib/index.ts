@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import ErrorMessage from './alert/ErrorMessage.svelte';
-import type { ButtonType } from './button/Button';
+import type { ActionButtonType, ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import CloseButton from './button/CloseButton.svelte';
 import Expandable from './button/Expandable.svelte';
@@ -54,7 +54,7 @@ import { tablePersistence } from './table/table-persistence-store.svelte';
 import Tooltip from './tooltip/Tooltip.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
-export type { ButtonType, IconType, ListOrganizerItem, TablePersistence, ThemedIconImage };
+export type { ActionButtonType, ButtonType, IconType, ListOrganizerItem, TablePersistence, ThemedIconImage };
 export {
   Button,
   ButtonRow,

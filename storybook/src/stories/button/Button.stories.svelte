@@ -52,7 +52,7 @@ const basicVariants: ButtonVariant[] = [
   { name: 'Secondary', args: { type: 'secondary', content: 'Secondary' } },
   { name: 'Danger', args: { type: 'danger', content: 'Danger' } },
   { name: 'Link', args: { type: 'link', content: 'Link' } },
-  { name: 'Tab', args: { type: 'tab', content: 'Tab' } },
+  { name: 'Tab', args: { type: 'tab', content: 'Tab', selected: false } },
   { name: 'Tab Selected', args: { type: 'tab', content: 'Selected Tab', selected: true } },
   { name: 'Default (No Type)', args: { content: 'Default Button' } },
 ];
@@ -171,7 +171,7 @@ const tabVariants: ButtonVariant[] = [
   { name: 'Tab Group Selected', args: { type: 'tab', content: 'Running', selected: true } },
   { name: 'Tab Capitalize', args: { type: 'tab', content: 'completed', class: 'capitalize', selected: false } },
   { name: 'Tab Capitalize Selected', args: { type: 'tab', content: 'completed', class: 'capitalize', selected: true } },
-  { name: 'Tab With Custom Class', args: { type: 'tab', content: 'Custom Tab', class: 'capitalize' } },
+  { name: 'Tab With Custom Class', args: { type: 'tab', content: 'Custom Tab', class: 'capitalize', selected: false } },
 ];
 
 const toggleVariants: ButtonVariant[] = [
