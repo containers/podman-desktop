@@ -18,6 +18,7 @@ import Typeahead from '/@/lib/ui/Typeahead.svelte';
 import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
 import { handleNavigation } from '/@/navigation';
 import { lastPage } from '/@/stores/breadcrumb';
+import { imagesInfos } from '/@/stores/images';
 import { providerInfos } from '/@/stores/providers';
 
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -33,7 +34,7 @@ const imageUtils = new ImageUtils();
 let logsPull = $state<Terminal>();
 let pullError = $state('');
 let pullInProgress = $state(false);
-let pullFinished = $state(false);
+let pullCompleted = $state(false);
 let pullCancellableTokenId = $state<number | undefined>();
 let pullCancellationRequested = $state(false);
 let shortnameImages: string[] = [];
@@ -57,6 +58,34 @@ let providerConnections = $derived(
 );
 
 let selectedProviderConnection = $state<ProviderContainerConnectionInfo>();
+
+// the engine id is not carried by the connection, it is built from the provider owning it
+let selectedEngineId = $derived(
+  $providerInfos
+    .flatMap(provider =>
+      provider.containerConnections.map(connection => ({ connection, engineId: `${provider.id}.${connection.name}` })),
+    )
+    .find(
+      ({ connection }) =>
+        connection.name === selectedProviderConnection?.name &&
+        connection.endpoint.socketPath === selectedProviderConnection?.endpoint.socketPath,
+    )?.engineId,
+);
+
+let isImageInStore = $derived.by(() => {
+  const target = getPullTarget();
+  if (!target || !selectedEngineId) {
+    return false;
+  }
+
+  return $imagesInfos.some(
+    image => image.engineId === selectedEngineId && (image.RepoTags ?? []).some(repoTag => repoTag.includes(target)),
+  );
+});
+
+// the image gets into the store asynchronously and before running the pulled image, it has to be in the images store
+// so we defined that pull is finished when the pull is completed and the image is in the store
+let pullFinished = $derived(pullCompleted && isImageInStore);
 
 const lineNumberPerId = new SvelteMap<string, number>();
 let lineIndex = 0;
@@ -176,7 +205,7 @@ async function pullImage(): Promise<void> {
         pullCancellableTokenId,
       );
     }
-    pullFinished = true;
+    pullCompleted = true;
   } catch (error: unknown) {
     const errorMessage =
       error && typeof error === 'object' && 'message' in error && error.message ? error.message : error;
@@ -198,6 +227,16 @@ async function pullImage(): Promise<void> {
 
 async function pullImageFinished(): Promise<void> {
   router.goto('/images');
+}
+
+function getDockerLibraryImage(): string | undefined {
+  return imageToPull?.startsWith('docker.io/') && imageToPull.split('/').length === 2
+    ? `${imageToPull.split('/')[0]}/library/${imageToPull.split('/')[1]}`
+    : undefined;
+}
+
+function getPullTarget(): string | undefined {
+  return usePodmanFQN && podmanFQN ? podmanFQN : (getDockerLibraryImage() ?? imageToPull);
 }
 
 async function getFirstPulledImageInfo(): Promise<ImageInfoUI | undefined> {
