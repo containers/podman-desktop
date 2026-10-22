@@ -39,5 +39,8 @@ export const PODMAN_EDIT_IMPORT_NATIVE_CA = 'podman.podmanMachineEditImportNativ
  */
 export const UNINSTALL_LEGACY_INSTALLER_COMMAND = 'podman.uninstallLegacyPodmanInstaller';
 
+export const HYPERV_PREP_COMMAND = 'podman.hypervPrep';
 export const HYPERV_PREP_SUPPORTED_KEY = 'podman.hypervPrepSupported';
 export const HYPERV_PREP_NOT_APPLIED_KEY = 'podman.hypervPrepNotApplied';
+export const HYPERV_PREP_RELOGIN_MESSAGE =
+  'Sign out of Windows and sign back in (or restart your computer) for Hyper-V Administrators group membership to take effect.';

@@ -53,6 +53,10 @@
         "title": "Podman: Set up registry"
       },
       {
+        "command": "podman.hypervPrep",
+        "title": "Podman: Prepare Hyper-V"
+      },
+      {
         "command": "podman.uninstallLegacyPodmanInstaller",
         "title": "Podman: Uninstall legacy podman installer"
       },
