@@ -78,7 +78,7 @@ async function previewOnGitHub(): Promise<void> {
 </script>
 
 <FeedbackForm>
-  <svelte:fragment slot="content">
+  {#snippet content()}
     <div class="text-sm text-[var(--pd-state-warning)]">You can search <Link aria-label="GitHub issues" onclick={openGitHubIssues}>existing {category} issues on GitHub</Link></div>
     <!-- issue title -->
     <label for="issueTitle" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Title</label>
@@ -119,14 +119,14 @@ async function previewOnGitHub(): Promise<void> {
         <div>Include enabled extensions</div>
       </div>
     {/if}
-  </svelte:fragment>
-  <svelte:fragment slot="validation">
+  {/snippet}
+  {#snippet validation()}
     {#if !issueTitle || !issueDescription}
       <ErrorMessage class="text-xs" error={issueValidationError}/>
     {/if}
-  </svelte:fragment>
-  <svelte:fragment slot="buttons">
+  {/snippet}
+  {#snippet buttons()}
     <Button class="underline" type="link" aria-label="Cancel" on:click={(): void => onCloseForm(true)}>Cancel</Button>
     <Button aria-label="Preview on GitHub" on:click={previewOnGitHub} disabled={!issueTitle || !issueDescription}>Preview on GitHub</Button>
-  </svelte:fragment>
+  {/snippet}
 </FeedbackForm>

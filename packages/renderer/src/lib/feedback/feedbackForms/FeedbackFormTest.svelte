@@ -1,11 +1,15 @@
 <script lang="ts">
 import FeedbackForm from '/@/lib/feedback/FeedbackForm.svelte';
 </script>
-  
-  <FeedbackForm>
-    <p slot="content" aria-label="content">Content</p>
-  
-    <p slot="validation" aria-label="validation">Validation</p>
-  
-    <p slot="buttons" aria-label="buttons">Buttons</p>
-  </FeedbackForm>
+
+<FeedbackForm>
+  {#snippet content()}
+    <p aria-label="content">Content</p>
+  {/snippet}
+  {#snippet validation()}
+    <p aria-label="validation">Validation</p>
+  {/snippet}
+  {#snippet buttons()}
+    <p aria-label="buttons">Buttons</p>
+  {/snippet}
+</FeedbackForm>
