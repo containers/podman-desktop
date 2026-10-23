@@ -3189,3 +3189,198 @@ test('getConnectionFactories should return the connection factories', async () =
     images: provider2Images,
   });
 });
+
+describe('provider connection started property', () => {
+  test('started timestamp is set when connection status is started', () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+
+    const conn = {
+      name: 'connection',
+      displayName: 'connection',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/endpoint.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+    };
+    provider.registerContainerProviderConnection(conn);
+
+    const info = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(info.started).toBeTypeOf('number');
+    expect(info.started).toBeGreaterThan(0);
+  });
+
+  test('started timestamp is undefined when connection status is stopped', () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    });
+
+    const conn = {
+      name: 'connection',
+      displayName: 'connection',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/endpoint.sock' },
+      status: (): ProviderConnectionStatus => 'stopped',
+    };
+    provider.registerContainerProviderConnection(conn);
+
+    const info = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(info.started).toBeUndefined();
+  });
+
+  test('handles explicit started property as number, Date, string, and function', () => {
+    const fixedEpoch = 1710000000000;
+    const fixedIso = '2025-01-01T12:00:00.000Z';
+    const fixedDate = new Date(fixedIso);
+
+    // Number
+    const connNumber = {
+      name: 'conn-num',
+      displayName: 'conn-num',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/1.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: fixedEpoch,
+    };
+    expect(providerRegistry.getProviderContainerConnectionInfo(connNumber).started).toBe(fixedEpoch);
+
+    // Date
+    const connDate = {
+      name: 'conn-date',
+      displayName: 'conn-date',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/2.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: fixedDate,
+    };
+    expect(providerRegistry.getProviderContainerConnectionInfo(connDate).started).toBe(fixedDate.getTime());
+
+    // ISO string
+    const connString = {
+      name: 'conn-str',
+      displayName: 'conn-str',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/3.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: fixedIso,
+    };
+    expect(providerRegistry.getProviderContainerConnectionInfo(connString).started).toBe(Date.parse(fixedIso));
+
+    // Function
+    const connFn = {
+      name: 'conn-fn',
+      displayName: 'conn-fn',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/4.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: (): number => fixedEpoch,
+    };
+    expect(providerRegistry.getProviderContainerConnectionInfo(connFn).started).toBe(fixedEpoch);
+  });
+
+  test('handles started accessor function throwing an error safely', () => {
+    const connThrowing = {
+      name: 'conn-throw',
+      displayName: 'conn-throw',
+      type: 'podman' as const,
+      endpoint: { socketPath: '/throw.sock' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: (): number => {
+        throw new Error('Failure accessing start time');
+      },
+    };
+    const info = providerRegistry.getProviderContainerConnectionInfo(connThrowing);
+    expect(info.started).toBeTypeOf('number');
+    expect(info.started).toBeGreaterThan(0);
+  });
+
+  test('kubernetes and vm connections also resolve started', () => {
+    const fixedIso = '2025-02-01T10:00:00.000Z';
+    const k8sConn = {
+      name: 'k8s-1',
+      endpoint: { apiURL: 'https://localhost:6443' },
+      status: (): ProviderConnectionStatus => 'started',
+      started: fixedIso,
+    };
+    const k8sInfo = providerRegistry.getProviderKubernetesConnectionInfo(k8sConn);
+    expect(k8sInfo.started).toBe(Date.parse(fixedIso));
+
+    const vmConn = {
+      name: 'vm-1',
+      status: (): ProviderConnectionStatus => 'started',
+    };
+    const vmInfo = providerRegistry.getProviderVmConnectionInfo(vmConn);
+    expect(vmInfo.started).toBeTypeOf('number');
+  });
+
+  test('startProviderConnection and stopProviderConnection maintain started lifecycle', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    }) as ProviderImpl;
+
+    let currentStatus: ProviderConnectionStatus = 'stopped';
+    const conn: ContainerProviderConnection = {
+      name: 'lifecycle-conn',
+      displayName: 'lifecycle-conn',
+      type: 'podman',
+      endpoint: { socketPath: '/endpoint.sock' },
+      status: () => currentStatus,
+      lifecycle: {
+        start: async () => {
+          currentStatus = 'started';
+        },
+        stop: async () => {
+          currentStatus = 'stopped';
+        },
+      },
+    };
+    provider.registerContainerProviderConnection(conn);
+
+    const infoBefore = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(infoBefore.started).toBeUndefined();
+
+    await providerRegistry.startProviderConnection(provider.internalId, infoBefore);
+    const infoStarted = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(infoStarted.started).toBeTypeOf('number');
+
+    await providerRegistry.stopProviderConnection(provider.internalId, infoStarted);
+    const infoStopped = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(infoStopped.started).toBeUndefined();
+  });
+
+  test('preserves fallback started time when stopping a connection fails', async () => {
+    const provider = providerRegistry.createProvider('id', 'name', {
+      id: 'internal',
+      name: 'internal',
+      status: 'installed',
+    }) as ProviderImpl;
+    const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
+    const conn: ContainerProviderConnection = {
+      name: 'lifecycle-conn',
+      displayName: 'lifecycle-conn',
+      type: 'podman',
+      endpoint: { socketPath: '/endpoint.sock' },
+      status: () => 'started',
+      lifecycle: {
+        stop: async () => {
+          throw new Error('stop failed');
+        },
+      },
+    };
+    provider.registerContainerProviderConnection(conn);
+
+    const infoStarted = providerRegistry.getProviderContainerConnectionInfo(conn);
+    expect(infoStarted.started).toBe(1000);
+
+    dateNow.mockReturnValue(2000);
+    await providerRegistry.stopProviderConnection(provider.internalId, infoStarted);
+
+    expect(providerRegistry.getProviderContainerConnectionInfo(conn).started).toBe(1000);
+  });
+});

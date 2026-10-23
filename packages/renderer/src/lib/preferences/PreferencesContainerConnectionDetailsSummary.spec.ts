@@ -21,12 +21,16 @@ import '@testing-library/jest-dom/vitest';
 import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
 import type { IConfigurationPropertyRecordedSchema } from '@desktop-framework/api/configuration';
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 
 beforeEach(() => {
   vi.resetAllMocks();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const podmanContainerConnection: ProviderContainerConnectionInfo = {
@@ -231,5 +235,89 @@ describe('resource metrics display', () => {
 
     expect(capturedConnection).toBeDefined();
     expect(() => structuredClone(capturedConnection)).not.toThrow();
+  });
+
+  test('renders Uptime and Started at when containerConnectionInfo is started with started timestamp', async () => {
+    const startedTimestamp = Date.now() - 10 * 60 * 1000;
+    render(PreferencesContainerConnectionDetailsSummary, {
+      containerConnectionInfo: {
+        ...podmanContainerConnection,
+        status: 'started',
+        started: startedTimestamp,
+      },
+    });
+
+    const uptime = screen.getByLabelText('Uptime');
+    expect(uptime).toBeInTheDocument();
+    expect(uptime).toHaveTextContent('10 minutes');
+
+    const startedAt = screen.getByLabelText('Started at');
+    expect(startedAt).toBeInTheDocument();
+    expect(startedAt).toHaveTextContent(new Date(startedTimestamp).toLocaleString());
+  });
+
+  test('does not render Uptime and Started at when containerConnectionInfo is stopped', async () => {
+    render(PreferencesContainerConnectionDetailsSummary, {
+      containerConnectionInfo: {
+        ...podmanContainerConnection,
+        status: 'stopped',
+      },
+    });
+
+    expect(screen.queryByLabelText('Uptime')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Started at')).not.toBeInTheDocument();
+  });
+
+  test('does not display invalid uptime or started dates', async () => {
+    render(PreferencesContainerConnectionDetailsSummary, {
+      containerConnectionInfo: {
+        ...podmanContainerConnection,
+        status: 'started',
+        started: Number.POSITIVE_INFINITY,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(screen.getByLabelText('Uptime').textContent).toBe('');
+      expect(screen.getByLabelText('Started at').textContent).toBe('');
+    });
+  });
+
+  test('retries the uptime when the started timestamp is in the future', async () => {
+    vi.useFakeTimers();
+    const now = new Date('2025-01-01T00:00:00.000Z');
+    vi.setSystemTime(now);
+
+    const { container } = render(PreferencesContainerConnectionDetailsSummary, {
+      containerConnectionInfo: {
+        ...podmanContainerConnection,
+        status: 'started',
+        started: now.getTime() + 1000,
+      },
+    });
+    expect(container.querySelector('[aria-label="Uptime"]')?.textContent).toBe('');
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(container.querySelector('[aria-label="Uptime"]')?.textContent).not.toBe('');
+  });
+
+  test('refreshes uptime at the next displayed-unit boundary', async () => {
+    vi.useFakeTimers();
+    const now = new Date('2025-01-01T00:00:00.000Z');
+    vi.setSystemTime(now);
+
+    const { container } = render(PreferencesContainerConnectionDetailsSummary, {
+      containerConnectionInfo: {
+        ...podmanContainerConnection,
+        status: 'started',
+        started: now.getTime() - 90_000,
+      },
+    });
+    expect(container.querySelector('[aria-label="Uptime"]')).toHaveTextContent('1 minute');
+
+    await vi.advanceTimersByTimeAsync(30_000);
+
+    expect(container.querySelector('[aria-label="Uptime"]')).toHaveTextContent('2 minutes');
   });
 });

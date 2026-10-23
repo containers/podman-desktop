@@ -553,7 +553,7 @@ $effect(() => {
                 {/if}
               </div>
               <div class="flex" aria-label="Connection Status">
-                <ConnectionStatus status={container.status} />
+                <ConnectionStatus status={container.status} started={container.started} />
                 <ConnectionErrorIndicator error={container.error} />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
@@ -637,7 +637,7 @@ $effect(() => {
                 {kubeConnection.name}
               </div>
               <div class="flex mt-1" aria-label="Connection Status">
-                <ConnectionStatus status={kubeConnection.status} />
+                <ConnectionStatus status={kubeConnection.status} started={kubeConnection.started} />
                 <ConnectionErrorIndicator error={kubeConnection.error} />
               </div>
               <div class="mt-2">
@@ -674,7 +674,7 @@ $effect(() => {
               {vmConnection.name}
             </div>
             <div class="flex mt-1" aria-label="Connection Status">
-              <ConnectionStatus status={vmConnection.status} />
+              <ConnectionStatus status={vmConnection.status} started={vmConnection.started} />
               <ConnectionErrorIndicator error={vmConnection.error} />
               {#if containerConnectionStatus.has(getProviderConnectionName(provider, vmConnection))}
                 {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, vmConnection))}

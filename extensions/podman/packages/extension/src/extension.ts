@@ -111,6 +111,7 @@ let defaultMachineMonitor = true;
 export const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
+const podmanMachinesInspect = new Map<string, Record<string, unknown>>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 const containerProviderConnections = new Map<string, extensionApi.ContainerProviderConnection>();
 
@@ -267,6 +268,9 @@ async function doUpdateMachines(
 
     const previousStatus = podmanMachinesStatuses.get(machine.Name);
     if (previousStatus !== status) {
+      if (previousStatus === 'started' && status !== 'started') {
+        podmanMachinesInspect.delete(machine.Name);
+      }
       // notify status change
       listeners.forEach(listener => listener(machine.Name, status));
       podmanMachinesStatuses.set(machine.Name, status);
@@ -312,6 +316,7 @@ async function doUpdateMachines(
   machinesToRemove.forEach(machine => {
     podmanMachinesStatuses.delete(machine);
     podmanMachinesInfo.delete(machine);
+    podmanMachinesInspect.delete(machine);
     containerProviderConnections.delete(machine);
   });
 
@@ -577,7 +582,15 @@ async function updateContainerConfiguration(
 ): Promise<void> {
   // get configuration for this connection
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
-  const machineInspect = await getMachineInspect(machineInfo);
+  const newInspect = await getMachineInspect(machineInfo);
+  if (newInspect) {
+    const inspectToCache = { ...newInspect };
+    if (podmanMachinesStatuses.get(machineInfo.name) !== 'started') {
+      delete inspectToCache.LastUp;
+    }
+    podmanMachinesInspect.set(machineInfo.name, inspectToCache);
+  }
+  const machineInspect = newInspect ?? podmanMachinesInspect.get(machineInfo.name);
   const isRootful = isRootfulFromInspect(machineInspect);
 
   // Set values for the machine
@@ -706,6 +719,9 @@ export function updateProviderStatus(
 ): void {
   if (machineName) {
     podmanMachinesStatuses.set(machineName, status);
+    if (status !== 'started') {
+      podmanMachinesInspect.delete(machineName);
+    }
   } else {
     const previousStatus = podmanProviderStatus;
     podmanProviderStatus = status;
@@ -854,6 +870,10 @@ export async function registerProviderFor(
     start: async (context, logger): Promise<void> => {
       try {
         await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, false);
+        const newInspect = await getMachineInspect(machineInfo);
+        if (newInspect) {
+          podmanMachinesInspect.set(machineInfo.name, newInspect);
+        }
         containerProviderConnection.error = undefined;
       } catch (err) {
         containerProviderConnection.error = err instanceof Error ? err.message : String(err);
@@ -863,6 +883,7 @@ export async function registerProviderFor(
     stop: async (context, logger): Promise<void> => {
       try {
         await stopMachine(provider, machineInfo, context, logger);
+        podmanMachinesInspect.delete(machineInfo.name);
         containerProviderConnection.error = undefined;
       } catch (err) {
         containerProviderConnection.error = err instanceof Error ? err.message : String(err);
@@ -941,6 +962,13 @@ export async function registerProviderFor(
     displayName: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name) ?? 'unknown',
+    started: (): string | undefined => {
+      if (podmanMachinesStatuses.get(machineInfo.name) !== 'started') {
+        return undefined;
+      }
+      const inspect = podmanMachinesInspect.get(machineInfo.name);
+      return inspect?.LastUp ? String(inspect.LastUp) : undefined;
+    },
     shellAccess: providerConnectionShellAccess,
     lifecycle,
     endpoint: {
@@ -962,7 +990,15 @@ export async function registerProviderFor(
 
   // get configuration for this connection
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
-  const machineInspect = await getMachineInspect(machineInfo);
+  const initialInspect = await getMachineInspect(machineInfo);
+  if (initialInspect) {
+    const inspectToCache = { ...initialInspect };
+    if (podmanMachinesStatuses.get(machineInfo.name) !== 'started') {
+      delete inspectToCache.LastUp;
+    }
+    podmanMachinesInspect.set(machineInfo.name, inspectToCache);
+  }
+  const machineInspect = initialInspect ?? podmanMachinesInspect.get(machineInfo.name);
   const isRootful = isRootfulFromInspect(machineInspect);
 
   // Set values for the machine

@@ -145,7 +145,7 @@ function setNoLogs(): void {
     {#snippet subtitleSnippet()}
       {#if connectionInfo}
         <div class="flex flex-row">
-          <ConnectionStatus status={connectionInfo.status} />
+          <ConnectionStatus status={connectionInfo.status} started={connectionInfo.started} />
           <ConnectionErrorIndicator error={connectionInfo.error} />
           <ConnectionErrorInfoButton status={connectionStatus} />
         </div>

@@ -2026,6 +2026,31 @@ test('provider is registered with edit capabilities on MacOS', async () => {
   expect(extensionApi.context.setValue).toBeCalledWith(PODMAN_MACHINE_EDIT_ROOTFUL, true);
 });
 
+test('does not reuse a machine LastUp after a stop and restart', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
+  const lastUp = '2025-02-01T10:00:00.000Z';
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: JSON.stringify([{ Name: machineInfo.name, LastUp: lastUp }]),
+  } as extensionApi.RunResult);
+
+  let registeredConnection: ContainerProviderConnection | undefined;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  extension.podmanMachinesStatuses.set(machineInfo.name, 'started');
+
+  await extension.registerProviderFor(provider, podmanConfiguration, machineInfo, 'socket');
+
+  if (!registeredConnection || typeof registeredConnection.started !== 'function') {
+    throw new Error('Expected the registered connection to provide a started accessor');
+  }
+  expect(registeredConnection.started()).toBe(lastUp);
+  updateProviderStatus(provider, 'stopped', machineInfo.name);
+  updateProviderStatus(provider, 'started', machineInfo.name);
+  expect(registeredConnection.started()).toBeUndefined();
+});
+
 test('display name is beautified version of the name', async () => {
   extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');

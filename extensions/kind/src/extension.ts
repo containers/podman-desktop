@@ -202,6 +202,7 @@ async function updateClusters(
     return {
       name: clusterName,
       status,
+      startedAt: container.StartedAt,
       apiPort: listeningPort?.PublicPort ?? 0,
       engineType: container.engineType,
       engineId: container.engineId,
@@ -292,6 +293,7 @@ async function updateClusters(
       const connection: extensionApi.KubernetesProviderConnection = {
         name: cluster.name,
         status,
+        started: (): string | undefined => (cluster.status === 'started' ? cluster.startedAt : undefined),
         endpoint: {
           apiURL: `https://localhost:${cluster.apiPort}`,
         },
@@ -302,6 +304,8 @@ async function updateClusters(
       registeredKubernetesConnections.push({ connection, disposable });
     } else {
       item.connection.status = status;
+      item.connection.started = (): string | undefined =>
+        cluster.status === 'started' ? cluster.startedAt : undefined;
       item.connection.endpoint.apiURL = `https://localhost:${cluster.apiPort}`;
     }
   });

@@ -401,6 +401,10 @@ declare module '@podman-desktop/api' {
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     /**
+     * Optional timestamp (or function returning a timestamp) when this connection was started.
+     */
+    started?: number | Date | string | (() => number | Date | string | undefined);
+    /**
      * Optional error message describing why this connection is in a failed state.
      * The connection retains its lifecycle status (e.g. 'starting', 'stopped') while
      * this field provides the error details. Cleared automatically on successful
@@ -535,6 +539,10 @@ declare module '@podman-desktop/api' {
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     /**
+     * Optional timestamp (or function returning a timestamp) when this connection was started.
+     */
+    started?: number | Date | string | (() => number | Date | string | undefined);
+    /**
      * Optional error message describing why this connection is in a failed state.
      * @see {@link ContainerProviderConnection.error}
      */
@@ -546,6 +554,10 @@ declare module '@podman-desktop/api' {
     shellAccess?: ProviderConnectionShellAccess;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
+    /**
+     * Optional timestamp (or function returning a timestamp) when this connection was started.
+     */
+    started?: number | Date | string | (() => number | Date | string | undefined);
     /**
      * Optional error message describing why this connection is in a failed state.
      * @see {@link ContainerProviderConnection.error}
@@ -2666,6 +2678,7 @@ declare module '@podman-desktop/api' {
     ImageID: string;
     Command: string;
     Created: number;
+    StartedAt?: string;
     Ports: Port[];
     Labels: { [label: string]: string };
     State: string;
