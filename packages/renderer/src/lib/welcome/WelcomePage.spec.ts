@@ -56,6 +56,14 @@ test('Expect the close button is on the page', async () => {
   expect(button).toBeEnabled();
 });
 
+test('Expect welcome screen heading to have correct copy without emoji or space before exclamation', async () => {
+  await waitRender({ showWelcome: true });
+  const heading = screen.getByText('Welcome to Podman Desktop v1.0.0!');
+  expect(heading).toBeInTheDocument();
+  expect(heading.textContent).not.toMatch(/🎉/);
+  expect(heading.textContent).not.toMatch(/ !/);
+});
+
 test('Expect that the close button closes the window', async () => {
   await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Skip' });

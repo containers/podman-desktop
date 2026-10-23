@@ -76,7 +76,7 @@ function startOnboardingQueue(): void {
     <div class="flex flex-col justify-center content-center flex-auto backdrop-blur-sm p-2 overflow-y-auto">
       <div class="flex justify-center p-2"><DesktopIcon /></div>
       <div class="flex justify-center text-lg font-bold p-2">
-        <span class="mr-2">🎉</span>{welcomeMessages?.welcomeMessage} v{podmanDesktopVersion} !
+        {welcomeMessages?.welcomeMessage} v{podmanDesktopVersion}!
       </div>
       {#if onboardingProviders && onboardingProviders.length > 0}
         <div class="flex flex-row justify-center">
