@@ -28,6 +28,11 @@ const provider = {} as extensionApi.Provider;
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.useRealTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 afterEach(() => {
@@ -377,4 +382,52 @@ test('stop should cancel the recurring monitoring timer', async () => {
   // advancing well past the interval must not trigger any further monitoring
   await vi.advanceTimersByTimeAsync(15000);
   expect(spyRefreshRemoteConnections).not.toHaveBeenCalled();
+});
+
+test('should register remote connection with tunnel error', async () => {
+  vi.useFakeTimers();
+  const subscriptions: extensionApi.Disposable[] = [];
+  const testProvider = {
+    registerContainerProviderConnection: vi.fn().mockReturnValue({ dispose: vi.fn() }),
+  } as unknown as extensionApi.Provider;
+  const podmanRemoteConnections = new TestPodmanRemoteConnections(
+    { subscriptions } as unknown as extensionApi.ExtensionContext,
+    testProvider,
+  );
+  const sshTunnel = {
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    status: vi.fn(() => 'unknown'),
+    get error(): string {
+      return 'connection refused';
+    },
+  } as unknown as PodmanRemoteSshTunnel;
+
+  vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+    get: () => undefined,
+  } as unknown as extensionApi.Configuration);
+  vi.spyOn(podmanRemoteConnections, 'readPrivateKey').mockResolvedValue('fake-key');
+  vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    stdout: JSON.stringify([
+      {
+        IsMachine: false,
+        URI: 'ssh://dummy@127.0.0.1:1234/run/podman/podman.sock',
+        Identity: '/tmp/fakepath',
+        Name: 'RemoteSystemConnection1',
+      },
+    ]),
+  } as unknown as extensionApi.RunResult);
+  vi.spyOn(podmanRemoteConnections, 'createTunnel').mockReturnValue(sshTunnel);
+
+  const refresh = podmanRemoteConnections.refreshRemoteConnections();
+  await vi.advanceTimersByTimeAsync(1000);
+  await refresh;
+
+  expect(testProvider.registerContainerProviderConnection).toHaveBeenCalledWith(
+    expect.objectContaining({
+      name: 'RemoteSystemConnection1',
+      error: 'connection refused',
+    }),
+  );
+  expect(subscriptions).toHaveLength(1);
 });

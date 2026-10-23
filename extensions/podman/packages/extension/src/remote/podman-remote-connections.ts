@@ -164,6 +164,9 @@ export class PodmanRemoteConnections {
         const connectionDisposable = this.#provider.registerContainerProviderConnection({
           name: connection.Name,
           status: () => tunnel.status(),
+          get error(): string | undefined {
+            return tunnel.error;
+          },
           type: 'podman',
           endpoint: {
             socketPath: localPath,
