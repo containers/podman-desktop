@@ -763,6 +763,19 @@ export class ContainerProviderRegistry {
     return flattenedContainers;
   }
 
+  async getImageInfo(engineId: string, imageId: string): Promise<ImageInfo> {
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this engine');
+    }
+    const images = await this.listImages({ provider: provider.connection });
+    const image = images.find(image => image.engineId === engineId && image.Id === imageId);
+    if (!image) {
+      throw new Error(`Image ${imageId} not found on engine ${engineId}`);
+    }
+    return image;
+  }
+
   // list images will prefer to use libpod API of the provider if podman
   // before falling back to using the regular API
   async listImages(options?: ListImagesOptions): Promise<ImageInfo[]> {

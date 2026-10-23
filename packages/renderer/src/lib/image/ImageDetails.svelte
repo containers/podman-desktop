@@ -136,10 +136,10 @@ $effect(() => {
           <ImageDetailsInspect image={image} />
         </Route>
         <Route path="/check" breadcrumb="Check" navigationHint="tab">
-          <ImageDetailsCheck imageInfo={imageInfo} />
+          <ImageDetailsCheck engineId={engineId} imageId={imageID} />
         </Route>
         <Route path="/files" breadcrumb="Files" navigationHint="tab">
-          <ImageDetailsFiles imageInfo={imageInfo} />
+          <ImageDetailsFiles engineId={engineId} imageId={imageID} />
         </Route>
       {/if}
     {/snippet}

@@ -20,6 +20,8 @@ import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
 
 import type {
+  ImageFilesystemLayersUI,
+  ImageInfo,
   ImageUpdateInfo,
   ImageUpdateResult,
   NotificationCardOptions,
@@ -28,7 +30,7 @@ import type {
 } from '@desktop-framework/api';
 import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import type { PlayKubeInfo } from '@desktop-framework/api/libpod';
-import type { PullEvent } from '@desktop-framework/extension-api';
+import type { ImageChecks, PullEvent } from '@desktop-framework/extension-api';
 import type { IpcMainInvokeEvent, WebContents } from 'electron';
 import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import { Container as InversifyContainer } from 'inversify';
@@ -46,6 +48,8 @@ import { ContainerProviderRegistry } from './container-registry.js';
 import { DefaultConfiguration } from './default-configuration.js';
 import { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
+import { ImageCheckerImpl } from './image-checker.js';
+import { ImageFilesRegistry } from './image-files-registry.js';
 import { ImageRegistry } from './image-registry.js';
 import type { LoggerWithEnd } from './index.js';
 import { PluginSystem } from './index.js';
@@ -101,6 +105,8 @@ vi.mock(import('./navigation/navigation-manager.js'), importOriginal =>
 );
 vi.mock(import('./provider-registry.js'), importOriginal => mockOriginalClass(importOriginal, 'ProviderRegistry'));
 vi.mock(import('./image-registry.js'), importOriginal => mockOriginalClass(importOriginal, 'ImageRegistry'));
+vi.mock(import('./image-checker.js'), importOriginal => mockOriginalClass(importOriginal, 'ImageCheckerImpl'));
+vi.mock(import('./image-files-registry.js'), importOriginal => mockOriginalClass(importOriginal, 'ImageFilesRegistry'));
 
 let pluginSystem: TestPluginSystem;
 
@@ -1588,4 +1594,102 @@ test('navigation:getSearchableRoutes handler should delegate to navigationManage
 
   expect(NavigationManager.prototype.getSearchableRoutes).toHaveBeenCalled();
   expect(result).toEqual({ result: mockRoutes });
+});
+
+describe('image handlers resolving the image by engine and image id', () => {
+  const fakeImage: ImageInfo = {
+    Id: 'sha256:abc',
+    ParentId: '',
+    RepoTags: ['quay.io/podman/hello:latest'],
+    Created: 0,
+    Size: 0,
+    VirtualSize: 0,
+    SharedSize: 0,
+    Labels: {},
+    Containers: 0,
+    engineId: 'podman.podman',
+    engineName: 'podman',
+    engineType: 'podman',
+    Digest: 'sha256:abc',
+  };
+
+  type ImageHandler<T> = (
+    _listener: unknown,
+    id: string,
+    engineId: string,
+    imageId: string,
+    tokenId?: number,
+  ) => Promise<{ result?: T; error?: Error }>;
+
+  test('image-checker:check resolves the image and delegates to the checker', async () => {
+    const fakeChecks: ImageChecks = { checks: [] };
+    vi.mocked(ContainerProviderRegistry.prototype.getImageInfo).mockResolvedValue(fakeImage);
+    vi.mocked(ImageCheckerImpl.prototype.check).mockResolvedValue(fakeChecks);
+
+    const createTokenHandler = getHandler<() => Promise<{ result: number }>>('cancellableTokenSource:create');
+    const { result: tokenId } = await createTokenHandler();
+    const handle = getHandler<ImageHandler<ImageChecks>>('image-checker:check');
+
+    const result = await handle(undefined, 'provider1', 'podman.podman', 'sha256:abc', tokenId);
+
+    expect(ContainerProviderRegistry.prototype.getImageInfo).toHaveBeenCalledExactlyOnceWith(
+      'podman.podman',
+      'sha256:abc',
+    );
+    expect(ImageCheckerImpl.prototype.check).toHaveBeenCalledExactlyOnceWith(
+      'provider1',
+      fakeImage,
+      expect.objectContaining({ isCancellationRequested: false }),
+    );
+    expect(result.result).toEqual(fakeChecks);
+  });
+
+  test('image-checker:check returns the error when the image is not found', async () => {
+    vi.mocked(ContainerProviderRegistry.prototype.getImageInfo).mockRejectedValue(
+      new Error('Image sha256:abc not found on engine podman.podman'),
+    );
+    const handle = getHandler<ImageHandler<ImageChecks>>('image-checker:check');
+
+    const result = await handle(undefined, 'provider1', 'podman.podman', 'sha256:abc');
+
+    assert(result.error instanceof Error);
+    expect(result.error.message).toBe('Image sha256:abc not found on engine podman.podman');
+    expect(ImageCheckerImpl.prototype.check).not.toHaveBeenCalled();
+  });
+
+  test('image-files:getFilesystemLayers resolves the image and delegates to the registry', async () => {
+    const fakeLayers: ImageFilesystemLayersUI = { layers: [] };
+    vi.mocked(ContainerProviderRegistry.prototype.getImageInfo).mockResolvedValue(fakeImage);
+    vi.mocked(ImageFilesRegistry.prototype.getFilesystemLayers).mockResolvedValue(fakeLayers);
+
+    const createTokenHandler = getHandler<() => Promise<{ result: number }>>('cancellableTokenSource:create');
+    const { result: tokenId } = await createTokenHandler();
+    const handle = getHandler<ImageHandler<ImageFilesystemLayersUI>>('image-files:getFilesystemLayers');
+
+    const result = await handle(undefined, 'provider1', 'podman.podman', 'sha256:abc', tokenId);
+
+    expect(ContainerProviderRegistry.prototype.getImageInfo).toHaveBeenCalledExactlyOnceWith(
+      'podman.podman',
+      'sha256:abc',
+    );
+    expect(ImageFilesRegistry.prototype.getFilesystemLayers).toHaveBeenCalledExactlyOnceWith(
+      'provider1',
+      fakeImage,
+      expect.objectContaining({ isCancellationRequested: false }),
+    );
+    expect(result.result).toEqual(fakeLayers);
+  });
+
+  test('image-files:getFilesystemLayers returns the error when the image is not found', async () => {
+    vi.mocked(ContainerProviderRegistry.prototype.getImageInfo).mockRejectedValue(
+      new Error('Image sha256:abc not found on engine podman.podman'),
+    );
+    const handle = getHandler<ImageHandler<ImageFilesystemLayersUI>>('image-files:getFilesystemLayers');
+
+    const result = await handle(undefined, 'provider1', 'podman.podman', 'sha256:abc');
+
+    assert(result.error instanceof Error);
+    expect(result.error.message).toBe('Image sha256:abc not found on engine podman.podman');
+    expect(ImageFilesRegistry.prototype.getFilesystemLayers).not.toHaveBeenCalled();
+  });
 });
