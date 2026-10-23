@@ -47,6 +47,8 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 
 test.describe
   .serial('Verification of container filtering by environment', { tag: '@pdmachine' }, () => {
+    let secondMachineCreated = false;
+
     test.skip(
       isLinux ||
         process.env.TEST_PODMAN_MACHINE !== 'true' ||
@@ -65,17 +67,28 @@ test.describe
       });
     });
 
-    test.afterAll(async ({ page, runner }) => {
+    test.afterAll(async ({ page, runner, navigationBar }) => {
       test.setTimeout(120_000);
 
       try {
         // Run every cleanup step regardless of individual failures, then re-throw.
         const errors: unknown[] = [];
-        for (const cleanup of [
+        const cleanups: Array<() => Promise<void>> = [
+          // An active environment filter can hide the container, so reset it first.
+          async (): Promise<void> => {
+            const containers = await navigationBar.openContainers();
+            if (await containers.isEnvironmentFilterVisible()) {
+              await containers.clearFilterByEnvironment();
+            }
+          },
           (): Promise<void> => deleteContainer(page, environmentFilterContainer),
           (): Promise<void> => deleteImage(page, environmentFilterImage),
-          (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
-        ]) {
+        ];
+        // Only delete the machine if this suite created it, to never remove a pre-existing one.
+        if (secondMachineCreated) {
+          cleanups.push((): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName));
+        }
+        for (const cleanup of cleanups) {
           try {
             await cleanup();
           } catch (e) {
@@ -108,6 +121,7 @@ test.describe
         setAsDefault: false,
         virtualizationProvider: getVirtualizationProvider(),
       });
+      secondMachineCreated = true;
 
       // createMachine() waits for "Successful operation" and clicks "Go back to
       // resources". The machine may still be STARTING at this point — and the
