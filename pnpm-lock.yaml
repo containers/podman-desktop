@@ -218,7 +218,7 @@ overrides:
   '@docusaurus/utils@3>gray-matter': npm:@11ty/gray-matter@^2.1.0
   '@docusaurus/types>joi': ^17.13.6
   markdown-it: ^14.3.2
-  launch-editor: '>=2.14.1'
+  launch-editor: ^2.14.2
   webpack-dev-server: '>=5.2.6'
   '@babel/core': '>=7.29.6 <8.0.0'
   websocket-driver: '>=0.7.5'
@@ -9403,8 +9403,8 @@ packages:
     resolution: {integrity: sha512-KvNT4XqAMzdcL6ka6Tl3i2lYeFDgXNCuIX+xNx6ZMVR1dFq+idXd9FLKNMOIx0t9mJ9/HudyX4oZWXZQ0UJHeg==}
     engines: {node: '>=14.16'}
 
-  launch-editor@2.14.1:
-    resolution: {integrity: sha512-QWBrQsMpH7gPr965dsKD/3cKWiNoTjpATQf++Xq63N6sKRGMwlVXz41O1IZTMfZQgBctD/K5Zt06+/I6pP6+HA==}
+  launch-editor@2.14.2:
+    resolution: {integrity: sha512-NHJEb30MGBCkmZXLZwz25t37QR4aY03ZzPYUJXOJaOa92uWwExI9SBQUuIznBYc1xkD7cJNGX7oc3Nl3sq2kQQ==}
 
   layout-base@1.0.2:
     resolution: {integrity: sha512-8h2oVEZNktL4BH2JCOI90iD1yXwL6iNW7KcCKT2QZgQJR2vbqDsldCTPRU9NifTCqHZci57XvQQ15YTu+sTYPg==}
@@ -22416,7 +22416,7 @@ snapshots:
     dependencies:
       package-json: 8.1.1
 
-  launch-editor@2.14.1:
+  launch-editor@2.14.2:
     dependencies:
       picocolors: 1.1.1
       shell-quote: 1.12.0
@@ -26732,7 +26732,7 @@ snapshots:
       graceful-fs: 4.2.11
       http-proxy-middleware: 3.0.7(supports-color@8.1.1)
       ipaddr.js: 2.4.0
-      launch-editor: 2.14.1
+      launch-editor: 2.14.2
       open: 11.0.3
       p-retry: 8.0.0
       schema-utils: 4.3.3
