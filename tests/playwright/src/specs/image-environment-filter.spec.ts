@@ -45,23 +45,33 @@ const environmentFilterImage = 'ghcr.io/linuxcontainers/alpine';
 
 let cleanedUp = false;
 
+// Only what this run changed is reverted, so pre-existing resources with the same names are never touched.
+const changedByThisRun = { stoppedDefaultMachine: false, createdSecondMachine: false, pulledImage: false };
+
 /**
- * Brings the system back to the state it was in before the suite started: no pulled image,
- * no second machine, default machine running. Every step runs regardless of individual failures.
+ * Brings the system back to the state it was in before the suite started: pulled image and second machine
+ * removed, default machine running. Only resources changed by this run are reverted. Every step runs
+ * regardless of individual failures.
  */
 async function restoreInitialState(page: Page, navigationBar: NavigationBar): Promise<void> {
   const errors: unknown[] = [];
-  for (const step of [
-    async (): Promise<void> => {
+  const steps: Array<() => Promise<void>> = [];
+
+  if (changedByThisRun.pulledImage) {
+    steps.push(async () => {
       // A failed assertion can leave the filter set, which would hide the image from deleteImage().
       const images = await navigationBar.openImages();
       if (await images.isEnvironmentFilterVisible()) {
         await images.clearFilterByEnvironment();
       }
       await deleteImage(page, environmentFilterImage);
-    },
-    (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
-    async (): Promise<void> => {
+    });
+  }
+  if (changedByThisRun.createdSecondMachine) {
+    steps.push(() => deletePodmanMachine(page, secondMachineVisibleName));
+  }
+  if (changedByThisRun.stoppedDefaultMachine) {
+    steps.push(async () => {
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.resourcesTab.click();
       const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, defaultMachineVisibleName);
@@ -75,8 +85,10 @@ async function restoreInitialState(page: Page, navigationBar: NavigationBar): Pr
         initialTimeout: 60_000,
         retryTimeout: 60_000,
       });
-    },
-  ]) {
+    });
+  }
+
+  for (const step of steps) {
     try {
       await step();
     } catch (e) {
@@ -129,10 +141,20 @@ test.describe
 
       // With the default machine stopped, the "set as default?" dialog is always shown when the second one starts.
       const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, defaultMachineVisibleName);
+      const secondMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, secondMachineVisibleName);
+      // Fail before changing anything, cleanup must never delete a machine this run did not create.
+      if (await secondMachineCard.doesResourceElementExist()) {
+        throw new Error(
+          `Podman machine '${secondMachineVisibleName}' already exists, remove it before running this test`,
+        );
+      }
+
+      changedByThisRun.stoppedDefaultMachine = true;
       await defaultMachineCard.performConnectionAction(ResourceElementActions.Stop);
       await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Off);
 
       await resourcesPage.goToCreateNewResourcePage(RESOURCE_NAME);
+      changedByThisRun.createdSecondMachine = true;
       const createMachinePage = new CreateMachinePage(page);
       const resourcesPageAfterCreation = await createMachinePage.createMachine(secondMachineVisibleName, {
         isRootful: true,
@@ -143,7 +165,6 @@ test.describe
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
       await waitForMachineStatus(page, secondMachineVisibleName, ResourceElementState.Off);
 
-      const secondMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, secondMachineVisibleName);
       await secondMachineCard.performConnectionAction(ResourceElementActions.Start);
       await handleConfirmationDialog({
         page,
@@ -172,6 +193,9 @@ test.describe
       test.setTimeout(120_000);
 
       let images = await navigationBar.openImages();
+      await playExpect(images.heading).toBeVisible();
+      // Cleanup must never delete an image that was already there before this run.
+      changedByThisRun.pulledImage = (await images.getImageRowByName(environmentFilterImage)) === undefined;
       const pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(environmentFilterImage, 'latest', 60_000, defaultMachineVisibleName);
       await playExpect

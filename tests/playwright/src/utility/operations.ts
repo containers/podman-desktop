@@ -386,13 +386,20 @@ export async function waitForMachineStatus(
 ): Promise<void> {
   const RESOURCE_NAME: string = 'podman';
   const machineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
+  // A missing card is treated as a pending state, innerText() would otherwise reject and skip the refresh below.
+  const readStatus = async (card: ResourceConnectionCardPage): Promise<string> => {
+    if ((await card.resourceElementConnectionStatus.count()) === 0) return '';
+    return card.resourceElementConnectionStatus.innerText();
+  };
+  const hasTargetState = async (card: ResourceConnectionCardPage): Promise<boolean> =>
+    (await readStatus(card)).includes(targetState);
 
-  await waitUntil(async () => (await machineCard.resourceElementConnectionStatus.innerText()).includes(targetState), {
+  await waitUntil(() => hasTargetState(machineCard), {
     timeout: initialTimeout,
     sendError: false,
   });
 
-  const currentStatus = await machineCard.resourceElementConnectionStatus.innerText();
+  const currentStatus = await readStatus(machineCard);
   if (currentStatus.includes(targetState)) return;
 
   console.log(
@@ -409,7 +416,7 @@ export async function waitForMachineStatus(
   await playExpect(resourcesPage.heading).toBeVisible();
 
   const refreshedCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
-  await waitUntil(async () => (await refreshedCard.resourceElementConnectionStatus.innerText()).includes(targetState), {
+  await waitUntil(() => hasTargetState(refreshedCard), {
     timeout: retryTimeout,
     sendError: true,
   });
