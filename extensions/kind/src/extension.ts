@@ -25,18 +25,13 @@ import * as extensionApi from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 
 import product from '../product.json' with { type: 'json' };
+import { getSystemBinaryPath, installBinaryToSystem } from './cli-run';
 import { connectionAuditor, createCluster } from './create-cluster';
 import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
 import type { KindGithubReleaseArtifactMetadata } from './kind-installer';
 import { KindInstaller } from './kind-installer';
-import {
-  getKindBinaryInfo,
-  getKindPath,
-  getSystemBinaryPath,
-  installBinaryToSystem,
-  removeVersionPrefix,
-} from './util';
+import { getKindBinaryInfo, getKindPath, removeVersionPrefix } from './util';
 
 const KIND_CLI_NAME = 'kind';
 const KIND_DISPLAY_NAME = 'Kind';
@@ -70,11 +65,11 @@ let latestAsset: KindGithubReleaseArtifactMetadata | undefined = undefined;
 let providerUpdate: extensionApi.ProviderUpdate | undefined = undefined;
 const imageHandler = new ImageHandler();
 
-async function installLatestKind(): Promise<string> {
+async function installLatestKind(): Promise<string | undefined> {
   // 1. get latest asset
   const latest = await installer.getLatestVersionAsset();
   // 2. download it
-  let cliPath = await installer.download(latest);
+  let cliPath: string | undefined = await installer.download(latest);
 
   // 3. try to install system-wide: (can fail)
   try {
@@ -114,6 +109,10 @@ function registerKubernetesFactory(
           );
           if (result !== 'Confirm') throw new Error('Unable to create kind cluster. No kind cli detected');
           kindPath = await installLatestKind();
+        }
+
+        if (!kindPath) {
+          throw new Error('Unable to create kind cluster. Unable to install the kind cli');
         }
 
         return createCluster(params, kindPath, telemetryLogger, logger, token);
@@ -558,7 +557,7 @@ async function registerCliTool(
 
       // download, install system wide and update cli version
       await installer.download(releaseToUpdateTo);
-      let cliPath = installer.getKindCliStoragePath();
+      let cliPath: string | undefined = installer.getKindCliStoragePath();
       try {
         cliPath = await installBinaryToSystem(cliPath, KIND_CLI_NAME);
       } catch (err: unknown) {
@@ -622,7 +621,7 @@ async function registerCliTool(
 
       // download, install system wide and update cli version
       await installer.download(releaseToInstall);
-      let cliPath = installer.getKindCliStoragePath();
+      let cliPath: string | undefined = installer.getKindCliStoragePath();
 
       try {
         cliPath = await installBinaryToSystem(cliPath, KIND_CLI_NAME);
@@ -656,7 +655,7 @@ async function registerCliTool(
 
       // delete the executable in the system path
       const systemPath = getSystemBinaryPath(KIND_CLI_NAME);
-      await deleteExecutableAsAdmin(systemPath);
+      await deleteFile(systemPath);
 
       // update the version and path to undefined
       kindPath = undefined;
@@ -703,17 +702,6 @@ async function deleteFileAsAdmin(filePath: string): Promise<void> {
   try {
     // Use admin privileges
     await extensionApi.process.exec(command, args, { isAdmin: true });
-  } catch (error) {
-    console.error(`Failed to uninstall '${filePath}': ${error}`);
-    throw error;
-  }
-}
-
-async function deleteExecutableAsAdmin(filePath: string): Promise<void> {
-  const command = extensionApi.env.isWindows ? 'del' : 'rm';
-  try {
-    // Use admin privileges
-    await extensionApi.process.exec(command, [filePath], { isAdmin: true });
   } catch (error) {
     console.error(`Failed to uninstall '${filePath}': ${error}`);
     throw error;

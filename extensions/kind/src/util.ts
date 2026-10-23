@@ -24,26 +24,6 @@ import { isAbsolute, join } from 'node:path';
 import * as extensionApi from '@podman-desktop/api';
 
 const macosExtraPath = '/opt/podman/bin:/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
-const localBinDir = '/usr/local/bin';
-
-export function getSystemBinaryPath(binaryName: string): string {
-  switch (process.platform) {
-    case 'win32':
-      return join(
-        os.homedir(),
-        'AppData',
-        'Local',
-        'Microsoft',
-        'WindowsApps',
-        binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
-      );
-    case 'darwin':
-    case 'linux':
-      return join(localBinDir, binaryName);
-    default:
-      throw new Error(`unsupported platform: ${process.platform}.`);
-  }
-}
 
 export function getKindPath(): string | undefined {
   const env = process.env;
@@ -119,42 +99,6 @@ export async function whereBinary(executable: string): Promise<string> {
   }
 
   return executable;
-}
-
-// Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
-export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<string> {
-  // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
-  if (extensionApi.env.isLinux || extensionApi.env.isMac) {
-    try {
-      await extensionApi.process.exec('chmod', ['+x', binaryPath]);
-      console.log(`Made ${binaryPath} executable`);
-    } catch (error) {
-      throw new Error(`Error making binary executable: ${error}`);
-    }
-  }
-
-  // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
-  // and the appropriate command to move the binary to the destination path
-  const destinationPath: string = getSystemBinaryPath(binaryName);
-  let command: string;
-  let args: string[];
-  if (extensionApi.env.isWindows) {
-    command = 'copy';
-    args = [`"${binaryPath}"`, `"${destinationPath}"`];
-  } else {
-    command = 'cp';
-    args = [binaryPath, destinationPath];
-  }
-
-  try {
-    // Use admin prileges / ask for password for copying to /usr/local/bin
-    await extensionApi.process.exec(command, args, { isAdmin: true });
-    console.log(`Successfully installed '${binaryName}' binary.`);
-    return destinationPath;
-  } catch (error) {
-    console.error(`Failed to install '${binaryName}' binary: ${error}`);
-    throw error;
-  }
 }
 
 export async function getMemTotalInfo(socketPath: string): Promise<number> {

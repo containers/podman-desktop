@@ -109,7 +109,7 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
 });
 
 test('success: installBinaryToSystem to show warning if binary path not in PATH', async () => {
-  // Mock the platform to be darwin
+  // Mock the platform to be linux
   Object.defineProperty(process, 'platform', {
     value: 'linux',
   });

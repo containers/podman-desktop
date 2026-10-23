@@ -23,9 +23,9 @@ import * as path from 'node:path';
 import * as extensionApi from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import * as cliRun from './cli-run';
 import type { KindGithubReleaseArtifactMetadata } from './kind-installer';
 import { KindInstaller } from './kind-installer';
-import * as util from './util';
 
 let installer: KindInstaller;
 
@@ -33,7 +33,7 @@ vi.mock(import('node:os'), async () => {
   return {
     platform: vi.fn(),
     arch: vi.fn(),
-    homedir: vi.fn(),
+    homedir: vi.fn(() => '/test-home-dir'),
   };
 });
 vi.mock(import('node:fs'));
@@ -80,15 +80,19 @@ test.skip('expect installBinaryToSystem to successfully pass with a binary', asy
   const filename = path.join(os.tmpdir(), 'kind-tmp-binary');
 
   // "Install" the binary, this should pass sucessfully
-  await expect(() => util.installBinaryToSystem(filename, 'tmpBinary')).rejects.toThrowError();
+  await expect(() => cliRun.installBinaryToSystem(filename, 'tmpBinary')).rejects.toThrowError();
 });
 
 test('error: expect installBinaryToSystem to fail with a non existing binary', async () => {
   (extensionApi.env.isLinux as unknown as boolean) = true;
+  // Mock the platform to be linux
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
 
   vi.spyOn(extensionApi.process, 'exec').mockRejectedValue(new Error('test error'));
 
-  await expect(() => util.installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError('test error');
+  await expect(() => cliRun.installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError('test error');
 });
 
 describe('grabLatestsReleasesMetadata', () => {

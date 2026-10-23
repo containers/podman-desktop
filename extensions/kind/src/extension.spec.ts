@@ -22,6 +22,7 @@ import type * as extensionApi from '@podman-desktop/api';
 import * as podmanDesktopApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import * as cliRun from './cli-run';
 import { createCluster } from './create-cluster';
 import * as extension from './extension';
 import type { KindGithubReleaseArtifactMetadata } from './kind-installer';
@@ -33,6 +34,7 @@ vi.mock(import('./util'));
 vi.mock(import('./image-handler'));
 vi.mock(import('./create-cluster'));
 vi.mock(import('./kind-installer'));
+vi.mock(import('./cli-run'));
 
 const CLI_TOOL_MOCK: extensionApi.CliTool = {
   displayName: 'test',
@@ -72,7 +74,7 @@ beforeEach(() => {
 
   vi.mocked(podmanDesktopApi.containerEngine.listContainers).mockResolvedValue([]);
   vi.mocked(util.removeVersionPrefix).mockReturnValue('1.0.0');
-  vi.mocked(util.getSystemBinaryPath).mockReturnValue('test-storage-path/kind');
+  vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('test-storage-path/kind');
   vi.mocked(podmanDesktopApi.provider.getContainerConnections).mockReturnValue([]);
 });
 
@@ -122,7 +124,7 @@ describe('cli tool', () => {
       path: 'kind',
       version: '0.0.1',
     });
-    vi.mocked(util.getSystemBinaryPath).mockReturnValue('kind');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('kind');
   });
 
   test('activation should register cli tool when available, installed by desktop', async () => {
@@ -158,7 +160,7 @@ describe('cli tool', () => {
   });
 
   test('activation should register cli tool when available, installed by user', async () => {
-    vi.mocked(util.getSystemBinaryPath).mockReturnValue('user-kind');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('user-kind');
 
     await activate();
 
@@ -198,7 +200,7 @@ describe('cli tool', () => {
       path: 'test-storage-path/kind',
     });
 
-    vi.mocked(util.getSystemBinaryPath).mockReturnValue('test-storage-path/kind');
+    vi.mocked(cliRun.getSystemBinaryPath).mockReturnValue('test-storage-path/kind');
     await activate();
 
     expect(util.getKindBinaryInfo).toHaveBeenCalledTimes(2);
@@ -302,7 +304,7 @@ describe('cli#update', () => {
   });
 
   test('update updatable version should update version', async () => {
-    vi.mocked(util.installBinaryToSystem).mockResolvedValue('path');
+    vi.mocked(cliRun.installBinaryToSystem).mockResolvedValue('path');
 
     vi.mocked(KindInstaller.prototype.getKindCliStoragePath).mockReturnValue('storage-path');
     vi.mocked(KindInstaller.prototype.promptUserForVersion).mockResolvedValue(mockV1Release);
@@ -314,7 +316,7 @@ describe('cli#update', () => {
     expect(KindInstaller.prototype.download).toHaveBeenCalledWith(mockV1Release);
     expect(KindInstaller.prototype.getKindCliStoragePath).toHaveBeenCalled();
 
-    expect(util.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
     expect(CLI_TOOL_MOCK.updateVersion).toHaveBeenCalledWith({
       installationSource: 'extension',
       path: 'path',
@@ -399,7 +401,7 @@ describe('cli#install', () => {
       tag: 'v1.0.2',
       id: 1,
     };
-    vi.mocked(util.installBinaryToSystem).mockResolvedValue('path');
+    vi.mocked(cliRun.installBinaryToSystem).mockResolvedValue('path');
     // mock prompt result
 
     const cliToolInstaller: extensionApi.CliToolInstaller = await getCliToolInstaller();
@@ -412,7 +414,7 @@ describe('cli#install', () => {
 
     expect(KindInstaller.prototype.download).toHaveBeenCalledWith(latest);
     expect(KindInstaller.prototype.getKindCliStoragePath).toHaveBeenCalled();
-    expect(util.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
     expect(CLI_TOOL_MOCK.updateVersion).toHaveBeenCalledWith({
       installationSource: 'extension',
       path: 'path',
@@ -423,7 +425,7 @@ describe('cli#install', () => {
 
   test('if installing system wide fails, it should not throw', async () => {
     // mock error when trying to install system wide
-    vi.mocked(util.installBinaryToSystem).mockRejectedValue('error');
+    vi.mocked(cliRun.installBinaryToSystem).mockRejectedValue('error');
     // mock user select v1.0.0
     vi.mocked(KindInstaller.prototype.promptUserForVersion).mockResolvedValue(mockV1Release);
 
@@ -436,7 +438,7 @@ describe('cli#install', () => {
     // ensure the download has been called
     expect(KindInstaller.prototype.download).toHaveBeenCalledWith(mockV1Release);
     expect(KindInstaller.prototype.getKindCliStoragePath).toHaveBeenCalled();
-    expect(util.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
+    expect(cliRun.installBinaryToSystem).toHaveBeenCalledWith('storage-path', 'kind');
     expect(CLI_TOOL_MOCK.updateVersion).toHaveBeenCalledWith({
       installationSource: 'extension',
       path: 'storage-path',
@@ -465,7 +467,6 @@ describe('cli#uninstall', () => {
 
     await cliToolInstaller?.doUninstall({} as unknown as extensionApi.Logger);
     expect(fs.promises.unlink).toHaveBeenCalledWith('storage-path');
-    expect(podmanDesktopApi.process.exec).toHaveBeenCalledWith('rm', ['test-storage-path/kind'], { isAdmin: true });
   });
 
   test('if unlink fails because of a permission issue, it should delete all binaries as admin', async () => {
@@ -746,7 +747,6 @@ describe('connection lifecycle error propagation', () => {
       path: 'kind',
       version: '0.0.1',
     });
-    vi.mocked(util.getSystemBinaryPath).mockReturnValue('kind');
 
     vi.mocked(podmanDesktopApi.containerEngine.listContainers).mockResolvedValue([KIND_CONTAINER]);
 

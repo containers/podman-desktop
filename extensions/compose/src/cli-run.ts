@@ -91,7 +91,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     console.log(`Successfully installed '${binaryName}' binary.`);
     if (!(system === 'darwin' || process.env.FLATPAK_ID) && !process.env.PATH?.includes(destinationFolder)) {
       await extensionApi.window.showWarningMessage(
-        `The compose binary has been installed into ${destinationFolder} but it is not in the system path. You should add it manually if you want to use compose from cli.`,
+        `The ${binaryName} binary has been installed into ${destinationFolder} but it is not in the system path. You should add it manually if you want to use ${binaryName} from cli.`,
         'OK',
       );
     }

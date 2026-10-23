@@ -22,24 +22,13 @@ import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
-export interface RunOptions {
-  env?: NodeJS.ProcessEnv;
-  logger?: extensionApi.Logger;
-}
-
-const localBinDir = '/usr/local/bin';
+export const localBinDir = path.join('/', 'usr', 'local', 'bin');
+export const localWindowsBinDir = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps');
 
 export function getSystemBinaryPath(binaryName: string): string {
   switch (process.platform) {
     case 'win32':
-      return path.join(
-        os.homedir(),
-        'AppData',
-        'Local',
-        'Microsoft',
-        'WindowsApps',
-        binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
-      );
+      return path.join(localWindowsBinDir, binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`);
     case 'darwin':
     case 'linux':
       return path.join(localBinDir, binaryName);
@@ -49,7 +38,7 @@ export function getSystemBinaryPath(binaryName: string): string {
 }
 
 // Takes a binary path (e.g. /tmp/kubectl) and installs it to the system. Renames it based on binaryName
-export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
+export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<string | undefined> {
   const system = process.platform;
 
   // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
@@ -68,11 +57,12 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   let args: string[] = [];
   let command: string | undefined;
   if (system === 'win32') {
-    command = 'copy';
-    args = [`"${binaryPath}"`, `"${destinationPath}"`];
+    // admin privileges are are not needed on Windows
+    await fs.promises.copyFile(binaryPath, destinationPath);
+    return destinationPath;
   } else if (system === 'darwin') {
     command = 'exec';
-    args = ['cp', binaryPath, destinationPath];
+    args = ['cp', '-f', binaryPath, destinationPath];
   } else if (system === 'linux') {
     command = '/bin/sh';
     args = ['-c', `cp ${binaryPath} ${destinationPath}`];
@@ -80,22 +70,32 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
 
   // If on macOS or Linux, check to see if the /usr/local/bin directory exists,
   // if it does not, then add mkdir -p /usr/local/bin to the start of the command when moving the binary.
-  if ((system === 'linux' || system === 'darwin') && !fs.existsSync(localBinDir)) {
+  const destinationFolder = path.dirname(destinationPath);
+  if (!fs.existsSync(destinationFolder)) {
     if (system === 'darwin') {
-      args.unshift('mkdir', '-p', localBinDir, '&&');
-    } else {
+      args.unshift('mkdir', '-p', destinationFolder, '&&');
+    } else if (system === 'linux') {
       // add mkdir -p /usr/local/bin just after the first item or args array (so it'll be in the -c shell instruction)
       args[args.length - 1] = `mkdir -p /usr/local/bin && ${args[args.length - 1]}`;
+    } else {
+      args.unshift('mkdir', destinationFolder, '&&');
     }
   }
 
   try {
-    // Use admin prileges / ask for password for copying to /usr/local/bin
     if (!command) {
       throw new Error('No command defined');
     }
+    // Use admin privileges / ask for password for copying to /usr/local/bin
     await extensionApi.process.exec(command, args, { isAdmin: true });
     console.log(`Successfully installed '${binaryName}' binary.`);
+    if (!(system === 'darwin' || process.env.FLATPAK_ID) && !process.env.PATH?.includes(destinationFolder)) {
+      await extensionApi.window.showWarningMessage(
+        `The ${binaryName} binary has been installed into ${destinationFolder} but it is not in the system path. You should add it manually if you want to use ${binaryName} from cli.`,
+        'OK',
+      );
+    }
+    return destinationPath;
   } catch (error) {
     console.error(`Failed to install '${binaryName}' binary: ${error}`);
     throw error;

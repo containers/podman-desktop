@@ -425,7 +425,6 @@ describe('registerCLITool', () => {
 
     await installer?.doUninstall({} as unknown as Logger);
     expect(fs.promises.unlink).toHaveBeenNthCalledWith(1, 'storage-path');
-    expect(extensionApi.process.exec).toHaveBeenCalledWith('rm', ['system-wide-path'], { isAdmin: true });
 
     const providerMock = vi.mocked(extensionApi.provider.createProvider).mock.results[0].value as Provider;
     expect(providerMock.updateVersion).toHaveBeenCalledWith();
@@ -494,7 +493,6 @@ describe('registerCLITool', () => {
 
     await installer?.doUninstall({} as unknown as Logger);
     expect(fs.promises.unlink).toHaveBeenCalledWith('storage-path');
-    expect(extensionApi.process.exec).toHaveBeenCalledWith('rm', ['system-wide-path'], { isAdmin: true });
 
     await installer?.selectVersion();
 
