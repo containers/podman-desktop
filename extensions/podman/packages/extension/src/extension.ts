@@ -121,9 +121,6 @@ let winPlatform: WinPlatform;
 let podmanBinary: PodmanBinary;
 let rosettaProvisioner: RosettaProvisioner;
 
-let certificateDetectionService: CertificateDetectionService | undefined;
-let certificateDetectionInterval: NodeJS.Timeout | undefined;
-
 const wslHelper = new WslHelper();
 const qemuHelper = new QemuHelper();
 const krunkitHelper = new KrunkitHelper();
@@ -2020,12 +2017,6 @@ export async function deactivate(): Promise<void> {
 
   await inversifyBinding?.dispose();
   inversifyBinding = undefined;
-
-  if (certificateDetectionInterval) {
-    clearInterval(certificateDetectionInterval);
-    certificateDetectionInterval = undefined;
-  }
-  certificateDetectionService = undefined;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_NOW_FLAG_INIT = '4.0.0';
@@ -2443,26 +2434,11 @@ export function updateWSLHyperVEnabledContextValue(value: boolean): void {
 }
 
 async function initializeCertificateDetection(telemetryLogger: extensionApi.TelemetryLogger): Promise<void> {
-  certificateDetectionService = new CertificateDetectionService(telemetryLogger, {
-    enableTelemetry: true,
+  const certificateDetectionService = new CertificateDetectionService(telemetryLogger, {
+    enableTelemetry: extensionApi.env.isTelemetryEnabled,
   });
 
-  // Initial detection
-  _doDetectCustomCertificates(certificateDetectionService);
-
-  // Set up periodic detection (every 24 hours)
-  certificateDetectionInterval = setInterval(
-    () => {
-      if (certificateDetectionService) {
-        _doDetectCustomCertificates(certificateDetectionService);
-      }
-    },
-    24 * 60 * 60 * 1000,
-  );
-}
-
-function _doDetectCustomCertificates(certificateService: CertificateDetectionService): void {
-  certificateService.detectCustomCertificates().catch((error: unknown) => {
+  certificateDetectionService.detectCustomCertificates().catch((error: unknown) => {
     console.warn(`Can't detect custom registry certificates: ${error}`);
   });
 }
