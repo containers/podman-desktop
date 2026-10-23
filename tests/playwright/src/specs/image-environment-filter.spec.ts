@@ -16,20 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
-
 import { ResourceElementActions } from '/@/model/core/operations';
 import { ResourceElementState } from '/@/model/core/states';
 import { PodmanVirtualizationProviders } from '/@/model/core/types';
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
-import type { NavigationBar } from '/@/model/workbench/navigation';
 import { expect as playExpect, test } from '/@/utility/fixtures';
 import {
+  createPodmanMachineFromCLI,
   deleteImage,
   deletePodmanMachine,
   handleConfirmationDialog,
+  resetPodmanMachinesFromCLI,
   waitForMachineStatus,
 } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
@@ -43,77 +42,14 @@ const secondMachineDisplayName = 'Podman Machine second';
 const defaultMachineDisplayName = 'Podman Machine';
 const environmentFilterImage = 'ghcr.io/linuxcontainers/alpine';
 
-let cleanedUp = false;
-
-// Only what this run changed is reverted, so pre-existing resources with the same names are never touched.
-const changedByThisRun = { stoppedDefaultMachine: false, createdSecondMachine: false, pulledImage: false };
-
-/**
- * Brings the system back to the state it was in before the suite started: pulled image and second machine
- * removed, default machine running. Only resources changed by this run are reverted. Every step runs
- * regardless of individual failures.
- */
-async function restoreInitialState(page: Page, navigationBar: NavigationBar): Promise<void> {
-  const errors: unknown[] = [];
-  const steps: Array<() => Promise<void>> = [];
-
-  if (changedByThisRun.pulledImage) {
-    steps.push(async () => {
-      // Scope the deletion to the default machine: a leftover filter could hide the image, and another
-      // connection may hold an image with the same name.
-      const images = await navigationBar.openImages();
-      const filterVisible = await images.isEnvironmentFilterVisible();
-      if (filterVisible) {
-        await images.filterByEnvironment(defaultMachineDisplayName);
-      }
-      try {
-        await deleteImage(page, environmentFilterImage);
-      } finally {
-        if (filterVisible) {
-          await images.clearFilterByEnvironment();
-        }
-      }
-    });
-  }
-  if (changedByThisRun.createdSecondMachine) {
-    steps.push(() => deletePodmanMachine(page, secondMachineVisibleName));
-  }
-  if (changedByThisRun.stoppedDefaultMachine) {
-    steps.push(async () => {
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.resourcesTab.click();
-      const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, defaultMachineVisibleName);
-      await playExpect(defaultMachineCard.resourceElementConnectionStatus).toBeVisible();
-      if (
-        !(await defaultMachineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running)
-      ) {
-        await defaultMachineCard.performConnectionAction(ResourceElementActions.Start);
-      }
-      await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Running, {
-        initialTimeout: 60_000,
-        retryTimeout: 60_000,
-      });
-    });
-  }
-
-  for (const step of steps) {
-    try {
-      await step();
-    } catch (e) {
-      errors.push(e);
-    }
-  }
-
-  if (errors.length > 0) {
-    throw new AggregateError(errors, 'One or more cleanup steps failed');
-  }
-  cleanedUp = true;
-}
-
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('images-environment-filter-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
+});
+
+test.afterAll(async ({ runner }) => {
+  await runner.close();
 });
 
 test.describe
@@ -125,16 +61,18 @@ test.describe
       'Test suite requires a second Podman machine; skipped on Linux, when TEST_PODMAN_MACHINE is not set, or when running with Hyper-V (only one Podman machine allowed)',
     );
 
-    // Serial mode skips the remaining tests after a failure, so the last test cannot be relied on to clean up.
-    test.afterAll(async ({ page, runner, navigationBar }) => {
-      test.setTimeout(240_000);
+    // Serial mode skips the remaining tests after a failure, so bring back the default machine as the only one.
+    test.afterEach(async ({ page }, testInfo) => {
+      if (testInfo.status !== testInfo.expectedStatus) {
+        console.log(`Test "${testInfo.title}" has status ${testInfo.status}... Performing podman machine cleanup`);
 
-      try {
-        if (!cleanedUp) {
-          await restoreInitialState(page, navigationBar);
+        try {
+          await resetPodmanMachinesFromCLI();
+          await createPodmanMachineFromCLI();
+          await waitForPodmanMachineStartup(page);
+        } catch (error) {
+          console.log('Error occurred while resetting podman machines', error);
         }
-      } finally {
-        await runner.close();
       }
     });
 
@@ -149,20 +87,10 @@ test.describe
 
       // With the default machine stopped, the "set as default?" dialog is always shown when the second one starts.
       const defaultMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, defaultMachineVisibleName);
-      const secondMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, secondMachineVisibleName);
-      // Fail before changing anything, cleanup must never delete a machine this run did not create.
-      if (await secondMachineCard.doesResourceElementExist()) {
-        throw new Error(
-          `Podman machine '${secondMachineVisibleName}' already exists, remove it before running this test`,
-        );
-      }
-
-      changedByThisRun.stoppedDefaultMachine = true;
       await defaultMachineCard.performConnectionAction(ResourceElementActions.Stop);
       await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Off);
 
       await resourcesPage.goToCreateNewResourcePage(RESOURCE_NAME);
-      changedByThisRun.createdSecondMachine = true;
       const createMachinePage = new CreateMachinePage(page);
       const resourcesPageAfterCreation = await createMachinePage.createMachine(secondMachineVisibleName, {
         isRootful: true,
@@ -173,6 +101,7 @@ test.describe
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
       await waitForMachineStatus(page, secondMachineVisibleName, ResourceElementState.Off);
 
+      const secondMachineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, secondMachineVisibleName);
       await secondMachineCard.performConnectionAction(ResourceElementActions.Start);
       await handleConfirmationDialog({
         page,
@@ -201,10 +130,6 @@ test.describe
       test.setTimeout(120_000);
 
       let images = await navigationBar.openImages();
-      await playExpect(images.heading).toBeVisible();
-      // Cleanup must never delete an image that was already on the default machine before this run.
-      await images.filterByEnvironment(defaultMachineDisplayName);
-      changedByThisRun.pulledImage = (await images.getImageRowByName(environmentFilterImage)) === undefined;
       const pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(environmentFilterImage, 'latest', 60_000, defaultMachineVisibleName);
       await playExpect
@@ -229,9 +154,10 @@ test.describe
       await images.clearFilterByEnvironment();
     });
 
-    test('Cleaning up the pulled image and the second Podman machine', async ({ navigationBar, page }) => {
-      test.setTimeout(240_000);
+    test('Cleaning up the pulled image and the second Podman machine', async ({ page }) => {
+      test.setTimeout(150_000);
 
-      await restoreInitialState(page, navigationBar);
+      await deleteImage(page, environmentFilterImage);
+      await deletePodmanMachine(page, secondMachineVisibleName);
     });
   });
