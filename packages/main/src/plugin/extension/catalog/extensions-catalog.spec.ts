@@ -406,6 +406,147 @@ test('should filter incompatible extension versions', async () => {
   expect(console.error).not.toBeCalled();
 });
 
+// version entry as served in the catalog JSON
+interface CatalogVersionJSON {
+  version: string;
+  podmanDesktopVersion?: string;
+  preview: boolean;
+  lastUpdated: string;
+  ociUri: string;
+  files: { assetType: string; data: string }[];
+}
+
+function createVersion(version: string, overrides: Partial<CatalogVersionJSON> = {}): CatalogVersionJSON {
+  return {
+    version,
+    preview: false,
+    lastUpdated: '2021-01-01T00:00:00.000Z',
+    ociUri: `oci://foo:${version}`,
+    files: [],
+    ...overrides,
+  };
+}
+
+test('should sort extension versions by semver from newest to oldest', async () => {
+  const unorderedExtension = {
+    ...fakePublishedExtension1,
+    versions: ['0.9.0', '0.10.0', '1.0.0-next.1', '0.2.0', '1.0.0'].map(version => createVersion(version)),
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () => HttpResponse.json({ extensions: [unorderedExtension] })),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions[0]?.versions.map(v => v.version)).toStrictEqual([
+    '1.0.0',
+    '1.0.0-next.1',
+    '0.10.0',
+    '0.9.0',
+    '0.2.0',
+  ]);
+});
+
+test('should keep versions that are not valid semver after the other versions', async () => {
+  const extensionWithInvalidVersion = {
+    ...fakePublishedExtension1,
+    versions: [createVersion('preview', { preview: true }), createVersion('0.1.0'), createVersion('0.2.0')],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [extensionWithInvalidVersion] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions[0]?.versions.map(v => v.version)).toStrictEqual(['0.2.0', '0.1.0', 'preview']);
+  expect(console.error).not.toBeCalled();
+});
+
+test('should pick the highest compatible non-preview version as fetchable version', async () => {
+  // mock current version as 1.5.0
+  vi.mocked(extensionApiVersion.getApiVersion).mockReturnValue('1.5.0');
+
+  const unorderedExtension = {
+    ...fakePublishedExtension1,
+    versions: [
+      createVersion('0.1.1'),
+      createVersion('0.2.0'),
+      createVersion('0.3.0', { podmanDesktopVersion: '^999.0.0' }),
+      createVersion('0.4.0', { preview: true }),
+    ],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () => HttpResponse.json({ extensions: [unorderedExtension] })),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
+  expect(fetchableExtensions).toStrictEqual([
+    { extensionId: 'foo.fooName', link: 'oci://foo:0.2.0', version: '0.2.0' },
+  ]);
+});
+
+test('should skip extensions with only incompatible versions in fetchable list', async () => {
+  // mock current version as 1.5.0
+  vi.mocked(extensionApiVersion.getApiVersion).mockReturnValue('1.5.0');
+
+  const incompatibleExtension = {
+    ...fakePublishedExtension1,
+    versions: [createVersion('1.0.0', { podmanDesktopVersion: '^999.0.0' })],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [incompatibleExtension] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
+  expect(fetchableExtensions).toStrictEqual([]);
+});
+
+test('should pick a valid semver version over a non-preview version that is not valid semver', async () => {
+  const extensionWithInvalidVersionFirst = {
+    ...fakePublishedExtension1,
+    versions: [createVersion('nightly'), createVersion('0.1.0')],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [extensionWithInvalidVersionFirst] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
+  expect(fetchableExtensions).toStrictEqual([
+    { extensionId: 'foo.fooName', link: 'oci://foo:0.1.0', version: '0.1.0' },
+  ]);
+});
+
+test('should keep the catalog order of versions that are not valid semver', async () => {
+  const extensionWithInvalidVersions = {
+    ...fakePublishedExtension1,
+    versions: [createVersion('0.1.0'), createVersion('nightly-b'), createVersion('nightly-a')],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [extensionWithInvalidVersions] }),
+    ),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions[0]?.versions.map(v => v.version)).toStrictEqual(['0.1.0', 'nightly-b', 'nightly-a']);
+});
+
 test('should get proper unlisted fields', async () => {
   server = setupServer(
     http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
@@ -695,4 +836,30 @@ test('should fetch README from first non-preview version', async () => {
   const result = await extensionsCatalog.fetchReadme('foo.fooName');
 
   expect(result).toBe(stableReadmeContent);
+});
+
+test('should fetch README from the highest non-preview version', async () => {
+  const oldReadmeUri = 'https://example.com/extensions/foo/fooName/0.1.1/README.md';
+  const latestReadmeUri = 'https://example.com/extensions/foo/fooName/0.2.0/README.md';
+  const latestReadmeContent = '# Latest README';
+
+  const extensionWithOldestFirst = {
+    ...fakePublishedExtension1,
+    versions: [
+      createVersion('0.1.1', { files: [{ assetType: 'README', data: oldReadmeUri }] }),
+      createVersion('0.2.0', { files: [{ assetType: 'README', data: latestReadmeUri }] }),
+    ],
+  };
+
+  server = setupServer(
+    http.get(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL, () =>
+      HttpResponse.json({ extensions: [extensionWithOldestFirst] }),
+    ),
+    http.get(latestReadmeUri, () => HttpResponse.text(latestReadmeContent)),
+  );
+  server.listen({ onUnhandledRequest: 'error' });
+
+  const result = await extensionsCatalog.fetchReadme('foo.fooName');
+
+  expect(result).toBe(latestReadmeContent);
 });

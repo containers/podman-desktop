@@ -20,7 +20,7 @@ import { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { type IConfigurationNode, IConfigurationRegistry } from '@desktop-framework/api/configuration';
 import { CatalogExtension, CatalogFetchableExtension } from '@desktop-framework/api/extension-catalog';
 import { inject, injectable } from 'inversify';
-import { coerce, satisfies } from 'semver';
+import { coerce, rcompare, satisfies, valid } from 'semver';
 
 import { ExtensionApiVersion } from '/@/plugin/extension/extension-api-version.js';
 import product from '/@product.json' with { type: 'json' };
@@ -164,32 +164,48 @@ export class ExtensionsCatalog {
                 files: version.files,
                 lastUpdated: new Date(version.lastUpdated),
               };
-            }),
+            })
+            // newest version first, whatever the order in the catalog
+            .toSorted((a, b) => this.compareVersionsNewestFirst(a.version, b.version)),
         };
       });
     }
     return [];
   }
 
+  // versions that are not valid semver are kept after the valid ones
+  private compareVersionsNewestFirst(a: string, b: string): number {
+    const validA = valid(a);
+    const validB = valid(b);
+    if (validA && validB) {
+      return rcompare(validA, validB);
+    }
+    if (validA) {
+      return -1;
+    }
+    if (validB) {
+      return 1;
+    }
+    return 0;
+  }
+
   // get the list of fetchable extensions
   async getFetchableExtensions(): Promise<CatalogFetchableExtension[]> {
     const fetchableExtensions: CatalogFetchableExtension[] = [];
 
-    const catalogJSON = await this.getCatalogJson();
-    if (catalogJSON?.extensions) {
-      // we have a list of extensions
-      catalogJSON.extensions.forEach(extension => {
-        const notPreviewVersions = extension.versions.filter(v => v.preview !== true);
-        if (notPreviewVersions.length > 0 && notPreviewVersions[0]) {
-          // take the first version
-          fetchableExtensions.push({
-            extensionId: `${extension.publisher.publisherName}.${extension.extensionName}`,
-            link: notPreviewVersions[0].ociUri,
-            version: notPreviewVersions[0].version,
-          });
-        }
-      });
-    }
+    // versions are compatible with this version of Podman Desktop and sorted newest first
+    const extensions = await this.getExtensions();
+    extensions.forEach(extension => {
+      const notPreviewVersions = extension.versions.filter(v => v.preview !== true);
+      if (notPreviewVersions.length > 0 && notPreviewVersions[0]) {
+        // take the first version
+        fetchableExtensions.push({
+          extensionId: extension.id,
+          link: notPreviewVersions[0].ociUri,
+          version: notPreviewVersions[0].version,
+        });
+      }
+    });
 
     return fetchableExtensions;
   }
