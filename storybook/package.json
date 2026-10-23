@@ -40,7 +40,7 @@
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
     "react-dom": "18.3.1",
-    "storybook": "^10.5.5",
+    "storybook": "^10.6.3",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.7",
     "tailwindcss": "^4.3.3",
