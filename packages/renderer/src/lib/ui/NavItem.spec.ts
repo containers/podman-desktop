@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import type { HTMLAnchorAttributes, MouseEventHandler } from 'svelte/elements';
 import type { TinroRouteMeta } from 'tinro';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import NavItem from './NavItem.svelte';
 import NavItemTest from './NavItemTest.svelte';
@@ -31,6 +31,7 @@ interface RenderOptions extends Omit<HTMLAnchorAttributes, 'href' | 'onclick'> {
   href: string;
   meta: Pick<TinroRouteMeta, 'url'>;
   ariaLabel?: string;
+  expanded?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
@@ -100,6 +101,32 @@ test('prefers ariaLabel prop over a spread aria-label attribute', () => {
     'aria-label',
     'Navigation dashboard',
   );
+});
+
+describe('title', () => {
+  test('forwards title to the link when expanded', () => {
+    renderIt({ tooltip: 'Dashboard', href: '/test', meta: { url: '/test' }, expanded: true, title: 'Hold to reorder' });
+
+    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('title', 'Hold to reorder');
+  });
+
+  test('does not add title to the link when it is not provided', () => {
+    renderIt({ tooltip: 'Dashboard', href: '/test', meta: { url: '/test' }, expanded: true });
+
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('title');
+  });
+
+  test('does not add title to the link when collapsed', () => {
+    renderIt({
+      tooltip: 'Dashboard',
+      href: '/test',
+      meta: { url: '/test' },
+      expanded: false,
+      title: 'Hold to reorder',
+    });
+
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('title');
+  });
 });
 
 test('Expect selection styling', async () => {
