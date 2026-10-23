@@ -69,7 +69,7 @@ test('task manager init should register a configuration option', async () => {
           'tasks.Toast': {
             type: 'boolean',
             description: 'Display a notification toast when task is created',
-            default: false,
+            default: true,
           },
         }),
       }),
