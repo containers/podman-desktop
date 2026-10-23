@@ -23,3 +23,45 @@ You might get this error message `Failed to create minikube cluster. E0125 05:58
    ```
 
 2. Create a new [Minikube cluster](/docs/minikube/installing-extension) using the Podman Desktop UI.
+
+## Podman Desktop fails to install a CLI tool
+
+#### Issue
+
+When you install a CLI tool such as `kubectl`, `kind`, or `docker-compose` from the **Settings > CLI tools** or **Settings > Resources** page, the installation might fail with the following error, which does not indicate the cause:
+
+```shell-session
+Unable to install kubectl binary: Command execution failed with exit code 1
+```
+
+On macOS and Linux, Podman Desktop copies the CLI tool to the `/usr/local/bin/` directory. If a broken symbolic link already exists at that path, the copy cannot resolve the link target and the installation fails. Such links are typically left behind by an application that was removed without being uninstalled, such as Docker Desktop, and point to a location that no longer exists, such as `/Applications/Docker.app/Contents/Resources/bin/kubectl` on macOS.
+
+#### Solution
+
+1. Inspect the target path for the CLI tool that failed to install, where `tool-name` denotes the binary name, such as `kubectl`, `kind`, or `docker-compose`.
+
+   ```shell-session
+   $ ls -la /usr/local/bin/<tool-name>
+   ```
+
+   The link is broken if it points to a file that no longer exists.
+
+2. Optional: List every broken link in the directory, so that you can resolve the problem for all affected CLI tools at once.
+
+   ```shell-session
+   $ find /usr/local/bin -type l ! -exec test -e {} \; -print
+   ```
+
+3. Remove each broken link.
+
+   ```shell-session
+   $ sudo rm /usr/local/bin/<tool-name>
+   ```
+
+   :::caution
+
+   Remove a link only after you confirm that it is broken. A working link might belong to a CLI tool that you installed by another method, such as a package manager.
+
+   :::
+
+4. Install the CLI tool again from Podman Desktop.
