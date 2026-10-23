@@ -13,6 +13,32 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 DEV_PORT=9223
 
+# Private, per-user state directory. A fixed /tmp/mcp-testing-session path is
+# world-writable: a local attacker could pre-create it (as a file, directory,
+# or symlink) with content this script - and stop.sh - later trust. Create a
+# 0700 directory scoped to this uid and refuse to use it unless we can confirm
+# we actually own it.
+# The base is XDG_RUNTIME_DIR when set (per-user and 0700 on Linux), else
+# TMPDIR (already per-user on macOS), else /tmp, where another user could
+# squat the name first and block startup. stop.sh and probe.sh use the same.
+MCP_STATE_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/mcp-testing-$(id -u)"
+if [[ -L "$MCP_STATE_DIR" ]] || { [[ -e "$MCP_STATE_DIR" ]] && [[ ! -d "$MCP_STATE_DIR" ]]; }; then
+  echo "ERROR: $MCP_STATE_DIR exists and is not a plain private directory - remove it and re-run: rm -f '$MCP_STATE_DIR'"
+  exit 1
+fi
+mkdir -m 700 "$MCP_STATE_DIR" 2>/dev/null || true
+if [[ ! -d "$MCP_STATE_DIR" ]]; then
+  echo "ERROR: cannot create $MCP_STATE_DIR - check that ${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}} exists and is writable"
+  exit 1
+fi
+mcp_state_owner=$(stat -c %u "$MCP_STATE_DIR" 2>/dev/null || stat -f %u "$MCP_STATE_DIR" 2>/dev/null || echo -1)
+mcp_state_perms=$(stat -c %a "$MCP_STATE_DIR" 2>/dev/null || stat -f %Lp "$MCP_STATE_DIR" 2>/dev/null || echo 000)
+if [[ "$mcp_state_owner" != "$(id -u)" || "$mcp_state_perms" != "700" ]]; then
+  echo "ERROR: $MCP_STATE_DIR is not a private directory you own (uid=$mcp_state_owner perms=$mcp_state_perms) - remove it and re-run: rm -rf '$MCP_STATE_DIR'"
+  exit 1
+fi
+STATE_FILE="$MCP_STATE_DIR/session"
+
 # VS Code (and other Electron-based editors) set ELECTRON_RUN_AS_NODE=1 in child
 # processes. This makes the Electron binary run as plain Node.js, breaking the
 # Electron API and Chromium flags like --remote-debugging-port. Unset it so that
@@ -156,7 +182,7 @@ if [[ "$MODE" == "prod" ]]; then
         sleep 1
       done
       if [[ -n "$app_title" ]]; then
-        echo "prod" > /tmp/mcp-testing-session
+        echo "prod" > "$STATE_FILE"
         echo "Already running — $app_title (port $p)"
         echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $p })"
         exit 0
@@ -202,7 +228,7 @@ if [[ "$MODE" == "prod" ]]; then
     exit 1
   fi
 
-  echo "prod" > /tmp/mcp-testing-session
+  echo "prod" > "$STATE_FILE"
   echo "Connected to production Podman Desktop — $app_title (port $PROD_PORT)"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $PROD_PORT })"
   exit 0
@@ -227,7 +253,7 @@ if [[ "$MODE" == "dev-fast" ]]; then
 
   close_devtools_targets
 
-  echo "dev" > /tmp/mcp-testing-session
+  echo "dev" > "$STATE_FILE"
   echo "pnpm watch already running — $app_title"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $DEV_PORT })"
   exit 0
@@ -347,5 +373,5 @@ fi
 
 close_devtools_targets
 
-echo "dev" > /tmp/mcp-testing-session
+echo "dev" > "$STATE_FILE"
 echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $DEV_PORT })"

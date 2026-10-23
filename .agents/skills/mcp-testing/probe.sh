@@ -82,8 +82,10 @@ fi
 # ── Stale session check ──────────────────────────────────────────────────────
 # Only stale if session file exists AND no healthy CDP is reachable.
 # If the app is running and accessible, the file is from a "Leave running" exit — not an orphan.
+# Path must match the private, per-user directory start.sh creates (see its
+# MCP_STATE_DIR) - probe.sh is read-only and never creates it itself.
 stale_session=false
-if [ -f /tmp/mcp-testing-session ]; then
+if [ -f "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/mcp-testing-$(id -u)/session" ]; then
   if [[ "$prod_cdp_port" == "none" && "$dev_cdp_port" == "none" ]]; then
     stale_session=true
   fi
