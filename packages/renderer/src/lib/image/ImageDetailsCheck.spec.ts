@@ -58,21 +58,8 @@ test('expect to display wait message before to receive results', async () => {
   vi.mocked(window.imageCheck).mockReturnValue(never());
 
   render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(() => {
@@ -93,21 +80,8 @@ test('expect to cancel when clicking the Cancel button', async () => {
   vi.mocked(window.imageCheck).mockReturnValue(never());
 
   render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(async () => {
@@ -134,21 +108,8 @@ test('expect to cancel when destroying the component', async () => {
   vi.mocked(window.imageCheck).mockReturnValue(never());
 
   const result = render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(async () => {
@@ -172,21 +133,8 @@ test('expect to not cancel again when destroying the component after manual canc
   vi.mocked(window.imageCheck).mockReturnValue(never());
 
   const result = render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(async () => {
@@ -225,21 +173,8 @@ test('expect to display results from image checker provider', async () => {
   } as ImageChecks);
 
   render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(() => {
@@ -251,6 +186,13 @@ test('expect to display results from image checker provider', async () => {
     const cell = screen.getByRole('row', { name: 'check1' });
     expect(cell).toBeInTheDocument();
   });
+
+  expect(imageCheckMock).toHaveBeenCalledWith(
+    'provider1',
+    'podman.Podman',
+    'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+    tokenID,
+  );
 });
 
 test('expect to not cancel when destroying the component after displaying results from image checker provider', async () => {
@@ -273,21 +215,8 @@ test('expect to not cancel when destroying the component after displaying result
   } as ImageChecks);
 
   const result = render(ImageDetailsCheck, {
-    imageInfo: {
-      engineId: 'podman.Podman',
-      engineName: 'Podman',
-      engineType: 'podman',
-      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
-      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
-      RepoTags: ['quay.io/user/image-name:v0.0.1'],
-      Created: 1701338214,
-      Size: 34134140,
-      VirtualSize: 34134140,
-      SharedSize: 0,
-      Labels: {},
-      Containers: 0,
-      Digest: 'digest',
-    },
+    engineId: 'podman.Podman',
+    imageId: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
   });
 
   await vi.waitFor(() => {

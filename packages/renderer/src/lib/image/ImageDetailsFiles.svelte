@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ImageFilesInfo, ImageFilesystemLayersUI, ImageFilesystemLayerUI } from '@desktop-framework/api';
-import type { ImageInfo } from '@desktop-framework/extension-api';
 import { Button, Checkbox } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -11,9 +10,10 @@ import FilesystemLayerView from './FilesystemLayerView.svelte';
 import ImageDetailsFilesLayers from './ImageDetailsFilesLayers.svelte';
 
 interface Props {
-  imageInfo?: ImageInfo;
+  engineId: string;
+  imageId: string;
 }
-let { imageInfo }: Props = $props();
+let { engineId, imageId }: Props = $props();
 
 let imageLayers = $state<ImageFilesystemLayersUI>();
 let selectedLayer = $state<ImageFilesystemLayerUI>();
@@ -31,11 +31,11 @@ function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>): void {
   selectedLayer = event.detail;
 }
 
-async function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo): Promise<void> {
+async function fetchImageLayers(provider: ImageFilesInfo): Promise<void> {
   try {
     loading = true;
     cancellableTokenId = await window.getCancellableTokenSource();
-    imageLayers = await window.imageGetFilesystemLayers(provider.id, $state.snapshot(img), cancellableTokenId);
+    imageLayers = await window.imageGetFilesystemLayers(provider.id, engineId, imageId, cancellableTokenId);
   } catch (err: unknown) {
     error = String(err);
   } finally {
@@ -45,8 +45,8 @@ async function fetchImageLayers(provider: ImageFilesInfo, img: ImageInfo): Promi
 
 async function onFetchLayers(): Promise<void> {
   showFetchButton = false;
-  if (filesProvider !== undefined && imageInfo !== undefined) {
-    await fetchImageLayers(filesProvider, imageInfo);
+  if (filesProvider !== undefined) {
+    await fetchImageLayers(filesProvider);
   }
 }
 
@@ -59,13 +59,13 @@ onMount(async () => {
   } finally {
     // we do this after trying to get the configuration, to be sure we are using the right configuration
     filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
-      if (providers.length === 1 && imageInfo) {
+      if (providers.length === 1) {
         filesProvider = providers[0];
         if (askFetchLayers) {
           showFetchButton = true;
         } else {
-          fetchImageLayers(filesProvider, imageInfo).catch((err: unknown) =>
-            console.error(`Error fetching image layers ${imageInfo.Id}`, err),
+          fetchImageLayers(filesProvider).catch((err: unknown) =>
+            console.error(`Error fetching image layers ${imageId}`, err),
           );
         }
       }

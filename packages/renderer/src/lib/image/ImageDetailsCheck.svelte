@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ImageCheckerInfo } from '@desktop-framework/api';
-import type { ImageInfo } from '@desktop-framework/extension-api';
 import { faStethoscope } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
@@ -15,10 +14,11 @@ const orderStatus = ['failed', 'success'];
 const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
 
 interface Props {
-  imageInfo?: ImageInfo;
+  engineId: string;
+  imageId: string;
 }
 
-const { imageInfo }: Props = $props();
+const { engineId, imageId }: Props = $props();
 
 let providers: ProviderUI[] = $state([]);
 let results: CheckUI[] = $state([]);
@@ -53,15 +53,12 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]): Promise<v
   remainingProviders = providers.length;
 
   providers.forEach(provider => {
-    if (!imageInfo) {
-      return;
-    }
     let telemetryOptions = {
       provider: provider.info.label,
       error: '',
     };
     window
-      .imageCheck(provider.info.id, $state.snapshot(imageInfo), cancellableTokenId)
+      .imageCheck(provider.info.id, engineId, imageId, cancellableTokenId)
       .then(_result => {
         // we test if it is still running, as it could have been marked as 'canceled'
         if (provider.state === 'running') {
