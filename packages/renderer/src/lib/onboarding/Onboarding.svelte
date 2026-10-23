@@ -446,7 +446,7 @@ let sidebarTitle = $derived(
 
 {#if displayCancelSetup}
   <!-- Create overlay-->
-  <div class="fixed top-0 left-0 right-0 bottom-0 bg-(--pd-modal-fade) bg-opacity-60 bg-blend-multiply h-full grid z-50">
+  <div class="fixed top-0 left-0 right-0 bottom-0 bg-(--pd-modal-fade)/60 bg-blend-multiply h-full grid z-50">
     <div
       class="flex flex-col place-self-center w-[550px] rounded-xl bg-[var(--pd-modal-bg)] shadow-xl shadow-(--pd-modal-shadow)"
       role="dialog"
