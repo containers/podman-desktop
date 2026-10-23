@@ -6,6 +6,7 @@ import { createEventDispatcher, untrack } from 'svelte';
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
 import type { ButtonType } from './Button';
+import { LabelInName } from './label-in-name';
 
 interface Props {
   /**
@@ -102,6 +103,14 @@ if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
   throw new Error('Icon-only buttons must have an aria-label for accessibility');
 }
 
+let buttonElement: HTMLButtonElement | undefined;
+
+// Dev only. Re-checked when the aria-label or the in-progress state change; edits to the visible text alone are not observed
+$effect(() => {
+  if (import.meta.env.DEV && !inProgress)
+    LabelInName.warnIfNotInName(ariaLabel, buttonElement?.textContent ?? undefined);
+});
+
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
 
 let pressedActive = $derived(pressed === true && !disabled && !inProgress);
@@ -153,6 +162,7 @@ let classes = $derived.by(() => {
 </script>
 
 <button
+  bind:this={buttonElement}
   type="button"
   class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
   class:border-[var(--pd-button-tab-border-selected)]={(type === 'tab' && selected === true && !disabled && !inProgress) ||
