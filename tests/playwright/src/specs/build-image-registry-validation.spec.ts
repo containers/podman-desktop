@@ -104,6 +104,7 @@ test.describe('Build image registry validation verification', () => {
     const buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
 
+    await buildImagePage.advancedTab.click();
     await playExpect(buildImagePage.registryValidationCheckbox).toBeChecked();
     await buildImagePage.toggleRegistryValidation(false);
     await buildImagePage.toggleRegistryValidation(true);
@@ -127,6 +128,7 @@ test.describe('Build image registry validation verification', () => {
     let buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
 
+    await buildImagePage.advancedTab.click();
     await playExpect(buildImagePage.registryValidationCheckbox).toBeChecked();
 
     await injectInvalidCredentials(TEST_REGISTRY_URL, INVALID_USERNAME, INVALID_PASSWORD);
@@ -145,6 +147,7 @@ test.describe('Build image registry validation verification', () => {
     buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
 
+    await buildImagePage.advancedTab.click();
     await playExpect(buildImagePage.registryValidationCheckbox).toBeChecked();
 
     const updatedImagesPage = await buildImagePage.buildImage(BUILD_IMAGE_TAG, CONTAINERFILE_PATH, CONTEXT_DIR);
