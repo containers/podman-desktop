@@ -21,7 +21,10 @@ import * as os from 'node:os';
 import * as extensionApi from '@podman-desktop/api';
 import { compare } from 'semver';
 
+import { KrunkitHelper } from '../helpers/krunkit-helper';
 import { BaseCheck } from './base-check';
+
+const PODMAN_INSTALLER_BIN_PATH = '/opt/podman/bin';
 
 export class MacCPUCheck extends BaseCheck {
   title = 'CPU';
@@ -104,6 +107,18 @@ export class MacPodmanInstallCheck extends BaseCheck {
 export class MacKrunkitPodmanMachineCreationCheck extends BaseCheck {
   title = 'Krunkit Installation';
   async execute(): Promise<extensionApi.CheckResult> {
+    // krunkit may come from outside brew (e.g. the Podman installer), so look for it in the PATH and in the
+    // installer folder first
+    const krunkitHelper = new KrunkitHelper();
+    for (const krunkitPath of [undefined, PODMAN_INSTALLER_BIN_PATH]) {
+      try {
+        await krunkitHelper.getKrunkitVersion(krunkitPath);
+        return this.createSuccessfulResult();
+      } catch (err) {
+        console.debug(`krunkit not found in ${krunkitPath ?? 'the PATH'}: ${err}`);
+      }
+    }
+
     // we need to check if brew is installed to avoid unexpected error
     try {
       await extensionApi.process.exec('which', ['brew']);

@@ -64,40 +64,72 @@ test('expect success on a recent macOS version', async () => {
 });
 
 describe('Krunkit', () => {
+  const mockExec = (handlers: Record<string, () => Promise<unknown>>): void => {
+    vi.mocked(extensionApi.process.exec).mockImplementation(async (command: string, args?: string[]) => {
+      const key = command === 'brew' ? 'brew list' : command === 'which' ? `which ${args?.[0]}` : command;
+      const handler = handlers[key];
+      if (!handler) {
+        throw new Error(`unexpected command ${key}`);
+      }
+      return handler() as Promise<extensionApi.RunResult>;
+    });
+  };
+  const ok = (stdout = 'hello-world'): (() => Promise<unknown>) => {
+    return async () => ({ exitCode: 0, stdout });
+  };
+  const fail = (): (() => Promise<unknown>) => {
+    return async () => {
+      throw new Error('command failed');
+    };
+  };
+
+  test('Krunkit is found in the PATH but not installed by brew', async () => {
+    mockExec({ krunkit: ok('krunkit 0.2.0'), 'which brew': ok(), 'brew list': fail() });
+
+    const result = await new MacKrunkitPodmanMachineCreationCheck().execute();
+    expect(result.successful).toBeTruthy();
+    expect(extensionApi.process.exec).toHaveBeenCalledWith('krunkit', ['--version'], undefined);
+    expect(extensionApi.process.exec).not.toHaveBeenCalledWith('brew', expect.anything(), expect.anything());
+  });
+
+  test('Krunkit is only found in the Podman installer folder', async () => {
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      async (command: string, _args?: string[], options?: { env?: Record<string, string> }) => {
+        if (command === 'krunkit' && options?.env?.['PATH'] === '/opt/podman/bin') {
+          return { command: 'krunkit', exitCode: 0, stdout: 'krunkit 0.2.0', stderr: '' };
+        }
+        throw new Error('command failed');
+      },
+    );
+
+    const result = await new MacKrunkitPodmanMachineCreationCheck().execute();
+    expect(result.successful).toBeTruthy();
+    expect(extensionApi.process.exec).not.toHaveBeenCalledWith('which', ['brew']);
+  });
+
   test('Krunkit is installed by brew', async () => {
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
-      exitCode: 0,
-      stdout: 'hello-world',
-    } as extensionApi.RunError);
+    mockExec({ krunkit: fail(), 'which brew': ok(), 'brew list': ok() });
 
-    const krunkitCheck = new MacKrunkitPodmanMachineCreationCheck();
-    const result = await krunkitCheck.execute();
-    expect(result).toBeDefined();
+    const result = await new MacKrunkitPodmanMachineCreationCheck().execute();
     expect(result.successful).toBeTruthy();
   });
 
-  test('Krunkit is installed by Podman installer', async () => {
-    vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('Brew is not installed'));
+  test('Krunkit is installed by Podman installer and brew is not installed', async () => {
+    mockExec({ krunkit: fail(), 'which brew': fail() });
 
-    const krunkitCheck = new MacKrunkitPodmanMachineCreationCheck();
-    const result = await krunkitCheck.execute();
-    expect(result).toBeDefined();
+    const result = await new MacKrunkitPodmanMachineCreationCheck().execute();
     expect(result.successful).toBeTruthy();
   });
 
-  test('Krunkit is not installed', async () => {
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
-      exitCode: 1,
-      stderr: 'error-world',
-    } as extensionApi.RunError);
+  test('Krunkit is not in the PATH and not installed by brew', async () => {
+    mockExec({
+      krunkit: fail(),
+      'which brew': ok(),
+      'brew list': async () => ({ exitCode: 1, stderr: 'error-world' }),
+    });
 
-    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-      exitCode: 0,
-      stdout: 'hello-world',
-    } as extensionApi.RunError);
-    const krunkitCheck = new MacKrunkitPodmanMachineCreationCheck();
-    const result = await krunkitCheck.execute();
-    expect(result).toBeDefined();
+    const result = await new MacKrunkitPodmanMachineCreationCheck().execute();
     expect(result.successful).toBeFalsy();
+    expect(result.description).toContain('krunkit installed with "brew"');
   });
 });
