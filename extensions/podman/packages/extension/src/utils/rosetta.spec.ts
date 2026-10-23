@@ -270,12 +270,16 @@ describe('provisionAndRestartForRosetta', () => {
     expect(execPodman).toHaveBeenCalledTimes(1);
   });
 
-  test('stops and restarts the machine when file is created', async () => {
+  test.each([
+    { podmanVersion: '5.6.0', usesNativeRestart: false },
+    { podmanVersion: '6.0.9', usesNativeRestart: false },
+    { podmanVersion: '6.1.0', usesNativeRestart: true },
+  ])('selects the restart command for Podman $podmanVersion', async ({ podmanVersion, usesNativeRestart }) => {
     vi.mocked(envAPI).isMac = true;
     vi.mocked(arch).mockReturnValue('arm64');
     vi.mocked(release).mockReturnValue(tahoeRelease);
     vi.mocked(podmanConfiguration.isRosettaEnabled).mockResolvedValue(true);
-    // test -f fails → file missing; touch succeeds; stop succeeds; start succeeds
+    // test -f fails → file missing; touch succeeds; native restart or fallback stop/start succeeds
     vi.mocked(execPodman)
       .mockRejectedValueOnce(new Error('exit code 1'))
       .mockResolvedValueOnce({ stdout: '', stderr: '', command: '' } as RunResult)
@@ -289,10 +293,17 @@ describe('provisionAndRestartForRosetta', () => {
       podmanVersion,
     );
     expect(result).toBe(true);
-    // ssh test -f, ssh sudo touch, machine stop, machine start
-    expect(execPodman).toHaveBeenCalledTimes(4);
-    expect(execPodman).toHaveBeenNthCalledWith(3, ['machine', 'stop', machineName], vmType);
-    expect(execPodman).toHaveBeenNthCalledWith(4, ['machine', 'start', machineName], vmType, undefined);
+
+    if (usesNativeRestart) {
+      expect(execPodman).toHaveBeenCalledTimes(3);
+      expect(execPodman).toHaveBeenNthCalledWith(3, ['machine', 'restart', machineName], vmType, undefined);
+      expect(execPodman).not.toHaveBeenCalledWith(['machine', 'stop', machineName], vmType);
+      expect(execPodman).not.toHaveBeenCalledWith(['machine', 'start', machineName], vmType, undefined);
+    } else {
+      expect(execPodman).toHaveBeenCalledTimes(4);
+      expect(execPodman).toHaveBeenNthCalledWith(3, ['machine', 'stop', machineName], vmType);
+      expect(execPodman).toHaveBeenNthCalledWith(4, ['machine', 'start', machineName], vmType, undefined);
+    }
   });
 
   test('passes options to the start command', async () => {
