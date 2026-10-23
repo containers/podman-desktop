@@ -1772,15 +1772,25 @@ describe('automatic updates of an extension', () => {
     ]);
   });
 
+  test('setExtensionAutoUpdate disables the automatic updates of a bundled extension', async () => {
+    mockAutoUpdateDisabledExtensionIds([]);
+    extensionLoader.setAnalyzedExtension(
+      'my.extension',
+      buildAnalyzedExtension('my.extension', { removable: false, bundled: true }),
+    );
+
+    await extensionLoader.setExtensionAutoUpdate('my.extension', false);
+
+    expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.autoUpdateDisabled', [
+      'my.extension',
+    ]);
+  });
+
   test.each([
     { name: 'an unknown extension', extension: undefined },
     {
-      name: 'a bundled extension',
-      extension: buildAnalyzedExtension('my.extension', { removable: false, bundled: true }),
-    },
-    {
-      name: 'an extension replacing a bundled one',
-      extension: buildAnalyzedExtension('my.extension', { overrides: { id: 'my.extension', version: '1.0.0' } }),
+      name: 'an extension from a development folder',
+      extension: buildAnalyzedExtension('my.extension', { removable: false, devMode: true }),
     },
   ])('setExtensionAutoUpdate refuses $name', async ({ extension }) => {
     if (extension) {

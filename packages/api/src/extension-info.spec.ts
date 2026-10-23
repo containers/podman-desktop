@@ -21,13 +21,9 @@ import { expect, test } from 'vitest';
 import { isAutoUpdatable } from './extension-info.js';
 
 test.each([
-  { name: 'an extension installed by the user', extension: { removable: true }, expected: true },
-  { name: 'a bundled extension', extension: { removable: false }, expected: false },
-  {
-    name: 'an extension replacing a bundled one',
-    extension: { removable: true, overrides: { id: 'podman-desktop.kind', version: '1.0.0' } },
-    expected: false,
-  },
+  { name: 'an extension installed by the user', extension: { removable: true, bundled: false }, expected: true },
+  { name: 'a bundled extension', extension: { removable: false, bundled: true }, expected: true },
+  { name: 'an extension from a development folder', extension: { removable: false, bundled: false }, expected: false },
 ])('$name is auto-updatable: $expected', ({ extension, expected }) => {
   expect(isAutoUpdatable(extension)).toBe(expected);
 });
