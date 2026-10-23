@@ -36,6 +36,7 @@ import { app } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { AuthenticationImpl } from '/@/plugin/authentication.js';
+import { CancellationTokenSource } from '/@/plugin/cancellation-token.js';
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { CliToolRegistry } from '/@/plugin/cli-tool-registry.js';
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
@@ -61,6 +62,7 @@ import type { KubernetesClient } from '/@/plugin/kubernetes/kubernetes-client.js
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { MessageBox } from '/@/plugin/message-box.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import { SearchResultProviderRegistry } from '/@/plugin/navigation/search-result-provider-registry.js';
 import type { OnboardingRegistry } from '/@/plugin/onboarding-registry.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
@@ -87,6 +89,7 @@ import type { ExtensionWatcher } from './extension-watcher.js';
 import type { ExtensionsExternal } from './local/extensions-external.js';
 
 vi.mock(import('node:fs'));
+vi.mock(import('/@/plugin/navigation/search-result-provider-registry.js'));
 
 class TestExtensionLoader extends ExtensionLoader {
   public override async setupScanningDirectory(): Promise<void> {
@@ -319,6 +322,8 @@ const navigationManager: NavigationManager = new NavigationManager(
   onboardingRegistry,
 );
 
+const searchResultProviderRegistry = new SearchResultProviderRegistry();
+
 const colorRegistry = {
   registerExtensionThemes: vi.fn(),
 } as unknown as ColorRegistry;
@@ -425,6 +430,7 @@ beforeEach(() => {
     imageCheckerImpl,
     imageFilesImpl,
     navigationManager,
+    searchResultProviderRegistry,
     webviewRegistry,
     colorRegistry,
     dialogRegistry,
@@ -1700,6 +1706,50 @@ describe('setContextValue', async () => {
 
     api.context.setValue('key', 'value', 'DockerCompatibility');
     expect(setValueSpy).toBeCalledWith('publisher.extension-name.DockerCompatibility.key', 'value');
+  });
+});
+
+describe('registerSearchResultProvider', () => {
+  test('registers a provider that resolves item icons and adds its disposable to subscriptions', async () => {
+    const subscriptions: { dispose(): unknown }[] = [];
+    const registration = Disposable.create(vi.fn());
+    vi.mocked(SearchResultProviderRegistry.prototype.registerProvider).mockReturnValue(registration);
+    const updateImage = vi
+      .spyOn(extensionLoader, 'updateImage')
+      .mockReturnValueOnce('resolved:item.png')
+      .mockReturnValueOnce({ light: 'light.png', dark: 'dark.png' });
+    const api = createApi(subscriptions);
+    const themedIcon = { light: 'light.png', dark: 'dark.png' };
+    const provider: containerDesktopAPI.SearchResultProvider = {
+      provideItems: vi.fn().mockResolvedValue([
+        { label: 'Item', command: 'extension.open', args: ['item-id'], icon: 'item.png' },
+        { label: 'Themed', command: 'extension.open', icon: themedIcon },
+      ]),
+    };
+
+    const disposable = api.navigation.registerSearchResultProvider(provider, { label: 'Resources' });
+
+    expect(SearchResultProviderRegistry.prototype.registerProvider).toHaveBeenCalledWith(expect.any(Object), {
+      extensionId: 'publisher.extension-name',
+      label: 'dname',
+      icon: undefined,
+      metadata: { label: 'Resources' },
+    });
+    expect(disposable).toBe(registration);
+    expect(subscriptions).toContain(registration);
+
+    const registeredProvider = vi.mocked(SearchResultProviderRegistry.prototype.registerProvider).mock.calls[0]?.[0];
+    const tokenSource = new CancellationTokenSource();
+    const items = await registeredProvider?.provideItems('item', { maxResults: 10 }, tokenSource.token);
+
+    expect(provider.provideItems).toHaveBeenCalledWith('item', { maxResults: 10 }, tokenSource.token);
+    expect(updateImage).toHaveBeenCalledWith('item.png', '/path');
+    expect(updateImage).toHaveBeenCalledWith({ light: 'light.png', dark: 'dark.png' }, '/path');
+    expect(vi.mocked(updateImage).mock.calls[1]?.[0]).not.toBe(themedIcon);
+    expect(items).toEqual([
+      { label: 'Item', command: 'extension.open', args: ['item-id'], icon: 'resolved:item.png' },
+      { label: 'Themed', command: 'extension.open', icon: { light: 'light.png', dark: 'dark.png' } },
+    ]);
   });
 });
 

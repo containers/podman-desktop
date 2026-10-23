@@ -99,6 +99,9 @@ vi.mock(import('./tasks/task-manager.js'), importOriginal => mockOriginalClass(i
 vi.mock(import('./navigation/navigation-manager.js'), importOriginal =>
   mockOriginalClass(importOriginal, 'NavigationManager'),
 );
+vi.mock(import('./navigation/search-result-provider-registry.js'), importOriginal =>
+  mockOriginalClass(importOriginal, 'SearchResultProviderRegistry'),
+);
 vi.mock(import('./provider-registry.js'), importOriginal => mockOriginalClass(importOriginal, 'ProviderRegistry'));
 vi.mock(import('./image-registry.js'), importOriginal => mockOriginalClass(importOriginal, 'ImageRegistry'));
 
