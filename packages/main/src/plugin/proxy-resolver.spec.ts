@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,15 +57,22 @@ vi.mock(import('hpagent'), () => {
   } as unknown as typeof hpagent;
 });
 
-function createProxy(enabled: boolean, httpsProxy?: string, httpProxy?: string): Proxy {
+function createProxy(
+  enabled: boolean,
+  httpsProxy?: string,
+  httpProxy?: string,
+  noProxyMatcher: (hostname?: string, port?: string) => boolean = () => false,
+): Proxy {
   const proxy: {
     isEnabled: () => boolean;
+    isNoProxyMatch: (hostname?: string, port?: string) => boolean;
     proxy?: {
       httpProxy?: string;
       httpsProxy?: string;
     };
   } = {
     isEnabled: () => enabled,
+    isNoProxyMatch: noProxyMatcher,
   };
   if (httpProxy) {
     proxy.proxy = {
@@ -79,6 +86,7 @@ function createProxy(enabled: boolean, httpsProxy?: string, httpProxy?: string):
   }
   return proxy as unknown as Proxy;
 }
+
 const Http = 'http';
 const HttpProxyUrl = `${Http}://proxy.url`;
 const HttpsProxyUrl = 'https://proxy.url';
@@ -88,7 +96,7 @@ const certificates: Certificates = {
 } as unknown as Certificates;
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 test('getOptions return options w/o agent if proxy not enabled and url is not secure', () => {
@@ -109,6 +117,50 @@ test('getOptions return options w/ https.Agent for https proxy', () => {
   const options = ProxyResolver.getOptions(proxy, false, certificates);
   expect(options.agent).not.toBeUndefined();
   expect(options.agent && 'https' in options.agent ? options.agent.https : true).toBeFalsy();
+});
+
+test('getProxyUrl returns undefined when proxy is disabled', () => {
+  const proxy = createProxy(false, HttpsProxyUrl, HttpProxyUrl);
+  expect(ProxyResolver.getProxyUrl(proxy, true, 'example.com')).toBeUndefined();
+});
+
+test('getProxyUrl returns https proxy url for secure request', () => {
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
+  expect(ProxyResolver.getProxyUrl(proxy, true, 'example.com')).toBe(HttpsProxyUrl);
+});
+
+test('getProxyUrl returns http proxy url for non-secure request', () => {
+  const proxy = createProxy(true, undefined, HttpProxyUrl);
+  expect(ProxyResolver.getProxyUrl(proxy, false, 'example.com')).toBe(HttpProxyUrl);
+});
+
+test('getProxyUrl returns undefined when isNoProxyMatch returns true', () => {
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, () => true);
+  expect(ProxyResolver.getProxyUrl(proxy, true, 'example.com')).toBeUndefined();
+});
+
+test('getProxyUrl returns proxy url when isNoProxyMatch returns false', () => {
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, () => false);
+  expect(ProxyResolver.getProxyUrl(proxy, true, 'example.com')).toBe(HttpsProxyUrl);
+});
+
+test('getProxyUrl returns proxy url when hostname is omitted', () => {
+  const noProxyMatcher = vi.fn().mockReturnValue(false);
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, noProxyMatcher);
+  expect(ProxyResolver.getProxyUrl(proxy, true)).toBe(HttpsProxyUrl);
+});
+
+test('getProxyUrl passes hostname and port to isNoProxyMatch', () => {
+  const noProxyMatcher = vi.fn().mockReturnValue(false);
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, noProxyMatcher);
+  ProxyResolver.getProxyUrl(proxy, true, 'host.example.com', '8080');
+  expect(noProxyMatcher).toHaveBeenCalledWith('host.example.com', '8080');
+});
+
+test('getOptions skips proxy agent when isNoProxyMatch returns true for non-secure request', () => {
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, () => true);
+  const options = ProxyResolver.getOptions(proxy, false, certificates, 'internal.corp', '80');
+  expect(options.agent).toBeUndefined();
 });
 
 test('patched http get calls original with the original parameters when proxy is not enabled', () => {
@@ -202,4 +254,63 @@ test('patched http get works when url passed as protocol and hostname in options
     },
     callback,
   );
+});
+
+test('patched http get skips proxy agent when isNoProxyMatch returns true', () => {
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, () => true);
+  const patched = ProxyResolver.createHttpPatchedModules(proxy, certificates);
+  const callback = vi.fn();
+  const http = patched['http'];
+  if (http && 'get' in http && typeof http.get === 'function') {
+    http.get('http://internal.corp/api', callback);
+  }
+  expect(get).toHaveBeenCalledWith(expect.not.objectContaining({ agent: expect.anything() }), callback);
+});
+
+test('patched http get uses proxy agent when isNoProxyMatch returns false', () => {
+  const proxy = createProxy(true, undefined, HttpProxyUrl, () => false);
+  const patched = ProxyResolver.createHttpPatchedModules(proxy, certificates);
+  const callback = vi.fn();
+  const http = patched['http'];
+  if (http && 'get' in http && typeof http.get === 'function') {
+    http.get('http://external.io/api', callback);
+  }
+  expect(get).toHaveBeenCalledWith(expect.objectContaining({ agent: expect.anything() }), callback);
+});
+
+test('patched http get forwards hostname and port to isNoProxyMatch', () => {
+  const noProxyMatcher = vi.fn().mockReturnValue(false);
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, noProxyMatcher);
+  const patched = ProxyResolver.createHttpPatchedModules(proxy, certificates);
+  const callback = vi.fn();
+  const http = patched['http'];
+  if (http && 'get' in http && typeof http.get === 'function') {
+    http.get({ hostname: 'api.corp', port: 8080, protocol: 'http:', path: '/' }, callback);
+  }
+  expect(noProxyMatcher).toHaveBeenCalledWith('api.corp', '8080');
+});
+
+test('patched http get normalizes empty port to protocol default for isNoProxyMatch', () => {
+  const noProxyMatcher = vi.fn().mockReturnValue(false);
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, noProxyMatcher);
+  const patched = ProxyResolver.createHttpPatchedModules(proxy, certificates);
+  const callback = vi.fn();
+  const http = patched['http'];
+  if (http && 'get' in http && typeof http.get === 'function') {
+    http.get('http://example.com/api', callback);
+  }
+  expect(noProxyMatcher).toHaveBeenCalledWith('example.com', '80');
+});
+
+test('patched http get defaults to localhost and bypasses proxy when host is absent', () => {
+  const noProxyMatcher = vi.fn().mockReturnValue(true);
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl, noProxyMatcher);
+  const patched = ProxyResolver.createHttpPatchedModules(proxy, certificates);
+  const http = patched['http'];
+  if (http && 'get' in http && typeof http.get === 'function') {
+    http.get({ protocol: 'http:', path: '/' });
+  }
+  expect(noProxyMatcher).toHaveBeenCalledWith('localhost', '80');
+  const opts = vi.mocked(get).mock.calls[0]![0] as unknown as Record<string, unknown>;
+  expect(opts['agent']).toBeUndefined();
 });
