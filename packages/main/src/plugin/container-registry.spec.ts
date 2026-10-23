@@ -8510,3 +8510,62 @@ describe('updateImages', () => {
     });
   });
 });
+
+describe('getImageInfo', () => {
+  beforeEach(() => {
+    server = setupServer(
+      http.get('http://localhost/v4.2.0/libpod/images/json', () =>
+        HttpResponse.json([{ Id: 'dummyImageId', Digest: 'fooDigest' }]),
+      ),
+    );
+    server.listen({ onUnhandledFrame: 'error' });
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      libpodApi: api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: { socketPath: '/podman1.socket' },
+      },
+    } as unknown as InternalContainerProvider);
+  });
+
+  test('resolves the image matching the engine and the engine image id', async () => {
+    const image = await containerRegistry.getImageInfo('podman1', 'sha256:dummyImageId');
+
+    expect(image.engineId).toBe('podman1');
+    expect(image.Id).toBe('sha256:dummyImageId');
+  });
+
+  test('rejects when the id is the raw id without the digest prefix', async () => {
+    await expect(containerRegistry.getImageInfo('podman1', 'dummyImageId')).rejects.toThrow(
+      'Image dummyImageId not found on engine podman1',
+    );
+  });
+
+  test('rejects when the engine is unknown', async () => {
+    await expect(containerRegistry.getImageInfo('podman2', 'sha256:dummyImageId')).rejects.toThrow(
+      'no engine matching this engine',
+    );
+  });
+
+  test('rejects when the engine has no api', async () => {
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: { socketPath: '/podman1.socket' },
+      },
+    } as unknown as InternalContainerProvider);
+
+    await expect(containerRegistry.getImageInfo('podman1', 'sha256:dummyImageId')).rejects.toThrow(
+      'no running provider for the matching container',
+    );
+  });
+});

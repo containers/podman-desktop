@@ -3421,7 +3421,8 @@ export class PluginSystem {
       async (
         _listener,
         id: string,
-        image: ImageInfo,
+        engineId: string,
+        imageId: string,
         tokenId?: number,
       ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
         let token;
@@ -3429,6 +3430,7 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
+        const image = await containerProviderRegistry.getImageInfo(engineId, imageId);
         return imageChecker.check(id, image, token);
       },
     );
@@ -3442,7 +3444,8 @@ export class PluginSystem {
       async (
         _listener,
         id: string,
-        image: ImageInfo,
+        engineId: string,
+        imageId: string,
         tokenId?: number,
       ): Promise<ImageFilesystemLayersUI | undefined> => {
         let token;
@@ -3450,6 +3453,7 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
+        const image = await containerProviderRegistry.getImageInfo(engineId, imageId);
         return imageFiles.getFilesystemLayers(id, image, token);
       },
     );
