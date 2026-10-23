@@ -1,7 +1,16 @@
 <script lang="ts">
 import type { Menu } from '@desktop-framework/api';
 import { MenuContext, NavigationPage } from '@desktop-framework/api';
-import { faCircleArrowUp, faDownload, faEdit, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleArrowUp,
+  faDownload,
+  faEdit,
+  faLayerGroup,
+  faPlay,
+  faSync,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -108,6 +117,67 @@ function saveImage(): void {
   saveImagesInfo.set([image]);
   router.goto('/images/save');
 }
+
+async function updateImage(): Promise<void> {
+  if (!isUpdateCandidate(image)) {
+    return;
+  }
+
+  const previousStatus = image.status;
+  image.status = 'UPDATING';
+  dispatch('update', image);
+
+  try {
+    const results = await imageUtils.updateImages([image]);
+    for (const result of results) {
+      if (!result.updated) {
+        console.info(`${result.imageRef}: ${result.message}`);
+      }
+    }
+    image.status = previousStatus;
+  } catch (error) {
+    image.status = previousStatus;
+    await onError(`Error while updating image: ${String(error)}`);
+  } finally {
+    image.selected = false;
+    dispatch('update', image);
+  }
+}
+
+function confirmUpdateImage(): void {
+  const imageRef = `${image.name}:${image.tag}`;
+  withConfirmation(
+    (...errors: unknown[]) => {
+      // Confirmation passes no arguments; rejection passes one, even if undefined.
+      if (errors.length > 0) {
+        console.error('Image update confirmation failed', errors[0]);
+        return;
+      }
+      return updateImage();
+    },
+    `update all tags of image ${imageRef} to latest build`,
+    { title: 'Update Image?', buttonLabel: 'Update' },
+  );
+}
+
+function isUpdateCandidate(imageInfo: ImageInfoUI): boolean {
+  return imageInfo.status === 'UNUSED' && Boolean(imageInfo.name) && imageInfo.name !== '<none>';
+}
+
+const updateTooltip = $derived.by(() => {
+  switch (image.status) {
+    case 'USED':
+      return 'Cannot update an image used by a container';
+    case 'DELETING':
+      return 'Cannot update an image being deleted';
+    case 'UPDATING':
+      return 'Updating image';
+  }
+  if (!image.name || image.name === '<none>') {
+    return 'Cannot update an image without tags';
+  }
+  return 'Update all tags of this image';
+});
 </script>
 
 <ListItemButtonIcon title="Run Image" onClick={runImage} detailed={detailed} icon={faPlay} />
@@ -154,6 +224,26 @@ function saveImage(): void {
     menu={dropdownMenu}
     detailed={detailed}
     icon={faDownload} />
+
+  {#if dropdownMenu}
+    <ListItemButtonIcon
+      title="Update Image"
+      tooltip={updateTooltip}
+      onClick={confirmUpdateImage}
+      menu={true}
+      detailed={detailed}
+      icon={faSync}
+      enabled={isUpdateCandidate(image)} />
+  {:else}
+    <Tooltip bottom tip={updateTooltip}>
+      <ListItemButtonIcon
+        title="Update Image"
+        onClick={confirmUpdateImage}
+        detailed={detailed}
+        icon={faSync}
+        enabled={isUpdateCandidate(image)} />
+    </Tooltip>
+  {/if}
 
   <ActionsWrapper dropdownMenu={groupingContributions} dropdownMenuAsMenuActionItem={groupingContributions}>
     <ContributionActions
