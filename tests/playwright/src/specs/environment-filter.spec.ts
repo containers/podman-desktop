@@ -22,7 +22,7 @@ import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
 import { expect as playExpect, test } from '/@/utility/fixtures';
-import { deleteContainer, deleteImage, deletePod, deletePodmanMachine } from '/@/utility/operations';
+import { deleteContainer, deleteImage, deletePod, deletePodmanMachine, deleteVolume } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
 import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
@@ -30,13 +30,15 @@ import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wa
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
 const defaultMachineDisplayName = 'Podman Machine';
+const defaultMachineConnectionName = 'podman-machine-default';
 const environmentFilterImage = 'ghcr.io/linuxcontainers/alpine';
 const environmentFilterContainer = 'environment-filter-container';
 const environmentFilterPod = 'environment-filter-pod';
+const environmentFilterVolume = 'environment-filter-volume';
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
-  runner.setVideoAndTraceName('pods-environment-filter-e2e');
+  runner.setVideoAndTraceName('environment-filter-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
   const images = await navigationBar.openImages();
@@ -47,7 +49,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 });
 
 test.describe
-  .serial('Verification of pod filtering by environment', { tag: '@pdmachine' }, () => {
+  .serial('Verification of resource filtering by environment', { tag: '@pdmachine' }, () => {
     test.skip(
       isLinux ||
         process.env.TEST_PODMAN_MACHINE !== 'true' ||
@@ -74,6 +76,7 @@ test.describe
         const errors: unknown[] = [];
         for (const cleanup of [
           (): Promise<void> => deletePod(page, environmentFilterPod),
+          (): Promise<void> => deleteVolume(page, environmentFilterVolume),
           (): Promise<void> => deleteContainer(page, environmentFilterContainer),
           (): Promise<void> => deleteImage(page, environmentFilterImage),
           (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
@@ -185,5 +188,48 @@ test.describe
       });
 
       await pods.clearFilterByEnvironment();
+    });
+
+    test('Environment filter is visible on the Volumes page', async ({ navigationBar }) => {
+      const volumes = await navigationBar.openVolumes();
+      await playExpect(volumes.heading).toBeVisible();
+      await playExpect.poll(async () => await volumes.isEnvironmentFilterVisible(), { timeout: 30_000 }).toBeTruthy();
+    });
+
+    test('Filtering volumes by environment', async ({ navigationBar }) => {
+      test.setTimeout(120_000);
+
+      let volumes = await navigationBar.openVolumes();
+      await playExpect(volumes.heading).toBeVisible();
+
+      const createVolumePage = await volumes.openCreateVolumePage(environmentFilterVolume);
+      volumes = await createVolumePage.createVolume(environmentFilterVolume, defaultMachineConnectionName);
+      await playExpect(volumes.heading).toBeVisible({ timeout: 30_000 });
+      await playExpect
+        .poll(async () => await volumes.waitForVolumeExists(environmentFilterVolume), { timeout: 25_000 })
+        .toBeTruthy();
+
+      await test.step(`Filter by ${secondMachineDisplayName} shows no volumes`, async () => {
+        await volumes.filterByEnvironment(secondMachineDisplayName);
+        await playExpect
+          .poll(async () => (await volumes.getVolumeRowByName(environmentFilterVolume)) === undefined, {
+            timeout: 15_000,
+          })
+          .toBeTruthy();
+      });
+
+      await test.step(`Filter by ${defaultMachineDisplayName} shows the created volume`, async () => {
+        await volumes.filterByEnvironment(defaultMachineDisplayName);
+        await playExpect
+          .poll(async () => await volumes.countVolumesFromTable(), { timeout: 10_000 })
+          .toBeGreaterThanOrEqual(1);
+        await playExpect
+          .poll(async () => (await volumes.getVolumeRowByName(environmentFilterVolume)) !== undefined, {
+            timeout: 10_000,
+          })
+          .toBeTruthy();
+      });
+
+      await volumes.clearFilterByEnvironment();
     });
   });
