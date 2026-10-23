@@ -391,6 +391,66 @@ test('check configureRouter rejects sibling directory sharing the root as prefix
   expect(res.sendFile).not.toHaveBeenCalled();
 });
 
+function callRouterWithPath(requestPath: string): {
+  sendFile: ReturnType<typeof vi.fn>;
+  status: ReturnType<typeof vi.fn>;
+  sendMock: ReturnType<typeof vi.fn>;
+} {
+  const panel = webviewRegistry.createWebviewPanel(
+    { id: 'extensionId', extensionPath: '/extensionPath' },
+    'viewTypeInfo',
+    'customTitle',
+  );
+  assert(panel instanceof WebviewPanelImpl);
+  const uuid = panel.webview.uuid;
+
+  const func = getRouterFunction('/{*splat}');
+  const req = {
+    path: requestPath,
+    hostname: `${uuid}.webview.localhost`,
+    headers: {
+      referer: 'foo',
+    },
+  };
+  const sendMock = vi.fn();
+  const res = {
+    sendFile: vi.fn(),
+    status: vi.fn().mockReturnValue({
+      send: sendMock,
+    }),
+  };
+
+  func(req, res);
+  return { ...res, sendMock };
+}
+
+test('check configureRouter decodes percent-encoded path', () => {
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+
+  const res = callRouterWithPath('/my%20folder/my%20file.js');
+
+  expect(fs.existsSync).toHaveBeenCalledWith(
+    expect.stringContaining(`${path.sep}extensionPath${path.sep}my folder${path.sep}my file.js`),
+  );
+  expect(res.sendFile).toHaveBeenCalledWith(
+    expect.stringContaining(`${path.sep}extensionPath${path.sep}my folder${path.sep}my file.js`),
+    { dotfiles: 'allow' },
+  );
+});
+
+test.each([
+  ['encoded traversal', '/..%2f..%2fextensionPath-sibling/package.json'],
+  ['malformed encoding', '/%E0%A4%A'],
+])('check configureRouter rejects %s', (_name, requestPath) => {
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+
+  const res = callRouterWithPath(requestPath);
+
+  expect(res.status).toHaveBeenCalledWith(404);
+  expect(res.sendMock).toHaveBeenCalledWith('not found');
+  expect(res.sendFile).not.toHaveBeenCalled();
+});
+
 test('check makeDefaultWebviewVisible', async () => {
   // register two webviews
   const panel1 = webviewRegistry.createWebviewPanel(
