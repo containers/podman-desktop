@@ -1415,8 +1415,13 @@ export class ContainerProviderRegistry {
         const statusCode = (error as any)?.statusCode;
         if (statusCode === 403) {
           error.message = `access to image "${imageName}" is denied (403 error). Can also be that image does not exist.`;
-        } else if (statusCode === 500 || statusCode === 401) {
-          error.message = `access to image "${imageName}" is denied (${statusCode} error). Can also be that the registry requires authentication.`;
+        } else if (statusCode === 401) {
+          error.message = `access to image "${imageName}" is denied (401 error). Can also be that the registry requires authentication.`;
+        } else if (statusCode === 500) {
+          const reason = this.getEngineErrorReason(error);
+          error.message = reason
+            ? `unable to pull image "${imageName}": ${reason}`
+            : `unable to pull image "${imageName}" (500 error).`;
         }
       }
       telemetryOptions = { error: error };
@@ -1424,6 +1429,21 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName), ...telemetryOptions });
     }
+  }
+
+  /**
+   * Extracts the explanation reported by the container engine. Returns the root cause of the error if available, otherwise undefined.
+   */
+  protected getEngineErrorReason(error: Error): string | undefined {
+    // cut the prefix '(HTTP code 500) server error - <reason>' and get the reason part
+    const reason = error.message.replace(/^\(HTTP code \d+\)\s.*?\s-\s/, '').trim();
+    if (reason.length === 0) {
+      return undefined;
+    }
+
+    // the reason is string of wrapped errors: 'outer: inner: root cause'
+    // pop the last layer, which is the root cause
+    return reason.split(/:\s+/).pop()?.trim();
   }
 
   getImageHash(imageName: string): string {

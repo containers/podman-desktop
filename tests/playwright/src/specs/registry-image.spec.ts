@@ -74,7 +74,7 @@ test.describe('Pulling image from authenticated registry workflow verification',
     await playExpect(errorAlert).toBeVisible({ timeout: 30_000 });
     await playExpect(errorAlert).toContainText('Error while pulling image from');
     await playExpect(errorAlert).toContainText(fullImageTitle);
-    await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
+    await playExpect(errorAlert).toContainText('unable to pull image');
   });
 
   test.describe(() => {
