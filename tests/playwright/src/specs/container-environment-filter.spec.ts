@@ -16,23 +16,43 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Page } from '@playwright/test';
+
+import { ResourceElementActions } from '/@/model/core/operations';
 import { ResourceElementState } from '/@/model/core/states';
 import { type ContainerInteractiveParams, PodmanVirtualizationProviders } from '/@/model/core/types';
 import { CreateMachinePage } from '/@/model/pages/create-machine-page';
 import { ResourceConnectionCardPage } from '/@/model/pages/resource-connection-card-page';
 import { ResourcesPage } from '/@/model/pages/resources-page';
+import type { NavigationBar } from '/@/model/workbench/navigation';
 import { expect as playExpect, test } from '/@/utility/fixtures';
-import { deleteContainer, deleteImage, deletePodmanMachine } from '/@/utility/operations';
+import {
+  deleteContainer,
+  deleteImage,
+  deletePodmanMachine,
+  handleConfirmationDialog,
+  waitForMachineStatus,
+} from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
 import { getVirtualizationProvider } from '/@/utility/provider';
-import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '/@/utility/wait';
+import { waitForPodmanMachineStartup, waitWhile } from '/@/utility/wait';
 
+const defaultMachineVisibleName = 'podman-machine-default';
 const secondMachineVisibleName = 'podman-machine-second';
 const secondMachineDisplayName = 'Podman Machine second';
 const defaultMachineDisplayName = 'Podman Machine';
 const environmentFilterImage = 'ghcr.io/linuxcontainers/alpine';
 const environmentFilterContainer = 'environment-filter-container';
 const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
+
+async function openPodmanResources(navigationBar: NavigationBar, page: Page): Promise<ResourcesPage> {
+  const settingsBar = await navigationBar.openSettings();
+  await settingsBar.resourcesTab.click();
+  const resourcesPage = new ResourcesPage(page);
+  await playExpect(resourcesPage.heading).toBeVisible();
+  await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible('podman')).toBeTruthy();
+  return resourcesPage;
+}
 
 test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
   runner.setVideoAndTraceName('containers-environment-filter-e2e');
@@ -48,6 +68,7 @@ test.beforeAll(async ({ runner, welcomePage, page, navigationBar }) => {
 test.describe
   .serial('Verification of container filtering by environment', { tag: '@pdmachine' }, () => {
     let secondMachineCreated = false;
+    let cleanedUp = false;
 
     test.skip(
       isLinux ||
@@ -56,24 +77,29 @@ test.describe
       'Test suite requires a second Podman machine; skipped on Linux, when TEST_PODMAN_MACHINE is not set, or when running with Hyper-V (only one Podman machine allowed)',
     );
 
-    test.beforeAll(async ({ page }) => {
-      // The "set as default?" Podman dialog fires asynchronously when the
-      // second machine finishes starting — potentially in the middle of a
-      // later test. Register a locator handler so Playwright auto-dismisses
-      // it whenever it appears, before it can block any UI interaction.
-      const podmanDialog = page.getByRole('dialog', { name: 'Podman', exact: true });
-      await page.addLocatorHandler(podmanDialog, async () => {
-        await podmanDialog.getByRole('button', { name: 'Ignore' }).click();
-      });
-    });
-
+    // The regular cleanup is the last test of the suite. This hook is only a safety net
+    // for runs where an earlier test failed and the remaining tests (including the cleanup) were skipped.
     test.afterAll(async ({ page, runner, navigationBar }) => {
-      test.setTimeout(120_000);
+      test.setTimeout(240_000);
 
       try {
+        if (cleanedUp) return;
+
         // Run every cleanup step regardless of individual failures, then re-throw.
         const errors: unknown[] = [];
         const cleanups: Array<() => Promise<void>> = [
+          // The default machine is stopped during the suite, make sure it is running again.
+          async (): Promise<void> => {
+            await openPodmanResources(navigationBar, page);
+            const defaultMachineCard = new ResourceConnectionCardPage(page, 'podman', defaultMachineVisibleName);
+            const status = await defaultMachineCard.resourceElementConnectionStatus.innerText();
+            if (status.includes(ResourceElementState.Off)) {
+              await defaultMachineCard.performConnectionAction(ResourceElementActions.Start);
+              await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Running, {
+                initialTimeout: 60_000,
+              });
+            }
+          },
           // An active environment filter can hide the container, so reset it first.
           async (): Promise<void> => {
             const containers = await navigationBar.openContainers();
@@ -104,54 +130,63 @@ test.describe
       }
     });
 
-    test('Creating a second Podman machine', async ({ navigationBar, page }) => {
+    test('Stopping the default Podman machine', async ({ navigationBar, page }) => {
+      test.setTimeout(90_000);
+
+      await openPodmanResources(navigationBar, page);
+      const defaultMachineCard = new ResourceConnectionCardPage(page, 'podman', defaultMachineVisibleName);
+      await playExpect(defaultMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Running);
+
+      await defaultMachineCard.performConnectionAction(ResourceElementActions.Stop);
+      await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Off, {
+        initialTimeout: 60_000,
+      });
+    });
+
+    test('Creating a second Podman machine without starting it', async ({ navigationBar, page }) => {
       test.setTimeout(200_000);
 
-      const settingsBar = await navigationBar.openSettings();
-      await settingsBar.resourcesTab.click();
-      const resourcesPage = new ResourcesPage(page);
-      await playExpect(resourcesPage.heading).toBeVisible();
-      await playExpect.poll(async () => await resourcesPage.resourceCardIsVisible('podman')).toBeTruthy();
+      const resourcesPage = await openPodmanResources(navigationBar, page);
       await resourcesPage.goToCreateNewResourcePage('podman');
 
       const createMachinePage = new CreateMachinePage(page);
       const resourcesPageAfterCreation = await createMachinePage.createMachine(secondMachineVisibleName, {
         isRootful: true,
-        startNow: true,
+        startNow: false,
         setAsDefault: false,
         virtualizationProvider: getVirtualizationProvider(),
       });
       secondMachineCreated = true;
 
-      // createMachine() waits for "Successful operation" and clicks "Go back to
-      // resources". The machine may still be STARTING at this point — and the
-      // Resources page can stall showing STARTING even after the machine has
-      // fully started, because the Svelte component does not always re-render
-      // when the underlying state changes. Poll first; if the status has not
-      // reached RUNNING within the initial window, navigate away and back to
-      // force the UI to pick up the current machine state.
       await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
-      let secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+      await playExpect(secondMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Off);
+    });
 
-      await waitUntil(
-        async () =>
-          (await secondMachineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running),
-        { timeout: 60_000, sendError: false },
-      );
+    test('Starting the second Podman machine', async ({ navigationBar, page }) => {
+      test.setTimeout(200_000);
 
-      const currentStatus = await secondMachineCard.resourceElementConnectionStatus.innerText();
-      if (!currentStatus.includes(ResourceElementState.Running)) {
-        // Navigate away and back to force the Resources page to refresh the
-        // machine connection status from the main process.
-        await navigationBar.openDashboard();
-        const refreshedSettingsBar = await navigationBar.openSettings();
-        await refreshedSettingsBar.resourcesTab.click();
-        await playExpect(resourcesPageAfterCreation.heading).toBeVisible();
-        secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
-      }
+      await openPodmanResources(navigationBar, page);
+      const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
+      await secondMachineCard.performConnectionAction(ResourceElementActions.Start);
 
-      await playExpect(secondMachineCard.resourceElementConnectionStatus).toContainText(ResourceElementState.Running, {
-        timeout: 120_000,
+      // The default machine is stopped, so the second one is reported as running but not default.
+      await handleConfirmationDialog({ page, dialogTitle: 'Podman', buttonName: 'Ignore', timeout: 120_000 });
+
+      await waitForMachineStatus(page, secondMachineVisibleName, ResourceElementState.Running, {
+        initialTimeout: 60_000,
+      });
+    });
+
+    test('Starting the default Podman machine again', async ({ navigationBar, page }) => {
+      test.setTimeout(150_000);
+
+      await openPodmanResources(navigationBar, page);
+      const defaultMachineCard = new ResourceConnectionCardPage(page, 'podman', defaultMachineVisibleName);
+      await defaultMachineCard.performConnectionAction(ResourceElementActions.Start);
+
+      await waitForMachineStatus(page, defaultMachineVisibleName, ResourceElementState.Running, {
+        initialTimeout: 90_000,
       });
     });
 
@@ -196,5 +231,14 @@ test.describe
       });
 
       await containers.clearFilterByEnvironment();
+    });
+
+    test('Cleaning up the test resources', async ({ page }) => {
+      test.setTimeout(200_000);
+
+      await deleteContainer(page, environmentFilterContainer);
+      await deleteImage(page, environmentFilterImage);
+      await deletePodmanMachine(page, secondMachineVisibleName);
+      cleanedUp = true;
     });
   });
