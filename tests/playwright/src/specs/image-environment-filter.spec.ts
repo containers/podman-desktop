@@ -58,14 +58,21 @@ test.describe
       });
     });
 
-    test.afterAll(async ({ page, runner }) => {
+    test.afterAll(async ({ page, runner, navigationBar }) => {
       test.setTimeout(120_000);
 
       try {
         // Run every cleanup step regardless of individual failures, then re-throw.
         const errors: unknown[] = [];
         for (const cleanup of [
-          (): Promise<void> => deleteImage(page, environmentFilterImage),
+          async (): Promise<void> => {
+            // A failed assertion can leave the filter set, which would hide the image from deleteImage().
+            const images = await navigationBar.openImages();
+            if (await images.isEnvironmentFilterVisible()) {
+              await images.clearFilterByEnvironment();
+            }
+            await deleteImage(page, environmentFilterImage);
+          },
           (): Promise<void> => deletePodmanMachine(page, secondMachineVisibleName),
         ]) {
           try {
