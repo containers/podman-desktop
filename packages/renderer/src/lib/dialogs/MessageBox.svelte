@@ -117,6 +117,11 @@ async function onClose(): Promise<void> {
   await window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
 }
 
+// Enter triggers the default button, except in danger dialogs where it must not run the destructive action
+function isEnterDefault(index: number): boolean {
+  return defaultId === index && type !== 'danger';
+}
+
 function getButtonType(b: boolean): ButtonType {
   // eslint-disable-next-line sonarjs/no-selector-parameter
   if (b && type === 'danger') {
@@ -199,10 +204,10 @@ function getInitialButtonFocus(): 'first' | 'last' | 'none' {
                 options={dropdownButtons.buttons.map(button => ({label: button, value: button}))}/>
             {:else if buttonsType[i].type === 'iconButton'}
               {@const button = buttonsType[i] as IconButtonType}
-              <Button type="primary" icon={button.icon} on:click={async (): Promise<void> => await clickButton(i)}>{button.label}</Button>
+              <Button type="primary" icon={button.icon} default={isEnterDefault(i)} on:click={async (): Promise<void> => await clickButton(i)}>{button.label}</Button>
             {/if}
           {:else}
-            <Button type={getButtonType(defaultId === i)} on:click={async (): Promise<void> => await clickButton(i)}>{buttonsType[i]}</Button>
+            <Button type={getButtonType(defaultId === i)} default={isEnterDefault(i)} on:click={async (): Promise<void> => await clickButton(i)}>{buttonsType[i]}</Button>
           {/if}
         {/each}
       

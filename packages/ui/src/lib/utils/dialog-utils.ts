@@ -30,3 +30,49 @@ export function tabWithinParent(e: KeyboardEvent, parent: HTMLDivElement): void 
   tabbable[index].focus();
   e.preventDefault();
 }
+
+export class ModalStack {
+  // Open modals in mount order, so only the topmost one handles Enter when modals are stacked.
+  #modals: HTMLElement[] = [];
+
+  register(modal: HTMLElement): () => void {
+    this.#modals.push(modal);
+    return (): void => {
+      const index = this.#modals.indexOf(modal);
+      if (index !== -1) this.#modals.splice(index, 1);
+    };
+  }
+
+  // Enter activates the button marked `default`, like a native desktop dialog. Controls that consume Enter
+  // themselves (buttons, links, textareas, selects, contenteditable) keep their native behavior.
+  // A body target means focus was dropped (e.g. a click on the dialog text), so the modal still owns the key.
+  activateDefaultButton(e: KeyboardEvent, modal: HTMLElement): void {
+    if (
+      this.#modals.at(-1) !== modal ||
+      e.defaultPrevented ||
+      e.isComposing ||
+      e.repeat ||
+      e.altKey ||
+      e.ctrlKey ||
+      e.metaKey ||
+      e.shiftKey
+    ) {
+      return;
+    }
+    if (
+      !(e.target instanceof HTMLElement) ||
+      (e.target !== document.body && !modal.contains(e.target)) ||
+      e.target.isContentEditable ||
+      e.target.closest('button, a, textarea, select, input[type="button"], input[type="submit"], input[type="reset"]')
+    ) {
+      return;
+    }
+    const defaultButton = modal.querySelector<HTMLButtonElement>('button[data-default]:enabled');
+    if (defaultButton) {
+      e.preventDefault();
+      defaultButton.click();
+    }
+  }
+}
+
+export const modalStack = new ModalStack();

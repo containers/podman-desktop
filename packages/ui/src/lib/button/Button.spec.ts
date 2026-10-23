@@ -276,6 +276,18 @@ test('Icon button with title should not throw', () => {
   expect(screen.getByRole('button')).toBeInTheDocument();
 });
 
+test('default button renders the data-default marker', () => {
+  render(Button, { default: true });
+
+  expect(screen.getByRole('button')).toHaveAttribute('data-default');
+});
+
+test('button without default has no data-default marker', () => {
+  render(Button);
+
+  expect(screen.getByRole('button')).not.toHaveAttribute('data-default');
+});
+
 test('Button without pressed prop should not have aria-pressed attribute', async () => {
   render(Button, { type: 'primary' });
   const button = screen.getByRole('button');
