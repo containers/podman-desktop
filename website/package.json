@@ -52,7 +52,7 @@
     "markdownlint-cli2": "^0.23.3",
     "markdownlint-cli2-formatter-summarize": "^0.0.8",
     "msw": "^2.15.0",
-    "postcss": "^8.5.30",
+    "postcss": "^8.5.31",
     "tailwindcss": "^4.3.3",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.14.1",
