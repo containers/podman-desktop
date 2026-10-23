@@ -26,6 +26,7 @@ import product from '/@product.json' with { type: 'json' };
 
 import { AutostartEngine } from './autostart-engine.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
+import type { Context } from './context/context.js';
 import type { DefaultConfiguration } from './default-configuration.js';
 import type { Directories } from './directories.js';
 import type { LockedConfiguration } from './locked-configuration.js';
@@ -55,6 +56,7 @@ beforeAll(() => {
     {} as Directories,
     {} as DefaultConfiguration,
     {} as LockedConfiguration,
+    {} as Context,
   );
   providerRegistry = {} as unknown as ProviderRegistry;
   autostartEngine = new AutostartEngine(configurationRegistry, providerRegistry);

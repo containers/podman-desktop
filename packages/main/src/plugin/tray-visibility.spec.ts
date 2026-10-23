@@ -19,6 +19,7 @@ import type { ApiSenderType } from '@desktop-framework/api/api-sender';
 import { beforeEach, expect, test } from 'vitest';
 
 import { ConfigurationRegistry } from './configuration-registry.js';
+import type { Context } from './context/context.js';
 import type { DefaultConfiguration } from './default-configuration.js';
 import type { Directories } from './directories.js';
 import type { LockedConfiguration } from './locked-configuration.js';
@@ -33,6 +34,7 @@ beforeEach(() => {
     {} as Directories,
     {} as DefaultConfiguration,
     {} as LockedConfiguration,
+    {} as Context,
   );
   trayVisibility = new TrayVisibility(configurationRegistry);
 });

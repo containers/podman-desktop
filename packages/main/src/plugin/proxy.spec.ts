@@ -32,6 +32,7 @@ import type { Certificates } from '/@/plugin/certificates.js';
 import { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import { ensureURL, Proxy } from '/@/plugin/proxy.js';
 
+import type { Context } from './context/context.js';
 import type { DefaultConfiguration } from './default-configuration.js';
 import type { Directories } from './directories.js';
 import type { LockedConfiguration } from './locked-configuration.js';
@@ -92,7 +93,7 @@ const lockedConfiguration = {
 } as unknown as LockedConfiguration;
 
 function getConfigurationRegistry(): ConfigurationRegistry {
-  return new ConfigurationRegistry(apiSender, directories, defaultConfiguration, lockedConfiguration);
+  return new ConfigurationRegistry(apiSender, directories, defaultConfiguration, lockedConfiguration, {} as Context);
 }
 
 async function buildProxy(): Promise<ProxyServer> {

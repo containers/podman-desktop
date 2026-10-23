@@ -90,6 +90,30 @@ Within the schema, you may add any type of value such as `"foo":"bar"` which can
 }
 ```
 
+### Declarative defaults
+
+The `default` field supports declarative resolvers that are evaluated at registration time. You can use a single resolver string or an ordered array — the first value that resolves wins.
+
+| Prefix | Description | Example |
+| --- | --- | --- |
+| `context:` | Reads a value from the extension context store | `"context:podman.machine.defaultProvider"` |
+| `env:` | Reads an environment variable | `"env:CONTAINERS_MACHINE_PROVIDER"` |
+| `file:` | Resolves to the expanded path if the file exists | `"file:~/.config/my-tool/creds.json"` |
+
+Resolvers can be combined as an ordered fallback array:
+
+```json
+{
+  "my-extension.provider": {
+    "type": "string",
+    "default": ["context:my-extension.detectedProvider", "env:MY_PROVIDER"],
+    "description": "Provider type"
+  }
+}
+```
+
+In this example, the default is resolved by first checking the `my-extension.detectedProvider` context value, then the `MY_PROVIDER` environment variable. If neither resolves, the default is `undefined`.
+
 ### Verification
 
 To verify that your commands are working as expected:

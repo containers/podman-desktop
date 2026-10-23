@@ -24,6 +24,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { AppearanceInit } from './appearance-init.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
+import type { Context } from './context/context.js';
 import type { DefaultConfiguration } from './default-configuration.js';
 import type { Directories } from './directories.js';
 import type { LockedConfiguration } from './locked-configuration.js';
@@ -42,6 +43,7 @@ beforeAll(() => {
     {} as Directories,
     {} as DefaultConfiguration,
     {} as LockedConfiguration,
+    {} as Context,
   );
   configurationRegistry.registerConfigurations = vi.fn();
   configurationRegistry.deregisterConfigurations = vi.fn();

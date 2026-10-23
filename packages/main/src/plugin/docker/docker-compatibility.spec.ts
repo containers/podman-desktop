@@ -26,6 +26,7 @@ import type * as Dockerode from 'dockerode';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 
 import { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import type { Context } from '/@/plugin/context/context.js';
 import type { DefaultConfiguration } from '/@/plugin/default-configuration.js';
 import type { Directories } from '/@/plugin/directories.js';
 import type { LockedConfiguration } from '/@/plugin/locked-configuration.js';
@@ -78,6 +79,7 @@ beforeAll(() => {
     {} as Directories,
     {} as DefaultConfiguration,
     {} as LockedConfiguration,
+    {} as Context,
   );
   configurationRegistry.registerConfigurations = vi.fn();
   configurationRegistry.deregisterConfigurations = vi.fn();

@@ -43,6 +43,7 @@ import { inject, injectable } from 'inversify';
 import product from '/@product.json' with { type: 'json' };
 
 import { ConfigurationImpl } from './configuration-impl.js';
+import { Context } from './context/context.js';
 import { DefaultConfiguration } from './default-configuration.js';
 import { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
@@ -80,6 +81,8 @@ export class ConfigurationRegistry implements IConfigurationRegistry, IAsyncDisp
     private defaultConfiguration: DefaultConfiguration,
     @inject(LockedConfiguration)
     private lockedConfiguration: LockedConfiguration,
+    @inject(Context)
+    private context: Context,
   ) {
     this.configurationProperties = {};
     this.configurationContributors = [];
@@ -277,15 +280,18 @@ export class ConfigurationRegistry implements IConfigurationRegistry, IAsyncDisp
   }
 
   /**
-   * Resolve declarative default values declared as `env:` / `file:` entries.
-   * Supports both a single string (`"default": "env:VAR"`) and an ordered
-   * array (`"default": ["env:VAR", "file:~/.path"]`).
+   * Resolve declarative default values declared as `context:` / `env:` / `file:` entries.
+   * Supports both a single string (`"default": "context:key"`) and an ordered
+   * array (`"default": ["context:key", "env:VAR", "file:~/.path"]`).
    * Returns the first matching value, or `undefined` if none resolve.
    * Non-declarative defaults (literals, object arrays, etc.) are returned unchanged.
    */
   protected resolveDeclarativeDefault(defaultValue: unknown): unknown {
-    // Single string form: "default": "env:VAR" or "default": "file:~/.path"
-    if (typeof defaultValue === 'string' && (defaultValue.startsWith('env:') || defaultValue.startsWith('file:'))) {
+    // Single string form: "default": "context:key", "default": "env:VAR", or "default": "file:~/.path"
+    if (
+      typeof defaultValue === 'string' &&
+      (defaultValue.startsWith('context:') || defaultValue.startsWith('env:') || defaultValue.startsWith('file:'))
+    ) {
       return this.resolveDeclarativeDefaultEntry(defaultValue);
     }
 
@@ -293,11 +299,12 @@ export class ConfigurationRegistry implements IConfigurationRegistry, IAsyncDisp
       return defaultValue;
     }
 
-    // Only treat as declarative when every entry is an env: or file: string
+    // Only treat as declarative when every entry is a context:, env:, or file: string
     if (
       !defaultValue.every(
         (entry): entry is string =>
-          typeof entry === 'string' && (entry.startsWith('env:') || entry.startsWith('file:')),
+          typeof entry === 'string' &&
+          (entry.startsWith('context:') || entry.startsWith('env:') || entry.startsWith('file:')),
       )
     ) {
       return defaultValue;
@@ -313,6 +320,18 @@ export class ConfigurationRegistry implements IConfigurationRegistry, IAsyncDisp
   }
 
   protected resolveDeclarativeDefaultEntry(entry: string): string | undefined {
+    if (entry.startsWith('context:')) {
+      const key = entry.slice('context:'.length);
+      if (!key) {
+        return undefined;
+      }
+      const value = this.context.getValue<string>(key);
+      if (value !== undefined && value !== '') {
+        return value;
+      }
+      return undefined;
+    }
+
     if (entry.startsWith('env:')) {
       const varName = entry.slice('env:'.length);
       if (!varName) {
