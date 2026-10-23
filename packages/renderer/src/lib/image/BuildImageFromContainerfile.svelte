@@ -5,9 +5,10 @@ import type { ProviderContainerConnectionInfo } from '@desktop-framework/api';
 import { NavigationPage } from '@desktop-framework/api';
 import type { OpenDialogOptions } from '@desktop-framework/extension-api';
 import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonRow, Checkbox, Input } from '@podman-desktop/ui-svelte';
+import { Button, ButtonRow, Checkbox, Input, Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import ContainerConnectionDropdown from '/@/lib/forms/ContainerConnectionDropdown.svelte';
 import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
@@ -35,6 +36,16 @@ interface Props {
 
 let { taskId = $bindable() }: Props = $props();
 let buildImageInfo: BuildImageInfo = $state(createDefaultBuildImageInfo());
+const BUILD_PATH = '/images/build';
+const BUILD_TABS = [
+  { id: 'basic', label: 'Basic' },
+  { id: 'advanced', label: 'Advanced' },
+] as const;
+
+let activeTab = $derived($router.path === `${BUILD_PATH}/advanced` ? 'advanced' : 'basic');
+// Keep background task links intact across tabs.
+const query = $derived(new URLSearchParams($router.query).toString());
+const tabQuery = $derived(query ? `?${query}` : '');
 let validateRegistries = $state(true);
 
 const containerFileDialogOptions: OpenDialogOptions = {
@@ -354,95 +365,108 @@ let hasInvalidFields = $derived(
     <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
   {/snippet}
   {#snippet content()}
-    <div class="space-y-6">
+    <div class="space-y-2">
       <div hidden={buildImageInfo.buildRunning}>
-        <label for="containerFilePath" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Containerfile path</label>
-        <FileInput
-          name="containerFilePath"
-          id="containerFilePath"
-          bind:value={buildImageInfo.containerFilePath}
-          placeholder="Containerfile to build"
-          options={containerFileDialogOptions}
-          class="w-full" />
+        <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
+          {#each BUILD_TABS as tab (tab.id)}
+            <Tab title={tab.label} selected={activeTab === tab.id} url={`${BUILD_PATH}/${tab.id}${tabQuery}`} />
+          {/each}
+        </div>
       </div>
+      <div class="pt-4">
+        <div
+          role="region"
+          id="open-tabs-list-basic-panel"
+          aria-labelledby="open-tabs-list-basic-link"
+          class="pr-4"
+          hidden={buildImageInfo.buildRunning || activeTab !== 'basic'}>
+          <label for="containerFilePath" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Containerfile path</label>
+          <FileInput
+            name="containerFilePath"
+            id="containerFilePath"
+            bind:value={buildImageInfo.containerFilePath}
+            placeholder="Containerfile to build"
+            options={containerFileDialogOptions}
+            class="w-full" />
 
-      <div hidden={buildImageInfo.buildRunning}>
-        <label
-          for="containerBuildContextDirectory"
-          class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]">Build context directory</label>
-        <FileInput
-          name="containerBuildContextDirectory"
-          id="containerBuildContextDirectory"
-          bind:value={buildImageInfo.containerBuildContextDirectory}
-          placeholder="Directory to build in"
-          options={contextDialogOptions}
-          class="w-full" />
-      </div>
+          <label
+            for="containerBuildContextDirectory"
+            class="pt-4 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]">Build context directory</label>
+          <FileInput
+            name="containerBuildContextDirectory"
+            id="containerBuildContextDirectory"
+            bind:value={buildImageInfo.containerBuildContextDirectory}
+            placeholder="Directory to build in"
+            options={contextDialogOptions}
+            class="w-full" />
 
-      <div hidden={buildImageInfo.buildRunning}>
-        <label for="containerImageName" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Image name</label>
-        <Input
-          bind:value={buildImageInfo.containerImageName}
-          name="containerImageName"
-          id="containerImageName"
-          placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
-          error={errorContainerImageName}
-          class="w-full" />
-      </div>
+          <label for="containerImageName" class="pt-4 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Image name</label>
+          <Input
+            bind:value={buildImageInfo.containerImageName}
+            name="containerImageName"
+            id="containerImageName"
+            placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
+            error={errorContainerImageName}
+            class="w-full" />
 
-      {#if buildImageInfo.containerFilePath}
-        <div hidden={buildImageInfo.buildRunning}>
+          {#if providerConnections.length > 1}
+            <label for="providerChoice" class="pt-4 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+              >Container engine</label>
+            <ContainerConnectionDropdown
+              id="providerChoice"
+              name="providerChoice"
+              bind:value={buildImageInfo.selectedProvider}
+              connections={providerConnections} />
+          {/if}
+
+          <label for="containerBuildPlatform" class="pt-4 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Platform</label>
+          {#if platforms.length > 1}
+            <p class="text-[var(--pd-content-text)] mb-2">Multiple platforms selected, a manifest will be created</p>
+          {/if}
+          <BuildImageFromContainerfileCards bind:platforms={buildImageInfo.containerBuildPlatform} />
+        </div>
+
+        <div
+          role="region"
+          id="open-tabs-list-advanced-panel"
+          aria-labelledby="open-tabs-list-advanced-link"
+          class="pr-4"
+          hidden={buildImageInfo.buildRunning || activeTab !== 'advanced'}>
+          {#if buildImageInfo.containerFilePath}
             <BuildTargetDropdown bind:target={buildImageInfo.target} containerFilePath={buildImageInfo.containerFilePath} />
-        </div>
-      {/if}
+          {/if}
 
-      {#if providerConnections.length > 1}
-        <div hidden={buildImageInfo.buildRunning}>
-          <label for="providerChoice" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-            >Container engine</label>
-          <ContainerConnectionDropdown
-            id="providerChoice"
-            name="providerChoice"
-            bind:value={buildImageInfo.selectedProvider}
-            connections={providerConnections} />
-        </div>
-      {/if}
+          <label for="inputKey" class="pt-4 first:pt-0 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Build arguments</label>
+          {#each buildImageInfo.buildArgs as buildArg, index (index)}
+            <div class="flex flex-row items-center space-x-2 mb-2">
+              <Input bind:value={buildArg.key} name="inputKey" placeholder="Key" class="grow" required />
+              <Input bind:value={buildArg.value} placeholder="Value" class="grow" required />
+              <Button
+                on:click={(): void => deleteBuildArg(index)}
+                icon={faMinusCircle}
+                disabled={buildImageInfo.buildArgs.length === 1 && buildArg.key === '' && buildArg.value === ''}
+                aria-label="Delete build argument" />
+              <Button on:click={addBuildArg} icon={faPlusCircle} title="Add build argument" aria-label="Add build argument" />
+            </div>
+          {/each}
 
-      <div hidden={buildImageInfo.buildRunning}>
-        <label for="inputKey" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Build arguments</label>
-        {#each buildImageInfo.buildArgs as buildArg, index (index)}
-          <div class="flex flex-row items-center space-x-2 mb-2">
-            <Input bind:value={buildArg.key} name="inputKey" placeholder="Key" class="grow" required />
-            <Input bind:value={buildArg.value} placeholder="Value" class="grow" required />
-            <Button
-              on:click={(): void => deleteBuildArg(index)}
-              icon={faMinusCircle}
-              disabled={buildImageInfo.buildArgs.length === 1 && buildArg.key === '' && buildArg.value === ''}
-              aria-label="Delete build argument" />
-            <Button on:click={addBuildArg} icon={faPlusCircle} title="Add build argument" aria-label="Add build argument" />
-          </div>
-        {/each}
+          <label for="registryValidation" class="pt-4 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
+            >Registry Validation</label>
+          <Checkbox bind:checked={validateRegistries} title='validate registries'>Validate registries before building</Checkbox>
+        </div>
       </div>
 
-      <div hidden={buildImageInfo.buildRunning}>
-        <label for="containerBuildPlatform" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Platform</label>
-        {#if platforms.length > 1}
-          <p class="text-[var(--pd-content-text)] mb-2">Multiple platforms selected, a manifest will be created</p>
+      <ButtonRow class={buildImageInfo.buildRunning ? '' : 'pt-4 pb-2'}>
+        {#if buildImageInfo.buildRunning}
+          <Button type="link" on:click={abortBuild}>Cancel</Button>
+        {:else if !buildImageInfo.buildFinished}
+          <Button type="link" on:click={cleanupBuild}>Cancel</Button>
         {/if}
-        <BuildImageFromContainerfileCards bind:platforms={buildImageInfo.containerBuildPlatform} />
-      </div>
 
-      <div hidden={buildImageInfo.buildRunning}>
-        <label for="registryValidation" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
-          >Registry Validation</label>
-        <Checkbox bind:checked={validateRegistries} title='validate registries'>Validate registries before building</Checkbox>
-      </div>
-
-      <ButtonRow>
         {#if !buildImageInfo.buildRunning}
           <Button on:click={buildContainerImage} disabled={hasInvalidFields} icon={faCube}>Build</Button>
         {/if}
@@ -457,11 +481,6 @@ let hasInvalidFields = $derived(
         imageName={buildImageInfo.buildParentImageName} />
 
       <TerminalWindow on:init={onInit} bind:terminal={buildImageInfo.logsTerminal} />
-      <ButtonRow>
-        {#if buildImageInfo.buildRunning}
-          <Button on:click={abortBuild}>Cancel</Button>
-        {/if}
-      </ButtonRow>
     </div>
   {/snippet}
 </EngineFormPage>

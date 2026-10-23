@@ -43,6 +43,8 @@ export class BuildImagePage extends BasePage {
   readonly terminalContent: Locator;
   readonly targetDropdownButton: Locator;
   readonly registryValidationCheckbox: Locator;
+  readonly basicTab: Locator;
+  readonly advancedTab: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -68,6 +70,8 @@ export class BuildImagePage extends BasePage {
     this.terminalContent = page.locator('.xterm-rows');
     this.targetDropdownButton = page.getByRole('button', { name: 'target' });
     this.registryValidationCheckbox = page.getByRole('checkbox', { name: 'validate registries' });
+    this.basicTab = page.getByRole('link', { name: 'Basic' });
+    this.advancedTab = page.getByRole('link', { name: 'Advanced' });
   }
 
   async buildImage(
@@ -160,12 +164,14 @@ export class BuildImagePage extends BasePage {
   }
 
   private async selectBuildTarget(target: string): Promise<void> {
+    await this.advancedTab.click();
     await playExpect(this.targetDropdownButton).toBeVisible({ timeout: 15_000 });
     await this.targetDropdownButton.click();
     await this.page.getByRole('button', { name: target, exact: true }).click();
     await playExpect(this.targetDropdownButton).toHaveText(new RegExp(target, 'i'), {
       timeout: 10_000,
     });
+    await this.basicTab.click();
   }
 
   private async showAllArchOptions(): Promise<void> {
@@ -179,6 +185,7 @@ export class BuildImagePage extends BasePage {
 
   async toggleRegistryValidation(enabled: boolean): Promise<void> {
     return test.step(`${enabled ? 'Enable' : 'Disable'} registry validation`, async () => {
+      await this.advancedTab.click();
       await playExpect(this.registryValidationCheckbox).toBeVisible();
       // Wait for the form to hydrate and settle into the opposite state before clicking
       await playExpect
@@ -188,6 +195,7 @@ export class BuildImagePage extends BasePage {
       await playExpect
         .poll(async () => await this.registryValidationCheckbox.isChecked(), { timeout: 10_000 })
         .toBe(enabled);
+      await this.basicTab.click();
     });
   }
 
@@ -202,9 +210,12 @@ export class BuildImagePage extends BasePage {
       throw Error('Path to containerfile is incorrect or not provided!');
     }
 
+    await this.basicTab.click();
     await this.containerFilePathInput.fill(containerFilePath);
 
-    if (contextDirectory) await this.buildContextDirectoryInput.fill(contextDirectory);
+    if (contextDirectory) {
+      await this.buildContextDirectoryInput.fill(contextDirectory);
+    }
     if (imageName) {
       await this.imageNameInput.clear();
       await this.imageNameInput.pressSequentially(imageName, { delay: 50 });

@@ -23,7 +23,8 @@ import type { ProviderStatus } from '@desktop-framework/extension-api';
 import { render, type RenderResult, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { type Component, tick } from 'svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
+import { router, type TinroRoute } from 'tinro';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
@@ -33,6 +34,14 @@ import { recommendedRegistries } from '/@/stores/recommendedRegistries';
 
 // xterm is used in the UI, but not tested, added in order to avoid the multiple warnings being shown during the test.
 vi.mock(import('@xterm/xterm'));
+vi.mock(import('tinro'));
+
+// Control tab state without browser navigation.
+const route = writable<TinroRoute>();
+
+function setRoute(path: string, query: Record<string, string> = {}): void {
+  route.set({ path, query, url: path, from: '', hash: '' });
+}
 
 beforeAll(() => {
   vi.mocked(window.openDialog).mockResolvedValue(['Containerfile']);
@@ -41,6 +50,8 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(router.subscribe).mockImplementation(route.subscribe);
+  setRoute('/images/build');
 });
 
 async function waitRender(): Promise<RenderResult<Component>> {
@@ -89,6 +100,36 @@ function setup(): void {
   providerInfos.set([providerInfo]);
   buildImagesInfo.set(new Map());
 }
+
+test('Build tabs support links and preserve form values', async () => {
+  setup();
+  render(BuildImageFromContainerfile);
+
+  const path = screen.getByRole('textbox', { name: 'Containerfile path' });
+  await userEvent.type(path, '/somepath/Containerfile');
+  const basicTab = screen.getByRole('link', { name: 'Basic' });
+  const advancedTab = screen.getByRole('link', { name: 'Advanced' });
+  expect(basicTab).toHaveAttribute('href', '/images/build/basic');
+  expect(advancedTab).toHaveAttribute('href', '/images/build/advanced');
+
+  setRoute('/images/build/advanced');
+  expect(await screen.findByRole('checkbox', { name: 'validate registries' })).toBeVisible();
+  expect(screen.queryByRole('textbox', { name: 'Containerfile path' })).not.toBeInTheDocument();
+
+  setRoute('/images/build/basic');
+  await screen.findByRole('textbox', { name: 'Containerfile path' });
+  expect(path).toBeVisible();
+  expect(path).toHaveValue('/somepath/Containerfile');
+});
+
+test('Advanced settings support direct links and retain the task query', async () => {
+  setup();
+  setRoute('/images/build/advanced', { taskId: '42' });
+  render(BuildImageFromContainerfile);
+
+  expect(await screen.findByRole('checkbox', { name: 'validate registries' })).toBeVisible();
+  expect(screen.getByRole('link', { name: 'Basic' })).toHaveAttribute('href', '/images/build/basic?taskId=42');
+});
 
 test('Expect Build button is disabled', async () => {
   setup();
@@ -323,15 +364,26 @@ test('Selecting one platform only calls buildImage once with the selected platfo
   );
 });
 
-test('Expect Abort button to hidden when image build is not in progress', async () => {
+test.each(['Basic', 'Advanced'])('Cancel returns to images from the %s tab before a build', async tab => {
   setup();
   render(BuildImageFromContainerfile);
 
-  const abortButton = screen.queryByRole('button', { name: 'Cancel' });
-  expect(abortButton).not.toBeInTheDocument();
+  setRoute(`/images/build/${tab.toLowerCase()}`);
+  await screen.findByRole('region', { name: tab });
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+  const buildButton = screen.getByRole('button', { name: 'Build' });
+  expect(cancelButton.parentElement).toBe(buildButton.parentElement);
+  expect(cancelButton.compareDocumentPosition(buildButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+  await userEvent.click(cancelButton);
+
+  expect(router.goto).toHaveBeenCalledWith('/images');
+  expect(window.buildImage).not.toHaveBeenCalled();
+  expect(window.cancelToken).not.toHaveBeenCalled();
 });
 
-test('Expect Abort button to being visible when image build is in progress', async () => {
+test('Cancel stays above build output and stops an active build', async () => {
   // Auto select amd64
   vi.mocked(window.getOsArch).mockResolvedValue('amd64');
   let resolveCallback: (value?: unknown) => void = () => {};
@@ -359,6 +411,13 @@ test('Expect Abort button to being visible when image build is in progress', asy
     expect(abortButton).toBeInTheDocument();
     expect(abortButton).toBeEnabled();
   });
+
+  const abortButton = screen.getByRole('button', { name: 'Cancel' });
+  const terminal = screen.getByRole('term');
+  expect(abortButton.compareDocumentPosition(terminal)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+  await userEvent.click(abortButton);
+  expect(window.cancelToken).toHaveBeenCalledOnce();
   resolveCallback();
 });
 
@@ -435,7 +494,9 @@ test('Expect build to include build arguments', async () => {
   expect(containerImageName).toBeInTheDocument();
   await userEvent.type(containerImageName, 'foobar');
 
-  const addArgButton = screen.getByRole('button', { name: 'Add build argument' });
+  setRoute('/images/build/advanced');
+
+  const addArgButton = await screen.findByRole('button', { name: 'Add build argument' });
   expect(addArgButton).toBeInTheDocument();
   await userEvent.click(addArgButton);
 
@@ -638,7 +699,9 @@ describe('Build image that has an intermediate target', () => {
     const imageName = getByRole('textbox', { name: 'Image name' });
     await userEvent.type(imageName, 'foobar');
 
-    const targetDropdown = getByRole('button', { name: 'Target' });
+    setRoute('/images/build/advanced');
+
+    const targetDropdown = await screen.findByRole('button', { name: 'Target' });
     await userEvent.click(targetDropdown);
 
     await userEvent.click(getByRole('button', { name: target }));
@@ -669,7 +732,9 @@ test('Expect to have a checkbox on by default to validate registries before buil
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const validateRegistriesCheckbox = screen.getByRole('checkbox', { name: 'validate registries' });
+  setRoute('/images/build/advanced');
+
+  const validateRegistriesCheckbox = await screen.findByRole('checkbox', { name: 'validate registries' });
 
   expect(validateRegistriesCheckbox).toBeChecked();
 
@@ -677,8 +742,10 @@ test('Expect to have a checkbox on by default to validate registries before buil
 
   expect(validateRegistriesCheckbox).not.toBeChecked();
 
+  setRoute('/images/build/basic');
+
   vi.mocked(window.pathRelative).mockResolvedValue('containerfile');
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
+  const containerFilePath = await screen.findByRole('textbox', { name: 'Containerfile path' });
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
   const buildButton = screen.getByRole('button', { name: 'Build' });

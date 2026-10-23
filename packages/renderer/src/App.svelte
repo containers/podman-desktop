@@ -225,7 +225,7 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <Route path="/existing-image-create-container" breadcrumb="Select image" >
             <CreateContainerFromExistingImage />
           </Route>
-          <Route path="/build" breadcrumb="Build an Image" let:meta>
+          <Route path="/build/*" breadcrumb="Build an Image" let:meta>
             <BuildImageFromContainerfile taskId={+meta.query.taskId}/>
           </Route>
           <Route path="/pull" breadcrumb="Pull an Image">
