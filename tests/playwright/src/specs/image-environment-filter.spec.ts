@@ -151,7 +151,13 @@ test.describe
           .toBeTruthy();
       });
 
-      await images.clearFilterByEnvironment();
+      await test.step('Clearing the filter shows all environments', async () => {
+        await images.clearFilterByEnvironment();
+        await playExpect(images.environmentDropdown).toContainText('All');
+        await playExpect
+          .poll(async () => await images.waitForImageExists(environmentFilterImage), { timeout: 10_000 })
+          .toBeTruthy();
+      });
     });
 
     test('Cleaning up the pulled image and the second Podman machine', async ({ page }) => {
