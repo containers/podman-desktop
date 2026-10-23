@@ -97,7 +97,10 @@ class TestPodmanDownload extends PodmanDownload {
 let server: SetupServer | undefined = undefined;
 
 afterEach(() => {
-  server?.close();
+  // msw 3 throws when closing a server that is not listening
+  if (server?.readyState) {
+    server.close();
+  }
 });
 
 describe('macOS platform', () => {
@@ -376,7 +379,7 @@ describe('DownloadAndCheckSha', () => {
     ];
 
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const octokit = new Octokit();
 
@@ -607,7 +610,7 @@ describe('Podman5DownloadMachineOS', () => {
     ];
 
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 
@@ -807,7 +810,7 @@ describe('Podman5DownloadMachineOS', () => {
     ];
 
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
 

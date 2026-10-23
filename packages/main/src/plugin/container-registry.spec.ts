@@ -463,7 +463,10 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
-  server?.close();
+  // msw 3 throws when closing a server that is not listening
+  if (server?.readyState) {
+    server.close();
+  }
 });
 
 test('tag should reject if no provider', async () => {
@@ -953,7 +956,7 @@ describe('listContainers', () => {
       http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1060,7 +1063,7 @@ describe('listContainers', () => {
       http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1163,7 +1166,7 @@ describe('listContainers', () => {
       http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -1250,7 +1253,7 @@ describe('listContainers', () => {
       http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json([])),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2218,7 +2221,7 @@ describe('listVolumes', () => {
       http.get('http://localhost/system/df', () => HttpResponse.json(systemDfDataMock)),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2322,7 +2325,7 @@ describe('listVolumes', () => {
       http.get('http://localhost/system/df', () => HttpResponse.json(systemDfDataMock)),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2440,7 +2443,7 @@ describe('listVolumes', () => {
       http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2519,7 +2522,7 @@ describe('listVolumes', () => {
       http.get('http://localhost/containers/json', () => HttpResponse.json(containersJsonMock)),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2615,7 +2618,7 @@ describe('listNetworks', () => {
     ];
 
     server = setupServer(http.get('http://localhost/networks', () => HttpResponse.json(networksDataMock)));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2765,7 +2768,7 @@ describe('info', () => {
 describe('createVolume', () => {
   test('provided name', async () => {
     server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2803,7 +2806,7 @@ describe('createVolume', () => {
 
   test('no name', async () => {
     server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2841,7 +2844,7 @@ describe('createVolume', () => {
 
   test('provided user API connection', async () => {
     server = setupServer(http.post('http://localhost/volumes/create', () => HttpResponse.json('')));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2881,7 +2884,7 @@ describe('createVolume', () => {
       http.post('http://localhost/volumes/create', () => HttpResponse.json('')),
       http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
     );
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2936,7 +2939,7 @@ describe('deleteVolume', () => {
       http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -2988,7 +2991,7 @@ describe('deleteVolume', () => {
       http.get('http://localhost/events', () => HttpResponse.json({}, { status: 200 })),
     ];
     server = setupServer(...handlers);
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -3929,7 +3932,7 @@ describe('attachToContainer', () => {
 test('createNetwork', async () => {
   const networkId = 'network123456';
   server = setupServer(http.post('http://localhost/networks/create', () => HttpResponse.json({ Id: networkId })));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -3975,7 +3978,7 @@ test('setupConnectionAPI with errors', async () => {
   server = setupServer(
     http.get('http://localhost/events', () => new HttpResponse(stream as unknown as ReadableStream)),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const internalContainerProvider: InternalContainerProvider = {
     name: 'podman',
@@ -5011,7 +5014,7 @@ test('list pods', async () => {
   ];
 
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/pods/json', () => HttpResponse.json(podsList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5578,7 +5581,7 @@ test('list images with listImages correctly', async () => {
     },
   ];
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5612,7 +5615,7 @@ test('expect images with podmanListImages to also include History as well as eng
   ];
 
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5646,7 +5649,7 @@ test('expect images with podmanListImages to also include Digest as engineId and
   ];
 
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5681,7 +5684,7 @@ test('If image does not have Digest in list images, expect the Digest to be sha2
   ];
 
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5723,7 +5726,7 @@ test('expect to fall back to compat api images if podman provider does not have 
     http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)),
     http.get('http://localhost/images/json', () => HttpResponse.json(imagesList2)),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -5748,7 +5751,7 @@ test('expect to fall back to compat api images if podman provider does not have 
 test('pass options to compat api when using podmanListImages', async () => {
   const imagesList = [{ Id: 'dummyImageId' }];
   server = setupServer(http.get('http://localhost/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   const listImagesSpy = vi.spyOn(api, 'listImages');
@@ -5817,7 +5820,7 @@ test('expect podmanListImages to return images from working providers even if on
   server = setupServer(
     http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(workingProviderImages)),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const workingApi = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -6443,7 +6446,7 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
   ];
 
   server = setupServer(http.get('http://localhost/v4.2.0/libpod/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -6513,7 +6516,7 @@ test('if configuration setting is disabled for using libpodApi, it should fall b
   ];
 
   server = setupServer(http.get('http://localhost/images/json', () => HttpResponse.json(imagesList)));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
@@ -6969,7 +6972,7 @@ test('resolve Podman image shortname to FQN', async () => {
       HttpResponse.json({ Names: ['someregistry/shortname', 'docker.io/shortname', 'quay.io/shortname'] }),
     ),
   );
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledFrame: 'error' });
 
   const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 

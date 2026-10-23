@@ -101,7 +101,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server?.close();
+  // msw 3 throws when closing a server that is not listening
+  if (server?.readyState) {
+    server.close();
+  }
 });
 
 test('Check isHttpMethod', async () => {
@@ -135,7 +138,7 @@ describe('handleExtensionVMServiceRequest', () => {
   test('Check GET raw text', async () => {
     const reply = 'hello world';
     server = setupServer(http.get('http://localhost:10000/foo/bar', () => new HttpResponse(reply)));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const result = await dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
       method: 'GET',
@@ -153,7 +156,7 @@ describe('handleExtensionVMServiceRequest', () => {
       message: 'hello world',
     };
     server = setupServer(http.get('http://localhost:10000/foo/bar', () => HttpResponse.json(reply)));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const result = await dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
       method: 'GET',
@@ -184,7 +187,7 @@ describe('handleExtensionVMServiceRequest', () => {
         return HttpResponse.json(reply);
       }),
     );
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const result = await dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
       method: 'POST',
@@ -203,7 +206,7 @@ describe('handleExtensionVMServiceRequest', () => {
     };
 
     server = setupServer(http.delete('http://localhost:10000/foo/bar', () => HttpResponse.json(reply)));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     const result = await dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
       method: 'DELETE',
@@ -219,7 +222,7 @@ describe('handleExtensionVMServiceRequest', () => {
   test('Check PUT access 401', async () => {
     // errror
     server = setupServer(http.put('http://localhost:10000/foo/bar', () => new HttpResponse('', { status: 401 })));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     await expect(
       dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
@@ -234,7 +237,7 @@ describe('handleExtensionVMServiceRequest', () => {
   test('Check PUT access 403', async () => {
     // errror
     server = setupServer(http.put('http://localhost:10000/foo/bar', () => new HttpResponse('', { status: 403 })));
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     await expect(
       dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
@@ -253,7 +256,7 @@ describe('handleExtensionVMServiceRequest', () => {
         () => new HttpResponse('', { status: 500, statusText: 'Dummy error' }),
       ),
     );
-    server.listen({ onUnhandledRequest: 'error' });
+    server.listen({ onUnhandledFrame: 'error' });
 
     await expect(
       dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {

@@ -30,7 +30,7 @@
     "@types/tar-fs": "^2.0.4",
     "@types/validator": "^13.15.10",
     "@types/winreg": "^1.2.36",
-    "msw": "^2.15.0",
+    "msw": "^3.0.3",
     "vitest": "^5.0.5"
   },
   "dependencies": {
