@@ -37,6 +37,11 @@ export class KubeContextPage extends SettingsPage {
     this.editContextDialog = this.page.getByRole('dialog', { name: 'Edit Context' });
   }
 
+  override async getTab(): Promise<Locator> {
+    const kubernetesLink = await super.getTab();
+    return kubernetesLink.and(this.page.locator('a[href="/preferences/kubernetes-contexts"]'));
+  }
+
   async pageIsEmpty(): Promise<boolean> {
     const emptyHeading = this.page.getByRole('heading', { name: 'No Kubernetes contexts found', exact: true });
     return (await emptyHeading.count()) > 0;

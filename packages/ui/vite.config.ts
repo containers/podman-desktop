@@ -42,6 +42,7 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['./vite.tests.setup.ts'],
     alias: [{ find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' }],
   },
   base: '',

@@ -17,6 +17,7 @@ interface Props {
 }
 
 let { meta }: Props = $props();
+const navigationId = $props.id();
 
 let configProperties: Map<string, NavItem[]> = $state(new Map<string, NavItem[]>());
 let sectionExpanded: { [key: string]: boolean } = $state(
@@ -275,47 +276,61 @@ onMount(() => {
     {#each settingsNavigationItems as navItem, index (index)}
       {#if navItem.visible}
         {@const visibleChildren = navItem.children?.filter(c => c.visible) ?? []}
+        {@const childrenId = `${navigationId}-static-${index}`}
         <SettingsNavItem
           title={navItem.title}
           href={navItem.href}
           icon={navItem.icon}
           section={visibleChildren.length > 0}
+          ariaControls={childrenId}
           selected={meta.url === navItem.href && !visibleChildren.some(c => c.href === meta.url)}
           onClick={scheduleNavigationWidthUpdate}
+          onToggle={scheduleNavigationWidthUpdate}
           bind:expanded={sectionExpanded[navItem.title]} />
-        {#if sectionExpanded[navItem.title]}
-          {#each visibleChildren as child (child.href)}
-            <SettingsNavItem
-              title={child.title}
-              href={child.href}
-              icon={child.icon}
-              child={true}
-              selected={meta.url === child.href}
-              onClick={scheduleNavigationWidthUpdate} />
-          {/each}
+        {#if visibleChildren.length > 0}
+          <div id={childrenId}>
+            {#if sectionExpanded[navItem.title]}
+              {#each visibleChildren as child (child.href)}
+                <SettingsNavItem
+                  title={child.title}
+                  href={child.href}
+                  icon={child.icon}
+                  child={true}
+                  selected={meta.url === child.href}
+                  onClick={scheduleNavigationWidthUpdate} />
+              {/each}
+            {/if}
+          </div>
         {/if}
       {/if}
     {/each}
 
     <!-- Default configuration properties start -->
     {#each configProperties as [configSection, configItems] (configSection)}
+      {@const childrenId = `${navigationId}-config-${encodeURIComponent(configSection)}`}
       <SettingsNavItem
         title={configSection}
         href="/preferences/default/{configSection}"
         icon={PreferencesIcon}
         section={configItems.length > 0}
+        ariaControls={childrenId}
         selected={meta.url === `/preferences/default/${configSection}`}
         onClick={scheduleNavigationWidthUpdate}
+        onToggle={scheduleNavigationWidthUpdate}
         bind:expanded={sectionExpanded[configSection]} />
-      {#if sectionExpanded[configSection]}
-        {#each sortItems(configItems) as configItem (configItem.id)}
-          <SettingsNavItem
-            title={configItem.title}
-            href="/preferences/default/{configItem.id}"
-            child={true}
-            onClick={scheduleNavigationWidthUpdate}
-            selected={meta.url === `/preferences/default/${configItem.id}`} />
-        {/each}
+      {#if configItems.length > 0}
+        <div id={childrenId}>
+          {#if sectionExpanded[configSection]}
+            {#each sortItems(configItems) as configItem (configItem.id)}
+              <SettingsNavItem
+                title={configItem.title}
+                href="/preferences/default/{configItem.id}"
+                child={true}
+                onClick={scheduleNavigationWidthUpdate}
+                selected={meta.url === `/preferences/default/${configItem.id}`} />
+            {/each}
+          {/if}
+        </div>
       {/if}
     {/each}
     <!-- Default configuration properties end -->
