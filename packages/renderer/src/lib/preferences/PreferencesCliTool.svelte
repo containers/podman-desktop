@@ -253,8 +253,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                   }
                 }}
                 title={`${cliTool.displayName} will be updated${cliTool.newVersion ? ' to ' + cliTool.newVersion : ''} `}
-                disabled={!cliTool.canUpdate}
-                aria-label="Update available">
+                disabled={!cliTool.canUpdate}>
                 {`${cliTool.newVersion ? 'Update available' : 'Upgrade/Downgrade'}`}
               </Button>
             {/if}
@@ -296,7 +295,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         type="link"
         padding="p-0"
         class="ml-1 text-sm"
-        aria-label="{cliTool.displayName} failed"
+        aria-label="Check why it failed: {cliTool.displayName}"
         on:click={showTaskManager}>Check why it failed</Button>
     </div>
   {/if}

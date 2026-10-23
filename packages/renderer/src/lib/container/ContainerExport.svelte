@@ -110,7 +110,7 @@ async function exportContainer(): Promise<void> {
               <Button
                 on:click={selectFolderPath}
                 title="Open dialog to select the output file"
-                aria-label="Select output file">Browse...</Button>
+                aria-label="Browse... output file">Browse...</Button>
             </div>
             <ButtonRow class="mt-5">
               <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>

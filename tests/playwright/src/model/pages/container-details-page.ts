@@ -74,7 +74,7 @@ export class ContainerDetailsPage extends DetailsPage {
     this.clearLogsButton = this.tabContent.getByTitle('Clear logs');
 
     this.exportPathInput = page.locator('#input-export-container-name');
-    this.exportBrowseButton = page.getByLabel('Select output file');
+    this.exportBrowseButton = page.getByLabel('Browse... output file');
     this.confirmExportButton = page.getByRole('button', { name: 'Export container', exact: true });
   }
 

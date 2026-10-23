@@ -104,7 +104,7 @@ test('Expect save button to be enabled if output target is selected and saveImag
   expect(saveButton).toBeInTheDocument();
   expect(saveButton).toBeDisabled();
 
-  const selectOutputPathButton = screen.getByRole('button', { name: 'Select output folder' });
+  const selectOutputPathButton = screen.getByRole('button', { name: 'Browse... output folder' });
   expect(selectOutputPathButton).toBeInTheDocument();
 
   await userEvent.click(selectOutputPathButton);
@@ -161,7 +161,7 @@ test('Expect saveImages function called with tagged images', async () => {
   saveImagesInfo.set([imageInfo1, imageInfo2, imageInfo3]);
   await waitRender();
 
-  const selectOutputPathButton = screen.getByRole('button', { name: 'Select output folder' });
+  const selectOutputPathButton = screen.getByRole('button', { name: 'Browse... output folder' });
   expect(selectOutputPathButton).toBeInTheDocument();
 
   await userEvent.click(selectOutputPathButton);
@@ -200,7 +200,7 @@ test('Expect error message dispayed if saveImages fails', async () => {
   saveImagesInfo.set([imageInfo]);
   await waitRender();
 
-  const selectOutputPathButton = screen.getByRole('button', { name: 'Select output folder' });
+  const selectOutputPathButton = screen.getByRole('button', { name: 'Browse... output folder' });
   expect(selectOutputPathButton).toBeInTheDocument();
 
   await userEvent.click(selectOutputPathButton);

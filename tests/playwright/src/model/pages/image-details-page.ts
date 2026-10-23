@@ -68,7 +68,7 @@ export class ImageDetailsPage extends DetailsPage {
     });
     this.saveImageInput = page.locator('#input-output-directory');
     this.confirmSaveImages = page.getByLabel('Save images', { exact: true });
-    this.browseButton = page.getByLabel('Select output folder');
+    this.browseButton = page.getByLabel('Browse... output folder');
   }
 
   async openRunImage(): Promise<RunImagePage> {

@@ -376,7 +376,7 @@ describe.each<{
       setButtonTitle(customProviderInfo, 'Connect');
       providerInfos.set([customProviderInfo]);
       render(PreferencesResourcesRendering, {});
-      const button = screen.getByRole('button', { name: 'Create new foo' });
+      const button = screen.getByRole('button', { name: 'Connect foo' });
       expect(button).toBeInTheDocument();
       // expect custom create title
       expect(button).toHaveTextContent('Connect...');
