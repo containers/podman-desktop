@@ -9,6 +9,7 @@
     "extensions.catalog.enabled",
     "extensions.localExtensions.enabled",
     "extensions.customExtensions.enabled",
-    "preferences.update.appUpdate"
+    "preferences.update.appUpdate",
+    "providers.allowUpdate"
   ]
 }

@@ -23,5 +23,6 @@
   "extensions.catalog.enabled": false,
   "extensions.localExtensions.enabled": false,
   "extensions.customExtensions.enabled": false,
-  "preferences.update.appUpdate": false
+  "preferences.update.appUpdate": false,
+  "providers.allowUpdate": ["podman-desktop.podman"]
 }
