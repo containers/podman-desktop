@@ -446,6 +446,31 @@ test(`Check itemsAudit receive updated values`, async () => {
   });
 });
 
+test('Markdown configuration descriptions keep the compact inherited styling', async () => {
+  const callback = mockCallback(async () => {});
+  const markdownProperty: IConfigurationPropertyRecordedSchema = {
+    title: 'MarkdownProperty',
+    parentId: '',
+    scope: 'ContainerProviderConnectionFactory',
+    id: 'test.markdownProperty',
+    type: 'string',
+    markdownDescription: 'Details about this configuration property.',
+  };
+
+  render(PreferencesConnectionCreationOrEditRendering, {
+    properties: [markdownProperty],
+    providerInfo,
+    connectionInfo: undefined,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
+
+  const markdownContent = await screen.findByRole('region', { name: 'markdown-content' });
+  expect(markdownContent.parentElement).toHaveClass('[&>section]:pb-0', '[&_p]:text-inherit');
+  expect(markdownContent).toHaveTextContent('Details about this configuration property.');
+});
+
 test(`Expect create with unchecked and checked checkboxes`, async () => {
   const taskId = 4;
   const callback = mockCallback(async () => {});

@@ -582,7 +582,9 @@ function preventDefault(handler: (e: SubmitEvent) => Promise<void>): (e: SubmitE
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <Markdown markdown={configurationKey.markdownDescription} />
+                    <div class="[&>section]:pb-0 [&_p]:text-inherit">
+                      <Markdown markdown={configurationKey.markdownDescription} />
+                    </div>
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
                     <div class="text-[var(--pd-content-text)]">
