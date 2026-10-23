@@ -139,7 +139,7 @@ test('Check disabled/in-progress link button styling', async () => {
 });
 
 test('Check tab button styling', async () => {
-  render(Button, { type: 'tab' });
+  render(Button, { type: 'tab', selected: false });
 
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
@@ -311,4 +311,11 @@ test('Disabled pressed button should keep aria-pressed but use disabled styling'
   expect(button).toHaveAttribute('aria-pressed', 'true');
   expect(button).toHaveClass('bg-[var(--pd-button-disabled-bg)]');
   expect(button).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
+});
+
+// The @ts-expect-error is checked by `pnpm typecheck:ui` (svelte-check also covers spec files), not by vitest
+test('Tab button without the selected prop is rejected by the types and still renders', () => {
+  // @ts-expect-error a tab button without `selected` must not typecheck
+  render(Button, { type: 'tab' });
+  expect(screen.getByRole('button')).toBeInTheDocument();
 });

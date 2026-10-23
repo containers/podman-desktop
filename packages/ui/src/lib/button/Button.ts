@@ -25,3 +25,6 @@
  *  tab       - displayed as tab
  */
 export type ButtonType = 'primary' | 'secondary' | 'danger' | 'link' | 'tab';
+
+/** Button types other than 'tab', which additionally requires the `selected` prop. */
+export type ActionButtonType = Exclude<ButtonType, 'tab'>;

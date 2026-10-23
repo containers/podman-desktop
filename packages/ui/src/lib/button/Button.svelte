@@ -5,9 +5,9 @@ import { createEventDispatcher, untrack } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
-import type { ButtonType } from './Button';
+import type { ActionButtonType } from './Button';
 
-interface Props {
+interface BaseProps {
   /**
    * Native tooltip, shown on mouse hover only, so keyboard and touch users never see it. Use it for extra
    * hints, not as the only name of an icon-only button: set `aria-label` for that.
@@ -26,24 +26,11 @@ interface Props {
   disabled?: boolean;
 
   /**
-   * Visual style: `primary` (default) for the main action, `secondary` for other actions, `danger` for
-   * destructive actions, `link` for Cancel, Close and other low-emphasis actions, `tab` for tab-like filters
-   * and navigation. An unknown value falls back to `primary` with a console warning.
-   */
-  type?: ButtonType;
-
-  /**
    * Icon shown before the label. An icon-only button needs `aria-label`. The component throws on mount when
    * there is no label, `title` or `aria-label`, but any body counts as a label, even an empty `{''}`, so the
    * check does not catch an empty label variable.
    */
   icon?: IconDefinition | Component | string;
-
-  /**
-   * Marks a `tab` button as the active one. Visual only, it does not set `aria-selected`.
-   * Use `pressed` for toggle buttons instead.
-   */
-  selected?: boolean;
 
   /**
    * Makes the button a toggle and sets `aria-pressed`. Leave undefined for a regular button,
@@ -78,6 +65,34 @@ interface Props {
   /** Visible label. Use sentence case, see CODE-GUIDELINES.md. */
   children?: Snippet;
 }
+
+// A tab button must say whether it is the active tab, so `selected` is required for type 'tab' (checked by svelte-check)
+type Props = BaseProps &
+  (
+    | {
+        /**
+         * Visual style: `primary` (default) for the main action, `secondary` for other actions, `danger` for
+         * destructive actions, `link` for Cancel, Close and other low-emphasis actions. An unknown value falls
+         * back to `primary` with a console warning. Use `tab` for tab-like filters and navigation, which
+         * requires `selected`.
+         */
+        type?: ActionButtonType;
+        /**
+         * Marks a `tab` button as the active one. Visual only, it does not set `aria-selected`.
+         * Use `pressed` for toggle buttons instead.
+         */
+        selected?: boolean;
+      }
+    | {
+        /** Tab-like filter or navigation button. It requires `selected`. */
+        type: 'tab';
+        /**
+         * Marks a `tab` button as the active one. Visual only, it does not set `aria-selected`.
+         * Use `pressed` for toggle buttons instead.
+         */
+        selected: boolean;
+      }
+  );
 
 // support legacy usage (on:click)
 const dispatch = createEventDispatcher<{ click: undefined }>();

@@ -2,7 +2,7 @@
 import { type ButtonsType, type DialogType, type DropdownType, type IconButtonType } from '@desktop-framework/api';
 import { faCircle, faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, type ButtonType, Dropdown } from '@podman-desktop/ui-svelte';
+import { type ActionButtonType, Button, Dropdown } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 
@@ -117,7 +117,7 @@ async function onClose(): Promise<void> {
   await window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
 }
 
-function getButtonType(b: boolean): ButtonType {
+function getButtonType(b: boolean): ActionButtonType {
   // eslint-disable-next-line sonarjs/no-selector-parameter
   if (b && type === 'danger') {
     return 'danger';
