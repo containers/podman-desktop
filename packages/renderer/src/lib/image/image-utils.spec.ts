@@ -218,6 +218,42 @@ describe('inUse', () => {
     const isUsed = imageUtils.getInUse(imageInfoHello, 'quay.io/podman/hello:latest', []);
     expect(isUsed).toBeFalsy();
   });
+
+  test('should not expect inUse when container runs on a different engine', async () => {
+    const imageOnEngineA = {
+      Id: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+      RepoTags: ['quay.io/podman/hello:latest'],
+      engineId: 'engine-a',
+    } as unknown as ImageInfo;
+
+    const containerOnEngineB = {
+      Id: 'container1',
+      image: 'quay.io/podman/hello:latest',
+      imageId: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+      engineId: 'engine-b',
+    } as unknown as ContainerInfoUI;
+
+    const isUsed = imageUtils.getInUse(imageOnEngineA, 'quay.io/podman/hello:latest', [containerOnEngineB]);
+    expect(isUsed).toBeFalsy();
+  });
+
+  test('should expect inUse when container runs on the same engine', async () => {
+    const imageOnEngineA = {
+      Id: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+      RepoTags: ['quay.io/podman/hello:latest'],
+      engineId: 'engine-a',
+    } as unknown as ImageInfo;
+
+    const containerOnEngineA = {
+      Id: 'container1',
+      image: 'quay.io/podman/hello:latest',
+      imageId: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+      engineId: 'engine-a',
+    } as unknown as ContainerInfoUI;
+
+    const isUsed = imageUtils.getInUse(imageOnEngineA, 'quay.io/podman/hello:latest', [containerOnEngineA]);
+    expect(isUsed).toBeTruthy();
+  });
 });
 
 describe('getImagesFromManifest and construct ImageInfoUI', () => {
