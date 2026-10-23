@@ -16,9 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject, injectable } from 'inversify';
+import type { TelemetryLogger } from '@podman-desktop/api';
+import { context } from '@podman-desktop/api';
+import { inject, injectable, postConstruct } from 'inversify';
 import { gte, valid } from 'semver';
 
+import { HYPERV_PREP_NOT_APPLIED_KEY, HYPERV_PREP_SUPPORTED_KEY } from '/@/constants';
+import { TelemetryLoggerSymbol } from '/@/inject/symbols';
 import { PodmanBinary } from '/@/utils/podman-binary';
 import { execPodman } from '/@/utils/util';
 
@@ -34,6 +38,14 @@ export class HyperVPrep {
 
   @inject(PodmanBinary)
   private readonly podmanBinary!: PodmanBinary;
+
+  @inject(TelemetryLoggerSymbol)
+  private readonly telemetryLogger!: TelemetryLogger;
+
+  @postConstruct()
+  async init(): Promise<void> {
+    await this.refreshContext();
+  }
 
   async isSupported(): Promise<boolean> {
     const binaryInfo = await this.podmanBinary.getBinaryInfo();
@@ -67,5 +79,26 @@ export class HyperVPrep {
     const isGroupMember = membership?.toLowerCase() === 'current user is a member';
 
     return isGroupMember ? HyperVPrepStatus.APPLIED : HyperVPrepStatus.NOT_APPLIED;
+  }
+
+  async refreshContext(): Promise<HyperVPrepStatus | undefined> {
+    const supported = await this.isSupported();
+    context.setValue(HYPERV_PREP_SUPPORTED_KEY, supported);
+
+    if (!supported) {
+      context.setValue(HYPERV_PREP_NOT_APPLIED_KEY, false);
+      return undefined;
+    }
+
+    let status: HyperVPrepStatus | undefined;
+    try {
+      status = await this.getStatus();
+    } catch (error: unknown) {
+      this.telemetryLogger.logError('hypervPrepStatusCheckFailed', { error });
+      console.error('Failed to run podman system hyperv-prep --status', error);
+    }
+
+    context.setValue(HYPERV_PREP_NOT_APPLIED_KEY, status !== HyperVPrepStatus.APPLIED);
+    return status;
   }
 }
