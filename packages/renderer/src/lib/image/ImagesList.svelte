@@ -5,6 +5,7 @@ import {
   faCloudDownload,
   faCube,
   faDownload,
+  faSync,
   faTrash,
   faUpload,
 } from '@fortawesome/free-solid-svg-icons';
@@ -203,7 +204,12 @@ function loadImages(): void {
 
 // delete the items selected in the list
 let bulkDeleteInProgress = $state(false);
+let bulkUpdateInProgress = $state(false);
 async function deleteSelectedImages(): Promise<void> {
+  if (bulkDeleteInProgress || bulkUpdateInProgress) {
+    return;
+  }
+
   const selectedImages = filteredImages.filter(image => image.selected);
   if (selectedImages.length === 0) {
     return;
@@ -231,6 +237,83 @@ async function saveSelectedImages(): Promise<void> {
 
   saveImagesInfo.set(selectedImages);
   router.goto('/images/save');
+}
+
+let selectedUpdateCandidates = $derived(filteredImages.filter(isUpdateCandidate));
+let selectedUpdateCandidatesNumber = $derived(
+  new Set(selectedUpdateCandidates.map(({ engineId, id }) => JSON.stringify([engineId, id]))).size,
+);
+
+function isUpdateCandidate(image: ImageInfoUI): boolean {
+  return image.selected && image.status === 'UNUSED' && !image.isManifest;
+}
+
+function confirmDeleteSelectedImages(): void {
+  if (selectedItemsNumber) {
+    withBulkConfirmation(
+      deleteSelectedImages,
+      `delete ${selectedItemsNumber} image${selectedItemsNumber > 1 ? 's' : ''}`,
+      {
+        title: 'Delete Images?',
+        variant: 'delete',
+      },
+    );
+  }
+}
+
+function confirmUpdateSelectedImages(): void {
+  if (selectedUpdateCandidatesNumber > 0) {
+    withBulkConfirmation(
+      updateSelectedImages,
+      `update all tags of ${selectedUpdateCandidatesNumber} image${selectedUpdateCandidatesNumber > 1 ? 's' : ''}`,
+      { title: 'Update Images?', buttonLabel: 'Update' },
+    );
+  }
+}
+
+async function updateSelectedImages(): Promise<void> {
+  if (bulkDeleteInProgress || bulkUpdateInProgress) {
+    return;
+  }
+
+  const selectedImages = selectedUpdateCandidates;
+  if (selectedImages.length === 0) {
+    return;
+  }
+
+  bulkUpdateInProgress = true;
+  // Capture each image's status before overwriting to 'UPDATING'.
+  const prevStatuses = selectedImages.map(img => img.status);
+  for (const image of selectedImages) {
+    image.status = 'UPDATING';
+  }
+  images = [...images];
+
+  try {
+    const results = await imageUtils.updateImages(selectedImages);
+    for (const result of results) {
+      if (!result.updated) {
+        console.info(`${result.imageRef}: ${result.message}`);
+      }
+    }
+  } catch (err: unknown) {
+    console.error('Failed to update images:', err);
+  }
+
+  // Restore statuses on the captured objects, preserving any refreshed statuses.
+  for (let i = 0; i < selectedImages.length; i++) {
+    selectedImages[i].status = prevStatuses[i];
+  }
+  const updatedKeys = new Set(selectedImages.map(key));
+  for (const image of images) {
+    if (updatedKeys.has(key(image))) {
+      image.selected = false;
+    }
+  }
+  bulkUpdateInProgress = false;
+  // Shallow-copy so the Table component detects the reference change
+  // and recalculates the "Toggle all" checkbox state.
+  images = [...images];
 }
 
 let selectedItemsNumber: number | undefined = $state();
@@ -340,20 +423,23 @@ function label(item: ImageInfoUI): string {
     <EnvironmentDropdown bind:selectedEnvironment={selectedEnvironment} />
     {#if selectedItemsNumber && selectedItemsNumber > 0}
       <Button
-        on:click={(): void => {
-          if (selectedItemsNumber) {withBulkConfirmation(
-            deleteSelectedImages,
-            `delete ${selectedItemsNumber} image${selectedItemsNumber > 1 ? 's' : ''}`,
-            { title: 'Delete Images?', variant:'delete' }
-          );}}}
+        on:click={confirmDeleteSelectedImages}
         title="Delete {selectedItemsNumber} selected items"
         inProgress={bulkDeleteInProgress}
+        disabled={bulkUpdateInProgress}
         icon={faTrash} />
       <Button
         on:click={saveSelectedImages}
         title="Save {selectedItemsNumber} selected items"
         aria-label="Save images"
         icon={faDownload} />
+      <Button
+        on:click={confirmUpdateSelectedImages}
+        title="Update {selectedUpdateCandidatesNumber} selected items"
+        inProgress={bulkUpdateInProgress || bulkDeleteInProgress}
+        disabled={selectedUpdateCandidatesNumber === 0}
+        aria-label="Update images"
+        icon={faSync} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   {/snippet}

@@ -1446,9 +1446,18 @@ export class PluginSystem {
 
         try {
           const results = await containerProviderRegistry.updateImages(images, abortController?.signal);
-          const summary = results.map(result => `${result.imageRef}: ${result.message}`).join('; ');
-          task.name = `Image update: ${summary || 'No images updated'}`;
           const failures = results.filter(result => result.status === 'error');
+          const counts = {
+            updated: results.filter(result => result.status === 'updated').length,
+            'up to date': results.filter(result => result.status === 'normal').length,
+            skipped: results.filter(result => result.status === 'skipped').length,
+            failed: failures.length,
+          };
+          const summary = Object.entries(counts)
+            .filter(([, count]) => count > 0)
+            .map(([status, count]) => `${count} ${status}`)
+            .join(', ');
+          task.name = `Image update: ${summary || 'No images updated'}`;
           if (abortController?.signal.aborted) {
             task.status = 'canceled';
           } else if (failures.length > 0) {

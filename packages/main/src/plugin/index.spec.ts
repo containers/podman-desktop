@@ -1321,15 +1321,21 @@ describe('updateImages handler', () => {
     });
     expect(task.state).toBe('completed');
     expect(task.status).toBe('success');
-    expect(task.name).toBe('Image update: nginx: Image updated successfully; redis: Already up to date');
+    expect(task.name).toBe('Image update: 1 updated, 1 up to date');
   });
 
   test.each([
-    { status: 'updated', updated: true, message: 'Image updated successfully', taskStatus: 'success' },
-    { status: 'normal', updated: false, message: 'Already up to date', taskStatus: 'success' },
-    { status: 'skipped', updated: false, message: 'Image has no tags', taskStatus: 'success' },
-    { status: 'error', updated: false, message: 'Registry unavailable', taskStatus: 'failure' },
-  ] as const)('records a single-image $status result in the task', async ({ status, updated, message, taskStatus }) => {
+    {
+      status: 'updated',
+      updated: true,
+      message: 'Image updated successfully',
+      taskStatus: 'success',
+      summary: '1 updated',
+    },
+    { status: 'normal', updated: false, message: 'Already up to date', taskStatus: 'success', summary: '1 up to date' },
+    { status: 'skipped', updated: false, message: 'Image has no tags', taskStatus: 'success', summary: '1 skipped' },
+    { status: 'error', updated: false, message: 'Registry unavailable', taskStatus: 'failure', summary: '1 failed' },
+  ] as const)('records a $status result', async ({ status, updated, message, taskStatus, summary }) => {
     const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
     const results: ImageUpdateResult[] = [{ imageRef: 'nginx:latest', status, updated, message }];
     const { promise, resolve } = Promise.withResolvers<ImageUpdateResult[]>();
@@ -1350,7 +1356,7 @@ describe('updateImages handler', () => {
 
     expect(task.state).toBe('completed');
     expect(task.status).toBe(taskStatus);
-    expect(task.name).toBe(`Image update: nginx:latest: ${message}`);
+    expect(task.name).toBe(`Image update: ${summary}`);
     if (taskStatus === 'failure') {
       expect(task.error).toBe('nginx:latest: Registry unavailable');
     } else {
@@ -1358,12 +1364,15 @@ describe('updateImages handler', () => {
     }
   });
 
-  test('marks partial failures as failed while preserving every tag result', async () => {
+  test('summarizes tag outcomes and includes details only for failures', async () => {
     const handle = getHandler<UpdateImagesHandler>('container-provider-registry:updateImages');
     const results: ImageUpdateResult[] = [
       { imageRef: 'nginx:latest', updated: true, status: 'updated', message: 'Updated' },
+      { imageRef: 'nginx:alpine', updated: true, status: 'updated', message: 'Updated' },
       { imageRef: 'nginx:stable', updated: false, status: 'normal', message: 'Already up to date' },
+      { imageRef: 'sha256:untagged', updated: false, status: 'skipped', message: 'Image has no tags' },
       { imageRef: 'other:latest', updated: false, status: 'error', message: 'Registry unavailable' },
+      { imageRef: 'private:latest', updated: false, status: 'error', message: 'Unauthorized' },
     ];
     vi.mocked(ContainerProviderRegistry.prototype.updateImages).mockResolvedValue(results);
 
@@ -1371,10 +1380,8 @@ describe('updateImages handler', () => {
 
     expect(task.state).toBe('completed');
     expect(task.status).toBe('failure');
-    expect(task.error).toBe('other:latest: Registry unavailable');
-    expect(task.name).toBe(
-      'Image update: nginx:latest: Updated; nginx:stable: Already up to date; other:latest: Registry unavailable',
-    );
+    expect(task.error).toBe('other:latest: Registry unavailable\nprivate:latest: Unauthorized');
+    expect(task.name).toBe('Image update: 2 updated, 1 up to date, 1 skipped, 2 failed');
   });
 
   test('completes the task when no results are returned', async () => {
