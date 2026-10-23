@@ -33,6 +33,7 @@ let containerState = $derived(container.state);
 let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 let onDataDisposable: IDisposable | undefined;
 let reconnecting = false;
+let resizeListener: (() => void) | undefined;
 
 function registerInputHandler(callbackId: number): void {
   onDataDisposable?.dispose();
@@ -185,7 +186,7 @@ async function refreshTerminal(): Promise<void> {
   shellTerminal.open(terminalXtermDiv);
 
   // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
+  resizeListener = (): void => {
     if (currentRouterPath === `/containers/${container.id}/terminal`) {
       fitAddon.fit();
       if (sendCallbackId) {
@@ -194,7 +195,8 @@ async function refreshTerminal(): Promise<void> {
           .catch((err: unknown) => console.error(`Error resizing terminal for container ${container.id}`, err));
       }
     }
-  });
+  };
+  window.addEventListener('resize', resizeListener);
   fitAddon.fit();
 }
 onMount(async () => {
@@ -203,6 +205,9 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  if (resizeListener) {
+    window.removeEventListener('resize', resizeListener);
+  }
   clearReconnectTimer();
   onDataDisposable?.dispose();
   terminalContent = serializeAddon.serialize();
