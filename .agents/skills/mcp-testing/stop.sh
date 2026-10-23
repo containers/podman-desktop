@@ -52,6 +52,19 @@ case "$MODE" in
   prod)
     echo "Stopping production session…"
 
+    # Prefer the exact PID this skill launched (set when start.sh used
+    # --binary or found podman-desktop/flatpak itself) — precise, and works
+    # for custom binary paths that pkill -x podman-desktop might not name-match.
+    if [ -f /tmp/mcp-testing-prod.pid ]; then
+      PROD_PID=$(cat /tmp/mcp-testing-prod.pid)
+      if kill -0 "$PROD_PID" 2>/dev/null; then
+        kill "$PROD_PID" 2>/dev/null || true
+        echo "  Killed tracked production process (pid $PROD_PID)"
+      fi
+      rm -f /tmp/mcp-testing-prod.pid
+    fi
+    rm -f /tmp/mcp-testing-prod.log /tmp/mcp-testing-prod.version
+
     case "$(uname -s)" in
       Darwin)
         osascript -e 'quit app "Podman Desktop"' 2>/dev/null || true

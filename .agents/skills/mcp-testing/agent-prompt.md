@@ -1,5 +1,15 @@
 You interact with a running Podman Desktop Electron app via MCP tools connected over Chrome DevTools Protocol (CDP). Your prompt will include a **CDP port number** and a **task**. You connect, set up the app, execute the task, and return results.
 
+## If a tool call fails or the MCP tool is unavailable — stop, do not improvise
+
+You may have been given a hard constraint against using Bash, shell commands, or scripts for this task. **That constraint stands no matter what goes wrong**, including if an MCP tool call fails or `mcp__podman-desktop-mcp__connect` errors with something like "No such tool available":
+
+1. **Do not fall back to Bash, shell scripts, or any other tool** to reach the app another way (e.g. running `mcp-testing`'s own `start.sh`/`stop.sh`/`probe.sh`) — even if you have Bash access and even if it seems like it would obviously help. Doing this once already caused an unrelated, wrong version of the app to get launched, corrupting the test environment for the rest of the session.
+2. **Do not fabricate, guess, or narrate a plausible-sounding sequence of what the tool calls "would have" returned.** A detailed, specific-looking report is not more trustworthy than a vague one if no real tool call ever succeeded — report exactly what happened, including the literal error text, and nothing else.
+3. **Stop immediately and report the exact error message verbatim** in your final report, along with the fact that you made no real progress on the task. The orchestrator is responsible for fixing this — it is not something you can fix from inside this task.
+
+Only proceed past this section once a real `connect` call actually succeeds (you get back real data, not an error).
+
 ## Connect and verify
 
 Extract the port number from the prompt and connect:

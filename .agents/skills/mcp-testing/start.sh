@@ -6,8 +6,28 @@
 #   bash start.sh --mode dev          # full startup (clean, install, pnpm watch)
 #   bash start.sh --mode dev-fast     # fast-path (pnpm watch already running)
 #   bash start.sh --mode prod         # launch/connect production app (auto-detects state)
+#   bash start.sh --mode prod --binary /path/to/podman-desktop
+#                                     # launch a specific production binary directly —
+#                                     # for tar.gz/extracted installs not on PATH and not
+#                                     # installed via Flatpak. Mirrors this project's own
+#                                     # Playwright CDP runner
+#                                     # (tests/playwright/src/runner/chrome-dev-tools-protocol-runner.ts):
+#                                     # spawn the binary with only --remote-debugging-port,
+#                                     # no sandbox/GPU flags. Same effect as setting the
+#                                     # PODMAN_DESKTOP_BINARY env var (that runner's own name
+#                                     # for this), which start.sh also honors if --binary is
+#                                     # omitted.
 #
 # After exit 0, call mcp__podman-desktop-mcp__connect({ port: <PORT> }).
+#
+# Every successful exit also writes the exact PID launched (when known) to
+# /tmp/mcp-testing-prod.pid and the CDP-reported User-Agent to
+# /tmp/mcp-testing-prod.version — callers (e.g. the scenario-testing skill's
+# Execution Integrity Guard) should re-check both before trusting the
+# connection later in a long session: a crashed Electron process can be
+# silently replaced by a different, unrelated app instance answering the same
+# port (this has happened in practice — a stale Flatpak install came up on
+# the same port after a GPU-related crash of the intended binary).
 
 set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
@@ -21,6 +41,19 @@ unset ELECTRON_RUN_AS_NODE
 
 cdp_ready() { curl -s --connect-timeout 2 --max-time 5 "http://localhost:${1:-$DEV_PORT}/json/version" &>/dev/null; }
 watch_running() { pgrep -f 'pnpm.*watch' &>/dev/null; }
+
+# Returns the CDP endpoint's reported User-Agent (identifies exact app/build/Electron
+# version) or empty on failure. Used to detect a process swap on a port — a crashed
+# app can be silently replaced by an unrelated instance answering the same port.
+cdp_version_string() {
+  local port=${1:-$DEV_PORT}
+  curl -s --connect-timeout 2 --max-time 5 "http://localhost:$port/json/version" | node -e '
+    try {
+      const d = JSON.parse(require("fs").readFileSync(0, "utf8"));
+      process.stdout.write(d["User-Agent"] || d.Browser || "");
+    } catch { process.stdout.write(""); }
+  ' 2>/dev/null
+}
 
 cdp_healthy_title() {
   local port=${1:-$DEV_PORT}
@@ -72,7 +105,11 @@ detect_production_pd() {
     Linux)
       local found=false
       while IFS= read -r line; do
-        if ! echo "$line" | grep -qE 'node_modules|pnpm|scripts/watch'; then
+        # Exclude this script's own invocation (its argv contains "podman-desktop"
+        # whenever --binary points at a path like .../podman-desktop-1.30.1-x64/podman-desktop,
+        # which otherwise self-matches and produces a false "already running" positive),
+        # and other unrelated matches (dev tooling, this very grep/pgrep call).
+        if ! echo "$line" | grep -qE 'node_modules|pnpm|scripts/watch|start\.sh|mcp-testing|pgrep|grep -qE'; then
           found=true; break
         fi
       done < <(pgrep -af "podman-desktop" 2>/dev/null)
@@ -90,53 +127,148 @@ detect_production_pd() {
 
 # ── Argument parsing ─────────────────────────────────────────────────────────
 MODE=""
+BINARY=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --mode) MODE="$2"; shift 2 ;;
-    *)      echo "Unknown argument: $1"; exit 1 ;;
+    --mode)   MODE="$2"; shift 2 ;;
+    --binary) BINARY="$2"; shift 2 ;;
+    *)        echo "Unknown argument: $1"; exit 1 ;;
   esac
 done
+
+# Same env var name this project's own Playwright CDP runner uses
+# (tests/playwright/src/runner/chrome-dev-tools-protocol-runner.ts) — accept
+# it as a fallback so the same env already set for that runner works here too.
+BINARY="${BINARY:-${PODMAN_DESKTOP_BINARY:-}}"
 
 if [[ -z "$MODE" ]]; then
   echo "Usage:"
   echo "  bash start.sh --mode dev          # full startup"
   echo "  bash start.sh --mode dev-fast     # fast-path (already running)"
   echo "  bash start.sh --mode prod         # launch/connect production app"
+  echo "  bash start.sh --mode prod --binary /path/to/podman-desktop"
+  echo "                                    # launch a specific binary (tar.gz/extracted"
+  echo "                                    # installs not on PATH or via Flatpak)"
+  exit 1
+fi
+
+if [[ -n "$BINARY" && "$MODE" != "prod" ]]; then
+  echo "ERROR: --binary is only valid with --mode prod"
+  exit 1
+fi
+
+if [[ -n "$BINARY" && ! -x "$BINARY" ]]; then
+  echo "ERROR: --binary path '$BINARY' does not exist or is not executable"
   exit 1
 fi
 
 # ── Mode: prod ───────────────────────────────────────────────────────────────
 if [[ "$MODE" == "prod" ]]; then
 
+  PROD_PID_FILE=/tmp/mcp-testing-prod.pid
+  PROD_LOG_FILE=/tmp/mcp-testing-prod.log
+  PROD_VERSION_FILE=/tmp/mcp-testing-prod.version
+  PROD_HOME_DIR=/tmp/mcp-testing-prod-home
+  rm -f "$PROD_PID_FILE"
+
+  # Linux windowing workaround, not a sandbox/GPU flag: this project's own
+  # Playwright CDP runner base class sets exactly this env var for the same
+  # reason (podman-desktop#15220 — blank/non-opening dashboard on native
+  # Wayland sessions). Deliberately does NOT add --no-sandbox/--disable-gpu/
+  # --ozone-platform flags — the upstream runner doesn't need them, and only
+  # --remote-debugging-port is passed on the command line, matching it exactly.
+  linux_launch_env() {
+    if [[ "$(uname -s)" == "Linux" ]]; then
+      echo "XDG_SESSION_TYPE=x11"
+    fi
+  }
+
+  # Mirrors Runner.setupPodmanDesktopCustomFolder() in
+  # tests/playwright/src/runner/podman-desktop-runner.ts exactly: an isolated
+  # PODMAN_DESKTOP_HOME_DIR with its own configuration/settings.json
+  # (OpenDevTools disabled, auto-update disabled). Without this, --binary
+  # launches against the user's real default profile — which can collide
+  # with Electron's single-instance lock if any other Podman Desktop process
+  # (tray icon, autostart entry, a leftover instance from a prior run) is
+  # using that same default profile, silently killing one of the two
+  # processes moments after launch. This was an observed, reproducible
+  # failure mode: the launched binary died within seconds of the first UI
+  # interaction, with no crash message and no coredump (consistent with an
+  # external SIGTERM from a second-instance handoff, not a real crash).
+  setup_prod_home_dir() {
+    rm -rf "$PROD_HOME_DIR"
+    mkdir -p "$PROD_HOME_DIR/configuration"
+    cat > "$PROD_HOME_DIR/configuration/settings.json" <<'EOF'
+{"preferences.OpenDevTools":"none","extensions.autoUpdate":false,"extensions.autoCheckUpdates":false,"extensions.disabled":[]}
+EOF
+  }
+
   launch_prod() {
+    local port=$1
+    : > "$PROD_LOG_FILE"
+
+    if [[ -n "$BINARY" ]]; then
+      echo "      Launching explicit binary: $BINARY"
+      setup_prod_home_dir
+      echo "      Isolated profile: $PROD_HOME_DIR (avoids single-instance-lock collisions with any other running instance)"
+      env $(linux_launch_env) PODMAN_DESKTOP_HOME_DIR="$PROD_HOME_DIR" "$BINARY" --remote-debugging-port="$port" >>"$PROD_LOG_FILE" 2>&1 &
+      echo $! > "$PROD_PID_FILE"
+      disown
+      return 0
+    fi
+
     case "$(uname -s)" in
       Darwin)
-        open -a "Podman Desktop" --args --remote-debugging-port=9222
+        open -a "Podman Desktop" --args --remote-debugging-port="$port"
         ;;
       Linux)
         if command -v podman-desktop &>/dev/null; then
-          podman-desktop --remote-debugging-port=9222 &
+          env $(linux_launch_env) podman-desktop --remote-debugging-port="$port" >>"$PROD_LOG_FILE" 2>&1 &
+          echo $! > "$PROD_PID_FILE"
+          disown
         elif flatpak list --app 2>/dev/null | grep -q podman_desktop; then
-          flatpak run io.podman_desktop.PodmanDesktop --remote-debugging-port=9222 &
+          flatpak run io.podman_desktop.PodmanDesktop --remote-debugging-port="$port" >>"$PROD_LOG_FILE" 2>&1 &
+          echo $! > "$PROD_PID_FILE"
+          disown
         else
-          echo "ERROR: podman-desktop not found — install via RPM, Flatpak, or tar.gz"
+          echo "ERROR: podman-desktop not found on PATH or via Flatpak."
+          echo "       Pass an explicit binary: bash start.sh --mode prod --binary /path/to/podman-desktop"
+          echo "       or set PODMAN_DESKTOP_BINARY=/path/to/podman-desktop"
           exit 1
         fi
         ;;
       *)
-        echo "ERROR: Unsupported OS for auto-launch — launch Podman Desktop manually with --remote-debugging-port=9222"
+        echo "ERROR: Unsupported OS for auto-launch — launch Podman Desktop manually with --remote-debugging-port=$port"
         exit 1
         ;;
     esac
   }
 
+  # Polls the CDP endpoint AND, when a PID was captured for the process we
+  # launched, cross-checks that PID is still alive. This is the guard against
+  # a process swap: without it, a crashed launch followed by some unrelated
+  # process (or a stale prior session) coming up on the same port looks
+  # identical to a successful launch — this has happened in practice.
   wait_cdp() {
     local port=$1
+    local expected_pid="${2:-}"
     echo "      Waiting for CDP on port ${port}…"
     for i in $(seq 1 30); do
+      if [[ -n "$expected_pid" ]] && ! kill -0 "$expected_pid" 2>/dev/null; then
+        echo "ERROR: the process this script launched (pid $expected_pid) exited before exposing CDP."
+        echo "       Tail of $PROD_LOG_FILE:"
+        tail -20 "$PROD_LOG_FILE" 2>/dev/null || true
+        return 1
+      fi
       if cdp_ready "$port"; then
         echo "      CDP ready after ${i}s"
+        if [[ -n "$expected_pid" ]] && ! kill -0 "$expected_pid" 2>/dev/null; then
+          echo "ERROR: CDP answered on port $port, but the process we launched (pid $expected_pid) is no longer running."
+          echo "       A DIFFERENT process is now serving this port — refusing to report success."
+          echo "       Inspect with: curl -s http://localhost:$port/json/version"
+          return 1
+        fi
         return 0
       fi
       sleep 1
@@ -157,7 +289,14 @@ if [[ "$MODE" == "prod" ]]; then
       done
       if [[ -n "$app_title" ]]; then
         echo "prod" > /tmp/mcp-testing-session
+        cdp_version_string "$p" > "$PROD_VERSION_FILE" 2>/dev/null || true
         echo "Already running — $app_title (port $p)"
+        echo "      CDP-reported build: $(cat "$PROD_VERSION_FILE" 2>/dev/null || echo unknown)"
+        if [[ -n "$BINARY" ]]; then
+          echo "      NOTE: --binary was given but an app was already answering this port —"
+          echo "      this did NOT verify it's the binary you asked for. Check the build line"
+          echo "      above, or close it first if you need the exact binary launched fresh."
+        fi
         echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $p })"
         exit 0
       fi
@@ -188,8 +327,10 @@ if [[ "$MODE" == "prod" ]]; then
 
   # 4. Not running (or just closed) — launch with CDP
   echo "Launching production Podman Desktop with --remote-debugging-port=${PROD_PORT}…"
-  launch_prod
-  wait_cdp "$PROD_PORT" || exit 1
+  launch_prod "$PROD_PORT"
+  LAUNCHED_PID=""
+  [[ -f "$PROD_PID_FILE" ]] && LAUNCHED_PID=$(cat "$PROD_PID_FILE")
+  wait_cdp "$PROD_PORT" "$LAUNCHED_PID" || exit 1
 
   # Window title may not be set immediately — retry for up to 10s
   app_title=""
@@ -199,11 +340,15 @@ if [[ "$MODE" == "prod" ]]; then
   done
   if [[ -z "$app_title" ]]; then
     echo "ERROR: CDP on port $PROD_PORT has no healthy app window"
+    [[ -n "$LAUNCHED_PID" ]] && kill "$LAUNCHED_PID" 2>/dev/null || true
     exit 1
   fi
 
+  cdp_version_string "$PROD_PORT" > "$PROD_VERSION_FILE" 2>/dev/null || true
   echo "prod" > /tmp/mcp-testing-session
   echo "Connected to production Podman Desktop — $app_title (port $PROD_PORT)"
+  echo "      CDP-reported build: $(cat "$PROD_VERSION_FILE" 2>/dev/null || echo unknown)"
+  [[ -n "$LAUNCHED_PID" ]] && echo "      Launched pid: $LAUNCHED_PID (tracked in $PROD_PID_FILE for crash detection)"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $PROD_PORT })"
   exit 0
 fi

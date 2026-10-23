@@ -154,6 +154,26 @@ bash .agents/skills/mcp-testing/start.sh --mode prod
 pwsh .agents/skills/mcp-testing/start.ps1 -Mode prod
 ```
 
+**Launching a specific binary (tar.gz/extracted installs, not on `PATH` and not via Flatpak):**
+
+If `podman-desktop` isn't on `PATH` and it's not installed via Flatpak — e.g. a tar.gz release extracted to an arbitrary directory — pass the binary explicitly instead of letting auto-detection fail:
+
+```bash
+bash .agents/skills/mcp-testing/start.sh --mode prod --binary /path/to/podman-desktop
+```
+
+or set `PODMAN_DESKTOP_BINARY=/path/to/podman-desktop` (same env var name this project's own Playwright CDP runner uses — `tests/playwright/src/runner/chrome-dev-tools-protocol-runner.ts`). The script spawns that binary directly with only `--remote-debugging-port=<port>` — no `--no-sandbox`/`--disable-gpu`/`--ozone-platform` flags, matching that runner exactly — and sets `XDG_SESSION_TYPE=x11` in the child's environment on Linux, which is that runner's actual fix for a blank/non-opening dashboard on native Wayland sessions (podman-desktop#15220), not a sandbox workaround.
+
+The script tracks the exact PID it launched (`/tmp/mcp-testing-prod.pid`) and the CDP-reported build string (`/tmp/mcp-testing-prod.version`), and refuses to report success if the port answers but the PID it launched is no longer alive — this catches a crashed launch being silently masked by an unrelated process coming up on the same port (a real, observed failure mode: a GPU-related Electron crash followed by a stale Flatpak install auto-relaunching on the same port).
+
+**Never assume a CDP connection stays valid for an entire session.** Electron apps under CDP automation can crash mid-run. Before trusting a connection that was established more than a few actions ago — and always before a multi-step or long-running task — re-verify:
+
+```bash
+bash .agents/skills/mcp-testing/verify.sh --port 9222 [--pid <pid from start.sh's output>] [--contains "<expected version string>"]
+```
+
+This performs the same check independently of any LLM agent — it is the mechanism `scenario-testing`'s Execution Integrity Guard uses before and after every scenario, precisely because an agent's own self-report is not sufficient evidence that it actually touched a real, live app.
+
 #### Dev mode
 
 **If `DEV_RUNNING=true` and `DEV_CDP_PORT` is not `none`** (already running):
