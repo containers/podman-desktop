@@ -30,12 +30,14 @@ import type { RemoteExtension } from './download-remote-extensions.js';
 import {
   DIGEST_FILENAME,
   downloadExtension,
+  EXTENSION_PLATFORMS_LABEL,
   findAuthEnvironment,
   getRemoteExtensionFromProductJSON,
   main,
   NAME_ARG,
   OCI_ARG,
   parseArgs,
+  PLATFORM_ARG,
   REGISTRY_SECRET_ARG,
   REGISTRY_USER_ARG,
 } from './download-remote-extensions.js';
@@ -79,6 +81,9 @@ beforeEach(() => {
   };
 
   vi.mocked(ImageRegistry.prototype.getManifestFromImageName).mockResolvedValue(MANIFEST_MOCK);
+  vi.mocked(ImageRegistry.prototype.getImageConfigLabels).mockResolvedValue({
+    [EXTENSION_PLATFORMS_LABEL]: 'darwin/arm64,darwin/amd64,linux/amd64,linux/arm64,windows/amd64,windows/arm64',
+  });
   vi.mocked(ImageRegistry.prototype.extractRegistryServerFromImage).mockReturnValue('quay.io');
 
   // mock final check to be valid
@@ -406,6 +411,21 @@ describe('parseArgs', () => {
       args: ['--output', './foo'],
       error: 'the output should be an absolute directory',
     },
+    {
+      name: 'invalid --platform should throw an error',
+      args: ['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin'],
+      error: 'when specifying --platform, use comma-separated os/architecture values',
+    },
+    {
+      name: 'multiple --platform values should throw an error',
+      args: ['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'linux/arm64', `--${PLATFORM_ARG}`, 'linux/amd64'],
+      error: 'when specifying --platform, only one is allowed',
+    },
+    {
+      name: 'invalid platform list should throw an error',
+      args: ['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'linux/arm64,darwin'],
+      error: 'when specifying --platform, use comma-separated os/architecture values',
+    },
     // missing one arg
     {
       name: `having --${NAME_ARG} without --${OCI_ARG} should throw an error`,
@@ -526,6 +546,14 @@ describe('parseArgs', () => {
     expect(parseArgs(['--output', ABS_DEST_DIR])).toStrictEqual(
       expect.objectContaining({
         output: ABS_DEST_DIR,
+      }),
+    );
+  });
+
+  test('should parse a comma-separated platform list', () => {
+    expect(parseArgs(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin/amd64,darwin/arm64'])).toStrictEqual(
+      expect.objectContaining({
+        platforms: ['darwin/amd64', 'darwin/arm64'],
       }),
     );
   });
@@ -670,11 +698,85 @@ describe('main', () => {
   test('--output argument should be used as destination', async () => {
     (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
 
-    await main(['--output', ABS_DEST_DIR]);
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'linux/amd64']);
 
     expect(rename).toHaveBeenCalledExactlyOnceWith(
       join(TMP_DIR, REMOTE_INFO_MOCK.name, 'extension'),
       join(ABS_DEST_DIR, REMOTE_INFO_MOCK.name),
+    );
+  });
+
+  test('universal platform list includes an extension supported on either architecture', async () => {
+    (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
+
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin/amd64,darwin/arm64']);
+
+    expect(ImageRegistry.prototype.getImageConfigLabels).toHaveBeenCalledExactlyOnceWith(REMOTE_INFO_MOCK.oci);
+    expect(ImageRegistry.prototype.getManifestFromImageName).toHaveBeenCalledExactlyOnceWith(REMOTE_INFO_MOCK.oci);
+    expect(ImageRegistry.prototype.downloadAndExtractImage).toHaveBeenCalledExactlyOnceWith(
+      REMOTE_INFO_MOCK.oci,
+      expect.stringContaining(TMP_DIR),
+      expect.any(Function),
+    );
+  });
+
+  test('includes an extension without a support label to preserve existing behavior', async () => {
+    (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
+    vi.mocked(ImageRegistry.prototype.getImageConfigLabels).mockResolvedValueOnce({});
+
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin/amd64']);
+
+    expect(ImageRegistry.prototype.getManifestFromImageName).toHaveBeenCalledExactlyOnceWith(REMOTE_INFO_MOCK.oci);
+    expect(ImageRegistry.prototype.downloadAndExtractImage).toHaveBeenCalledExactlyOnceWith(
+      REMOTE_INFO_MOCK.oci,
+      expect.stringContaining(TMP_DIR),
+      expect.any(Function),
+    );
+  });
+
+  test('skips an extension with unsupported runtime platforms before pulling layers', async () => {
+    (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
+    vi.mocked(ImageRegistry.prototype.getImageConfigLabels).mockResolvedValueOnce({
+      [EXTENSION_PLATFORMS_LABEL]: 'darwin/arm64',
+    });
+
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin/amd64']);
+
+    expect(ImageRegistry.prototype.getManifestFromImageName).not.toHaveBeenCalled();
+    expect(ImageRegistry.prototype.downloadAndExtractImage).not.toHaveBeenCalled();
+  });
+
+  test('rejects a malformed platform label before pulling layers', async () => {
+    (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
+    vi.mocked(ImageRegistry.prototype.getImageConfigLabels).mockResolvedValueOnce({
+      [EXTENSION_PLATFORMS_LABEL]: 'darwin/arm64,foo',
+    });
+
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'darwin/arm64']);
+
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(ImageRegistry.prototype.getManifestFromImageName).not.toHaveBeenCalled();
+    expect(ImageRegistry.prototype.downloadAndExtractImage).not.toHaveBeenCalled();
+  });
+
+  test('applies platform filtering to a single CLI extension', async () => {
+    await main([
+      '--output',
+      ABS_DEST_DIR,
+      `--${OCI_ARG}`,
+      REMOTE_INFO_MOCK.oci,
+      `--${NAME_ARG}`,
+      REMOTE_INFO_MOCK.name,
+      `--${PLATFORM_ARG}`,
+      'linux/amd64',
+    ]);
+
+    expect(ImageRegistry.prototype.getImageConfigLabels).toHaveBeenCalledExactlyOnceWith(REMOTE_INFO_MOCK.oci);
+    expect(ImageRegistry.prototype.getManifestFromImageName).toHaveBeenCalledExactlyOnceWith(REMOTE_INFO_MOCK.oci);
+    expect(ImageRegistry.prototype.downloadAndExtractImage).toHaveBeenCalledExactlyOnceWith(
+      REMOTE_INFO_MOCK.oci,
+      expect.stringContaining(TMP_DIR),
+      expect.any(Function),
     );
   });
 
@@ -683,7 +785,7 @@ describe('main', () => {
     vi.mocked(ImageRegistry.prototype.downloadAndExtractImage).mockRejectedValue(downloadError);
     (vi.mocked(product).extensions.remote as RemoteExtension[]) = [REMOTE_INFO_MOCK];
 
-    await main(['--output', ABS_DEST_DIR]);
+    await main(['--output', ABS_DEST_DIR, `--${PLATFORM_ARG}`, 'linux/amd64']);
 
     expect(process.exit).toHaveBeenCalledWith(1);
   });

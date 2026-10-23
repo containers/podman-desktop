@@ -59,10 +59,13 @@ export interface RemoteExtension {
 
 export const OCI_ARG = 'oci';
 export const NAME_ARG = 'name';
+export const PLATFORM_ARG = 'platform';
 export const REGISTRY_USER_ARG = 'registry-user';
 export const REGISTRY_SECRET_ARG = 'registry-secret';
 
 export const DIGEST_FILENAME = '.digest';
+export const EXTENSION_PLATFORMS_LABEL = 'io.podman-desktop.extension.platforms';
+const PLATFORM_FORMAT_ERROR = `when specifying --${PLATFORM_ARG}, use comma-separated os/architecture values`;
 
 export interface RegistryAuth {
   username: string;
@@ -73,6 +76,42 @@ export interface DownloadOptions {
   destination: string;
   extension: RemoteExtension;
   auth?: RegistryAuth;
+  platforms?: string[];
+}
+
+class PlatformFilter {
+  private static isPlatformIdentifier(platform: string): boolean {
+    const [operatingSystem, architecture, ...remaining] = platform.split('/');
+    const identifierPattern = /^[a-z0-9][a-z0-9._-]*$/;
+    return (
+      remaining.length === 0 &&
+      operatingSystem !== undefined &&
+      identifierPattern.test(operatingSystem) &&
+      architecture !== undefined &&
+      identifierPattern.test(architecture)
+    );
+  }
+
+  static parsePlatforms(value: string): string[] | undefined {
+    const platforms = value.split(',').map(platform => platform.trim());
+    return platforms.every(platform => this.isPlatformIdentifier(platform)) ? platforms : undefined;
+  }
+
+  static supportsPlatforms(labels: { [key: string]: unknown }, platforms: string[]): boolean {
+    const label = labels[EXTENSION_PLATFORMS_LABEL];
+    // Images without the optional label retain the previous behavior and are bundled for every platform.
+    if (label === undefined) return true;
+    if (typeof label !== 'string') {
+      throw new Error(`Invalid ${EXTENSION_PLATFORMS_LABEL} image label: expected a string`);
+    }
+
+    const supportedPlatforms = this.parsePlatforms(label);
+    if (!supportedPlatforms) {
+      throw new Error(`Invalid ${EXTENSION_PLATFORMS_LABEL} image label: ${label}`);
+    }
+
+    return platforms.some(platform => supportedPlatforms.includes(platform));
+  }
 }
 
 async function findExtensionDigest(extension: string): Promise<string | undefined> {
@@ -131,6 +170,16 @@ export async function downloadExtension(options: DownloadOptions): Promise<void>
   const tmpFolderPath = join(tmpdir(), options.extension.name);
 
   const finalPath = join(options.destination, options.extension.name);
+
+  if (options.platforms) {
+    const labels = await imageRegistry.getImageConfigLabels(options.extension.oci);
+    if (!PlatformFilter.supportsPlatforms(labels, options.platforms)) {
+      console.info(
+        `Skipping bundled extension ${options.extension.name}: image does not declare support for ${options.platforms.join(', ')}`,
+      );
+      return;
+    }
+  }
 
   const { config } = await imageRegistry.getManifestFromImageName(options.extension.oci);
   if (!config) {
@@ -230,13 +279,31 @@ export function getRemoteExtensionFromProductJSON(): RemoteExtension[] {
  * the `--output` is mandatory and should be an absolute path
  * the `--oci` and `--name` are optional but should be both defined if specified
  */
-export function parseArgs(args: string[]): { output: string; extension?: RemoteExtension; auth?: RegistryAuth } {
+export function parseArgs(args: string[]): {
+  output: string;
+  extension?: RemoteExtension;
+  platforms?: string[];
+  auth?: RegistryAuth;
+} {
   const parsed = minimist(args);
 
   const output: string | undefined = parsed['output'];
   if (!output) throw new Error('missing output argument');
 
   if (!isAbsolute(output)) throw new Error('the output should be an absolute directory');
+
+  const rawPlatforms = parsed[PLATFORM_ARG];
+  let platforms: string[] | undefined;
+  if (rawPlatforms !== undefined) {
+    if (Array.isArray(rawPlatforms)) {
+      throw new Error(`when specifying --${PLATFORM_ARG}, only one is allowed`);
+    }
+    if (typeof rawPlatforms !== 'string') {
+      throw new Error(`when specifying --${PLATFORM_ARG}, use comma-separated os/architecture values`);
+    }
+    platforms = PlatformFilter.parsePlatforms(rawPlatforms);
+    if (!platforms) throw new Error(PLATFORM_FORMAT_ERROR);
+  }
 
   // Access the --oci & --name properties
   const oci = parsed[OCI_ARG];
@@ -285,12 +352,13 @@ export function parseArgs(args: string[]): { output: string; extension?: RemoteE
   return {
     output,
     extension: extension,
+    platforms,
     auth: auth,
   };
 }
 
 export async function main(args: string[]): Promise<void> {
-  const { output, auth, extension } = parseArgs(args);
+  const { output, auth, extension, platforms } = parseArgs(args);
 
   // if an extension has been provided through CLI download it directly
   if (extension) {
@@ -298,6 +366,7 @@ export async function main(args: string[]): Promise<void> {
       destination: output,
       auth,
       extension,
+      platforms,
     });
   }
 
@@ -308,6 +377,7 @@ export async function main(args: string[]): Promise<void> {
         destination: output,
         auth,
         extension,
+        platforms,
       }),
     ),
   ).catch((error: unknown) => {
