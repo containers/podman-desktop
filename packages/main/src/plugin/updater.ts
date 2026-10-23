@@ -501,6 +501,13 @@ export class Updater {
       });
     }
 
+    if (product.update?.updateChannel) {
+      autoUpdater.channel = product.update?.updateChannel;
+
+      // https://www.electron.build/docs/api/electron-updater.class.appupdater/#channel
+      autoUpdater.allowDowngrade = false;
+    }
+
     /**
      * Differential updates take **a lot** of memory
      * and have lead to constant JavaScript heap out of memory on windows
