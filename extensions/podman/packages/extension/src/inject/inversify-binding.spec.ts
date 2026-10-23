@@ -23,6 +23,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { PodmanCleanupMacOS } from '/@/cleanup/podman-cleanup-macos';
 import { PodmanCleanupWindows } from '/@/cleanup/podman-cleanup-windows';
+import { HyperVPrep } from '/@/hyperv/hyperv-prep';
 import { Installer } from '/@/installer/installer';
 import { MacOSInstaller } from '/@/installer/mac-os-installer';
 import { WinInstaller } from '/@/installer/win-installer';
@@ -81,6 +82,10 @@ describe('inversifyBinding', () => {
 
       expect(value).toBeInstanceOf(PodmanCleanupWindows);
     });
+
+    test('InversifyBinding#init should bind HyperVPrep', async () => {
+      expect(container.isBound(HyperVPrep)).toBeTruthy();
+    });
   });
 
   describe('macos', () => {
@@ -103,6 +108,10 @@ describe('inversifyBinding', () => {
 
       expect(value).toBeInstanceOf(PodmanCleanupMacOS);
     });
+
+    test('InversifyBinding#init should not bind HyperVPrep', async () => {
+      expect(container.isBound(HyperVPrep)).toBeFalsy();
+    });
   });
 
   describe('linux', () => {
@@ -122,6 +131,10 @@ describe('inversifyBinding', () => {
       expect(() => {
         container.get(ProviderCleanupSymbol);
       }).toThrowError('No bindings found for service: "Symbol(ProviderCleanup)"');
+    });
+
+    test('InversifyBinding#init should not bind HyperVPrep', async () => {
+      expect(container.isBound(HyperVPrep)).toBeFalsy();
     });
   });
 });

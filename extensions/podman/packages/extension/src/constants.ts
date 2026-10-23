@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2025 Red Hat, Inc.
+ * Copyright (C) 2022-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,3 +38,9 @@ export const PODMAN_EDIT_IMPORT_NATIVE_CA = 'podman.podmanMachineEditImportNativ
  * Command ID to uninstall a version of podman installed with non-msi installer
  */
 export const UNINSTALL_LEGACY_INSTALLER_COMMAND = 'podman.uninstallLegacyPodmanInstaller';
+
+export const HYPERV_PREP_COMMAND = 'podman.hypervPrep';
+export const HYPERV_PREP_SUPPORTED_KEY = 'podman.hypervPrepSupported';
+export const HYPERV_PREP_NOT_APPLIED_KEY = 'podman.hypervPrepNotApplied';
+export const HYPERV_PREP_RELOGIN_MESSAGE =
+  'Sign out of Windows and sign back in (or restart your computer) for Hyper-V Administrators group membership to take effect.';

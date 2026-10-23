@@ -35,6 +35,7 @@ import { WSLVersionCheck } from '/@/checks/windows/wsl-version-check';
 import { WSL2Check } from '/@/checks/windows/wsl2-check';
 import { PodmanCleanupMacOS } from '/@/cleanup/podman-cleanup-macos';
 import { PodmanCleanupWindows } from '/@/cleanup/podman-cleanup-windows';
+import { HyperVPrep } from '/@/hyperv/hyperv-prep';
 import { Installer } from '/@/installer/installer';
 import { MacOSInstaller } from '/@/installer/mac-os-installer';
 import { PodmanInstall } from '/@/installer/podman-install';
@@ -87,6 +88,7 @@ export class InversifyBinding {
     if (envAPI.isWindows) {
       this.#inversifyContainer.bind(Installer).to(WinInstaller).inSingletonScope();
       this.#inversifyContainer.bind(ProviderCleanupSymbol).to(PodmanCleanupWindows).inSingletonScope();
+      this.#inversifyContainer.bind(HyperVPrep).toSelf().inSingletonScope();
     } else if (envAPI.isMac) {
       this.#inversifyContainer.bind(Installer).to(MacOSInstaller).inSingletonScope();
       this.#inversifyContainer.bind(ProviderCleanupSymbol).to(PodmanCleanupMacOS).inSingletonScope();
