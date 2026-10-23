@@ -25,6 +25,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 
+import type { ButtonType } from './Button';
 import Button from './Button.svelte';
 
 interface CommonClassOptions {
@@ -312,3 +313,25 @@ test('Disabled pressed button should keep aria-pressed but use disabled styling'
   expect(button).toHaveClass('bg-[var(--pd-button-disabled-bg)]');
   expect(button).not.toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 });
+
+// the focus ring classes must use the focus ring tokens, and keep the 2px gap that separates the ring from the fill
+const RING = 'focus-visible:outline-[var(--pd-button-focus-ring)]';
+const RING_DANGER = 'focus-visible:outline-[var(--pd-button-focus-ring-danger)]';
+const RING_TYPES: [ButtonType, string][] = [
+  ['primary', RING],
+  ['secondary', RING],
+  ['link', RING],
+  ['tab', RING],
+  ['danger', RING_DANGER],
+];
+
+test.each(RING_TYPES.flatMap(([type, ring]) => [false, true].map(pressed => [type, pressed, ring] as const)))(
+  'Check %s button (pressed: %s) uses its focus ring token',
+  (type, pressed, ringClass) => {
+    render(Button, { type, pressed });
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass(ringClass);
+    expect(button).toHaveClass('focus-visible:outline-offset-2');
+  },
+);
