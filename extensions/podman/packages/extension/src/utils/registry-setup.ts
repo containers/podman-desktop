@@ -61,6 +61,23 @@ export class RegistrySetup {
   protected async updateRegistries(): Promise<void> {
     // read the file
     const authFile = await this.readAuthFile();
+    this.updateRegistriesFromAuthFile(authFile);
+  }
+
+  private async updateRegistriesIfCurrent(isCurrent: () => boolean): Promise<void> {
+    if (!isCurrent()) {
+      return;
+    }
+
+    const authFile = await this.readAuthFile();
+    if (!isCurrent()) {
+      return;
+    }
+
+    this.updateRegistriesFromAuthFile(authFile);
+  }
+
+  private updateRegistriesFromAuthFile(authFile: ContainersAuthConfigFile): void {
     const inFileRegistries: extensionApi.Registry[] = [];
     const source = 'podman';
     if (authFile.auths) {
@@ -102,107 +119,276 @@ export class RegistrySetup {
     );
     toBeRemoved.forEach(registry => {
       this.localRegistries.delete(registry.serverUrl);
-      extensionApi.registry.unregisterRegistry(registry);
+      try {
+        extensionApi.registry.unregisterRegistry(registry);
+      } catch (error: unknown) {
+        this.localRegistries.set(registry.serverUrl, registry);
+        console.error('Error unregistering registry', registry.serverUrl, error);
+      }
     });
   }
 
-  public async setup(): Promise<void> {
-    extensionApi.registry.registerRegistryProvider({
-      name: 'podman',
-      create: function (registryCreateOptions: extensionApi.RegistryCreateOptions): extensionApi.Registry {
-        const registry: extensionApi.Registry = {
-          source: '',
-          ...registryCreateOptions,
-        };
-        return registry;
-      },
-    });
-    // handle addition of the registry in the file
-    extensionApi.registry.onDidRegisterRegistry(async registry => {
-      // external change, update the local registries
-      if (!this.localRegistries.has(registry.serverUrl)) {
-        let encode = true;
+  private unregisterLocalRegistries(): void {
+    for (const registry of Array.from(this.localRegistries.values())) {
+      this.localRegistries.delete(registry.serverUrl);
+      try {
+        extensionApi.registry.unregisterRegistry(registry);
+      } catch (error: unknown) {
         this.localRegistries.set(registry.serverUrl, registry);
-        // read the file
-        const authFile = await this.readAuthFile();
-        authFile.auths ??= {};
+        console.error('Error unregistering registry', registry.serverUrl, error);
+      }
+    }
+  }
 
-        // if the registry already exists in the file, check if it has the same value as the registered registry
-        if (authFile.auths[registry.serverUrl]) {
-          const decoded = Buffer.from(authFile.auths[registry.serverUrl].auth, 'base64').toString();
+  public async setup(): Promise<extensionApi.Disposable> {
+    let disposed = false;
+    let authFileGeneration = 0;
+    let authFileLocation: string | undefined;
+    let authFileListener: fs.StatsListener | undefined;
+    let authFileExists = false;
+    let unregisterRetry: ReturnType<typeof setTimeout> | undefined;
+    let unregisterAttempts = 0;
+    const subscriptions: extensionApi.Disposable[] = [];
+    const clearUnregisterRetry = (): void => {
+      if (unregisterRetry) {
+        clearTimeout(unregisterRetry);
+        unregisterRetry = undefined;
+      }
+      unregisterAttempts = 0;
+    };
+    const dispose = (): void => {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      authFileGeneration++;
+      clearUnregisterRetry();
+      if (authFileLocation && authFileListener) {
+        fs.unwatchFile(authFileLocation, authFileListener);
+      }
+      for (const subscription of subscriptions) {
+        try {
+          subscription.dispose();
+        } catch (error: unknown) {
+          console.error('Error disposing registry setup subscription', error);
+        }
+      }
+    };
+    const isCurrentGeneration = (generation: number): boolean => !disposed && generation === authFileGeneration;
+    const unregisterWhileAuthFileIsAbsent = (checkForRecreation = false): void => {
+      const authFilePresent = checkForRecreation && authFileLocation !== undefined && fs.existsSync(authFileLocation);
+      if (disposed || authFileExists || authFilePresent || unregisterAttempts >= 3) {
+        if (!disposed && authFilePresent && !authFileExists) {
+          clearUnregisterRetry();
+          authFileExists = true;
+          const generation = ++authFileGeneration;
+          this.updateRegistriesIfCurrent(
+            () => !disposed && generation === authFileGeneration && fs.existsSync(authFileLocation as string),
+          ).catch((error: unknown) => {
+            console.error('Error updating registries', error);
+          });
+        }
+        return;
+      }
+      unregisterAttempts++;
+      this.unregisterLocalRegistries();
+      if (this.localRegistries.size > 0 && unregisterAttempts < 3) {
+        unregisterRetry = setTimeout(() => {
+          unregisterRetry = undefined;
+          unregisterWhileAuthFileIsAbsent(true);
+        }, 1_000);
+      }
+    };
 
-          // split the decoded string into username and password separated by :
-          const [username, secret] = decoded.split(':');
+    try {
+      subscriptions.push(
+        extensionApi.registry.registerRegistryProvider({
+          name: 'podman',
+          create: function (registryCreateOptions: extensionApi.RegistryCreateOptions): extensionApi.Registry {
+            const registry: extensionApi.Registry = {
+              source: '',
+              ...registryCreateOptions,
+            };
+            return registry;
+          },
+        }),
+      );
+      // handle addition of the registry in the file
+      subscriptions.push(
+        extensionApi.registry.onDidRegisterRegistry(async registry => {
+          if (disposed) {
+            return;
+          }
+          // external change, update the local registries
+          if (!this.localRegistries.has(registry.serverUrl)) {
+            let encode = true;
+            this.localRegistries.set(registry.serverUrl, registry);
+            const generation = authFileGeneration;
+            // read the file
+            const authFile = await this.readAuthFile();
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            authFile.auths ??= {};
 
-          // only encode if values have changed from what's stored in the auth file
-          encode = !(username === registry.username && secret === registry.secret);
+            // if the registry already exists in the file, check if it has the same value as the registered registry
+            if (authFile.auths[registry.serverUrl]) {
+              const decoded = Buffer.from(authFile.auths[registry.serverUrl].auth, 'base64').toString();
+
+              // split the decoded string into username and password separated by :
+              const [username, secret] = decoded.split(':');
+
+              // only encode if values have changed from what's stored in the auth file
+              encode = !(username === registry.username && secret === registry.secret);
+            }
+
+            if (encode) {
+              authFile.auths[registry.serverUrl] = {
+                auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
+                podmanDesktopAlias: registry.alias,
+              };
+
+              if (!isCurrentGeneration(generation)) {
+                return;
+              }
+              await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+              if (!isCurrentGeneration(generation)) {
+                return;
+              }
+            }
+
+            // Update registries.conf with the registry configuration
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            await this.updateRegistriesConf(registry, true);
+          }
+        }),
+      );
+
+      // handle removal of the registry in the file
+      subscriptions.push(
+        extensionApi.registry.onDidUnregisterRegistry(async registry => {
+          if (disposed) {
+            return;
+          }
+          // external change, update the local registries
+          if (this.localRegistries.has(registry.serverUrl)) {
+            this.localRegistries.delete(registry.serverUrl);
+            const generation = authFileGeneration;
+            // update the file
+            const authFile = await this.readAuthFile();
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            if (authFile.auths) {
+              delete authFile.auths[registry.serverUrl];
+            }
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+
+            // Remove from registries.conf
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            await this.removeFromRegistriesConf(registry);
+          }
+        }),
+      );
+
+      // handle update of the registry in the file
+      subscriptions.push(
+        extensionApi.registry.onDidUpdateRegistry(async registry => {
+          if (disposed) {
+            return;
+          }
+          // external change, update the local registries
+          if (this.localRegistries.has(registry.serverUrl)) {
+            this.localRegistries.set(registry.serverUrl, registry);
+            const generation = authFileGeneration;
+            // update the file
+            const authFile = await this.readAuthFile();
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            authFile.auths ??= {};
+            authFile.auths[registry.serverUrl] = {
+              auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
+              podmanDesktopAlias: registry.alias,
+            };
+
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+
+            // Update registries.conf with the updated registry configuration
+            if (!isCurrentGeneration(generation)) {
+              return;
+            }
+            await this.updateRegistriesConf(registry, false);
+          }
+        }),
+      );
+
+      authFileLocation = this.getAuthFileLocation();
+      authFileExists = fs.existsSync(authFileLocation);
+      authFileListener = (current): void => {
+        if (disposed) {
+          return;
+        }
+        if (current.nlink === 0) {
+          authFileGeneration++;
+          if (authFileExists) {
+            authFileExists = false;
+            unregisterAttempts = 0;
+            unregisterWhileAuthFileIsAbsent();
+          }
+          return;
         }
 
-        if (encode) {
-          authFile.auths[registry.serverUrl] = {
-            auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
-            podmanDesktopAlias: registry.alias,
-          };
+        clearUnregisterRetry();
+        authFileExists = true;
+        const generation = ++authFileGeneration;
+        this.updateRegistriesIfCurrent(
+          () =>
+            !disposed &&
+            authFileExists &&
+            generation === authFileGeneration &&
+            fs.existsSync(authFileLocation as string),
+        ).catch((error: unknown) => {
+          console.error('Error updating registries', error);
+        });
+      };
 
-          await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
-        }
+      // fs.watchFile also monitors files that do not exist yet.
+      fs.watchFile(authFileLocation, authFileListener);
 
-        // Update registries.conf with the registry configuration
-        await this.updateRegistriesConf(registry, true);
+      if (authFileExists) {
+        const generation = ++authFileGeneration;
+        await this.updateRegistriesIfCurrent(
+          () =>
+            !disposed &&
+            authFileExists &&
+            generation === authFileGeneration &&
+            fs.existsSync(authFileLocation as string),
+        );
       }
-    });
-
-    // handle removal of the registry in the file
-    extensionApi.registry.onDidUnregisterRegistry(async registry => {
-      // external change, update the local registries
-      if (this.localRegistries.has(registry.serverUrl)) {
-        this.localRegistries.delete(registry.serverUrl);
-        // update the file
-        const authFile = await this.readAuthFile();
-        if (authFile.auths) {
-          delete authFile.auths[registry.serverUrl];
-        }
-        await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
-
-        // Remove from registries.conf
-        await this.removeFromRegistriesConf(registry);
-      }
-    });
-
-    // handle update of the registry in the file
-    extensionApi.registry.onDidUpdateRegistry(async registry => {
-      // external change, update the local registries
-      if (this.localRegistries.has(registry.serverUrl)) {
-        this.localRegistries.set(registry.serverUrl, registry);
-        // update the file
-        const authFile = await this.readAuthFile();
-        authFile.auths ??= {};
-        authFile.auths[registry.serverUrl] = {
-          auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
-          podmanDesktopAlias: registry.alias,
-        };
-
-        await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
-
-        // Update registries.conf with the updated registry configuration
-        await this.updateRegistriesConf(registry, false);
-      }
-    });
-
-    // check if the file exists
-    if (!fs.existsSync(this.getAuthFileLocation())) {
-      return;
+    } catch (error: unknown) {
+      dispose();
+      this.unregisterLocalRegistries();
+      throw error;
     }
 
-    // need to monitor this file
-    fs.watchFile(this.getAuthFileLocation(), () => {
-      this.updateRegistries().catch((error: unknown) => {
-        console.error('Error updating registries', error);
-      });
-    });
-
-    // else init with the content of this file
-    await this.updateRegistries();
+    return extensionApi.Disposable.create(dispose);
   }
 
   protected async readAuthFile(): Promise<ContainersAuthConfigFile> {
