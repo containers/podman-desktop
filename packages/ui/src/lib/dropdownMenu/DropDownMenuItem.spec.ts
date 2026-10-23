@@ -20,7 +20,8 @@ import '@testing-library/jest-dom/vitest';
 
 import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { expect, test, vi } from 'vitest';
 
 import StarIcon from '../icons/StarIcon.svelte';
 import DropDownMenuItem from './DropDownMenuItem.svelte';
@@ -93,4 +94,45 @@ test('Expect component icon to have class w-4 text-md', async () => {
   const imgComponent = img.firstChild;
   expect(imgComponent).toBeInTheDocument();
   expect(imgComponent).toHaveClass('w-4 text-md');
+});
+
+test('Expect the item to be a button named by its title that calls onClick', async () => {
+  const onClick = vi.fn();
+  render(DropDownMenuItem, { title: 'dummy-title', icon: faCircleUp, onClick });
+
+  await userEvent.click(screen.getByRole('button', { name: 'dummy-title' }));
+
+  expect(onClick).toHaveBeenCalledOnce();
+});
+
+test.each(['{Enter}', ' '])('Expect keyboard activation with %s to call onClick', async key => {
+  const onClick = vi.fn();
+  render(DropDownMenuItem, { title: 'dummy-title', icon: faCircleUp, onClick });
+
+  await userEvent.tab();
+  expect(screen.getByRole('button', { name: 'dummy-title' })).toHaveFocus();
+  await userEvent.keyboard(key);
+
+  expect(onClick).toHaveBeenCalledOnce();
+});
+
+test('Expect a disabled item to stay focusable but not call onClick', async () => {
+  const onClick = vi.fn();
+  render(DropDownMenuItem, { title: 'dummy-title', icon: faCircleUp, enabled: false, onClick });
+
+  const button = screen.getByRole('button', { name: 'dummy-title' });
+  expect(button).toHaveAttribute('aria-disabled', 'true');
+
+  await userEvent.tab();
+  expect(button).toHaveFocus();
+  await userEvent.keyboard('{Enter}');
+  await userEvent.click(button);
+
+  expect(onClick).not.toHaveBeenCalled();
+});
+
+test('Expect a hidden item to render nothing', () => {
+  render(DropDownMenuItem, { title: 'dummy-title', icon: faCircleUp, hidden: true });
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });

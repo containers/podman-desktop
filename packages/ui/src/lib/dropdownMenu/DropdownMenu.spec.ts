@@ -19,9 +19,11 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import DropdownMenu from './DropdownMenu.svelte';
+import DropdownMenuTest from './DropdownMenuTest.svelte';
 
 class ResizeObserver {
   observe = vi.fn();
@@ -58,4 +60,20 @@ test('Expect the detailed background style when shown as a menu action item', ()
   const toggleMenuButton = screen.getByRole('button', { name: 'kebab menu' });
   expect(toggleMenuButton).toHaveClass('bg-[var(--pd-button-detailed-bg)]');
   expect(toggleMenuButton).toHaveClass('px-3');
+});
+
+test.each(['{Enter}', ' '])('Expect keyboard selection of an item with %s to run it and close the menu', async key => {
+  const onClick = vi.fn();
+  render(DropdownMenuTest, { onClick });
+
+  await userEvent.tab();
+  expect(screen.getByRole('button', { name: 'kebab menu' })).toHaveFocus();
+  await userEvent.keyboard('{Enter}');
+
+  await userEvent.tab();
+  expect(screen.getByRole('button', { name: 'Item 1' })).toHaveFocus();
+  await userEvent.keyboard(key);
+
+  expect(onClick).toHaveBeenCalledOnce();
+  expect(screen.queryByRole('button', { name: 'Item 1' })).not.toBeInTheDocument();
 });
