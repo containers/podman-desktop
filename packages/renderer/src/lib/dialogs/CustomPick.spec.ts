@@ -25,17 +25,6 @@ import { describe, expect, test, vi } from 'vitest';
 import CustomPick from './CustomPick.svelte';
 import type { CustomPickOptions } from './quickpick-input';
 
-function mockCustomPick(customPickOptions: CustomPickOptions): void {
-  vi.mocked(window.events.receive).mockImplementation(
-    (message: string, callback: (options: CustomPickOptions) => void) => {
-      if (message === 'showCustomPick:add') {
-        callback(customPickOptions);
-      }
-      return { dispose: vi.fn() };
-    },
-  );
-}
-
 describe('CustomPick', () => {
   test('Expect that title is displayed', async () => {
     const customPickOptions: CustomPickOptions = {
@@ -57,7 +46,14 @@ describe('CustomPick', () => {
       hideItemSections: false,
     };
 
-    mockCustomPick(customPickOptions);
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: CustomPickOptions) => void) => {
+        if (message === 'showCustomPick:add') {
+          callback(customPickOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
 
     render(CustomPick, {});
 
@@ -85,7 +81,14 @@ describe('CustomPick', () => {
       hideItemSections: false,
     };
 
-    mockCustomPick(customPickOptions);
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: CustomPickOptions) => void) => {
+        if (message === 'showCustomPick:add') {
+          callback(customPickOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
 
     render(CustomPick, {});
 
@@ -115,7 +118,14 @@ describe('CustomPick', () => {
       hideItemSections: false,
     };
 
-    mockCustomPick(customPickOptions);
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: CustomPickOptions) => void) => {
+        if (message === 'showCustomPick:add') {
+          callback(customPickOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
 
     render(CustomPick, {});
 
@@ -148,7 +158,14 @@ describe('CustomPick', () => {
       hideItemSections: false,
     };
 
-    mockCustomPick(customPickOptions);
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: CustomPickOptions) => void) => {
+        if (message === 'showCustomPick:add') {
+          callback(customPickOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
 
     render(CustomPick, {});
 
@@ -177,7 +194,14 @@ describe('CustomPick', () => {
       hideItemSections: true,
     };
 
-    mockCustomPick(customPickOptions);
+    vi.mocked(window.events.receive).mockImplementation(
+      (message: string, callback: (options: CustomPickOptions) => void) => {
+        if (message === 'showCustomPick:add') {
+          callback(customPickOptions);
+        }
+        return { dispose: vi.fn() };
+      },
+    );
 
     render(CustomPick, {});
 
