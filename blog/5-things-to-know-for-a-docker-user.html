@@ -14,8 +14,8 @@
 
 <link rel="preconnect" href="https://podman-desktop-website.goatcounter.com">
 <script async src="//gc.zgo.at/count.js" data-goatcounter="https://podman-desktop-website.goatcounter.com/count"></script><link rel="stylesheet" href="/assets/css/styles.a9fa3770.css">
-<script src="/assets/js/runtime~main.fe1557ca.js" defer="defer"></script>
-<script src="/assets/js/main.2a8b2733.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.c50496ca.js" defer="defer"></script>
+<script src="/assets/js/main.221ea942.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -47,7 +47,7 @@
 <h3 class="anchor anchorTargetStickyNavbar_tleR" id="cli-compatibility">CLI compatibility<a href="#cli-compatibility" class="hash-link" aria-label="Direct link to CLI compatibility" title="Direct link to CLI compatibility" translate="no">​</a></h3>
 <p>If you have scripts relying on <code>docker</code> CLI, you can use the compatibility mode to ensure that the tool is working with Podman instead of Docker.</p>
 <p>If you have the <code>docker</code> CLI installed on your computer, you can use the socket file compatibility of docker to ensure that the tool is working with Podman engine instead of Docker.</p>
-<p>If you do not have the <code>docker</code> CLI installed on your computer, you can <a href="https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman" target="_blank" rel="noopener noreferrer" class="">Create a script</a> called <code>docker</code> that will call the <code>podman</code> CLI</p>
+<p>If you do not have the <code>docker</code> CLI installed on your computer, you can <a href="https://podman-desktop.io/docs/migrating-from-docker/aliasing-the-docker-cli" target="_blank" rel="noopener noreferrer" class="">alias the Docker CLI</a> so that the <code>docker</code> command calls the <code>podman</code> CLI</p>
 <p><strong><em>NOTE:</em></strong> creating a shell prompt alias, for example <code>alias docker=podman</code>, will not work inside scripts that you call.</p>
 <h2 class="anchor anchorTargetStickyNavbar_tleR" id="compose">Compose<a href="#compose" class="hash-link" aria-label="Direct link to Compose" title="Direct link to Compose" translate="no">​</a></h2>
 <p>As a user of Docker, you might use <code>docker compose</code> (or <code>docker-compose</code>) to run some of your applications.</p>
