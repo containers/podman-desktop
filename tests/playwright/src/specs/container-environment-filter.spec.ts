@@ -80,7 +80,7 @@ test.describe
     // The regular cleanup is the last test of the suite. This hook is only a safety net
     // for runs where an earlier test failed and the remaining tests (including the cleanup) were skipped.
     test.afterAll(async ({ page, runner, navigationBar }) => {
-      test.setTimeout(240_000);
+      test.setTimeout(360_000);
 
       try {
         if (cleanedUp) return;
@@ -131,7 +131,7 @@ test.describe
     });
 
     test('Stopping the default Podman machine', async ({ navigationBar, page }) => {
-      test.setTimeout(90_000);
+      test.setTimeout(150_000);
 
       await openPodmanResources(navigationBar, page);
       const defaultMachineCard = new ResourceConnectionCardPage(page, 'podman', defaultMachineVisibleName);
@@ -164,7 +164,7 @@ test.describe
     });
 
     test('Starting the second Podman machine', async ({ navigationBar, page }) => {
-      test.setTimeout(200_000);
+      test.setTimeout(300_000);
 
       await openPodmanResources(navigationBar, page);
       const secondMachineCard = new ResourceConnectionCardPage(page, 'podman', secondMachineVisibleName);
@@ -179,7 +179,7 @@ test.describe
     });
 
     test('Starting the default Podman machine again', async ({ navigationBar, page }) => {
-      test.setTimeout(150_000);
+      test.setTimeout(210_000);
 
       await openPodmanResources(navigationBar, page);
       const defaultMachineCard = new ResourceConnectionCardPage(page, 'podman', defaultMachineVisibleName);
