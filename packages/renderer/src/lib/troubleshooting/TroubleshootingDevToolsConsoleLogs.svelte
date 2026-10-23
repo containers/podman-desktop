@@ -4,6 +4,7 @@ import { faFileLines, faPaste } from '@fortawesome/free-regular-svg-icons';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 
 import NoLogIcon from '/@/lib/ui/NoLogIcon.svelte';
@@ -26,7 +27,7 @@ onMount(async () => {
 onDestroy(() => {});
 
 function formatTimestamp(date: Date): string {
-  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  return moment(date).format();
 }
 
 async function copyLogsToClipboard(): Promise<void> {
