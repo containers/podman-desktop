@@ -328,6 +328,10 @@ const config = {
             ],
           },
           {
+            to: '/docs/extensions',
+            from: '/extend',
+          },
+          {
             to: '/',
             from: '/core-values',
           },
@@ -470,7 +474,7 @@ const config = {
             items: [
               { to: '/features', label: 'Features' },
               { to: '/tutorial', label: 'Tutorials' },
-              { to: '/extend', label: 'Extend' },
+              { to: '/docs/extensions', label: 'Extend' },
             ],
           },
           { to: '/blog', label: 'Blog', position: 'left' },
