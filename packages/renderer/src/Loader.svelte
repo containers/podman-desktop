@@ -6,14 +6,22 @@ import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
 import ColorsStyle from './lib/style/ColorsStyle.svelte';
 import { lastPage } from './stores/breadcrumb';
+import { colorsInfos } from './stores/colors';
 
 let systemReady = false;
+let colorsLoaded = false;
 
 let toggle = false;
 
 let loadingSequence: NodeJS.Timeout;
 
 let extensionsStarterChecker: NodeJS.Timeout;
+
+const unsubscribeColors = colorsInfos.subscribe(colors => {
+  if (colors && colors.length > 0) {
+    colorsLoaded = true;
+  }
+});
 
 onMount(async () => {
   loadingSequence = setInterval(() => {
@@ -49,6 +57,7 @@ onDestroy(() => {
   if (loadingSequence) {
     clearInterval(loadingSequence);
   }
+  unsubscribeColors();
 
   if (extensionsStarterChecker) {
     clearInterval(extensionsStarterChecker);
@@ -66,7 +75,7 @@ window.events?.receive('install-extension:from-id', (extensionId: unknown) => {
     lastPage.set({ name: 'Extensions', path: '/extensions' });
   };
 
-  if (!systemReady) {
+  if (!systemReady || !colorsLoaded) {
     // need to wait for the system to be ready, so we delay the install
     window.addEventListener('system-ready', () => {
       action().catch((err: unknown) => console.log('Error while redirecting to extensions', err));
