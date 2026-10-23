@@ -81,14 +81,16 @@ export class MachineCreationForm extends BasePage {
       enableUserNet = false,
       startNow = true,
       virtualizationProvider,
+      imagePath,
     }: {
       isRootful?: boolean;
       enableUserNet?: boolean;
       startNow?: boolean;
       virtualizationProvider?: PodmanVirtualizationProviders;
+      imagePath?: string;
     } = {},
   ): Promise<void> {
-    return test.step(`Create Podman Machine '${machineName}' with settings: ${isRootful ? 'rootful' : 'rootless'}, ${enableUserNet ? 'usernet enabled' : 'usernet disabled'}, ${startNow ? 'startnow enabled' : 'startnow disabled'}${virtualizationProvider ? ', and ' + virtualizationProvider : ''}`, async () => {
+    return test.step(`Create Podman Machine '${machineName}' with settings: ${isRootful ? 'rootful' : 'rootless'}, ${enableUserNet ? 'usernet enabled' : 'usernet disabled'}, ${startNow ? 'startnow enabled' : 'startnow disabled'}${virtualizationProvider ? ', and ' + virtualizationProvider : ''}${imagePath ? ', image: ' + imagePath : ''}`, async () => {
       await playExpect(this.podmanMachineConfiguration).toBeVisible({
         timeout: 10_000,
       });
@@ -97,6 +99,12 @@ export class MachineCreationForm extends BasePage {
 
       await this.podmanMachineName.fill(machineName);
       await playExpect(this.podmanMachineName).toHaveValue(machineName);
+
+      if (imagePath) {
+        await this.imagePathBox.clear();
+        await this.imagePathBox.fill(imagePath);
+        await playExpect(this.imagePathBox).toHaveValue(imagePath);
+      }
 
       await this.ensureCheckboxState(isRootful, this.rootPrivilegesCheckbox);
       if (!!isWindows && getVirtualizationProvider() === PodmanVirtualizationProviders.WSL) {
