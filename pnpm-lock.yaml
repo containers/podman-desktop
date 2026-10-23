@@ -1109,9 +1109,6 @@ importers:
       humanize-duration:
         specifier: ^3.35.0
         version: 3.35.0
-      moment:
-        specifier: ^2.31.0
-        version: 2.31.0
       svelte-fa:
         specifier: ^4.0.4
         version: 4.0.4(svelte@5.57.2(@typescript-eslint/types@8.70.0))
