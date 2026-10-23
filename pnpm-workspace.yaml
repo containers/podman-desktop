@@ -55,7 +55,7 @@ overrides:
   protobufjs: ^7.6.5
   follow-redirects: ^1.16.1
   uuid: ^14.0.0
-  ip-address@^10: ^10.5.1
+  ip-address@^10: ^10.7.4
   fast-uri: '>=4.1.5'
   '@babel/plugin-transform-modules-systemjs': '>=7.29.4'
   mermaid: '>=11.16.1'
