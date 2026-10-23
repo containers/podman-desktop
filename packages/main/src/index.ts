@@ -22,6 +22,7 @@ import { restoreWindow } from '/@/mainWindow.js';
 import type { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
 
 import { ApplicationMenuBuilder } from './application-menu-builder.js';
+import { createBeforeQuitHandler } from './before-quit-handler.js';
 import { type AdditionalData, Main } from './main.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { Emitter } from './plugin/events/emitter.js';
@@ -62,25 +63,14 @@ app.on('will-quit', () => {
   animatedTray?.dispose();
   tray?.destroy();
 });
-app.once('before-quit', event => {
-  if (!extensionLoader) {
-    stoppedExtensions.val = true;
-    return;
-  }
-  event.preventDefault();
-  extensionLoader
-    .asyncDispose()
-    .then(() => {
-      console.log('Stopped all extensions');
-    })
-    .catch((error: unknown) => {
-      console.log('Error stopping extensions', error);
-    })
-    .finally(() => {
-      stoppedExtensions.val = true;
-      app.quit();
-    });
-});
+app.on(
+  'before-quit',
+  createBeforeQuitHandler({
+    getExtensionLoader: () => extensionLoader,
+    getStoppedExtensions: () => stoppedExtensions,
+    quit: () => app.quit(),
+  }),
+);
 
 let tray: Tray | undefined;
 
