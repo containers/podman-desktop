@@ -1,0 +1,396 @@
+---
+sidebar_position: 3
+title: Aliasing the Docker CLI
+description: Make the docker command run Podman so that your existing commands and scripts keep working after you remove Docker.
+keywords: [podman desktop, podman, docker, alias, cli, migrating]
+tags: [migrating-from-docker]
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Aliasing the Docker CLI
+
+If you remove Docker, the `docker` command goes with it. Your scripts, your shell history, and the many `docker` examples you find online all stop working, even though Podman can run most of them.
+
+Because the Podman CLI is a drop-in replacement for most Docker commands, you can make `docker` run Podman instead. You then keep using the commands you already know, and your scripts continue to work without changes.
+
+:::note
+
+Aliasing the Docker CLI changes which program the `docker` _command_ runs. It does not affect tools that connect to the Docker _socket_ directly, such as [Testcontainers](https://www.testcontainers.com/) or [Maven](https://maven.apache.org/). To make those tools work with Podman, enable [Docker compatibility](/docs/migrating-from-docker/customizing-docker-compatibility#enable-docker-compatibility) or set the [`DOCKER_HOST` environment variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable).
+
+:::
+
+#### Prerequisites
+
+- [A running Podman machine](/docs/podman/creating-a-podman-machine).
+- No `docker` command on your system, or one that you want to replace. To check, run `command -v docker` on Linux and macOS, or `Get-Command docker` on Windows.
+
+## Choosing an approach
+
+A shell alias is the quickest way to get a `docker` command, but it exists only inside the shell that defines it, and no other program on your system can see it. If your goal is to keep existing scripts working, do not rely on a shell alias. The other approaches put a real `docker` command on your `PATH`, so everything on your system finds it.
+
+| Approach                | Works in scripts         | Survives a new terminal                  | Platform              |
+| ----------------------- | ------------------------ | ---------------------------------------- | --------------------- |
+| Shell alias             | No                       | Only if you edit your shell profile      | Linux, macOS          |
+| PowerShell alias        | Only in the same session | Only if you edit your PowerShell profile | Windows               |
+| `podman-docker` package | Yes                      | Yes                                      | Linux                 |
+| Symbolic link           | Yes                      | Yes                                      | Linux, macOS          |
+| Wrapper script          | Yes                      | Yes                                      | Linux, macOS, Windows |
+
+## Creating a shell alias
+
+Use an alias when you want a `docker` command in your own terminal and you do not need other programs to find it.
+
+<Tabs groupId="operating-systems">
+<TabItem value="win" label="Windows" className="markdown">
+
+#### Procedure
+
+1. Create the alias in your current PowerShell session:
+
+   ```shell-session
+   $ Set-Alias -Name docker -Value podman
+   ```
+
+1. Optional: To make the alias available in every new PowerShell session, add the same command to your PowerShell profile. The profile path is stored in the `$PROFILE` variable.
+
+   The profile file does not exist on a new PowerShell installation. Create the file, and the parent directory, if needed:
+
+   ```shell-session
+   $ if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
+   ```
+
+   Add the alias to the profile:
+
+   ```shell-session
+   $ Add-Content -Path $PROFILE -Value 'Set-Alias -Name docker -Value podman'
+   ```
+
+   Your execution policy must also allow the profile to run. The `Restricted` policy blocks all script files, including profiles, and is the effective policy on Windows clients when no policy is set in any scope.
+
+   Check the effective policy:
+
+   ```shell-session
+   $ Get-ExecutionPolicy
+   ```
+
+   Check the policy for each scope:
+
+   ```shell-session
+   $ Get-ExecutionPolicy -List
+   ```
+
+   If your execution policy prevents the profile from running, create a persistent `docker` command instead.
+
+   PowerShell scripts that you run from the same session can use the alias. Other programs and `cmd.exe` scripts cannot.
+
+#### Verification
+
+- Check that the `docker` command runs Podman:
+
+  ```shell-session
+  $ docker --help
+  ```
+
+  The output starts with the Podman description:
+
+  ```
+  Manage pods, containers and images
+  ```
+
+</TabItem>
+<TabItem value="macOS" label="macOS" className="markdown">
+
+#### Procedure
+
+1. Create the alias in your current shell:
+
+   ```shell-session
+   $ alias docker=podman
+   ```
+
+1. Optional: To make the alias available in every new shell, add the same line to your shell profile, such as `~/.zshrc`:
+
+   ```shell-session
+   $ echo "alias docker=podman" >> ~/.zshrc
+   ```
+
+   The alias is not available to scripts that you run.
+
+#### Verification
+
+- Check that the `docker` command runs Podman:
+
+  ```shell-session
+  $ docker --help
+  ```
+
+  The output starts with the Podman description:
+
+  ```
+  Manage pods, containers and images
+  ```
+
+</TabItem>
+<TabItem value="linux" label="Linux" className="markdown">
+
+#### Procedure
+
+1. Create the alias in your current shell:
+
+   ```shell-session
+   $ alias docker=podman
+   ```
+
+1. Optional: To make the alias available in every new shell, add the same line to your shell profile, such as `~/.bashrc`:
+
+   ```shell-session
+   $ echo "alias docker=podman" >> ~/.bashrc
+   ```
+
+   The alias is not available to scripts that you run.
+
+#### Verification
+
+- Check that the `docker` command runs Podman:
+
+  ```shell-session
+  $ docker --help
+  ```
+
+  The output starts with the Podman description:
+
+  ```
+  Manage pods, containers and images
+  ```
+
+</TabItem>
+</Tabs>
+
+## Creating a persistent Docker command
+
+Create a persistent `docker` command when you want your scripts, build tools, and other programs to find it.
+
+<Tabs groupId="operating-systems">
+<TabItem value="win" label="Windows" className="markdown">
+
+#### Procedure
+
+1. Create the `C:\Program Files\docker\bin` directory. If you removed Docker, this directory no longer exists.
+
+   ```shell-session
+   $ New-Item -ItemType Directory -Force -Path 'C:\Program Files\docker\bin'
+   ```
+
+   Writing to `C:\Program Files` and editing the system `PATH` both require administrator permissions, so run PowerShell as an administrator. Alternatively, use a directory in your user profile and add it to your user `PATH`.
+
+1. Create a `C:\Program Files\docker\bin\docker.bat` file with the following content:
+
+   ```batch
+   @echo off
+   REM Delete the next line to stop showing this message.
+   echo Emulate Docker CLI using podman. 1>&2
+   podman %*
+   ```
+
+   The reminder goes to standard error, so that it does not appear in output that your scripts capture.
+
+1. Add `C:\Program Files\docker\bin` to the `PATH` environment variable.
+1. Close all `cmd` and PowerShell windows, then open a new one.
+
+   Programs read the `PATH` variable when they start, so open windows do not pick up the change.
+
+:::note
+
+A batch file is not an executable. This affects how other programs run the `docker` command:
+
+- Programs that start `docker` without a shell cannot run `docker.bat`. Node.js `execFile()` is one example.
+- In a batch script, run `call docker ...` rather than `docker ...`. Without `call`, control does not return to your script.
+
+:::
+
+#### Verification
+
+1. Check that the `docker` command runs Podman:
+
+   ```shell-session
+   $ docker --help
+   ```
+
+   The output starts with the reminder from the `docker.bat` file:
+
+   ```
+   Emulate Docker CLI using podman.
+   ```
+
+   The rest of the output includes the Podman description:
+
+   ```
+   Manage pods, containers and images
+   ```
+
+1. Run a container:
+
+   ```shell-session
+   $ docker run docker.io/hello-world
+   ```
+
+</TabItem>
+<TabItem value="macOS" label="macOS" className="markdown">
+
+#### Procedure
+
+The `/usr/local/bin` directory does not exist on all macOS installations. Create it if needed:
+
+```shell-session
+$ sudo mkdir -p /usr/local/bin
+```
+
+Then perform one of the following steps:
+
+- Link the `podman` executable to `/usr/local/bin/docker`:
+
+  ```shell-session
+  $ sudo ln -s $(command -v podman) /usr/local/bin/docker
+  ```
+
+  This is the shortest option. The Podman installer places the executable in `/opt/podman/bin/podman`, and `command -v` also finds it if you installed Podman another way, such as with Homebrew.
+
+- Create a `/usr/local/bin/docker` script with the following content:
+
+  ```shell
+  #!/bin/sh
+  [ -e /etc/containers/nodocker ] || \
+  echo "Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg." >&2
+  exec podman "$@"
+  ```
+
+  Then make the script executable:
+
+  ```shell-session
+  $ sudo chmod +x /usr/local/bin/docker
+  ```
+
+  The script reminds you that Podman is running the command. To stop the reminder, create an empty `/etc/containers/nodocker` file:
+
+  ```shell-session
+  $ sudo touch /etc/containers/nodocker
+  ```
+
+  The script prints the reminder, not Podman. A symbolic link never prints it, and `/etc/containers/nodocker` has no effect on one.
+
+:::warning
+
+If you reinstall Docker Desktop, it can overwrite or shadow `/usr/local/bin/docker`. Run `command -v docker` to find out which `docker` command your system uses.
+
+:::
+
+#### Verification
+
+1. Check that the `docker` command runs Podman:
+
+   ```shell-session
+   $ docker --help
+   ```
+
+   If you created the wrapper script, the output starts with the `Emulate Docker CLI using podman.` reminder. In both cases, the output includes the Podman description:
+
+   ```
+   Manage pods, containers and images
+   ```
+
+1. Run a container:
+
+   ```shell-session
+   $ docker run docker.io/hello-world
+   ```
+
+</TabItem>
+<TabItem value="linux" label="Linux" className="markdown">
+
+#### Procedure
+
+Perform one of the following steps:
+
+- Install the `podman-docker` package, which provides a `docker` command and the Docker manual pages:
+
+  ```shell-session
+  $ sudo dnf install podman-docker
+  ```
+
+  On Debian and Ubuntu, run `sudo apt install podman-docker`.
+
+  Prefer this option where your distribution provides the package. It installs the same wrapper script as the following options, and your package manager keeps it up to date. The package reminds you that Podman is running the command. To stop the reminder, create an empty `/etc/containers/nodocker` file:
+
+  ```shell-session
+  $ sudo touch /etc/containers/nodocker
+  ```
+
+Use one of the following options if your distribution does not provide the `podman-docker` package. Both options write to `/usr/local/bin`, so create that directory if it does not exist:
+
+```shell-session
+$ sudo mkdir -p /usr/local/bin
+```
+
+- Link the `podman` executable to `/usr/local/bin/docker`:
+
+  ```shell-session
+  $ sudo ln -s $(command -v podman) /usr/local/bin/docker
+  ```
+
+  This is the shortest option.
+
+- Create a `/usr/local/bin/docker` script with the following content:
+
+  ```shell
+  #!/bin/sh
+  [ -e /etc/containers/nodocker ] || \
+  echo "Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg." >&2
+  exec podman "$@"
+  ```
+
+  Then make the script executable:
+
+  ```shell-session
+  $ sudo chmod +x /usr/local/bin/docker
+  ```
+
+  The script reminds you that Podman is running the command. To stop the reminder, create an empty `/etc/containers/nodocker` file:
+
+  ```shell-session
+  $ sudo touch /etc/containers/nodocker
+  ```
+
+  The script prints the reminder, not Podman. A symbolic link never prints it, and `/etc/containers/nodocker` has no effect on one.
+
+#### Verification
+
+1. Check that the `docker` command runs Podman:
+
+   ```shell-session
+   $ docker --help
+   ```
+
+   If you created the wrapper script, the output starts with the `Emulate Docker CLI using podman.` reminder. In both cases, the output includes the Podman description:
+
+   ```
+   Manage pods, containers and images
+   ```
+
+1. Run a container:
+
+   ```shell-session
+   $ docker run docker.io/hello-world
+   ```
+
+</TabItem>
+</Tabs>
+
+Podman supports most Docker commands, but not all of them behave identically. If a command does not work as you expect, see the [Podman documentation](https://docs.podman.io/en/latest/Commands.html).
+
+#### Additional resources
+
+- [Customizing Docker compatibility](/docs/migrating-from-docker/customizing-docker-compatibility)
+- [Managing Docker compatibility](/docs/migrating-from-docker/managing-docker-compatibility)
+- [Using the `DOCKER_HOST` environment variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable)
