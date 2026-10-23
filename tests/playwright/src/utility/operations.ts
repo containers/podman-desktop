@@ -491,6 +491,52 @@ async function waitForPodmanMachineStoppedState(podmanResourceCard: ResourceConn
   });
 }
 
+/**
+ * Waits for a machine's connection status to reach a target state. If the status appears
+ * stuck (still shows a stale value after the initial timeout), navigates to the Dashboard
+ * and back to Settings → Resources to force a UI refresh, then re-checks.
+ * @param page playwright's page object
+ * @param machineName visible name of the Podman machine
+ * @param targetState state the machine connection is expected to reach
+ * @param options timeouts for the first check and for the check after the UI refresh
+ */
+export async function waitForMachineStatus(
+  page: Page,
+  machineName: string,
+  targetState: ResourceElementState,
+  { initialTimeout = 30_000, retryTimeout = 30_000 }: { initialTimeout?: number; retryTimeout?: number } = {},
+): Promise<void> {
+  const RESOURCE_NAME = 'podman';
+  const machineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
+
+  await waitUntil(async () => (await machineCard.resourceElementConnectionStatus.innerText()).includes(targetState), {
+    timeout: initialTimeout,
+    sendError: false,
+  });
+
+  const currentStatus = await machineCard.resourceElementConnectionStatus.innerText();
+  if (currentStatus.includes(targetState)) return;
+
+  console.log(
+    `Machine ${machineName} status is "${currentStatus}" after ${initialTimeout}ms, expected "${targetState}". ` +
+      'Navigating away and back to force UI refresh.',
+  );
+
+  const navigationBar = new NavigationBar(page);
+  await navigationBar.openDashboard();
+  const settingsBar = await navigationBar.openSettings();
+  await settingsBar.resourcesTab.click();
+
+  const resourcesPage = new ResourcesPage(page);
+  await playExpect(resourcesPage.heading).toBeVisible();
+
+  const refreshedCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
+  await waitUntil(async () => (await refreshedCard.resourceElementConnectionStatus.innerText()).includes(targetState), {
+    timeout: retryTimeout,
+    sendError: true,
+  });
+}
+
 export async function getVolumeNameForContainer(page: Page, containerName: string): Promise<string> {
   return test.step('Get volume name for container', async () => {
     let volumeName: string | null;
