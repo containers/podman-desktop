@@ -59,12 +59,20 @@ async function restoreInitialState(page: Page, navigationBar: NavigationBar): Pr
 
   if (changedByThisRun.pulledImage) {
     steps.push(async () => {
-      // A failed assertion can leave the filter set, which would hide the image from deleteImage().
+      // Scope the deletion to the default machine: a leftover filter could hide the image, and another
+      // connection may hold an image with the same name.
       const images = await navigationBar.openImages();
-      if (await images.isEnvironmentFilterVisible()) {
-        await images.clearFilterByEnvironment();
+      const filterVisible = await images.isEnvironmentFilterVisible();
+      if (filterVisible) {
+        await images.filterByEnvironment(defaultMachineDisplayName);
       }
-      await deleteImage(page, environmentFilterImage);
+      try {
+        await deleteImage(page, environmentFilterImage);
+      } finally {
+        if (filterVisible) {
+          await images.clearFilterByEnvironment();
+        }
+      }
     });
   }
   if (changedByThisRun.createdSecondMachine) {
@@ -194,7 +202,8 @@ test.describe
 
       let images = await navigationBar.openImages();
       await playExpect(images.heading).toBeVisible();
-      // Cleanup must never delete an image that was already there before this run.
+      // Cleanup must never delete an image that was already on the default machine before this run.
+      await images.filterByEnvironment(defaultMachineDisplayName);
       changedByThisRun.pulledImage = (await images.getImageRowByName(environmentFilterImage)) === undefined;
       const pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(environmentFilterImage, 'latest', 60_000, defaultMachineVisibleName);
