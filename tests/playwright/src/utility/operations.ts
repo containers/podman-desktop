@@ -395,6 +395,59 @@ export async function handleEditNetworkDialog(
 }
 
 /**
+ * Waits for a Podman machine's connection status to reach a target state on the Settings -> Resources page.
+ * If the status appears stuck (still shows a stale value after the initial timeout), navigates to the Dashboard
+ * and back to Settings -> Resources to force a UI refresh, then re-checks.
+ * @param page playwright's page object
+ * @param machineName Name of the Podman machine (e.g. podman-machine-default)
+ * @param targetState State the machine connection is expected to reach
+ * @param options initialTimeout before forcing a UI refresh, retryTimeout after the refresh (both in ms)
+ */
+export async function waitForMachineStatus(
+  page: Page,
+  machineName: string,
+  targetState: ResourceElementState,
+  { initialTimeout = 30_000, retryTimeout = 30_000 }: { initialTimeout?: number; retryTimeout?: number } = {},
+): Promise<void> {
+  const RESOURCE_NAME: string = 'podman';
+  const machineCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
+  // A missing card is treated as a pending state, innerText() would otherwise reject and skip the refresh below.
+  const readStatus = async (card: ResourceConnectionCardPage): Promise<string> => {
+    if ((await card.resourceElementConnectionStatus.count()) === 0) return '';
+    return card.resourceElementConnectionStatus.innerText();
+  };
+  const hasTargetState = async (card: ResourceConnectionCardPage): Promise<boolean> =>
+    (await readStatus(card)).includes(targetState);
+
+  await waitUntil(() => hasTargetState(machineCard), {
+    timeout: initialTimeout,
+    sendError: false,
+  });
+
+  const currentStatus = await readStatus(machineCard);
+  if (currentStatus.includes(targetState)) return;
+
+  console.log(
+    `Machine ${machineName} status is "${currentStatus}" after ${initialTimeout}ms, expected "${targetState}". ` +
+      'Navigating away and back to force UI refresh.',
+  );
+
+  const navigationBar = new NavigationBar(page);
+  await navigationBar.openDashboard();
+  const settingsBar = await navigationBar.openSettings();
+  await settingsBar.resourcesTab.click();
+
+  const resourcesPage = new ResourcesPage(page);
+  await playExpect(resourcesPage.heading).toBeVisible();
+
+  const refreshedCard = new ResourceConnectionCardPage(page, RESOURCE_NAME, machineName);
+  await waitUntil(() => hasTargetState(refreshedCard), {
+    timeout: retryTimeout,
+    sendError: true,
+  });
+}
+
+/**
  * Async function that stops and deletes Podman Machine through Settings -> Resources page
  * @param page playwright's page object
  * @param machineVisibleName Name of the Podman Machine to delete
