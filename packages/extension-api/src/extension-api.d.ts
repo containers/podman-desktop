@@ -4615,7 +4615,12 @@ declare module '@podman-desktop/api' {
     cwd?: string;
 
     /**
-     * admin privileges required
+     * admin privileges required.
+     *
+     * On Windows, the command and each argument are passed as discrete, individually escaped
+     * tokens to the elevated process. Shell operators supplied as separate arguments (for
+     * example `&&` or `|`) are quoted and no longer interpreted as operators, and an argument
+     * containing an inner double quote is rejected.
      */
     isAdmin?: boolean;
 

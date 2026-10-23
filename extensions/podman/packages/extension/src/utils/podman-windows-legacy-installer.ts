@@ -26,6 +26,7 @@ import {
   window,
 } from '@podman-desktop/api';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
+import { parseArgsStringToArgv } from 'string-argv';
 import type { Registry } from 'winreg';
 import WinReg from 'winreg';
 
@@ -96,9 +97,13 @@ export class PodmanWindowsLegacyInstaller implements Disposable {
           const uninstallString = await this.getUninstallCMD();
 
           /**
-           * We cannot directly invoke the uninstallation command as it need a shell
+           * The QuietUninstallString is a full command line (`"<exe>" <args>`). We parse it
+           * into the executable and its arguments and invoke it directly instead of going
+           * through `cmd.exe`, so every token is passed as a discrete, individually escaped
+           * argument rather than relying on shell quoting.
            */
-          await processAPI.exec('cmd.exe', ['/s', '/c', `"${uninstallString}"`], {
+          const [executable, args] = this.parseUninstallCommand(uninstallString);
+          await processAPI.exec(executable, args, {
             logger: {
               error: console.error,
               log: console.log,
@@ -116,6 +121,23 @@ export class PodmanWindowsLegacyInstaller implements Disposable {
         }
       },
     );
+  }
+
+  /**
+   * Split a registry `QuietUninstallString` into its executable and arguments.
+   *
+   * A WiX Burn bundle always writes it as a quoted executable path (it usually contains spaces)
+   * followed by whitespace-separated flags, e.g. `"<path to exe>" <flag> <flag>...`. We use the
+   * `string-argv` tokenizer rather than a hand-written parser.
+   *
+   * @throws if no executable can be extracted (empty or whitespace-only command line).
+   */
+  protected parseUninstallCommand(uninstallString: string): [executable: string, args: string[]] {
+    const [executable, ...args] = parseArgsStringToArgv(uninstallString);
+    if (executable === undefined) {
+      throw new Error('malformed uninstall command: empty command line');
+    }
+    return [executable, args];
   }
 
   /**

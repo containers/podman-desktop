@@ -31,6 +31,13 @@ import { isLinux, isMac, isWindows } from '/@/util.js';
 
 import { Exec, getInstallationPath, macosExtraPath } from './exec.js';
 
+// Widens the protected escapeWindowsAdminArg to public so it can be unit-tested directly.
+class TestExec extends Exec {
+  public override escapeWindowsAdminArg(value: string): string {
+    return super.escapeWindowsAdminArg(value);
+  }
+}
+
 // Mock sudo-prompt exec to resolve everytime.
 vi.mock(import('@expo/sudo-prompt'));
 vi.mock(import('/@/util.js'));
@@ -448,7 +455,9 @@ describe('exec', () => {
 
     // caller should not have called spawn but the sudo.exec api
     expect(spawnMock).not.toHaveBeenCalled();
-    expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
+    // args must be individually escaped (CWE-78 fix) rather than naively joined;
+    // 'echo' has no characters that need quoting, so it is left unchanged
+    expect(sudo.exec).toBeCalledWith('echo "Hello, World!"', expect.anything(), expect.anything());
   });
 
   test('should run the command with privileges on Windows and remove unsupported environment', async () => {
@@ -487,10 +496,90 @@ describe('exec', () => {
 
     // caller should not have called spawn but the sudo.exec api
     expect(spawnMock).not.toHaveBeenCalled();
-    expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
+    expect(sudo.exec).toBeCalledWith('echo "Hello, World!"', expect.anything(), expect.anything());
     expect(options).toBeDefined();
     expect(options?.env).toBeDefined();
     expect(options?.env?.['MY(VAR']).not.toBeDefined();
+  });
+
+  test.each([
+    {
+      description: 'should neutralize cmd.exe metacharacters in an admin arg on Windows (CWE-78)',
+      // simulates an attacker-controlled USERPROFILE-derived path containing a command separator;
+      // the injected "& calc.exe &" segment must stay inside the quoted argument, not be split out
+      // as a sibling command by cmd.exe's parser; 'del' itself has no characters that need quoting
+      command: 'del',
+      args: ['C:\\Users\\victim & calc.exe &\\AppData\\Local\\Microsoft\\WindowsApps\\kind.exe'],
+      expectedSudoCommand: 'del "C:\\Users\\victim & calc.exe &\\AppData\\Local\\Microsoft\\WindowsApps\\kind.exe"',
+    },
+    {
+      description: 'should double percent signs in an admin arg on Windows to prevent batch variable expansion',
+      command: 'del',
+      args: ['C:\\Users\\%COMPUTERNAME%\\kind.exe'],
+      expectedSudoCommand: 'del "C:\\Users\\%%COMPUTERNAME%%\\kind.exe"',
+    },
+    {
+      description: 'should pass through a pre-quoted admin arg on Windows (API backward compatibility)',
+      // extensions historically pre-quoted paths containing spaces before exec({ isAdmin });
+      // the already-quoted token is handed through unchanged, not rejected or double-quoted
+      command: 'copy',
+      args: ['test', '"C:\\Program Files\\Podman\\kind.exe"'],
+      expectedSudoCommand: 'copy test "C:\\Program Files\\Podman\\kind.exe"',
+    },
+    {
+      description: 'should quote an admin command containing spaces on Windows',
+      // the legacy uninstaller passes a raw exe path (e.g. under "Program Files") as the command;
+      // the command token itself is quoted, not just the args
+      command: 'C:\\Program Files\\Podman\\podman-setup.exe',
+      args: ['/uninstall', '/quiet'],
+      expectedSudoCommand: '"C:\\Program Files\\Podman\\podman-setup.exe" /uninstall /quiet',
+    },
+    {
+      description: 'should pass through a pre-quoted admin command on Windows (API backward compatibility)',
+      // the already-quoted command is handed through unchanged, not double-quoted
+      command: '"C:\\Program Files\\Podman\\podman-setup.exe"',
+      args: [] as string[],
+      expectedSudoCommand: '"C:\\Program Files\\Podman\\podman-setup.exe"',
+    },
+  ])('$description', async ({ command, args, expectedSudoCommand }) => {
+    vi.mocked(isWindows).mockReturnValue(true);
+
+    vi.mocked(sudo.exec).mockImplementation((_command, _options, callback) => {
+      callback?.(undefined);
+    });
+
+    await exec.exec(command, args, { isAdmin: true });
+
+    expect(sudo.exec).toBeCalledWith(expectedSudoCommand, expect.anything(), expect.anything());
+  });
+
+  test('should reject an admin arg containing a double quote on Windows with a RunError-shaped rejection', async () => {
+    const command = 'del';
+    const args = ['C:\\Users\\victim"\\kind.exe'];
+    vi.mocked(isWindows).mockReturnValue(true);
+
+    const execResult = exec.exec(command, args, { isAdmin: true });
+
+    await expect(execResult).rejects.toThrowError(/double quotes are not allowed/);
+    // the rejection must carry the same RunError shape as every other failure
+    // path in this file, not a bare Error from escapeWindowsAdminArg
+    await expect(execResult).rejects.toMatchObject({
+      exitCode: 1,
+      stdout: '',
+      stderr: '',
+      cancelled: false,
+      killed: false,
+    });
+    expect(sudo.exec).not.toHaveBeenCalled();
+  });
+
+  test('should reject an admin arg containing a line break on Windows', async () => {
+    const command = 'del';
+    const args = ['C:\\Users\\victim\nkind.exe'];
+    vi.mocked(isWindows).mockReturnValue(true);
+
+    await expect(exec.exec(command, args, { isAdmin: true })).rejects.toThrowError(/line breaks are not allowed/);
+    expect(sudo.exec).not.toHaveBeenCalled();
   });
 
   function mockDetachedProcess(event: string, eventArg: unknown): { spawnMock: Mock; unrefMock: Mock } {
@@ -629,6 +718,83 @@ describe('exec', () => {
     await expect(exec.exec(command)).rejects.toThrowError(
       'Command execution failed with exit code 1: permission denied',
     );
+  });
+});
+
+describe('escapeWindowsAdminArg', () => {
+  let testExec: TestExec;
+
+  beforeEach(() => {
+    testExec = new TestExec({ isEnabled: vi.fn().mockReturnValue(false) } as unknown as Proxy);
+  });
+
+  test.each([
+    { description: 'a Windows built-in command', input: 'del', expected: 'del' },
+    { description: 'a Windows built-in command', input: 'copy', expected: 'copy' },
+    {
+      description: 'a benign value containing spaces, wrapped in double quotes',
+      input: 'C:\\Program Files\\Podman\\kind.exe',
+      expected: '"C:\\Program Files\\Podman\\kind.exe"',
+    },
+    {
+      description: 'cmd.exe metacharacters, kept literal inside the quotes',
+      input: 'a & b | c',
+      expected: '"a & b | c"',
+    },
+    {
+      description: 'a percent sign, doubled to avoid batch variable expansion',
+      input: 'C:\\Users\\%COMPUTERNAME%',
+      expected: '"C:\\Users\\%%COMPUTERNAME%%"',
+    },
+    {
+      description: 'a plus sign (copy concatenation metacharacter)',
+      input: 'C:\\tmp\\a+b.exe',
+      expected: '"C:\\tmp\\a+b.exe"',
+    },
+    {
+      description: 'an equals sign (cmd token separator)',
+      input: 'C:\\tmp\\a=b.exe',
+      expected: '"C:\\tmp\\a=b.exe"',
+    },
+    {
+      description: 'an already-quoted token with no inner quotes (backward compatibility)',
+      input: '"C:\\Program Files\\Podman\\kind.exe"',
+      expected: '"C:\\Program Files\\Podman\\kind.exe"',
+    },
+    {
+      description: 'an already-quoted token, still doubling % inside it',
+      input: '"C:\\Users\\%COMPUTERNAME%"',
+      expected: '"C:\\Users\\%%COMPUTERNAME%%"',
+    },
+    {
+      // `C:\dir with space\` must not become `"C:\dir with space\"` (that escapes the quote
+      // for CommandLineToArgvW); the trailing backslash is doubled instead.
+      description: 'a single trailing backslash, doubled so the closing quote stays literal',
+      input: 'C:\\dir with space\\',
+      expected: '"C:\\dir with space\\\\"',
+    },
+    {
+      description: 'a run of trailing backslashes, all doubled',
+      input: 'C:\\dir with space\\\\',
+      expected: '"C:\\dir with space\\\\\\\\"',
+    },
+  ])('should handle $description', ({ input, expected }) => {
+    expect(testExec.escapeWindowsAdminArg(input)).toBe(expected);
+  });
+
+  test.each([
+    {
+      description: 'embedded double quotes',
+      input: 'C:\\Users\\"victim"',
+      expectedError: /double quotes are not allowed/,
+    },
+    {
+      description: 'embedded line breaks',
+      input: 'C:\\Users\\victim\r\nkind.exe',
+      expectedError: /line breaks are not allowed/,
+    },
+  ])('should throw on $description', ({ input, expectedError }) => {
+    expect(() => testExec.escapeWindowsAdminArg(input)).toThrowError(expectedError);
   });
 });
 

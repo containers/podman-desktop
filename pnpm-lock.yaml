@@ -630,6 +630,9 @@ importers:
       ssh2:
         specifier: ^1.17.0
         version: 1.17.0
+      string-argv:
+        specifier: ^0.3.2
+        version: 0.3.2
       winreg:
         specifier: ^1.2.5
         version: 1.2.5
