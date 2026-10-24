@@ -551,7 +551,7 @@ async function searchFunction(value: string): Promise<void> {
       <div class="w-full flex flex-col justify-end">
         <ButtonRow>
           {#if !pullFinished}
-            {#if !pullInProgress}
+            {#if !pullRunning}
               <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
             {/if}
             <Button
@@ -561,8 +561,9 @@ async function searchFunction(value: string): Promise<void> {
               inProgress={pullInProgress}>
               {pullInProgress ? 'Pulling image' : 'Pull image'}
             </Button>
-            {#if pullInProgress}
-              <Button icon={faBan} disabled={!pullInProgress} on:click={cancelPullImage} type="secondary">Cancel</Button>
+            {#if pullRunning}
+              <!-- only the engine pull can be cancelled, waiting for the images store cannot -->
+              <Button icon={faBan} on:click={cancelPullImage} type="secondary">Cancel</Button>
             {/if}
           {:else}
             <Button type='link' on:click={pullImageFinished}>Close</Button>

@@ -502,6 +502,26 @@ test('Expect the pull to stay in progress while the images store does not hold t
   await vi.waitFor(() => expect(screen.queryByText('Pulling image')).not.toBeInTheDocument());
 });
 
+test('Expect to close instead of cancel while only the images store is awaited', async () => {
+  const pendingPull = Promise.withResolvers<void>();
+  vi.mocked(window.pullImage).mockReturnValue(pendingPull.promise);
+
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+
+  // the engine is pulling, it holds a cancellation token and the footer close is hidden
+  expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  const closeButtonsWhilePulling = screen.getAllByRole('button', { name: 'Close' }).length;
+
+  pendingPull.resolve();
+
+  // nothing left to cancel once the token is cleared, but the page must still offer a way out
+  await vi.waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument());
+  expect(screen.getByText('Pulling image')).toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(closeButtonsWhilePulling);
+});
+
 test('input component should not raise an error when the input is valid', async () => {
   const pullImage = render(PullImage);
 
