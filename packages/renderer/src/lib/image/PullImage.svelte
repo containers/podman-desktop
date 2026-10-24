@@ -517,7 +517,11 @@ async function searchFunction(value: string): Promise<void> {
         {/if}
       </div>
       {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
-        <Checkbox class="pt-2" bind:checked={usePodmanFQN} title="Use Podman FQN" disabled={podmanFQN === ''}
+        <Checkbox
+          class="pt-2"
+          bind:checked={usePodmanFQN}
+          title="Use Podman FQN"
+          disabled={podmanFQN === '' || pullFinished || pullInProgress}
           >Use Podman FQN for shortname image</Checkbox>
       {/if}
       {#if imageNameInvalid}
@@ -535,7 +539,8 @@ async function searchFunction(value: string): Promise<void> {
             id="providerChoice"
             name="providerChoice"
             bind:value={selectedProviderConnection}
-            connections={providerConnections}/>
+            connections={providerConnections}
+            disabled={pullFinished || pullInProgress}/>
         </div>
       {/if}
       {#if providerConnections.length === 1}

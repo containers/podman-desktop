@@ -603,6 +603,31 @@ describe('container connections', () => {
     expect(dropdown).toHaveTextContent(MULTI_CONNECTIONS.containerConnections[0].name);
   });
 
+  test('the dropdown should be disabled from the start of the pull so that the engine cannot change', async () => {
+    providerInfos.set([MULTI_CONNECTIONS]);
+    const pendingPull = Promise.withResolvers<void>();
+    vi.mocked(window.pullImage).mockReturnValue(pendingPull.promise);
+
+    render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+    const dropdown = screen.getByRole('button', { name: 'Container Engine' });
+    expect(dropdown).toBeEnabled();
+
+    await userEvent.click(screen.getByRole('button', { name: buttonText }));
+    expect(dropdown).toBeDisabled();
+
+    // still disabled while the images store catches up, and once it did
+    pendingPull.resolve();
+    await vi.waitFor(() => expect(screen.getByText('Pulling image')).toBeInTheDocument());
+    expect(dropdown).toBeDisabled();
+
+    imagesInfos.set([
+      { ...ALPINE_IMAGE, engineId: `${MULTI_CONNECTIONS.id}.${MULTI_CONNECTIONS.containerConnections[0].name}` },
+    ]);
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
+    expect(dropdown).toBeDisabled();
+  });
+
   test('selecting a provider should update the dropdown button', { timeout: 10_000 }, async () => {
     // set multiple connections
     const connectionTarget = MULTI_CONNECTIONS.containerConnections[3];
