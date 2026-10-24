@@ -18,6 +18,7 @@ import Typeahead from '/@/lib/ui/Typeahead.svelte';
 import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
 import { handleNavigation } from '/@/navigation';
 import { lastPage } from '/@/stores/breadcrumb';
+import { imagesInfos } from '/@/stores/images';
 import { providerInfos } from '/@/stores/providers';
 
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -32,8 +33,8 @@ const imageUtils = new ImageUtils();
 
 let logsPull = $state<Terminal>();
 let pullError = $state('');
-let pullInProgress = $state(false);
-let pullFinished = $state(false);
+let pullRunning = $state(false);
+let pullCompleted = $state(false);
 let pullCancellableTokenId = $state<number | undefined>();
 let pullCancellationRequested = $state(false);
 let shortnameImages: string[] = [];
@@ -57,6 +58,37 @@ let providerConnections = $derived(
 );
 
 let selectedProviderConnection = $state<ProviderContainerConnectionInfo>();
+
+// the engine id is not carried by the connection, it is built from the provider owning it
+let selectedEngineId = $derived(
+  $providerInfos
+    .flatMap(provider =>
+      provider.containerConnections.map(connection => ({ connection, engineId: `${provider.id}.${connection.name}` })),
+    )
+    .find(
+      ({ connection }) =>
+        connection.name === selectedProviderConnection?.name &&
+        connection.endpoint.socketPath === selectedProviderConnection?.endpoint.socketPath,
+    )?.engineId,
+);
+
+let isImageInStore = $derived.by(() => {
+  const target = getPullTarget();
+  if (!target || !selectedEngineId) {
+    return false;
+  }
+
+  return $imagesInfos.some(
+    image => image.engineId === selectedEngineId && (image.RepoTags ?? []).some(repoTag => repoTag.includes(target)),
+  );
+});
+
+// the image gets into the store asynchronously and before running the pulled image, it has to be in the images store
+// so we defined that pull is finished when the pull is completed and the image is in the store
+let pullFinished = $derived(pullCompleted && isImageInStore);
+
+// pull is still in progress if it is running or if it is completed but not finished yet
+let pullInProgress = $derived(pullRunning || (pullCompleted && !pullFinished));
 
 const lineNumberPerId = new SvelteMap<string, number>();
 let lineIndex = 0;
@@ -152,7 +184,7 @@ async function pullImage(): Promise<void> {
   // reset error
   pullError = '';
 
-  pullInProgress = true;
+  pullRunning = true;
   try {
     pullCancellationRequested = false;
     pullCancellableTokenId = await window.getCancellableTokenSource();
@@ -182,7 +214,7 @@ async function pullImage(): Promise<void> {
         pullCancellableTokenId,
       );
     }
-    pullFinished = true;
+    pullCompleted = true;
   } catch (error: unknown) {
     const errorMessage =
       error && typeof error === 'object' && 'message' in error && error.message ? error.message : error;
@@ -197,13 +229,23 @@ async function pullImage(): Promise<void> {
     }
   } finally {
     pullCancellableTokenId = undefined;
-    pullInProgress = false;
+    pullRunning = false;
     pullCancellationRequested = false;
   }
 }
 
 async function pullImageFinished(): Promise<void> {
   router.goto('/images');
+}
+
+function getDockerLibraryImage(): string | undefined {
+  return imageToPull?.startsWith('docker.io/') && imageToPull.split('/').length === 2
+    ? `${imageToPull.split('/')[0]}/library/${imageToPull.split('/')[1]}`
+    : undefined;
+}
+
+function getPullTarget(): string | undefined {
+  return usePodmanFQN && podmanFQN ? podmanFQN : (getDockerLibraryImage() ?? imageToPull);
 }
 
 async function getFirstPulledImageInfo(): Promise<ImageInfoUI | undefined> {
@@ -481,7 +523,11 @@ async function searchFunction(value: string): Promise<void> {
         {/if}
       </div>
       {#if selectedProviderConnection?.type === 'podman' && podmanFQN}
-        <Checkbox class="pt-2" bind:checked={usePodmanFQN} title="Use Podman FQN" disabled={podmanFQN === ''}
+        <Checkbox
+          class="pt-2"
+          bind:checked={usePodmanFQN}
+          title="Use Podman FQN"
+          disabled={podmanFQN === '' || pullFinished || pullInProgress}
           >Use Podman FQN for shortname image</Checkbox>
       {/if}
       {#if imageNameInvalid}
@@ -499,7 +545,8 @@ async function searchFunction(value: string): Promise<void> {
             id="providerChoice"
             name="providerChoice"
             bind:value={selectedProviderConnection}
-            connections={providerConnections}/>
+            connections={providerConnections}
+            disabled={pullFinished || pullInProgress}/>
         </div>
       {/if}
       {#if providerConnections.length === 1}
@@ -510,7 +557,7 @@ async function searchFunction(value: string): Promise<void> {
       <div class="w-full flex flex-col justify-end">
         <ButtonRow>
           {#if !pullFinished}
-            {#if !pullInProgress}
+            {#if !pullRunning}
               <Button type="link" on:click={(): void => router.goto($lastPage.path)}>Close</Button>
             {/if}
             <Button
@@ -520,8 +567,9 @@ async function searchFunction(value: string): Promise<void> {
               inProgress={pullInProgress}>
               {pullInProgress ? 'Pulling image' : 'Pull image'}
             </Button>
-            {#if pullInProgress}
-              <Button icon={faBan} disabled={!pullInProgress} on:click={cancelPullImage} type="secondary">Cancel</Button>
+            {#if pullRunning}
+              <!-- only the engine pull can be cancelled, waiting for the images store cannot -->
+              <Button icon={faBan} on:click={cancelPullImage} type="secondary">Cancel</Button>
             {/if}
           {:else}
             <Button type='link' on:click={pullImageFinished}>Close</Button>

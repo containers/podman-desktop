@@ -30,6 +30,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { handleNavigation } from '/@/navigation';
 import { lastPage } from '/@/stores/breadcrumb';
+import { imagesInfos } from '/@/stores/images';
 import { providerInfos } from '/@/stores/providers';
 import { recommendedRegistries } from '/@/stores/recommendedRegistries';
 
@@ -67,6 +68,18 @@ const PROVIDER_INFO_MOCK: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
 } as unknown as ProviderInfo;
 
+// the engine id the page rebuilds for the selected connection, as the backend does
+const ENGINE_ID = `${PROVIDER_INFO_MOCK.id}.${CONTAINER_CONNECTION_MOCK.name}`;
+
+const ALPINE_IMAGE = {
+  Id: 'sha256:1234567890123',
+  RepoTags: ['docker.io/library/alpine:latest'],
+  Created: 1644009612,
+  Size: 123,
+  engineId: ENGINE_ID,
+  engineName: 'podman',
+} as unknown as ImageInfo;
+
 const originalConsoleError = console.error;
 const originalConsoleDebug = console.debug;
 
@@ -95,6 +108,7 @@ beforeEach(() => {
   vi.mocked(window.listImages).mockResolvedValue([]);
   vi.mocked(window.searchImageInRegistry).mockResolvedValue([]);
 
+  imagesInfos.set([]);
   providerInfos.set([PROVIDER_INFO_MOCK]);
 });
 
@@ -390,6 +404,8 @@ test('Expect latest tag warning is not displayed when the image has latest tag',
 });
 
 test('Expect done, details and run actions after a successful pull', async () => {
+  // the actions are only offered once the images store holds the pulled image
+  imagesInfos.set([{ ...ALPINE_IMAGE, RepoTags: ['some-valid-image:latest'] }]);
   render(PullImage, { imageToPull: 'some-valid-image' });
 
   const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
@@ -403,16 +419,8 @@ test('Expect done, details and run actions after a successful pull', async () =>
 
 test('Expect details action to open pulled image summary route', async () => {
   const gotoSpy = vi.spyOn(router, 'goto');
-  vi.mocked(window.listImages).mockResolvedValue([
-    {
-      Id: 'sha256:1234567890123',
-      RepoTags: ['docker.io/library/alpine:latest'],
-      Created: 1644009612,
-      Size: 123,
-      engineId: 'podman',
-      engineName: 'podman',
-    } as never,
-  ]);
+  vi.mocked(window.listImages).mockResolvedValue([ALPINE_IMAGE]);
+  imagesInfos.set([ALPINE_IMAGE]);
   render(PullImage, { imageToPull: 'docker.io/alpine' });
 
   const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
@@ -425,21 +433,14 @@ test('Expect details action to open pulled image summary route', async () => {
       provider: CONTAINER_CONNECTION_MOCK,
     });
     expect(gotoSpy).toHaveBeenLastCalledWith(
-      '/images/sha256:1234567890123/podman/ZG9ja2VyLmlvL2xpYnJhcnkvYWxwaW5lOmxhdGVzdA==/summary',
+      `/images/${ALPINE_IMAGE.Id}/${ALPINE_IMAGE.engineId}/ZG9ja2VyLmlvL2xpYnJhcnkvYWxwaW5lOmxhdGVzdA==/summary`,
     );
   });
 });
 
 test('Expect run action to set image info and go to run page', async () => {
-  const image = {
-    Id: 'sha256:1234567890123',
-    RepoTags: ['docker.io/library/alpine:latest'],
-    Created: 1644009612,
-    Size: 123,
-    engineId: 'podman',
-    engineName: 'podman',
-  } as unknown as ImageInfo;
-  vi.mocked(window.listImages).mockResolvedValue([image]);
+  vi.mocked(window.listImages).mockResolvedValue([ALPINE_IMAGE]);
+  imagesInfos.set([ALPINE_IMAGE]);
   render(PullImage, { imageToPull: 'docker.io/alpine' });
 
   const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
@@ -451,12 +452,77 @@ test('Expect run action to set image info and go to run page', async () => {
     expect(handleNavigation).toHaveBeenCalledWith({
       page: NavigationPage.IMAGE_RUN,
       parameters: {
-        tag: image.RepoTags?.[0],
-        engineId: image.engineId,
-        id: image.Id,
+        tag: ALPINE_IMAGE.RepoTags?.[0],
+        engineId: ALPINE_IMAGE.engineId,
+        id: ALPINE_IMAGE.Id,
       },
     });
   });
+});
+
+test('Expect no run action while the images store does not hold the pulled image yet', async () => {
+  // the debounced listener has not refreshed the store with the pulled image yet
+  imagesInfos.set([]);
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+  expect(window.pullImage).toHaveBeenCalled();
+
+  expect(screen.queryByRole('button', { name: 'Run' })).not.toBeInTheDocument();
+});
+
+test('Expect the run action once the images store holds the pulled image', async () => {
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+
+  imagesInfos.set([ALPINE_IMAGE]);
+
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
+});
+
+test('Expect no run action when the pulled image belongs to another engine', async () => {
+  const otherEngineImage: ImageInfo = { ...ALPINE_IMAGE, engineId: 'another-engine' };
+  imagesInfos.set([otherEngineImage]);
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+  expect(window.pullImage).toHaveBeenCalled();
+
+  expect(screen.queryByRole('button', { name: 'Run' })).not.toBeInTheDocument();
+});
+
+test('Expect the pull to stay in progress while the images store does not hold the pulled image', async () => {
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+
+  // the pull must not be offered again while the store catches up
+  expect(screen.getByText('Pulling image')).toBeInTheDocument();
+
+  imagesInfos.set([ALPINE_IMAGE]);
+
+  await vi.waitFor(() => expect(screen.queryByText('Pulling image')).not.toBeInTheDocument());
+});
+
+test('Expect to close instead of cancel while only the images store is awaited', async () => {
+  const pendingPull = Promise.withResolvers<void>();
+  vi.mocked(window.pullImage).mockReturnValue(pendingPull.promise);
+
+  render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+  await userEvent.click(screen.getByRole('button', { name: buttonText }));
+
+  // the engine is pulling, it holds a cancellation token and the footer close is hidden
+  expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  const closeButtonsWhilePulling = screen.getAllByRole('button', { name: 'Close' }).length;
+
+  pendingPull.resolve();
+
+  // nothing left to cancel once the token is cleared, but the page must still offer a way out
+  await vi.waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument());
+  expect(screen.getByText('Pulling image')).toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(closeButtonsWhilePulling);
 });
 
 test('input component should not raise an error when the input is valid', async () => {
@@ -558,6 +624,31 @@ describe('container connections', () => {
     expect(dropdown).toBeEnabled();
     // default to the first one
     expect(dropdown).toHaveTextContent(MULTI_CONNECTIONS.containerConnections[0].name);
+  });
+
+  test('the dropdown should be disabled from the start of the pull so that the engine cannot change', async () => {
+    providerInfos.set([MULTI_CONNECTIONS]);
+    const pendingPull = Promise.withResolvers<void>();
+    vi.mocked(window.pullImage).mockReturnValue(pendingPull.promise);
+
+    render(PullImage, { imageToPull: 'docker.io/alpine' });
+
+    const dropdown = screen.getByRole('button', { name: 'Container Engine' });
+    expect(dropdown).toBeEnabled();
+
+    await userEvent.click(screen.getByRole('button', { name: buttonText }));
+    expect(dropdown).toBeDisabled();
+
+    // still disabled while the images store catches up, and once it did
+    pendingPull.resolve();
+    await vi.waitFor(() => expect(screen.getByText('Pulling image')).toBeInTheDocument());
+    expect(dropdown).toBeDisabled();
+
+    imagesInfos.set([
+      { ...ALPINE_IMAGE, engineId: `${MULTI_CONNECTIONS.id}.${MULTI_CONNECTIONS.containerConnections[0].name}` },
+    ]);
+    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
+    expect(dropdown).toBeDisabled();
   });
 
   test('selecting a provider should update the dropdown button', { timeout: 10_000 }, async () => {
